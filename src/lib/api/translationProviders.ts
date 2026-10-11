@@ -29,18 +29,40 @@ const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 const GOOGLE_TRANSLATE_URL =
   "https://translation.googleapis.com/language/translate/v2";
 
-const LANG_MAP_DEEPL: Record<string, string> = { ko: "KO", en: "EN" };
-const LANG_MAP_GOOGLE: Record<string, string> = { ko: "ko", en: "en" };
+/**
+ * 번역할 수 있는 언어 — 공급자마다 부르는 이름. 사이트 콘텐츠(글 · 작업물 · 댓글)는 ko · en 만 쓰고,
+ * 나머지는 About 의 번역 데모에서 고를 수 있게 둔 것이다. 원문 언어 "auto" 는 공급자가 알아서 가려낸다
+ * (DeepL · Google 은 원문 언어를 빼고 보내고, Gemini · Claude 는 프롬프트에서 가려내라고 한다).
+ * 상세 화면 "다른 언어로 읽기"의 나머지 언어(zh-Hans · pt-BR …)는 lib/translationLanguages 의 목록에서 찾는다.
+ */
+export const TRANSLATE_LANGS = {
+  ko: { deepl: "KO", google: "ko", name: "Korean" },
+  en: { deepl: "EN", google: "en", name: "English" },
+  ja: { deepl: "JA", google: "ja", name: "Japanese" },
+  zh: { deepl: "ZH", google: "zh-CN", name: "Simplified Chinese" },
+  es: { deepl: "ES", google: "es", name: "Spanish" },
+  fr: { deepl: "FR", google: "fr", name: "French" },
+  de: { deepl: "DE", google: "de", name: "German" },
+} as const;
+export type TranslateLang = keyof typeof TRANSLATE_LANGS;
+export const AUTO_SOURCE = "auto";
 
-/* ko · en 은 위 표 그대로(기존 동작), 그 밖의 언어는 lib/translationLanguages 의 목록에서 찾는다 */
-export const deeplLang = (lang: string): string | undefined => LANG_MAP_DEEPL[lang] ?? findTranslationLanguage(lang)?.deepl;
-export const googleLang = (lang: string): string | undefined => LANG_MAP_GOOGLE[lang] ?? findTranslationLanguage(lang)?.google;
-/** 프롬프트(Gemini · Claude)에 쓰는 언어 이름 — ko/en 이 아닌데 목록에도 없으면 예전처럼 English */
-export function promptLangName(lang: string): string {
-  if (lang === "ko") return "Korean";
-  if (lang === "en") return "English";
-  return findTranslationLanguage(lang)?.name ?? "English";
-}
+interface LangNames { deepl: string; google: string; name: string }
+
+/** 데모 표(TRANSLATE_LANGS) 먼저, 없으면 "다른 언어로 읽기" 목록 — 둘 다 없으면 undefined */
+const findLang = (code: string): LangNames | undefined =>
+  (Object.hasOwn(TRANSLATE_LANGS, code) ? TRANSLATE_LANGS[code as TranslateLang] : undefined) ?? findTranslationLanguage(code);
+/** 모르는 언어는 데모 쪽 예전 동작처럼 English */
+const langInfo = (code: string): LangNames => findLang(code) ?? TRANSLATE_LANGS.en;
+
+export const deeplLang = (lang: string): string | undefined => findLang(lang)?.deepl;
+export const googleLang = (lang: string): string | undefined => findLang(lang)?.google;
+/** 프롬프트(Gemini · Claude)에 쓰는 언어 이름 — 목록에 없으면 예전처럼 English */
+export const promptLangName = (lang: string): string => langInfo(lang).name;
+
+/** 프롬프트의 "from X to Y" — 원문이 auto 면 가려내라고 한다 */
+const promptDirection = (sourceLang: string, targetLang: string) =>
+  sourceLang === AUTO_SOURCE ? `(detect the source language) to ${promptLangName(targetLang)}` : `from ${promptLangName(sourceLang)} to ${promptLangName(targetLang)}`;
 
 /** 번역 호출의 덧붙임 — html: 원문이 HTML 이다(DeepL tag_handling · Google format 을 HTML 로) */
 export interface TranslateOptions {
@@ -84,14 +106,11 @@ async function translateBatchWithGemini(
   const apiKey = await getSecret("GEMINI_API_KEY");
   if (!apiKey) throw missingKey("gemini", "GEMINI_API_KEY");
 
-  const sourceName = promptLangName(sourceLang);
-  const targetName = promptLangName(targetLang);
-
   // 입력을 { id: text } JSON object 로 보내고, 동일한 키 형태로 응답 받음 → 누락 id 자동 식별
   const inputObj: Record<string, string> = {};
   for (const it of items) inputObj[it.id] = it.text;
 
-  const prompt = `Translate the following ${items.length} text(s) from ${sourceName} to ${targetName}.
+  const prompt = `Translate the following ${items.length} text(s) ${promptDirection(sourceLang, targetLang)}.
 
 Rules:
 - Input is a JSON object whose keys are stable IDs and values are the texts to translate.
@@ -145,8 +164,8 @@ async function translateBatchWithGoogle(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       q: items.map((it) => it.text),
-      source: googleLang(sourceLang),
-      target: googleLang(targetLang),
+      ...(sourceLang === AUTO_SOURCE ? {} : { source: googleLang(sourceLang) }),
+      target: langInfo(targetLang).google,
       format: options.html ? "html" : "text",
     }),
   });
@@ -176,8 +195,8 @@ async function translateBatchWithDeepL(
     },
     body: JSON.stringify({
       text: items.map((it) => it.text),
-      source_lang: deeplLang(sourceLang),
-      target_lang: deeplLang(targetLang),
+      ...(sourceLang === AUTO_SOURCE ? {} : { source_lang: deeplLang(sourceLang) }),
+      target_lang: langInfo(targetLang).deepl,
       /* HTML 원문 — 태그는 두고 글자만 번역한다(없으면 태그 속 속성값까지 건드릴 수 있다) */
       ...(options.html ? { tag_handling: "html" } : {}),
     }),
@@ -198,13 +217,10 @@ async function translateBatchWithClaude(
   const apiKey = await getSecret("ANTHROPIC_API_KEY");
   if (!apiKey) throw missingKey("claude", "ANTHROPIC_API_KEY");
 
-  const sourceName = promptLangName(sourceLang);
-  const targetName = promptLangName(targetLang);
-
   const inputObj: Record<string, string> = {};
   for (const it of items) inputObj[it.id] = it.text;
 
-  const prompt = `Translate the following ${items.length} text(s) from ${sourceName} to ${targetName}.
+  const prompt = `Translate the following ${items.length} text(s) ${promptDirection(sourceLang, targetLang)}.
 
 Rules:
 - Input is a JSON object whose keys are stable IDs and values are the texts to translate.

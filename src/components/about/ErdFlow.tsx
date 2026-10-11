@@ -141,10 +141,12 @@ function ErdFlowInner({
   tables, relations, selected, related, onHover, onOpen, onNodeEdit, onCreateRelation, onPaneClick, concept,
   className,
   focus, zoomTo, onNoteClick, lastViewport, onViewportSettled, note, noteAnchor, showControls = true, initialZoom = 0.62, children, lang = "ko",
-  wheelZoom = true,
+  wheelZoom = true, focusFit = "all",
 }: {
   /** 휠로 확대 (default: true). 끄면 휠이 페이지로 넘어간다 — 가로로 넘기는 공개 About 에서 */
   wheelZoom?: boolean;
+  /** 좁혀 볼 때 화면에 담는 것 — all: 연결된 테이블까지 전부(기본), table: 고른 테이블을 읽을 만큼 크게(이웃은 둘레에 걸친다) */
+  focusFit?: "all" | "table";
   tables: ErdTable[];
   relations: ErdRelation[];
   selected?: string | null;
@@ -304,6 +306,9 @@ function ErdFlowInner({
         fitViewOptions={zoomTo
           /* 한 번 더 누른 대상 — 그것 하나만 화면에 가득. 긴 테이블도 잘리지 않게 fitView 로 맞춘다 */
           ? { nodes: [{ id: zoomTo }], padding: 0.12, maxZoom: 1.2, duration: FIT_MS }
+          : focus && focusFit === "table"
+            /* 좁혀 본 상태 · 테이블 맞춤 — 칼럼이 많은 테이블은 이웃까지 다 담으면 글자를 못 읽는다 */
+            ? { nodes: [{ id: focus }], padding: 0.12, maxZoom: 1.25, duration: FIT_MS }
           : focus
             /* 좁혀 본 상태 — 연결된 테이블과 노트까지 한 눈에 */
             ? { padding: 0.22, maxZoom: 1, duration: FIT_MS }

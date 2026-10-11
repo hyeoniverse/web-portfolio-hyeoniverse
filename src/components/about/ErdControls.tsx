@@ -29,8 +29,11 @@ export default function ErdControls({ lang }: { lang: "ko" | "en" }) {
       void document.exitFullscreen();
       return;
     }
-    /* 다이어그램 컨테이너(.react-flow)를 통째로 — 버튼만 키우면 의미가 없다 */
-    const target = e.currentTarget.closest<HTMLElement>(".react-flow");
+    /* 탐색기 바깥 상자를 통째로 — 버튼만 키우면 의미가 없다. 안쪽 .react-flow 에 걸면 테이블을 눌러 좁혀 볼 때
+       그림이 새로 마운트되며 전체 화면 요소가 사라져 바로 빠져나왔다. 바깥 상자는 좁혀 보기 · 보기 전환에도 그대로다 */
+    const target =
+      e.currentTarget.closest<HTMLElement>("[data-erd-fullscreen]") ??
+      e.currentTarget.closest<HTMLElement>(".react-flow");
     void target?.requestFullscreen?.().then(
       () => rf.fitView({ padding: 0.1, duration: 300 }),
       () => {},

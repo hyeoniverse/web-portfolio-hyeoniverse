@@ -9,7 +9,7 @@ import {
   type ArchNode, type ArchEdge, type ArchDiagramData,
   ARCH_ICONS, ARCH_GROUP_COLORS, ARCH_GROUP_LABELS, ARCH_VIEW,
   DEFAULT_ARCH_NODES, DEFAULT_ARCH_EDGES, archEdgePoints,
-} from "@/app/about/_components/panels/archDiagramData";
+} from "@/app/about/_panels/panels/archDiagramData";
 import css from "./ArchDiagramEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useL } from "./studio/primitives";

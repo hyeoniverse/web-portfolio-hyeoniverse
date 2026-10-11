@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import { backdropToneUnder, type Tone } from "@/lib/navBackdrop";
+import { backdropToneUnder, NAV_BACKDROP_EVENT, type Tone } from "@/lib/navBackdrop";
 
 /**
  * nav 로고 바로 밑 배경의 밝기(lib/navBackdrop) — 스크롤 · 화면 크기 · 경로가 바뀔 때, 그리고 덮개(로딩 · 페이지 전환)가
@@ -34,12 +34,15 @@ export function useNavBackdropTone(
     const settle = window.setTimeout(schedule, 400);
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
+    /* 페이지 바탕 그림(About 의 하늘)의 밝기가 바뀌면 — 스크롤 이벤트와 순서가 엇갈려도 마지막 값을 잰다 */
+    window.addEventListener(NAV_BACKDROP_EVENT, schedule);
     return () => {
       alive = false;
       if (frame) cancelAnimationFrame(frame);
       window.clearTimeout(settle);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      window.removeEventListener(NAV_BACKDROP_EVENT, schedule);
     };
   }, [logoRef, enabled, pathname, covered]);
 

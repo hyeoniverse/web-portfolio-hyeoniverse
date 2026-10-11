@@ -1,0 +1,574 @@
+/* ── 미디어 데모 — 슬라이드 갤러리 · 파형 편집기 · 문서 변환. 하늘 위에 뜬 유리판(AI 장과 같은 결) ── */
+
+.panel,
+.tool {
+  --_slide-move: 0.6s; /* 장이 원근으로 미끄러져 자리를 바꾸는 시간 — 한 자리(3.9-1) */
+  --_spin: 0.8s; /* 변환 중 도는 고리 한 바퀴 — 한 자리(3.9-1) */
+  --_shine: 1.4s; /* 아직 안 그린 칸 위를 지나는 빛 — 한 자리(3.9-1) */
+}
+
+/* 편집 도구(파형 · 변환) — 판 없이 하늘 위에 바로 둔다. 읽어야 하는 면(파형 띠 · 슬라이드)만 제 바탕을 갖는다 */
+.tool {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+  min-width: 0;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+}
+
+.panel {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+  min-width: 0;
+  padding: var(--spacing-16);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 12%, transparent);
+  border-radius: var(--radius-surface);
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--bg-primary) 72%, transparent);
+  backdrop-filter: var(--blur-16);
+}
+
+.hint {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+  word-break: keep-all;
+}
+
+.hint[data-error] {
+  color: var(--text-error);
+}
+
+/* ── 1 · 슬라이드 갤러리 — 가운데 장이 크고 양옆은 원근으로 기운다 ── */
+
+.stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) / 2);
+  outline-offset: var(--spacing-2);
+  perspective: 1100px;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: calc(2 - var(--a));
+  width: 72%;
+  padding: 0;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) / 3);
+  box-shadow: var(--shadow-floating);
+  opacity: calc(1 - var(--a) * 0.25);
+  transform:
+    translate(-50%, -50%) translateX(calc(var(--d) * 46%)) rotateY(calc(var(--r) * -38deg))
+    scale(calc(1 - var(--a) * 0.14));
+  transition:
+    transform var(--_slide-move) var(--ease-enter),
+    opacity var(--_slide-move) var(--ease-enter);
+}
+
+.slide[data-far] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.slide img,
+.thumb img,
+.cellImg img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* 소리를 낼지 먼저 묻는다(브라우저가 소리 자동 재생을 막으므로) */
+.ask {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16);
+  background: color-mix(in oklab, var(--bg-primary) 45%, transparent);
+  backdrop-filter: var(--blur-4);
+}
+
+/* 자막 자리는 늘 세 줄 — 문장 길이나 켜고 끄는 것에 따라 아래가 움직이지 않는다 */
+.caption {
+  height: 4.8em;
+  margin: 0;
+  overflow: hidden;
+  font: var(--font-body-md);
+  word-break: keep-all;
+}
+
+.caption[data-off] {
+  visibility: hidden;
+}
+
+/* 지금 문장만 보이고, 읽은 낱말이 강조색으로 진해진다(진행은 음성의 재생 위치를 따른다) */
+.word {
+  color: var(--text-tertiary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.word[data-read] {
+  color: var(--text-accent);
+}
+
+.captionNote {
+  color: var(--text-tertiary);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.source {
+  display: inline-flex;
+  flex: 1 1 12rem;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-width: 0;
+  overflow: hidden;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source svg {
+  flex: none;
+}
+
+.source[data-warn] {
+  color: var(--text-warning);
+}
+
+.count {
+  margin-left: auto;
+  font: var(--font-meta-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: var(--border-width-2) solid transparent;
+  border-radius: calc(var(--radius-surface) / 4);
+  opacity: 0.6;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.thumb:hover {
+  opacity: 0.85;
+}
+
+.thumb[aria-current] {
+  border-color: var(--border-color-accent);
+  opacity: 1;
+}
+
+/* 지금 장을 읽는 동안 차오르는 막대(다 차면 다음 장) */
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--spacing-4);
+  background-color: var(--text-accent);
+  transform: scaleX(var(--p));
+  transform-origin: left;
+}
+
+/* ── 2 · 파형 편집기 ── */
+
+.wave {
+  display: grid;
+  gap: var(--spacing-12);
+  min-width: 0;
+  border-radius: calc(var(--radius-surface) / 3);
+  outline-offset: var(--spacing-4);
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+/* 묶음 사이 가는 세로선 — 재생 | 고치기 | 되돌리기 */
+.toolGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.toolGroup + .toolGroup {
+  padding-left: var(--spacing-12);
+  border-left: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 18%, transparent);
+}
+
+.track {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-2);
+  height: var(--spacing-128);
+  cursor: text;
+  touch-action: none;
+  user-select: none;
+}
+
+.clip {
+  position: relative;
+  display: flex;
+  flex-basis: 0;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) / 4);
+  background: color-mix(in oklab, var(--bg-primary) 62%, transparent);
+  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in oklab, var(--text-primary) 14%, transparent);
+  transform: translateX(var(--dx));
+  backdrop-filter: var(--blur-16);
+  transition:
+    scale var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+/* 길게 누르는 동안 살짝 들리고, 끄는 동안은 손을 따라온다 */
+.clip[data-pressing] {
+  scale: 0.97;
+  box-shadow:
+    inset 0 0 0 var(--border-width-2) var(--text-accent),
+    var(--shadow-raised);
+}
+
+.clip[data-dragging] {
+  z-index: 2;
+  cursor: grabbing;
+  opacity: 0.75;
+  box-shadow:
+    inset 0 0 0 var(--border-width-1) var(--text-accent),
+    var(--shadow-floating);
+  transition: none;
+}
+
+/* 클립 위 번호 띠 — 여기를 길게 눌러 클립을 끈다(파형 쪽은 구간 고르기) */
+.clipBand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-8);
+  overflow: hidden;
+  font: var(--font-grotesk-micro);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  border-bottom: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 14%, transparent);
+  cursor: grab;
+}
+
+.clipStar {
+  flex: none;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  fill: var(--text-accent);
+}
+
+.bars {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: 0;
+  padding: var(--spacing-4) var(--spacing-2);
+}
+
+.bars i {
+  flex: 1;
+  min-width: var(--spacing-1);
+  height: calc(var(--h) * 100%);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in oklab, var(--text-primary) 70%, transparent);
+}
+
+.bars i[data-on] {
+  background-color: var(--text-accent);
+}
+
+.drop {
+  position: absolute;
+  top: calc(var(--spacing-4) * -1);
+  bottom: calc(var(--spacing-4) * -1);
+  width: var(--border-width-3);
+  margin-left: calc(var(--spacing-1) * -1);
+  border-radius: var(--radius-full);
+  background-color: var(--text-accent);
+  pointer-events: none;
+}
+
+.span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in oklab, var(--text-accent) 18%, transparent);
+  box-shadow:
+    inset var(--border-width-2) 0 var(--text-accent),
+    inset calc(var(--border-width-2) * -1) 0 var(--text-accent);
+  pointer-events: none;
+}
+
+.cursor,
+.head {
+  position: absolute;
+  top: calc(var(--spacing-2) * -1);
+  bottom: calc(var(--spacing-2) * -1);
+  width: var(--border-width-2);
+  margin-left: calc(var(--spacing-1) * -1);
+  background-color: var(--text-primary);
+  pointer-events: none;
+}
+
+.head {
+  background-color: var(--text-accent);
+}
+
+.waveEmpty {
+  align-self: center;
+  margin: 0 auto;
+  color: var(--text-tertiary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin: 0;
+  font: var(--font-meta-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 3 · 문서 변환 ── */
+
+.convertHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.file {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font: var(--font-body-md);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file svg {
+  flex: none;
+  color: var(--text-accent);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  word-break: keep-all;
+}
+
+.status[data-phase="done"] {
+  color: var(--text-primary);
+}
+
+.statusStar,
+.capStar {
+  flex: none;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  fill: var(--text-accent);
+}
+
+.capStar {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+}
+
+.spin {
+  flex: none;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border: var(--border-width-2) solid color-mix(in oklab, var(--text-accent) 25%, transparent);
+  border-top-color: var(--text-accent);
+  border-radius: var(--radius-full);
+  animation: mediaTurn var(--_spin) linear infinite;
+}
+
+@keyframes mediaTurn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* 좁은 화면은 세 줄로 — 8장이 한 화면에 들어오게. 칸이 좁아 노트 글은 숨기고 별만 남긴다 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-12) var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  display: grid;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+/* 아직 안 그린 칸 — 빛이 지나간다 */
+.cellImg {
+  display: block;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) / 4);
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--text-primary) 6%, transparent) 30%,
+    color-mix(in oklab, var(--text-primary) 12%, transparent) 50%,
+    color-mix(in oklab, var(--text-primary) 6%, transparent) 70%
+  );
+  background-size: 300% 100%;
+  animation: mediaShine var(--_shine) linear infinite;
+}
+
+.cell[data-drawn] .cellImg {
+  animation: none;
+}
+
+.cellImg img {
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
+
+.cell[data-drawn] .cellImg img {
+  opacity: 1;
+  transform: none;
+}
+
+.cellCap {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  min-width: 0;
+  font: var(--font-meta-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.cellNote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  overflow: hidden;
+  color: var(--text-accent);
+  text-overflow: ellipsis;
+}
+
+.cellNoteText {
+  display: none;
+}
+
+@keyframes mediaShine {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* ── 넓은 화면 — 여백을 넓히고, 갤러리는 원래 비율(16:7)로 양옆 장을 더 보인다 ── */
+
+@media (width > 768px) {
+  .panel {
+    padding: var(--spacing-24);
+  }
+
+  .stage {
+    aspect-ratio: 16 / 7;
+  }
+
+  .slide {
+    width: 58%;
+  }
+
+  .strip {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--spacing-16);
+  }
+
+  .cellNoteText {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .word,
+  .thumb,
+  .clip,
+  .cellImg img {
+    transition: none;
+  }
+
+  .spin,
+  .cellImg {
+    animation: none;
+  }
+}

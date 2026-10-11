@@ -293,11 +293,10 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 166개
+토큰 188개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
-| `--filter-mono-logo` | `none` | `invert(1)` |  |
 | `--filter-cursor-fallback` | `invert(1)` | `brightness(1)` |  |
 | `--text-white` | `var(--color-white)` |  |  |
 | `--text-white-muted` | `color-mix(in oklch, var(--color-white) 50%, transparent)` |  |  |
@@ -354,6 +353,25 @@
 | `--bg-accent-strong` | `color-mix(in oklch, var(--bg-accent-solid) 30%, transparent)` |  |  |
 | `--bg-highlight` | `light-dark(color-mix(in oklch, var(--bg-accent-solid) 15%, transparent), color-mix(in oklch, var(--bg-accent-solid) 30%, transparent))` |  |  |
 | `--bg-highlight-strong` | `light-dark(color-mix(in oklch, var(--bg-accent-solid) 30%, transparent), color-mix(in oklch, var(--bg-accent-solid) 50%, transparent))` |  |  |
+| `--bg-time-dawn` | `color-mix(in oklab, color-mix(in oklab, var(--color-indigo-950) 55%, var(--color-blue-950)) 80%, var(--color-neutral-950))` |  |  |
+| `--bg-time-dawn-horizon` | `color-mix(in oklab, color-mix(in oklab, var(--color-accent-900) 45%, var(--color-indigo-900)) 70%, var(--color-neutral-950))` |  |  |
+| `--bg-time-sunrise` | `light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-indigo-300) 50%, var(--color-blue-200)) 80%, var(--bg-primary)), color-mix(in oklab, var(--color-indigo-900) 60%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-sunrise-horizon` | `light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-orange-300) 55%, var(--color-amber-200)) 90%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-orange-700) 55%, var(--color-amber-800)) 70%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-morning` | `light-dark(color-mix(in oklab, var(--color-blue-200) 95%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-700) 80%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-morning-horizon` | `light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-yellow-200) 50%, var(--color-amber-200)) 95%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-blue-400) 70%, var(--color-amber-200)) 75%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-day` | `light-dark(color-mix(in oklab, var(--color-blue-300) 90%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-600) 85%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-day-horizon` | `light-dark(color-mix(in oklab, var(--color-blue-100) 85%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-300) 75%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-dusk` | `light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-violet-300) 65%, var(--color-accent-300)) 70%, var(--bg-primary)), color-mix(in oklab, var(--color-violet-900) 75%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-dusk-horizon` | `light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-orange-300) 60%, var(--color-accent-300)) 95%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-orange-700) 55%, var(--color-accent-700)) 70%, var(--color-neutral-950)))` |  |  |
+| `--bg-time-evening` | `color-mix(in oklab, var(--color-blue-950) 70%, var(--color-neutral-950))` |  |  |
+| `--bg-time-evening-horizon` | `color-mix(in oklab, color-mix(in oklab, var(--color-violet-900) 60%, var(--color-accent-900)) 65%, var(--color-neutral-950))` |  |  |
+| `--bg-time-night` | `color-mix(in oklab, var(--color-indigo-950) 8%, var(--color-neutral-950))` |  |  |
+| `--bg-time-night-horizon` | `color-mix(in oklab, var(--color-indigo-950) 14%, var(--color-neutral-950))` |  |  |
+| `--bg-time-sun` | `light-dark(color-mix(in oklab, var(--color-amber-200) 75%, var(--color-accent-200)), color-mix(in oklab, var(--color-amber-300) 70%, var(--color-accent-400)))` |  |  |
+| `--bg-season-spring` | `light-dark(var(--color-accent-200), var(--color-accent-800))` |  |  |
+| `--bg-season-summer` | `light-dark(var(--color-green-300), var(--color-green-800))` |  |  |
+| `--bg-season-autumn` | `light-dark(var(--color-orange-400), var(--color-orange-800))` |  |  |
+| `--bg-season-winter` | `light-dark(var(--color-blue-100), var(--color-blue-900))` |  |  |
 | `--bg-surface` | `light-dark(color-mix(in oklch, var(--color-black) 5%, transparent), color-mix(in oklch, var(--color-white) 5%, transparent))` |  |  |
 | `--bg-glass-subtle` | `color-mix(in oklch, var(--color-white) 5%, transparent)` |  |  |
 | `--bg-glass` | `color-mix(in oklch, var(--color-white) 10%, transparent)` |  |  |
@@ -375,7 +393,6 @@
 | `--border-color-ghost` | `color-mix(in oklch, var(--color-white) 20%, transparent)` |  |  |
 | `--border-color-white-muted` | `color-mix(in oklch, var(--color-white) 50%, transparent)` |  |  |
 | `--border-color-success` | `var(--text-success)` |  |  |
-| `--border-color-error` | `var(--text-error)` |  |  |
 | `--border-color-neutral-light` | `color-mix(in oklch, var(--text-contrast) 20%, transparent)` |  |  |
 | `--border-light` | `1px solid var(--border-color-light)` |  |  |
 | `--border-light-2` | `2px solid var(--border-color-light)` |  |  |
@@ -435,6 +452,11 @@
 | `--font-display-lg` | `var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-md` | `var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-sm` | `var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent)` |  |  |
+| `--font-grotesk-display` | `var(--font-weight-semibold) var(--font-size-display-xl) / var(--line-height-090) var(--font-family-nav)` |  |  |
+| `--font-grotesk-number` | `var(--font-weight-medium) var(--font-size-display-lg) / var(--line-height-090) var(--font-family-nav)` |  |  |
+| `--font-grotesk-headline-xl` | `var(--font-weight-regular) var(--font-size-headline-xl) / var(--line-height-125) var(--font-family-nav)` |  |  |
+| `--font-grotesk-headline-sm` | `var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-nav)` |  |  |
+| `--font-grotesk-micro` | `var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-135) var(--font-family-nav)` |  |  |
 | `--font-headline-xs` | `var(--font-weight-regular) var(--font-size-headline-xs) / var(--line-height-125) var(--font-family-headline)` |  |  |
 | `--font-headline-sm` | `var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-headline)` |  |  |
 | `--font-headline-md` | `var(--font-weight-regular) var(--font-size-headline-md) / var(--line-height-125) var(--font-family-headline)` |  |  |

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import LoadingScreen from "@/components/layout/LoadingScreen";
 
 const PageTransitionOverlay = dynamic(() => import("@/components/layout/PageTransitionOverlay"), { ssr: false });
 const Modal = dynamic(() => import("@/components/ui/Modal"), { ssr: false });
@@ -22,7 +21,7 @@ const CustomFontsLoader = dynamic(() => import("@/components/common/CustomFontsL
  * 모달과 토스트는 무언가 띄워야, 배경음은 켜야 나온다. 그런데 전부 화면이 뜨자마자
  * 내려받고 있었다. 문의 서랍만 64 KiB 다.
  *
- * 그래서 로딩 화면과 페이지 전환만 곧바로 올리고, 나머지는 화면이 자리를 잡은 뒤
+ * 그래서 페이지 전환만 곧바로 올리고(로딩 화면은 문서 맨 앞, layout.tsx), 나머지는 화면이 자리를 잡은 뒤
  * 한가한 틈에 올린다. 늦게 올라와도 문제가 없는 이유는 이것들이 모두 스토어의 값을 보고
  * 그리기 때문이다 — 올라오기 전에 토스트를 띄우면 스토어에 쌓여 있다가 그려진다.
  */
@@ -50,7 +49,6 @@ export default function ClientOverlays() {
 
   return (
     <aside>
-      <LoadingScreen />
       <PageTransitionOverlay />
       {ready && (
         <>

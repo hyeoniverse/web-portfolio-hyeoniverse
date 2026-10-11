@@ -697,10 +697,10 @@
   width: 100%;
 }
 
-/* compound (0,2,0) — Select 의 .dropdown/.dropdownCompact (0,1,0) padding 을 이김.
+/* Select 의 .dropdown 은 components 층이라 이 규칙이 padding 을 이긴다.
    interpolate-size — 검색 필터링으로 list height 변할 때 부드럽게 transition (modern browsers).
    미지원 브라우저는 transition 안 되고 즉시 변화 (degraded but fine). */
-.fontPickerDropdown.fontPickerDropdown {
+.fontPickerDropdown {
   width: 320px;
   padding: 0;
   gap: 0;
@@ -868,8 +868,8 @@
 }
 
 /* Pagination 컴포넌트의 .paginationWrap 이 margin-top: spacing-md 를 default 로 둠.
-   compound selector (0,2,0) 로 specificity 올려 override. */
-.tagDescPagination.tagDescPagination {
+   그쪽은 components 층이라 층 밖의 이 규칙이 이긴다. */
+.tagDescPagination {
   align-self: center;
   margin-top: 0;
 }

@@ -1,0 +1,292 @@
+/* ── 프레지 무대 — 화면에 고정된 창 하나, 그 안의 세계를 카메라(transform)가 움직인다 ── */
+
+.stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+/* 이 페이지는 마지막 프레임이 끝이다 — 사이트 푸터는 감춘다 */
+:global(main:has([data-prezi]) + footer) {
+  display: none;
+}
+
+.world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* 장면 프레임 — 화면 크기의 상자. 지금 프레임만 안에서 스크롤된다 */
+.frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  transform-origin: 0 0;
+  cursor: zoom-in;
+}
+
+.frame[data-current] {
+  cursor: auto;
+}
+
+/* 지금 장이 아닌 무리 — 미리보기 없이 감춘다(지도에선 별만, 장 사이를 날 때는 떠나는 장이 옅어지고 오는 장이 나타난다) */
+.frame,
+.head {
+  --_away-fade: 0.6s; /* 무리가 나타나고 사라지는 시간 — 한 자리(3.9-1) */
+
+  transition: opacity var(--_away-fade) var(--ease-standard);
+}
+
+.frame[data-away],
+.head[data-away] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 다 사라진 뒤엔 그리지도 않는다 — 멀리 있는 무리는 변환 값이 커서 그릴 때 비싸다 */
+.frame[data-away],
+.head[data-away] {
+  visibility: hidden;
+  transition:
+    opacity var(--_away-fade) var(--ease-standard),
+    visibility 0s linear var(--_away-fade);
+}
+
+.head[data-away] .headBand {
+  pointer-events: none;
+}
+
+.frameScroll {
+  --_gutter: var(--spacing-page-inline);
+  --_line: var(--border-width-1) solid var(--border-color-light);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.frame[data-current] .frameScroll {
+  overflow: hidden auto;
+}
+
+/* 장면 하나짜리 컴포넌트가 아니면 프레임이 좌우 여백과 네비게이션 자리를 준다 */
+.frameScroll[data-pad] {
+  /* 아래는 독 자리 — 좁은 화면의 독은 키가 커서 더 비운다 */
+  padding: calc(var(--header-height) + var(--spacing-24)) var(--_gutter) calc(var(--spacing-64) + var(--spacing-24));
+}
+
+/* 넓은 화면 — 오른쪽 위 네비 단추 아래에 실제 하늘 표시 줄(TimeSky .caption)이 있다. 장면 머리 오른쪽의 인덱스 · 수치가
+   그 줄에 붙지 않게 위를 더 비운다 */
+@media (width > 1024px) {
+  .frameScroll[data-pad] {
+    padding-top: calc(var(--header-height) + var(--spacing-64));
+    padding-bottom: var(--spacing-64);
+  }
+}
+
+/* 지금이 아닌 프레임 — 눌러서 들어가는 자리. 안의 조작은 막는다 */
+.frame:not([data-current]) .frameScroll {
+  pointer-events: none;
+}
+
+/* 무거운 장면의 대역 — 테두리 없이 이름만 크게, 하늘 위에 옅게 */
+.poster {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--spacing-16);
+  height: 100%;
+  font: var(--font-display-lg);
+  color: color-mix(in oklab, var(--text-primary) 55%, transparent);
+  text-align: center;
+  word-break: keep-all;
+}
+
+.posterStar {
+  font: var(--font-display-sm);
+  color: var(--text-accent);
+}
+
+/* 장 머리 — 무리 전체를 덮는 큰 프레임. 위쪽 띠에 장 제목, 나머지는 비워 장면 프레임들이 보인다 */
+.head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.headBand {
+  --_gutter: var(--spacing-page-inline);
+
+  display: grid;
+  align-content: end;
+  padding: calc(var(--header-height) + var(--spacing-24)) var(--_gutter) var(--spacing-24);
+  pointer-events: auto;
+  cursor: zoom-in;
+}
+
+.head[data-current] .headBand {
+  cursor: auto;
+}
+
+/* ── 허브 — 세계의 가운데. 큰 별자리 지도와 소개 ── */
+.hubFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  transform-origin: 0 0;
+}
+
+.hub {
+  --_hub-fade: 0.9s; /* 지도에서 장으로 들어갈 때 지도가 옅어지는 시간 — 한 자리(3.9-1) */
+
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--_hub-fade) var(--ease-standard);
+}
+
+/* 장 안에 들어가 있을 때 — 지도의 별 · 이름이 커져서 장면을 가리지 않게 거의 지운다(물러나면 다시 또렷해진다) */
+.hubFrame:not([data-current]) .hub {
+  opacity: 0;
+}
+
+/* 네비게이션은 화면 위에서 --spacing-nav-top 만큼 내려와 있다 — 그 아래부터 재야 메타 줄이 네비에 붙지 않는다 */
+.hubIntro {
+  position: absolute;
+  top: calc(var(--header-height) + var(--spacing-nav-top) + var(--spacing-16));
+  left: var(--spacing-page-inline);
+  z-index: 1;
+  display: grid;
+  gap: var(--spacing-8);
+  max-width: min(34rem, 80vw);
+}
+
+.hubLead {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.hubLead em {
+  font: var(--font-display-sm);
+  color: var(--text-accent);
+}
+
+.hubHint {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+/* 지도 위 별 이름 — 허브에선 더 크게 */
+.hubMap :global(a) > span {
+  font: var(--font-body-md);
+}
+
+/* ── 아래 — 별자리 지도로 돌아가는 단추. 판 없이 하늘에 글자만 떠 있다(배경에 녹아들게) ── */
+.dock {
+  position: fixed;
+  bottom: var(--spacing-20);
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+  translate: -50% 0;
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    translate var(--duration-slow) var(--ease-standard);
+}
+
+/* 지도에 있을 때 — 돌아갈 곳이 없으니 내려 감춘다 */
+.dock[data-hidden] {
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% var(--spacing-16);
+}
+
+.dockBtn {
+  display: inline-flex;
+  white-space: nowrap;
+  gap: var(--spacing-8);
+  align-items: center;
+  padding: var(--spacing-8) var(--spacing-16);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--text-primary) 55%, transparent);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+/* 이전 · 다음 패널 — 바깥 끝의 작은 별과 가운데로 이어지는 점선(별자리처럼). 올리면 별이 강조색으로 빛나며 돈다 */
+.dockArrow {
+  --_spin: 6s; /* 올렸을 때 별이 한 바퀴 도는 시간 — 한 자리(3.9-1) */
+
+  display: inline-flex;
+  gap: var(--spacing-4);
+  align-items: center;
+  height: var(--spacing-32);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
+}
+
+.dockStar {
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 55%, transparent);
+  transition:
+    fill var(--duration-base) var(--ease-standard),
+    scale var(--duration-base) var(--ease-enter),
+    filter var(--duration-base) var(--ease-standard);
+}
+
+.dockTrail {
+  width: var(--spacing-24);
+  border-top: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 30%, transparent);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+.dockArrow:hover .dockStar,
+.dockArrow:focus-visible .dockStar {
+  scale: 1.5;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-4) color-mix(in oklab, var(--text-accent) 70%, transparent));
+  animation: dockSpin var(--_spin) linear infinite;
+}
+
+.dockArrow:hover .dockTrail,
+.dockArrow:focus-visible .dockTrail {
+  border-top-color: var(--text-accent);
+}
+
+@keyframes dockSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dockArrow:hover .dockStar,
+  .dockArrow:focus-visible .dockStar {
+    animation: none;
+  }
+}
+
+.dockBtn > span {
+  color: var(--text-accent);
+}
+
+.dockBtn:hover,
+.dockBtn:focus-visible {
+  color: var(--text-primary);
+}

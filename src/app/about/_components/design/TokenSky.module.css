@@ -1,0 +1,489 @@
+/* ── 토큰 별하늘 — 토큰 하나가 별 하나. 3:2 판, 가장자리는 하늘로 흐려진다 ── */
+
+/* 그릇 — 좁으면 하늘 아래 목록, 넓으면(@container) 하늘 오른쪽 목록. 하늘은 칸(cell) 안에서 3:2 로 가장 크게 */
+.wrap {
+  --_fly: 1.1s; /* 별이 다음 줄로 날아가는 시간 — 한 자리(3.9-1) */
+  --_spread: 0.35s; /* 별마다 출발을 흩는 폭 — 한 자리(3.9-1) */
+  --_appear: 0.9s; /* 표지에서 별이 차례로 켜지는 폭 — 한 자리(3.9-1) */
+  --_pulse: 1.6s; /* 곡선 별이 오가는 한 번 — 한 자리(3.9-1) */
+  --_num: var(--spacing-20);
+
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--spacing-16);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.wrap[data-mode="cover"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+/* 판 — 3:2. 별의 자리는 이 판의 cq 단위로 준다(별 하나하나가 자리를 옮기며 날아간다) */
+.sky {
+  --k: 1;
+
+  position: relative;
+  width: min(100cqw, 150cqh);
+  aspect-ratio: 3 / 2;
+  container-type: size;
+}
+
+/* 별 — 자리(--x · --y)로 날아가고(translate), 안쪽 견본이 배율(--S)로 커지고 작아진다(scale). 둘 다 합성으로 움직여 칸을
+   넘길 때 매 프레임 레이아웃 · 그리기를 하지 않는다(zoom · left/top 으로 바꿔 보니 별 526개가 날아가는 동안 프레임이 끊겼다).
+   별 상자는 크기 0 이고 견본은 그 점을 가운데로 놓인다 */
+.tok {
+  --cap: 1;
+  --S: calc(var(--s) * var(--cap) * var(--k)); /* 그린 배율 */
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  translate: calc(var(--x) * 1cqw) calc(var(--y) * 1cqh);
+  pointer-events: none;
+  transition:
+    translate var(--_fly) var(--ease-standard) calc(var(--t) * var(--_spread)),
+    opacity var(--duration-slow) var(--ease-standard),
+    visibility 0s linear;
+}
+
+.tok[data-out] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    translate var(--_fly) var(--ease-standard),
+    opacity var(--duration-slow) var(--ease-standard),
+    visibility 0s linear var(--duration-slow);
+}
+
+.spec {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  translate: -50% -50%;
+  scale: var(--S);
+  color: var(--text-primary);
+  transition: scale var(--_fly) var(--ease-standard) calc(var(--t) * var(--_spread));
+}
+
+/* 하늘에 들어오면 별이 흩어져 켜진다 — backwards: 끝난 애니메이션이 남아 있으면 별 526개가 각자 합성 층으로 남아
+   매 프레임 층 나누기(Layerize)에 1초 넘게 들었다 */
+.sky[data-live] .tok {
+  animation: tokIn var(--duration-slow) var(--ease-enter) backwards;
+  animation-delay: calc(var(--t) * var(--_appear));
+}
+
+@keyframes tokIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── 생김새 — 값은 --v(그 토큰의 var()) ── */
+
+/* 색 — 그 색의 원. 어두운 색도 하늘에서 보이게 가는 테두리 */
+.tok[data-kind="color"] .spec {
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: var(--v);
+  box-shadow: 0 0 0 var(--border-width-1) color-mix(in oklab, var(--text-primary) 30%, transparent);
+}
+
+/* 글자 — 묶음은 그 묶음 그대로, 크기는 그 크기, 굵기는 그 굵기, 글꼴은 그 글꼴 */
+.glyph {
+  white-space: nowrap;
+}
+
+.tok[data-kind="font"] .spec {
+  font: var(--v);
+}
+
+.tok[data-kind="fontSize"] .spec {
+  font: var(--font-weight-regular) var(--v) / var(--line-height-100) var(--font-family-body);
+}
+
+.tok[data-kind="fontWeight"] .spec {
+  font: var(--v) var(--font-size-headline-sm) / var(--line-height-100) var(--font-family-body);
+}
+
+.tok[data-kind="fontFamily"] .spec {
+  font: var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-100) var(--v);
+}
+
+.tok[data-kind="tracking"] .spec {
+  font: var(--font-body-md);
+  letter-spacing: var(--v);
+}
+
+/* 줄간격 — 두 줄 사이가 그 배율(글자 12px 기준) */
+.tok[data-kind="lineHeight"] .spec {
+  width: var(--spacing-16);
+  height: calc(var(--v) * var(--spacing-12));
+  border-block: var(--border-width-2) solid var(--text-primary);
+}
+
+/* 크기 — 그 길이의 네모(판을 덮지 않게 48px 에서 자른다) */
+.tok[data-kind="size"] .spec {
+  width: clamp(var(--spacing-2), var(--v), var(--spacing-48));
+  aspect-ratio: 1;
+  border: var(--border-width-1) solid var(--text-primary);
+}
+
+/* 여백 — 그 여백을 두른 상자, 가운데 점이 내용 */
+.tok[data-kind="pad"] .spec {
+  padding: var(--v);
+  border: var(--border-width-1) dashed var(--text-primary);
+}
+
+.tok[data-kind="pad"] .spec i {
+  width: var(--spacing-4);
+  aspect-ratio: 1;
+  background: var(--text-accent);
+}
+
+/* 모서리 — 그 둥글기의 네모 */
+.tok[data-kind="radius"] .spec {
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  border: var(--border-width-2) solid var(--text-primary);
+  border-radius: var(--v);
+}
+
+/* 그림자 — 밝은 면에 그 그림자 */
+.tok[data-kind="shadow"] .spec {
+  width: var(--spacing-20);
+  aspect-ratio: 1;
+  border-radius: var(--radius-mark);
+  background: var(--text-primary);
+  box-shadow: var(--v);
+}
+
+/* 테두리 — 그 테두리 */
+.tok[data-kind="border"] .spec {
+  width: var(--spacing-20);
+  aspect-ratio: 1;
+  border: var(--v);
+}
+
+/* 흐림 — 그 흐림을 건 강조색 점 */
+.tok[data-kind="blur"] .spec {
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+  filter: var(--v);
+}
+
+.tok[data-kind="other"] .spec {
+  width: var(--spacing-4);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: var(--text-tertiary);
+}
+
+/* 움직임 — 선 위를 오가는 점. 길이는 그 길이(네 배로 늘려), 곡선은 그 곡선으로 */
+.tok[data-kind="duration"] .spec,
+.tok[data-kind="ease"] .spec {
+  justify-items: start;
+  width: var(--spacing-48);
+  height: var(--spacing-8);
+  background: linear-gradient(var(--text-tertiary), var(--text-tertiary)) center / 100% var(--border-width-1) no-repeat;
+}
+
+.tok[data-kind="duration"] .spec i,
+.tok[data-kind="ease"] .spec i {
+  width: var(--spacing-8);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+
+.tok[data-kind="duration"] .spec i {
+  animation: run calc(var(--v) * 4) var(--ease-standard) infinite alternate;
+}
+
+.tok[data-kind="ease"] .spec i {
+  animation: run var(--_pulse) var(--v) infinite alternate;
+}
+
+@keyframes run {
+  to {
+    translate: calc(var(--spacing-48) - var(--spacing-8)) 0;
+  }
+}
+
+/* 짚은 별(번호가 달린 토큰) — 표 안 제자리에 먼저 내려앉은 뒤 크게 커지고 강조색 고리를 두른다 */
+.tok[data-pin] {
+  --S: calc(max(var(--s) * 1.8, 1.4) * var(--cap) * var(--k));
+
+  z-index: 1;
+}
+
+/* 글자 칸 — 크기가 곧 내용이라 짚은 글자는 키우지 않고 강조색으로만 */
+.sky[data-mode="2"] .tok[data-pin] {
+  --S: calc(var(--s) * var(--cap) * var(--k));
+}
+
+.sky[data-mode="2"] .tok[data-pin] .spec {
+  color: var(--text-accent);
+}
+
+.tok[data-pin] .spec {
+  transition: scale var(--duration-slow) var(--ease-spring) calc(var(--_fly) + var(--_spread));
+  outline: var(--border-width-1) solid var(--text-accent);
+  outline-offset: var(--spacing-4);
+}
+
+/* 돋보기 — 마우스 둘레의 별이 거리에 따라 커진다(스크립트가 별 상자의 scale 을 준다 — 날아가는 배율과 따로라 바로 따라온다). 가장 가까운 별은 맨 위로 */
+.tok[data-hot] {
+  z-index: 3;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 칸의 줄 이름 */
+.caption {
+  position: absolute;
+  translate: 0 -50%;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  animation: fadeIn var(--duration-slow) var(--ease-enter) backwards;
+  animation-delay: calc(var(--_fly) * 0.5 + var(--i) * 80ms);
+}
+
+.caption b {
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 무리 이름 */
+.groupName {
+  position: absolute;
+  translate: -50% -100%;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  animation: fadeIn var(--duration-slow) var(--ease-enter) backwards;
+}
+
+.groupName b {
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 이름표 — 판에 하나. 올린 별 아래 끝에 붙는다(자리는 스크립트가 준다) */
+.tip {
+  position: absolute;
+  z-index: 3; /* 올린 별(3)과 같고, 판의 맨 뒤에 있어 그 위에 그려진다 */
+  translate: -50% var(--spacing-8);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--bg-primary) 80%, transparent);
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    visibility 0s linear var(--duration-base);
+}
+
+.tip[data-on] {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    visibility 0s linear;
+}
+
+/* 번호 — 견본 바로 위(색 칸 홀수는 아래). 견본의 배율을 되돌리는 폭 0 받침(markAt) 위에서 가운데 정렬. 별이 커진 뒤에 켜진다 */
+.markAt {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 0;
+  transform-origin: 0 100%;
+  scale: calc(1 / var(--S));
+  pointer-events: none;
+}
+
+.markAt[data-flip] {
+  top: 100%;
+  bottom: auto;
+  align-items: flex-start;
+  transform-origin: 0 0;
+}
+
+.mark {
+  flex: none;
+  translate: 0 calc(var(--spacing-8) * -1);
+  animation: fadeIn var(--duration-slow) var(--ease-enter) backwards;
+  animation-delay: calc(var(--_fly) + var(--_spread) + var(--duration-slow) + var(--i) * 80ms);
+}
+
+.markAt[data-flip] .mark {
+  translate: 0 var(--spacing-8);
+}
+
+.num {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--_num);
+  height: var(--_num);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+/* 검사 칸 — 손으로 쓴 값이 하늘 밖에서 떨어져 해당하는 줄 위에서 멈춘다 */
+.bad {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: center;
+  translate: -50% -50%;
+  animation: badFall var(--duration-slower) var(--ease-enter) backwards;
+  animation-delay: calc(var(--i) * 160ms);
+}
+
+.bad .num,
+.callout[data-bad] .num {
+  background: var(--bg-error-solid);
+}
+
+.badStar {
+  font: var(--font-body-md);
+  font-style: normal;
+  color: var(--text-error);
+}
+
+@keyframes badFall {
+  from {
+    opacity: 0;
+    transform: translateY(-160%);
+  }
+}
+
+/* 목록 */
+.side {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-20);
+  min-width: 0;
+}
+
+.callouts {
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.callout {
+  cursor: default;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: start;
+  animation: calloutIn var(--duration-slow) var(--ease-enter) backwards;
+  animation-delay: calc(var(--_fly) * 0.4 + var(--i) * 70ms);
+}
+
+@keyframes calloutIn {
+  from {
+    opacity: 0;
+    translate: var(--spacing-8) 0;
+  }
+}
+
+.calloutText {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.calloutLabel {
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.calloutLabel code {
+  color: inherit;
+}
+
+.calloutSub {
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.calloutSub code {
+  color: inherit;
+}
+
+.callout[data-bad] .calloutLabel,
+.callout[data-bad] .calloutSub {
+  color: var(--text-error);
+}
+
+/* 넓은 그릇 — 목록을 하늘 오른쪽 좁은 열로 */
+@container (width > 640px) {
+  .wrap {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 13rem);
+    gap: var(--spacing-24);
+  }
+
+  .wrap[data-mode="cover"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tok,
+  .spec {
+    transition: none;
+  }
+
+  .sky[data-mode="cover"][data-live] .tok,
+  .tok .spec i,
+  .groupName,
+  .caption,
+  .mark,
+  .bad,
+  .callout {
+    animation: none;
+  }
+}
