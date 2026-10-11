@@ -86,6 +86,7 @@
   transform: rotateY(180deg);
   padding: var(--spacing-16);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* 뒷면에 아래로 더 남은 내용이 있다는 표시 — 스크롤 칸 밖, 뒷면 위에 덮는 층. 뒷면과 같이 뒤집혀 있고(rotateY)
