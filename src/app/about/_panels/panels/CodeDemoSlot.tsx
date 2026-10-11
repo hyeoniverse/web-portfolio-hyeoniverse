@@ -8,6 +8,7 @@
 
 import dynamic from "next/dynamic";
 import styles from "./CodeHighlightsPanel.module.css";
+import AutoplayVideo from "@/components/common/AutoplayVideo";
 
 /* 데모 종류. 미설정(undefined) = 아직 안 채운 상태 → 아무것도 렌더하지 않는다 */
 export type CodeDemoMode = "media" | "sandbox" | "live";
@@ -61,13 +62,9 @@ export default function CodeDemoSlot({
     if (!url) return null;
     if (VIDEO_RE.test(url)) {
       return (
-        <video
+        <AutoplayVideo
           className={styles.codeDemoMedia}
           src={url}
-          autoPlay
-          loop
-          muted
-          playsInline
         />
       );
     }

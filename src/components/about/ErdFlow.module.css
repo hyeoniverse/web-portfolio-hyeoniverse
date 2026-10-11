@@ -63,8 +63,7 @@
   border-bottom: var(--border-light);
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  font: var(--font-code-lg);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-label-lg);
   letter-spacing: -0.01em;
 }
 
@@ -255,8 +254,7 @@
 }
 .wrap :global(.react-flow__edge-text) {
   fill: var(--text-accent);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
 }
 
 /* ── 관계선 ── */

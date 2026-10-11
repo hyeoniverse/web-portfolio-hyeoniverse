@@ -18,13 +18,13 @@
   display: block;
   width: 100%;
   padding: var(--textarea-padding);
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-surface);
   background: transparent;
   font: var(--font-body-md);
   line-height: 1.5;
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   /* native resize 는 끈다 — 브라우저가 그리는 손잡이는 스크롤이 생기면 스크롤바 층에 가려
      보였다 안 보였다 한다. 끄는 일은 어차피 아래 .resizeOverlay 의 JS 가 하고 있었으므로,
      손잡이 그림도 그쪽에서 직접 그려 늘 같은 자리에 보이게 한다. */
@@ -66,7 +66,7 @@
 
 .sm {
   padding: var(--textarea-padding);
-  border-color: var(--border-color-light);
+  border-color: var(--border-color-control);
   font-size: var(--font-size-body-md);
 }
 
@@ -185,8 +185,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.05em;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -276,7 +275,7 @@
 
 /* contenteditable focus outline */
 .editable:focus {
-  outline: none;
+  outline-color: transparent;
   border-color: var(--text-primary);
 }
 

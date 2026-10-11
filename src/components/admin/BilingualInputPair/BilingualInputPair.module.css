@@ -50,8 +50,7 @@
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }
@@ -60,11 +59,11 @@
   flex: 1;
   min-width: 0;
   border: none;
-  outline: none;
+  outline-color: transparent;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  padding-inline: 0 !important;
+  padding-inline: 0;
   padding-block: 0;
   margin: 0;
   appearance: none;

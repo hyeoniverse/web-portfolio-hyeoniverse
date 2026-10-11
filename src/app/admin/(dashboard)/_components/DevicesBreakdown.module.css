@@ -14,7 +14,7 @@
 }
 
 .deviceLegend {
-  composes: list from "../components/List.module.css";
+  /* <List> 로 그린다 */
   flex: 1;
   min-width: 140px;
 }
@@ -88,8 +88,7 @@ button.deviceLegendBtn {
 }
 
 .deviceLegendPct {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
@@ -112,8 +111,7 @@ button.deviceLegendBtn {
   border: none;
   background: transparent;
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
@@ -174,8 +172,7 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillTitle {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -188,7 +185,7 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillList {
-  composes: list from "../components/List.module.css";
+  /* <List> 로 그린다 */
   gap: var(--spacing-4);
 }
 
@@ -221,16 +218,14 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillCount {
-  font: var(--font-code-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
   color: var(--text-secondary);
 }
 
 .deviceDrillPct {
-  font: var(--font-code-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
   color: var(--text-accent);
   min-width: var(--control-height-xs);
   text-align: right;

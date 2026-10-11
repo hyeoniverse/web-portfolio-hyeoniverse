@@ -28,8 +28,7 @@
   z-index: 2;
 }
 .cardLink:focus-visible {
-  outline: 2px solid var(--text-accent);
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
 /* placeholder 카드 (compact 아닌 경우) — placeholder 안에 excerpt 보여서 body 의 excerpt 숨김. */
@@ -41,7 +40,8 @@
 .imageWrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  /* 목록 masonry 는 칸마다 비율을 바꾼다(PostsGrid 가 --post-card-aspect 를 넣는다) */
+  aspect-ratio: var(--post-card-aspect, 16 / 10);
   overflow: hidden;
   flex-shrink: 0;
   border-radius: 0;
@@ -80,13 +80,13 @@
   }
 }
 
-/* compact placeholderCard (series 모드 — imageWrap 강제 140px): 항상 swap.
- * .compact .excerpt 와 .placeholderCard .body .excerpt 두 default 룰 override 위해 !important. */
+/* compact placeholderCard (series 모드 — 작은 썸네일): 항상 swap.
+ * 위의 숨김 규칙들은 :not(.compact) 라 여기와 겹치지 않는다 */
 .placeholderCard.compact .placeholderExcerpt {
-  display: none !important;
+  display: none;
 }
 .placeholderCard.compact .body .excerpt {
-  display: -webkit-box !important;
+  display: -webkit-box;
 }
 .placeholderCard.compact .placeholderTitle {
   -webkit-line-clamp: 3;
@@ -231,8 +231,7 @@
   border: var(--border-accent-light);
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -242,7 +241,7 @@
 .title {
   font: var(--font-headline-lg);
   color: var(--text-primary);
-  min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
+  min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -322,28 +321,28 @@
    Featured variant — 그리드 첫 번째 아이템
    ═══════════════════════════════════════════ */
 .featured {
-  flex-direction: row;
-  gap: var(--spacing-32);
-  padding-bottom: var(--spacing-24);
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: var(--spacing-20);
 }
 
 .featured .imageWrap {
-  width: 50%;
+  width: 100%;
 }
 
 .featured .body {
-  padding: var(--spacing-12) 0;
-  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0 0 0;
+  gap: var(--spacing-8);
 }
 
 .featured .title {
-  font-size: clamp(1.95rem, 1.111rem + 1.27vw, 2.25rem);
+  font-size: clamp(1.25rem, 0.942rem + 1.26vw, 1.75rem);
   min-height: unset;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .featured .excerpt {
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .featured .meta {
@@ -354,7 +353,7 @@
    Compact variant — 시리즈 필터링 등 카드 높이 축소
    ═══════════════════════════════════════════ */
 .compact .imageWrap {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
 }
 
 .compact .body {
@@ -388,25 +387,26 @@
    Banner variant — 2-col span 슬롯의 ultra-wide 이미지
    ═══════════════════════════════════════════ */
 .banner .imageWrap {
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 10;
 }
 
 /* ═══════════════════════════════════════════
    Square / Portrait variants — 1-col 카드의 이미지 비율만 변경
    ═══════════════════════════════════════════ */
 .square .imageWrap {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 10;
 }
 
 .portrait .imageWrap {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10;
 }
 
 /* ── Image overlay badges 좌상단 stack (HOT + Pinned) ── */
+/* 모서리 여백은 놓이는 자리가 바꿀 수 있다 — 목록 격자의 좁은 썸네일은 --post-card-badge-inset 을 4px 로(PostsGrid) */
 .imageBadgesLeft {
   position: absolute;
-  top: var(--spacing-12);
-  left: var(--spacing-12);
+  top: var(--post-card-badge-inset, var(--spacing-12));
+  left: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: flex;
   /* hot·pinned 나란히(가로) */
@@ -432,8 +432,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -441,10 +440,12 @@
 }
 
 /* ── Lang badge 우상단 오버레이 ── */
+/* 놓이는 자리가 우하단으로 내릴 수 있다 — --post-card-lang-top: auto · --post-card-lang-bottom(PostsGrid 목록) */
 .langOverlay {
   position: absolute;
-  top: var(--spacing-12);
-  right: var(--spacing-12);
+  top: var(--post-card-lang-top, var(--spacing-12));
+  bottom: var(--post-card-lang-bottom, auto);
+  right: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: inline-flex;
   align-items: center;
@@ -453,8 +454,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -462,73 +462,68 @@
 }
 
 /* ═══════════════════════════════════════════
-   Responsive
+   Responsive — 기본은 좁은 화면(이미지 16:10 통일 · featured 세로), 넓은 화면 값은 아래
    ═══════════════════════════════════════════ */
-@media (width <= 1024px) {
-  .featured {
-    flex-direction: column;
+@media (width > 768px) {
+  .title {
+    min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
   }
 
-  .featured .imageWrap {
-    width: 100%;
+  /* 16:10 통일은 좁은 화면만 — 넓은 화면은 bento variant 마다 비율이 다르다 */
+  .banner .imageWrap {
+    aspect-ratio: 21 / 9;
+  }
+
+  .square .imageWrap {
+    aspect-ratio: 1 / 1;
+  }
+
+  .portrait .imageWrap {
+    aspect-ratio: 3 / 4;
+  }
+
+  .compact .imageWrap {
+    aspect-ratio: 16 / 9;
+  }
+
+  .featured {
+    gap: var(--spacing-32);
+    padding-bottom: var(--spacing-24);
   }
 
   .featured .body {
     padding: var(--spacing-16) 0 0 0;
+    gap: var(--spacing-12);
   }
 
   .featured .title {
-    font-size: clamp(1.25rem, 0.942rem + 1.26vw, 1.75rem);
-  }
-}
-
-@media (width <= 768px) {
-  .body {
-    padding: var(--spacing-12) 0 0 0;
-  }
-
-  /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
-  .title {
-    min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
-  }
-
-  .excerpt {
-    font-size: var(--font-size-body-sm);
-    min-height: calc(var(--font-size-body-sm) * var(--line-height-160) * 2);
-  }
-
-  /* 모바일 — 모든 bento variant(banner/square/portrait/compact) 의 이미지 비율 통일 (16:10) */
-  .banner .imageWrap,
-  .square .imageWrap,
-  .portrait .imageWrap,
-  .compact .imageWrap {
-    aspect-ratio: 16 / 10;
-  }
-
-  /* featured — 모바일에서 horizontal layout 해제, 표준 vertical 로 통일 */
-  .featured {
-    flex-direction: column;
-    gap: 0;
-    padding-bottom: var(--spacing-20);
-  }
-
-  .featured .imageWrap {
-    width: 100%;
-  }
-
-  .featured .body {
-    padding: var(--spacing-12) 0 0 0;
-    gap: var(--spacing-8);
-  }
-
-  .featured .title {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 
   .featured .excerpt {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 }
+
+/* featured — 1024 초과에서만 가로 배치 */
+@media (width > 1024px) {
+  .featured {
+    flex-direction: row;
+  }
+
+  .featured .imageWrap {
+    width: 50%;
+  }
+
+  .featured .body {
+    padding: var(--spacing-12) 0;
+  }
+
+  .featured .title {
+    font-size: clamp(1.95rem, 1.111rem + 1.27vw, 2.25rem);
+  }
+}
+
 
 /* ── Tags row — 1줄 default (max-height 으로 clip), expand 시 wrap ── */
 .tagsRow {
@@ -585,4 +580,101 @@
 .tagsToggle:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════
+   목록 레이아웃(설정 posts.layout · 시리즈) — PostsGrid 가 고른 배치를 카드가 스스로 그린다.
+   예전에는 PostsGrid 가 [class*="imageWrap"] 같은 선택자와 !important 로 바깥에서 덮었다(4-4)
+   ═══════════════════════════════════════════ */
+
+/* grid — 균일 격자 + 이미지 우선. 발췌 · 태그를 숨긴다 */
+/* .card 를 붙여 좁은 카드의 swap 규칙(@container, 특이도 0,4,0)보다 세게 */
+.layoutGrid.card .body .excerpt,
+.layoutGrid .placeholderExcerpt,
+.layoutGrid .tagsRow {
+  display: none;
+}
+
+/* list — 수평 카드 1열(썸네일 좌측) */
+.layoutList {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--spacing-16);
+  align-items: start;
+  padding-bottom: var(--spacing-20);
+}
+.layoutList .imageWrap {
+  aspect-ratio: 16 / 10;
+  width: 120px;
+}
+@media (width > 768px) {
+  .layoutList {
+    grid-template-columns: 220px 1fr;
+    gap: var(--spacing-20);
+  }
+  .layoutList .imageWrap {
+    width: 220px;
+  }
+}
+.layoutList .body {
+  padding-top: 0;
+}
+/* 썸네일 안의 제목 · 발췌는 숨기고 body 에 보인다(작은 썸네일에 글자 · 칩이 겹치지 않게) */
+.layoutList .placeholderText {
+  display: none;
+}
+.layoutList.placeholderCard .body .excerpt {
+  display: -webkit-box;
+}
+
+/* series — 시리즈 필터링 timeline 의 한 칸. 작은 썸네일(7:5) 좌측 + 본문. compact 와 함께 붙는다 */
+.series {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--spacing-12);
+  align-items: start;
+}
+.series .imageWrap {
+  aspect-ratio: 7 / 5;
+  width: 100px;
+}
+.series .body {
+  padding-top: 0;
+}
+@media (width > 768px) {
+  .series {
+    grid-template-columns: 140px 1fr;
+    gap: var(--spacing-16);
+  }
+  .series .imageWrap {
+    width: 140px;
+  }
+}
+
+/* featured 레이아웃의 첫 카드 — 전폭 hero(이미지 1.4 : 본문 1). variant="featured" 와 함께 붙는다 */
+.featuredHero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(var(--spacing-20), 4vw, var(--spacing-32));
+  align-items: center;
+}
+@media (width > 768px) {
+  .featuredHero {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+.featuredHero .imageWrap {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+.featuredHero .body {
+  padding-top: 0;
+}
+.featuredHero .title {
+  font-size: clamp(1.4rem, 1.103rem + 1.22vw, 2.2rem);
+  line-height: 1.15;
+}
+.featuredHero .placeholderTitle {
+  font-size: clamp(1.2rem, 0.977rem + 0.91vw, 1.8rem);
+  -webkit-line-clamp: 3;
 }

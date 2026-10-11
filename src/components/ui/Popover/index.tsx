@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 import { usePortalContainer } from "../portalContainer";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./Popover.module.css";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 // "bubble" = Select 식 오른쪽 말풍선(solid 패널 + trigger 를 가리키는 꼬리, trigger 세로 중심 정렬).
 // 위치가 아니라 "모양"을 정하는 값 — 별도 shape/variant prop 없이 이 하나로 버블이 된다.
@@ -77,6 +78,9 @@ let activeHoverPopover: { close: () => void } | null = null;
  *  - outside click / ESC 로 닫힘
  *  - scroll / resize 시 자동 reposition
  */
+/* 바텀 시트의 폭 — 쓰는 쪽 contentClassName 의 드롭다운 폭을 덮는다(위 주석) */
+const SHEET_SIZE = { width: "100vw", minWidth: 0, maxWidth: "none" } as const;
+
 export default function Popover({
   trigger,
   children,
@@ -111,6 +115,8 @@ export default function Popover({
     onOpenChange?.(next);
   };
   const close = () => setOpen(false);
+  /* 바텀 시트 — 손잡이 · 제목 줄을 아래로 쓸면 닫힌다 */
+  const sheetDrag = useSheetDrag(close);
   const toggle = () => setOpen(!open);
 
   // ── hover 로 열기(openOnHover, 데스크톱) — trigger↔content 이동/이탈 순간은 close 타이머로 브릿지.
@@ -322,6 +328,9 @@ export default function Popover({
                   ref={topContentRef}
                   popover="manual"
                   className={cn("ui-sheet", contentClassName)}
+                  /* 시트는 언제나 화면 폭이다. contentClassName 은 드롭다운의 폭(width: 300px 등)도 함께 담아
+                     오는데, 그 클래스(층 밖)가 .ui-sheet(base 층)를 이겨 시트가 좁아졌다 — 폭만 여기서 되돌린다 */
+                  style={SHEET_SIZE}
                   /* Lenis 가 wheel/touch 를 가로채 내부 스크롤이 막히는 것 방지 */
                   data-lenis-prevent
                   initial={{ y: "100%" }}
@@ -331,13 +340,13 @@ export default function Popover({
                   role="dialog"
                   aria-modal="true"
                 >
-                  <div className="ui-sheet-handle" aria-hidden>
+                  <div className="ui-sheet-handle" aria-hidden {...sheetDrag}>
                     <span className="ui-sheet-handle-bar" />
                   </div>
                   {/* bottom sheet 에는 X 버튼을 두지 않는다 — 상단 grabber 가 있고 backdrop 탭/Esc 로 닫히며,
                       아래로 쓸어 닫는 게 기본 제스처라 X 는 군더더기다. Modal 의 bottom sheet 도 동일 규칙. */}
                   {sheetTitle && (
-                    <div className={styles.sheetHeader}>
+                    <div className={styles.sheetHeader} {...sheetDrag}>
                       <h3 className={styles.sheetTitle}>{sheetTitle}</h3>
                     </div>
                   )}

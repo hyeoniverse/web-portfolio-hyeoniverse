@@ -32,8 +32,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   margin: 0 0 var(--spacing-8) 0;
@@ -45,8 +44,7 @@
 }
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 .envGroupCount {
-  font: var(--font-code-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   text-transform: none;
@@ -149,6 +147,7 @@
 }
 .envSourceDot[data-source="edit"] {
   background: var(--bg-warning-solid);
+  box-shadow: var(--ring-warning-solid);
 }
 .envSourceDot[data-source="none"] {
   background: transparent;
@@ -230,7 +229,7 @@
   background: transparent;
   font: var(--font-code-sm);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   resize: vertical;
   transition: border-color var(--duration-base) var(--ease-standard);
 }
@@ -329,8 +328,7 @@
 .envSourceBadge {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   flex-shrink: 0;

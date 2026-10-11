@@ -108,7 +108,7 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   font: var(--font-code-sm);
-  outline: none;
+  outline-color: transparent;
 }
 /* + 파일 = 탭과 같은 박스. 별도 버튼 모양이면 탭 줄에서 혼자 떠 보인다 */
 .addTab {

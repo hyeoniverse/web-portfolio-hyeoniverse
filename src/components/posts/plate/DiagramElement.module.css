@@ -295,7 +295,7 @@
   max-width: 100%;
   border: none;
   background: transparent;
-  outline: none;
+  outline-color: transparent;
   padding: 0;
   margin: 0;
   color: var(--text-primary);
@@ -326,8 +326,7 @@
   margin-top: var(--spacing-4);
 }
 .diagramFormLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);

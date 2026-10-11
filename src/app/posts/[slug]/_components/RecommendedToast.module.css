@@ -6,11 +6,17 @@
   bottom: var(--spacing-24);
   left: var(--spacing-24);
   z-index: var(--z-index-float);
-  width: 300px;
+  width: 280px;
   border: var(--border-default);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
   overflow: hidden;
+}
+
+@media (width > 768px) {
+  .toast {
+    width: 300px;
+  }
 }
 
 .toastHidden {
@@ -28,8 +34,7 @@
 
 .toastLabel {
   flex: 1;
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -139,10 +144,4 @@
 .toast .toastItem:hover .toastThumbImg,
 .toast .toastItem:hover .toastThumbPlaceholder {
   transform: scale(1.08);
-}
-
-@media (width <= 768px) {
-  .toast {
-    width: 280px;
-  }
 }

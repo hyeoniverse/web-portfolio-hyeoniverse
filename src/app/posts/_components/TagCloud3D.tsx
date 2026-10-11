@@ -7,6 +7,8 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 interface TagItem {
   tag: string;
@@ -35,6 +37,10 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
   const velRef = useRef({ yaw: 0.006, pitch: 0.002 });
   const angleRef = useRef({ yaw: 0, pitch: 0 });
   const pausedRef = useRef(false);
+  /* 기기의 "동작 줄이기"가 켜져 있으면 저절로 돌지 않는다(3.9-4) — 끌어서 돌리기는 된다 */
+  const reduce = useReducedMotion();
+  const reduceRef = useRef(reduce);
+  useSyncRef(reduceRef, reduce);
 
   // Fibonacci sphere — 균등 분포
   const points = useMemo(() => {
@@ -71,7 +77,7 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
     const tick = (now: number) => {
       const dt = (now - last) / 16.67;
       last = now;
-      if (!pausedRef.current) {
+      if (!pausedRef.current && !reduceRef.current) {
         angleRef.current.yaw += velRef.current.yaw * dt;
         angleRef.current.pitch += velRef.current.pitch * dt;
       }

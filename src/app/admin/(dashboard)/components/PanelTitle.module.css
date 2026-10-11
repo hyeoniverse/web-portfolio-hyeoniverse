@@ -2,8 +2,7 @@
    (섹션 헤더와 동일 언어). horizontal padding 은 cascade var (외부에서 --_item-inline-start/end
    설정 가능, List.item 과 동일 패턴) */
 .title {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   margin: 0;
   padding-top: var(--spacing-12);

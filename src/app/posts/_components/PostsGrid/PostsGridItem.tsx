@@ -71,7 +71,7 @@ export default function PostsGridItem({
         <PostCard
           post={post}
           variant={isFeaturedHero ? "featured" : "standard"}
-          layout={activeSeries ? undefined : postsLayout}
+          layout={activeSeries ? "series" : postsLayout}
           banner={!activeSeries && type === "banner"}
           square={!activeSeries && type === "square"}
           portrait={!activeSeries && type === "portrait"}

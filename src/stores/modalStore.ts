@@ -27,7 +27,8 @@ export const useModalStore = create<ModalState>((set) => ({
         content,
         style: {
           ...options?.style,
-          width: options?.width,
+          // 폭은 넓은 화면에서만 쓴다 — 작은 화면 시트는 전폭(_layout.css #modal)
+          ...(options?.width !== undefined && { "--modal-width": options.width }),
           height: options?.height,
           background: options?.background,
         },

@@ -128,8 +128,7 @@
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
 }
 
 .groupHead span {
