@@ -158,7 +158,15 @@
 }
 
 /* ── 뒷면 (이름 + link/email + contribs) ── role 은 contrib group label 로 표시 */
+/* 머리(이름 · 링크)는 뒷면 위에 붙여 두고 아래 내용만 스크롤한다 — 뒷면 안쪽 여백만큼 위로 당겨 맨 위 가장자리에 붙고,
+   바탕을 깔아 밑으로 지나가는 글을 가린다 */
 .polaroidBackHeader {
+  position: sticky;
+  top: calc(var(--spacing-16) * -1);
+  z-index: 1;
+  margin-top: calc(var(--spacing-16) * -1);
+  padding-top: var(--spacing-16);
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
