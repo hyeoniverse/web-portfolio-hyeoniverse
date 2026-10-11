@@ -30,36 +30,54 @@
   background: var(--bg-black);
 }
 
-/* 진행률 — 화면 아래 가운데. 가는 막대가 차오르고 옆에 퍼센트 */
+/* 진행률 — 화면 가운데 로고 아래의 작은 별. 흐린 별 위에 강조색 별을 아래부터 --p 만큼 드러낸다. 다 차면 한 번 반짝인다 */
 .progress {
+  --_fill: var(--duration-slow); /* 차오르는 걸음 — 한 자리(3.9-1) */
+
   position: absolute;
-  bottom: var(--spacing-64);
+  top: calc(50% + var(--spacing-80));
   left: 50%;
-  display: flex;
-  gap: var(--spacing-12);
-  align-items: center;
+  width: var(--spacing-32);
+  aspect-ratio: 1;
   translate: -50% 0;
 }
 
-.track {
-  position: relative;
-  width: var(--size-128);
-  height: var(--border-width-1);
-  overflow: hidden;
-  background: var(--text-white-muted);
-}
-
-.fill {
+.starBase,
+.starFill {
   position: absolute;
   inset: 0;
-  transform-origin: left;
-  background: var(--text-white);
-  transition: scale var(--duration-slow) var(--ease-standard);
+  width: 100%;
+  height: 100%;
 }
 
-.percent {
-  min-width: 4ch;
-  font: var(--font-grotesk-micro);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-white-muted);
+.starBase {
+  fill: var(--text-white-muted);
+  opacity: 0.35;
+}
+
+.starFill {
+  fill: var(--text-accent);
+  clip-path: inset(calc((1 - var(--p)) * 100%) 0 0 0);
+  transition: clip-path var(--_fill) var(--ease-standard);
+}
+
+.progress[data-full] .starFill {
+  animation: starTwinkle var(--duration-slower) var(--ease-spring);
+}
+
+@keyframes starTwinkle {
+  50% {
+    scale: 1.5;
+    rotate: 45deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .starFill {
+    transition: none;
+  }
+
+  .progress[data-full] .starFill {
+    animation: none;
+  }
 }
