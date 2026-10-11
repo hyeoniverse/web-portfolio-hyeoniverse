@@ -1,0 +1,595 @@
+/* ── 제품 랜딩 조각 ── */
+
+/* 프레임 하나 = 장면 하나 — 프레임 높이를 다 쓰고 가운데에 모은다(안에서 스크롤하지 않게) */
+.trustScene,
+.faqScene,
+.final {
+  --_line: var(--border-width-1) solid var(--border-color-light);
+  --_stagger: 90ms; /* 단계가 바뀔 때 줄마다 차례로 — 한 자리의 장식(3.9-1) */
+
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-32);
+  min-height: 100%;
+}
+
+.head {
+  display: grid;
+  gap: var(--spacing-12);
+}
+
+.eyebrow {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  aspect-ratio: 1;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  background: currentcolor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+.title {
+  max-width: 22ch;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+}
+
+/* ── 첫 화면 CTA ── */
+
+.heroCta {
+  display: grid;
+  gap: var(--spacing-20);
+}
+
+.value {
+  max-width: 34ch;
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* ── 신뢰 — 점수판 숫자 셋, 지금 단계의 숫자가 앞으로 나오고 근거가 그 아래로 옮겨 간다 ── */
+
+.board {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: var(--_line);
+  list-style: none;
+}
+
+.boardItem {
+  border-bottom: var(--_line);
+}
+
+/* 좁은 화면 — 한 줄에 이름 · 숫자 */
+.boardBtn {
+  display: flex;
+  gap: var(--spacing-16);
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-12) 0;
+  text-align: left;
+  color: var(--text-primary);
+  background: transparent;
+  opacity: 0.45;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.boardItem[data-on] .boardBtn {
+  opacity: 1;
+}
+
+.trustLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.trustValue {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  transform-origin: left bottom;
+  transition: scale var(--duration-slower) var(--ease-enter);
+}
+
+.trustUnit {
+  font: var(--font-body-md);
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+/* 근거 — 세 목록이 같은 칸에 겹쳐 있고 지금 단계만 보인다 */
+.proof {
+  display: grid;
+}
+
+.trustPoints {
+  display: grid;
+  grid-area: 1 / 1;
+  align-content: start;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+}
+
+.trustPoints li {
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    translate var(--duration-slow) var(--ease-enter);
+  transition-delay: calc(var(--i) * var(--_stagger));
+}
+
+.trustPoints li::before {
+  content: "✓ ";
+  color: var(--text-accent);
+}
+
+.trustPoints[data-state="next"] li {
+  opacity: 0;
+  translate: 0 var(--spacing-16);
+}
+
+.trustPoints[data-state="past"] li {
+  opacity: 0;
+  translate: 0 calc(var(--spacing-16) * -1);
+  transition-delay: 0s;
+}
+
+/* ── 자주 묻는 질문 — 질문 목록과 답 하나. 답은 같은 칸에서 바뀐다 ── */
+
+.faqSide {
+  display: grid;
+  gap: var(--spacing-16);
+}
+
+.faqList {
+  margin: 0;
+  padding: 0;
+  border-top: var(--_line);
+  list-style: none;
+}
+
+.faqList li {
+  border-bottom: var(--_line);
+}
+
+.faqQ {
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: baseline;
+  width: 100%;
+  padding: var(--spacing-12) 0;
+  font: var(--font-body-lg);
+  text-align: left;
+  color: var(--text-tertiary);
+  word-break: keep-all;
+  background: transparent;
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    translate var(--duration-slow) var(--ease-enter);
+}
+
+.faqQ:hover {
+  color: var(--text-secondary);
+}
+
+.faqList li[data-on] .faqQ {
+  color: var(--text-primary);
+  translate: var(--spacing-8) 0;
+}
+
+.faqNo {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.faqList li[data-on] .faqNo {
+  color: var(--text-accent);
+}
+
+.faqStage {
+  display: grid;
+}
+
+.faqA {
+  display: grid;
+  grid-area: 1 / 1;
+  align-content: start;
+  gap: var(--spacing-12);
+  transform-origin: left center;
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    translate var(--duration-slower) var(--ease-enter),
+    scale var(--duration-slower) var(--ease-enter);
+}
+
+.faqA[data-state="next"] {
+  opacity: 0;
+  translate: 0 var(--spacing-32);
+  scale: 0.96;
+  pointer-events: none;
+}
+
+.faqA[data-state="past"] {
+  opacity: 0;
+  translate: 0 calc(var(--spacing-32) * -1);
+  scale: 1.04;
+  pointer-events: none;
+}
+
+.faqCount {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.12em;
+  color: var(--text-accent);
+}
+
+/* 좁은 화면 — 질문은 목록에 이미 밝게 떠 있으니 답 위에서는 감춘다 */
+.faqAq {
+  display: none;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.faqAa {
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* ── 마지막 CTA — 프레임 가운데에 큰 제목 · 단추 셋, 길잡이 별이 마지막으로 앉는 자리. 들어오면 차례로 떠오른다 ── */
+
+.final {
+  justify-items: center;
+  gap: var(--spacing-20);
+  text-align: center;
+}
+
+.final > * {
+  opacity: 0;
+  translate: 0 var(--spacing-24);
+  transition:
+    opacity var(--duration-slower) var(--ease-standard),
+    translate var(--duration-slower) var(--ease-enter);
+  transition-delay: calc(var(--i, 0) * var(--_stagger) * 1.6);
+}
+
+.final[data-on] > * {
+  opacity: 1;
+  translate: 0;
+}
+
+.finalGuide {
+  margin-bottom: var(--spacing-8);
+}
+
+.finalTitle {
+  margin: 0;
+  font: var(--font-grotesk-number);
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+}
+
+.finalBody {
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.final .actions {
+  justify-content: center;
+}
+
+@media (width > 768px) {
+  .trustScene,
+  .faqScene {
+    gap: var(--spacing-40);
+  }
+
+  .board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-32);
+    border-top: 0;
+  }
+
+  .boardItem {
+    border-top: var(--_line);
+    border-bottom: 0;
+  }
+
+  .boardBtn {
+    display: grid;
+    gap: var(--spacing-12);
+    padding: var(--spacing-20) 0 0;
+  }
+
+  .trustValue {
+    font: var(--font-grotesk-number);
+    letter-spacing: -0.04em;
+    scale: 0.72;
+  }
+
+  .boardItem[data-on] .trustValue {
+    scale: 1;
+  }
+
+  .trustUnit {
+    font: var(--font-grotesk-headline-sm);
+  }
+
+  /* 근거가 지금 숫자 밑으로 옮겨 간다 — 한 칸 폭, 한 칸씩 */
+  .proof {
+    width: calc((100% - var(--spacing-32) * 2) / 3);
+    translate: calc(var(--at, 0) * (100% + var(--spacing-32))) 0;
+    transition: translate var(--duration-slower) var(--ease-enter);
+  }
+
+  .faqScene {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--spacing-64);
+    align-items: center;
+  }
+
+  .faqQ {
+    padding: var(--spacing-16) 0;
+    font: var(--font-grotesk-headline-sm);
+  }
+
+  .faqA {
+    gap: var(--spacing-20);
+  }
+
+  .faqAq {
+    display: block;
+  }
+
+  .faqAa {
+    font: var(--font-body-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trustValue,
+  .proof,
+  .trustPoints li,
+  .faqQ,
+  .faqA,
+  .final > * {
+    transition: none;
+  }
+}
+
+/* ── 엔딩 크레딧 — 한 화면 프레임 안에서 자막 기둥이 아래에서 위로 올라간다(움직임은 컴포넌트가 Web Animations 로).
+   위아래 가장자리는 흐려 사라진다. 프레임 스크롤은 쓰지 않는다 ── */
+.credits {
+  position: relative;
+  height: 100%;
+}
+
+.creditsStage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, currentcolor 20%, currentcolor 78%, transparent 92%);
+}
+
+/* 별이 쓰는 동안 — 쓰는 줄(마무리의 별 자리 높이)이 화면 위쪽이라, 써진 줄이 읽힐 자리를 남기게 위쪽 흐림 띠를 줄인다 */
+.creditsStage[data-writing] {
+  mask-image: linear-gradient(to bottom, transparent, currentcolor 10%, currentcolor 78%, transparent 92%);
+}
+
+/* 처음 자리 — 제목이 화면 위쪽 1/3 에 보이게. 여기서부터 위로 올라간다 */
+.creditsRoll {
+  position: absolute;
+  top: 30%;
+  right: 0;
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-24);
+  padding-inline: var(--spacing-page-inline);
+  text-align: center;
+  will-change: transform;
+}
+
+/* 별이 쓰는 자막 — 흐르는 동안(data-writing)만 처음엔 감춰 두고, 쓰는 선을 지나면 가운데(별 자리)에서 양옆으로 펼쳐진다 */
+.creditsStage[data-writing] [data-credit] {
+  --_write: 520ms; /* 한 줄을 쓰는 시간 — CreditsRoll 의 WRITE_MS 와 같게(3.9-1) */
+
+  clip-path: inset(0 50% 0 50%);
+  opacity: 0.15;
+  transition:
+    clip-path var(--_write) var(--ease-standard),
+    opacity var(--_write) var(--ease-standard);
+}
+
+.creditsStage[data-writing] [data-credit][data-shown] {
+  clip-path: inset(0 -1em 0 -1em);
+  opacity: 1;
+}
+
+/* 쓰는 자리 — 보이지 않는 상자. 자리(translate)는 컴포넌트가 쓰는 줄 가운데에 두고, 길잡이 별이 따라온다 */
+.creditsPen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--spacing-20);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+/* 별똥별 — 밝은 머리와 지나온 쪽으로 늘어진 꼬리. 꼬리는 머리를 축으로 날아가는 방향(--_angle, 컴포넌트가 정한다)으로 돌린다 */
+.creditsMeteor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: var(--spacing-8);
+  aspect-ratio: 1;
+  margin: calc(var(--spacing-4) * -1) 0 0 calc(var(--spacing-4) * -1);
+  border-radius: var(--radius-full);
+  background: var(--text-white);
+  box-shadow: 0 0 var(--spacing-16) var(--spacing-4) var(--text-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.creditsMeteor::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 18rem;
+  height: var(--border-width-3);
+  border-radius: var(--radius-full);
+  background: linear-gradient(to left, var(--text-white), var(--text-accent) 25%, transparent);
+  transform-origin: right center;
+  translate: 0 -50%;
+  rotate: var(--_angle, 0rad);
+}
+
+/* 닿을 때 퍼지는 빛 — 강조색 고리 */
+.creditsBurst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: var(--spacing-48);
+  aspect-ratio: 1;
+  margin: calc(var(--spacing-24) * -1) 0 0 calc(var(--spacing-24) * -1);
+  border: var(--border-width-2) solid var(--text-accent);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 var(--spacing-24) var(--text-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 마무리 — 별똥별이 떨어지기 전까지 감춰 두었다가(data-writing), 닿으면(data-landed) 흐릿하게서 또렷하게 피어난다 */
+.creditsStage[data-writing] .creditsEnd {
+  --_bloom: 700ms; /* 마무리가 피어나는 시간 — 한 자리(3.9-1) */
+
+  opacity: 0;
+  scale: 0.92;
+  filter: var(--blur-8);
+  transition:
+    opacity var(--_bloom) var(--ease-enter),
+    scale var(--_bloom) var(--ease-enter),
+    filter var(--_bloom) var(--ease-enter);
+}
+
+.creditsStage[data-writing][data-landed] .creditsEnd {
+  opacity: 1;
+  scale: 1;
+  filter: none;
+}
+
+.creditsStar {
+  width: var(--spacing-48);
+  aspect-ratio: 1;
+}
+
+.creditsEyebrow {
+  margin: 0;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.creditsTitle {
+  margin: 0;
+  font: var(--font-display-lg);
+}
+
+.creditsList {
+  display: grid;
+  gap: var(--spacing-48);
+  margin: var(--spacing-32) 0 0;
+}
+
+.creditsList div {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.creditsList dt {
+  margin-bottom: var(--spacing-8);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.creditsList dd {
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-primary);
+}
+
+/* 끝의 마무리 CTA — 자막과 한 화면쯤 떨어져 올라와 무대 가운데에 멈춘다 */
+.creditsEnd {
+  width: 100%;
+  margin-top: 40svh;
+}
+
+/* 움직임 줄이기 — 흐르지 않으니 한 화면에 다 들어오게 세 칸으로 */
+@media (prefers-reduced-motion: reduce) {
+  .creditsStage {
+    mask-image: none;
+  }
+
+  .creditsRoll {
+    top: calc(var(--header-height) + var(--spacing-24));
+    gap: var(--spacing-12);
+  }
+
+  .creditsList {
+    grid-template-columns: repeat(3, auto);
+    gap: var(--spacing-32);
+    margin: 0;
+  }
+
+  .creditsList div {
+    align-content: start;
+    gap: 0;
+  }
+
+  .creditsList dd {
+    font: var(--font-body-sm);
+  }
+
+  .creditsEnd {
+    margin-top: 0;
+  }
+}

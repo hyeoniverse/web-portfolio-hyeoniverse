@@ -1,0 +1,43 @@
+/* ── 길잡이 별 — 화면 위에 떠 있는 별 하나와 그 별가루. 내비게이션보다는 아래 ── */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-nav) - 1);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  aspect-ratio: 1;
+  fill: var(--fill, var(--text-accent));
+  filter: drop-shadow(0 0 8px color-mix(in oklch, var(--fill, var(--text-accent)) 60%, transparent));
+  transition:
+    fill var(--duration-slow) var(--ease-standard),
+    opacity var(--duration-slow) var(--ease-standard);
+  will-change: transform;
+}
+
+.dust {
+  position: absolute;
+  aspect-ratio: 1;
+  fill: var(--fill);
+}
+
+/* 내려앉을 자리 — 보이지 않는 상자. 크기가 곧 별의 크기 */
+.anchor {
+  display: inline-block;
+  width: var(--size);
+  aspect-ratio: 1;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    display: none;
+  }
+}

@@ -24,7 +24,7 @@ import Pressable from "@/components/ui/Pressable";
 export default function ErdExplorer({
   tables, relations, notes, lang,
   onEdit, onCreateRelation, initialZoom, children, className,
-  renderFocusBar, wheelZoom = true,
+  renderFocusBar, wheelZoom = true, focus: focusProp, onFocusChange, focusFit, notesOutside = false,
 }: {
   tables: ErdTable[];
   relations: ErdRelation[];
@@ -42,9 +42,30 @@ export default function ErdExplorer({
   className?: string;
   /** 포커스 바를 바깥에서 그리고 싶을 때 */
   renderFocusBar?: (info: { name: string; relatedCount: number; clear: () => void }) => ReactNode;
+  /** 좁혀 볼 테이블을 바깥에서 쥘 때(바깥 목록에서 고르기 등). onFocusChange 와 함께 준다. 안 주면 안에서 쥔다 */
+  focus?: string | null;
+  onFocusChange?: (name: string | null) => void;
+  /** 좁혀 볼 때 화면 맞춤(ErdFlow focusFit) */
+  focusFit?: "all" | "table";
+  /** 설계 노트를 다이어그램 안에 띄우지 않는다 — 바깥에서 읽기 좋은 크기로 따로 그릴 때 */
+  notesOutside?: boolean;
 }) {
   const [view, setView] = useState<"concept" | "schema">("schema");
-  const [focus, setFocus] = useState<string | null>(null);
+  const [innerFocus, setInnerFocus] = useState<string | null>(null);
+  const controlled = focusProp !== undefined;
+  const focus = controlled ? focusProp : innerFocus;
+  const focusRef = useRef<string | null>(null);
+  useSyncRef(focusRef, focus);
+  /* 바깥이 쥐면 바깥에 알리고, 아니면 안에서 바꾼다. 함수형 갱신도 받는다(지금 값은 ref 로) */
+  const onFocusChangeRef = useRef(onFocusChange);
+  useSyncRef(onFocusChangeRef, onFocusChange);
+  const controlledRef = useRef(controlled);
+  useSyncRef(controlledRef, controlled);
+  const setFocus = useCallback((next: string | null | ((prev: string | null) => string | null)) => {
+    const value = typeof next === "function" ? next(focusRef.current) : next;
+    if (controlledRef.current) onFocusChangeRef.current?.(value);
+    else setInnerFocus(value);
+  }, []);
   const [hovered, setHovered] = useState<string | null>(null);
   /* 좁혀 본 상태에서 한 번 더 누른 대상 — 화면만 그쪽으로 옮긴다(포커스는 그대로) */
   const [zoomTarget, setZoomTarget] = useState<string | null>(null);
@@ -58,7 +79,7 @@ export default function ErdExplorer({
      클릭이 곧 뷰 전환이면 개념적 맥락을 잃는다. */
   const focusEntity = useCallback((name: string) => {
     setFocus((prev) => (prev === name ? null : name));
-  }, []);
+  }, [setFocus]);
   const jumpToSchema = useCallback(() => setView("schema"), []);
 
   /* 인라인 화살표로 넘기면 매 렌더 새 참조가 돼 ErdFlow 의 노드가 재생성되고,
@@ -69,9 +90,7 @@ export default function ErdExplorer({
      두 번째 클릭이 새 노드에 떨어지고 dblclick 이 아예 성립하지 않는다(= 편집이 안 열림).
      더블클릭이면 아래 handleNodeEdit 이 이 타이머를 취소한다. */
   const clickTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  /* handleOpen 은 참조가 고정돼야 한다(위 주석) — 최신 focus 는 ref 로 읽는다 */
-  const focusRef = useRef<string | null>(null);
-  useSyncRef(focusRef, focus);
+  /* handleOpen 은 참조가 고정돼야 한다(위 주석) — 최신 focus 는 위의 focusRef 로 읽는다 */
   const handleOpen = useCallback((t: ErdTable) => {
     if (clickTimer.current) clearTimeout(clickTimer.current);
     clickTimer.current = setTimeout(() => {
@@ -85,7 +104,7 @@ export default function ErdExplorer({
       setZoomTarget(null);
       setFocus(t.name);
     }, 220);
-  }, []);
+  }, [setFocus]);
 
   /* 노트도 같은 규칙 — 누르면 그 노트만, 다시 누르면 되돌아온다 */
   const handleNoteClick = useCallback(
@@ -98,7 +117,11 @@ export default function ErdExplorer({
   }, [onEdit]);
 
   useEffect(() => () => { if (clickTimer.current) clearTimeout(clickTimer.current); }, []);
-  const clearFocus = useCallback(() => { setFocus(null); setZoomTarget(null); }, []);
+  const clearFocus = useCallback(() => {
+    if (controlled) onFocusChange?.(null);
+    else setInnerFocus(null);
+    setZoomTarget(null);
+  }, [controlled, onFocusChange]);
 
   /* 포커스한 테이블 + 직접 연결된 것만 — 23개를 다 띄우면 어느 게 엮였는지 보려고 계속 팬해야 한다 */
   const sub = useMemo(() => {
@@ -233,6 +256,7 @@ export default function ErdExplorer({
       showControls={false}
       initialZoom={initialZoom}
       wheelZoom={wheelZoom}
+      focusFit={focusFit}
       lang={lang}
       /* 개념 주석(관계 동사·M:N·다중값/파생)을 타입과 함께 항상 보여준다 */
       concept={overlay}
@@ -244,8 +268,8 @@ export default function ErdExplorer({
       lastViewport={viewportRef.current}
       onViewportSettled={rememberViewport}
       /* 설계 노트는 다이어그램 안, 그 테이블 옆에 */
-      noteAnchor={focus}
-      note={noteContent}
+      noteAnchor={notesOutside ? null : focus}
+      note={notesOutside ? null : noteContent}
     >
       {focusChip}
       {/* 편집 경로 안내 — admin(onEdit 있음)에서만. 클릭=좁혀보기, 더블클릭=편집이 안 보이면 아무도 못 찾는다 */}
@@ -264,14 +288,14 @@ export default function ErdExplorer({
 
   if (view === "concept") {
     return (
-      <div className={`${css.wrap} ${className ?? ""}`}>
+      <div className={`${css.wrap} ${className ?? ""}`} data-erd-fullscreen>
         <div className={css.flow}>{conceptPane(<>{viewToggle}{children}</>)}</div>
       </div>
     );
   }
 
   return (
-    <div className={`${css.wrap} ${className ?? ""}`}>
+    <div className={`${css.wrap} ${className ?? ""}`} data-erd-fullscreen>
       <div className={css.flow}>{schemaPane(<>{viewToggle}{children}</>)}</div>
     </div>
   );

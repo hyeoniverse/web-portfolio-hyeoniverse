@@ -3,8 +3,8 @@
 import css from "../../AboutStudio.module.css";
 import { DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
-import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
-import secu from "@/app/about/_components/panels/SecurityPanel.module.css";
+import { securityIcons } from "@/app/about/_panels/panels/securityIcons";
+import secu from "@/app/about/_panels/panels/SecurityPanel.module.css";
 import { Plus } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";

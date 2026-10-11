@@ -40,7 +40,7 @@ export default function FloatingObject() {
 
   const mouseNDC = useRef({ x: 0, y: 0 });
   const pointerActive = useRef(false);
-  const screenPosRef = useRef({ x: 0, y: 0 });
+  const screenPosRef = useRef<{ x: number; y: number; s?: number }>({ x: 0, y: 0 });
   const smileRef = useRef(false);
   /* 쓰다듬는 동안만 참 — BunnyHearts 가 읽는다. */
   const pettingRef = useRef(false);
@@ -173,7 +173,8 @@ export default function FloatingObject() {
          1초 사이에는 그 범위 밖에 있을 수 있다. */
       const rawLeft = screenPosRef.current.x - w / 2;
       const boxLeft = Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft));
-      const move = `translate(${Math.round(boxLeft)}px, ${Math.round(screenPosRef.current.y + BUBBLE_OFFSET_Y - h)}px)`;
+      const lift = BUBBLE_OFFSET_Y * Math.max(1, screenPosRef.current.s ?? 1);
+      const move = `translate(${Math.round(boxLeft)}px, ${Math.round(screenPosRef.current.y + lift - h)}px)`;
       el.style.transform = move;
       /* 흐림판·글자·외곽선 층은 껍데기와 같은 자리다. 정확히 겹쳐야 한 덩어리로 보인다. */
       for (const layer of [bubbleFillRef.current, bubbleTextRef.current, bubbleBorderRef.current]) {

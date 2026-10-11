@@ -1,0 +1,543 @@
+/* ── About 개편 시안 ──
+   큰 산세리프(Space Grotesk, --font-family-nav) 제목과 아주 작은 대문자 캡션의 대비, 가는 선, 넓은 여백.
+   색은 테마 토큰만 — 라이트 · 다크를 따른다 */
+
+.page {
+  --_gutter: var(--spacing-page-inline);
+  --_line: var(--border-width-1) solid var(--border-color-light);
+
+  /* 자기 쌓임 맥락 — 시간 흐름 하늘(z-index -1)이 body 바탕 아래로 숨지 않고 이 페이지 뒤에 깔리게 */
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+/* 아주 작은 대문자 캡션 — 메타 줄 · 눈썹 제목 공통 */
+.eyebrow,
+.metaRow,
+.factLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* 한국어 제목 · 문장은 낱말 단위로 줄을 바꾼다 — "운영합니 / 다." 처럼 글자 하나만 넘어가지 않게 */
+.lead,
+.sectionTitle {
+  word-break: keep-all;
+}
+
+/* ── 첫 화면 — 메타 줄 · 소개(위), 큰 스크린샷 한 줄(가운데), 화면 폭 워드마크(바닥) ── */
+
+/* 바깥은 내비게이션 자리만 비우고, 브랜드 색 판이 그 아래를 채운다 — 내비게이션(difference 혼합)이 분홍 위에
+   올라가면 초록빛으로 뒤집히므로 판은 내비게이션 밑에서 시작한다 */
+.hero {
+  --_frame: var(--spacing-8);
+
+  /* 내비게이션 상자는 헤더 높이 + 위 여백만큼 내려온다 — 그 아래에서 시작해야 메뉴 · 말풍선과 겹치지 않는다 */
+  padding: calc(var(--header-height) + var(--spacing-nav-top)) var(--_frame) var(--_frame);
+}
+
+@media (width > 768px) {
+  .hero {
+    --_frame: var(--spacing-16);
+  }
+}
+
+/* 브랜드 색 판 — 색 체계를 dark 로 돌려 글자 · 선 토큰이 밝은 쪽으로 따라온다. 글자색은 바깥에서 계산돼 내려오므로
+   여기서 다시 잡는다 */
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  min-height: calc(100svh - var(--header-height) - var(--spacing-nav-top) - var(--_frame));
+  padding: var(--spacing-20) var(--_gutter) 0;
+  overflow: hidden;
+  isolation: isolate;
+  /* 판 없이 새벽 하늘(TimeSky)에 바로 — 바탕 · 모서리를 걷고 테마 색 체계를 그대로 따른다 */
+}
+
+/* 흩어진 브랜드 별 — 자리는 컴포넌트가 정하고, 깊이(--depth)만큼 커서(--mx · --my) · 스크롤(--sy)을 따라 밀린다 */
+.stars {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  width: var(--size);
+  aspect-ratio: 1;
+  fill: var(--text-primary);
+  opacity: var(--alpha);
+  /* 깊이만큼 커서를 따라가되 별마다 방향을 돌리고(--c · --s = 그 각의 cos · sin), 스크롤에는 별마다 다른 쪽으로
+     흐르며(--sdir · --sx), 커서가 다가오면 밀려난다(--rx · --ry, 컴포넌트가 넘긴다) */
+  translate:
+    calc(
+      (var(--mx, 0) * var(--c) - var(--my, 0) * var(--s)) * var(--depth) * 24px
+      + var(--sy, 0) * var(--sx) * var(--depth) * 0.2px
+      + var(--rx, 0) * 1px
+    )
+    calc(
+      (var(--mx, 0) * var(--s) + var(--my, 0) * var(--c)) * var(--depth) * 24px
+      - var(--sy, 0) * var(--sdir) * var(--depth) * 0.25px
+      + var(--ry, 0) * 1px
+    );
+  --_starSpin-duration: var(--spin); /* 별마다 다른 속도로 끝없이 — 한 자리의 장식(3.9-1) */
+  --_starFloat-duration: var(--float); /* 별마다 다른 궤도로 떠다님 — 한 자리의 장식(3.9-1) */
+  animation:
+    starSpin var(--_starSpin-duration) linear infinite var(--dir),
+    starFloat var(--_starFloat-duration) var(--ease-standard) var(--float-delay) infinite alternate;
+}
+
+/* 떠다니기 — transform 은 위의 translate · rotate 와 따로 더해진다 */
+@keyframes starFloat {
+  to {
+    transform: translate(var(--fx), var(--fy));
+  }
+}
+
+/* 작은 별 — 숨 쉬듯 반짝인다. 잡을 수 있음은 커서로(별 위면 판에 data-over-star) */
+.star:not([data-bg]) {
+  --_twinkle-duration: 2.4s; /* 반짝임 한 번 — 한 자리의 장식(3.9-1) */
+  animation:
+    starSpin var(--_starSpin-duration) linear infinite var(--dir),
+    starFloat var(--_starFloat-duration) var(--ease-standard) var(--float-delay) infinite alternate,
+    twinkle var(--_twinkle-duration) var(--ease-standard) var(--twinkle-delay) infinite alternate;
+}
+
+.star[data-dragging] {
+  scale: 1.3;
+}
+
+.heroInner[data-over-star] {
+  cursor: grab;
+}
+
+.heroInner:has([data-dragging]) {
+  cursor: grabbing;
+}
+
+@keyframes twinkle {
+  to {
+    opacity: calc(var(--alpha) * 0.35);
+  }
+}
+
+/* 별자리 선 — 커서와 가까운 별을 잇는 가는 선 */
+.constellation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.constellation path {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 1;
+  opacity: 0.45;
+}
+
+/* 별똥별 — 머리(앞쪽 끝)가 밝고 꼬리로 갈수록 사라지는 가는 줄. 방향 · 움직임은 컴포넌트가 */
+.shooting {
+  position: absolute;
+  z-index: -1;
+  width: clamp(6rem, 12vw, 11rem);
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, transparent, var(--text-primary));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* 클릭 · 탭한 자리에서 터져 나오는 작은 별 — 움직임은 컴포넌트가(Web Animations) */
+.burst {
+  position: absolute;
+  z-index: 2;
+  width: var(--size);
+  aspect-ratio: 1;
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  fill: var(--text-primary);
+  pointer-events: none;
+}
+
+/* 좁은 화면 — 반짝이 일부는 숨긴다 */
+.star[data-wide] {
+  display: none;
+}
+
+@media (width > 768px) {
+  .star[data-wide] {
+    display: block;
+  }
+}
+
+@keyframes starSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-24);
+  margin: 0;
+  padding: 0 0 var(--spacing-16);
+  border-bottom: var(--_line);
+  list-style: none;
+  color: var(--text-secondary);
+}
+
+.heroIntro {
+  display: grid;
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-24);
+}
+
+.introText {
+  display: grid;
+  gap: var(--spacing-16);
+}
+
+.lead {
+  max-width: 20ch;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+}
+
+
+/* 소개 묶음 왼쪽 · 목차 오른쪽 */
+@media (width > 768px) {
+  .heroIntro {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* 살아 있는 정보 — 시계 숫자 폭 고정, 최근 글 제목은 한 줄로 자른다 */
+.clock {
+  font-variant-numeric: tabular-nums;
+}
+
+.weather {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.liveLatest {
+  min-width: 0;
+  max-width: 50ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveLink {
+  color: var(--text-primary);
+  text-transform: none;
+}
+
+.liveLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* 스크린샷 띠 — 판 양 끝까지(바깥 여백을 넘어). 같은 비율로 잘라 크게, 스크롤하면 그만큼 더 밀린다.
+   스택 띠와 서로 반대로 기울여 엇갈리게 — 기울면 끝이 비므로 양옆을 넉넉히 */
+.marquee {
+  align-self: center;
+  margin: var(--spacing-20) calc(var(--_gutter) * -1 - 4vw);
+  padding-block: var(--spacing-12);
+  overflow: hidden;
+  rotate: -2.5deg;
+}
+
+.marqueeRow {
+  translate: calc(var(--sy, 0) * -0.6px) 0;
+}
+
+.marqueeTrack {
+  display: flex;
+  gap: var(--spacing-16);
+  width: max-content;
+  --_marquee-duration: 80s; /* 끝없이 도는 띠 — 한 자리의 장식(3.9-1) */
+  animation: marquee var(--_marquee-duration) linear infinite;
+}
+
+.marqueeShot {
+  width: auto;
+  height: clamp(6.5rem, 14svh, 14rem);
+  aspect-ratio: 16 / 10;
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  object-fit: cover;
+  object-position: top;
+  background: var(--bg-secondary);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(calc(-50% - var(--spacing-16) / 2));
+  }
+}
+
+/* 기술 스택 띠 — 스크린샷 띠와 반대로 흐르고 반대로 기운 아주 작은 대문자 한 줄. 스크린샷 띠 끝에 살짝 겹친다 */
+.stackTicker {
+  position: relative;
+  z-index: 1;
+  margin: calc(var(--spacing-32) * -1) calc(var(--_gutter) * -1 - 4vw) var(--spacing-8);
+  padding: var(--spacing-12) 0;
+  overflow: hidden;
+  border-block: var(--_line);
+  /* 스크린샷 띠 위에 겹치므로 바탕이 필요하다 — 하늘이 비치는 유리로(시각마다 하늘이 다르다) */
+  background: color-mix(in oklab, var(--bg-primary) 70%, transparent);
+  backdrop-filter: var(--blur-16);
+  rotate: 1.5deg;
+}
+
+.stackTrack {
+  display: flex;
+  width: max-content;
+  --_stack-duration: 50s; /* 끝없이 도는 띠 — 한 자리의 장식(3.9-1) */
+  animation: marquee var(--_stack-duration) linear infinite reverse;
+}
+
+.stackItem {
+  padding-left: var(--spacing-20);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.stackItem::after {
+  content: "/";
+  margin-left: var(--spacing-20);
+  color: var(--text-tertiary);
+}
+
+/* 포인트 단어 — 사이트의 강조 세리프 이탤릭. 판 위라 흰 글자 그대로 */
+.leadAccent {
+  font: italic var(--font-weight-regular) 1.08em / var(--line-height-125) var(--font-family-accent);
+}
+
+/* 워드마크 — 판 바닥에 붙는다. 줄 폭에 꼭 맞게, 글자 크기는 컴포넌트가 재서 정한다(useFitWidth).
+   스크롤하는 만큼 바닥을 딛고 커진다 */
+.wordWrap {
+  display: flex;
+  min-width: 0;
+  border-top: var(--_line);
+  transform-origin: 50% 100%;
+  scale: calc(1 + var(--sy, 0) / 900);
+}
+
+.wordmark {
+  margin: 0;
+  padding-top: var(--spacing-8);
+  font: var(--font-grotesk-display);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.letter {
+  display: inline-block;
+  --_letterRise-duration: 900ms; /* 첫 화면 한 번뿐인 등장 — 한 자리의 장식(3.9-1) */
+  animation: letterRise var(--_letterRise-duration) var(--ease-enter) both;
+  animation-delay: calc(var(--i) * 45ms + 150ms);
+}
+
+/* 마우스 반응 — 커서 가까운 글자(--d: 0~1)가 바닥을 딛고 솟는다. 등장 애니메이션(transform)과 겹치지 않게
+   개별 속성 translate · scale 로 */
+@media (hover: hover) and (pointer: fine) {
+  .letter {
+    transform-origin: 50% 100%;
+    translate: 0 calc(var(--d, 0) * -8%);
+    scale: 1 calc(1 + var(--d, 0) * 0.18);
+    transition:
+      translate var(--duration-base) var(--ease-standard),
+      scale var(--duration-base) var(--ease-standard);
+  }
+}
+
+@keyframes letterRise {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── 한눈에 보기 — 프레임 하나에 머리 + 숫자 두 줄. 단계(data-step)마다 한 줄씩 들어온다 ── */
+
+.facts {
+  --_stagger: 90ms; /* 숫자 하나씩 차례로 — 한 자리의 장식(3.9-1) */
+
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-32);
+  min-height: 100%;
+}
+
+.sectionHead {
+  display: grid;
+  gap: var(--spacing-12);
+}
+
+.eyebrow {
+  color: var(--text-accent);
+}
+
+/* 작은 눈썹 제목 앞의 별 — 첫 화면의 별을 끝까지 */
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  aspect-ratio: 1;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  background: currentcolor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+.sectionTitle {
+  max-width: 18ch;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+}
+
+/* 좁은 화면 — 두 줄이 같은 칸에 겹쳐 있고 단계마다 바뀐다(앞 줄은 위로, 다음 줄은 아래에서) */
+.factGroups {
+  display: grid;
+}
+
+.factGrid {
+  display: grid;
+  grid-area: 1 / 1;
+  margin: 0;
+  padding: 0;
+  border-top: var(--_line);
+  list-style: none;
+}
+
+.fact {
+  display: grid;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) 0;
+  border-bottom: var(--_line);
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    translate var(--duration-slower) var(--ease-enter),
+    scale var(--duration-slower) var(--ease-enter);
+  transition-delay: calc(var(--i) * var(--_stagger));
+}
+
+.factGrid[data-state="next"] .fact {
+  opacity: 0;
+  translate: 0 var(--spacing-32);
+  scale: 0.94;
+}
+
+.factGrid[data-state="past"] .fact {
+  opacity: 0;
+  translate: 0 calc(var(--spacing-32) * -1);
+  transition-delay: 0s;
+}
+
+.factGrid:not([data-state="on"]) {
+  pointer-events: none;
+}
+
+.factValue {
+  font: var(--font-grotesk-number);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 단위 — 숫자 옆 작은 대문자 캡션 */
+.factUnit {
+  margin-left: var(--spacing-4);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+}
+
+.factLabel {
+  color: var(--text-secondary);
+}
+
+/* 넓은 화면 — 세 칸 두 줄. 앞 줄은 남아 한발 물러서고(흐리게), 새 줄이 아래에 들어온다 */
+@media (width > 768px) {
+  .facts {
+    gap: var(--spacing-40);
+  }
+
+  .factGroups {
+    grid-template-rows: auto auto;
+  }
+
+  .factGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-area: auto;
+    border-top: 0;
+  }
+
+  .factGrid:first-child {
+    border-top: var(--_line);
+  }
+
+  .fact {
+    align-content: space-between;
+    gap: var(--spacing-24);
+    min-height: 9rem;
+    padding: var(--spacing-20) var(--spacing-16) var(--spacing-20) 0;
+  }
+
+  .fact:not(:first-child) {
+    padding-left: var(--spacing-16);
+    border-left: var(--_line);
+  }
+
+  .factGrid[data-state="past"] .fact {
+    opacity: 0.45;
+    translate: 0;
+  }
+}
+
+.heroGuide {
+  position: absolute;
+  top: 30%;
+  left: 41%;
+}
+
+
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .fact {
+    transition: none;
+  }
+
+  .letter {
+    animation: none;
+  }
+
+  .marqueeTrack,
+  .stackTrack,
+  .star {
+    animation: none;
+  }
+
+}

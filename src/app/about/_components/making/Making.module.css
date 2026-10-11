@@ -1,0 +1,1101 @@
+/* ── 만든 과정 장 — 날짜 × 제품의 층 계단 · 앞으로 나오는 결정 카드 더미 ──
+   두 장면 모두 프레임 한 화면을 꽉 채우고(height 100%), 단계(--step)가 바뀌면 칸 · 카드가 옮겨 간다 */
+
+.code {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
+  background: color-mix(in oklab, var(--text-primary) 10%, transparent);
+}
+
+.blockTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+/* ── 1 · 작업 과정 — 위: 장 머리, 가운데: 계단 그래프(가로 = 날짜, 세로 = 제품의 층), 아래: 지금 단계 ── */
+
+.process {
+  --_in: 520ms; /* 단계가 바뀔 때 내용이 떠오르는 시간 — 한 자리(3.9-1) */
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+  height: 100%;
+}
+
+.processHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
+}
+
+.processTitle {
+  flex-basis: 100%;
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.skyNum {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 그래프 — 달 눈금 · 판(층 가로선 · 면 · 기둥 · 계단 선 · 이동하는 별) · 아래 지금 단계 */
+
+.ganttWrap {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: var(--spacing-24);
+  min-height: 0;
+}
+
+.gantt {
+  display: grid;
+  gap: var(--spacing-16);
+  margin-inline: var(--spacing-24);
+}
+
+.ganttAxis {
+  position: relative;
+  height: var(--spacing-16);
+  border-bottom: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 15%, transparent);
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.ganttAxis span {
+  position: absolute;
+  translate: -50% 0;
+}
+
+.ganttField {
+  position: relative;
+}
+
+.ganttSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 단계 사이 — 끝 별에서 다음 시작 별로 점선 */
+.ganttJoin {
+  stroke: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 지나온 이음선 — 궤적으로 남는다 */
+.ganttJoin[data-past] {
+  stroke: var(--text-accent);
+  stroke-width: 3;
+}
+
+/* 기간 선 */
+.ganttSpan {
+  stroke: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--duration-base) var(--ease-standard);
+}
+
+/* 지나온 기간선 — 궤적으로 남는다(지금 단계보다 가늘게) */
+.ganttSpan[data-past] {
+  stroke: var(--text-accent);
+  stroke-width: 3;
+}
+
+/* 지금 단계 — 바탕 선은 흐린 채로 두고, 위에 차오르는 선(.ganttFill)이 채운다 */
+.ganttSpan[data-on] {
+  stroke: color-mix(in oklab, var(--text-primary) 35%, transparent);
+}
+
+/* 차오르는 선 — 이음선이 먼저 켜지고(0 ~ 35%), 이어서 기간선이 시작에서 끝으로 늘어난다(35 ~ 100%) */
+.gantt {
+  --_fill: 1.2s; /* 별이 다음 단계로 옮겨 가며 선을 채우는 시간 — 한 자리(3.9-1) */
+}
+
+.ganttFillJoin {
+  stroke: var(--text-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  animation: ganttJoinIn var(--_fill) linear both;
+}
+
+.ganttFill {
+  position: absolute;
+  height: var(--border-width-3);
+  border-radius: var(--radius-full);
+  translate: 0 -50%;
+  background: var(--text-accent);
+  box-shadow: 0 0 var(--spacing-8) var(--text-accent);
+  transform-origin: left center;
+  pointer-events: none;
+  animation: ganttGrow var(--_fill) var(--ease-standard) both;
+}
+
+.ganttFill[data-first] {
+  animation-name: ganttGrowFirst;
+}
+
+/* 뒤로 · 건너뛰기 — 지금 단계는 처음부터 차 있다 */
+.ganttFill[data-dir="back"],
+.ganttFill[data-dir="jump"] {
+  animation: none;
+}
+
+/* 뒤로 — 떠나온 단계의 채움이 끝에서 시작으로 걷힌다(0 ~ 65%), 다 걷히면 사라진다 */
+.ganttFill[data-dir="retract"] {
+  animation: ganttShrink var(--_fill) var(--ease-standard) both;
+}
+
+.ganttFillJoin[data-dir="back"] {
+  animation: ganttJoinOut var(--_fill) linear both;
+}
+
+@keyframes ganttShrink {
+  0% {
+    scale: 1 1;
+  }
+
+  65%,
+  100% {
+    scale: 0 1;
+  }
+}
+
+@keyframes ganttJoinOut {
+  0%,
+  65% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ganttJoinIn {
+  0% {
+    opacity: 0;
+  }
+
+  35%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes ganttGrow {
+  0%,
+  35% {
+    scale: 0 1;
+  }
+
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes ganttGrowFirst {
+  from {
+    scale: 0 1;
+  }
+
+  to {
+    scale: 1 1;
+  }
+}
+
+/* 이동하는 별 자리 — 선의 머리를 따라간다(보이는 별은 길잡이 별). 다 채우면 끝 별 자리에서 멈춘다 */
+.ganttHead {
+  position: absolute;
+  top: var(--cy);
+  left: var(--cx);
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  animation: ganttMove var(--_fill) var(--ease-standard) both;
+}
+
+.ganttHead[data-first] {
+  animation-name: ganttMoveFirst;
+}
+
+.ganttHead[data-dir="back"] {
+  animation-name: ganttMoveBack;
+}
+
+.ganttHead[data-dir="jump"] {
+  animation: none;
+}
+
+@keyframes ganttMove {
+  0% {
+    top: var(--ay);
+    left: var(--ax);
+  }
+
+  35% {
+    top: var(--by);
+    left: var(--bx);
+  }
+
+  100% {
+    top: var(--cy);
+    left: var(--cx);
+  }
+}
+
+/* 뒤로 — 기간선을 거슬러 시작으로(0 ~ 65%), 이음선을 곧게 내려와 아래 단계 끝으로 */
+@keyframes ganttMoveBack {
+  0% {
+    top: var(--ay);
+    left: var(--ax);
+  }
+
+  65% {
+    top: var(--by);
+    left: var(--bx);
+  }
+
+  100% {
+    top: var(--cy);
+    left: var(--cx);
+  }
+}
+
+@keyframes ganttMoveFirst {
+  from {
+    left: var(--bx);
+  }
+
+  to {
+    left: var(--cx);
+  }
+}
+
+.ganttRows {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 줄 하나 — 기간 선 위에 겹친 누르는 자리. 양 끝에 별, 위에 이름 */
+.ganttRows li {
+  position: absolute;
+  height: var(--spacing-24);
+  translate: 0 -50%;
+}
+
+.ganttRow {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--text-tertiary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.ganttRow:hover,
+.ganttRow[data-past],
+.ganttRow[data-on] {
+  color: var(--text-primary);
+}
+
+.ganttGuide {
+  position: absolute;
+  inset: 0;
+}
+
+/* 이름 — 선 아래 왼쪽 끝에서 시작. 위에 두면 짧은 단계의 이름이 바로 위 단계 선을 덮었다(아래쪽은 앞 단계 선이 이미 끝난 자리) */
+/* 이름 — 그 단계 선 위, 오르는 세로선 바로 오른쪽에서 시작. 층 간격이 고르게 넓어 위에 두어도 위 단계 선에 닿지 않는다.
+   글자는 본문 색 · 한 단계 큰 크기로 */
+.ganttName {
+  position: absolute;
+  bottom: calc(100% - var(--spacing-4));
+  left: var(--spacing-8);
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.ganttRow:not([data-past], [data-on]) .ganttName {
+  color: color-mix(in oklab, var(--text-primary) 70%, transparent);
+}
+
+/* 대표 결과 — 이름 옆, 넓은 화면에서만 */
+.ganttMetric {
+  display: none;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.ganttRow[data-on] .skyNum {
+  color: var(--text-accent);
+}
+
+/* 오른쪽에 있는 단계 — 이름을 선 끝에 맞춰 왼쪽으로 펼친다(화면 밖으로 나가지 않게) */
+.ganttRow[data-flip] .ganttName {
+  right: var(--spacing-8);
+  left: auto;
+}
+
+/* 지금 단계 — 설명은 세 줄까지. 아래쪽 하늘(노을 · 해 빛)에서 흐린 글자가 묻혀 본문 색으로 */
+.ganttWrap .now {
+  gap: var(--spacing-8);
+}
+
+.ganttWrap .now .phaseBody {
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+.ganttWrap .now .phaseBody {
+  display: -webkit-box;
+  flex: none;
+  min-height: 2lh;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.ganttWrap .now .metricValue {
+  font: var(--font-grotesk-headline-xl);
+}
+
+/* 지금 단계 — 판 없이. 바뀔 때마다 아래에서 떠오르고, 뒤에 단계 번호가 크게 비친다 */
+.now {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+  min-height: 0;
+  max-width: 52rem;
+  animation: processIn var(--_in) var(--ease-enter) both;
+}
+
+@keyframes processIn {
+  from {
+    opacity: 0;
+    translate: 0 var(--spacing-16);
+  }
+}
+
+.phaseHead {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: baseline;
+}
+
+.phaseStep {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.phaseDates {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.phaseTitle {
+  position: relative;
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.metric {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.metricValue {
+  font: var(--font-grotesk-number);
+  color: var(--text-accent);
+  overflow-wrap: anywhere;
+}
+
+.metricLabel {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.phaseBody {
+  position: relative;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.phaseBody strong {
+  color: var(--text-primary);
+}
+
+/* ── 2 · 설계 결정 — 머리, 결정 번호 줄, 결정(분야 · 제목 · 갈림길 그림) ── */
+
+.decisions {
+  --_in: 480ms; /* 결정이 바뀔 때 그림이 떠오르는 시간 — 한 자리(3.9-1) */
+  --_draw: 900ms; /* 고른 길이 그어지는 시간 — 한 자리(3.9-1) */
+
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+  height: 100%;
+}
+
+.decisionsHead {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+/* 번호 줄 */
+.decIndex {
+  --_gap: var(--spacing-48); /* 별 사이 */
+  --_star: var(--spacing-12);
+
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 별 사이 선 — 앞 별에서 이 별까지. 지나온(지금 포함) 구간은 강조색 실선, 남은 구간은 점선 */
+.decIndexItem {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: var(--_gap);
+}
+
+.decIndexItem + .decIndexItem::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-8) + var(--_star) / 2);
+  right: calc(50% + var(--_star) / 2 + var(--spacing-4));
+  left: calc(-50% + var(--_star) / 2 + var(--spacing-4));
+  border-top: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+.decIndexItem + .decIndexItem[data-past]::before,
+.decIndexItem + .decIndexItem[data-on]::before {
+  border-top-style: solid;
+  border-top-color: var(--text-accent);
+}
+
+.decIndexRow {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-4) var(--spacing-4);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+/* 별 — 남은 결정은 흐린 별, 지나온 결정은 흰 별, 지금 결정은 크게 도는 강조색 별 */
+.decIndexStar {
+  width: var(--_star);
+  height: var(--_star);
+  fill: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition:
+    fill var(--duration-base) var(--ease-standard),
+    scale var(--duration-slow) var(--ease-spring);
+}
+
+.decIndexItem[data-past] .decIndexStar {
+  fill: var(--text-primary);
+}
+
+.decIndexRow:hover {
+  color: var(--text-primary);
+}
+
+.decIndexRow:hover .decIndexStar {
+  fill: var(--text-primary);
+  scale: 1.3;
+}
+
+.decIndexRow[data-on] {
+  color: var(--text-accent);
+}
+
+.decIndexRow[data-on] .decIndexStar {
+  fill: var(--text-accent);
+  scale: 1.7;
+  animation: decStarSpin calc(var(--_draw) * 8) linear infinite;
+}
+
+@keyframes decStarSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+.difficulty {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}
+
+.diffStar {
+  width: 0.9em;
+  height: 0.9em;
+  fill: color-mix(in oklab, var(--text-primary) 20%, transparent);
+}
+
+.diffStar.diffOn {
+  fill: var(--text-accent);
+}
+
+.record {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-24);
+  min-width: 0;
+  min-height: 0;
+  animation: processIn var(--_in) var(--ease-enter) both;
+}
+
+.recordHead {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.recordMeta {
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: center;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.recordTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.decisionLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+/* 갈림길 — 좁은 화면은 위에서 아래로(질문 · 갈래 목록 · 결론, 선 없이). 넓은 화면은 세 칸에 꺾인 선 */
+.branch {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-20);
+  min-height: 0;
+}
+
+.branchSvg {
+  display: none;
+}
+
+.branchNode {
+  display: none;
+}
+
+.branchQ {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.branchQ p {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.branchOpts {
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 갈래 — 고른 것은 강조색 이름, 아닌 것은 흐리게(막힌 이유는 읽히게) */
+.branchOpt {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-2);
+  padding-left: var(--spacing-12);
+  border-left: var(--border-width-2) dashed color-mix(in oklab, var(--text-primary) 25%, transparent);
+  color: var(--text-secondary);
+  transition:
+    color var(--_in) var(--ease-standard),
+    opacity var(--_in) var(--ease-standard);
+}
+
+.branchOpt[data-chosen] {
+  border-left: var(--border-width-2) solid var(--text-accent);
+  color: var(--text-primary);
+}
+
+.optionName {
+  font: var(--font-code-sm);
+}
+
+.branchOpt[data-chosen] .optionName {
+  color: var(--text-accent);
+}
+
+.optionNote {
+  font: var(--font-body-sm);
+  word-break: keep-all;
+}
+
+.branchGuide {
+  position: absolute;
+  top: 0;
+  left: calc(var(--spacing-8) * -1);
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  translate: -50% 0;
+}
+
+.branchR {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+  transition: opacity var(--_in) var(--ease-standard);
+}
+
+.decisionInsight {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.branchCost {
+  display: grid;
+  gap: var(--spacing-4);
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 선 — 고르지 않은 갈래는 점선, 고른 길은 강조색 실선(질문 → 갈래가 먼저, 이어서 갈래 → 결론이 켜진다) */
+.branchLine {
+  fill: none;
+  stroke: color-mix(in oklab, var(--text-primary) 45%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.branchLine[data-chosen] {
+  stroke: var(--text-accent);
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+
+/* 검토하러 가는 선 — 고르지 않은 갈래로 그어 봤다가 거둔다 */
+.branchLine[data-probe] {
+  stroke: color-mix(in oklab, var(--text-primary) 75%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+
+/* 별이 길을 긋는 동안 — 선이 먼저 가고 내용은 별이 닿은 뒤에 진해진다.
+   갈래는 별이 검토하러 오기 전까지 흐리고, 검토 중이면 또렷하게, 탈락하면 반쯤. 결론은 꼬리 선이 다 그어질 때까지 흐리다 */
+.branch[data-run="go"] .branchOpt {
+  opacity: 0.3;
+}
+
+.branch[data-run="go"] .branchOpt[data-st="probe"] {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.branch[data-run="go"] .branchOpt[data-st="no"] {
+  opacity: 0.6;
+}
+
+.branch[data-run="go"] .branchOpt[data-chosen]:not([data-st="probe"]) .optionName {
+  color: inherit;
+}
+
+.branch[data-run="go"] .branchR,
+.branch[data-run="rest"] .branchR,
+.branch[data-run="hop"] .branchR {
+  opacity: 0.25;
+}
+
+/* 판정 — 검토가 끝난 갈래에 붙는다(✕ 탈락은 빨강, ✓ 선택은 강조색) */
+.optionVerdict {
+  justify-self: start;
+  font: var(--font-body-xs);
+  color: var(--text-error);
+  opacity: 0;
+  translate: calc(var(--spacing-8) * -1) 0;
+  transition:
+    opacity var(--_in) var(--ease-enter),
+    translate var(--_in) var(--ease-enter);
+}
+
+.branchOpt[data-chosen] .optionVerdict {
+  color: var(--text-accent);
+}
+
+.branchOpt[data-st="no"] .optionVerdict,
+.branchOpt[data-st="yes"] .optionVerdict {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* 고민 과정 한 줄 — 질문 아래 */
+.branchQ .branchStatus {
+  min-height: 1lh;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+}
+
+/* 선 머리에 붙어 가는 별 — 긋는 동안만(길잡이 별과 같은 모양 · 빛) */
+.runnerStar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklch, var(--text-accent) 60%, transparent));
+  opacity: 0;
+}
+
+.branch[data-drawing] .runnerStar {
+  opacity: 1;
+  animation: runnerSpin var(--_draw) linear infinite;
+}
+
+@keyframes runnerSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+/* 길의 머리 — 넓은 화면에서만(좁은 화면은 고른 갈래의 자리에 별이 앉는다) */
+.branchRunner {
+  position: absolute;
+  display: none;
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+@media (width > 1024px) {
+  /* 작업 과정 — 머리: 장 이름 아래 제목, 오른쪽 끝에 누적 커밋. 지금 단계: 위 줄 왼쪽 번호 · 제목, 오른쪽 큰 수치, 아래 설명 · 커밋 */
+  .processHead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+  }
+
+  .processHead > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .processTitle {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .now {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--spacing-48);
+    max-width: none;
+  }
+
+  .now > .phaseHead,
+  .now > .phaseTitle {
+    grid-column: 1;
+  }
+
+  .now > .metric {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-items: end;
+    text-align: right;
+  }
+
+  .now > .phaseBody {
+    grid-column: 1 / -1;
+  }
+
+  .phaseBody {
+    max-width: 60rem;
+  }
+
+  .now {
+    gap: var(--spacing-16);
+  }
+
+  .metric {
+    gap: var(--spacing-8);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .decIndexRow[data-on] .decIndexStar,
+  .branch[data-drawing] .runnerStar,
+  .record,
+  .branchLine[data-chosen] {
+    animation: none;
+  }
+
+
+  .ganttCol,
+  .ganttFill,
+  .ganttFillJoin,
+  .ganttHead {
+    animation: none;
+  }
+
+  .now {
+    animation: none;
+  }
+}
+
+@media (width > 1024px) {
+  .ganttName {
+    font: var(--font-body-md);
+  }
+
+  .ganttMetric {
+    display: inline;
+  }
+}
+
+/* 판 높이 — 화면 높이를 따른다(낮은 화면 · 휴대폰에서 아래 설명이 넘치지 않게) */
+.ganttField {
+  height: clamp(12rem, 36svh, 24rem);
+}
+
+/* 왼쪽 층 이름 자리 — 좁은 화면은 좁게, 단계 이름은 번호만(같은 층의 03 · 05 이름이 겹친다) */
+.gantt {
+  margin-left: var(--spacing-64);
+}
+
+.gantt .ganttLabel {
+  display: none;
+}
+
+.ganttLane {
+  position: absolute;
+  right: calc(100% + var(--spacing-16));
+  translate: 0 -50%;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition: color var(--duration-base) var(--ease-standard);
+  pointer-events: none;
+}
+
+.ganttLane[data-on] {
+  color: var(--text-accent);
+}
+
+/* 눈금 — 아주 옅은 가는 선 */
+.ganttGrid {
+  stroke: color-mix(in oklab, var(--text-primary) 7%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ganttBase {
+  stroke: color-mix(in oklab, var(--text-primary) 30%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 계단 아래 면 — 전체 윤곽은 아주 옅게, 지나온 단계 · 지금 단계 기둥은 강조색 그라데이션(위 진하게 → 바닥 투명) */
+.ganttArea {
+  fill: color-mix(in oklab, var(--text-primary) 4%, transparent);
+}
+
+.ganttAreaPast {
+  opacity: 0.55;
+}
+
+.ganttGradTop {
+  stop-color: var(--text-accent);
+  stop-opacity: 0.45;
+}
+
+.ganttGradBottom {
+  stop-color: var(--text-accent);
+  stop-opacity: 0;
+}
+
+.ganttCol {
+  --_col-in: 600ms; /* 지금 단계 기둥이 떠오르는 시간 — 한 자리(3.9-1) */
+
+  animation: ganttColIn var(--_col-in) var(--ease-enter) both;
+  animation-delay: calc(var(--_fill) * 0.35);
+}
+
+@keyframes ganttColIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (width > 1024px) {
+  .ganttMetric {
+    display: inline;
+  }
+}
+
+@media (width > 768px) {
+  .gantt {
+    margin-left: var(--spacing-96);
+  }
+
+  .gantt .ganttLabel {
+    display: inline;
+  }
+}
+
+/* 넓은 화면 — 갈림길을 세 칸에: 질문(0 ~ 22%) · 갈래(28 ~ 64%) · 결론(70 ~ 100%). MakingChapter 의 BR_* 와 같게.
+   갈래는 판 높이를 n 줄로 나눈 자리(top %)에 세로 가운데로 놓이고, 선의 꺾이는 자리와 맞는다 */
+@media (width > 1024px) {
+  .recordTitle {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .branch {
+    display: block;
+    height: 100%;
+    min-height: 18rem;
+  }
+
+  .branchSvg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .branchQ,
+  .branchR {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .branchQ {
+    left: 0;
+    width: 22%;
+    padding-right: var(--spacing-16);
+  }
+
+  .branchR {
+    left: 70%;
+    width: 30%;
+    padding-left: var(--spacing-16);
+  }
+
+  .branchOpts {
+    position: absolute;
+    inset: 0 36% 0 28%;
+    display: block;
+  }
+
+  .branchOpt {
+    position: absolute;
+    top: var(--y);
+    right: 0;
+    left: 0;
+    translate: 0 -50%;
+    padding: 0 var(--spacing-16);
+    border-left: 0;
+  }
+
+  .branchOpt[data-chosen] {
+    border-left: 0;
+  }
+
+  /* 마디 별 — 질문 끝 · 갈래 시작 · 결론 시작 */
+  .branchNode {
+    position: absolute;
+    top: 50%;
+    display: block;
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+    translate: -50% -50%;
+    fill: color-mix(in oklab, var(--text-primary) 45%, transparent);
+  }
+
+  .branchNode[data-at="q"] {
+    left: 100%;
+    fill: var(--text-primary);
+  }
+
+  .branchNode[data-at="opt"] {
+    left: 0;
+  }
+
+  .branchOpt[data-chosen] .branchNode {
+    fill: var(--text-accent);
+    width: var(--spacing-16);
+    height: var(--spacing-16);
+  }
+
+  .branchNode[data-at="r"] {
+    left: 0;
+    fill: var(--text-accent);
+    width: var(--spacing-20);
+    height: var(--spacing-20);
+  }
+
+  .branchGuide {
+    display: none;
+  }
+
+  .branchRunner {
+    display: block;
+  }
+}
+
+/* 낮은 넓은 화면 — 결론 글자를 한 단계 줄인다 */
+@media (width > 1024px) and (height <= 820px) {
+  .recordTitle {
+    font: var(--font-grotesk-headline-sm);
+  }
+
+}

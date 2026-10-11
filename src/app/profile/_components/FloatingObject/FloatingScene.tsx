@@ -133,6 +133,13 @@ export default function FloatingScene({
     const t = clock.getElapsedTime();
     const z = BUNNY.z;
 
+    /* 바로 앉기(About) — 등장 연출을 건너뛰고 처음부터 자리에 앉는다 */
+    const eager = useProfileSectionStore.getState().bunnyDockEager.on;
+    if (eager && introProgress.current < 1) {
+      introProgress.current = 1;
+      dockBlend.current = 1;
+    }
+
     /* ── Intro pop animation (center → elastic pop) ── */
     if (introProgress.current < 1) {
       introProgress.current = Math.min(1, introProgress.current + dt / INTRO_DUR);
@@ -183,7 +190,7 @@ export default function FloatingScene({
         const center = dockRect.left + dockRect.width / 2;
         const middle = dockRect.top + dockRect.height / 2;
         const settled = dockBlend.current > 0;
-        const keep = settled
+        const keep = settled || eager
           ? center > 0 && center < vw && middle > 0 && middle < vh
           : dockRect.left >= -8 && dockRect.right <= vw + 8 && dockRect.top >= -8 && dockRect.bottom <= vh + 8;
         if (!keep) dockRect = null;
@@ -507,6 +514,8 @@ export default function FloatingScene({
       const projected = groupRef.current.position.clone().project(camera);
       screenPosRef.current.x = ((projected.x + 1) / 2) * size.width;
       screenPosRef.current.y = (-(projected.y - 1) / 2) * size.height;
+      /* 지금 크기가 떠다닐 때의 몇 배인지 — 자리에 앉아 커지면 말풍선을 그만큼 더 위로(머리 위). 안 그러면 얼굴을 가린다 */
+      (screenPosRef.current as { s?: number }).s = scale > 0 ? groupRef.current.scale.x / scale : 1;
     }
   });
 

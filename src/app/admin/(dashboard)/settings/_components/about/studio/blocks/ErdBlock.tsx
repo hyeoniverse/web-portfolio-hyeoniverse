@@ -5,7 +5,7 @@ import css from "../../AboutStudio.module.css";
 import ErdCanvas from "../../ErdCanvas";
 import SqlEditor from "../../SqlEditor";
 import { describeImport, mergeErd, type ImportPlan } from "../../mergeErd";
-import { parseSqlErd, type ParsedErd } from "../../parseSqlErd";
+import { parseSqlErd, type ParsedErd } from "@/lib/about/parseSqlErd";
 import { emptyReason } from "./UserFlowBlock";
 import { FileCode } from "@/components/icons";
 import Button from "@/components/ui/Button";
