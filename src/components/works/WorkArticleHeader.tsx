@@ -1,5 +1,6 @@
 "use client";
 
+import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { motion } from "framer-motion";
 import { Globe, Users, User, Pencil, ExternalLink } from "@/components/icons";
 import "@/styles/vendor/katex.css";
@@ -36,6 +37,7 @@ export function WorkArticleHeader({
   relatedSeries,
   langMenu,
   contentLang,
+  translating,
 }: WorkArticleViewProps) {
   const { t } = useLanguage();
   const authed = useIsAuthenticated();
@@ -129,7 +131,8 @@ export function WorkArticleHeader({
         </div>
       </motion.div>
 
-      {/* ── Title ── */}
+      {/* ── Title · Description — 번역을 받아 오는 동안 흐리게(TranslatingRegion) ── */}
+      <TranslatingRegion active={!!translating}>
       <motion.h1
         className={styles.title}
         initial={{ opacity: 0, y: 40 }}
@@ -148,6 +151,7 @@ export function WorkArticleHeader({
       >
         <T ko={project.description.ko} en={project.description.en} />
       </motion.p>
+      </TranslatingRegion>
 
       {/* ── Header action row — Visit Site / GitHub / Share 묶음 (description 아래, 오른쪽 정렬) ── */}
       <motion.div
@@ -171,6 +175,7 @@ export function WorkArticleHeader({
         <ShareButton />
       </motion.div>
 
+      <TranslatingRegion active={!!translating}>
       <WorkArticleInfoGrid
         project={project}
         viewLang={viewLang}
@@ -178,6 +183,7 @@ export function WorkArticleHeader({
         relatedSeries={relatedSeries}
         contentLang={contentLang}
       />
+      </TranslatingRegion>
     </>
   );
 }

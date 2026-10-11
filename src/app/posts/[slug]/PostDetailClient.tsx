@@ -125,6 +125,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
             viewLang={viewLang}
             onLangChange={handleViewLang}
             isAdmin={isAdmin}
+            translating={contentTr.translating}
             langMenu={translationEnabled ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} busy={contentTr.translating} /> : undefined}
           />
         </div>
@@ -158,6 +159,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         </>
       }
     >
+      <TranslatingRegion active={contentTr.translating}>
       <SeriesPanel
         panel={series}
         postId={post.id}
@@ -166,6 +168,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         translatedTitle={tr?.seriesTitle}
         translatedLang={trLang}
       />
+      </TranslatingRegion>
 
       {contentTr.targetLang ? (
         <ContentTranslateBanner
