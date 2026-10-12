@@ -77,8 +77,11 @@
 
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
-  /* List 항목과 같은 세로 여백(components/List.module.css .item) */
+  /* List 항목과 같은 여백(components/List.module.css .item) — 가로도 같은 변수를 받는다.
+     두 칸 격자의 오른쪽 칸(인기 태그 등)에서 빈 안내만 칸 경계선에 붙어 있었다 */
   padding-block: var(--spacing-8);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
   font: var(--font-body-sm);
   line-height: calc(20 / 13);
   /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
