@@ -49,8 +49,8 @@ interface LanguageContextType extends LanguageControls {
   getLanguage: () => Language;
   /** 정적 사전 + 지연 로드분 */
   dict: Record<Language, Translations>;
-  /** 사이트 "다른 언어"(lib/siteLang)의 화면 글 번역을 t() 에 얹을지 — 관리 화면(AdminDictProvider)은 false */
-  siteOverlay?: boolean;
+  /** 사이트 내용 글(tx — 홈 글 · 카테고리 · 태그)을 다른 언어로 바꿀지 — 관리 화면(AdminDictProvider)은 false(원문을 보고 고친다) */
+  contentOverlay?: boolean;
 }
 
 function getNestedValue(obj: Translations, path: string): string {
@@ -170,16 +170,20 @@ export function useLanguage(): LanguageControls & {
   /** 날짜 · 숫자를 쓸 언어 — 다른 언어가 걸려 있으면 그 언어(ja 등), 아니면 ko-KR · en-US */
   dateLocale: string;
 } {
-  const { subscribe, getLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
+  const { subscribe, getLanguage, dict, contentOverlay = true, ...controls } = useContext(LanguageContext);
   const savedLanguage = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
   /* 다른 언어(ko · en 밖)가 걸려 있으면 화면의 기본 언어는 영어 — 번역되지 않은 글(language === "ko" ? … 분기,
      <T ko en>, 상세의 viewLang)이 한국어로 섞여 나오지 않게. 저장된 ko/en 선택은 건드리지 않아 번역을 끄면 돌아온다.
      화면 글 번역이 왔으면 그것, 번역에 빠진 글(받지 못한 · 깨진 자리표시)은 영어 사전.
-     서버 · 하이드레이션 때는 늘 꺼진 상태라 ko/en 으로 먼저 그린다. 관리 화면(siteOverlay false)은 늘 ko/en */
+     서버 · 하이드레이션 때는 늘 꺼진 상태라 ko/en 으로 먼저 그린다.
+     관리 화면은 관리자 사전 번역(adminUi)도 얹는다 — 받기 전에는 관리자 글만 영어 */
   const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
-  const foreignLang = siteOverlay ? site.lang : null;
+  const foreignLang = site.lang;
   const language: Language = foreignLang ? "en" : savedLanguage;
-  const overlay = foreignLang ? site.ui : null;
+  const overlay = useMemo(
+    () => (!foreignLang ? null : site.adminUi ? { ...site.ui, ...site.adminUi } : site.ui),
+    [foreignLang, site.ui, site.adminUi],
+  );
   const t = useCallback(
     (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[language], key)),
     [dict, language, overlay],
@@ -190,7 +194,7 @@ export function useLanguage(): LanguageControls & {
     [dict, language, foreignLang, t],
   );
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
-  const content = foreignLang ? site.content : null;
+  const content = foreignLang && contentOverlay ? site.content : null;
   /* 원문의 앞뒤 공백은 번역에 그대로 붙인다 — 조각으로 이어 붙이는 글(About 첫 화면 소개 등)의 띄어쓰기가 사라지지 않게 */
   const tx = useCallback((text: string) => {
     if (!content || !text) return text;

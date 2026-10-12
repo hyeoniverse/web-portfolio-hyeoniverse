@@ -744,7 +744,7 @@ export default function Navigation() {
 
       <div className={styles.navActions}>
         {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
-        {!isAdminPage && siteConfig.translation?.enabled !== false && <SiteLangMenu />}
+        {siteConfig.translation?.enabled !== false && <SiteLangMenu />}
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={t("navMenu.ui.switchLanguage")} delay={600} placement="bottom">
           <Pressable noTapScale
