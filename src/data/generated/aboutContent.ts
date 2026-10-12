@@ -220,10 +220,10 @@ export const aboutSecurity: CfgSecurity[] = [
     "icon": "shield",
     "title_ko": "XSS 방지",
     "title_en": "XSS Prevention",
-    "description_ko": "React JSX가 모든 사용자 입력을 **자동 이스케이프**합니다. `dangerouslySetInnerHTML`을 사용하지 않으며, 서버 측에서 **HTML 태그 스트리핑**과 **제어문자 제거**를 추가로 적용합니다.",
-    "description_en": "React JSX **auto-escapes** all user input. No `dangerouslySetInnerHTML` is used. Server-side **HTML tag stripping** and **control character removal** provide additional defense.",
-    "scope_ko": "모든 사용자 입력 렌더링",
-    "scope_en": "All user input rendering"
+    "description_ko": "React JSX 는 텍스트를 **자동 이스케이프**합니다. HTML 을 그대로 넣는 곳은 `dangerouslySetInnerHTML` 을 쓰는 몇 곳뿐이고, 입력한 사람에 따라 다르게 다룹니다. 누구나 쓰는 댓글은 마크다운을 변환한 뒤 **DOMPurify** 로 허용 목록 밖의 태그 · 속성을 지우고, 서버에서도 HTML 태그와 제어문자를 걷어 냅니다. 글 · 작업물 본문은 로그인한 저자만 쓰는 신뢰 콘텐츠로 보고 편집기가 만든 HTML 을 그대로 그립니다.",
+    "description_en": "React JSX **auto-escapes** text. HTML is injected only in the few places that use `dangerouslySetInnerHTML`, handled by who wrote it: comments, open to anyone, are converted from Markdown and then cleaned by **DOMPurify** (tags and attributes outside an allowlist are removed), and the server also strips HTML tags and control characters. Post and project bodies are written only by signed-in authors, so they are treated as trusted and the editor's HTML is rendered as is.",
+    "scope_ko": "댓글 · 본문 HTML 렌더링",
+    "scope_en": "Comment and body HTML rendering"
   },
   {
     "icon": "check",
@@ -265,17 +265,17 @@ export const aboutSecurity: CfgSecurity[] = [
     "icon": "fingerprint",
     "title_ko": "중복 방지 · IP 최소 보관",
     "title_en": "Duplication Prevention · Minimal IP Retention",
-    "description_ko": "좋아요는 `(대상, IP)`, 투표는 `(투표, 선택지, IP)`, 조회는 `(대상, IP, 날짜)`, 방문은 `(IP, 날짜)` **UNIQUE 인덱스**로 DB 에서 중복을 막습니다. 원문 IP 는 응답에 싣지 않고 가려서 보여주며, 방문·조회 기록의 IP 는 90일 뒤 익명화합니다.",
-    "description_en": "**UNIQUE indexes** block duplicates in the database: `(target, IP)` for likes, `(poll, option, IP)` for poll votes, `(target, IP, date)` for views, and `(IP, date)` for visits. Raw IPs never leave the server and are shown masked, and IPs in visit and view records are anonymized after 90 days.",
-    "scope_ko": "좋아요, 조회수, 방문 통계",
-    "scope_en": "Likes, views, visit stats"
+    "description_ko": "좋아요는 `(대상, IP)`, 투표는 `(투표, 선택지, IP)` **UNIQUE 인덱스**로 DB 에서 중복을 막습니다. 조회 · 방문은 조회 기록(`page_views`) 하나에 남기고, 같은 IP 가 같은 페이지를 **30분 안에** 다시 보면 앞 기록을 돌려줍니다. 동시 요청은 advisory lock 으로 줄 세웁니다. 원문 IP 는 응답에 싣지 않고 가려서 보여 주며, 조회 기록의 IP 는 90일 뒤 비웁니다. 운영자가 지정한 IP 는 기록하지 않습니다.",
+    "description_en": "**UNIQUE indexes** block duplicate likes `(target, IP)` and poll votes `(poll, option, IP)` in the database. Views and visits go into one view log (`page_views`); a repeat view of the same page by the same IP **within 30 minutes** returns the earlier row, and an advisory lock serializes concurrent requests. Raw IPs never leave the server and are shown masked, IPs in the view log are cleared after 90 days, and operator-marked IPs are not recorded.",
+    "scope_ko": "좋아요, 투표, 조회 · 방문 기록",
+    "scope_en": "Likes, poll votes, views and visits"
   },
   {
     "icon": "key",
     "title_ko": "시크릿 관리",
     "title_en": "Secrets Management",
-    "description_ko": "API 키는 DB `site_settings`에 **암호화 저장**되며, `SUPABASE_SERVICE_ROLE_KEY`는 서버 사이드에서만 접근 가능합니다. 클라이언트에 노출되는 키는 `NEXT_PUBLIC_` 접두사만 허용합니다.",
-    "description_en": "API keys are stored **encrypted** in DB `site_settings`. `SUPABASE_SERVICE_ROLE_KEY` is accessible only server-side. Only `NEXT_PUBLIC_` prefixed keys are exposed to the client.",
+    "description_ko": "외부 서비스 API 키는 `site_settings` 의 `secrets` 행에 두고, RLS 로 서버(`service_role`)와 owner 만 읽게 막습니다. 값이 없으면 서버 환경변수로 물러섭니다. `SUPABASE_SERVICE_ROLE_KEY` 는 서버에서만 쓰고, 브라우저에 나가는 키는 `NEXT_PUBLIC_` 접두사가 붙은 것뿐입니다. 서비스 호출 기록에 남기는 오류 문장은 키를 가린 뒤 저장합니다.",
+    "description_en": "External service API keys live in the `secrets` row of `site_settings`, readable only by the server (`service_role`) and the owner under RLS, with server environment variables as the fallback. `SUPABASE_SERVICE_ROLE_KEY` stays on the server, and only `NEXT_PUBLIC_`-prefixed keys reach the browser. Error messages written to the service call log are stored with keys masked.",
     "scope_ko": "환경변수, API 키",
     "scope_en": "Env vars, API keys"
   }
@@ -468,6 +468,22 @@ export const aboutProcess: CfgProcess[] = [
     "title_en": "Performance, Accessibility & Launch",
     "description_ko": "관리자와 공개 화면 문구를 한/영으로 옮기고, 조용히 실패하던 저장을 **알림**으로 드러냈습니다. 포커스 링·모달 포커스 가두기·AA 대비를 정리해 글 편집기 Lighthouse Accessibility 를 **80에서 96** 으로 올렸고, 관리자 글 목록 LCP 를 **2.1초에서 1.45초** 로 줄였습니다.",
     "description_en": "Localized admin and public copy into Korean and English, and surfaced silently failing saves as **notifications**. Focus rings, modal focus traps, and AA contrast raised the post editor's Lighthouse Accessibility from **80 to 96**, and the admin post list LCP dropped from **2.1 s to 1.45 s**."
+  },
+  {
+    "step": "08",
+    "start": "2026-09-29",
+    "end": "2026-10-12",
+    "commits": "487",
+    "prs": "190",
+    "weekly": "381 106",
+    "mix": "feat:73 fix:96 design:62 refactor:77 perf:3 etc:176",
+    "metric": "2 → 33",
+    "metric_label_ko": "방문자가 고를 수 있는 언어",
+    "metric_label_en": "Languages visitors can pick",
+    "title_ko": "디자인 시스템 · 번역 · 운영 기록",
+    "title_en": "Design System, Translation & Operations Log",
+    "description_ko": "디자인 시스템을 웹 플랫폼 기능으로 옮겼습니다. CSS 를 **cascade layer** 일곱 층으로 나누고, 테마는 `light-dark()` 와 View Transitions 로, 모달 · 메뉴는 `<dialog>` · popover 로 top layer 에 올렸으며, 화면 규칙을 작은 화면 기본으로 뒤집고 `!important` 를 걷어 냈습니다. 결정은 이유와 함께 **70개** 항목으로 남겼습니다.\n\n방문자는 메뉴의 🌐 단추로 사이트 전체를 **33개 언어** 중 하나로 바꿔 볼 수 있고, 원문을 고치면 자동 번역이 다시 만들어집니다. AI · 메일 · GitHub 호출의 성공과 실패를 서비스 기록에 남겼고, 방문 · 조회 기록은 `page_views` 하나로 합쳐 방문자 · 방문 흐름 · 머문 시간을 같은 기준으로 셉니다.",
+    "description_en": "Moved the design system onto web platform features: CSS split into seven **cascade layers**, themes on `light-dark()` and View Transitions, modals and menus in the top layer via `<dialog>` and popover, layout rules flipped to small-screen-first, and `!important` removed. Decisions are recorded with reasons — **70** entries.\n\nVisitors can switch the whole site into one of **33 languages** from the 🌐 button in the menu, and auto-translations are rebuilt when the source changes. Successes and failures of AI, mail and GitHub calls go to a service log, and visits and views were merged into one `page_views` log, so visitors, visit flow and time on page are counted on one basis."
   }
 ];
 

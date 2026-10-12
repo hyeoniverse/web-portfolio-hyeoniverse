@@ -185,10 +185,19 @@ export const erdDesignNotes: ErdDesignNote[] = [
     title: { ko: "Works 갤러리 — 배열 + JSONB", en: "Works Gallery — Array + JSONB" },
     tag: "gallery TEXT[] · gallery_notes JSONB · team_members JSONB",
     description: {
-      ko: "갤러리 이미지는 TEXT[], 장마다의 음성 대본 · 음성 파일은 이미지 주소를 키로 한 gallery_notes JSONB, 팀 멤버는 JSONB 로 저장합니다. 별도 테이블 없이 작업물 한 행에 담깁니다.",
-      en: "Gallery images are a TEXT[]; each slide's voice script and audio live in gallery_notes JSONB keyed by image URL; team members are JSONB. All of it sits in the work's single row without separate tables.",
+      ko: "갤러리 이미지는 TEXT[], 장마다의 음성 대본 · 음성 파일은 이미지 주소를 키로 한 gallery_notes JSONB(한국어 칸과 en 칸으로 언어마다 따로), 팀 멤버는 JSONB 로 저장합니다. 별도 테이블 없이 작업물 한 행에 담깁니다.",
+      en: "Gallery images are a TEXT[]; each slide's voice script and audio live in gallery_notes JSONB keyed by image URL (Korean fields plus an en field per language); team members are JSONB. All of it sits in the work's single row without separate tables.",
     },
     relatedTable: "works",
+  },
+  {
+    title: { ko: "번역은 언어마다 한 줄로 캐시", en: "Translations Cached One Row per Language" },
+    tag: "UNIQUE (source_type, source_id, lang) · source_hash",
+    description: {
+      ko: "다른 언어로 보기의 번역은 content_translations 에 (원본 종류, 원본 id, 언어)마다 한 줄로 저장합니다. 원본 종류는 글 · 작업물 상세, 본문 안 라벨, 사이트 화면 글 묶음, 목록 카드(글 · 작업물 · 시리즈)입니다. 원문 해시를 함께 두어 원문이 그대로면 다시 번역하지 않고, 일부만 받은 번역은 해시를 비워 두어 다음 요청이 빠진 부분만 다시 번역합니다. 서버(service_role)만 읽고 씁니다.",
+      en: "Translations for viewing in another language are stored in content_translations, one row per (source type, source id, language). Source types are post and project details, labels inside bodies, site UI text bundles and list cards (posts, projects, series). A hash of the source is kept so unchanged text is never re-translated, and a partial result is saved with an empty hash so the next request fills only the gaps. Only the server (service_role) reads and writes it.",
+    },
+    relatedTable: "content_translations",
   },
   {
     title: { ko: "시리즈 카테고리는 소속 글에서 도출", en: "Series Category Derived from Its Posts" },

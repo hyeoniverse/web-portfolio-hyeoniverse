@@ -7,8 +7,8 @@ export const backendItems: BackendItem[] = [
     name: "Posts API",
     kind: "api",
     description: {
-      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다. 삭제는 soft delete(deleted_at) 방식으로, 30일 후 자동 영구 삭제됩니다. 수정은 posts.version 기반 낙관적 동시성 제어로 덮어쓰기를 막습니다.",
-      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling. Deletion uses soft delete (deleted_at), with auto-purge after 30 days. Updates guard against clobbering via posts.version-based optimistic concurrency.",
+      ko: "블로그 포스트 CRUD + 좋아요 API. 조회수는 따로 받지 않고 페이지 조회 기록(/api/page-views)이 /posts/{slug} 조회로 올립니다. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다. 삭제는 soft delete(deleted_at) 방식으로, 30일 후 자동 영구 삭제됩니다. 수정은 posts.version 기반 낙관적 동시성 제어로 덮어쓰기를 막습니다.",
+      en: "Blog post CRUD + like APIs. View counts have no endpoint of their own; the page-view log (/api/page-views) bumps them on /posts/{slug} views. List queries support tag, search, sort, and series filters. Likes use IP-based toggling. Deletion uses soft delete (deleted_at), with auto-purge after 30 days. Updates guard against clobbering via posts.version-based optimistic concurrency.",
     },
     designNote: {
       ko: "**낙관적 동시성 제어**: 여러 탭·기기에서 같은 글을 편집할 때 나중 저장이 앞선 저장을 조용히 덮어쓰지 않도록, PATCH 는 불러온 시점의 `baseVersion` 을 함께 받습니다. `UPDATE … WHERE id = ? AND version = baseVersion` 로 조건부 갱신하고 0행이면 그사이 누가 저장한 것이므로 **409 `version_conflict` + 현재 version** 을 돌려줍니다. 락을 걸지 않으므로 충돌이 없을 때는 비용이 0입니다.",
@@ -21,7 +21,6 @@ export const backendItems: BackendItem[] = [
       { method: "DELETE", path: "/api/posts/[id]", description: { ko: "soft delete — deleted_at 마킹 (admin)", en: "Soft delete — mark deleted_at (admin)" } },
       { method: "POST", path: "/api/posts/[id]/restore", description: { ko: "삭제된 포스트 복원 (admin)", en: "Restore soft-deleted post (admin)" } },
       { method: "DELETE", path: "/api/posts/[id]/purge", description: { ko: "영구 삭제 (admin)", en: "Permanent delete (admin)" } },
-      { method: "POST", path: "/api/posts/[id]/view", description: { ko: "조회수 증가", en: "Increment view count" } },
       { method: "GET", path: "/api/posts/[id]/like", description: { ko: "좋아요 수 + IP liked 여부", en: "Like count + IP liked status" } },
       { method: "POST", path: "/api/posts/[id]/like", description: { ko: "좋아요 토글 (IP 기반 삽입/삭제)", en: "Toggle like (IP-based insert/delete)" } },
       { method: "POST", path: "/api/posts/[id]/extend-retention", description: { ko: "휴지통 보관 기간 30일 연장", en: "Extend trash retention by 30 days" } },
@@ -269,7 +268,6 @@ if (category) {
       { method: "GET", path: "/api/works/[id]/related-series", description: { ko: "작업물에 연결된 시리즈 목록 (공개, series_work_relations 조인)", en: "Related series for a work (public, series_work_relations join)" } },
       { method: "GET", path: "/api/admin/works/[id]/related-series", description: { ko: "연결된 시리즈 관리 — 조회 (admin)", en: "Manage related series — read (admin)" } },
       { method: "PUT", path: "/api/admin/works/[id]/related-series", description: { ko: "연결된 시리즈 일괄 갱신 (admin, series_work_relations 동기화)", en: "Bulk-update related series (admin, syncs series_work_relations)" } },
-      { method: "POST", path: "/api/works/[id]/view", description: { ko: "조회수 증가 (IP·날짜 중복 제외)", en: "Increment view count (deduped by IP/date)" } },
       { method: "POST", path: "/api/works/[id]/restore", description: { ko: "휴지통에서 복원", en: "Restore from trash" } },
       { method: "DELETE", path: "/api/works/[id]/purge", description: { ko: "영구 삭제", en: "Permanent delete" } },
       { method: "POST", path: "/api/works/[id]/extend-retention", description: { ko: "휴지통 보관 기간 30일 연장", en: "Extend trash retention by 30 days" } },
@@ -419,8 +417,8 @@ const { error } = await admin.from("site_settings")
     name: "Members / Auth API",
     kind: "api",
     description: {
-      ko: "멀티 저자 인증·멤버 관리 API. GitHub OAuth 로그인, 이메일 초대, 역할 기반 접근 제어를 처리합니다. 역할(소유자/편집자/저자)은 auth.users.app_metadata 에 저장되며 서버에서만 갱신됩니다. 초대받지 않은 OAuth 로그인은 콜백에서 차단하고, 로그아웃은 모든 탭에 전파됩니다.",
-      en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner/editor/author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
+      ko: "멀티 저자 인증·멤버 관리 API. GitHub OAuth 로그인, 이메일 초대, 역할 기반 접근 제어를 처리합니다. 역할(소유자 · 관리자 · 저자)은 auth.users.app_metadata 에 저장되며 서버에서만 갱신됩니다. 초대받지 않은 OAuth 로그인은 콜백에서 차단하고, 로그아웃은 모든 탭에 전파됩니다.",
+      en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner, admin, author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
     },
     designNote: {
       ko: "**인증 ≠ 인가**: OAuth 는 신원만 확인하므로, 콜백(`/auth/callback`)에서 세션 교환 직후 이메일이 `OWNER_EMAIL`·기존 역할·`author_invites` 초대 중 하나에 해당하는지 서버에서 재검사합니다. 아니면 `signOut()` + service_role `deleteUser()` 로 계정을 즉시 제거합니다. **역할은 `app_metadata`(service_role 전용)** 에만 저장해 클라이언트 조작을 원천 차단하고, 소유자는 `OWNER_EMAIL` env 로 부트스트랩합니다. **소유자 확정은 claim-and-close** — `OWNER_EMAIL` 소유자가 처음 로그인하면 `role=owner` 를 `app_metadata` 에 1회 못박아 이후 env 가 바뀌어도 소유권이 유지되고, `OWNER_EMAIL` 이 미설정이면 소유자를 판정할 수 없으므로 계정을 삭제하지 않고 설정 에러만 표시해 배포 초기 자기 삭제를 막습니다. 비소유자는 계정 탭만 접근 가능하며 설정 변경은 서버에서도 막습니다.",
