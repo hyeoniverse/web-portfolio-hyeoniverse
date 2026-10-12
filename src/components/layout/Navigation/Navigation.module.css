@@ -46,8 +46,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  /* wrap 이면 줄(line) 자체가 위에 붙는다 — 로고가 줄 높이보다 커도 넘친 만큼 위아래로 나눠 가운데에 둔다 */
+  align-content: center;
   /* 로고는 fixed 라 nav 줄과 따로 놓인다 — 높이를 nav 줄(액션 버튼 높이)에 맞춰야 로고 크기
-     (배지 34 · 글자 32)와 상관없이 줄 높이에 고정해 가운데가 메뉴·버튼과 같은 선에 온다 */
+     (이미지 38 · 배지 34 · 글자 32)와 상관없이 가운데가 메뉴·버튼과 같은 선에 온다 */
   height: var(--size-40);
   gap: var(--spacing-12);
   text-decoration: none;
@@ -302,9 +304,6 @@
   position: relative;
   flex: 1;
   display: none;
-  /* 기본 stretch 면 링크(a) 박스가 줄 높이(액션 버튼 32px)로 늘어나고 글자는 그 위쪽에 붙어
-     로고·우측 액션보다 몇 px 떠 보인다 — 줄 가운데로 모은다 */
-  align-items: center;
   justify-content: center;
   gap: var(--spacing-32);
   margin-inline-start: var(--_logo-reserve, 0px);
