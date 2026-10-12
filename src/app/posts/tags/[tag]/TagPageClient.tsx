@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchControls } from "@/hooks/useSearchControls";
 import { useSortToggle } from "@/hooks/useSortToggle";
@@ -154,7 +155,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
 
       {/* Hero — title + count + related tags */}
       <header className={styles.hero}>
-        <h1 className={styles.heroTitle}>{tag}</h1>
+        <h1 className={styles.heroTitle}><SiteText text={tag} /></h1>
         {initialData.description && (
           <p className={styles.heroDescription}>{initialData.description}</p>
         )}

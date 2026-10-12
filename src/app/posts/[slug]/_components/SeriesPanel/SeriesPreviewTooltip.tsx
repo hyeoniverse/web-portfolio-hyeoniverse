@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/providers/LanguageProvider";
+import SiteText from "@/components/ui/SiteText";
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { SITE_TIME_ZONE } from "@/constants";
@@ -11,6 +13,7 @@ import { usePopoverRef } from "@/hooks/useTopLayer";
 /* 시리즈 목록 항목 hover 미리보기 — position: fixed 툴팁(좌표는 useSeriesPanel 이 계산).
    DetailLayout 안의 transform 컨테이너에 갇히지 않도록 PostDetailClient 가 레이아웃 밖에서 렌더한다. */
 export default function SeriesPreviewTooltip({ preview, viewLang }: { preview: SeriesPreview | null; viewLang: "ko" | "en" }) {
+  const { foreignLang } = useLanguage();
   const popRef = usePopoverRef<HTMLDivElement>();
   if (!preview) return null;
   return (
@@ -56,13 +59,13 @@ export default function SeriesPreviewTooltip({ preview, viewLang }: { preview: S
         {preview.post.tags && preview.post.tags.length > 0 && (
           <div className={styles.seriesPreviewTags}>
             {preview.post.tags.slice(0, 4).map((tag) => (
-              <span key={tag} className={styles.seriesPreviewTag}>{tag}</span>
+              <span key={tag} className={styles.seriesPreviewTag}><SiteText text={tag} /></span>
             ))}
           </div>
         )}
         <span className={styles.seriesPreviewDate}>
           {/* 글 상세·목록과 같은 한국 시간 날짜 */}
-          {new Date(preview.post.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE })}
+          {new Date(preview.post.created_at).toLocaleDateString(foreignLang ?? (viewLang === "en" ? "en-US" : "ko-KR"), { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE })}
         </span>
       </div>
     </div>

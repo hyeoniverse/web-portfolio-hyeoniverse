@@ -17,7 +17,7 @@ export default function TimelineIndex({
   activeMonthKey: string | null;
   onJump: (key: string) => void;
 }) {
-  const { t, language } = useLanguage();
+  const { t, language, foreignLang } = useLanguage();
   if (groups.length === 0) return null;
   return (
     <motion.nav
@@ -69,7 +69,9 @@ export default function TimelineIndex({
                       )}
                     </span>
                     <span className={styles.timelineIndexMm}>
-                      {language === "ko"
+                      {foreignLang
+                        ? new Intl.DateTimeFormat(foreignLang, { month: "short" }).format(new Date(2000, parseInt(m.mm, 10) - 1, 1))
+                        : language === "ko"
                         ? <>{m.mm}<span className={styles.timelineIndexHanja}>月</span></>
                         : MONTHS_SHORT_EN[parseInt(m.mm, 10) - 1]}
                     </span>

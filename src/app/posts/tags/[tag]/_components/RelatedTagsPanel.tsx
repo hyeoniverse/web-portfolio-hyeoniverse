@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -98,7 +99,7 @@ export default function RelatedTagsPanel({
           const active = extraTags.has(rt);
           const inner = (
             <>
-              <span>#{rt}</span>
+              <span>#<SiteText text={rt} /></span>
               <span className={styles.relatedPillCount}>{count}</span>
             </>
           );
@@ -146,7 +147,7 @@ export default function RelatedTagsPanel({
                     href={`/posts/tags/${encodeURIComponent(other.tag)}`}
                     className={styles.relatedPill}
                   >
-                    <span>#{other.tag}</span>
+                    <span>#<SiteText text={other.tag} /></span>
                     <span className={styles.relatedPillCount}>{other.count}</span>
                   </Link>
                 ))

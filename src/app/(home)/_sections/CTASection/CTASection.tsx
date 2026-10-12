@@ -24,16 +24,17 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ magnetic, resumeMagnetic, onContactClick }, ref) => {
-    const { t, language } = useLanguage();
+    const { t, language, foreignLang, tx } = useLanguage();
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
 
     /** 번역 + 설명을 한 말풍선에 통합 */
     const combinedTooltip = (label: string, ko: string, en: string) => {
-      const text = language === "ko" ? ko : en;
+      const text = language === "ko" ? ko : tx(en);
       const alt = language === "ko" ? en : ko;
       const langLabel = language === "ko" ? "EN" : "KO";
-      const hasTranslation = alt !== text;
+      /* 다른 언어로 볼 때는 한국어 · 영어 말풍선을 덧붙이지 않는다 */
+      const hasTranslation = !foreignLang && alt !== text;
       return hasTranslation
         ? <><div>{langLabel} {alt}</div><div>{label}</div></>
         : label;

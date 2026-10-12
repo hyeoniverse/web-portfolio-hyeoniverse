@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import Chip from "@/components/ui/Chip";
 import Tooltip from "@/components/ui/Tooltip";
 import type { TagEntry } from "../types";
@@ -52,7 +53,7 @@ export default function TagCloudList({
                   onTap(t);
                 } : undefined}
               >
-                <span style={{ fontSize: `${fontFor(t.count)}px` }}>#{t.tag}</span>
+                <span style={{ fontSize: `${fontFor(t.count)}px` }}>#<SiteText text={t.tag} /></span>
               </Chip>
             </Tooltip>
           </li>

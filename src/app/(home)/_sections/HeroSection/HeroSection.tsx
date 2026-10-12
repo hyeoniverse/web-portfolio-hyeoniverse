@@ -24,11 +24,12 @@ interface HeroSectionProps {
 
 const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
-    const { language } = useLanguage();
+    const { language, foreignLang, tx } = useLanguage();
     const { lenis } = useLenis();
     const cfg = useSiteConfig();
-    const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
-    const headlineAlt = language === "ko" ? cfg.hero.headline : cfg.hero.headline_ko;
+    const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline.map(tx);
+    /* 다른 언어로 볼 때는 한국어 말풍선을 띄우지 않는다 — 원문(영어)을 보인다 */
+    const headlineAlt = foreignLang ? cfg.hero.headline : language === "ko" ? cfg.hero.headline : cfg.hero.headline_ko;
 
     const groupRef = useRef<HTMLDivElement>(null);
 

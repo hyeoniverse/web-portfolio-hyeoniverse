@@ -14,7 +14,7 @@ import IndexSheet from "../_components/IndexSheet/IndexSheet";
 import { useLanguage } from "@/providers/LanguageProvider";
 import BoldMarks from "@/components/ui/BoldMarks";
 import { fillCount, fillTemplate } from "@/utils/format";
-import { translateCategory, useCategories } from "@/hooks/useCategories";
+import { translateCategory, useCategories, useCategoryText } from "@/hooks/useCategories";
 import { findCategoryNode } from "@/lib/categoryTree";
 
 interface CategoryEntry {
@@ -35,7 +35,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
   /* 글에는 카테고리를 저장값(한국어 leaf 이름)으로 둔다. 보이는 이름은 화면 언어로 바꾸고(글 카드의 CategoryLabel 과
      같다), 검색은 두 언어 이름 모두에 맞게, 이름순은 보이는 이름 기준으로 한다. 글 목록 링크에는 저장값을 그대로 쓴다. */
   const cats = useCategories();
-  const labelOf = (name: string) => translateCategory(name, language, cats);
+  const labelOf = useCategoryText();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
   // 시트 — ESC 닫기 + body 스크롤 잠금

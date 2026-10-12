@@ -7,9 +7,10 @@ import StaggerText from "@/components/effects/StaggerText";
 import styles from "./MarqueeSection.module.css";
 
 const MarqueeSection = forwardRef<HTMLElement>((_, ref) => {
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
   const cfg = useSiteConfig();
-  const words = language === "ko" ? cfg.marquee.words_ko : cfg.marquee.words;
+  /* 다른 언어로 볼 때는 영어 칸을 사이트 내용 글 번역(tx)으로 */
+  const words = language === "ko" ? cfg.marquee.words_ko : cfg.marquee.words.map(tx);
 
   return (
     <section className={styles.marquee} ref={ref}>

@@ -1,5 +1,6 @@
 "use client";
 
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import Button from "@/components/ui/Button";
 import styles from "./SeriesCategoryFilter.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -46,7 +47,7 @@ export default function SeriesCategoryFilter({
               onClick={() => onToggle(cat)}
               data-clickable="true"
             >
-              {cat}
+              <CategoryLabel category={cat} />
               <span className={styles.categoryCount}>{count}</span>
             </Button>
           );
