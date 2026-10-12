@@ -185,6 +185,17 @@ export function getSiteLangSnapshot(): SiteLangSnapshot {
 }
 export const getServerSiteLangSnapshot = () => SERVER_SNAPSHOT;
 
+/** 서버가 미리 읽어 둔 기본 언어 화면 글(#1406)로 그린 서버 스냅숏 — 하이드레이션도 이 값으로 맞춘다 */
+export function serverSnapshotFor(lang: string, ui: Readonly<Record<string, string>>): SiteLangSnapshot {
+  return { ...SERVER_SNAPSHOT, lang, auto: true, ui, uiStatus: "ready" };
+}
+
+/** 서버가 넘긴 기본 언어 화면 글을 메모리에 넣어 둔다 — 브라우저가 다시 받지 않는다. 이미 있으면 그대로 */
+export function primeSiteUi(lang: string, strings: Record<string, string>) {
+  if (typeof window === "undefined" || uiMemory.has(lang)) return;
+  uiMemory.set(lang, strings);
+}
+
 /** 언어 고르기 — null 이면 원문. 고른 것은 저장한다(원문은 "original" 로 — 다음 방문에 자동 번역이 다시 걸리지 않게) */
 export function selectSiteLang(lang: string | null) {
   const next = normalizeTranslationLang(lang);
