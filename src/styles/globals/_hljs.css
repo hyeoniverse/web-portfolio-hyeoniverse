@@ -264,8 +264,7 @@ code .token.italic {
   /* 창 전체가 세로 리사이즈 — resize 는 wrap 이 가진다(자기 radius 는 자기 resizer 를 안 자르므로 그립이 보인다).
      오버레이(.code-resize-cursor)는 wrap 의 **형제**(바깥 .code-block-outer 안)라 wrap 의 네이티브 resizer 위에
      그려져 시스템 커서를 가린다 — 댓글창 Textarea 구조와 동일.
-     높이는 제한 없이 코드 길이만큼 — 창 안 세로 스크롤은 페이지 휠을 가로채 읽기를 끊는다.
-     긴 코드(30줄 초과)만 .is-collapsed 로 접어 두고 아래 "펼치기"로 연다. */
+     높이는 제한 없이 코드 길이만큼 — 창 안 세로 스크롤은 페이지 휠을 가로채 읽기를 끊는다. */
   height: auto;
   border: var(--border-light);
   border-radius: var(--radius-surface);
@@ -544,7 +543,7 @@ code .token.italic {
   cursor: pointer;
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast) var(--ease-standard);
 }
-.code-wrap-icon { display: none; flex-shrink: 0; }
+.code-wrap-icon { flex-shrink: 0; }
 .code-block-wrap .code-wrap-toggle[data-on] .code-wrap-icon { color: var(--text-accent); }
 
 .code-block-wrap .code-wrap-toggle:hover {
@@ -624,23 +623,34 @@ code .token.italic {
   }
 }
 
-/* ── 좁은 화면: 헤더 겹침 방지 ──
-   정중앙 절대배치 언어 라벨이 우측 컨트롤과 겹친다. 라벨을 flow 로 돌려 신호등 옆에 두고(남는 폭에서 말줄임),
-   컨트롤은 복사·줄바꿈 모두 아이콘만 남겨 폭을 줄인다(줄바꿈 켜짐 = 강조색). */
-@media (width <= 768px) {
-  .code-block-bar { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+/* ── 헤더 폭 — 모바일 우선 ──
+   좁은 화면에서는 정중앙 절대배치 언어 라벨이 우측 컨트롤과 겹친다. 기본은 라벨을 flow 로 신호등 옆에 두고(남는 폭에서 말줄임)
+   컨트롤은 복사·줄바꿈 모두 아이콘만(줄바꿈 켜짐 = 강조색). 768px 초과에서 정중앙 라벨 · 글자 라벨로 되돌린다. */
+.code-block-bar { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+.code-block-bar .code-lang-label {
+  position: static;
+  transform: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.code-block-bar .code-block-controls { flex-shrink: 0; }
+.code-block-wrap .code-copy-btn .code-copy-labels,
+.code-block-wrap .code-wrap-toggle .code-wrap-label-default,
+.code-block-wrap .code-wrap-toggle .code-wrap-label-hover { display: none; }
+.code-block-wrap .code-wrap-toggle .code-wrap-icon { display: block; }
+
+@media (width > 768px) {
+  .code-block-bar { gap: var(--spacing-12); padding: 0 var(--spacing-16); }
   .code-block-bar .code-lang-label {
-    position: static;
-    transform: none;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    overflow: visible;
   }
-  .code-block-bar .code-block-controls { flex-shrink: 0; }
-  .code-block-wrap .code-copy-btn .code-copy-labels { display: none; }
-  .code-block-wrap .code-wrap-toggle .code-wrap-label-default,
-  .code-block-wrap .code-wrap-toggle .code-wrap-label-hover { display: none; }
-  .code-wrap-icon { display: block; }
+  .code-block-wrap .code-copy-btn .code-copy-labels { display: inline-grid; }
+  .code-block-wrap .code-wrap-toggle .code-wrap-label-default { display: inline-block; }
+  .code-block-wrap .code-wrap-toggle .code-wrap-label-hover { display: inline; }
+  .code-block-wrap .code-wrap-toggle .code-wrap-icon { display: none; }
 }
 
 /* ── Math element — appear animation ── */
@@ -888,38 +898,3 @@ span.math-element-wrap .math-katex-content {
 }
 .reader-playground-log-error { color: var(--text-accent); }
 .reader-playground-log-warn { color: var(--text-warning); }
-
-
-/* ── 긴 코드 접기 ── 30줄을 넘는 블록만 접힌 높이로 시작한다. 안쪽 세로 스크롤은 막아 휠이 페이지로 간다.
-   아래쪽을 배경색으로 흐려 뒤에 더 있다는 걸 보이고, 펼치기 단추는 창 바로 아래 가운데. */
-.code-block-wrap.has-code-bar.is-collapsed {
-  max-height: 28rem;
-}
-.code-block-wrap.is-collapsed pre {
-  overflow-y: hidden;
-}
-.code-block-wrap.is-collapsed::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 4rem;
-  background: linear-gradient(to bottom, transparent, var(--bg-primary));
-  pointer-events: none;
-}
-.code-block-outer > .code-expand-btn {
-  display: flex;
-  align-items: center;
-  margin: var(--spacing-8) auto 0;
-  padding: var(--spacing-4) var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.code-block-outer > .code-expand-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
