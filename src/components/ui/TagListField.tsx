@@ -1,5 +1,6 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import { useState, type KeyboardEvent } from "react";
 import Chip, { useChipReorder } from "./Chip";
 import Input from "./Input";
@@ -33,6 +34,7 @@ export default function TagListField({
   langBadge,
   size = "sm",
 }: TagListFieldProps) {
+  const badgeOf = useLangBadge();
   const [input, setInput] = useState("");
   /* commaAsAdd 모드: 저장된 값 split = separator. 그 외엔 콤마 split + trim (bulk paste 지원) */
   const tags = value
@@ -118,7 +120,7 @@ export default function TagListField({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         onAdd={addTags}
-        inlineLabel={langBadge ? langBadge.toUpperCase() : undefined}
+        inlineLabel={langBadge ? badgeOf(langBadge) : undefined}
       />
     </div>
   );

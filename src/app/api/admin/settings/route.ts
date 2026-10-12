@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import type { ApiErrorCode } from "@/lib/apiError";
 import { revalidatePath } from "next/cache";
@@ -9,6 +9,8 @@ import { checkAboutContent } from "@/lib/api/validateAboutContent";
 import { checkRequiredSettings } from "@/lib/api/validateRequiredSettings";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
+import { getSiteConfig } from "@/lib/getSiteConfig";
+import { prewarmDefaultLangUi } from "@/lib/api/defaultLangUi";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { siteConfig } from "@/config/site.config";
 import type { Author } from "@/types/author";
@@ -82,6 +84,9 @@ function checkNonOwnerConfig(
 }
 
 // GET /api/admin/settings — 설정 조회 (공개)
+/* 기본 언어를 바꾸면 응답 뒤에 화면 글 사전 두 벌을 번역한다(after) — 관리자 사전이 커서 여유를 둔다 */
+export const maxDuration = 300;
+
 export async function GET() {
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -155,6 +160,13 @@ export async function PATCH(request: Request) {
   }
 
   revalidatePath("/", "layout");
+
+  /* 사이트 기본 언어가 ko · en 밖이면 화면 글 사전(방문자 · 관리자)을 그 언어로 미리 번역해 둔다(#1406) —
+     응답을 보낸 뒤에 돈다. 이미 번역해 둔 언어면 캐시를 읽고 끝난다. 다 번역하면 첫 화면을 다시 그린다 */
+  after(async () => {
+    await prewarmDefaultLangUi(await getSiteConfig());
+    revalidatePath("/", "layout");
+  });
 
   // 설정 변경 알림 — delta 내부 키로 실제 변경된 섹션만 기록
   try {

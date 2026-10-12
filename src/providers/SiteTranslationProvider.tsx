@@ -11,6 +11,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
   ensureSiteContent,
   ensureSiteUi,
+  getSiteDefaultLang,
   getServerSiteLangSnapshot,
   getSiteLangSnapshot,
   setSiteLangEnabled,
@@ -49,16 +50,18 @@ export default function SiteTranslationProvider() {
   /* 사이트 내용 글(홈 글 · 카테고리 · 태그 · 프로필) — 언어마다 이번 방문에 한 번. About 글은 About 화면에 왔을 때만.
      화면을 옮길 때마다 부르지만 이미 받았으면 바로 돌아온다 — 실패했던 것만 그때 다시 묻는다 */
   const onAbout = pathname === "/about" || pathname.startsWith("/about/");
+  /* 사이트 기본 언어(ko · en 밖)면 내용 글은 이미 그 언어의 원문 — 번역을 받지 않는다(#1406) */
+  const contentLang = site.lang && site.lang !== getSiteDefaultLang() ? site.lang : null;
   useEffect(() => {
     /* 관리 화면은 내용 글을 원문으로 보인다 — 받지 않는다 */
-    if (site.lang && !isAdmin) void ensureSiteContent(site.lang);
-  }, [site.lang, pathname, isAdmin]);
+    if (contentLang && !isAdmin) void ensureSiteContent(contentLang);
+  }, [contentLang, pathname, isAdmin]);
   useEffect(() => {
-    if (site.lang && onAbout) void ensureSiteContent(site.lang, "about");
-  }, [site.lang, onAbout, pathname]);
+    if (contentLang && onAbout) void ensureSiteContent(contentLang, "about");
+  }, [contentLang, onAbout, pathname]);
 
-  /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번 */
-  const uiReady = !!(site.lang && site.ui);
+  /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번. 사이트 기본 언어는 안내하지 않는다(#1406) */
+  const uiReady = !!(site.lang && site.ui && site.lang !== getSiteDefaultLang());
   useEffect(() => {
     if (!uiReady || !site.lang) return;
     const key = `siteTranslateNotice:${site.lang}`;

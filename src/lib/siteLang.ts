@@ -39,11 +39,18 @@ export interface SiteLangSnapshot {
 
 const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
 
-/** 저장된 선택 › 브라우저 언어 — 순수 함수(테스트용으로 뗀다) */
-export function resolveInitialLang(saved: string | null, browserLangs: readonly string[]): { lang: string | null; auto: boolean } {
+/** 저장된 선택 › 사이트 기본 언어(ko · en 밖일 때) › 브라우저 언어 — 순수 함수(테스트용으로 뗀다) */
+export function resolveInitialLang(
+  saved: string | null,
+  browserLangs: readonly string[],
+  siteDefault: string | null = null,
+): { lang: string | null; auto: boolean } {
   if (saved === ORIGINAL) return { lang: null, auto: false };
   const fromSaved = normalizeTranslationLang(saved);
   if (fromSaved) return { lang: fromSaved, auto: false };
+  /* 기본 언어도 고른 것이 아니라 자동으로 건 것 — 번역이 막힌 사이트면 조용히 영어로 물러난다 */
+  const fromSite = normalizeTranslationLang(siteDefault);
+  if (fromSite) return { lang: fromSite, auto: true };
   return { lang: matchVisitorLanguage(browserLangs), auto: true };
 }
 
@@ -140,6 +147,8 @@ export function setAdminUi(lang: string, strings: Record<string, string>) {
 
 /* ── 저장소 ── */
 let state: { lang: string | null; auto: boolean } | null = null;
+/** 사이트 기본 언어(ko · en 밖일 때만) — LanguageProvider 가 서버 설정에서 받아 넣는다 */
+let siteDefault: string | null = null;
 let enabled = true;
 let snapshot: SiteLangSnapshot | null = null;
 const listeners = new Set<() => void>();
@@ -147,7 +156,7 @@ const listeners = new Set<() => void>();
 function current() {
   if (!state) {
     const langs = typeof navigator === "undefined" ? [] : navigator.languages?.length ? navigator.languages : [navigator.language];
-    state = resolveInitialLang(readSaved(), langs);
+    state = resolveInitialLang(readSaved(), langs, siteDefault);
   }
   return state;
 }
@@ -176,6 +185,17 @@ export function getSiteLangSnapshot(): SiteLangSnapshot {
 }
 export const getServerSiteLangSnapshot = () => SERVER_SNAPSHOT;
 
+/** 서버가 미리 읽어 둔 기본 언어 화면 글(#1406)로 그린 서버 스냅숏 — 하이드레이션도 이 값으로 맞춘다 */
+export function serverSnapshotFor(lang: string, ui: Readonly<Record<string, string>>): SiteLangSnapshot {
+  return { ...SERVER_SNAPSHOT, lang, auto: true, ui, uiStatus: "ready" };
+}
+
+/** 서버가 넘긴 기본 언어 화면 글을 메모리에 넣어 둔다 — 브라우저가 다시 받지 않는다. 이미 있으면 그대로 */
+export function primeSiteUi(lang: string, strings: Record<string, string>) {
+  if (typeof window === "undefined" || uiMemory.has(lang)) return;
+  uiMemory.set(lang, strings);
+}
+
 /** 언어 고르기 — null 이면 원문. 고른 것은 저장한다(원문은 "original" 로 — 다음 방문에 자동 번역이 다시 걸리지 않게) */
 export function selectSiteLang(lang: string | null) {
   const next = normalizeTranslationLang(lang);
@@ -192,6 +212,23 @@ export function dismissAutoSiteLang() {
   state = { lang: null, auto: false };
   emit();
 }
+
+/**
+ * 사이트 기본 언어를 알린다(#1406) — ko · en 이거나 모르는 코드면 null 로 둔다.
+ * 자동으로 건 언어는 새 기본값으로 다시 정한다. 방문자가 고른 언어는 그대로 둔다
+ */
+export function setSiteDefaultLang(code: string | null | undefined) {
+  const next = normalizeTranslationLang(code);
+  if (siteDefault === next) return;
+  siteDefault = next;
+  if (state?.auto) {
+    state = null;
+    if (snapshot) emit();
+  }
+}
+
+/** 사이트 기본 언어(ko · en 밖일 때만) — 없으면 null. 이 언어가 걸리면 번역이 아니라 원문(ko 칸)을 그 언어로 본다 */
+export const getSiteDefaultLang = () => siteDefault;
 
 /** 사이트 설정에서 번역이 꺼졌으면 언어가 걸리지 않는다(관리 화면도 같은 언어를 쓴다) */
 export function setSiteLangEnabled(on: boolean) {
@@ -266,6 +303,7 @@ export async function ensureSiteContent(lang: string, bundle: Bundle = "site", f
 /** 테스트용 — 모듈 상태를 처음으로 */
 export function __resetSiteLangForTest() {
   state = null;
+  siteDefault = null;
   enabled = true;
   snapshot = null;
   uiMemory.clear();

@@ -190,9 +190,10 @@ export const siteConfig = {
       "frontend developer, portfolio, React, Next.js, TypeScript, web development, UI/UX",
     author: "Kim JeongHyeon",
     locale: "ko_KR",
-    // 콘텐츠 작성 기본 언어 — admin 폼에서 어느 언어를 필수 항목 기준으로 둘지 결정.
-    // (방문자에게 보이는 언어와 무관 — 그건 LanguageProvider 가 브라우저/토글로 처리)
-    defaultLanguage: "ko" as "ko" | "en",
+    // 사이트 기본 언어 = 콘텐츠 작성 언어(#1406). ko · en 이거나 lib/translationLanguages 의 코드(ja 등).
+    // ko · en 밖이면 ko 자리를 그 언어가 대신한다 — 글 · 작업물의 ko 칸이 그 언어의 원문 칸, 토글은 JA/EN 처럼,
+    // 화면 글은 그 언어의 기계 번역. admin 폼의 필수 항목 기준은 원문 칸(ko), en 이면 en 칸
+    defaultLanguage: "ko" as string,
   },
 
   // ---------------------------------------------------------------------------
