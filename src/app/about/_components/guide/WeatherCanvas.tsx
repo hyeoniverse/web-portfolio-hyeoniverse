@@ -44,7 +44,10 @@ export default function WeatherCanvas({ kind }: { kind: WeatherKind }) {
   useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx || (!rain && !snow)) return;
+    /* 색을 읽을 요소는 처음에 잡아 둔다 — 화면을 떠난 뒤 한 번 더 도는 프레임에서 ref 가 비어 getComputedStyle 이 터졌다 */
+    const lightEl = lightRef.current;
+    const darkEl = darkRef.current;
+    if (!canvas || !ctx || !lightEl || !darkEl || (!rain && !snow)) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const sky = canvas.parentElement as HTMLElement;
     let w = 0, h = 0, dpr = 1;
@@ -88,7 +91,7 @@ export default function WeatherCanvas({ kind }: { kind: WeatherKind }) {
       ctx.clearRect(0, 0, w, h);
       /* 밝은 하늘이면 어두운 빗줄기 — 하늘이 고른 밝기(data-bright)를 따른다 */
       const bright = sky.dataset.bright === "light";
-      const tint = getComputedStyle((bright ? darkRef : lightRef).current!).color;
+      const tint = getComputedStyle((bright ? darkEl : lightEl)).color;
       const wind = storm ? 0.32 : 0.18;
 
       if (rain) {
@@ -127,9 +130,9 @@ export default function WeatherCanvas({ kind }: { kind: WeatherKind }) {
 
       if (snow) {
         const t = now / 1000;
-        ctx.fillStyle = getComputedStyle(lightRef.current!).color;
+        ctx.fillStyle = getComputedStyle(lightEl).color;
         /* 부드러운 눈송이 — 어두운 하늘엔 번지는 흰 빛, 밝은 하늘엔 보이게 옅은 그림자 */
-        ctx.shadowColor = getComputedStyle((bright ? darkRef : lightRef).current!).color;
+        ctx.shadowColor = getComputedStyle((bright ? darkEl : lightEl)).color;
         for (const f of flakes) {
           f.y += f.speed * dt;
           const x = f.x + Math.sin(t * (0.6 + f.z * 0.6) + f.phase) * f.sway;
@@ -155,7 +158,7 @@ export default function WeatherCanvas({ kind }: { kind: WeatherKind }) {
           const flicker = age < 0.08 ? 1 : age < 0.14 ? 0.25 : age < 0.22 ? 0.9 : Math.max(0, 1 - (age - 0.22) / 0.45);
           if (flicker <= 0) bolt = null;
           else {
-            ctx.strokeStyle = getComputedStyle(lightRef.current!).color;
+            ctx.strokeStyle = getComputedStyle(lightEl).color;
             ctx.shadowColor = ctx.strokeStyle;
             ctx.shadowBlur = 32;
             ctx.lineJoin = "round";
@@ -172,7 +175,7 @@ export default function WeatherCanvas({ kind }: { kind: WeatherKind }) {
         }
         if (flash > 0) {
           ctx.globalAlpha = flash * 0.42;
-          ctx.fillStyle = getComputedStyle(lightRef.current!).color;
+          ctx.fillStyle = getComputedStyle(lightEl).color;
           ctx.fillRect(0, 0, w, h);
           flash = bolt ? flash : Math.max(0, flash - dt * 3);
         }
