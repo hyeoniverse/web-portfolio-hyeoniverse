@@ -3,9 +3,9 @@
 import { useCallback, useRef, type PointerEvent as ReactPointerEvent } from "react";
 
 /** 이만큼 끌어 내리면 닫는다(px) */
-export const SHEET_DISMISS_DISTANCE = 80;
+const SHEET_DISMISS_DISTANCE = 80;
 /** 손을 뗄 때 이 속도(px/ms) 넘게 내려가고 있으면 짧게 끌었어도 닫는다 — 휙 쓸어내리기 */
-export const SHEET_DISMISS_VELOCITY = 0.4;
+const SHEET_DISMISS_VELOCITY = 0.4;
 
 /** 바텀 시트를 놓을 때 닫을지 — 거리 또는 속도. Modal 의 시트도 같은 판정을 쓴다 */
 export function shouldDismissSheet(dy: number, velocity: number): boolean {

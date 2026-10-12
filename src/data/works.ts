@@ -1,10 +1,9 @@
-import { projects } from "./projects";
 import type { LocalizedText, Project } from "./projects";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 import type { Post } from "@/types/post";
 
 /** 홈 그리드 한 칸이 무엇에서 왔는지. 표지 유무와 머리글이 이 값을 따른다 */
-export type WorkItemKind = "work" | "post" | "repo";
+type WorkItemKind = "work" | "post" | "repo";
 
 export interface WorkItem {
   id: string;        // 그리드 내 고유 식별자 (인터랙션용)
@@ -253,5 +252,3 @@ export function repoView(repo: GithubRepoCard, set?: RepoOverride): RepoView {
   };
 }
 
-// 정적 fallback — projects.ts 순서 (DB 미접근 시)
-export const worksData: WorkItem[] = toWorkItems(projects);

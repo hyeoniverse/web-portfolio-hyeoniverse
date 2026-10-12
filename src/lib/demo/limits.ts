@@ -6,8 +6,7 @@
  * 0 을 넣으면 그 기능을 끈다(DB 함수가 -1 을 돌려 429). 숫자가 아니면 기본값을 쓴다.
  * 세는 일은 DB(demo_usage · demo_take)가 한다 — supabase/migrations/2026_10_09_demo_usage.sql
  */
-export const DEMO_FEATURES = ["translate", "summary", "cover", "speech"] as const;
-export type DemoFeature = (typeof DEMO_FEATURES)[number];
+export type DemoFeature = "translate" | "summary" | "cover" | "speech";
 
 export interface DemoLimits {
   perIp: number;

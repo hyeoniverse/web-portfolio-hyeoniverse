@@ -10,7 +10,8 @@ import { pickFallbackPreset } from "@/lib/coverFallback";
    작업물 7개 + 빈 칸 1개로 한 바퀴를 나눈다(한 칸 45°, 틈 0.12rad). 여기서는 칸 수와 상관없이 그 한 칸을
    그대로 쓰고, 칸이 적어도 비지 않게 판들을 띠처럼 돌린다(slotOffset). */
 export const RADIUS = 35;
-/* 판 폭 = 원통 반지름 — 판은 폭 35 : 원호 35 × (π/4 − 0.12) ≈ 3:2 */
+/** 판 폭 = 원통 반지름 — 판은 폭 35 : 원호 35 × (π/4 − 0.12) ≈ 3:2. 뜻을 드러내려고 둔 별칭이다
+ *  @alias */
 export const PLANE_WIDTH = RADIUS;
 /* 판 한 칸이 차지하는 각 — 칸 수와 상관없이 고정이라 판 비율도 늘 같다 */
 export const SLOT_ANGLE = Math.PI / 4;

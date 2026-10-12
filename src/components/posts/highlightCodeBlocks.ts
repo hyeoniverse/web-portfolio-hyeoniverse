@@ -21,6 +21,8 @@ export interface WrapLabels {
 /** 이 줄 수를 넘는 코드만 접어 두고 "펼치기"를 붙인다. 그보다 짧으면 높이 제한 없이 다 보인다 */
 const COLLAPSE_LINES = 30;
 
+/** useRichtextEnhance 가 동적 import 로 꺼내 쓴다(knip 이 그 사용을 못 본다)
+ *  @public */
 export function highlightCodeBlocks(container: HTMLElement) {
   // markdown 콘텐츠용 DOM 하이라이팅. wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
   // 이미 Shiki(.shiki)로 칠해진 건 건드리지 않음 — 서버에서 처리됨.

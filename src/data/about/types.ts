@@ -1,33 +1,4 @@
 import type { LocalizedText } from "@/types/common";
-export type { LocalizedText };
-
-export type DcTransitionMode = "strip" | "stack";
-
-export interface DesignFeature {
-  icon: string;
-  title: string;
-  description: LocalizedText;
-  tech: string[];
-  image?: string;
-}
-
-export interface ProcessStep {
-  step: string;
-  title: LocalizedText;
-  description: LocalizedText;
-  /** 기간(YYYY-MM-DD). 둘 다 있으면 타임라인 막대가 실제 기간만큼 길어진다 */
-  start?: string;
-  end?: string;
-  commits?: number;
-  prs?: number;
-  /** 주별 커밋 수 */
-  weekly?: number[];
-  /** 커밋 종류별 수 — 순서대로 쌓는다 */
-  mix?: { kind: string; count: number }[];
-  /** 대표 수치와 그 이름 */
-  metric?: string;
-  metricLabel?: LocalizedText;
-}
 
 export interface CodeExample {
   title: string;
@@ -50,7 +21,7 @@ export interface CodeExample {
   demoBg?: string;
 }
 
-export interface TroubleshootingDiagram {
+interface TroubleshootingDiagram {
   title?: LocalizedText;
   nodes: FlowNode[];
   edges: FlowEdge[];
@@ -112,24 +83,11 @@ export interface TroubleShootingItem {
   recommendReason?: LocalizedText;
 }
 
-/** Security 패널 항목. 값은 md(content/about/security/)에서 구워진다. */
-export interface SecurityItem {
-  title: LocalizedText;
-  description: LocalizedText;
-  scope: LocalizedText;
-  icon: string;
-}
-
 export interface TechStackItem {
   name: string;
   category: string;
   /** simple-icons slug (예 "react") 또는 업로드/링크된 이미지 URL. 없으면 name 기반 inline 아이콘 fallback. */
   icon?: string;
-}
-export interface StructureItem {
-  path: string;
-  description: LocalizedText;
-  indent: number;
 }
 
 export interface DesignConceptItem {

@@ -47,22 +47,6 @@ export const toc = [
   { href: "#faq", label: { ko: "자주 묻는 질문", en: "FAQ" }, ready: true },
 ] as { href: string | null; label: L10n; ready: boolean }[];
 
-/** 기술 스택 띠 — package.json 기준 */
-export const stack = [
-  "Next.js 16",
-  "React 19",
-  "TypeScript",
-  "Supabase",
-  "Plate 53",
-  "Three.js",
-  "React Three Fiber",
-  "GSAP",
-  "Framer Motion",
-  "Vitest",
-  "Playwright",
-  "Vercel",
-];
-
 export const live = {
   /** 도시를 모를 때 */
   here: { ko: "여기", en: "Here" } satisfies L10n,

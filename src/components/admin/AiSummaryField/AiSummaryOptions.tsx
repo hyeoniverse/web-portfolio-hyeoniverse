@@ -102,7 +102,7 @@ export function SummaryOptionsForm({ value: o, onChange, showGeneration = true, 
 }
 
 /** 사이트 기본값 — 설정 › 서비스에서 정한 요약 옵션(없거나 이상하면 코드 기본값) */
-export function useSiteSummaryDefaults(): SummaryOptions {
+function useSiteSummaryDefaults(): SummaryOptions {
   const config = useSiteConfig();
   return sanitizeSummaryOptions((config?.aiSummary as { options?: unknown } | undefined)?.options);
 }

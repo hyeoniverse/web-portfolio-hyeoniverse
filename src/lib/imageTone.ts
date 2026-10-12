@@ -6,7 +6,7 @@
  */
 
 /** 상대 밝기(0~1, sRGB 근사) */
-export function luminance(r: number, g: number, b: number): number {
+function luminance(r: number, g: number, b: number): number {
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
 

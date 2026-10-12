@@ -1,7 +1,7 @@
 /* 공유 달력을 어느 글·프로젝트가 쓰는지 — 달력 블록은 본문 HTML 에 `data-calendar-id="…"` 로만 남는다
    (plateSerializer). 서버가 그 표시가 든 본문만 골라 오면 여기서 id 를 꺼내 달력별로 묶는다. */
 
-export interface CalendarUsageRef {
+interface CalendarUsageRef {
   id: string;
   title: string;
   slug: string;

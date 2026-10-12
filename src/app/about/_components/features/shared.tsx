@@ -35,48 +35,6 @@ export function useShotSrc() {
 }
 
 /**
- * 고정 장면의 스크롤 진행 — 섹션이 화면을 지나는 동안 0~1 을 --p 로 넘기고, count 칸으로 나눈 지금 칸(index)을
- * 돌려준다. 칸이 바뀔 때만 렌더한다. goTo(i) 는 그 칸 가운데로 스크롤한다(칩 · 단추용).
- */
-export function useScrollStep<T extends HTMLElement>(count: number) {
-  const ref = useRef<T>(null);
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const r = el.getBoundingClientRect();
-      const range = r.height - window.innerHeight;
-      const p = range > 0 ? Math.min(1, Math.max(0, -r.top / range)) : 0;
-      el.style.setProperty("--p", p.toFixed(4));
-      /* 칸 안에서 얼마나 왔는지(0~1) — 자막 채우기 같은 칸 안 움직임용 */
-      const f = Math.min(count - 0.0001, p * count);
-      el.style.setProperty("--step-p", (f - Math.floor(f)).toFixed(4));
-      setIndex(Math.floor(f));
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [count]);
-  const goTo = (i: number) => {
-    const el = ref.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const range = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + (range * (i + 0.5)) / count, behavior: "smooth" });
-  };
-  return { ref, index, goTo };
-}
-
-/**
  * 클릭 + 자동 넘김 — 화면에 들어와 있는 동안 interval(ms)마다 다음 칸으로 간다. 직접 고르면(go) 그 자리에서 다시 센다.
  * 장면 전체에 마우스가 올라가 있다고 멈추지는 않는다 — 장면이 화면을 거의 다 차지해 스크롤만 해도 멈춰 버렸다.
  * 멈춤은 paused(쓰는 쪽이 정한다: 엔드포인트 줄 위 등)와 키보드 초점이 안에 있을 때만.
@@ -136,7 +94,7 @@ export function AutoBar() {
 }
 
 /** 화면에 보이는 동안만 소리 없이 재생하는 영상 */
-export function ShotVideo({ src, className }: { src: string; className?: string }) {
+function ShotVideo({ src, className }: { src: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current;

@@ -6,10 +6,9 @@ import { isContentMissing } from "@/lib/contentLang";
  * 라우트에서 떼어 둔 것은 테스트하려고다(DB · 공급자 없이).
  */
 
-export type ContentSourceType = "post" | "work";
 /** 번역하는 칸 — 글: title · excerpt · content, 작업물: title · subtitle · description · content */
 export type ContentField = "title" | "excerpt" | "subtitle" | "description" | "content";
-export type ContentTextFields = Partial<Record<ContentField, string>>;
+type ContentTextFields = Partial<Record<ContentField, string>>;
 
 /**
  * 정보 칸(메타) — 본문 밖에서 방문자에게 보이는, DB 의 ko/en 칸에서 온 글. 칸마다 모양이 다르다.
@@ -20,7 +19,7 @@ export type ContentTextFields = Partial<Record<ContentField, string>>;
  * — 바꾸면 링크가 깨지거나 뜻이 틀어진다.
  */
 export interface ContentRole { role: string; items: string[] }
-export interface ContentTeamMember { role: string; bio: string; contributions: ContentRole[] }
+interface ContentTeamMember { role: string; bio: string; contributions: ContentRole[] }
 export interface ContentMeta {
   /** 저장된 요약 글(JSON 구조 또는 예전 줄글) — 번역도 같은 꼴로 돌려준다 */
   summary?: string;
@@ -34,7 +33,7 @@ export interface ContentMeta {
   /** 그림 주소 → 자막 줄(lib/galleryCaptions 의 captionLines) — 줄 수는 원문과 늘 같다 */
   gallery?: Record<string, string[]>;
 }
-export type ContentMetaField = keyof ContentMeta;
+type ContentMetaField = keyof ContentMeta;
 
 /** 번역 응답 · 캐시(content_translations.fields) — 칸 글 + 정보 칸 + 원문 언어 · 판(v) */
 export type ContentFields = ContentTextFields & ContentMeta & {
@@ -283,9 +282,9 @@ export function applyMetaTranslations(meta: ContentMeta, tr: Map<string, string>
  *   IP 당     10분에 5번 — 한 사람이 언어를 몇 개 바꿔 보는 정도는 된다
  *   전체      10분에 60번 — 여러 IP 로 돌려도 비용이 묶이게
  */
-export const MISS_WINDOW_MS = 10 * 60 * 1000;
-export const MISS_LIMIT_PER_IP = 5;
-export const MISS_LIMIT_GLOBAL = 60;
+const MISS_WINDOW_MS = 10 * 60 * 1000;
+const MISS_LIMIT_PER_IP = 5;
+const MISS_LIMIT_GLOBAL = 60;
 
 export function createMissLimiter(perIp = MISS_LIMIT_PER_IP, global = MISS_LIMIT_GLOBAL, windowMs = MISS_WINDOW_MS) {
   const hits = new Map<string, number[]>();
