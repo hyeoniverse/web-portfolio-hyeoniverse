@@ -88,23 +88,27 @@ Tokens and components are inspected live at `/design-system`.
 
 #### Dashboard
 
-`/admin` opens on a one-page view of the site. At the top sit **quick actions** (new post · new project · settings · reports · notifications, with pending-report and unread counts as badges) and a **service log** strip (calls and failures in the last 24 hours, providers currently switched off). The **stats** panel counts total views (change vs. the previous 7 days plus a sparkline), published and draft projects and posts, and comments; the donut beside it is the category split by views.
+`/admin` opens on a one-page view of the site. At the top sit **quick actions** (new post · new project · settings · reports · notifications, with pending-report and unread counts as badges) and a **service log** strip (calls and failures in the last 24 hours, providers currently switched off). The **stats** panel leads with the visitor count (change vs. the previous 7 days plus a sparkline), with visits, page views, average time on page and the counting start date on one line below, then published and draft projects and posts, and comments; the donut beside it is the category split by views.
 
-**Daily views** draws any range you pick (up to 90 days) as a curve; click a day in the calendar heatmap below and a panel opens with that day's rank, how it compares to the period average, the same weekday and the day before, and the posts read most that day. Further down come **recent activity** (posts · projects · comments), **reports**, **popular** (views · likes · comments per post, engagement, top tags), a **traffic** summary (sources · devices · 30-day visits · new vs. returning · views per visit) and whether each service key is configured.
+**Daily visitors** draws any range you pick (up to 90 days) as a curve; click a day in the calendar heatmap below and a panel opens with that day's rank, how it compares to the period average, the same weekday and the day before, and the posts read most that day. Further down come **recent activity** (posts · projects · comments), **reports**, **popular** (views · likes · comments per post, engagement, top tags), a **traffic** summary (sources · devices · 30-day visits · new vs. returning · views per visit) and whether each service key is configured.
 
-| Quick actions · stats | Daily views — click a day for its breakdown |
+| Quick actions · stats | Daily visitors — click a day for its breakdown |
 |:---:|:---:|
-| <img src="public/images/screenshots/cms/17-dashboard-light.png" alt="Admin dashboard — quick actions and stats" width="100%" /> | <img src="public/images/screenshots/cms/18-dashboard-daily-views-light.png" alt="Daily views, calendar heatmap and the selected day's panel" width="100%" /> |
+| <img src="public/images/screenshots/cms/17-dashboard-light.png" alt="Admin dashboard — quick actions and stats" width="100%" /> | <img src="public/images/screenshots/cms/18-dashboard-daily-views-light.png" alt="Daily visitors, calendar heatmap and the selected day's panel" width="100%" /> |
 
 #### Traffic
 
-A visit is recorded once per IP per day, together with the user agent (device · browser), referrer, landing path, country and `utm_*` values. The signed-in admin, crawlers (bots) and any address marked **my IP** are not counted, and when today's visits exceed three times the 7-day average a **traffic spike** notification is created once a day. A scheduled job anonymises the IPs of older rows.
+There is one view log, `page_views`. Every page view (including in-site navigation) adds a row, and a repeat view of the same page by the same IP within 30 minutes counts once. A visit is a session that ends after 30 idle minutes, and its first view carries the user agent (device · browser), referrer, country and `utm_*` values. On leaving, the time the page was visible is added as time on page. The site operator (owner · admin) and any address marked **my IP** are not recorded, and crawlers (bots) are flagged and left out of the counts, and when today's visits exceed three times the 7-day average a **traffic spike** notification is created once a day. A scheduled job clears IPs older than 90 days.
 
-On `/admin/traffic` the range (7 · 14 · 30 · 90 days) changes the whole page: visit summary (visits · new · returning · views per visit, bots excluded), daily trend, sources, devices, countries, landing pages, top content, a weekday × hour heatmap and UTM campaigns. **IP analysis** lists masked IPs with days visited, first and latest visit, country and device; marking one as my IP stops recording it and drops what it already contributed. **UTM link builder** composes `utm_source/medium/campaign` from source presets (resume · LinkedIn · X · Kakao · email), so links shared through messengers or PDFs, where no referrer survives, still show up as their own channel.
+On `/admin/traffic` the range (7 · 14 · 30 · 90 days) changes the whole page: visit summary (visits · new · returning · views per visit, bots excluded), daily trend, sources, devices, countries, landing pages, top content, a weekday × hour heatmap, UTM campaigns, views and average time per page, and **visit flow** (bounce rate · entry → next page · exit pages · recent visit paths). **IP analysis** lists masked IPs with days visited, first and latest visit, country and device; marking one as my IP stops recording it and drops what it already contributed. **UTM link builder** composes `utm_source/medium/campaign` from source presets (resume · LinkedIn · X · Kakao · email), so links shared through messengers or PDFs, where no referrer survives, still show up as their own channel.
 
 | Summary · trend · sources · devices | IP analysis · UTM link builder |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/19-traffic-light.png" alt="Traffic — range, summary, daily trend, sources, devices" width="100%" /> | <img src="public/images/screenshots/cms/20-traffic-ip-utm-light.png" alt="Traffic — IP analysis and UTM link builder" width="100%" /> |
+
+| Views by page · visit flow |
+|:---:|
+| <img src="public/images/screenshots/cms/29-traffic-flow-light.png" alt="Traffic — views by page and visit flow" width="100%" /> |
 
 #### Managing posts and works
 

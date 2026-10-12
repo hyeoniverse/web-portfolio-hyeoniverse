@@ -91,7 +91,7 @@ export const facts = {
     /* 라우트 수는 생성 파일(scripts/gen-api-map)에서 — 손으로 적으면 라우트가 늘 때마다 어긋났다 */
     { value: String(apiMap.routeFiles), unit: "", label: { ko: "API 라우트", en: "API routes" } },
     { value: "4", unit: { ko: "단계", en: "tiers" }, label: { ko: "권한 — DB 규칙으로 판정", en: "Roles — enforced by DB rules" } },
-    { value: "1,194", unit: "", label: { ko: "단위 테스트", en: "Unit tests" } },
+    { value: "1,195", unit: "", label: { ko: "단위 테스트", en: "Unit tests" } },
     { value: "70", unit: { ko: "건", en: "" }, label: { ko: "디자인 결정 기록", en: "Design decision records" } },
     { value: "6", unit: { ko: "가지", en: "" }, label: { ko: "작업물 레이아웃", en: "Work layouts" } },
   ] as { value: string; unit: string | L10n; label: L10n }[],

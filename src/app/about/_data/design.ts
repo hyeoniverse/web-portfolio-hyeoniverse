@@ -48,8 +48,8 @@ export const designSteps = [
     label: { ko: "움직임은 네 곡선", en: "Four motion curves" },
     title: { ko: "길이 다섯 · 곡선 넷, 움직임 줄이기는 0.01ms", en: "Five durations, four curves — 0.01ms with reduced motion" },
     body: {
-      ko: "지속 시간은 0.1초부터 0.8초까지 다섯 단계, 곡선은 standard · enter · exit · spring 넷입니다. 움직임 줄이기를 켜면 모든 길이가 0.01ms 가 됩니다.",
-      en: "Durations run in five steps from 0.1s to 0.8s; curves are standard, enter, exit and spring. With reduced motion on, every duration becomes 0.01ms.",
+      ko: "지속 시간은 0.1초부터 0.8초까지 다섯 단계, 곡선은 standard · enter · exit · spring 넷입니다. 움직임 줄이기를 켜면 모든 길이가 0.01ms 가 되고, 저절로 도는 장면도 멈춥니다. 처음 여는 로딩 화면은 페이지가 실제로 준비될 때까지 기다리고, 사이트 안에서 옮길 때는 페이지 뼈대를 먼저 띄웁니다. 휴대폰의 메뉴 · 모달은 아래에서 올라오는 시트이고, 아래로 쓸어 닫습니다.",
+      en: "Durations run in five steps from 0.1s to 0.8s; curves are standard, enter, exit and spring. With reduced motion on, every duration becomes 0.01ms and self-running scenes stop. The first-load screen waits until the page is actually ready, and in-site navigation shows a page skeleton first. On phones, menus and modals are bottom sheets that close with a downward swipe.",
     },
   },
   {

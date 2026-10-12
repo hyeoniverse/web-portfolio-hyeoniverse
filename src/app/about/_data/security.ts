@@ -40,7 +40,11 @@ export const securityLayers: SecLayer[] = [
       ko: "API 에 들어온 값의 형식 · 길이 · 허용 목록을 먼저 확인합니다.",
       en: "Values entering the API are checked for format, length and allow-lists first.",
     },
-    items: [{ icon: "check", short: { ko: "입력 검증", en: "Validation" }, angle: 30 }],
+    /* 남용 · 비용 제한 — 번역 IP 제한(lib/api/contentTranslate), 체험 데모 하루 상한(lib/demo), 유료 API 앱 상한 */
+    items: [
+      { icon: "check", short: { ko: "입력 검증", en: "Validation" }, angle: 30 },
+      { icon: "gauge", short: { ko: "남용 · 비용 제한", en: "Abuse · cost caps" }, angle: 250 },
+    ],
   },
   {
     /* 댓글은 bcrypt 한 경로, 관리자는 proxy.ts 가드 + admin 레이아웃의 getUser */
