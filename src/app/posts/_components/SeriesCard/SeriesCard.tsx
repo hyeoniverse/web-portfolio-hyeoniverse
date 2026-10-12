@@ -1,5 +1,6 @@
 "use client";
 
+import { useCategoryText } from "@/hooks/useCategories";
 import { useListTranslation } from "@/hooks/useListTranslation";
 import { type CSSProperties, type RefObject } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -35,7 +36,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
   /* 사이트가 다른 언어로 걸려 있으면 그 번역 */
   const tr = useListTranslation("series", series.id);
   const title = tr?.title || (language === "ko" ? series.title : (series.title_en || series.title));
-  const tag = series.category || "SERIES";
+  const categoryText = useCategoryText();
+  const tag = series.category ? categoryText(series.category) : "SERIES";
   // tone "soft" 강제 — 페이지 전체 시리즈 카드들 사이 톤 통일 (hue 만 anchor cycle 로 다양)
   const placeholderBg = generateSeededColor(series.id, theme === "dark", index, "soft");
 

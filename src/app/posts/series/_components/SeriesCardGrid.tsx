@@ -1,5 +1,6 @@
 "use client";
 
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
@@ -61,7 +62,7 @@ export default function SeriesCardGrid({
                 <div className={styles.coverOverlay}>
                   <span className={styles.overlayTitle}><HighlightedText text={title} /></span>
                   <span className={styles.overlayMeta}>
-                    {s.category && <span className={styles.overlayCategory}>{s.category}</span>}
+                    {s.category && <span className={styles.overlayCategory}><CategoryLabel category={s.category} /></span>}
                     <span className={styles.overlayCount}>{fillCount(t, "postsPage.countPosts", s.post_count)}</span>
                   </span>
                 </div>

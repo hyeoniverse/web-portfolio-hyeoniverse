@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -213,7 +214,7 @@ export default function PostCardStandard({
                 className={styles.tagPill}
                 onClick={(e) => e.stopPropagation()}
               >
-                #{tag}
+                #<SiteText text={tag} />
               </Link>
             ))}
             {(tagsOverflow || tagsExpanded) && (

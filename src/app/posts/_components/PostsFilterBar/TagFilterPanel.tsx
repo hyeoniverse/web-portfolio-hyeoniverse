@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import Link from "next/link";
@@ -139,7 +140,7 @@ export default function TagFilterPanel({
                 onClick={() => onToggleTag(tag)}
                 data-clickable="true"
               >
-                {tag}
+                <SiteText text={tag} />
                 <span className={styles.tagCount}>{count}</span>
               </Pressable>
             ))}

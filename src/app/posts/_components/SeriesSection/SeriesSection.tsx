@@ -1,5 +1,6 @@
 "use client";
 
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -263,7 +264,7 @@ export default function SeriesSection({
               </h3>
               <div className={styles.activeSeriesMetaInfo}>
                 {activeSeriesObj.category && (
-                  <span className={styles.activeSeriesMetaCategory}>{activeSeriesObj.category}</span>
+                  <span className={styles.activeSeriesMetaCategory}><CategoryLabel category={activeSeriesObj.category} /></span>
                 )}
                 <span className={styles.activeSeriesMetaCount}>
                   {activeSeriesObj.post_count ?? 0} {t("postsPage.postsCount")}

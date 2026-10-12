@@ -1,5 +1,6 @@
 "use client";
 
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import { useTranslatedWorkItems } from "@/hooks/useListTranslation";
 import { forwardRef, memo, useCallback, useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -242,7 +243,7 @@ const WorkCircle = memo(function WorkCircle({
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <span className={styles.overlayTitle}><T ko={work.title.ko} en={work.title.en} /></span>
-        <span className={styles.overlayCategory}>{work.category[language]}</span>
+        <span className={styles.overlayCategory}><CategoryLabel category={work.category[language]} /></span>
       </motion.div>
     </motion.div>
     </Tooltip>

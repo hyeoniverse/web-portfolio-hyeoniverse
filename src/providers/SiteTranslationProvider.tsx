@@ -8,6 +8,7 @@ import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
+  ensureSiteContent,
   ensureSiteUi,
   getServerSiteLangSnapshot,
   getSiteLangSnapshot,
@@ -43,6 +44,11 @@ export default function SiteTranslationProvider() {
   useEffect(() => {
     if (site.lang && site.uiStatus === "idle") void ensureSiteUi(site.lang);
   }, [site.lang, site.uiStatus]);
+
+  /* 사이트 내용 글(홈 글 · 카테고리 · 태그) — 언어마다 이번 방문에 한 번 */
+  useEffect(() => {
+    if (site.lang) void ensureSiteContent(site.lang);
+  }, [site.lang]);
 
   /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번 */
   const uiReady = !!(site.lang && site.ui);

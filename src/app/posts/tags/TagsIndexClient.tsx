@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useSearchControls } from "@/hooks/useSearchControls";
@@ -219,7 +220,7 @@ export default function TagsIndexClient({ tags }: Props) {
                   href={`/posts/tags/${encodeURIComponent(r)}`}
                   onClick={() => setSheetTag(null)}
                 >
-                  <span>#{r}</span>
+                  <span>#<SiteText text={r} /></span>
                 </Chip>
               ))}
             </div>

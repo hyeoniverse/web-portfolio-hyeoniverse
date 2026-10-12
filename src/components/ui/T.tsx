@@ -48,13 +48,14 @@ export default function T(props: TProps) {
     noTooltip,
     ...rest
   } = props;
-  const { t, tAlt, language, foreignLang } = useLanguage();
+  const { t, tAlt, tx, language, foreignLang } = useLanguage();
 
   let text: string;
   let altText: string;
 
   if (ko !== undefined || en !== undefined) {
-    text = language === "ko" ? (ko ?? en ?? "") : (en ?? ko ?? "");
+    /* 다른 언어로 볼 때는 영어 칸을 사이트 내용 글 번역(tx)으로 — 설정 · DB 에서 온 글(홈 글 · 카테고리)이 번역된다 */
+    text = language === "ko" ? (ko ?? en ?? "") : tx(en ?? ko ?? "");
     /* 다른 언어로 볼 때는 한국어 말풍선을 띄우지 않는다 */
     altText = foreignLang ? text : language === "ko" ? (en ?? ko ?? "") : (ko ?? en ?? "");
   } else if (k) {

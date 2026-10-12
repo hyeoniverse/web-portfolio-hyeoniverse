@@ -267,13 +267,13 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false 
  * 이메일은 사이트 설정의 연락처(푸터·개인정보 화면과 같은 값)다. 비어 있으면 누를 것이 없어 글자만 둔다.
  */
 function AvailableCta() {
-  const { t } = useLanguage();
+  const { t, foreignLang } = useLanguage();
   const email = useSiteConfig().contact.email.trim();
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(resetTimer.current), []);
   /* 지금 달(한국 시간). 캐시된 HTML 이 달을 넘기면 서버가 그린 달과 브라우저의 달이 다를 수 있어 비교를 끈다(#927) */
-  const month = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: SITE_TIME_ZONE });
+  const month = new Date().toLocaleDateString(foreignLang ?? "en-US", { month: "short", year: "numeric", timeZone: SITE_TIME_ZONE });
 
   if (!email) {
     return (

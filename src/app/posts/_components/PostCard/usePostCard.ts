@@ -14,7 +14,7 @@ import { useListTranslation } from "@/hooks/useListTranslation";
 /* 카드 변형 넷이 공통으로 쓰는 값과 동작 — 표시 언어 판정 · 제목/발췌 · 날짜 · 읽기 시간 · 카테고리 · 작성자,
    그리고 카드 클릭(페이지 트랜지션)과 hover prefetch. 변형 컴포넌트가 각자 부른다. */
 export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean }) {
-  const { language, t } = useLanguage();
+  const { language, t, foreignLang, dateLocale } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const siteConf = useSiteConfig();
@@ -22,7 +22,7 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
 
   // 한국 시간 기준 — 실행 환경의 시간대를 따르면 서버(UTC)가 미리 그린 날짜와 브라우저의 날짜가 갈린다
   const date = new Date(post.created_at).toLocaleDateString(
-    language === "ko" ? "ko-KR" : "en-US",
+    dateLocale,
     { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE },
   );
   const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
@@ -71,6 +71,8 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
   };
 
   return {
+    foreignLang,
+    dateLocale,
     t,
     language,
     cardRef,

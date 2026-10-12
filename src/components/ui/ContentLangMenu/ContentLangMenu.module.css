@@ -37,9 +37,11 @@
   color: currentColor;
 }
 
+/* 대문자 높이로 다듬어 옆 아이콘과 눈으로 보이는 가운데를 맞춘다(내비 KO/EN 과 같은 방식) */
 .triggerCode {
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  text-box: trim-both cap alphabetic;
 }
 
 /* 메뉴 패널 — 검색 줄 · 목록(스크롤) · 원문 보기 줄. 위아래 줄은 실선으로만 나눈다 */
