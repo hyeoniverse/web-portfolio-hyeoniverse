@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { LanguageProvider } from "@/providers/LanguageProvider";
 import GiscusHelp from "@/app/admin/(dashboard)/settings/_components/GiscusHelp";
+import { AdminDict } from "./_adminDict";
 
 /* 안내문의 인라인 조각(Kbd·Hl·Ext)을 컴포넌트 밖으로 옮겼다(#687 5-4).
    이 컴포넌트는 댓글 제공자가 giscus 일 때만 화면에 나와서 e2e 로는 닿지 않는다.
@@ -9,9 +9,9 @@ import GiscusHelp from "@/app/admin/(dashboard)/settings/_components/GiscusHelp"
 describe("GiscusHelp", () => {
   it("트리거를 누르면 안내 패널이 열리고 kbd 칩·강조·외부 링크가 그려진다", async () => {
     const { container } = render(
-      <LanguageProvider>
+      <AdminDict>
         <GiscusHelp />
-      </LanguageProvider>,
+      </AdminDict>,
     );
 
     fireEvent.click(screen.getByText(/설정 방법|Setup guide/));

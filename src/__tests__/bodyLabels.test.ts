@@ -17,7 +17,7 @@ import { processRichtextHtml } from "@/utils/processRichtextHtml";
 describe("bodyLabels — 라벨 묶음", () => {
   it("코드 블록 · mermaid 라벨은 locales 와 같다(ko/en 화면은 예전 그대로)", () => {
     expect(uiBodyLabels("ko").codeCopy).toBe(ko.common.codeCopy);
-    expect(uiBodyLabels("en").codeExpand).toBe(en.common.codeExpand);
+    expect(uiBodyLabels("en").codeWrap).toBe(en.common.codeWrap);
     expect(uiBodyLabels("en").mermaidSplit).toBe(en.common.mermaidSplit);
     expect(uiBodyLabels("ja")).toEqual(uiBodyLabels("ko"));
   });
@@ -47,27 +47,27 @@ describe("bodyLabels — 다시 모으기", () => {
     const { ui, complete } = assembleBodyLabels(fake);
     expect(complete).toBe(true);
     expect(ui.codeCopy).toBe(`JA:${en.common.codeCopy}`);
-    expect(ui.codeExpand).toContain("{{n}}");
+    expect(ui.pollCount).toContain("{{n}}");
   });
 
   it("실패한 자리 · 자리표시가 깨진 번역은 빼고 complete 가 아니다", () => {
     const at = (k: string) => source.findIndex(([key]) => key === k);
     const broken = [...fake];
-    broken[at("codeExpand")] = "展開 · {{数}} 行"; // 자리표시 이름이 바뀜
+    broken[at("pollCount")] = "{{数}} 票"; // 자리표시 이름이 바뀜
     broken[at("pollTotal")] = "{{ n }} 票";       // 띄어 쓴 자리표시는 받아 붙인다
     const { ui, complete } = assembleBodyLabels(broken, [at("codeCopy")]);
     expect(complete).toBe(false);
     expect(ui.codeCopy).toBeUndefined();
-    expect(ui.codeExpand).toBeUndefined();
+    expect(ui.pollCount).toBeUndefined();
     expect(ui.pollTotal).toBe("{{n}} 票");
   });
 
   it("merge — 번역이 없거나 못 쓰는 열쇠는 화면 언어 라벨", () => {
     const base = uiBodyLabels("ko");
     expect(mergeBodyLabels(base, null)).toBe(base);
-    const m = mergeBodyLabels(base, { codeCopy: "コピー", codeExpand: "展開", unknown: "x", pollCount: 3 });
+    const m = mergeBodyLabels(base, { codeCopy: "コピー", codeWrap: "折り返し", unknown: "x", pollCount: 3 });
     expect(m.codeCopy).toBe("コピー");
-    expect(m.codeExpand).toBe(base.codeExpand);
+    expect(m.codeWrap).toBe("折り返し");
     expect(m.pollCount).toBe(base.pollCount);
     expect("unknown" in m).toBe(false);
   });

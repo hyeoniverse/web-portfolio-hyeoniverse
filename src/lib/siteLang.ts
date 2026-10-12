@@ -31,9 +31,13 @@ export interface SiteLangSnapshot {
   uiStatus: SiteUiStatus;
   /** 지금 언어의 사이트 내용 글 번역(원문 → 글, lib/siteContent — 홈 글 · 카테고리 · 태그) — 아직 없으면 null */
   content: Readonly<Record<string, string>> | null;
+  /** 지금 언어의 관리자 화면 글 번역(lib/adminLang — 관리 화면에서만 받는다) — 아직 없으면 null */
+  adminUi: Readonly<Record<string, string>> | null;
+  /** 관리자 화면 글 번역을 받는 중인가 */
+  adminUiLoading: boolean;
 }
 
-const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null };
+const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
 
 /** 저장된 선택 › 사이트 기본 언어(ko · en 밖일 때) › 브라우저 언어 — 순수 함수(테스트용으로 뗀다) */
 export function resolveInitialLang(
@@ -129,6 +133,18 @@ function contentFor(lang: string): Record<string, string> | null {
   return merged;
 }
 
+/* 관리자 화면 글 번역 — 받아 오기 · 저장소는 lib/adminLang(관리자 사전을 공개 번들에 싣지 않으려고 따로 둔다). 여기는 메모리만 */
+const adminUiMemory = new Map<string, Record<string, string>>();
+const adminUiInflight = new Set<string>();
+export function setAdminUiLoading(lang: string, loading: boolean) {
+  if (loading) adminUiInflight.add(lang); else adminUiInflight.delete(lang);
+  emit();
+}
+export function setAdminUi(lang: string, strings: Record<string, string>) {
+  adminUiMemory.set(lang, strings);
+  emit();
+}
+
 /* ── 저장소 ── */
 let state: { lang: string | null; auto: boolean } | null = null;
 /** 사이트 기본 언어(ko · en 밖일 때만) — LanguageProvider 가 서버 설정에서 받아 넣는다 */
@@ -148,11 +164,11 @@ function current() {
 function build(): SiteLangSnapshot {
   const { lang: chosen, auto } = current();
   const lang = enabled ? chosen : null;
-  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null };
+  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
   const ui = uiFor(lang);
   const err = uiErrors.get(lang);
   const uiStatus: SiteUiStatus = ui ? "ready" : err ?? (uiInflight.has(lang) ? "loading" : "idle");
-  return { lang, auto, ui, uiStatus, content: contentFor(lang) };
+  return { lang, auto, ui, uiStatus, content: contentFor(lang), adminUi: adminUiMemory.get(lang) ?? null, adminUiLoading: adminUiInflight.has(lang) };
 }
 
 function emit() {
@@ -203,7 +219,7 @@ export function setSiteDefaultLang(code: string | null | undefined) {
 /** 사이트 기본 언어(ko · en 밖일 때만) — 없으면 null. 이 언어가 걸리면 번역이 아니라 원문(ko 칸)을 그 언어로 본다 */
 export const getSiteDefaultLang = () => siteDefault;
 
-/** 사이트 설정에서 번역이 꺼졌으면 언어가 걸리지 않는다 */
+/** 사이트 설정에서 번역이 꺼졌으면 언어가 걸리지 않는다(관리 화면도 같은 언어를 쓴다) */
 export function setSiteLangEnabled(on: boolean) {
   if (enabled === on) return;
   enabled = on;
@@ -285,5 +301,7 @@ export function __resetSiteLangForTest() {
   contentMemory.clear();
   contentFetched.clear();
   mergedCache.clear();
+  adminUiMemory.clear();
+  adminUiInflight.clear();
   sourceCache = null;
 }

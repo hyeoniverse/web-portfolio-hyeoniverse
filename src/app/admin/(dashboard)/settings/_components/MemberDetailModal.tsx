@@ -30,16 +30,16 @@ interface Props {
   editLabel?: string;
 }
 
-const LEVEL_LABEL = (level: number | null, ko: boolean) =>
-  level != null && level >= 2 ? (ko ? "편집자 (모든 글)" : "Editor (all posts)") : ko ? "작성자 (자기 글)" : "Author (own posts)";
+/** 권한 단계 이름의 사전 키 */
+const LEVEL_LABEL = (level: number | null) =>
+  level != null && level >= 2 ? "admin.inline.memberDetailModal.levelEditor" : "admin.inline.memberDetailModal.levelAuthor";
 
 /** 멤버 상세 프로필 (읽기 전용) — 행 클릭 시 표시. 권한 있으면 "수정" 으로 편집 모달 전환. (이슈 #334) */
 export default function MemberDetailModal({ author: raw, member, isOwnerProfile, showAccess, canEdit, onEdit, editLabel }: Props) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   /* 관리 화면 언어에 맞춰 — 영어면 프로필의 영어 값(비어 있으면 한국어) */
   const author = localizeAuthor(raw, language === "en" ? "en" : "ko");
   const ko = language === "ko";
-  const L = (k: string, e: string) => (ko ? k : e);
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
 
@@ -60,7 +60,7 @@ export default function MemberDetailModal({ author: raw, member, isOwnerProfile,
         </span>
         <div className={styles.memberDetailHeadInfo}>
           <div className={styles.memberDetailNameRow}>
-            <span className={styles.memberDetailName}>{author.name || L("(이름 없음)", "(unnamed)")}</span>
+            <span className={styles.memberDetailName}>{author.name || t("admin.inline.memberDetailModal.unnamed")}</span>
             {ghLogin && (
               <a
                 className={styles.memberDetailHandle}
@@ -133,14 +133,14 @@ export default function MemberDetailModal({ author: raw, member, isOwnerProfile,
             </div>
             {!isOwnerProfile && member && (
               <div className={styles.memberDetailMetaRow}>
-                <span className={styles.memberDetailMetaLabel}>{L("권한", "Access")}</span>
-                <span>{LEVEL_LABEL(member.level, ko)}</span>
+                <span className={styles.memberDetailMetaLabel}>{t("admin.inline.memberDetailModal.access")}</span>
+                <span>{t(LEVEL_LABEL(member.level))}</span>
               </div>
             )}
             {member?.lastSignInAt && (
               <div className={styles.memberDetailMetaRow}>
                 <Clock size={13} strokeWidth={1.8} />
-                <span>{L("최근 로그인", "Last sign-in")} · {fmtDate(member.lastSignInAt)}</span>
+                <span>{t("admin.inline.memberDetailModal.lastSignIn")} · {fmtDate(member.lastSignInAt)}</span>
               </div>
             )}
           </>
@@ -151,11 +151,11 @@ export default function MemberDetailModal({ author: raw, member, isOwnerProfile,
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" soundDisabled onClick={() => closeModal("member-detail")}>{L("닫기", "Close")}</Button>
+          <Button variant="outline" soundDisabled onClick={() => closeModal("member-detail")}>{t("admin.inline.memberDetailModal.close")}</Button>
           {/* 같은 푸터의 닫기가 텍스트 버튼이라 수정에서도 아이콘을 뺀다 — 편집 모달(취소/저장)도 텍스트다. */}
           {canEdit && (
             <Button variant="primary" soundDisabled onClick={() => { closeModal("member-detail"); onEdit?.(); }}>
-              {editLabel ?? L("수정", "Edit")}
+              {editLabel ?? t("admin.inline.memberDetailModal.edit")}
             </Button>
           )}
         </>,

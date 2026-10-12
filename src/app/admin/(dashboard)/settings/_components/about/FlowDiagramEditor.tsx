@@ -20,7 +20,7 @@ import {
   nodeX, nodeY,
 } from "@/app/about/_panels/_utils/flowLayout";
 import css from "./FlowDiagramEditor.module.css";
-import { useL } from "./studio/primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const NODE_TYPES = ["start", "action", "decision", "end"] as const;
 /* 타입별 테두리 색 — 모양만으로는 start/end 구분이 안 된다 */
@@ -91,7 +91,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
   onChange: (v: Partial<UserFlow>) => void;
   lang: Language;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const { nodes, edges } = flow;
   const [sel, setSel] = useState<string | null>(null);
   const [selEdge, setSelEdge] = useState<number | null>(null);
@@ -163,14 +163,14 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
     <div className={css.editor}>
       <div className={css.toolbar}>
         <Button variant="subtle" icon={<Plus size={13} />} onClick={addNode}>
-          {L("노드 추가", "Add node")}
+          {t("admin.inline.flowDiagramEditor.addNode")}
         </Button>
         <Button variant={connectFrom ? "primary" : "subtle"} icon={<Link2 size={13} />}
           disabled={!sel && !connectFrom}
           onClick={() => setConnectFrom(connectFrom ? null : sel)}>
           {connectFrom
-            ? (L("연결할 노드 선택", "Pick target"))
-            : (L("연결", "Connect"))}
+            ? (t("admin.inline.flowDiagramEditor.pickTarget"))
+            : (t("admin.inline.flowDiagramEditor.connect"))}
         </Button>
         <span className={css.legend}>
           {NODE_TYPES.map((tp) => (
@@ -182,7 +182,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
         </span>
       </div>
       <p className={css.hint}>
-        {L("노드를 드래그해 배치하고 클릭해 편집합니다. 연결선을 클릭하면 조건(Yes/No)을 붙일 수 있습니다.", "Drag to place, click to edit. Click an edge to label it.")}
+        {t("admin.inline.flowDiagramEditor.dragToPlaceClick")}
       </p>
 
       <div className={css.canvasWrap}>
@@ -273,18 +273,18 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
       {/* 선택한 노드 편집 */}
       {selNode && (
         <div className={css.inspect}>
-          <span className={css.inspectTitle}>{L("노드", "Node")} · {selNode.id}</span>
+          <span className={css.inspectTitle}>{t("admin.inline.flowDiagramEditor.node")} · {selNode.id}</span>
           <Select className={css.inspectField} value={selNode.type}
             onChange={(v) => patch(selNode.id, { type: v as FlowNode["type"] })}
             options={NODE_TYPES.map((v) => ({ value: v, label: v }))} />
           <input className={css.inspectInput} value={selNode.label[lang] ?? ""}
-            aria-label={L("노드 이름", "Node label")}
-            placeholder={L("노드 이름", "Node label")}
+            aria-label={t("admin.inline.flowDiagramEditor.nodeLabel")}
+            placeholder={t("admin.inline.flowDiagramEditor.nodeLabel")}
             onChange={(e) => patch(selNode.id, { label: { ...selNode.label, [lang]: e.target.value } })} />
           {/* 떨어진 패널의 × 는 닫기로 읽힌다(Architecture 패널이 그렇다). 지우는 단추는 이름을 붙인다 */}
           <Button variant="outline" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => removeNode(selNode.id)}>
-            {L("노드 삭제", "Delete node")}
+            {t("admin.inline.flowDiagramEditor.deleteNode")}
           </Button>
         </div>
       )}
@@ -293,15 +293,15 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
       {selEdge != null && edges[selEdge] && (
         <div className={css.inspect}>
           <span className={css.inspectTitle}>
-            {L("연결", "Edge")} · {edges[selEdge].from} → {edges[selEdge].to}
+            {t("admin.inline.flowDiagramEditor.edge")} · {edges[selEdge].from} → {edges[selEdge].to}
           </span>
           <input className={css.inspectInput} value={edges[selEdge].label ?? ""}
-            aria-label={L("조건", "Label")}
-            placeholder={L("조건 (Yes / No)", "Label (Yes / No)")}
+            aria-label={t("admin.inline.flowDiagramEditor.label")}
+            placeholder={t("admin.inline.flowDiagramEditor.labelYesNo")}
             onChange={(e) => setEdges(edges.map((x, j) => (j === selEdge ? { ...x, label: e.target.value } : x)))} />
           <Button variant="outline" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => { setEdges(edges.filter((_, j) => j !== selEdge)); setSelEdge(null); }}>
-            {L("연결 삭제", "Delete edge")}
+            {t("admin.inline.flowDiagramEditor.deleteEdge")}
           </Button>
         </div>
       )}

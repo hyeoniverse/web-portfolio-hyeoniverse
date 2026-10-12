@@ -1209,7 +1209,7 @@ function NarrationHelp({ tw }: { tw: (key: string) => string }) {
         <section key={key} className={styles.helpSection}>
           <h3 className={styles.helpTitle}>{tw(`narrationHelp.${key}.title`)}</h3>
           <ul className={styles.helpList}>
-            {tw(`narrationHelp.${key}.items`).split("\n").map((line) => <li key={line}>{withCode(line)}</li>)}
+            {tw(`narrationHelp.${key}.items`).split("\n").filter((l) => l.trim()).map((line, i) => <li key={i}>{withCode(line)}</li>)}
           </ul>
         </section>
       ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { fillTemplate } from "@/utils/format";
 import { useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, AlertCircle } from "@/components/icons";
@@ -39,8 +40,7 @@ export default function AccessRequestModal({
   /** 요청을 받는 리소스 — /api/admin/{endpoint}/{id}/request-access */
   endpoint?: "posts" | "works";
 }) {
-  const { t, language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { t } = useLanguage();
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -73,18 +73,15 @@ export default function AccessRequestModal({
         </span>
         <p className={styles.resultTitle}>
           {ok
-            ? L("권한 요청을 보냈습니다", "Access request sent")
-            : L("요청을 보내지 못했습니다", "Could not send the request")}
+            ? t("admin.inline.accessRequestModal.accessRequestSent")
+            : t("admin.inline.accessRequestModal.sendFailed")}
         </p>
         <p className={styles.resultDesc}>
           {ok
             ? partial
-              ? L(`${targets.length}건 중 ${sentCount}건이 전달됐습니다. 나머지는 잠시 후 다시 시도해 주세요.`,
-                  `${sentCount} of ${targets.length} were delivered. Please retry the rest shortly.`)
-              : L("소유자에게 알림이 전달됐습니다. 승인되면 이 글을 바로 다룰 수 있습니다.",
-                  "The owner has been notified. Once approved, you can work on this post right away.")
-            : L("네트워크 문제일 수 있습니다. 잠시 후 다시 시도해 주세요.",
-                "This may be a network issue. Please try again shortly.")}
+              ? fillTemplate(t("admin.inline.accessRequestModal.partialSent"), { targets: targets.length, sentCount })
+              : t("admin.inline.accessRequestModal.theOwnerHasBeen")
+            : t("admin.inline.accessRequestModal.networkRetryHint")}
         </p>
         {ok && targets.length > 1 && (
           <ul className={styles.resultTargets}>
@@ -96,7 +93,7 @@ export default function AccessRequestModal({
           <>
             {!ok && (
               <Button variant="ghost" onClick={() => setPhase("idle")}>
-                {L("다시 시도", "Try again")}
+                {t("admin.inline.accessRequestModal.tryAgain")}
               </Button>
             )}
             <Button variant="primary" onClick={() => closeModal()}>
@@ -128,10 +125,10 @@ export default function AccessRequestModal({
       {footerEl && createPortal(
         <>
           <Button variant="ghost" onClick={() => closeModal()}>
-            {L("닫기", "Close")}
+            {t("admin.inline.accessRequestModal.close")}
           </Button>
           <Button variant="primary" onClick={request} disabled={phase === "sending"} loading={phase === "sending"}>
-            {L("권한 요청", "Request access")}
+            {t("admin.inline.accessRequestModal.requestAccess")}
           </Button>
         </>,
         footerEl,

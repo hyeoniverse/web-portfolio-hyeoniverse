@@ -87,7 +87,7 @@ export default function ContentTab({
   setConfig,
   contentSubTab,
 }: ContentTabProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { theme } = useTheme();
 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: styles.sectionTitle };
@@ -466,18 +466,18 @@ export default function ContentTab({
 
           {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={language === "ko" ? "카드 레이아웃" : "Card layout"} paths={["posts.layout"]} {...sh} />
+            <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />
             <div className={styles.fields}>
-              <FieldRow label={language === "ko" ? "목록 배치" : "Grid style"}>
+              <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
                 <Select
                   value={config.posts.layout ?? "magazine"}
                   options={[
-                    { value: "magazine", label: language === "ko" ? "Magazine (사이즈 변주)" : "Magazine (mixed sizes)" },
-                    { value: "grid", label: language === "ko" ? "Grid (균일·이미지 우선)" : "Grid (image-first)" },
-                    { value: "list", label: language === "ko" ? "List (수평 목록)" : "List (rows)" },
-                    { value: "compact", label: language === "ko" ? "Compact (텍스트형)" : "Compact (text-only)" },
-                    { value: "masonry", label: language === "ko" ? "Masonry (가변 높이)" : "Masonry (variable height)" },
-                    { value: "featured", label: language === "ko" ? "Featured (대형 1 + 그리드)" : "Featured (hero + grid)" },
+                    { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
+                    { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
+                    { value: "list", label: t("admin.inline.contentTab.listRows") },
+                    { value: "compact", label: t("admin.inline.contentTab.compactTextOnly") },
+                    { value: "masonry", label: t("admin.inline.contentTab.masonryVariableHeight") },
+                    { value: "featured", label: t("admin.inline.contentTab.featuredHeroGrid") },
                   ]}
                   onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
                 />
@@ -741,25 +741,23 @@ export default function ContentTab({
           {/* 빈 화면 — 발행한 작업물이 하나도 없을 때 나오는 문구(#1062) */}
           <section className={styles.section}>
             <SectionHeader
-              title={language === "ko" ? "빈 화면" : "Empty state"}
+              title={t("admin.inline.contentTab.emptyState")}
               paths={["works.emptyTitle", "works.emptyTitle_ko", "works.emptySub", "works.emptySub_ko"]}
               extra={
                 <span className={`${styles.sectionHint} ${styles.sectionHintInline}`}>
-                  {language === "ko"
-                    ? "발행한 작업물이 하나도 없을 때 은하수 배경과 함께 나옵니다. 비우면 기본 문장이 쓰입니다."
-                    : "Shown with the starry background when no works are published. Left blank, the default sentence is used."}
+                  {t("admin.inline.contentTab.emptyWorksHint")}
                 </span>
               }
               {...sh}
             />
             <div className={styles.fields}>
               <BilingualFieldPair
-                label={language === "ko" ? "제목" : "Title"}
+                label={t("admin.inline.contentTab.title")}
                 en={{ value: config.works.emptyTitle ?? "", onChange: (v) => update("works", "emptyTitle", v) }}
                 ko={{ value: config.works.emptyTitle_ko ?? "", onChange: (v) => update("works", "emptyTitle_ko", v) }}
               />
               <BilingualFieldPair
-                label={language === "ko" ? "아래 줄" : "Subtitle"}
+                label={t("admin.inline.contentTab.subtitle")}
                 en={{ value: config.works.emptySub ?? "", onChange: (v) => update("works", "emptySub", v) }}
                 ko={{ value: config.works.emptySub_ko ?? "", onChange: (v) => update("works", "emptySub_ko", v) }}
               />

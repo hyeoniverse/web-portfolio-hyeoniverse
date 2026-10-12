@@ -13,6 +13,7 @@ import { TrendingDown, TrendingUp } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import { type TFunction } from "@/providers/LanguageProvider";
 import Link from "next/link";
+import { fillTemplate } from "@/utils/format";
 type DayTopPost = { id: string; title: string; slug: string; views: number };
 
 /** 선택된 날짜의 분석 패널 — 순위, 평균 대비, 같은 요일 대비, 전일 대비, 그날 인기 게시물 */
@@ -21,6 +22,7 @@ function DayDetailPanel({
   selectedIdx,
   onClose,
   language,
+  t,
 }: {
   data: { day: string; views: number }[];
   selectedIdx: number;
@@ -107,36 +109,32 @@ function DayDetailPanel({
   // 행 데이터 — staggered animation index 부여 위해 배열로.
   // baseline 방문자 수 (ctx) 는 label 괄호 안에 inline 표기 — 별도 컬럼 없이도 비교 기준이 명확함.
   const periodLabel =
-    language === "ko" ? `${data.length}일` : `${data.length}d`;
+    fillTemplate(t("admin.inline.dayDetailPanel.periodDays"), { n: data.length });
   const fmtViews = (n: number) =>
-    language === "ko"
-      ? `${n.toLocaleString()}명`
-      : `${n.toLocaleString()} visitors`;
+    fillTemplate(t("admin.inline.dayDetailPanel.viewsCount"), { n: n.toLocaleString() });
   const rows = [
     vsAvg && {
       id: "avg",
       label:
-        language === "ko"
-          ? `${periodLabel} 평균 대비 (${fmtViews(Math.round(avg))})`
-          : `vs ${periodLabel} average (${fmtViews(Math.round(avg))})`,
+        fillTemplate(t("admin.inline.dayDetailPanel.vsAverage"), { period: periodLabel, views: fmtViews(Math.round(avg)) }),
       diff: vsAvg,
     },
     vsSameWeekday &&
       sameWeekday && {
         id: "weekday",
         label:
-          language === "ko"
-            ? `이전 ${selDate.toLocaleDateString("ko-KR", { weekday: "short" })}요일 대비 (${fmtShort(sameWeekday.day)}, ${fmtViews(sameWeekday.views)})`
-            : `vs last ${selDate.toLocaleDateString("en-US", { weekday: "short" })} (${fmtShort(sameWeekday.day)}, ${fmtViews(sameWeekday.views)})`,
+          fillTemplate(t("admin.inline.dayDetailPanel.vsSameWeekday"), {
+            weekday: selDate.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { weekday: "short" }),
+            date: fmtShort(sameWeekday.day),
+            views: fmtViews(sameWeekday.views),
+          }),
         diff: vsSameWeekday,
       },
     vsPrev &&
       prevDay && {
         id: "prev",
         label:
-          language === "ko"
-            ? `전일 대비 (${fmtShort(prevDay.day)}, ${fmtViews(prevDay.views)})`
-            : `vs previous day (${fmtShort(prevDay.day)}, ${fmtViews(prevDay.views)})`,
+          fillTemplate(t("admin.inline.dayDetailPanel.vsPrevDay"), { date: fmtShort(prevDay.day), views: fmtViews(prevDay.views) }),
         diff: vsPrev,
       },
   ].filter(Boolean) as {
@@ -159,9 +157,7 @@ function DayDetailPanel({
         <div className={styles.dayDetailHeading}>
           <span className={styles.dayDetailDate}>{fullDate}</span>
           <span className={styles.dayDetailRank}>
-            {language === "ko"
-              ? `${rank}위 / ${data.length}일`
-              : `Rank ${rank} of ${data.length}`}
+            {fillTemplate(t("admin.inline.dayDetailPanel.rankOf"), { rank, n: data.length })}
           </span>
         </div>
         <CloseButton onClick={onClose} ariaLabel="close" />
@@ -185,7 +181,7 @@ function DayDetailPanel({
             <CountUp value={sel.views} duration={700} />
           </div>
           <span className={styles.dayDetailUnit}>
-            {language === "ko" ? "명" : "visitors"}
+            {t("admin.inline.dayDetailPanel.visitors")}
           </span>
         </Item>
 
@@ -206,9 +202,7 @@ function DayDetailPanel({
           values={allViews}
           selectedValue={sel.views}
           label={
-            language === "ko"
-              ? `${periodLabel} 분포 내 위치`
-              : `Position in ${periodLabel} range`
+            fillTemplate(t("admin.inline.dayDetailPanel.positionInRange"), { period: periodLabel })
           }
         />
       </Panel>
@@ -226,17 +220,15 @@ function DayDetailPanel({
             flexShrink: 0,
           }}
         >
-          {language === "ko" ? "그날 인기 게시물" : "Top posts that day"}
+          {t("admin.inline.dayDetailPanel.topPostsThatDay")}
         </PanelTitle>
         {loadingPosts ? (
           <p className={styles.muted}>
-            {language === "ko" ? "불러오는 중..." : "Loading..."}
+            {t("admin.inline.dayDetailPanel.loading")}
           </p>
         ) : topPosts.length === 0 ? (
           <p className={styles.muted}>
-            {language === "ko"
-              ? "이날 조회된 게시물이 없습니다."
-              : "No posts viewed this day."}
+            {t("admin.inline.dayDetailPanel.noPostViews")}
           </p>
         ) : (
           <List>

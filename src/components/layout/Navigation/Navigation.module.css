@@ -46,6 +46,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  /* wrap 이면 줄(line) 자체가 위에 붙는다 — 로고가 줄 높이보다 커도 넘친 만큼 위아래로 나눠 가운데에 둔다 */
+  align-content: center;
+  /* 로고는 fixed 라 nav 줄과 따로 놓인다 — 높이를 nav 줄(액션 버튼 높이)에 맞춰야 로고 크기
+     (이미지 38 · 배지 34 · 글자 32)와 상관없이 가운데가 메뉴·버튼과 같은 선에 온다 */
+  height: var(--size-40);
   gap: var(--spacing-12);
   text-decoration: none;
   color: inherit;
@@ -54,6 +59,12 @@
 }
 
 /* hit area 확장 — 시각 위치는 그대로 두고 ::before 가 주변까지 클릭 인식 */
+@media (width > 768px) {
+  .logoNavBar {
+    height: var(--size-32);
+  }
+}
+
 .logoNavBar::before {
   content: "";
   position: absolute;
