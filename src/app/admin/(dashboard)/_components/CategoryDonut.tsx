@@ -12,6 +12,7 @@ import { describeDonutArc } from "./donutArc";
 import { Eye } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import { type TFunction } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import Link from "next/link";
 type CategoryPost = {
   id: string;
@@ -26,11 +27,9 @@ type CategoryPost = {
  *  범례 클릭 시 그 카테고리의 게시물 top 10 inline expand. */
 function CategoryDonut({
   data,
-  language,
   t,
 }: {
   data: { name: string; postCount: number; views: number }[];
-  language: "ko" | "en";
   t: TFunction;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -94,9 +93,7 @@ function CategoryDonut({
     : total.toLocaleString();
   const centerLabel = hovered
     ? hovered.d.name
-    : language === "ko"
-      ? "조회"
-      : "views";
+    : t("admin.inline.categoryDonut.views");
 
   return (
     <Panel
@@ -206,25 +203,23 @@ function CategoryDonut({
         >
           <header className={styles.panelHeader}>
             <PanelTitle variant="inset">
-              {language === "ko"
-                ? `${expandedCat} 게시물`
-                : `${expandedCat} posts`}
+              {fillTemplate(t("admin.inline.categoryDonut.categoryPosts"), { expandedCat })}
             </PanelTitle>
             <CloseButton
               onClick={() => {
                 setExpandedCat(null);
                 setExpandedPosts([]);
               }}
-              ariaLabel={language === "ko" ? "닫기" : "Close"}
+              ariaLabel={t("admin.inline.categoryDonut.close")}
             />
           </header>
           {loadingPosts ? (
             <p className={styles.muted}>
-              {language === "ko" ? "불러오는 중..." : "Loading..."}
+              {t("admin.inline.categoryDonut.loading")}
             </p>
           ) : expandedPosts.length === 0 ? (
             <p className={styles.muted}>
-              {language === "ko" ? "게시물이 없습니다." : "No posts."}
+              {t("admin.inline.categoryDonut.noPosts")}
             </p>
           ) : (
             <List>

@@ -180,8 +180,6 @@
     "codeScrollTitle": "가로 스크롤로 전환",
     "codeCopy": "복사",
     "codeCopied": "복사됨",
-    "codeExpand": "펼치기 · {{n}}줄",
-    "codeCollapse": "접기",
     "mermaidViewCode": "코드 보기",
     "mermaidHideCode": "코드 숨기기",
     "cancel": "취소",

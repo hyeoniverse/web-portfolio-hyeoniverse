@@ -128,8 +128,6 @@ export default function MarkdownRenderer({
       scrollTitle: labels.codeScrollTitle,
       copy: labels.codeCopy,
       copied: labels.codeCopied,
-      expand: labels.codeExpand,
-      collapse: labels.codeCollapse,
     });
     // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
     applyColorSwatches(root);

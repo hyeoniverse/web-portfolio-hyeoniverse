@@ -835,14 +835,15 @@ export function CodeBlockElement(props: PlateElementProps) {
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
               aria-label={language === "ko" ? "코드 복사" : "Copy code"}
             >
-              <Copy size={12} />{language === "ko" ? "복사" : "Copy"}
+              <Copy size={12} /><span className={styles.codeBarCtrlLabel}>{language === "ko" ? "복사" : "Copy"}</span>
             </Pressable>
             <Pressable noTapScale
               className={styles.codeBarCtrl}
               data-on={wrap ? "" : undefined}
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
+              aria-label={language === "ko" ? "줄바꿈" : "Wrap"}
             >
-              <WrapText size={12} />{language === "ko" ? "줄바꿈" : "Wrap"}
+              <WrapText size={12} /><span className={styles.codeBarCtrlLabel}>{language === "ko" ? "줄바꿈" : "Wrap"}</span>
             </Pressable>
           </div>
         </div>

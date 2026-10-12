@@ -9,7 +9,8 @@
 import { autocompletion, completionKeymap, acceptCompletion,
   type CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
 import { indentMore, indentLess } from "@codemirror/commands";
-import type { Language } from "@/types";
+import type { TFunction } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { linter, type Diagnostic } from "@codemirror/lint";
 import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { keymap, type EditorView, type Command } from "@codemirror/view";
@@ -72,44 +73,30 @@ function sqlCompletions(tables: () => ErdTable[]) {
 
 /* ── 진단 ────────────────────────────────────── */
 
-const MESSAGE: Record<SqlIssue["kind"], (name: string | undefined, ko: boolean) => string> = {
-  unbalanced: (_n, ko) => ko
-    ? "괄호가 닫히지 않았습니다."
-    : "Unclosed parenthesis.",
-  "bad-column": (_n, ko) => ko
-    ? "컬럼 정의를 읽지 못했습니다. `이름 타입` 형태여야 합니다."
-    : "Could not read this column. Expected `name type`.",
-  "bad-action": (_n, ko) => ko
-    ? "이 ALTER 동작은 읽지 못했습니다."
-    : "Could not read this ALTER action.",
-  "empty-table": (_n, ko) => ko
-    ? "읽어낼 컬럼이 없어 테이블을 만들지 않습니다."
-    : "No readable columns, so no table is created.",
-  unreadable: (_n, ko) => ko
-    ? "무슨 구문인지 알아보지 못했습니다."
-    : "Could not recognise this statement.",
-  unresolved: (n, ko) => ko
-    ? `${n} 테이블이 ERD 에도 이 SQL 에도 없어 적용되지 않습니다.`
-    : `${n} is neither in the ERD nor created here, so this is skipped.`,
-  "unknown-ref": (n, ko) => ko
-    ? `${n} 테이블이 없어 이 관계는 그려지지 않습니다.`
-    : `${n} does not exist, so this relation won't be drawn.`,
+const MESSAGE: Record<SqlIssue["kind"], string> = {
+  unbalanced: "admin.inline.sqlEditorExtensions.unbalanced",
+  "bad-column": "admin.inline.sqlEditorExtensions.badColumn",
+  "bad-action": "admin.inline.sqlEditorExtensions.badAction",
+  "empty-table": "admin.inline.sqlEditorExtensions.emptyTable",
+  unreadable: "admin.inline.sqlEditorExtensions.unreadable",
+  unresolved: "admin.inline.sqlEditorExtensions.unresolved",
+  "unknown-ref": "admin.inline.sqlEditorExtensions.unknownRef",
 };
 
 /** 관계가 안 그려지는 건 경고, 아예 못 읽은 건 오류로 나눈다 */
 const severityOf = (kind: SqlIssue["kind"]): Diagnostic["severity"] =>
   kind === "unknown-ref" || kind === "unresolved" ? "warning" : "error";
 
-function sqlLinter(tables: () => ErdTable[], lang: () => Language) {
+function sqlLinter(tables: () => ErdTable[], tr: () => TFunction) {
   return linter((view: EditorView): Diagnostic[] => {
     const doc = view.state.doc;
-    const ko = lang() === "ko";
+    const t = tr();
     return parseSqlErd(doc.toString(), tables()).issues.map((i) => ({
       /* 파서가 원본 기준 위치를 주지만, 편집 중 문서보다 길면 CodeMirror 가 던진다 */
       from: Math.min(i.from, doc.length),
       to: Math.min(i.to, doc.length),
       severity: severityOf(i.kind),
-      message: MESSAGE[i.kind](i.name, ko),
+      message: fillTemplate(t(MESSAGE[i.kind]), { name: i.name ?? "" }),
     })).filter((d) => d.to > d.from);
   }, { delay: 400 });
 }
@@ -120,13 +107,13 @@ function sqlLinter(tables: () => ErdTable[], lang: () => Language) {
 const escapeEditor: Command = (view) => { view.contentDOM.blur(); return true; };
 
 export function sqlEditorExtensions(
-  tables: () => ErdTable[], lang: () => Language,
+  tables: () => ErdTable[], t: () => TFunction,
 ): Extension[] {
   return [
     autocompletion({ override: [sqlCompletions(tables)], icons: false }),
     search({ top: true }),
     highlightSelectionMatches(),
-    sqlLinter(tables, lang),
+    sqlLinter(tables, t),
     /* 기본 키맵보다 먼저 잡아야 Tab 이 포커스 이동으로 새지 않는다 */
     Prec.high(keymap.of([
       /* 완성 목록이 열려 있으면 Tab 은 먼저 그걸 채택한다 */

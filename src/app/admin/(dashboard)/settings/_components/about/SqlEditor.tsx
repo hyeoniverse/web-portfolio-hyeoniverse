@@ -19,6 +19,7 @@ import {
 } from "@codesandbox/sandpack-react";
 import { sqlLanguage } from "./sqlLanguage";
 import { sqlEditorExtensions } from "./sqlEditorExtensions";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { ErdTable } from "@/data/about/types";
 import css from "./SqlEditor.module.css";
 
@@ -71,10 +72,11 @@ export default function SqlEditor({
 }) {
   /* 확장은 한 번만 만든다 — 배열이 매번 새로 생기면 CodeMirror 가 통째로 재구성돼
      커서와 되돌리기 이력이 날아간다. 최신 값은 ref 를 통해 읽는다. */
-  const live = useRef({ tables, lang });
-  useSyncRef(live, { tables, lang });
+  const { t } = useLanguage();
+  const live = useRef({ tables, lang, t });
+  useSyncRef(live, { tables, lang, t });
   const extensions = useMemo(
-    () => sqlEditorExtensions(() => live.current.tables, () => live.current.lang),
+    () => sqlEditorExtensions(() => live.current.tables, () => live.current.t),
     [],
   );
 

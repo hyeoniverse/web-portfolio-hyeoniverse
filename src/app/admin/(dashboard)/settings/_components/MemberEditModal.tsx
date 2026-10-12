@@ -30,6 +30,10 @@ import mStyles from "@/components/admin/MembersList.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
 
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { ROLE: "프론트엔드 개발자", LOCATION: "서울, 대한민국" } as const;
+
 interface Props {
   initial: Author;
   member?: Member;
@@ -47,7 +51,7 @@ interface Props {
   /**
    * 이미 다른 멤버가 쓴 값 — 표기가 제각각이 되는 걸 줄이는 자동완성 후보.
    * 자유 입력 필드 중 같은 뜻을 다르게 적기 쉬운 것들에만 붙인다
-   * (역할: "프론트엔드" / "Frontend" / "프론트엔드 개발자").
+   * (역할: "프론트엔드" / "Frontend" / KO_CONTENT.ROLE).
    */
   suggestions?: { role?: string[]; location?: string[] };
   /** 접근 권한(초대/권한변경/연결) 관리 표시 여부 — owner 만 true. 비owner 는 프로필만 편집. */
@@ -63,7 +67,6 @@ export default function MemberEditModal({
 }: Props) {
   const badgeOf = useLangBadge();
   const { language, t } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
 
@@ -128,18 +131,18 @@ export default function MemberEditModal({
     setGhLoading(false);
 
     if (!fetched && !githubInfo) {
-      setStatus({ ok: false, msg: errorText(failure, t, L("GitHub 정보를 불러오지 못했습니다.", "Could not load from GitHub.")) });
+      setStatus({ ok: false, msg: errorText(failure, t, t("admin.inline.memberEditModal.githubLoadFailed")) });
       return;
     }
 
     /* 칸별로 GitHub 값을 견준다 — 비어 있거나 같으면 바로 넣고, 다르면 고를 목록에 넣는다 */
     const incoming: { key: keyof Author; label: string; value: string }[] = [
-      { key: "name", label: L("이름", "Name"), value: fetched?.name || githubInfo?.name || "" },
-      { key: "avatar", label: L("아바타", "Avatar"), value: fetched?.avatar || githubInfo?.avatar || "" },
-      { key: "role", label: L("직무", "Job title"), value: fetched?.role ?? "" },
-      { key: "email", label: L("이메일", "Email"), value: fetched?.email ?? "" },
-      { key: "bio", label: L("소개", "Bio"), value: fetched?.bio ?? "" },
-      { key: "location", label: L("지역", "Location"), value: fetched?.location ?? "" },
+      { key: "name", label: t("admin.inline.memberEditModal.name"), value: fetched?.name || githubInfo?.name || "" },
+      { key: "avatar", label: t("admin.inline.memberEditModal.avatar"), value: fetched?.avatar || githubInfo?.avatar || "" },
+      { key: "role", label: t("admin.inline.memberEditModal.jobTitle"), value: fetched?.role ?? "" },
+      { key: "email", label: t("admin.inline.memberEditModal.email"), value: fetched?.email ?? "" },
+      { key: "bio", label: t("admin.inline.memberEditModal.bio"), value: fetched?.bio ?? "" },
+      { key: "location", label: t("admin.inline.memberEditModal.location"), value: fetched?.location ?? "" },
     ];
     const fill: Partial<Author> = {};
     const conflicts: GhConflict[] = [];
@@ -158,7 +161,7 @@ export default function MemberEditModal({
       if (at < 0) merged.push(link);
       else if (!merged[at].url.trim()) merged[at] = { ...merged[at], url: link.url };
       else if (merged[at].url.trim() !== link.url.trim()) {
-        conflicts.push({ key: `link:${link.platform}`, label: `${L("링크", "Link")} · ${link.platform}`, current: merged[at].url, incoming: link.url, pick: "current" });
+        conflicts.push({ key: `link:${link.platform}`, label: `${t("admin.inline.memberEditModal.link")} · ${link.platform}`, current: merged[at].url, incoming: link.url, pick: "current" });
       }
     }
     if (merged.length !== draft.links.length || merged.some((l, k) => l !== draft.links[k])) fill.links = merged;
@@ -168,10 +171,10 @@ export default function MemberEditModal({
     setStatus({
       ok: true,
       msg: conflicts.length > 0
-        ? L("빈 칸을 채웠습니다. 이미 적은 값과 다른 칸은 아래에서 고르세요.", "Filled the empty fields. Pick a value below where GitHub differs.")
+        ? t("admin.inline.memberEditModal.filledTheEmptyFields")
         : fetched?.enriched
-        ? L("GitHub 계정 정보로 채웠습니다.", "Filled from your GitHub account.")
-        : L("GitHub 공개 프로필을 읽지 못해 기본 정보만 채웠습니다.", "Could not read the public GitHub profile, so only basic fields were filled."),
+        ? t("admin.inline.memberEditModal.filledFromYourGithub")
+        : t("admin.inline.memberEditModal.githubProfileUnreadable"),
     });
   };
 
@@ -193,9 +196,9 @@ export default function MemberEditModal({
   };
 
   const save = async () => {
-    if (!draft.name.trim()) { setStatus({ ok: false, msg: L("이름을 입력해 주세요.", "Please enter a name.") }); return; }
+    if (!draft.name.trim()) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.pleaseEnterAName") }); return; }
     /* 이메일은 초대·계정 매칭의 열쇠다. 비어 있으면 이 프로필에 계정을 연결할 방법이 없다. */
-    if (!draft.email.trim()) { setStatus({ ok: false, msg: L("이메일을 입력해 주세요.", "Please enter an email.") }); return; }
+    if (!draft.email.trim()) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.pleaseEnterAnEmail") }); return; }
     /* 저장이 끝날 때까지 모달을 닫지 않는다 — 닫고 나서 실패하면 알릴 자리가 없다. */
     setBusy(true);
     let result: SaveResult | void;
@@ -208,8 +211,8 @@ export default function MemberEditModal({
       setStatus({
         ok: false,
         msg: result.reason
-          ? `${L("저장하지 못했습니다.", "Could not save.")} ${result.reason}`
-          : L("저장하지 못했습니다.", "Could not save."),
+          ? `${t("admin.inline.memberEditModal.couldNotSave")} ${result.reason}`
+          : t("admin.inline.memberEditModal.couldNotSave"),
       });
       return;
     }
@@ -223,8 +226,8 @@ export default function MemberEditModal({
   };
 
   const invite = async () => {
-    if (!draft.name.trim()) { setStatus({ ok: false, msg: L("이름을 입력해 주세요.", "Please enter a name.") }); return; }
-    if (!draft.email) { setStatus({ ok: false, msg: L("이메일을 먼저 입력해 주세요.", "Please enter an email first.") }); return; }
+    if (!draft.name.trim()) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.pleaseEnterAName") }); return; }
+    if (!draft.email) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.emailRequiredFirst") }); return; }
     setBusy(true);
     onSaveProfile(draft); // author_id 정합성 위해 프로필 먼저 저장
     const r = await onInvite(draft, Number(inviteLevel));
@@ -252,8 +255,8 @@ export default function MemberEditModal({
             ref={avatarBtnRef}
             className={styles.authorAvatarUpload}
             onClick={() => setEmojiOpen((v) => !v)}
-            title={L("프로필 이미지 선택", "Choose profile image")}
-            aria-label={L("프로필 이미지 선택", "Choose profile image")}
+            title={t("admin.inline.memberEditModal.chooseProfileImage")}
+            aria-label={t("admin.inline.memberEditModal.chooseProfileImage")}
           >
             <AuthorAvatar
               value={draft.avatar}
@@ -267,8 +270,8 @@ export default function MemberEditModal({
             <Pressable
               className={`${styles.authorAvatarBadge} ${styles.authorAvatarBadgeRemove}`}
               onClick={() => set({ avatar: "" })}
-              title={L("프로필 이미지 제거", "Remove profile image")}
-              aria-label={L("프로필 이미지 제거", "Remove profile image")}
+              title={t("admin.inline.memberEditModal.removeProfileImage")}
+              aria-label={t("admin.inline.memberEditModal.removeProfileImage")}
             >
               <Trash2 size={11} strokeWidth={2.2} aria-hidden />
             </Pressable>
@@ -291,14 +294,14 @@ export default function MemberEditModal({
           onImageUpload={uploadAvatarFile}
           getAnchorRect={() => avatarBtnRef.current?.getBoundingClientRect() ?? null}
         />
-        <span className={styles.authorCardName}>{draft.name || L("(이름 없음)", "(unnamed)")}</span>
+        <span className={styles.authorCardName}>{draft.name || t("admin.inline.memberEditModal.unnamed")}</span>
       </div>
 
       {/* 동작(GitHub 불러오기 · 입력 언어)은 한 줄에, 설명은 그 아래 따로 */}
       <div className={styles.profileActions}>
         {ghHasData && (
           <Button variant="outline" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
-            {L("GitHub 정보 불러오기", "Load from GitHub")}
+            {t("admin.inline.memberEditModal.loadFromGithub")}
           </Button>
         )}
         <span className={styles.profileActionsLang}>
@@ -306,18 +309,18 @@ export default function MemberEditModal({
         </span>
       </div>
       <HintLines lines={[
-        ghHasData && L("GitHub 정보 불러오기는 이름·아바타·소개·소속·링크를 GitHub 계정 정보로 채웁니다.", "Load from GitHub fills name, avatar, bio, company and links from your GitHub account."),
-        ghHasData && L("이미 적은 값이 GitHub 값과 다르면 바꾸지 않고, 두 값을 비교해 고를 수 있게 보여 줍니다.", "Where a field already differs from GitHub, both values are shown so you can pick one."),
-        L("이름·직무·지역·소개는 KO/EN 으로 바꿔 한국어와 영어를 따로 적을 수 있습니다.", "Switch KO/EN to write name, job title, location and bio in Korean and English separately."),
-        L("영어 칸이 비어 있으면 한국어 값을 씁니다. 빈 칸에서 Tab 을 누르면 흐리게 보이는 다른 언어 값을 그대로 넣습니다.", "Empty English fields fall back to Korean. Press Tab in an empty field to copy the other language's value shown in grey."),
+        ghHasData && t("admin.inline.memberEditModal.loadFromGithubFills"),
+        ghHasData && t("admin.inline.memberEditModal.whereAFieldAlready"),
+        t("admin.inline.memberEditModal.langSwitchHint"),
+        t("admin.inline.memberEditModal.emptyEnglishFieldsFall"),
       ]} />
 
       {ghConflicts && (
         <div className={styles.ghCompare}>
-          <span className={shared.fieldLabel}>{L("GitHub 값과 다른 칸", "Fields that differ from GitHub")}</span>
+          <span className={shared.fieldLabel}>{t("admin.inline.memberEditModal.githubDiffFields")}</span>
           <div className={styles.ghCompareHead} aria-hidden>
             <span />
-            <span>{L("지금 값", "Current")}</span>
+            <span>{t("admin.inline.memberEditModal.current")}</span>
             <span>GitHub</span>
           </div>
           {ghConflicts.map((c) => (
@@ -342,8 +345,8 @@ export default function MemberEditModal({
             </div>
           ))}
           <div className={styles.ghCompareActions}>
-            <Button variant="outline" onClick={() => setGhConflicts(null)}>{L("지금 값 모두 유지", "Keep all current")}</Button>
-            <Button variant="primary" onClick={applyGhConflicts}>{L("고른 값 적용", "Apply selection")}</Button>
+            <Button variant="outline" onClick={() => setGhConflicts(null)}>{t("admin.inline.memberEditModal.keepAllCurrent")}</Button>
+            <Button variant="primary" onClick={applyGhConflicts}>{t("admin.inline.memberEditModal.applySelection")}</Button>
           </div>
         </div>
       )}
@@ -352,14 +355,14 @@ export default function MemberEditModal({
         {/* 이름·직무·지역·소개는 입력 언어(KO/EN)를 칸 안 배지로 보인다. 비어 있으면 반대쪽 언어 값을
             placeholder 로 보이고, Tab 을 누르면 그 값을 그대로 넣는다(없으면 예시만) */}
         {en
-          ? <Field label={L("이름", "Name")} langBadge="en" value={draft.name_en ?? ""} tabFill={other(draft.name)} onChange={(v) => set({ name_en: v })} placeholder={other(draft.name)} />
-          : <Field label={L("이름", "Name")} langBadge="ko" value={draft.name} tabFill={other(draft.name_en)} onChange={(v) => set({ name: v })} placeholder={other(draft.name_en)} required />}
-        <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
+          ? <Field label={t("admin.inline.memberEditModal.name")} langBadge="en" value={draft.name_en ?? ""} tabFill={other(draft.name)} onChange={(v) => set({ name_en: v })} placeholder={other(draft.name)} />
+          : <Field label={t("admin.inline.memberEditModal.name")} langBadge="ko" value={draft.name} tabFill={other(draft.name_en)} onChange={(v) => set({ name: v })} placeholder={other(draft.name_en)} required />}
+        <Field label={t("admin.inline.memberEditModal.avatarUrl")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
         {/* 직무 — 공통 Select combobox. 칸에 바로 적거나(직접 입력), 펼쳐서 프리셋(src/data/jobTitles)을 고른다.
             프리셋을 고르면 지금 언어 칸에 넣고, 다른 언어 칸이 비어 있으면 짝도 채운다 */}
         <FieldRow
           className={styles.authorCardFieldWide}
-          label={<>{L("직무", "Job title")}<span className={styles.labelLangBadge}>{badgeOf(profileLang)}</span></>}
+          label={<>{t("admin.inline.memberEditModal.jobTitle")}<span className={styles.labelLangBadge}>{badgeOf(profileLang)}</span></>}
         >
           <span
             className={styles.jobCombo}
@@ -381,26 +384,26 @@ export default function MemberEditModal({
               onInputChange={(v) => set(en ? { role_en: v } : { role: v })}
               onChange={commitJob}
               options={JOB_TITLE_PRESETS.map((j) => ({ value: en ? j.en : j.ko, label: en ? j.en : j.ko }))}
-              placeholder={other(en ? draft.role : draft.role_en) ?? (en ? "Frontend Developer" : "프론트엔드 개발자")}
+              placeholder={other(en ? draft.role : draft.role_en) ?? (en ? "Frontend Developer" : KO_CONTENT.ROLE)}
             />
           </span>
         </FieldRow>
-        <Field label={L("이메일", "Email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
+        <Field label={t("admin.inline.memberEditModal.email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
         {en
-          ? <Field label={L("지역", "Location")} langBadge="en" value={draft.location_en ?? ""} tabFill={other(draft.location)} onChange={(v) => set({ location_en: v })} placeholder={other(draft.location) ?? "Seoul, South Korea"} />
-          : <Field label={L("지역", "Location")} langBadge="ko" value={draft.location ?? ""} tabFill={other(draft.location_en)} onChange={(v) => set({ location: v })} placeholder={other(draft.location_en) ?? "서울, 대한민국"} suggestions={suggestions?.location} />}
+          ? <Field label={t("admin.inline.memberEditModal.location")} langBadge="en" value={draft.location_en ?? ""} tabFill={other(draft.location)} onChange={(v) => set({ location_en: v })} placeholder={other(draft.location) ?? "Seoul, South Korea"} />
+          : <Field label={t("admin.inline.memberEditModal.location")} langBadge="ko" value={draft.location ?? ""} tabFill={other(draft.location_en)} onChange={(v) => set({ location: v })} placeholder={other(draft.location_en) ?? KO_CONTENT.LOCATION} suggestions={suggestions?.location} />}
         {/* 소개는 여러 줄 입력이라 반 칸에 두면 한 줄에 몇 글자 못 들어간다 — 두 열을 다 쓴다. */}
         <div className={styles.authorCardFieldWide}>
           {en
-            ? <Field label={L("소개", "Bio")} langBadge="en" value={draft.bio_en ?? ""} tabFill={other(draft.bio)} onChange={(v) => set({ bio_en: v })} placeholder={other(draft.bio)} multiline />
-            : <Field label={L("소개", "Bio")} langBadge="ko" value={draft.bio} tabFill={other(draft.bio_en)} onChange={(v) => set({ bio: v })} placeholder={other(draft.bio_en)} multiline />}
+            ? <Field label={t("admin.inline.memberEditModal.bio")} langBadge="en" value={draft.bio_en ?? ""} tabFill={other(draft.bio)} onChange={(v) => set({ bio_en: v })} placeholder={other(draft.bio)} multiline />
+            : <Field label={t("admin.inline.memberEditModal.bio")} langBadge="ko" value={draft.bio} tabFill={other(draft.bio_en)} onChange={(v) => set({ bio: v })} placeholder={other(draft.bio_en)} multiline />}
         </div>
       </div>
 
       {/* 접근 권한 — owner 만 (비owner 는 본인 프로필만 편집) */}
       {canManageAccess && (
       <div className={shared.authorInvite}>
-        <span className={shared.fieldLabel}>{L("접근 권한", "Access")}</span>
+        <span className={shared.fieldLabel}>{t("admin.inline.memberEditModal.access")}</span>
 
         {member ? (
           <>
@@ -424,7 +427,7 @@ export default function MemberEditModal({
         ) : linkMemberId ? (
           <>
             <span className={`${shared.fieldHint} ${shared.hintItem}`}>
-              {L("이미 로그인한 계정입니다. 저장하면 이 프로필과 연결하고 권한을 부여합니다.", "This account has already signed in. Saving links it to this profile and grants access.")}
+              {t("admin.inline.memberEditModal.thisAccountHasAlready")}
             </span>
             <div className={styles.authorInviteRow}>
               <Select value={inviteLevel} options={levels} disabled={busy} onChange={setInviteLevel} />
@@ -434,16 +437,16 @@ export default function MemberEditModal({
           <>
             <span className={`${shared.fieldHint} ${shared.hintItem}`}>
               {localInvited
-                ? L("초대를 보냈습니다. 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Invite sent. Access is granted when they sign in with the matching GitHub account.")
-                : L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}
+                ? t("admin.inline.memberEditModal.inviteSent")
+                : t("admin.inline.memberEditModal.accessIsGrantedWhen")}
             </span>
             <div className={styles.authorInviteRow}>
               <Select value={inviteLevel} options={levels} onChange={setInviteLevel} />
               <Button variant="outline" icon={<Mail size={14} />} disabled={busy || !draft.email} onClick={invite}>
-                {busy ? L("초대하고 있습니다…", "Sending…") : localInvited ? L("초대 다시 보내기", "Resend invite") : L("이메일로 초대", "Invite by email")}
+                {busy ? t("admin.inline.memberEditModal.sending") : localInvited ? t("admin.inline.memberEditModal.resendInvite") : t("admin.inline.memberEditModal.inviteByEmail")}
               </Button>
               {localInvited && (
-                <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>{L("초대됨 · 미가입", "Invited · pending")}</span>
+                <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>{t("admin.inline.memberEditModal.invitedPending")}</span>
               )}
             </div>
           </>
@@ -453,7 +456,7 @@ export default function MemberEditModal({
       )}
 
       <div className={styles.authorLinksEditor}>
-        <span className={shared.fieldLabel}>{L("링크", "Links")}</span>
+        <span className={shared.fieldLabel}>{t("admin.inline.memberEditModal.links")}</span>
         <SocialLinksEditor links={draft.links} onChange={(links) => set({ links })} max={8} />
       </div>
 
@@ -465,8 +468,8 @@ export default function MemberEditModal({
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" soundDisabled onClick={() => closeModal("member-edit")}>{L("취소", "Cancel")}</Button>
-          <Button variant="primary" soundDisabled disabled={busy || !draft.name.trim()} onClick={save}>{L("저장", "Save")}</Button>
+          <Button variant="outline" soundDisabled onClick={() => closeModal("member-edit")}>{t("admin.inline.memberEditModal.cancel")}</Button>
+          <Button variant="primary" soundDisabled disabled={busy || !draft.name.trim()} onClick={save}>{t("admin.inline.memberEditModal.save")}</Button>
         </>,
         footerEl,
       )}

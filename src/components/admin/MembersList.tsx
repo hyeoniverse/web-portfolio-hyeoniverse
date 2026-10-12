@@ -5,6 +5,7 @@ import { useSyncRef } from "@/hooks/useSyncRef";
 import { Clock } from "@/components/icons";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 import type { Member, MembersResponse, PendingMember } from "@/types/member";
 import type { Author } from "@/types/author";
@@ -28,8 +29,7 @@ interface Props {
 
 /** OAuth 인증된 관리자 멤버 목록 — owner 전용 엔드포인트. 비owner(403)면 아무것도 렌더하지 않음. */
 export default function MembersList({ limit, showInvites = true, hideHeader = false, onResolved }: Props) {
-  const { language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { t, language } = useLanguage();
   /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
   const openModal = useModalStore((s) => s.openModal);
@@ -47,7 +47,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
     };
     openModal(
       <MemberDetailModal author={author} member={m} isOwnerProfile={m.role === "owner"} showAccess />,
-      { id: "member-detail", header: { title: L("멤버 상세", "Member") }, closeButton: true, width: "480px" },
+      { id: "member-detail", header: { title: t("admin.inline.membersList.member") }, closeButton: true, width: "480px" },
     );
   };
   const [data, setData] = useState<MembersResponse | null>(null);
@@ -87,21 +87,21 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
   const overflow = limit ? members.length - shown.length : 0;
 
   const relative = (iso: string | null) =>
-    iso ? formatRelativeTime(iso, now, language) : L("로그인 기록 없음", "never signed in");
+    iso ? formatRelativeTime(iso, now, language) : t("admin.inline.membersList.neverSignedIn");
 
   return (
     <div className={styles.wrap}>
       {!hideHeader && (
         <div className={styles.header}>
-          <span className={styles.title}>{L("멤버", "Members")}</span>
+          <span className={styles.title}>{t("admin.inline.membersList.members")}</span>
           <span className={styles.count}>{members.length}</span>
         </div>
       )}
 
       {state === "loading" ? (
-        <div className={styles.empty}>{L("불러오는 중입니다…", "Loading…")}</div>
+        <div className={styles.empty}>{t("admin.inline.membersList.loading")}</div>
       ) : members.length === 0 && invites.length === 0 ? (
-        <div className={styles.empty}>{L("아직 멤버가 없습니다.", "No members yet.")}</div>
+        <div className={styles.empty}>{t("admin.inline.membersList.noMembersYet")}</div>
       ) : (
         <ul className={styles.list}>
           {shown.map((m: Member) => (
@@ -147,15 +147,12 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
                 <div className={styles.nameRow}>
                   <span className={styles.name}>{iv.email}</span>
                   <span className={`${styles.role} ${styles.rolePendingBadge}`}>
-                    {L("초대됨 · 미가입", "Invited · pending")}
+                    {t("admin.inline.membersList.invitedPending")}
                   </span>
                 </div>
                 <div className={styles.meta}>
                   <span className={styles.since}>
-                    {L(
-                      iv.level >= 2 ? "편집자 권한으로 초대했습니다." : "작성자 권한으로 초대했습니다.",
-                      iv.level >= 2 ? "Invited as editor." : "Invited as author.",
-                    )}
+                    {t(iv.level >= 2 ? "admin.inline.membersList.invitedAsEditor" : "admin.inline.membersList.invitedAsAuthor")}
                   </span>
                 </div>
               </div>
@@ -166,7 +163,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
 
       {overflow > 0 && (
         <Link href="/admin/settings?tab=account" className={styles.more}>
-          {L(`외 ${overflow}명 더 보기`, `+${overflow} more`)}
+          {fillTemplate(t("admin.inline.membersList.moreCount"), { n: overflow })}
         </Link>
       )}
     </div>

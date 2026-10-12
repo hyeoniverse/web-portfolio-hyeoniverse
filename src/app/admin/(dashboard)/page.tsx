@@ -54,10 +54,11 @@ import DevicesBreakdown from "./_components/DevicesBreakdown";
 import TrafficChannels from "./_components/TrafficChannels";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { fillTemplate, formatDwell } from "@/utils/format";
+import { localizeReportReason } from "@/lib/reportReasons";
 
 
 export default function AdminDashboard() {
-  const { t, language } = useLanguage();
+  const { t, tLang, language } = useLanguage();
   /* 상대시간 기준 시각. 렌더에서 현재 시각을 직접 읽으면 매 렌더 값이 달라진다. */
   const now = useNow();
   const router = useRouter();
@@ -191,9 +192,7 @@ export default function AdminDashboard() {
         </h1>
         <Tooltip
           content={
-            language === "ko"
-              ? "최신 데이터 다시 불러오기"
-              : "Reload latest data"
+            t("admin.inline.dashboardPage.reloadLatestData")
           }
           placement="bottom"
           delay={200}
@@ -219,9 +218,7 @@ export default function AdminDashboard() {
         <Panel variant="grid" hairlines className={styles.quickActions}>
           <Tooltip
             content={
-              language === "ko"
-                ? "새 게시물 작성 페이지로 이동"
-                : "Open new post editor"
+              t("admin.inline.dashboardPage.openNewPostEditor")
             }
             placement="top"
             delay={250}
@@ -239,9 +236,7 @@ export default function AdminDashboard() {
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? "새 프로젝트 작성 페이지로 이동"
-                : "Open new project editor"
+              t("admin.inline.dashboardPage.openNewProjectEditor")
             }
             placement="top"
             delay={250}
@@ -259,9 +254,7 @@ export default function AdminDashboard() {
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? "사이트 환경 설정 (브랜드/카테고리/시리즈/계정)"
-                : "Site settings (brand, categories, series, account)"
+              t("admin.inline.dashboardPage.siteSettingsBrandCategories")
             }
             placement="top"
             delay={250}
@@ -279,9 +272,7 @@ export default function AdminDashboard() {
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? "계정 편집 (이메일·비밀번호·멤버)"
-                : "Edit account (email, password, members)"
+              t("admin.inline.dashboardPage.editAccountEmailPassword")
             }
             placement="top"
             delay={250}
@@ -294,14 +285,12 @@ export default function AdminDashboard() {
               icon={<UserRound size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
             >
-              {language === "ko" ? "계정 편집" : "Edit account"}
+              {t("admin.inline.dashboardPage.editAccount")}
             </Button>
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? "댓글 신고 관리 페이지로 이동"
-                : "Open comment reports"
+              t("admin.inline.dashboardPage.openCommentReports")
             }
             placement="top"
             delay={250}
@@ -328,9 +317,7 @@ export default function AdminDashboard() {
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? "댓글/시스템 알림 보기"
-                : "View comments and system notifications"
+              t("admin.inline.dashboardPage.viewCommentsAndSystem")
             }
             placement="top"
             delay={250}
@@ -462,9 +449,7 @@ export default function AdminDashboard() {
           {/* 2. 프로젝트 */}
           <Tooltip
             content={
-              language === "ko"
-                ? `발행 ${data.works.published}개 · 초안 ${data.works.drafts}개 — 총 ${data.works.total}개\n클릭하면 프로젝트 관리로 이동`
-                : `${data.works.published} published · ${data.works.drafts} draft — ${data.works.total} total\nClick to manage projects`
+              fillTemplate(t("admin.inline.dashboardPage.worksTooltip"), { published: data.works.published, drafts: data.works.drafts, total: data.works.total })
             }
             placement="top"
             delay={250}
@@ -485,9 +470,7 @@ export default function AdminDashboard() {
           </Tooltip>
           <Tooltip
             content={
-              language === "ko"
-                ? `발행 ${data.posts.published}개 · 초안 ${data.posts.drafts}개 — 총 ${data.posts.total}개\n클릭하면 게시물 관리로 이동`
-                : `${data.posts.published} published · ${data.posts.drafts} draft — ${data.posts.total} total\nClick to manage posts`
+              fillTemplate(t("admin.inline.dashboardPage.postsTooltip"), { published: data.posts.published, drafts: data.posts.drafts, total: data.posts.total })
             }
             placement="top"
             delay={250}
@@ -512,9 +495,7 @@ export default function AdminDashboard() {
                 data.posts.published > 0
                   ? (data.comments.total / data.posts.published).toFixed(1)
                   : "—";
-              return language === "ko"
-                ? `누적 댓글 ${data.comments.total}개 · 게시물당 평균 ${avg}개\n클릭하면 댓글 관리로 이동`
-                : `${data.comments.total} total · ${avg} avg per post\nClick to manage`;
+              return fillTemplate(t("admin.inline.dashboardPage.commentsTooltip"), { total: data.comments.total, avg });
             })()}
             placement="top"
             delay={250}
@@ -529,7 +510,7 @@ export default function AdminDashboard() {
               </span>
               <span className={styles.statMeta}>
                 {data.posts.published > 0
-                  ? `${(data.comments.total / data.posts.published).toFixed(1)} ${language === "ko" ? "/ 게시물" : "/ post"}`
+                  ? `${(data.comments.total / data.posts.published).toFixed(1)} ${t("admin.inline.dashboardPage.perPost")}`
                   : " "}
               </span>
             </Link>
@@ -544,7 +525,6 @@ export default function AdminDashboard() {
         ) : (
           <CategoryDonut
             data={data.stats.categories}
-            language={language}
             t={t}
           />
         )}
@@ -719,7 +699,7 @@ export default function AdminDashboard() {
                   )}
                   {r.reason && (
                     <p className={styles.reportReason}>
-                      <Flag size={11} strokeWidth={1.8} /> {r.reason}
+                      <Flag size={11} strokeWidth={1.8} /> {localizeReportReason(r.reason, t, tLang)}
                     </p>
                   )}
                   {r.comment?.parentSlug ? (
@@ -769,7 +749,7 @@ export default function AdminDashboard() {
                       <span className={styles.popularStats}>
                         <span
                           className={styles.popularStat}
-                          title={language === "ko" ? "조회" : "views"}
+                          title={t("admin.inline.dashboardPage.views")}
                         >
                           <Eye size={11} strokeWidth={2} />
                           {p.view_count.toLocaleString()}
@@ -777,7 +757,7 @@ export default function AdminDashboard() {
                         {(p.like_count ?? 0) > 0 && (
                           <span
                             className={styles.popularStat}
-                            title={language === "ko" ? "좋아요" : "likes"}
+                            title={t("admin.inline.dashboardPage.likes")}
                           >
                             <Heart size={11} strokeWidth={2} />
                             {p.like_count}
@@ -786,7 +766,7 @@ export default function AdminDashboard() {
                         {(p.comment_count ?? 0) > 0 && (
                           <span
                             className={styles.popularStat}
-                            title={language === "ko" ? "댓글" : "comments"}
+                            title={t("admin.inline.dashboardPage.comments")}
                           >
                             <MessageSquare size={11} strokeWidth={2} />
                             {p.comment_count}
@@ -875,9 +855,7 @@ export default function AdminDashboard() {
                 </PanelTitle>
                 {!data.stats.channels?.length ? (
                   <p className={styles.muted}>
-                    {language === "ko"
-                      ? "아직 방문 데이터가 없습니다."
-                      : "No visit data yet."}
+                    {t("admin.inline.dashboardPage.noVisitDataYet")}
                   </p>
                 ) : (
                   /* 호스트 나열 대신 채널(검색/SNS/커뮤니티/…) 묶음 + 드릴다운(#1161) */
@@ -895,9 +873,7 @@ export default function AdminDashboard() {
                 </PanelTitle>
                 {data.stats.devices.length === 0 ? (
                   <p className={styles.muted}>
-                    {language === "ko"
-                      ? "아직 방문 데이터가 없습니다."
-                      : "No visit data yet."}
+                    {t("admin.inline.dashboardPage.noVisitDataYet")}
                   </p>
                 ) : (
                   <DevicesBreakdown
@@ -975,7 +951,7 @@ export default function AdminDashboard() {
       {membersVisible && (
         <Section>
           <SectionHeader href="/admin/settings?tab=account">
-            {language === "ko" ? "멤버" : "Members"}
+            {t("admin.inline.dashboardPage.members")}
           </SectionHeader>
           <Panel className={styles.panelCell}>
             <MembersList limit={5} hideHeader onResolved={setMembersVisible} />

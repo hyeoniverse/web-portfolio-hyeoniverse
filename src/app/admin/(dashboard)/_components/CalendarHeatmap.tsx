@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 /** GitHub-style 캘린더 히트맵 — 7행(요일) × N열(주). 각 셀은 그날 방문자 수에 따라 4단계 accent 농도. */
 /** 월별 캘린더 뷰 — 일반적인 달력 모양 (7-col 요일 × 6-row 주). 한 달치를 한 번에 보여줌.
  *  focus month state 는 DailyViewsChart 가 소유 — stat 패널 (이 달 합계 / 직전 달 대비) 과 동기화. */
@@ -26,6 +27,7 @@ function CalendarHeatmap({
   focus: { year: number; month: number };
   setFocus: (f: { year: number; month: number }) => void;
 }) {
+  const { t } = useLanguage();
   const lastDay = data[data.length - 1]?.day;
 
   // 해당 month 의 1일 요일 + 일수
@@ -130,9 +132,7 @@ function CalendarHeatmap({
     { year: "numeric", month: "long" },
   );
   const dowLabels =
-    language === "ko"
-      ? ["일", "월", "화", "수", "목", "금", "토"]
-      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    [0, 1, 2, 3, 4, 5, 6].map((i) => t(`admin.inline.calendarHeatmap.dow${i}`));
 
   return (
     <div className={styles.calendarHeatmap}>
@@ -143,7 +143,7 @@ function CalendarHeatmap({
           icon={<ChevronLeft size={14} strokeWidth={2} />}
           onClick={goPrev}
           disabled={!canPrev}
-          aria-label={language === "ko" ? "이전 달" : "Previous month"}
+          aria-label={t("admin.inline.calendarHeatmap.previousMonth")}
         />
         <span className={styles.calendarMonth}>{monthLabel}</span>
         <Button
@@ -152,7 +152,7 @@ function CalendarHeatmap({
           icon={<ChevronRight size={14} strokeWidth={2} />}
           onClick={goNext}
           disabled={!canNext}
-          aria-label={language === "ko" ? "다음 달" : "Next month"}
+          aria-label={t("admin.inline.calendarHeatmap.nextMonth")}
         />
       </header>
 
@@ -191,7 +191,7 @@ function CalendarHeatmap({
 
       <div className={styles.calendarLegend}>
         <span className={styles.calendarLegendLabel}>
-          {language === "ko" ? "적음" : "Less"}
+          {t("admin.inline.calendarHeatmap.less")}
         </span>
         {[0, 1, 2, 3].map((i) => (
           <span
@@ -201,7 +201,7 @@ function CalendarHeatmap({
           />
         ))}
         <span className={styles.calendarLegendLabel}>
-          {language === "ko" ? "많음" : "More"}
+          {t("admin.inline.calendarHeatmap.more")}
         </span>
       </div>
     </div>

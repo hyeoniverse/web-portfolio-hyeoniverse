@@ -23,7 +23,8 @@ import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { SortableItem, SortableList } from "./studio/listControls";
-import { useL } from "./studio/primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 
 /* Postgres 에서 흔히 쓰는 타입들. 목록에 없는 값도 직접 입력할 수 있으므로
@@ -92,7 +93,7 @@ export default function ErdTableModal({
   onChange: (t: ErdTable[], r: ErdRelation[]) => void;
   onDelete: (name: string) => void;
 }) {
-  const L = useL();
+  const { t: tA } = useLanguage();
   const closeModal = useModalStore((s) => s.closeModal);
   const openModal = useModalStore((s) => s.openModal);
   /* 액션 버튼은 모달 템플릿의 footer 슬롯으로 — 본문 안에 두면 내용이 길 때 같이 스크롤된다 */
@@ -148,7 +149,7 @@ export default function ErdTableModal({
 
   /* 참조 후보 — 자기 자신을 제외한 테이블의 PK(없으면 첫 컬럼) */
   const fkOptions = [
-    { value: "", label: L("없음", "None") },
+    { value: "", label: tA("admin.inline.erdTableModal.none") },
     ...tables
       .filter((t) => t.name !== table.name)
       .map((t) => {
@@ -184,12 +185,12 @@ export default function ErdTableModal({
   })();
 
   const issues: string[] = [];
-  if (nameMissing) issues.push(L("테이블 이름을 입력합니다.", "Enter a table name."));
-  if (nameTaken) issues.push(L("이미 사용 중인 테이블 이름입니다.", "That table name is already in use."));
-  if (draft.columns.length === 0) issues.push(L("컬럼을 하나 이상 추가합니다.", "Add at least one column."));
-  if (colMissing.some((m) => m.name)) issues.push(L("이름이 비어 있는 컬럼이 있습니다.", "Some columns have no name."));
-  if (colMissing.some((m) => m.type)) issues.push(L("타입이 비어 있는 컬럼이 있습니다.", "Some columns have no type."));
-  if (dupCols.size > 0) issues.push(L("컬럼 이름이 중복되었습니다.", "Column names must be unique."));
+  if (nameMissing) issues.push(tA("admin.inline.erdTableModal.enterATableName"));
+  if (nameTaken) issues.push(tA("admin.inline.erdTableModal.tableNameTaken"));
+  if (draft.columns.length === 0) issues.push(tA("admin.inline.erdTableModal.addAtLeastOne"));
+  if (colMissing.some((m) => m.name)) issues.push(tA("admin.inline.erdTableModal.columnNameMissing"));
+  if (colMissing.some((m) => m.type)) issues.push(tA("admin.inline.erdTableModal.columnTypeMissing"));
+  if (dupCols.size > 0) issues.push(tA("admin.inline.erdTableModal.columnNameDuplicate"));
 
   const addColumn = () => {
     setCols([...draft.columns, { name: "", type: "text" }]);
@@ -241,7 +242,7 @@ export default function ErdTableModal({
     <div className={css.body}>
       <label className={css.field}>
         <span className={css.label}>
-          {L("테이블 이름", "Table name")}
+          {tA("admin.inline.erdTableModal.tableName")}
           <span className={css.req} aria-hidden>*</span>
         </span>
         <input ref={tableNameRef}
@@ -252,7 +253,7 @@ export default function ErdTableModal({
 
       <div className={css.field}>
         <span className={css.label}>
-          {L(`컬럼 ${draft.columns.length}`, `${draft.columns.length} columns`)}
+          {fillTemplate(tA("admin.inline.erdTableModal.columnsCount"), { n: draft.columns.length })}
         </span>
         {/* 셀 경계가 보이는 표 — 입력마다 캡슐을 두면 목록이 아니라 폼처럼 읽힌다 */}
         <div ref={scrollRef} className={css.tableWrap}>
@@ -260,7 +261,7 @@ export default function ErdTableModal({
             <thead>
               <tr>
                 <th scope="col" className={css.thGrip}>
-                  <span className={css.srOnly}>{L("순서", "Order")}</span>
+                  <span className={css.srOnly}>{tA("admin.inline.erdTableModal.order")}</span>
                 </th>
                 <th scope="col" className={css.thPick}>
                   <Checkbox shape="square" checked={allPicked}
@@ -268,15 +269,15 @@ export default function ErdTableModal({
                     onChange={(v) => setPicked(v ? new Set(draft.columns.map((_, i) => i)) : new Set())} />
                 </th>
                 <th scope="col" className={css.thPk}>
-                  <span className={css.srOnly}>{L("제약", "Constraints")}</span>
+                  <span className={css.srOnly}>{tA("admin.inline.erdTableModal.constraints")}</span>
                 </th>
                 <th scope="col">
-                  {L("이름", "Name")}<span className={css.req} aria-hidden>*</span>
+                  {tA("admin.inline.erdTableModal.name")}<span className={css.req} aria-hidden>*</span>
                 </th>
                 <th scope="col" className={css.thType}>
-                  {L("타입", "Type")}<span className={css.req} aria-hidden>*</span>
+                  {tA("admin.inline.erdTableModal.type")}<span className={css.req} aria-hidden>*</span>
                 </th>
-                <th scope="col" className={css.thTail}>{L("참조", "Ref")}</th>
+                <th scope="col" className={css.thTail}>{tA("admin.inline.erdTableModal.ref")}</th>
                 <th scope="col" className={css.thMore}><span className={css.srOnly}>—</span></th>
                 <th scope="col" className={css.thX}><span className={css.srOnly}>—</span></th>
               </tr>
@@ -288,11 +289,11 @@ export default function ErdTableModal({
                 <tbody ref={row.ref} style={row.style} className={row.isDragging ? css.colDragging : undefined}>
                 <tr className={picked.has(i) ? css.rowPicked : undefined}>
                   <td className={css.tdGrip}>
-                    <Tooltip content={L("끌어서 순서 변경", "Drag to reorder")} delay={300}>
+                    <Tooltip content={tA("admin.inline.erdTableModal.dragToReorder")} delay={300}>
                       <span
                         className={css.grip}
                         data-cursor="grab"
-                        aria-label={L("끌어서 순서 변경", "Drag to reorder")}
+                        aria-label={tA("admin.inline.erdTableModal.dragToReorder")}
                         {...row.handle}
                       >
                         <GripVertical size={12} />
@@ -303,9 +304,9 @@ export default function ErdTableModal({
                     <Checkbox shape="square" checked={picked.has(i)} onChange={() => togglePick(i)} />
                   </td>
                   <td className={css.tdPk}>
-                    <Tooltip content={L("기본키", "Primary key")} delay={200}>
+                    <Tooltip content={tA("admin.inline.erdTableModal.primaryKey")} delay={200}>
                       <Pressable className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
-                        aria-label={L("기본키", "Primary key")} aria-pressed={!!c.pk}
+                        aria-label={tA("admin.inline.erdTableModal.primaryKey")} aria-pressed={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, pk: !x.pk } : x)))}>
                         <KeyRound size={13} />
                       </Pressable>
@@ -313,18 +314,18 @@ export default function ErdTableModal({
                     {/* PK 는 정의상 NOT NULL 이라 따로 끌 수 없다 — 왜 잠겼는지 툴팁으로 말한다 */}
                     <Tooltip delay={200}
                       content={c.pk
-                        ? (L("기본키라 항상 필수입니다", "Always required — it's the primary key"))
-                        : (L("필수 (NOT NULL)", "Required (NOT NULL)"))}>
+                        ? (tA("admin.inline.erdTableModal.alwaysRequiredItS"))
+                        : (tA("admin.inline.erdTableModal.requiredNotNull"))}>
                       <Pressable className={`${css.pk} ${c.required || c.pk ? css.pkOn : ""}`}
-                        aria-label={L("필수", "Required")} aria-pressed={!!(c.required || c.pk)}
+                        aria-label={tA("admin.inline.erdTableModal.required")} aria-pressed={!!(c.required || c.pk)}
                         disabled={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, required: !x.required || undefined } : x)))}>
                         <Asterisk size={13} />
                       </Pressable>
                     </Tooltip>
-                    <Tooltip content={L("고유 (UNIQUE)", "Unique")} delay={200}>
+                    <Tooltip content={tA("admin.inline.erdTableModal.unique")} delay={200}>
                       <Pressable className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
-                        aria-label={L("고유", "Unique")} aria-pressed={!!c.unique}
+                        aria-label={tA("admin.inline.erdTableModal.uniqueLabel")} aria-pressed={!!c.unique}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, unique: !x.unique || undefined } : x)))}>
                         <Fingerprint size={13} />
                       </Pressable>
@@ -333,9 +334,9 @@ export default function ErdTableModal({
                   <td>
                     <input
                       className={`${css.cell} ${tried && (colMissing[i].name || dupCols.has(i)) ? css.invalid : ""}`}
-                      value={c.name} aria-label={L("컬럼 이름", "Column name")} data-col-name
+                      value={c.name} aria-label={tA("admin.inline.erdTableModal.columnName")} data-col-name
                       aria-required aria-invalid={tried && (colMissing[i].name || dupCols.has(i))}
-                      placeholder={L("이름", "name")}
+                      placeholder={tA("admin.inline.erdTableModal.namePlaceholder")}
                       onChange={(e) => setCols(draft.columns.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
                       onBlur={(e) => {
                         /* 아무것도 안 넣고 벗어나면 빈 행을 남기지 않는다.
@@ -362,10 +363,10 @@ export default function ErdTableModal({
                       }} />
                   </td>
                   <td className={css.tdMore}>
-                    <Tooltip content={L("기본값·설명", "Default & description")} delay={200}>
+                    <Tooltip content={tA("admin.inline.erdTableModal.defaultDescription")} delay={200}>
                     <Pressable
                       className={`${css.more} ${detailOpen(c, i) ? css.moreOn : ""}`}
-                      aria-label={L("기본값·설명", "Default & description")}
+                      aria-label={tA("admin.inline.erdTableModal.defaultDescription")}
                       aria-expanded={detailOpen(c, i)}
                       onClick={() => setOpenRows((prev) => {
                         const next = new Set(prev);
@@ -377,7 +378,7 @@ export default function ErdTableModal({
                     </Tooltip>
                   </td>
                   <td className={css.tdX}>
-                    <CloseButton ariaLabel={L("컬럼 삭제", "Remove column")}
+                    <CloseButton ariaLabel={tA("admin.inline.erdTableModal.removeColumn")}
                       onClick={() => removeCol(i)} />
                   </td>
                 </tr>
@@ -388,16 +389,16 @@ export default function ErdTableModal({
                     <td colSpan={9}>
                       <div className={css.detail}>
                         <label className={css.detailField}>
-                          <span>{L("기본값", "Default")}</span>
+                          <span>{tA("admin.inline.erdTableModal.default")}</span>
                           <input className={css.cell} value={c.defaultValue ?? ""}
-                            placeholder={L("now(), 'draft' …", "now(), 'draft' …")}
+                            placeholder={tA("admin.inline.erdTableModal.nowDraft")}
                             onChange={(e) => setCols(draft.columns.map((x, j) =>
                               (j === i ? { ...x, defaultValue: e.target.value || undefined } : x)))} />
                         </label>
                         <label className={css.detailField}>
-                          <span>{L("설명", "Description")}</span>
+                          <span>{tA("admin.inline.erdTableModal.description")}</span>
                           <input className={css.cell} value={c.comment ?? ""}
-                            placeholder={L("이 컬럼이 무엇인지", "what this column is")}
+                            placeholder={tA("admin.inline.erdTableModal.columnDescPlaceholder")}
                             onChange={(e) => setCols(draft.columns.map((x, j) =>
                               (j === i ? { ...x, comment: e.target.value || undefined } : x)))} />
                         </label>
@@ -418,11 +419,11 @@ export default function ErdTableModal({
         </div>
         <div className={css.colActions}>
           <Button variant="subtle" icon={<Plus size={14} />} onClick={addColumn}>
-            {L("컬럼 추가", "Add column")}
+            {tA("admin.inline.erdTableModal.addColumn")}
           </Button>
           {picked.size > 0 && (
             <Button variant="subtle" tone="danger" onClick={removePicked}>
-              {L(`선택 ${picked.size}개 삭제`, `Delete ${picked.size} selected`)}
+              {fillTemplate(tA("admin.inline.erdTableModal.deleteSelected"), { n: picked.size })}
             </Button>
           )}
         </div>
@@ -433,12 +434,12 @@ export default function ErdTableModal({
             chip 안 화살표는 늘 "참조하는 컬럼 → 참조되는 컬럼" 방향으로 고정한다. */}
       {(outgoing.length > 0 || incoming.length > 0) && (
         <div className={css.field}>
-          <span className={css.label}>{L("관계", "Relations")}</span>
+          <span className={css.label}>{tA("admin.inline.erdTableModal.relations")}</span>
 
           {outgoing.length > 0 && (
             <div className={css.relGroup}>
               <span className={css.relLabel}>
-                {L("이 테이블이 참조하는 곳", "References")}
+                {tA("admin.inline.erdTableModal.references")}
               </span>
               <div className={css.rels}>
                 {outgoing.map((r, i) => (
@@ -456,7 +457,7 @@ export default function ErdTableModal({
           {incoming.length > 0 && (
             <div className={css.relGroup}>
               <span className={css.relLabel}>
-                {L("이 테이블을 참조하는 곳", "Referenced by")}
+                {tA("admin.inline.erdTableModal.referencedBy")}
               </span>
               <div className={css.rels}>
                 {incoming.map((r, i) => (
@@ -488,25 +489,25 @@ export default function ErdTableModal({
                 const relCount = relations.filter((r) => r.from === table.name || r.to === table.name).length;
                 openModal(
                   <ModalConfirm
-                    desc={L(
-                      `"${table.name}" 테이블을 삭제합니다.${relCount > 0 ? ` 연결된 관계 ${relCount}개도 함께 사라집니다.` : ""} 되돌릴 수 없습니다.`,
-                      `Delete table "${table.name}".${relCount > 0 ? ` ${relCount} linked relation(s) will be removed as well.` : ""} This cannot be undone.`,
-                    )}
-                    confirmText={L("삭제", "Delete")}
+                    desc={fillTemplate(tA("admin.inline.erdTableModal.deleteTableConfirm"), {
+                      name: table.name,
+                      relations: relCount > 0 ? fillTemplate(tA("admin.inline.erdTableModal.deleteTableRelations"), { n: relCount }) : "",
+                    })}
+                    confirmText={tA("admin.inline.erdTableModal.delete")}
                     danger
                     onConfirm={() => { onDelete(table.name); closeModal(); }}
                   />,
                   { width: "min(90vw, 460px)" },
                 );
               }}>
-              {L("테이블 삭제", "Delete table")}
+              {tA("admin.inline.erdTableModal.deleteTable")}
             </Button>
             <span className={css.footerRight}>
               <Button variant="subtle" onClick={() => closeModal()}>
-                {L("취소", "Cancel")}
+                {tA("admin.inline.erdTableModal.cancel")}
               </Button>
               <Button variant="primary" onClick={commit}>
-                {L("저장", "Save")}
+                {tA("admin.inline.erdTableModal.save")}
               </Button>
             </span>
           </div>

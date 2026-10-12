@@ -37,7 +37,7 @@ import NumberInput from "@/components/ui/NumberInput";
 import { Slider } from "@/components/ui/Slider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import FloatingBar from "@/components/posts/plate/toolbars/FloatingBar";
-import { sec, mediaUrlOf, isVideoUrl, DESIGN_W, DESIGN_H, EditableText, type ThemeBg, useL } from "./studio/primitives";
+import { sec, mediaUrlOf, isVideoUrl, DESIGN_W, DESIGN_H, EditableText, type ThemeBg } from "./studio/primitives";
 import { PanelGroup, PanelManager } from "./studio/panels";
 import { AboutFontPicker, SwatchField, BgMedia } from "./studio/fields";
 import { OverviewBlock } from "./studio/blocks/OverviewBlock";
@@ -69,7 +69,6 @@ type AboutStudioProps = {
 /* ═══════════ 메인 ═══════════ */
 export default function AboutStudio({ config, setConfig, update, savedConfig, saveSection, revertSection, resetSection, savingPaths, t, themeBg, techStackSlot }: AboutStudioProps) {
   const badgeOf = useLangBadge();
-  const L = useL();
   const about = config.about;
   const rec = about as unknown as Record<string, string | undefined>;
   const [lang, setLang] = useState<Language>("ko");
@@ -182,11 +181,11 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
     textAlign: alignH,
   };
   const HERO_ELEMENTS: { key: string; label: string }[] = [
-    { key: "label", label: L("라벨", "Label") },
-    { key: "line1", label: L("제목 1행", "Title line 1") },
-    { key: "line2", label: L("제목 2행", "Title line 2") },
-    { key: "subtitle", label: L("서브타이틀", "Subtitle") },
-    { key: "watermark", label: L("워터마크", "Watermark") },
+    { key: "label", label: t("admin.inline.aboutStudio.label") },
+    { key: "line1", label: t("admin.inline.aboutStudio.titleLine1") },
+    { key: "line2", label: t("admin.inline.aboutStudio.titleLine2") },
+    { key: "subtitle", label: t("admin.inline.aboutStudio.subtitle") },
+    { key: "watermark", label: t("admin.inline.aboutStudio.watermark") },
   ];
   const toggleHeroHidden = (k: string) => {
     const s = new Set(heroHidden);
@@ -227,9 +226,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       const av = rec.heroAccentColor || "";
       return (
         <>
-          <span className={css.ttLabel}>{L("밑줄", "Underline")}</span>
+          <span className={css.ttLabel}>{t("admin.inline.aboutStudio.underline")}</span>
           <ColorPicker value={av || themeBg.accent} onChange={(c) => setAny("heroAccentColor", c.hex)}>
-            {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label={L("색상", "Color")} />}
+            {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label={t("admin.inline.aboutStudio.color")} />}
           </ColorPicker>
         </>
       );
@@ -244,9 +243,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       <>
         <span className={css.ttLabel}>{label}</span>
         <ColorPicker value={colorVal || fb} onChange={(c) => setAny(`${k}Color`, c.hex)}>
-          {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label={L("색상", "Color")} />}
+          {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label={t("admin.inline.aboutStudio.color")} />}
         </ColorPicker>
-        <NumberInput value={px} unit="px" width={46} ariaLabel={L("글자 크기", "Font size")}
+        <NumberInput value={px} unit="px" width={46} ariaLabel={t("admin.inline.aboutStudio.fontSize")}
           min={Math.round(cfg.min * 16)} max={Math.round(cfg.max * 16)} step={Math.max(1, Math.round(cfg.step * 16))}
           onCommit={(n) => setAny(`${k}FontSize`, `${Math.round((n / 16) * 1000) / 1000}rem`)} />
         <Select value={rec[`${k}FontWeight`] || "400"} onChange={(v) => setAny(`${k}FontWeight`, v)} options={WEIGHTS} />
@@ -278,7 +277,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
 
       {/* ── 패널 관리 (순서 DnD + 표시) ── 어느 패널을 어떤 순서로 낼지 먼저 정하고
            개별 내용으로 들어가는 흐름이라 맨 위에 둔다. ── */}
-      <PanelGroup label={L("패널 순서·표시", "Panel order & visibility")} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr}>
+      <PanelGroup label={t("admin.inline.aboutStudio.panelOrderVisibility")} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr}>
         <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
       </PanelGroup>
 
@@ -299,28 +298,28 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
             <div className={hero.heroContent} style={heroContentStyle}>
               {/* 워터마크 — 콘텐츠보다 먼저 그려 겹침 영역은 텍스트가 클릭 우선, 빈 영역에선 편집 가능 */}
               {!heroHidden.has("watermark") && (
-                <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title={L("워터마크", "Watermark")}>
+                <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title={t("admin.inline.aboutStudio.watermark")}>
                   <EditableText value={heroText("heroWatermark")} onChange={(v) => setHeroText("heroWatermark", v)}
-                    placeholder="watermark" ariaLabel={L("워터마크", "Watermark")} onFocus={(e) => openBar("heroWatermark", e)} />
+                    placeholder="watermark" ariaLabel={t("admin.inline.aboutStudio.watermark")} onFocus={(e) => openBar("heroWatermark", e)} />
                 </span>
               )}
               {!heroHidden.has("label") && (
                 <span className={hero.label} style={{ pointerEvents: "auto" }}>
                   <EditableText value={heroText("heroLabel") || t("aboutPage.title")} onChange={(v) => setHeroText("heroLabel", v)}
-                    placeholder={t("aboutPage.title")} ariaLabel={L("라벨", "Label")} />
+                    placeholder={t("aboutPage.title")} ariaLabel={t("admin.inline.aboutStudio.label")} />
                 </span>
               )}
               <h2 className={kin.title}>
                 {!heroHidden.has("line1") && (
                   <span className={kin.line}>
                     <EditableText value={heroText("heroLine1")} onChange={(v) => setHeroText("heroLine1", v)}
-                      placeholder={L("1번째 줄", "Line 1")} ariaLabel={L("1번째 줄", "Line 1")} onFocus={(e) => openBar("heroLine1", e)} />
+                      placeholder={t("admin.inline.aboutStudio.line1")} ariaLabel={t("admin.inline.aboutStudio.line1")} onFocus={(e) => openBar("heroLine1", e)} />
                   </span>
                 )}
                 {!heroHidden.has("line2") && (
                   <span className={kin.line}>
                     <EditableText value={heroText("heroLine2")} onChange={(v) => setHeroText("heroLine2", v)}
-                      placeholder={L("2번째 줄", "Line 2")} ariaLabel={L("2번째 줄", "Line 2")} onFocus={(e) => openBar("heroLine2", e)} />
+                      placeholder={t("admin.inline.aboutStudio.line2")} ariaLabel={t("admin.inline.aboutStudio.line2")} onFocus={(e) => openBar("heroLine2", e)} />
                   </span>
                 )}
               </h2>
@@ -328,10 +327,10 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 <p className={hero.heroSubtitle}>
                   <EditableText multiline value={heroText("heroSubtitle") || t("aboutPage.description")}
                     onChange={(v) => setHeroText("heroSubtitle", v)} placeholder={t("aboutPage.description")}
-                    ariaLabel={L("부제", "Subtitle")} onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
+                    ariaLabel={t("admin.inline.aboutStudio.subtitleLabel")} onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
                 </p>
               )}
-              <Pressable className={css.accentHit} title={L("밑줄 색", "Underline color")} aria-label={L("밑줄 색", "Underline color")}
+              <Pressable className={css.accentHit} title={t("admin.inline.aboutStudio.underlineColor")} aria-label={t("admin.inline.aboutStudio.underlineColor")}
                 onClick={(e) => { setActive("heroAccent"); activeElRef.current = e.currentTarget; }}>
                 <span className={hero.heroAccentLine} />
               </Pressable>
@@ -343,17 +342,17 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
             <Popover placement="bottom-end" trigger={<Button variant="difference" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
               <div className={css.layoutPanel}>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{L("가로 정렬", "Horizontal")}</span>
+                  <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.horizontal")}</span>
                   <SegmentedControl<"left" | "center" | "right"> value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
-                    items={[{ value: "left", label: L("좌", "L") }, { value: "center", label: L("중", "C") }, { value: "right", label: L("우", "R") }]} />
+                    items={[{ value: "left", label: t("admin.inline.aboutStudio.alignLeftShort") }, { value: "center", label: t("admin.inline.aboutStudio.alignCenterShort") }, { value: "right", label: t("admin.inline.aboutStudio.alignRightShort") }]} />
                 </div>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{L("세로 정렬", "Vertical")}</span>
+                  <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.vertical")}</span>
                   <SegmentedControl<"top" | "center" | "bottom"> value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
-                    items={[{ value: "top", label: L("상", "T") }, { value: "center", label: L("중", "M") }, { value: "bottom", label: L("하", "B") }]} />
+                    items={[{ value: "top", label: t("admin.inline.aboutStudio.alignTopShort") }, { value: "center", label: t("admin.inline.aboutStudio.alignMiddleShort") }, { value: "bottom", label: t("admin.inline.aboutStudio.alignBottomShort") }]} />
                 </div>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{L("표시 요소", "Elements")}</span>
+                  <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.elements")}</span>
                   <div className={css.stripChips}>
                     {HERO_ELEMENTS.map((el) => {
                       const on = !heroHidden.has(el.key);

@@ -5,7 +5,8 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, pointerWithin
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import css from "../AboutStudio.module.css";
-import { useL } from "./primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { GripVertical, Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
@@ -97,8 +98,8 @@ export function SortableItem({ index, children }: { index: number; children: (it
 
 /** 격자 항목의 손잡이. 이미지 위에 놓이는 항목은 variant="difference" */
 export function DragHandle({ handle, variant = "subtle" }: { handle: SortHandle; variant?: "subtle" | "difference" }) {
-  const L = useL();
-  const label = L("끌어서 순서 변경", "Drag to reorder");
+  const { t } = useLanguage();
+  const label = t("admin.inline.listControls.dragToReorder");
   return (
     <Button variant={variant} shape="circle" className={css.dragHandle} aria-label={label} title={label} data-cursor="grab" {...handle}>
       <GripVertical size={13} />
@@ -111,9 +112,9 @@ export function RemoveButton({ onClick, variant = "subtle", label }: {
   /** 무엇을 지우는지까지 말할 때 — "엔드포인트 삭제". 없으면 "삭제" */
   label?: string;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   return (
-    <Button variant={variant} shape="circle" onClick={onClick} aria-label={label ?? L("삭제", "Remove")}>
+    <Button variant={variant} shape="circle" onClick={onClick} aria-label={label ?? t("admin.inline.listControls.remove")}>
       <X size={13} />
     </Button>
   );
@@ -121,8 +122,8 @@ export function RemoveButton({ onClick, variant = "subtle", label }: {
 
 /** 한도에 닿으면 추가 단추 대신 보인다. 단추가 말없이 사라지면 왜 더 못 넣는지 알 수 없다. */
 export function ListLimit({ max }: { max: number }) {
-  const L = useL();
-  return <p className={css.listLimit}>{L(`최대 ${max}개까지 넣을 수 있습니다.`, `You can add up to ${max}.`)}</p>;
+  const { t } = useLanguage();
+  return <p className={css.listLimit}>{fillTemplate(t("admin.inline.listControls.maxItems"), { max })}</p>;
 }
 
 /**
@@ -146,11 +147,11 @@ export function ChipList({ items, onChange, addLabel, itemLabel, max, chipClassN
   /** 추가 캡슐 모양 */
   addClassName?: string;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const [editing, setEditing] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const atMax = max !== undefined && items.length >= max;
-  const dragLabel = L("끌어서 순서 변경", "Drag to reorder");
+  const dragLabel = t("admin.inline.listControls.dragToReorder");
 
   const commitEdit = (i: number, raw: string) => {
     const v = raw.trim();
@@ -174,7 +175,7 @@ export function ChipList({ items, onChange, addLabel, itemLabel, max, chipClassN
       <SortableList layout="flow" count={items.length} onMove={(from, to) => onChange(arrayMove(items, from, to))}>
         {items.map((v, i) => (editing === i ? (
           <input key={i} className={`${css.chipInput} ${chipClassName ?? ""}`} autoFocus defaultValue={v}
-            aria-label={L(`${itemLabel} 고치기`, `Edit ${itemLabel}`)}
+            aria-label={fillTemplate(t("admin.inline.listControls.editItem"), { item: itemLabel })}
             onBlur={(e) => commitEdit(i, e.target.value)}
             onKeyDown={(e) => onKey(e, () => setEditing(null))} />
         ) : (
@@ -193,7 +194,7 @@ export function ChipList({ items, onChange, addLabel, itemLabel, max, chipClassN
       {!atMax && (
         <span className={`${css.chipAdd} ${adding ? css.chipAddOpen : ""} ${addClassName ?? ""}`}>
           {adding ? (
-            <input className={css.chipAddInput} autoFocus aria-label={L(`추가할 ${itemLabel}`, `New ${itemLabel}`)}
+            <input className={css.chipAddInput} autoFocus aria-label={fillTemplate(t("admin.inline.listControls.newItem"), { item: itemLabel })}
               onBlur={(e) => commitAdd(e.target.value)}
               onKeyDown={(e) => onKey(e, () => setAdding(false))} />
           ) : (

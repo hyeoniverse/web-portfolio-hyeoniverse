@@ -940,7 +940,7 @@ REVOKE ALL ON service_logs FROM anon, authenticated;
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS content_translations (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  source_type text NOT NULL CHECK (source_type IN ('post', 'work', 'ui', 'site_ui', 'post_meta', 'work_meta', 'series_meta')),
+  source_type text NOT NULL CHECK (source_type IN ('post', 'work', 'ui', 'site_ui', 'post_meta', 'work_meta', 'series_meta', 'admin_text')),
   source_id   uuid NOT NULL,
   lang        text NOT NULL,
   fields      jsonb NOT NULL DEFAULT '{}',
