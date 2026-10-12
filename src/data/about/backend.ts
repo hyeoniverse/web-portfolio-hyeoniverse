@@ -417,8 +417,8 @@ const { error } = await admin.from("site_settings")
     name: "Members / Auth API",
     kind: "api",
     description: {
-      ko: "멀티 저자 인증·멤버 관리 API. GitHub OAuth 로그인, 이메일 초대, 역할 기반 접근 제어를 처리합니다. 역할(소유자 · 관리자 · 저자)은 auth.users.app_metadata 에 저장되며 서버에서만 갱신됩니다. 초대받지 않은 OAuth 로그인은 콜백에서 차단하고, 로그아웃은 모든 탭에 전파됩니다.",
-      en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner, admin, author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
+      ko: "멀티 저자 인증·멤버 관리 API. GitHub OAuth 로그인, 이메일 초대, 역할 기반 접근 제어를 처리합니다. 역할은 소유자와 저자 두 가지이고, 저자에게는 권한 레벨(1 자기 글 · 2 관리자: 모든 글과 중재)을 줍니다. 역할과 레벨은 auth.users.app_metadata 에 저장되며 서버에서만 갱신됩니다. 초대받지 않은 OAuth 로그인은 콜백에서 차단하고, 로그아웃은 모든 탭에 전파됩니다.",
+      en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. There are two roles, owner and author, and authors get a permission level (1: own posts, 2: admin — all posts and moderation). Both live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
     },
     designNote: {
       ko: "**인증 ≠ 인가**: OAuth 는 신원만 확인하므로, 콜백(`/auth/callback`)에서 세션 교환 직후 이메일이 `OWNER_EMAIL`·기존 역할·`author_invites` 초대 중 하나에 해당하는지 서버에서 재검사합니다. 아니면 `signOut()` + service_role `deleteUser()` 로 계정을 즉시 제거합니다. **역할은 `app_metadata`(service_role 전용)** 에만 저장해 클라이언트 조작을 원천 차단하고, 소유자는 `OWNER_EMAIL` env 로 부트스트랩합니다. **소유자 확정은 claim-and-close** — `OWNER_EMAIL` 소유자가 처음 로그인하면 `role=owner` 를 `app_metadata` 에 1회 못박아 이후 env 가 바뀌어도 소유권이 유지되고, `OWNER_EMAIL` 이 미설정이면 소유자를 판정할 수 없으므로 계정을 삭제하지 않고 설정 에러만 표시해 배포 초기 자기 삭제를 막습니다. 비소유자는 계정 탭만 접근 가능하며 설정 변경은 서버에서도 막습니다.",
