@@ -6,8 +6,9 @@
    지평선 위에 뜬 것만 그린다. 이름은 큰 별자리(rank 1 · 2)와 밝은 별만 적어 어지럽지 않게 한다.
    달은 그 시각의 위치 · 위상대로, 밝은 쪽이 해를 향하게 그린다(lib/weather/moon).
    하루 내내 깔려 있고 하늘이 밝을수록 흐릿하게, 어두울수록 또렷하게 보인다(TimeSky.module.css --night).
-   달은 낮에도 보이니 그 규칙에서 빼서 따로 한 장 더 겹친다 */
-import { memo, useMemo } from "react";
+   달은 낮에도 보이니 그 규칙에서 빼서 따로 한 장 더 겹친다. 화면 비율에 따라 가장자리가 잘려 나가므로(slice),
+   달이 보이는 범위 밖에 있으면 가장자리 안쪽으로 끌어와 그린다 */
+import { memo, useMemo, useSyncExternalStore } from "react";
 import { altAz, localSiderealHours } from "@/lib/weather/stars";
 import { moonLitPath, moonState } from "@/lib/weather/moon";
 import { SKY_CONSTELLATIONS, SKY_STAR_NAMES, SKY_STARS } from "@/data/generated/skyCatalog";
@@ -24,6 +25,17 @@ const HALF_FOV = 70;
 const HORIZON_Y = H * 0.86;
 /** 달 반지름(화면 단위) — 실제(0.5°)보다 크게, 모양이 보이게 */
 const MOON_R = 24;
+/** 끌어온 달이 가장자리에서 떨어지는 거리(화면 단위) — 위는 메뉴 막대 · 캡션을 피해 더 넉넉히 */
+const MOON_EDGE = MOON_R * 2;
+const MOON_EDGE_TOP = 120;
+
+/* 화면 가로 · 세로 비율 — 하늘은 화면에 고정된 층이라 창 크기가 곧 그림 크기다 */
+const subscribeAspect = (cb: () => void) => {
+  window.addEventListener("resize", cb);
+  return () => window.removeEventListener("resize", cb);
+};
+const getAspect = () => window.innerWidth / window.innerHeight;
+const getServerAspect = () => W / H;
 
 /** 적경(시) · 적위(도) → 단위 벡터 */
 const vec = (ra: number, dec: number): [number, number, number] => {
@@ -55,7 +67,7 @@ function StarChart({ date, lat, lon, language }: { date: Date; lat: number; lon:
       const { alt, az } = altAz(ra, dec, lat, lst);
       const r = raw(alt, az);
       const x = W / 2 + r.x * scale, y = cy - r.y * scale;
-      return { x, y, up: alt > 0 && r.cosc > -0.2 && x > -W * 0.2 && x < W * 1.2 };
+      return { x, y, alt, up: alt > 0 && r.cosc > -0.2 && x > -W * 0.2 && x < W * 1.2 };
     };
 
     const stars: { x: number; y: number; r: number }[] = [];
@@ -86,11 +98,12 @@ function StarChart({ date, lat, lon, language }: { date: Date; lat: number; lon:
 
     const names = SKY_STAR_NAMES.map((s) => ({ ...at(s.ra, s.dec), name: s[language] })).filter((s) => s.up);
 
-    /* 달 — 자리와, 밝은 쪽(해 쪽) 방향. 해 쪽으로 2° 옮긴 점을 같은 식으로 펴서 화면 위 방향을 잰다 */
+    /* 달 — 자리와, 밝은 쪽(해 쪽) 방향. 해 쪽으로 2° 옮긴 점을 같은 식으로 펴서 화면 위 방향을 잰다.
+       화면 밖이어도 지평선 위면 그린다 — 자리는 그릴 때 화면 안으로 끌어온다 */
     const m = moonState(date);
     const mp = at(m.ra, m.dec);
     let moon: { x: number; y: number; angle: number; illum: number } | null = null;
-    if (mp.up) {
+    if (mp.alt > 0) {
       const mv = vec(m.ra, m.dec), sv = vec(m.sunRa, m.sunDec);
       const dot = mv[0] * sv[0] + mv[1] * sv[1] + mv[2] * sv[2];
       const toward: [number, number, number] = [0, 1, 2].map((i) => mv[i] + 0.035 * (sv[i] - dot * mv[i])) as [number, number, number];
@@ -121,16 +134,27 @@ function StarChart({ date, lat, lon, language }: { date: Date; lat: number; lon:
           ) : null,
         )}
       </svg>
-      {sky.moon && (
-        <svg className={styles.moonLayer} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
-          <g className={styles.moon} transform={`translate(${sky.moon.x.toFixed(1)} ${sky.moon.y.toFixed(1)}) rotate(${sky.moon.angle.toFixed(1)})`}>
-            {/* 어두운 쪽 — 지구빛에 희미하게 비치는 원 */}
-            <circle className={styles.moonDark} r={MOON_R} />
-            {sky.moon.illum > 0.01 && <path className={styles.moonLit} d={moonLitPath(sky.moon.illum, MOON_R)} />}
-          </g>
-        </svg>
-      )}
+      {sky.moon && <Moon {...sky.moon} />}
     </>
+  );
+}
+
+/** 달 — 화면에 보이는 범위(slice 로 잘리고 남은 곳) 안으로 자리를 끌어와 그린다 */
+function Moon({ x, y, angle, illum }: { x: number; y: number; angle: number; illum: number }) {
+  const aspect = useSyncExternalStore(subscribeAspect, getAspect, getServerAspect);
+  /* 보이는 범위의 반 너비 · 반 높이 — 화면이 그림보다 길쭉하면 좌우가, 납작하면 위아래가 잘린다 */
+  const hw = Math.min(W, H * aspect) / 2;
+  const hh = Math.min(H, W / aspect) / 2;
+  const cx = Math.min(W / 2 + hw - MOON_EDGE, Math.max(W / 2 - hw + MOON_EDGE, x));
+  const cy = Math.min(H / 2 + hh - MOON_EDGE, Math.max(H / 2 - hh + MOON_EDGE_TOP, y));
+  return (
+    <svg className={styles.moonLayer} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
+      <g className={styles.moon} transform={`translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${angle.toFixed(1)})`}>
+        {/* 어두운 쪽 — 지구빛에 희미하게 비치는 원 */}
+        <circle className={styles.moonDark} r={MOON_R} />
+        {illum > 0.01 && <path className={styles.moonLit} d={moonLitPath(illum, MOON_R)} />}
+      </g>
+    </svg>
   );
 }
 
