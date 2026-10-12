@@ -1,5 +1,7 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
+import { fillTemplate } from "@/utils/format";
 import type { Dispatch, SetStateAction } from "react";
 import { Plus, Trash2 } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -36,12 +38,12 @@ const MAX_STORIES = 5;
 const MAX_STORY_CHARS = 200;
 
 /** 창 key ↔ 화면에서 부르는 이름. key 만 보여주면 어느 창인지 알 수 없다. */
-const BLOCK_NAMES: Record<string, { ko: string; en: string }> = {
-  c: { ko: "소개 카드", en: "About card" },
-  e1: { ko: "이스터에그 · 콘솔", en: "Easter egg · console" },
-  e2: { ko: "이스터에그 · 작업 환경", en: "Easter egg · setup" },
-  e3: { ko: "이스터에그 · 잡담", en: "Easter egg · small talk" },
-  e4: { ko: "이스터에그 · 비밀", en: "Easter egg · secret" },
+const BLOCK_NAMES: Record<string, string> = {
+  c: "admin.inline.profilePanelsEditor.blockAboutCard",
+  e1: "admin.inline.profilePanelsEditor.blockEasterConsole",
+  e2: "admin.inline.profilePanelsEditor.blockEasterSetup",
+  e3: "admin.inline.profilePanelsEditor.blockEasterSmallTalk",
+  e4: "admin.inline.profilePanelsEditor.blockEasterSecret",
 };
 
 export default function ProfilePanelsEditor({
@@ -54,8 +56,8 @@ export default function ProfilePanelsEditor({
   styles: Record<string, string>;
   shared: Record<string, string>;
 }) {
-  const { language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const srcBadge = useSourceBadge();
+  const { t } = useLanguage();
 
   const bunny = data.bunny ?? bunnyProfile;
   const blocks = data.infoBlocks ?? profileInfoBlocks;
@@ -85,12 +87,12 @@ export default function ProfilePanelsEditor({
         <>
           {/* maxHint — 카운터가 뜨고 한도를 넘긴 글자에 표시가 붙는다. 잘라내지는 않아서
               쓰는 도중에 문장이 끊기지 않고, 넘겼다는 건 바로 보인다. */}
-          <Textarea size="md" inlineLabel="KO" maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} rows={2} />
+          <Textarea size="md" inlineLabel={srcBadge} maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} rows={2} />
           <Textarea size="md" inlineLabel="EN" maxHint={MAX_STORY_CHARS} value={value.en} onChange={(v) => onChange({ ...value, en: v })} rows={2} />
         </>
       ) : (
         <>
-          <Input inlineLabel="KO" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
+          <Input inlineLabel={srcBadge} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
           <Input inlineLabel="EN" value={value.en} onChange={(v) => onChange({ ...value, en: v })} />
         </>
       )}
@@ -108,22 +110,19 @@ export default function ProfilePanelsEditor({
           customActions={<ProfileSectionActions keys={["bunny"]} />}
         />
         <p className={outer.sectionHint}>
-          {L(
-            "몽이를 소개하는 패널의 문구입니다. 표정 버튼의 이름은 번역 파일에서 관리합니다.",
-            "Copy for the panel that introduces Mongi. The expression button labels live in the translation files.",
-          )}
+          {t("admin.inline.profilePanelsEditor.copyForThePanel")}
         </p>
 
         <div className={outer.fields}>
-          <FieldRow label={L("이름", "Name")}>{pair(bunny.name, (v) => patchBunny({ name: v }))}</FieldRow>
-          <FieldRow label={L("한 줄 소개", "Subtitle")}>
+          <FieldRow label={t("admin.inline.profilePanelsEditor.name")}>{pair(bunny.name, (v) => patchBunny({ name: v }))}</FieldRow>
+          <FieldRow label={t("admin.inline.profilePanelsEditor.subtitle")}>
             {pair(bunny.subtitle, (v) => patchBunny({ subtitle: v }))}
           </FieldRow>
         </div>
 
         <div className={styles.listHead}>
           <span className={`${outer.sectionSubTitle} ${styles.listLabel}`}>
-            {L("소개 문단", "Story paragraphs")}
+            {t("admin.inline.profilePanelsEditor.storyParagraphs")}
             <span className={styles.listCount}>
               {bunny.stories.length} / {MAX_STORIES}
             </span>
@@ -134,7 +133,7 @@ export default function ProfilePanelsEditor({
             disabled={bunny.stories.length >= MAX_STORIES}
             title={
               bunny.stories.length >= MAX_STORIES
-                ? L(`문단은 ${MAX_STORIES}개까지 넣을 수 있습니다.`, `Up to ${MAX_STORIES} paragraphs.`)
+                ? fillTemplate(t("admin.inline.profilePanelsEditor.upToMaxStories"), { MAX_STORIES })
                 : undefined
             }
             onClick={() =>
@@ -145,13 +144,13 @@ export default function ProfilePanelsEditor({
               )
             }
           >
-            {L("문단 추가", "Add paragraph")}
+            {t("admin.inline.profilePanelsEditor.addParagraph")}
           </Button>
         </div>
 
         {bunny.stories.length === 0 ? (
           <EmptyState size="xs" pad="sm">
-            {L("문단이 없습니다.", "No paragraphs yet.")}
+            {t("admin.inline.profilePanelsEditor.noParagraphsYet")}
           </EmptyState>
         ) : (
           <ol className={styles.storyList}>
@@ -165,7 +164,7 @@ export default function ProfilePanelsEditor({
                   shape="circle"
                   className={styles.removeBtn}
                   icon={<Trash2 size={13} strokeWidth={1.8} />}
-                  aria-label={L("문단 삭제", "Remove paragraph")}
+                  aria-label={t("admin.inline.profilePanelsEditor.removeParagraph")}
                   onClick={() => setStories(bunny.stories.filter((_, j) => j !== i))}
                 />
               </li>
@@ -184,15 +183,12 @@ export default function ProfilePanelsEditor({
           customActions={<ProfileSectionActions keys={["infoBlocks"]} />}
         />
         <p className={outer.sectionHint}>
-          {L(
-            "프로필 패널에 떠 있는 정보 창의 내용입니다. 이름·역할·연락처 창은 일반 탭의 계정 정보를 씁니다.",
-            "Content of the floating info windows. The name/role/contact window uses the account info from the General tab.",
-          )}
+          {t("admin.inline.profilePanelsEditor.contentOfTheFloating")}
         </p>
 
         {blocks.length === 0 ? (
           <EmptyState size="xs" pad="sm">
-            {L("정보 창이 없습니다.", "No info windows yet.")}
+            {t("admin.inline.profilePanelsEditor.noInfoWindowsYet")}
           </EmptyState>
         ) : (
           <div className={styles.cards}>
@@ -202,7 +198,7 @@ export default function ProfilePanelsEditor({
                   {/* key(c·e1…)는 코드의 자리와 짝짓는 내부 식별자다. 화면에서 고칠 수도
                       없고 뜻도 없어 이름만 보여준다. */}
                   <span className={`${outer.sectionSubTitle} ${styles.cardTitle}`}>
-                    {BLOCK_NAMES[block.key] ? L(BLOCK_NAMES[block.key].ko, BLOCK_NAMES[block.key].en) : block.key}
+                    {BLOCK_NAMES[block.key] ? t(BLOCK_NAMES[block.key]) : block.key}
                   </span>
                   <Button
                     variant="outline"
@@ -215,13 +211,13 @@ export default function ProfilePanelsEditor({
                       )
                     }
                   >
-                    {L("줄 추가", "Add line")}
+                    {t("admin.inline.profilePanelsEditor.addLine")}
                   </Button>
                 </div>
 
                 {block.lines.length === 0 ? (
                   <EmptyState size="xs" pad="sm">
-                    {L("줄이 없습니다.", "No lines yet.")}
+                    {t("admin.inline.profilePanelsEditor.noLinesYet")}
                   </EmptyState>
                 ) : (
                   <ul className={styles.lines}>
@@ -236,21 +232,21 @@ export default function ProfilePanelsEditor({
                           clearable={false}
                           value={line.label}
                           onChange={(v) => patchBlockLine(bi, li, { label: v })}
-                          placeholder={L("항목", "Label")}
+                          placeholder={t("admin.inline.profilePanelsEditor.label")}
                         />
                         <Input
                           variant="underline"
                           clearable={false}
                           value={line.value}
                           onChange={(v) => patchBlockLine(bi, li, { value: v })}
-                          placeholder={L("내용", "Value")}
+                          placeholder={t("admin.inline.profilePanelsEditor.value")}
                         />
                         <Button
                           variant="ghost"
                           shape="circle"
                           className={styles.removeBtn}
                           icon={<Trash2 size={13} strokeWidth={1.8} />}
-                          aria-label={L("줄 삭제", "Remove line")}
+                          aria-label={t("admin.inline.profilePanelsEditor.removeLine")}
                           onClick={() =>
                             setBlocks(
                               blocks.map((b, i) =>

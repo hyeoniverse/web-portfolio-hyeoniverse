@@ -180,8 +180,6 @@
     "codeScrollTitle": "Switch to horizontal scroll",
     "codeCopy": "Copy",
     "codeCopied": "Copied",
-    "codeExpand": "Expand · {{n}} lines",
-    "codeCollapse": "Collapse",
     "mermaidViewCode": "View code",
     "mermaidHideCode": "Hide code",
     "cancel": "Cancel",

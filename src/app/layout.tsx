@@ -32,6 +32,8 @@ import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { toSiteWideConfig } from "@/config/siteWideConfig";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPublicKeys } from "@/lib/getSecret";
+import { baseLanguageOf, normalizeSiteLanguage } from "@/lib/siteLanguage";
+import { readDefaultLangUi } from "@/lib/api/defaultLangUi";
 
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
@@ -161,10 +163,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const [config, publicKeys] = await Promise.all([getSiteConfig(), getPublicKeys()]);
+  /* 사이트 기본 언어(#1406) — 서버는 ko 면 한국어, 그 밖은 영어로 그린다. ko · en 밖의 언어는 브라우저가 번역을 건 뒤
+     SiteTranslationProvider 가 <html lang> 을 그 언어로 바꾼다 */
+  const siteLanguage = normalizeSiteLanguage(config.metadata.defaultLanguage);
+  /* 기본 언어(ko · en 밖)의 화면 글을 설정 저장 때 미리 번역해 뒀으면 서버도 그 언어로 그린다 */
+  const defaultUi = await readDefaultLangUi(siteLanguage);
 
   return (
     <html
-      lang="ko"
+      lang={defaultUi ? siteLanguage : baseLanguageOf(siteLanguage)}
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${serifKr.variable}`}
     >
@@ -185,7 +192,7 @@ export default async function RootLayout({
             <FaviconSync version={faviconVersion(config.brand)} />
             {/* 상태줄 뒤 색(theme-color · MacFolio 창의 bar-color)을 화면 맨 위 배경에 맞춘다 */}
             <BarColorSync />
-            <LanguageProvider>
+            <LanguageProvider siteLanguage={siteLanguage} defaultUi={defaultUi}>
               {/* 사이트 전체 "다른 언어로 보기" — 화면 글 번역을 받아 두고 <html lang> 을 맞춘다(그리는 것 없음) */}
               <SiteTranslationProvider />
               <RecaptchaProvider>

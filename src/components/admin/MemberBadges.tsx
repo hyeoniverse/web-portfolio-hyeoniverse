@@ -8,27 +8,27 @@ import styles from "./MembersList.module.css";
 
 /** 멤버 역할/로그인수단 배지 — MembersList 와 AuthorsEditor 공용. */
 
-const ROLE_META: Record<MemberRole, { ko: string; en: string; icon: typeof Crown; cls: string }> = {
-  owner: { ko: "소유자", en: "Owner", icon: Crown, cls: "roleOwner" },
-  admin: { ko: "관리자", en: "Admin", icon: ShieldCheck, cls: "roleAdmin" },
-  author: { ko: "작성자", en: "Author", icon: PenLine, cls: "roleAuthor" },
-  member: { ko: "멤버", en: "Member", icon: UserRound, cls: "roleMember" },
+const ROLE_META: Record<MemberRole, { labelKey: string; icon: typeof Crown; cls: string }> = {
+  owner: { labelKey: "admin.inline.memberBadges.roleOwner", icon: Crown, cls: "roleOwner" },
+  admin: { labelKey: "admin.inline.memberBadges.roleAdmin", icon: ShieldCheck, cls: "roleAdmin" },
+  author: { labelKey: "admin.inline.memberBadges.roleAuthor", icon: PenLine, cls: "roleAuthor" },
+  member: { labelKey: "admin.inline.memberBadges.roleMember", icon: UserRound, cls: "roleMember" },
 };
 
 export function RoleBadge({ role }: { role: MemberRole }) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const rm = ROLE_META[role];
   const Icon = rm.icon;
   return (
     <span className={`${styles.role} ${styles[rm.cls]}`}>
       <Icon size={11} strokeWidth={2} />
-      {language === "ko" ? rm.ko : rm.en}
+      {t(rm.labelKey)}
     </span>
   );
 }
 
 export function ProviderChips({ providers }: { providers: string[] }) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   if (providers.length === 0) return null;
   return (
     <>
@@ -37,21 +37,21 @@ export function ProviderChips({ providers }: { providers: string[] }) {
           <span
             key={p}
             className={styles.provider}
-            title={language === "ko" ? "GitHub 계정으로 로그인할 수 있습니다." : "Can sign in with GitHub."}
+            title={t("admin.inline.memberBadges.githubLoginTip")}
           >
             {/* 수단 아이콘 대신 체크 배지 — "연결돼 사용 가능" 상태임을 모양으로 말한다.
                라벨도 수단 이름만이 아니라 상태까지 — "OAuth 미연결" 배지와 짝이 되는 문구 */}
             <RiVerifiedBadgeFill size={12} aria-hidden />
-            {language === "ko" ? "GitHub 연결됨" : "GitHub linked"}
+            {t("admin.inline.memberBadges.githubLinked")}
           </span>
         ) : (
           <span
             key={p}
             className={styles.provider}
-            title={language === "ko" ? "이메일과 비밀번호로 로그인할 수 있습니다." : "Can sign in with email and password."}
+            title={t("admin.inline.memberBadges.emailLoginTip")}
           >
             <RiVerifiedBadgeFill size={12} aria-hidden />
-            {language === "ko" ? "이메일 로그인 가능" : "Email login enabled"}
+            {t("admin.inline.memberBadges.emailLoginEnabled")}
           </span>
         ),
       )}
@@ -62,14 +62,14 @@ export function ProviderChips({ providers }: { providers: string[] }) {
 /** GitHub OAuth 미연결 배지 — 연결 배지(채운 체크)와 짝이 되는 빈 체크 아이콘.
  *  AuthorsEditor 행과 MemberDetailModal 이 같이 쓴다(전에는 각자 span 을 복붙했다). */
 export function ProviderUnlinkedBadge() {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   return (
     <span
       className={`${styles.role} ${styles.rolePendingBadge}`}
-      title={language === "ko" ? "GitHub 계정으로 로그인한 적이 없습니다." : "Has never signed in with GitHub."}
+      title={t("admin.inline.memberBadges.githubNeverSignedInTip")}
     >
       <RiVerifiedBadgeLine size={12} aria-hidden />
-      {language === "ko" ? "OAuth 미연결" : "OAuth not linked"}
+      {t("admin.inline.memberBadges.oauthNotLinked")}
     </span>
   );
 }

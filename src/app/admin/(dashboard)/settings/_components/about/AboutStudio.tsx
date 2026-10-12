@@ -15,7 +15,6 @@ import st from "./AboutStudio.module.css";
 import ArchDiagramEditor from "./ArchDiagramEditor";
 import { erdTables as staticErdTables, erdRelations as staticErdRelations } from "@/data/about/erd";
 import { userFlows } from "@/data/about/architecture";
-import type { L10n } from "@/app/about/_data/showcase";
 import { ABOUT_TEXT_DEFAULTS, type AboutChapterKey } from "@/app/about/_data/texts";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import { type SiteConfigData } from "@/config/site.config";
@@ -24,7 +23,6 @@ import { deepEqual, getByPath } from "../../_data/settingsConstants";
 import Input from "@/components/ui/Input";
 import Pressable from "@/components/ui/Pressable";
 import { PanelGroup } from "./studio/panels";
-import { useL } from "./studio/primitives";
 import { SceneEditor, countSceneMatches } from "./studio/blocks/SceneEditor";
 import PreviewPane from "./studio/PreviewPane";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -33,24 +31,24 @@ import { ErdBlock } from "./studio/blocks/ErdBlock";
 
 /* 장 — 페이지의 차례(목차) 그대로. 랜딩 조각(첫 화면 단추 · 신뢰 · 자주 묻는 질문 · 마지막 단추 · 크레딧)은 끝에 모은다 */
 /* anchor — 미리보기 카메라가 갈 목차 앵커 */
-const CHAPTERS: { key: AboutChapterKey; label: L10n; anchor: string }[] = [
-  { key: "showcase", label: { ko: "첫 화면 · 한눈에 보기", en: "Opening · At a glance" }, anchor: "#facts" },
-  { key: "features", label: { ko: "기능", en: "Features" }, anchor: "#features" },
-  { key: "ai", label: { ko: "AI", en: "AI" }, anchor: "#ai" },
-  { key: "architecture", label: { ko: "구조", en: "Architecture" }, anchor: "#architecture" },
-  { key: "journeys", label: { ko: "API 요청 길", en: "API journeys" }, anchor: "#architecture" },
-  { key: "decisions", label: { ko: "설계 결정 · 보안", en: "Decisions · Security" }, anchor: "#decisions" },
-  { key: "design", label: { ko: "디자인", en: "Design" }, anchor: "#design" },
-  { key: "code", label: { ko: "코드", en: "Code" }, anchor: "#code" },
-  { key: "making", label: { ko: "만든 과정", en: "Making of" }, anchor: "#making" },
-  { key: "landing", label: { ko: "신뢰 · 질문 · 단추 · 크레딧", en: "Trust · FAQ · CTAs · Credits" }, anchor: "#trust" },
+const CHAPTERS: { key: AboutChapterKey; anchor: string }[] = [
+  { key: "showcase", anchor: "#facts" },
+  { key: "features", anchor: "#features" },
+  { key: "ai", anchor: "#ai" },
+  { key: "architecture", anchor: "#architecture" },
+  { key: "journeys", anchor: "#architecture" },
+  { key: "decisions", anchor: "#decisions" },
+  { key: "design", anchor: "#design" },
+  { key: "code", anchor: "#code" },
+  { key: "making", anchor: "#making" },
+  { key: "landing", anchor: "#trust" },
 ];
 
 type FigureKey = "graph" | "flows" | "erd";
-const FIGURES: { key: FigureKey; label: L10n; paths: string[] }[] = [
-  { key: "graph", label: { ko: "기술 그래프", en: "Tech graph" }, paths: ["about.archDiagram"] },
-  { key: "flows", label: { ko: "사용자 흐름", en: "User flows" }, paths: ["about.userFlows"] },
-  { key: "erd", label: { ko: "DB 설계", en: "Database design" }, paths: ["about.erdTables", "about.erdRelations"] },
+const FIGURES: { key: FigureKey; paths: string[] }[] = [
+  { key: "graph", paths: ["about.archDiagram"] },
+  { key: "flows", paths: ["about.userFlows"] },
+  { key: "erd", paths: ["about.erdTables", "about.erdRelations"] },
 ];
 
 const WIDE = "(width >= 1280px)";
@@ -74,8 +72,9 @@ type AboutStudioProps = {
 };
 
 export default function AboutStudio({ config, update, savedConfig, saveSection, revertSection, resetSection, savingPaths, t }: AboutStudioProps) {
-  const L = useL();
-  const { language } = useLanguage();
+  const { t: tr, language } = useLanguage();
+  /* 화면 글 — 사전의 admin.inline.aboutStudio.* */
+  const T = (k: string) => tr(`admin.inline.aboutStudio.${k}`);
   const about = config.about;
   const texts = about.texts ?? {};
   const [view, setView] = useState<View>({ kind: "texts", key: "showcase" });
@@ -84,7 +83,8 @@ export default function AboutStudio({ config, update, savedConfig, saveSection, 
   const wide = useSyncExternalStore(subscribeWide, () => window.matchMedia(WIDE).matches, () => false);
   const [previewPref, setPreview] = useState<boolean | null>(null);
   const preview = previewPref ?? wide;
-  const pick = (v: L10n) => (language === "ko" ? v.ko : v.en);
+  const chapterLabel = (k: string) => T(`chapter.${k}`);
+  const figureLabel = (k: string) => T(`figure.${k}`);
 
   const setAny = (key: string, value: unknown) =>
     update("about", key as keyof SiteConfigData["about"], value as SiteConfigData["about"][keyof SiteConfigData["about"]]);
@@ -103,7 +103,7 @@ export default function AboutStudio({ config, update, savedConfig, saveSection, 
         aria-current={on ? "page" : undefined}>
         <span className={st.navLabel}>{label}</span>
         {meta.count != null && meta.count > 0 && <span className={st.navCount}>{meta.count}</span>}
-        {meta.dirty && <span className={st.navDirty} aria-label={L("저장 안 됨", "Unsaved")} />}
+        {meta.dirty && <span className={st.navDirty} aria-label={T("unsaved")} />}
       </Pressable>
     </li>
   );
@@ -113,28 +113,28 @@ export default function AboutStudio({ config, update, savedConfig, saveSection, 
 
   return (
     <div className={st.studio} data-preview={preview || undefined} style={{ gridColumn: "1 / -1" }}>
-      <nav className={st.nav} aria-label={L("About 편집할 곳", "About sections")}>
-        <Input value={query} onChange={setQuery} size="sm" placeholder={L("글 찾기", "Find text")}
-          aria-label={L("글 찾기", "Find text")}
+      <nav className={st.nav} aria-label={T("navLabel")}>
+        <Input value={query} onChange={setQuery} size="sm" placeholder={T("findText")}
+          aria-label={T("findText")}
           onFocus={() => { if (view.kind !== "texts") setView({ kind: "texts", key: "showcase" }); }} />
-        <p className={st.navHead}>{L("페이지 글", "Page text")}</p>
+        <p className={st.navHead}>{T("pageText")}</p>
         <ul className={st.navList}>
           {CHAPTERS.map((c) => {
             const m = matches(c.key);
-            return navItem(c.key, pick(c.label), view.kind === "texts" && view.key === c.key,
+            return navItem(c.key, chapterLabel(c.key), view.kind === "texts" && view.key === c.key,
               () => setView({ kind: "texts", key: c.key }),
               { dirty: dirty([`about.texts.${c.key}`]), count: q ? m : edits(c.key), dim: !!q && m === 0 });
           })}
         </ul>
-        <p className={st.navHead}>{L("구조 장의 그림", "Architecture figures")}</p>
+        <p className={st.navHead}>{T("figures")}</p>
         <ul className={st.navList}>
-          {FIGURES.map((f) => navItem(f.key, pick(f.label), view.kind === "figure" && view.key === f.key,
+          {FIGURES.map((f) => navItem(f.key, figureLabel(f.key), view.kind === "figure" && view.key === f.key,
             () => setView({ kind: "figure", key: f.key }), { dirty: dirty(f.paths) }))}
         </ul>
         <div className={st.navPreview}>
-          <span className={st.navHead}>{L("미리보기", "Preview")}</span>
+          <span className={st.navHead}>{T("preview")}</span>
           <SegmentedControl<"on" | "off"> value={preview ? "on" : "off"} onChange={(v) => setPreview(v === "on")}
-            items={[{ value: "on", label: L("켜기", "On") }, { value: "off", label: L("끄기", "Off") }]} />
+            items={[{ value: "on", label: T("on") }, { value: "off", label: T("off") }]} />
         </div>
         <p className={st.navHint}>{t("admin.settings.aboutStudioHint")}</p>
       </nav>
@@ -147,28 +147,28 @@ export default function AboutStudio({ config, update, savedConfig, saveSection, 
 
       <div className={st.main}>
         {chapter && (
-          <PanelGroup key={chapter.key} label={pick(chapter.label)} paths={[`about.texts.${chapter.key}`]} panelKey={`texts-${chapter.key}`} {...saveHdr}>
+          <PanelGroup key={chapter.key} label={chapterLabel(chapter.key)} paths={[`about.texts.${chapter.key}`]} panelKey={`texts-${chapter.key}`} {...saveHdr}>
             <SceneEditor key={chapter.key} chapter={chapter.key} defaults={ABOUT_TEXT_DEFAULTS[chapter.key]} value={texts[chapter.key] ?? {}} query={query}
               onChange={(v) => setAny("texts", { ...texts, [chapter.key]: v })} />
           </PanelGroup>
         )}
 
         {figure?.key === "graph" && (
-          <PanelGroup label={pick(figure.label)} paths={figure.paths} panelKey="architecture" {...saveHdr}>
+          <PanelGroup label={figureLabel(figure.key)} paths={figure.paths} panelKey="architecture" {...saveHdr}>
             <ArchDiagramEditor value={about.archDiagram ?? { nodes: [], edges: [] }} onChange={(v) => setAny("archDiagram", v)} />
           </PanelGroup>
         )}
 
         {figure?.key === "flows" && (
-          <PanelGroup label={pick(figure.label)} paths={figure.paths} panelKey="userflow" {...saveHdr}>
+          <PanelGroup label={figureLabel(figure.key)} paths={figure.paths} panelKey="userflow" {...saveHdr}>
             <UserFlowBlock onChange={(v) => setAny("userFlows", v)}
               value={about.userFlows?.length ? about.userFlows : userFlows} />
           </PanelGroup>
         )}
 
         {figure?.key === "erd" && (
-          <PanelGroup label={pick(figure.label)} paths={figure.paths} panelKey="erd" {...saveHdr}>
-            <ErdBlock lang={language === "ko" ? "ko" : "en"}
+          <PanelGroup label={figureLabel(figure.key)} paths={figure.paths} panelKey="erd" {...saveHdr}>
+            <ErdBlock lang={language}
               tables={about.erdTables?.length ? about.erdTables : staticErdTables}
               relations={about.erdTables?.length ? about.erdRelations ?? [] : staticErdRelations}
               onChange={(tb, rl) => { setAny("erdTables", tb); setAny("erdRelations", rl); }} />

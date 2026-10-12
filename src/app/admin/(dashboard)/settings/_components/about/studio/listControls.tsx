@@ -5,7 +5,8 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, pointerWithin
 import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import css from "../AboutStudio.module.css";
-import { useL } from "./primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 /* About 편집 블록이 목록을 다루는 공통 방식 — 추가는 목록 끝, 삭제는 항목의 ×, 순서는 손잡이를 끌어서.
    항목의 손잡이와 ×는 오른쪽 위 도구 묶음(.itemTools)에 둔다. 마우스를 올리거나 키보드로 항목에
@@ -93,7 +94,7 @@ export function SortableItem({ index, children }: { index: number; children: (it
 
 /** 한도에 닿으면 추가 단추 대신 보인다. 단추가 말없이 사라지면 왜 더 못 넣는지 알 수 없다. */
 export function ListLimit({ max }: { max: number }) {
-  const L = useL();
-  return <p className={css.listLimit}>{L(`최대 ${max}개까지 넣을 수 있습니다.`, `You can add up to ${max}.`)}</p>;
+  const { t } = useLanguage();
+  return <p className={css.listLimit}>{fillTemplate(t("admin.inline.listControls.maxItems"), { max })}</p>;
 }
 

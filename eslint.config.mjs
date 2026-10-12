@@ -1,6 +1,47 @@
 import coreWebVitals from "eslint-config-next/core-web-vitals";
 import typescript from "eslint-config-next/typescript";
 
+/* 토큰 이름 규칙 — 모든 파일. 관리 화면 블록이 같은 rule 에 선택자를 더할 때도 펼쳐 쓴다 */
+const SHARED_RESTRICTED_SYNTAX = [
+  {
+    selector: String.raw`Literal[value=/var\(--font-size-(11|12|13|14)\)/]`,
+    message:
+      "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
+  },
+  {
+    selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(11|12|13|14)\)/]`,
+    message:
+      "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
+  },
+  {
+    selector: String.raw`Literal[value=/var\(--radius-(2|4|6|8|12|16)\)/]`,
+    message:
+      "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
+  },
+  {
+    selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2|4|6|8|12|16)\)/]`,
+    message:
+      "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
+  },
+  {
+    selector: String.raw`Literal[value=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
+    message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
+  },
+  {
+    selector: String.raw`TemplateElement[value.raw=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
+    message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
+  },
+];
+
+/* 관리 화면 다국어 — 화면 글은 t("admin.…") 로. 한글이 든 글을 코드에 직접 적지 않는다(#1405) */
+const I18N_MESSAGE = "관리 화면 글은 사전(src/locales/ko.admin.json · en.admin.json)에 키로 두고 t() 로 부릅니다 — 코드에 직접 적은 글은 다른 언어로 번역되지 않습니다(#1405).";
+const ADMIN_I18N_SYNTAX = [
+  { selector: "CallExpression[callee.name=/^(L|useL)$/]", message: I18N_MESSAGE },
+  { selector: String.raw`JSXText[value=/[가-힣]/]`, message: I18N_MESSAGE },
+  { selector: String.raw`Literal[value=/[가-힣]/]`, message: I18N_MESSAGE },
+  { selector: String.raw`TemplateElement[value.raw=/[가-힣]/]`, message: I18N_MESSAGE },
+]
+
 const eslintConfig = [
   {
     // Playwright 실행 산출물 — 리포트에 번들된 서드파티 JS 라 린트 대상이 아니다.
@@ -31,37 +72,7 @@ const eslintConfig = [
           ],
         },
       ],
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: String.raw`Literal[value=/var\(--font-size-(11|12|13|14)\)/]`,
-          message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
-        },
-        {
-          selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(11|12|13|14)\)/]`,
-          message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
-        },
-        {
-          selector: String.raw`Literal[value=/var\(--radius-(2|4|6|8|12|16)\)/]`,
-          message:
-            "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
-        },
-        {
-          selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2|4|6|8|12|16)\)/]`,
-          message:
-            "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
-        },
-        {
-          selector: String.raw`Literal[value=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
-          message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
-        },
-        {
-          selector: String.raw`TemplateElement[value.raw=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
-          message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...SHARED_RESTRICTED_SYNTAX],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
@@ -152,6 +163,16 @@ const eslintConfig = [
          맞추려면 deps 를 덜 정확하게 만들어야 하고, 그건 메모를 더 자주 무효화한다.
          Compiler 를 도입하기로 하면 그때 이 목록이 할 일이 된다. */
       "react-hooks/preserve-manual-memoization": "warn",
+    },
+  },
+  {
+    /* 관리 화면의 글은 사전(locales/*.admin.json)에 둔다 — 코드에 직접 적은 한/영 글은 다른 언어로 볼 때
+       번역되지 않고 영어로 남는다(#1405, 727곳을 옮겼다). 다시 쌓이지 않게 막는다.
+       날짜 locale 고르기(language === "ko" ? "ko-KR" : …) 같은 값 분기는 한글이 없어 걸리지 않는다.
+       같은 rule 을 다시 적으면 위 목록을 덮어쓰므로 공용 선택자를 펼쳐 넣는다 */
+    files: ["src/app/admin/**/*.{ts,tsx}", "src/components/admin/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": ["error", ...SHARED_RESTRICTED_SYNTAX, ...ADMIN_I18N_SYNTAX],
     },
   },
   {

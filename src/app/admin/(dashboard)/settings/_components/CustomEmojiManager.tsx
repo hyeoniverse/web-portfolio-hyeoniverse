@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Blend, Plus } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
@@ -32,9 +33,7 @@ const PAGE_SIZE = 120;
 type CustomEmoji = { id: string; name: string; src: string; created_at?: string };
 
 export default function CustomEmojiManager() {
-  const { language, t: tr } = useLanguage();
-  const ko = language === "ko";
-  const t = (k: string, e: string) => (ko ? k : e);
+  const { t } = useLanguage();
   const [items, setItems] = useState<CustomEmoji[] | null>(null);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -68,13 +67,13 @@ export default function CustomEmojiManager() {
       if (!(res instanceof Response) || !res.ok) throw new Error("save failed");
       const row = (await res.json()) as CustomEmoji;
       setItems((prev) => [row, ...(prev ?? [])]);
-      showToast(t("이모지를 추가했어요.", "Emoji added."), "success");
+      showToast(t("admin.inline.customEmojiManager.added"), "success");
     } catch (err) {
       showToast(
         err instanceof EmojiImageError
-          ? err.code === "tooSmall" ? t(`이미지가 너무 작아요 (최소 ${EMOJI_MIN}×${EMOJI_MIN}px)`, `Image is too small (min ${EMOJI_MIN}×${EMOJI_MIN}px)`)
-            : t("이미지를 읽지 못했어요.", "Couldn’t read the image.")
-          : errorText(err, tr, t("이모지를 추가하지 못했어요.", "Couldn’t add the emoji.")),
+          ? err.code === "tooSmall" ? fillTemplate(t("admin.inline.customEmojiManager.tooSmall"), { min: EMOJI_MIN })
+            : t("admin.inline.customEmojiManager.readFailed")
+          : errorText(err, t, t("admin.inline.customEmojiManager.addFailed")),
         "error",
       );
     } finally {
@@ -85,37 +84,34 @@ export default function CustomEmojiManager() {
   /* 이모지 조합(Emoji Kitchen) — 두 이모지를 섞은 Google 그림을 골라 들인다 */
   const openKitchen = () => openModal(
     <EmojiKitchenModal onAdded={(row) => setItems((prev) => [row, ...(prev ?? [])])} />,
-    { id: "emoji-kitchen", header: { title: t("이모지 조합", "Mix emojis") }, closeButton: true, width: "min(720px, 94vw)" },
+    { id: "emoji-kitchen", header: { title: t("admin.inline.customEmojiManager.mixTitle") }, closeButton: true, width: "min(720px, 94vw)" },
   );
 
   const remove = async (e: CustomEmoji) => {
     const res = await tryRequest(`/api/custom-emojis/${e.id}`, { method: "DELETE" });
     if (!(res instanceof Response) || !res.ok) {
-      showToast(t("이모지를 지우지 못했어요.", "Couldn’t remove the emoji."), "error");
+      showToast(t("admin.inline.customEmojiManager.removeFailed"), "error");
       return;
     }
     forgetCustomEmoji(e.src);
     setItems((prev) => (prev ? prev.filter((x) => x.id !== e.id) : prev));
-    showToast(t("피커 목록에서 뺐어요. 이미 글에 넣은 이모지는 그대로 보여요.", "Removed from the picker. Emojis already in posts stay as they are."), "success");
+    showToast(t("admin.inline.customEmojiManager.removed"), "success");
   };
 
   return (
     <section className={`${settings.section} ${settings.sectionWide}`}>
       <div className={lib.wrap}>
         <LibraryHead
-          title={t("커스텀 이모지", "Custom emojis")}
+          title={t("admin.inline.customEmojiManager.title")}
           count={items?.length}
-          hint={t(
-            "글 편집기의 이모지 피커에서 쓰는 이미지 이모지예요. 지우면 피커에서만 빠지고, 이미 글에 넣은 이모지는 그대로 보여요.",
-            "Image emojis used by the editor’s emoji picker. Removing one only takes it out of the picker; emojis already in posts stay as they are.",
-          )}
-          search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("이름 검색", "Search name") }}
+          hint={t("admin.inline.customEmojiManager.hint")}
+          search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("admin.inline.customEmojiManager.searchName") }}
           actions={<>
             <Button variant="outline" icon={<Blend size={14} />} onClick={openKitchen}>
-              {t("조합", "Mix")}
+              {t("admin.inline.customEmojiManager.mix")}
             </Button>
             <Button variant="outline" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
-              {t("추가", "Add")}
+              {t("admin.inline.customEmojiManager.add")}
             </Button>
             <input
               ref={fileRef}
@@ -132,19 +128,19 @@ export default function CustomEmojiManager() {
             {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className={styles.tile}><SkeletonLine width={32} height={32} /></div>)}
           </div>
         ) : filtered.length === 0 ? (
-          <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("올린 이모지가 없습니다", "No custom emojis yet")}</EmptyState>
+          <EmptyState pad="sm">{search ? t("admin.inline.customEmojiManager.noResults") : t("admin.inline.customEmojiManager.empty")}</EmptyState>
         ) : (
           <div className={styles.grid}>
             {paged.slice!.map((e) => (
-              <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("이름 없음", "Untitled")}</span>} placement="bottom" delay={120}>
+              <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("admin.inline.customEmojiManager.untitled")}</span>} placement="bottom" delay={120}>
                 <div className={styles.tile} tabIndex={0}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
                   <img src={e.src} alt={e.name} className={styles.img} loading="lazy" />
                   <CloseButton
                     className={styles.remove}
                     onClick={() => void remove(e)}
-                    ariaLabel={t(`${e.name || "이모지"} 지우기`, `Remove ${e.name || "emoji"}`)}
-                    title={t("피커에서 빼기", "Remove from picker")}
+                    ariaLabel={fillTemplate(t("admin.inline.customEmojiManager.removeNamed"), { name: e.name || t("admin.inline.customEmojiManager.emoji") })}
+                    title={t("admin.inline.customEmojiManager.removeFromPicker")}
                   />
                 </div>
               </Tooltip>
