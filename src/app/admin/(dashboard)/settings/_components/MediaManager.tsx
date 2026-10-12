@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { Copy, ExternalLink, File, FileText, Film, LayoutGrid, List, Music, Trash2, Type } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import EmptyState from "@/components/ui/EmptyState";
@@ -44,9 +45,7 @@ function fmtSize(n: number): string {
 const KIND_ICON: Record<Exclude<Kind, "image">, typeof File> = { video: Film, audio: Music, font: Type, doc: FileText, other: File };
 
 export default function MediaManager() {
-  const { language, t: tr } = useLanguage();
-  const ko = language === "ko";
-  const t = (k: string, e: string) => (ko ? k : e);
+  const { language, t } = useLanguage();
   const openModal = useModalStore((s) => s.openModal);
   const [data, setData] = useState<PageData | null>(null);
   const [failed, setFailed] = useState(false);
@@ -93,11 +92,11 @@ export default function MediaManager() {
   const allCount = counts.all ?? 0;
 
   const KIND_LABEL: Record<Kind, string> = {
-    image: t("이미지", "Images"), video: t("동영상", "Video"), audio: t("오디오", "Audio"),
-    font: t("폰트", "Fonts"), doc: t("문서", "Docs"), other: t("기타", "Other"),
+    image: t("admin.inline.mediaManager.kindImage"), video: t("admin.inline.mediaManager.kindVideo"), audio: t("admin.inline.mediaManager.kindAudio"),
+    font: t("admin.inline.mediaManager.kindFont"), doc: t("admin.inline.mediaManager.kindDoc"), other: t("admin.inline.mediaManager.kindOther"),
   };
   const segItems = [
-    { value: "all" as const, label: `${t("전체", "All")} ${allCount}` },
+    { value: "all" as const, label: `${t("admin.inline.mediaManager.all")} ${allCount}` },
     ...(["image", "video", "audio", "font", "doc", "other"] as Kind[]).filter((k) => counts[k]).map((k) => ({ value: k, label: `${KIND_LABEL[k]} ${counts[k]}` })),
   ];
 
@@ -105,26 +104,25 @@ export default function MediaManager() {
   const usageSummary = (u: MediaRef[]) => {
     const n = (k: MediaRef["kind"]) => u.filter((r) => r.kind === k).length;
     return [
-      n("post") ? t(`글 ${n("post")}`, `${n("post")} post${n("post") > 1 ? "s" : ""}`) : "",
-      n("work") ? t(`프로젝트 ${n("work")}`, `${n("work")} project${n("work") > 1 ? "s" : ""}`) : "",
-      n("series") ? t(`시리즈 ${n("series")}`, `${n("series")} series`) : "",
-      n("settings") ? t("사이트 설정", "Site settings") : "",
-      n("emoji") ? t("커스텀 이모지", "Custom emoji") : "",
-      n("coverHistory") ? t("커버 기록", "Cover history") : "",
+      n("post") ? fillTemplate(n("post") > 1 ? t("admin.inline.mediaManager.usagePosts") : t("admin.inline.mediaManager.usagePost"), { n: n("post") }) : "",
+      n("work") ? fillTemplate(n("work") > 1 ? t("admin.inline.mediaManager.usageWorks") : t("admin.inline.mediaManager.usageWork"), { n: n("work") }) : "",
+      n("series") ? fillTemplate(t("admin.inline.mediaManager.usageSeries"), { n: n("series") }) : "",
+      n("settings") ? t("admin.inline.mediaManager.usageSettings") : "",
+      n("emoji") ? t("admin.inline.mediaManager.usageEmoji") : "",
+      n("coverHistory") ? t("admin.inline.mediaManager.usageCoverHistory") : "",
     ].filter(Boolean).join(" · ");
   };
 
   const copy = async (url: string) => {
-    try { await navigator.clipboard.writeText(url); showToast(t("주소를 복사했어요.", "URL copied."), "success"); }
-    catch { showToast(t("복사하지 못했어요.", "Couldn’t copy."), "error"); }
+    try { await navigator.clipboard.writeText(url); showToast(t("admin.inline.mediaManager.copied"), "success"); }
+    catch { showToast(t("admin.inline.mediaManager.copyFailed"), "error"); }
   };
 
   const remove = (m: MediaItem) => {
     openModal(
       <ModalConfirm
-        desc={t(`"${m.name}" 파일을 저장소에서 지울까요? 어디서도 쓰지 않는 파일이지만, 지우면 되돌릴 수 없습니다.`,
-          `Delete "${m.name}" from storage? It isn't used anywhere, but this can't be undone.`)}
-        confirmText={t("지우기", "Delete")}
+        desc={fillTemplate(t("admin.inline.mediaManager.deleteConfirm"), { name: m.name })}
+        confirmText={t("admin.inline.mediaManager.delete")}
         danger
         onConfirm={async () => {
           const res = await tryRequest("/api/admin/media", {
@@ -134,20 +132,20 @@ export default function MediaManager() {
           });
           if (!(res instanceof Response) || !res.ok) {
             const err = res instanceof Response ? await errorFromResponse(res) : null;
-            showToast(errorText(err, tr, t("파일을 지우지 못했어요.", "Couldn’t delete the file.")), "error");
+            showToast(errorText(err, t, t("admin.inline.mediaManager.deleteFailed")), "error");
             return;
           }
           setReload((n) => n + 1);
         }}
       />,
-      { id: "media-delete", header: { title: t("파일 지우기", "Delete file") }, closeButton: true, width: "min(460px, 92vw)" },
+      { id: "media-delete", header: { title: t("admin.inline.mediaManager.deleteTitle") }, closeButton: true, width: "min(460px, 92vw)" },
     );
   };
 
   /* 쓰는 곳 — 글·프로젝트가 있으면 올렸을 때 제목 목록(누르면 편집 화면) */
   const usageNode = (m: MediaItem, usedClass: string, mutedClass?: string) => {
     const used = usageSummary(m.usage);
-    if (!used) return <span className={mutedClass}>{t("쓰는 곳 없음", "Not used")}</span>;
+    if (!used) return <span className={mutedClass}>{t("admin.inline.mediaManager.notUsed")}</span>;
     const docs = m.usage.filter((r) => (r.kind === "post" || r.kind === "work") && r.id);
     if (!docs.length) return <span>{used}</span>;
     return (
@@ -155,7 +153,7 @@ export default function MediaManager() {
         <span className={galleryUsedListClass}>
           {docs.map((r) => (
             <TransitionLink key={`${r.kind}-${r.id}`} href={r.kind === "post" ? `/admin/posts/${r.id}/edit` : `/admin/works/${r.id}/edit`} className={galleryUsedLinkClass}>
-              {r.kind === "post" ? t("글", "Post") : t("프로젝트", "Project")} · {r.title || r.id}
+              {r.kind === "post" ? t("admin.inline.mediaManager.post") : t("admin.inline.mediaManager.project")} · {r.title || r.id}
             </TransitionLink>
           ))}
         </span>
@@ -164,15 +162,15 @@ export default function MediaManager() {
       </Tooltip>
     );
   };
-  const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString(ko ? "ko-KR" : "en-US", { year: "2-digit", month: "short", day: "numeric" }) : "";
+  const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { year: "2-digit", month: "short", day: "numeric" }) : "";
   const folderOf = (m: MediaItem) => (m.path.includes("/") ? m.path.slice(0, m.path.lastIndexOf("/")) : m.bucket);
 
   const actionsOf = (m: MediaItem, cls: string) => (
     <>
-      <Pressable className={cls} onClick={() => void copy(m.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
-      <a className={cls} href={m.url} target="_blank" rel="noopener noreferrer" aria-label={t("새 탭에서 열기", "Open in new tab")} title={t("새 탭에서 열기", "Open in new tab")}><ExternalLink size={13} /></a>
+      <Pressable className={cls} onClick={() => void copy(m.url)} aria-label={t("admin.inline.mediaManager.copyUrl")} title={t("admin.inline.mediaManager.copyUrl")}><Copy size={13} /></Pressable>
+      <a className={cls} href={m.url} target="_blank" rel="noopener noreferrer" aria-label={t("admin.inline.mediaManager.openNewTab")} title={t("admin.inline.mediaManager.openNewTab")}><ExternalLink size={13} /></a>
       {!m.usage.length && (
-        <Pressable className={cls} onClick={() => remove(m)} aria-label={t("지우기", "Delete")} title={t("지우기", "Delete")}><Trash2 size={13} /></Pressable>
+        <Pressable className={cls} onClick={() => remove(m)} aria-label={t("admin.inline.mediaManager.delete")} title={t("admin.inline.mediaManager.delete")}><Trash2 size={13} /></Pressable>
       )}
     </>
   );
@@ -190,24 +188,23 @@ export default function MediaManager() {
     <section className={`${settings.section} ${settings.sectionWide}`}>
       <div className={lib.wrap}>
         <LibraryHead
-          title={t("업로드한 파일", "Uploaded files")}
+          title={t("admin.inline.mediaManager.title")}
           count={summary ? `${allCount} · ${fmtSize(summary.totalSize)}` : undefined}
-          hint={t("글·프로젝트 이미지와 로고·아이콘·배경음 같은 사이트 파일이에요. 어디서도 쓰지 않는 파일만 지울 수 있어요(휴지통 글에서 쓰는 것도 쓰는 것으로 봐요).",
-            "Post and project images plus site files like logos, icons and background music. Only files used nowhere can be deleted (posts in the trash count as using them).")}
+          hint={t("admin.inline.mediaManager.hint")}
           filters={summary && allCount > 0 ? <>
             <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setPage(1); }} variant="subtle" />
             <Switch
               checked={unusedOnly}
               onCheckedChange={(v) => { setUnusedOnly(v); setPage(1); }}
-              label={t(`안 쓰는 파일만 · ${summary.unusedCount}개 ${fmtSize(summary.unusedSize)}`, `Unused only · ${summary.unusedCount} · ${fmtSize(summary.unusedSize)}`)}
+              label={fillTemplate(t("admin.inline.mediaManager.unusedOnly"), { count: summary.unusedCount, size: fmtSize(summary.unusedSize) })}
             />
           </> : undefined}
-          search={{ value: search, onChange: setSearch, placeholder: t("이름·폴더 검색", "Search name or folder") }}
+          search={{ value: search, onChange: setSearch, placeholder: t("admin.inline.mediaManager.searchPlaceholder") }}
           actions={
             <SegmentedControl
               items={[
-                { value: "gallery" as const, label: <LayoutGrid size={15} aria-label={t("갤러리", "Gallery")} /> },
-                { value: "list" as const, label: <List size={15} aria-label={t("목록", "List")} /> },
+                { value: "gallery" as const, label: <LayoutGrid size={15} aria-label={t("admin.inline.mediaManager.gallery")} /> },
+                { value: "list" as const, label: <List size={15} aria-label={t("admin.inline.mediaManager.list")} /> },
               ]}
               value={view}
               onChange={changeView}
@@ -217,11 +214,11 @@ export default function MediaManager() {
         />
 
         {failed && !data ? (
-          <EmptyState pad="sm">{t("파일 목록을 불러오지 못했습니다", "Couldn’t load files")}</EmptyState>
+          <EmptyState pad="sm">{t("admin.inline.mediaManager.loadFailed")}</EmptyState>
         ) : items === null ? (
           <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
         ) : items.length === 0 ? (
-          <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("조건에 맞는 파일이 없습니다", "No matching files") : t("올린 파일이 없습니다", "No uploaded files")}</EmptyState>
+          <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("admin.inline.mediaManager.noMatch") : t("admin.inline.mediaManager.empty")}</EmptyState>
         ) : (
           <>
             {view === "gallery" ? (
@@ -239,11 +236,11 @@ export default function MediaManager() {
             ) : (
               <div className={styles.table} role="table">
                 <div className={`${styles.row} ${styles.rowHead}`} role="row">
-                  <span role="columnheader" aria-label={t("미리보기", "Preview")} />
-                  <span role="columnheader">{t("이름", "Name")}</span>
-                  <span role="columnheader">{t("크기", "Size")}</span>
-                  <span role="columnheader">{t("올린 날", "Uploaded")}</span>
-                  <span role="columnheader">{t("쓰는 곳", "Used in")}</span>
+                  <span role="columnheader" aria-label={t("admin.inline.mediaManager.colPreview")} />
+                  <span role="columnheader">{t("admin.inline.mediaManager.colName")}</span>
+                  <span role="columnheader">{t("admin.inline.mediaManager.colSize")}</span>
+                  <span role="columnheader">{t("admin.inline.mediaManager.colUploaded")}</span>
+                  <span role="columnheader">{t("admin.inline.mediaManager.colUsedIn")}</span>
                   <span role="columnheader" />
                 </div>
                 {items.map((m) => (

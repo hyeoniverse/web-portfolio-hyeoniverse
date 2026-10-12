@@ -10,6 +10,10 @@ import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { NEW_TITLE: "새 단계" } as const;
 export type ProcessItem = NonNullable<SiteConfigData["about"]["process"]>[number];
 
 /* ═══════════ Process ═══════════ */
@@ -52,7 +56,7 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
           ))}
         </SortableList>
         {atMax ? <ListLimit max={MAX} /> : (
-          <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }]))}>
+          <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: KO_CONTENT.NEW_TITLE, title_en: "New", description_ko: "", description_en: "" }]))}>
             <Plus size={18} /> {t("admin.inline.processBlock.addStep")}
           </Pressable>
         )}

@@ -44,12 +44,12 @@ function ImportWarning({ plan, onConfirm }: {
           <li className={css.planDanger}>
             <strong>{fillTemplate(t("admin.inline.erdBlock.changedcountColumnsWillBe"), { changedCount })}</strong>
             <div className={css.planDiff}>
-              {plan.updatedTables.flatMap((t) => t.changed.map((c) => (
-                <span key={`${t.name}.${c.name}`} className={css.planDiffRow}>
-                  <code>{t.name}.{c.name}</code>
+              {plan.updatedTables.flatMap((tb) => tb.changed.map((c) => (
+                <span key={`${tb.name}.${c.name}`} className={css.planDiffRow}>
+                  <code>{tb.name}.{c.name}</code>
                   <span className={css.planBefore}>{c.before}</span>
                   <span aria-hidden>→</span>
-                  <span className={css.planAfter}>{c.after}</span>
+                  <span className={css.planAfter}>{c.after ?? t("admin.inline.erdBlock.deleted")}</span>
                 </span>
               )))}
             </div>

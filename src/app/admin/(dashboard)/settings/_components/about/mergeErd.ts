@@ -53,7 +53,8 @@ const relKey = (r: ErdRelation) => `${r.from}.${r.fromField}->${r.to}.${r.toFiel
    숫자만 보여주면 "무엇이 덮어써지는지" 를 알 수 없다. 병합도 규칙 2 때문에
    기존 컬럼 정의를 덮으므로, 바뀌는 컬럼을 이름까지 짚어준다. */
 
-interface ColumnChange { name: string; before: string; after: string }
+/** after 가 null 이면 지워지는 컬럼 — 화면이 사전 글(admin.inline.erdBlock.deleted)로 그린다 */
+interface ColumnChange { name: string; before: string; after: string | null }
 interface TableChange { name: string; added: string[]; changed: ColumnChange[] }
 
 export interface ImportPlan {
@@ -96,7 +97,7 @@ export function describeImport(
   const dropTables = new Set(incoming.removedTables ?? []);
   const dropColumns = new Set((incoming.removedColumns ?? []).map((c) => `${c.table}.${c.column}`));
   const asDeleted = (c: ErdTable["columns"][number]) =>
-    ({ name: c.name, before: describeColumn(c), after: "(삭제)" });
+    ({ name: c.name, before: describeColumn(c), after: null });
 
   const addedTables: string[] = [];
   const updatedTables: TableChange[] = [];

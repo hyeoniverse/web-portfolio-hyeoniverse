@@ -29,6 +29,10 @@ import mStyles from "@/components/admin/MembersList.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
 
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { ROLE: "프론트엔드 개발자", LOCATION: "서울, 대한민국" } as const;
+
 interface Props {
   initial: Author;
   member?: Member;
@@ -46,7 +50,7 @@ interface Props {
   /**
    * 이미 다른 멤버가 쓴 값 — 표기가 제각각이 되는 걸 줄이는 자동완성 후보.
    * 자유 입력 필드 중 같은 뜻을 다르게 적기 쉬운 것들에만 붙인다
-   * (역할: "프론트엔드" / "Frontend" / "프론트엔드 개발자").
+   * (역할: "프론트엔드" / "Frontend" / KO_CONTENT.ROLE).
    */
   suggestions?: { role?: string[]; location?: string[] };
   /** 접근 권한(초대/권한변경/연결) 관리 표시 여부 — owner 만 true. 비owner 는 프로필만 편집. */
@@ -378,14 +382,14 @@ export default function MemberEditModal({
               onInputChange={(v) => set(en ? { role_en: v } : { role: v })}
               onChange={commitJob}
               options={JOB_TITLE_PRESETS.map((j) => ({ value: en ? j.en : j.ko, label: en ? j.en : j.ko }))}
-              placeholder={other(en ? draft.role : draft.role_en) ?? (en ? "Frontend Developer" : "프론트엔드 개발자")}
+              placeholder={other(en ? draft.role : draft.role_en) ?? (en ? "Frontend Developer" : KO_CONTENT.ROLE)}
             />
           </span>
         </FieldRow>
         <Field label={t("admin.inline.memberEditModal.email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
         {en
           ? <Field label={t("admin.inline.memberEditModal.location")} langBadge="en" value={draft.location_en ?? ""} tabFill={other(draft.location)} onChange={(v) => set({ location_en: v })} placeholder={other(draft.location) ?? "Seoul, South Korea"} />
-          : <Field label={t("admin.inline.memberEditModal.location")} langBadge="ko" value={draft.location ?? ""} tabFill={other(draft.location_en)} onChange={(v) => set({ location: v })} placeholder={other(draft.location_en) ?? "서울, 대한민국"} suggestions={suggestions?.location} />}
+          : <Field label={t("admin.inline.memberEditModal.location")} langBadge="ko" value={draft.location ?? ""} tabFill={other(draft.location_en)} onChange={(v) => set({ location: v })} placeholder={other(draft.location_en) ?? KO_CONTENT.LOCATION} suggestions={suggestions?.location} />}
         {/* 소개는 여러 줄 입력이라 반 칸에 두면 한 줄에 몇 글자 못 들어간다 — 두 열을 다 쓴다. */}
         <div className={styles.authorCardFieldWide}>
           {en

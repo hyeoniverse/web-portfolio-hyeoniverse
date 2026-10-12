@@ -47,6 +47,7 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
               onChange={(v) => update("metadata", "defaultLanguage", v as "ko" | "en")}
               width="min"
               options={[
+                // eslint-disable-next-line no-restricted-syntax -- 언어 이름은 그 언어로 쓴다(자기 이름)
                 { value: "ko", label: "한국어" },
                 { value: "en", label: "English" },
               ]}

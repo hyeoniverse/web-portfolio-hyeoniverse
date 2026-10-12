@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { Copy, ExternalLink, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
@@ -25,9 +26,8 @@ type Ref = { id: string; title: string; slug: string };
 type CoverItem = { id: string; url: string; source: "ai" | "unsplash" | "preset" | string; meta: string; created_at: string; usage?: { posts: Ref[]; works: Ref[] } };
 
 export default function CoverHistoryManager() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const ko = language === "ko";
-  const t = (k: string, e: string) => (ko ? k : e);
   const [items, setItems] = useState<CoverItem[] | null>(null);
 
   /* 사용처 — 목록과 따로 받는다. 기록 24개는 바로 오지만 쓰는 곳은 글·프로젝트를 훑어야 해서,
@@ -52,19 +52,19 @@ export default function CoverHistoryManager() {
     if (/^https:\/\/(images|videos)\.pexels\.com\//i.test(c.url)) return "Pexels";
     if (c.source === "ai") return "AI";
     if (c.source === "unsplash") return "Unsplash";
-    if (c.source === "preset") return isVideoUrl(c.url) ? t("기본 동영상", "Preset video") : t("기본 이미지", "Preset");
+    if (c.source === "preset") return isVideoUrl(c.url) ? t("admin.inline.coverHistoryManager.presetVideo") : t("admin.inline.coverHistoryManager.presetImage");
     return c.source;
   };
   const date = (s: string) => new Date(s).toLocaleDateString(ko ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
 
   const copy = async (url: string) => {
-    try { await navigator.clipboard.writeText(url); showToast(t("주소를 복사했어요.", "URL copied."), "success"); }
-    catch { showToast(t("복사하지 못했어요.", "Couldn’t copy."), "error"); }
+    try { await navigator.clipboard.writeText(url); showToast(t("admin.inline.coverHistoryManager.copied"), "success"); }
+    catch { showToast(t("admin.inline.coverHistoryManager.copyFailed"), "error"); }
   };
 
   const remove = async (c: CoverItem) => {
     const res = await tryRequest(`/api/admin/cover-history?url=${encodeURIComponent(c.url)}`, { method: "DELETE" });
-    if (!(res instanceof Response) || !res.ok) { showToast(t("기록에서 빼지 못했어요.", "Couldn’t remove it from history."), "error"); return; }
+    if (!(res instanceof Response) || !res.ok) { showToast(t("admin.inline.coverHistoryManager.removeFailed"), "error"); return; }
     setItems((prev) => prev?.filter((x) => x.id !== c.id) ?? prev);
   };
 
@@ -72,15 +72,14 @@ export default function CoverHistoryManager() {
     <section className={`${settings.section} ${settings.sectionWide}`}>
       <div className={lib.wrap}>
         <LibraryHead
-          title={t("커버 이미지 기록", "Cover image history")}
+          title={t("admin.inline.coverHistoryManager.title")}
           count={items?.length}
-          hint={t("커버 고르기 창에서 AI 로 만들거나 고른 최근 커버예요(최대 24개). 기록에서 빼도 이미지와 이미 커버로 쓴 글은 그대로예요.",
-            "Recent covers you generated or picked in the cover picker (up to 24). Removing one keeps the image and any post using it.")}
+          hint={t("admin.inline.coverHistoryManager.hint")}
         />
         {items === null ? (
           <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
         ) : items.length === 0 ? (
-          <EmptyState pad="sm">{t("커버 이미지 기록이 없습니다", "No cover history yet")}</EmptyState>
+          <EmptyState pad="sm">{t("admin.inline.coverHistoryManager.empty")}</EmptyState>
         ) : (
           <LibraryGallery>
             {items.map((c) => {
@@ -96,18 +95,18 @@ export default function CoverHistoryManager() {
                       <span className={galleryUsedListClass}>
                         {used.map((r) => (
                           <TransitionLink key={`${r.kind}-${r.id}`} href={r.kind === "post" ? `/admin/posts/${r.id}/edit` : `/admin/works/${r.id}/edit`} className={galleryUsedLinkClass}>
-                            {r.kind === "post" ? t("글", "Post") : t("프로젝트", "Project")} · {r.title || r.slug}
+                            {r.kind === "post" ? t("admin.inline.coverHistoryManager.post") : t("admin.inline.coverHistoryManager.project")} · {r.title || r.slug}
                           </TransitionLink>
                         ))}
                       </span>
                     }>
-                      <span className={galleryUsedClass}>{t(`커버로 쓰는 곳 ${used.length}`, `Used as cover ×${used.length}`)}</span>
+                      <span className={galleryUsedClass}>{fillTemplate(t("admin.inline.coverHistoryManager.usedAsCover"), { n: used.length })}</span>
                     </Tooltip>
-                  ) : <span>{t("쓰는 곳 없음", "Not used")}</span>}
+                  ) : <span>{t("admin.inline.coverHistoryManager.notUsed")}</span>}
                   actions={<>
-                    <Pressable className={galleryActionClass} onClick={() => void copy(c.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
-                    <a className={galleryActionClass} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("새 탭에서 열기", "Open in new tab")} title={t("새 탭에서 열기", "Open in new tab")}><ExternalLink size={13} /></a>
-                    <Pressable className={galleryActionClass} onClick={() => void remove(c)} aria-label={t("기록에서 빼기", "Remove from history")} title={t("기록에서 빼기", "Remove from history")}><Trash2 size={13} /></Pressable>
+                    <Pressable className={galleryActionClass} onClick={() => void copy(c.url)} aria-label={t("admin.inline.coverHistoryManager.copyUrl")} title={t("admin.inline.coverHistoryManager.copyUrl")}><Copy size={13} /></Pressable>
+                    <a className={galleryActionClass} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("admin.inline.coverHistoryManager.openNewTab")} title={t("admin.inline.coverHistoryManager.openNewTab")}><ExternalLink size={13} /></a>
+                    <Pressable className={galleryActionClass} onClick={() => void remove(c)} aria-label={t("admin.inline.coverHistoryManager.removeFromHistory")} title={t("admin.inline.coverHistoryManager.removeFromHistory")}><Trash2 size={13} /></Pressable>
                   </>}
                 />
               );

@@ -39,6 +39,7 @@ function rich(text: string): ReactNode {
 /* 예시는 올릴 파일의 내용이라 화면 언어와 상관없이 그대로 둔다. 모듈 맨 위에 두어 줄 앞 들여쓰기가
    예시에 섞이지 않게 한다. 컴포넌트 안에 두었을 때 들여쓰기가 들어가, 보이는 대로 옮긴 파일은
    frontmatter 가 읽히지 않았다(parseMdPost 는 줄 첫머리의 키와 --- 만 본다). */
+// eslint-disable-next-line no-restricted-syntax -- 예시 마크다운 파일의 내용 — 화면 글이 아니라 올릴 파일의 표본
 const FULL_EXAMPLE = `---
 title: Next.js 15 마이그레이션 가이드
 title_en: Migrating to Next.js 15
