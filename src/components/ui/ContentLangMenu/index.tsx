@@ -22,6 +22,8 @@ interface ContentLangMenuProps {
   /** 단추 모양을 쓰는 쪽 것으로 — 내비게이션의 원형 단추(SiteLangMenu). 켜졌을 때 클래스도 같이 */
   triggerClassName?: string;
   triggerActiveClassName?: string;
+  /** 언어 코드 글자 모양을 쓰는 쪽 것으로 — 내비게이션은 옆 KO/EN 토글과 같은 글자(langText) */
+  codeClassName?: string;
   /** 단추 말풍선 · 이름 — 기본은 상세 화면의 문구("다른 언어로 읽기" / "번역 끄기") */
   labels?: { open: string; off: string };
   /** 말풍선 위치 — 내비게이션은 아래 */
@@ -39,6 +41,7 @@ export default function ContentLangMenu({
   busy = false,
   triggerClassName,
   triggerActiveClassName,
+  codeClassName,
   labels,
   tooltipPlacement = "top",
 }: ContentLangMenuProps) {
@@ -90,7 +93,7 @@ export default function ContentLangMenu({
             <Languages size={14} />
             {value && (busy
               ? <LoadingDots className={styles.triggerBusy} />
-              : <span className={styles.triggerCode}>{value}</span>)}
+              : <span className={cn(styles.triggerCode, codeClassName)}>{value}</span>)}
           </Pressable>
         </Tooltip>
       }

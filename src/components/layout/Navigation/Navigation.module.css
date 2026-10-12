@@ -626,11 +626,14 @@
   transition: opacity var(--duration-base) var(--ease-standard) var(--duration-base);
 }
 
+/* 글자 상자를 대문자 높이로 다듬는다 — 대문자(KO · EN)는 줄 상자 안에서 아래 꼬리 자리만큼 위에 그려져,
+   상자 가운데를 맞춰도 옆 아이콘보다 1~2px 떠 보였다 */
 .langText {
   display: inline-block;
   font: var(--font-body-md);
   font-family: var(--font-family-nav);
   letter-spacing: 0.03em;
+  text-box: trim-both cap alphabetic;
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
