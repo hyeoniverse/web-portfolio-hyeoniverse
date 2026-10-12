@@ -9,7 +9,7 @@ import { pcmToWav } from "@/lib/wav";
  * 말소리라 24kHz 단일 채널 16비트로 줄인다(1초에 48KB, 업로드 기본 한도 20MB 면 7분 남짓).
  */
 
-export const RECORD_RATE = 24000;
+const RECORD_RATE = 24000;
 
 /** 녹음한 소리 — 24kHz 단일 채널 표본(-1~1) */
 export interface RecordedAudio {

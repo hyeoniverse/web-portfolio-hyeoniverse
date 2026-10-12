@@ -3,7 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** 블록이 들어갈 수 있는 프로젝트 본문 칸 — 프로젝트 편집기에서 리치 텍스트로 쓰는 칸들 */
-export const WORK_HTML_COLS = ["content_ko", "content_en", "overview_ko", "overview_en", "challenge_ko", "challenge_en", "solution_ko", "solution_en", "description_ko", "description_en"] as const;
+const WORK_HTML_COLS = ["content_ko", "content_en", "overview_ko", "overview_en", "challenge_ko", "challenge_en", "solution_ko", "solution_en", "description_ko", "description_en"] as const;
 
 export interface ContentRow {
   id: string;

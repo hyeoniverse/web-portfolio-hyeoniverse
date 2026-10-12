@@ -30,7 +30,7 @@ export const publicFailures = (failures: readonly ProviderFailure[]): DemoFailur
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
-export function demoError(message: string, status: 400 | 429 | 502 | 503, remaining?: number, failures?: DemoFailure[]) {
+function demoError(message: string, status: 400 | 429 | 502 | 503, remaining?: number, failures?: DemoFailure[]) {
   const body: Record<string, unknown> = { message };
   if (remaining !== undefined) body.remaining = remaining;
   if (failures?.length) body.failures = failures;

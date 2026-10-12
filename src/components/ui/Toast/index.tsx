@@ -15,7 +15,7 @@ import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 /** 줄바꿈 문구의 구조 — 첫 줄은 설명, "· " 로 시작하는 줄은 항목("이름: 사유" 꼴이면 이름을 따로), 그 뒤 줄은 각주.
  *  토스트(두 줄 안에 설명 + 항목)와 전체 보기 모달(설명 · 목록 · 각주)이 같은 해석을 쓴다 */
 const isItemLine = (l: string) => /^[·•\-]\s/.test(l);
-export function parseMessage(message: string) {
+function parseMessage(message: string) {
   const lines = message.split("\n").map((l) => l.trim()).filter(Boolean);
   const first = lines.length > 1 && !isItemLine(lines[0]) ? lines[0] : "";
   const rest = first ? lines.slice(1) : lines;

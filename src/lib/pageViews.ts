@@ -11,7 +11,7 @@
 export const PAGE_VIEW_SESSION_MS = 30 * 60 * 1000;
 
 /** 한 번에 보내는 머문 시간의 상한 — 서버는 한 조회에 2시간까지 더한다 */
-export const PAGE_VIEW_MAX_DURATION_MS = 2 * 60 * 60 * 1000;
+const PAGE_VIEW_MAX_DURATION_MS = 2 * 60 * 60 * 1000;
 
 /** 이보다 짧게 보인 시간은 보내지 않는다(바로 넘긴 페이지 · 숨김과 동시에 떠남) */
 export const PAGE_VIEW_MIN_DURATION_MS = 500;

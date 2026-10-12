@@ -10,7 +10,7 @@ import { allUnavailable, anyProviderUsable, providerLabel, publicFailures, succe
  * 결과는 posts.summary_ko 에 저장하는 것과 같은 JSON 문자열이라 화면은 parseStoredSummary(lib/ai/summary)로 읽는다.
  * 저장하지는 않는다. 공급자 상태 · 사용량 기록(ai_usage)은 generateSummary 가 실제 경로와 똑같이 남긴다.
  */
-export const SUMMARY_MAX = 4000;
+const SUMMARY_MAX = 4000;
 
 export interface SummaryInput {
   text: string;

@@ -3,7 +3,7 @@
    방향이 정해지면 관리자 About 편집으로 옮긴다. */
 import type { L10n } from "./showcase";
 
-export interface FeatureShot {
+interface FeatureShot {
   label: L10n;
   src: string;
   /** 다크 테마일 때 바꿔 보여 줄 캡처(있을 때만) */

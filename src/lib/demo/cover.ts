@@ -13,9 +13,9 @@ import { allUnavailable, anyProviderUsable, providerLabel, publicFailures, type 
  * 그린다. 그 라우트는 로그인과 스토리지 업로드가 붙어 있어 생성 부분만 여기에 옮겼다(내용은 같다 — 고치면 두 곳을 같이).
  * 버킷에 올리지 않고 줄인 JPEG 을 data URL 로 바로 돌려준다. 공급자 상태 · 사용량(ai_usage)은 같은 방식으로 남긴다.
  */
-export const COVER_PROMPT_MAX = 300;
+const COVER_PROMPT_MAX = 300;
 
-export const COVER_STYLES: Record<string, string> = {
+const COVER_STYLES: Record<string, string> = {
   abstract: "abstract art style, flowing shapes and colors",
   minimal: "minimalist design, clean lines, simple composition",
   geometric: "geometric patterns, bold shapes, modern design",

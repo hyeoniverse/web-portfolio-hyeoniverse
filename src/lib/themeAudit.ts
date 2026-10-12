@@ -22,7 +22,7 @@ export type AuditStatus = "pass" | "warn" | "fail";
 
 export type AuditKey = "body" | "muted" | "link" | "graphic" | "button" | "distinct";
 
-export interface AuditRow {
+interface AuditRow {
   key: AuditKey;
   /** 대비율(1~21) 또는 색 차이(ΔE) — distinct 만 ΔE */
   value: number;
@@ -33,7 +33,7 @@ export interface AuditRow {
   corrected?: boolean;
 }
 
-export interface ModeAudit {
+interface ModeAudit {
   mode: "light" | "dark";
   rows: AuditRow[];
 }

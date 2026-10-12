@@ -132,7 +132,7 @@ export async function errorFromResponse(res: Response): Promise<CodedError> {
  * 그 문구를, 아니면 `fallback` 을 돌려준다. 서버가 쓴 문장(`error`)은 화면 언어와 다를 수 있어 쓰지 않는다.
  */
 /** 문구 안의 [글](주소) 를 글만 남긴다 — 링크를 그릴 수 없는 자리(토스트 · 입력칸 아래 등) */
-export const stripTextLinks = (s: string) => s.replace(/\[([^\]]+)\]\((\/[^)\s]*)\)/g, "$1");
+const stripTextLinks = (s: string) => s.replace(/\[([^\]]+)\]\((\/[^)\s]*)\)/g, "$1");
 
 /** errorText 와 같되 [글](주소) 를 남긴다 — LinkedText 로 그리는 자리(편집기 상태 줄)용 */
 export function errorTextWithLinks(err: unknown, t: TFunction, fallback: string): string {

@@ -43,7 +43,7 @@ export interface DynamicFrameLayoutProps {
   }) => React.ReactNode;
 }
 
-export const defaultFrames: Frame[] = [
+const defaultFrames: Frame[] = [
   {
     id: 1,
     video:

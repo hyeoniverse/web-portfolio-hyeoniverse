@@ -13,7 +13,7 @@ import styles from "./ServicesTab.module.css";
 
 export const ENV_SECTION_ID = "env-vars";
 
-export function useEnvKeyJump() {
+function useEnvKeyJump() {
   const { scrollTo } = useLenis();
   return (key: string) => {
     const field = document.getElementById(`env-${key}`);
@@ -36,7 +36,7 @@ export function useEnvKeyJump() {
 }
 
 /** 키 이름 하나 — 누르면 그 칸으로 */
-export function EnvKeyLink({ name, missing }: { name: string; missing?: boolean }) {
+function EnvKeyLink({ name, missing }: { name: string; missing?: boolean }) {
   const jump = useEnvKeyJump();
   return (
     <Pressable className={styles.envKeyLink} data-missing={missing ? "" : undefined} onClick={() => jump(name)}>

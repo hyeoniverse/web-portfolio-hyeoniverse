@@ -135,8 +135,6 @@ export const COMMENT_CREATURES = [
   { emoji: "🐙", noun: "Octopus" },
 ] as const;
 export const COMMENT_ADJECTIVES = ["Curious", "Brave", "Gentle", "Clever", "Chill", "Sleepy", "Swift"] as const;
-/** 비밀번호 규칙 — utils/commentValidation validatePassword (2자 이상, 72바이트 이하 · bcrypt 한계) */
-export const COMMENT_PASSWORD_MIN = 2;
 /** 이 데모의 댓글을 쓸 때 정했다고 치는 비밀번호 */
 export const COMMENT_DEMO_PASSWORD = "1234";
 
@@ -298,12 +296,6 @@ export const roles = {
 
 /* ── 이모지 키친 ── */
 
-/** public/emoji-kitchen 의 조합 수와 이모지 수 (pairs.bin 을 풀어 센 값) */
-export const KITCHEN_TOTAL_PAIRS = 147_000;
-export const KITCHEN_TOTAL_EMOJIS = 619;
-/** 가져올 때 줄이는 크기 — app/api/admin/emoji-kitchen/route.ts SIZE */
-export const KITCHEN_IMPORT_SIZE = 128;
-
 export const kitchen = {
   first: { ko: "첫 이모지", en: "First emoji" },
   second: { ko: "둘째 이모지", en: "Second emoji" },
@@ -315,7 +307,6 @@ export const kitchen = {
     en: "147,000 combinations are packed into meta.json and pairs.bin. Importing shrinks one to a 128px WebP custom emoji.",
   },
 } satisfies Record<string, unknown>;
-
 
 /* ── 장면 머리 · 탭 — 탭마다 무엇을 보여 주는지 한 줄과, 해 볼 차례(번호) ── */
 

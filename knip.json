@@ -18,5 +18,8 @@
   "ignore": [
     "src/types/**",
     "src/config/site.config.ts"
+  ],
+  "ignoreBinaries": [
+    "ffmpeg"
   ]
 }
