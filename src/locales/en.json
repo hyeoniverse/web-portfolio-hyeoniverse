@@ -452,6 +452,20 @@
       "12": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
       "13": "Thanks for reading all the way! 💕",
       "2_desktop": "This is who I am! ( ⸝⸝⸝˃֊˂) Try dragging the window — there might be a hidden message!?!?"
+    },
+    "github": {
+      "publicRepos": "Public repos",
+      "starsEarned": "Stars earned",
+      "followers": "Followers",
+      "years": "Years on GitHub",
+      "yearsSuffix": "y",
+      "lastActive": "Last active",
+      "topLanguages": "Top languages",
+      "last12Months": "Last 12 months",
+      "contributions": "{{count}} contributions",
+      "grassLabel": "Contribution graph for the last 12 months",
+      "activityByYear": "Activity by year",
+      "activityTitle": "{{count}} repos in {{year}}"
     }
   },
   "postsPage": {

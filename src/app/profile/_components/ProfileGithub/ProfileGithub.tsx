@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { SITE_TIME_ZONE } from "@/constants";
 import { Star, GitFork, ExternalLink, ArrowUpRight } from "@/components/icons";
 import { PINNED_REPO_LIMIT, type GithubShowcase } from "@/lib/githubShowcase";
@@ -83,8 +84,11 @@ export default function ProfileGithub({
   /** 한 패널에 다 넣으면 빽빽해서 훑기 어렵다 — 지표와 저장소를 두 패널로 나눈다. */
   part?: "overview" | "pinned";
 }) {
-  const { language, dateLocale } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  /* 고정 라벨은 화면 글 사전(profilePage.github) — 다른 언어로 볼 때 화면 글 번역을 같이 받는다.
+     저장소 설명은 GitHub 에서 온 내용이라 사이트 내용 글 번역(tx) */
+  const { t, tx, language, dateLocale } = useLanguage();
+  const g = (key: string, values?: Record<string, string | number>) =>
+    values ? fillTemplate(t(`profilePage.github.${key}`), values) : t(`profilePage.github.${key}`);
   const locale = dateLocale;
 
   /* 막대가 자라고 숫자가 올라가는 연출은 한 번만 돈다.
@@ -126,10 +130,10 @@ export default function ProfileGithub({
 
   /* 숫자 지표는 올라가고, 날짜처럼 셀 수 없는 값은 그대로 둔다. */
   const counted: { label: string; target: number; suffix?: string }[] = [
-    { label: L("공개 저장소", "Public repos"), target: showcase.publicRepos },
-    { label: L("받은 스타", "Stars earned"), target: showcase.totalStars },
-    { label: L("팔로워", "Followers"), target: showcase.followers },
-    ...(years > 0 ? [{ label: L("함께한 햇수", "Years on GitHub"), target: years, suffix: L("년", "y") }] : []),
+    { label: g("publicRepos"), target: showcase.publicRepos },
+    { label: g("starsEarned"), target: showcase.totalStars },
+    { label: g("followers"), target: showcase.followers },
+    ...(years > 0 ? [{ label: g("years"), target: years, suffix: g("yearsSuffix") }] : []),
   ];
 
   return (
@@ -165,7 +169,7 @@ export default function ProfileGithub({
         ))}
         {lastPushed && (
           <div className={`${styles.stat} ${animateClass}`}>
-            <dt className={styles.statLabel}>{L("최근 활동", "Last active")}</dt>
+            <dt className={styles.statLabel}>{g("lastActive")}</dt>
             <dd className={styles.statValue}>{lastPushed}</dd>
           </div>
         )}
@@ -174,7 +178,7 @@ export default function ProfileGithub({
 
       {!isPinned && languages.length > 0 && (
         <div className={styles.block}>
-          <span className={`${styles.blockLabel} ${animateClass}`}>{L("주 사용 언어", "Top languages")}</span>
+          <span className={`${styles.blockLabel} ${animateClass}`}>{g("topLanguages")}</span>
           {/* 개수만 나열하면 어느 쪽에 치우쳐 있는지 안 보인다 — 비중을 폭으로 그린다 */}
           <div
             className={`${styles.langBar} ${animateClass}`}
@@ -219,15 +223,15 @@ export default function ProfileGithub({
       {isPinned ? null : contributions ? (
         <div className={styles.block}>
           <span className={`${styles.blockLabel} ${animateClass}`}>
-            {L("최근 1년 커밋", "Last 12 months")}
+            {g("last12Months")}
             <span className={styles.blockValue}>
-              {L(`${contributions.total.toLocaleString(locale)}회`, `${contributions.total.toLocaleString(locale)} contributions`)}
+              {g("contributions", { count: contributions.total.toLocaleString(locale) })}
             </span>
           </span>
           {/* 커서를 올린 자리의 칸들이 부풀어 오른다. 1년치를 한 화면에 넣느라 한 칸이
               10px 밖에 안 되는데, 그 자리만 키워서 읽게 해 준다. */}
           <GrassLens>
-            <div className={`${styles.grass} ${animateClass}`} role="img" aria-label={L("최근 1년 커밋 잔디", "Contribution graph for the last 12 months")}>
+            <div className={`${styles.grass} ${animateClass}`} role="img" aria-label={g("grassLabel")}>
               {contributions.weeks.map((week, wi) => (
                 <div key={wi} className={styles.grassWeek}>
                   {week.map((day, di) => (
@@ -247,10 +251,10 @@ export default function ProfileGithub({
         </div>
       ) : (
         <div className={styles.block}>
-          <span className={`${styles.blockLabel} ${animateClass}`}>{L("연도별 활동", "Activity by year")}</span>
+          <span className={`${styles.blockLabel} ${animateClass}`}>{g("activityByYear")}</span>
           <div className={`${styles.activity} ${animateClass}`}>
             {showcase.activity.map((a, i) => (
-              <div key={a.year} className={styles.activityCol} title={L(`${a.year}년 ${a.count}개 저장소`, `${a.count} repos in ${a.year}`)}>
+              <div key={a.year} className={styles.activityCol} title={g("activityTitle", { year: a.year, count: a.count })}>
                 <span
                   className={styles.activityBar}
                   style={{ height: `${(a.count / activityMax) * 100}%`, animationDelay: `${i * 70}ms` }}
@@ -276,7 +280,7 @@ export default function ProfileGithub({
                   </span>
                   {/* 설명이 없어도 요소를 남긴다 — 있는 카드와 없는 카드의 내부 배치가
                       달라지면 나란히 놓였을 때 줄이 안 맞는다. */}
-                  <span className={styles.repoDesc}>{r.description}</span>
+                  <span className={styles.repoDesc}>{language === "ko" ? r.description : tx(r.description)}</span>
                   {r.topics.length > 0 && (
                     <span className={styles.repoTopics}>
                       {r.topics.slice(0, 3).map((tp) => (
