@@ -60,8 +60,8 @@ export default function SiteTranslationProvider() {
     if (contentLang && onAbout) void ensureSiteContent(contentLang, "about");
   }, [contentLang, onAbout, pathname]);
 
-  /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번 */
-  const uiReady = !!(site.lang && site.ui);
+  /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번. 사이트 기본 언어는 안내하지 않는다(#1406) */
+  const uiReady = !!(site.lang && site.ui && site.lang !== getSiteDefaultLang());
   useEffect(() => {
     if (!uiReady || !site.lang) return;
     const key = `siteTranslateNotice:${site.lang}`;
