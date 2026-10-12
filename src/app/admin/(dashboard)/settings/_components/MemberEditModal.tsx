@@ -1,5 +1,6 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import { useContext, useRef, useState } from "react";
 import type { SelectOption } from "@/types";
 import type { Outcome } from "../_types";
@@ -60,6 +61,7 @@ interface Props {
 export default function MemberEditModal({
   initial, member, invited, linkMemberId, levels, onSaveProfile, onInvite, onChangeLevel, onLink, uploadAvatarFile, suggestions, canManageAccess = true, githubInfo,
 }: Props) {
+  const badgeOf = useLangBadge();
   const { language, t } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { closeModal } = useModalStore();
@@ -357,7 +359,7 @@ export default function MemberEditModal({
             프리셋을 고르면 지금 언어 칸에 넣고, 다른 언어 칸이 비어 있으면 짝도 채운다 */}
         <FieldRow
           className={styles.authorCardFieldWide}
-          label={<>{L("직무", "Job title")}<span className={styles.labelLangBadge}>{profileLang.toUpperCase()}</span></>}
+          label={<>{L("직무", "Job title")}<span className={styles.labelLangBadge}>{badgeOf(profileLang)}</span></>}
         >
           <span
             className={styles.jobCombo}

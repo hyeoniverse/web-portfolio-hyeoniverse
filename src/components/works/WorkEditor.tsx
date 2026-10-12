@@ -1,5 +1,6 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import { authoringLangOf } from "@/lib/siteLanguage";
 import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -106,6 +107,7 @@ const isFileDrag = (e: React.DragEvent) => e.dataTransfer.types.includes("Files"
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
   const srcBadge = useSourceBadge();
+  const badgeOf = useLangBadge();
   const { t, tLang, language } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
@@ -2106,7 +2108,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {(["ko", "en"] as const).map((lang) => (
                 <div key={lang} className={styles.memberBioCol}>
                   <Textarea
-                    inlineLabel={lang.toUpperCase()}
+                    inlineLabel={badgeOf(lang)}
                     textareaClassName={styles.fieldTextarea}
                     value={lang === "ko" ? team.memberBioKo : team.memberBioEn}
                     onChange={lang === "ko" ? team.setMemberBioKo : team.setMemberBioEn}
@@ -2172,7 +2174,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, myRole.canManageWorks, siteAuthors, team,
+    badgeOf, editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, myRole.canManageWorks, siteAuthors, team,
     teamAvatarPreview, teamAvatarUploading, teamRole.selectNode, toggleLinkedAuthor, tw, updateField,
   ]);
 
