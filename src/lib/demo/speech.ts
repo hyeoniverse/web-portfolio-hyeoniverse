@@ -12,7 +12,7 @@ import { anyProviderUsable, providerLabel, type DemoOutcome } from "@/lib/demo/h
  * 목소리는 설정의 기본 제공자에서 고른 성별의 첫 목소리. 파일로 올리지 않고 MP3 를 data URL 로 바로 돌려준다.
  * 공급자 상태 · 사용량 기록(ai_usage)은 synthesize 가 실제 경로와 똑같이 남긴다.
  */
-export const SPEECH_MAX = 200;
+const SPEECH_MAX = 200;
 
 export interface SpeechInput {
   text: string;

@@ -16,7 +16,7 @@ const MAX_WHEEL_DELTA = 150;
 /** 전역 Lenis 가 이 요소 위의 휠을 건드리지 않게 하는 표시 — Lenis 가 읽는 이름 그대로여야 한다 */
 const LENIS_PREVENT_WHEEL = "data-lenis-prevent-wheel";
 /** 트랙 위치를 바꾼 직후 매 프레임 보내는 이벤트 — 긴 패널의 안쪽 고정이 같은 프레임에 따라온다 */
-export const HSCROLL_FRAME_EVENT = "hscroll:frame";
+const HSCROLL_FRAME_EVENT = "hscroll:frame";
 
 export interface HorizontalScrollOptions {
   /** Infinite wrapping (default: false) */

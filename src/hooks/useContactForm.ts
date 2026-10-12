@@ -19,7 +19,7 @@ interface SubmittedData {
 }
 
 /** 전송 상태 — 예전 @formspree/react 의 formState 가운데 화면이 쓰던 두 값 */
-export interface ContactFormState {
+interface ContactFormState {
   submitting: boolean;
   succeeded: boolean;
 }

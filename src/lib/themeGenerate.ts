@@ -55,7 +55,7 @@ function ensureContrast(c: Oklch, bg: string, min: number): string {
  * 강조색 하나와 배경·글자 색상(hue)으로 테마 한 벌.
  * tint 는 배경·글자에 입힐 채도 — 기존 프리셋처럼 파스텔 톤이 보일 만큼 입힌다.
  */
-export function buildTheme(accent: string, bgHue: number, textHue: number, tint: { bg: number; text: number; bgL?: number } = { bg: 0.045, text: 0.05 }): ThemeColors {
+function buildTheme(accent: string, bgHue: number, textHue: number, tint: { bg: number; text: number; bgL?: number } = { bg: 0.045, text: 0.05 }): ThemeColors {
   const lightBg = hex(ok(tint.bgL ?? 0.955, tint.bg, bgHue));
   const darkBg = hex(ok(0.19, tint.bg * 0.8, bgHue));
   const lightText = ensureContrast(ok(0.28, tint.text, textHue), lightBg, 10);

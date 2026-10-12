@@ -2,7 +2,7 @@
    대본은 음성을 만든 발표 대본 그대로다(읽기 사전 표기 [:has()|has 선택자]는 화면 표기로). 음성이 한국어라 대본은 언어를 바꾸지 않는다 */
 import type { L10n } from "../../../_data/showcase";
 
-export const GALLERY = "/images/about/gallery";
+const GALLERY = "/images/about/gallery";
 
 /** 슬라이드 그림의 원래 크기(px) */
 export const SLIDE_W = 960;

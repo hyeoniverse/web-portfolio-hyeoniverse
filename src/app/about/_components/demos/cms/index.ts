@@ -9,9 +9,7 @@ import InviteDemo from "./InviteDemo";
 import RolesDemo from "./RolesDemo";
 import KitchenDemo from "./KitchenDemo";
 
-export { AutosaveDemo, LifecycleDemo, CommentsDemo, InviteDemo, RolesDemo, KitchenDemo };
-
-export type CmsDemoId = keyof typeof tabs;
+type CmsDemoId = keyof typeof tabs;
 
 export interface CmsDemo extends TabCopy {
   id: CmsDemoId;

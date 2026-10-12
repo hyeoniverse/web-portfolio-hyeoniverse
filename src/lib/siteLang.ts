@@ -19,7 +19,7 @@ export const CONTENT_LANG_STORAGE_KEY = "contentTranslateLang";
 const ORIGINAL = "original";
 const UI_CACHE_PREFIX = "siteUi:";
 
-export type SiteUiStatus = "idle" | "loading" | "ready" | "failed" | "rateLimited";
+type SiteUiStatus = "idle" | "loading" | "ready" | "failed" | "rateLimited";
 
 export interface SiteLangSnapshot {
   /** 지금 걸린 언어 — null 이면 원문(ko/en) */

@@ -3,7 +3,7 @@
    본문 HTML 에서 다시 읽는다(서버라 DOM 없이 정규식으로). 표는 poll_votes 에 poll_id 로 따로 쌓인다. */
 import type { ContentRow } from "./api/contentRows";
 
-export interface PollOption { id: string; label: string }
+interface PollOption { id: string; label: string }
 export interface PollBlock {
   pollId: string;
   title: string;

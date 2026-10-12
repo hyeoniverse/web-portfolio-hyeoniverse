@@ -11,7 +11,7 @@
 export type SiteUiSource = [string, string][];
 
 /** 판 — 펼치는 규칙 · 받는 규칙이 바뀌면 올린다(해시에 들어가 예전 캐시를 버린다) */
-export const SITE_UI_VERSION = 1;
+const SITE_UI_VERSION = 1;
 
 type Dict = { [key: string]: string | Dict };
 

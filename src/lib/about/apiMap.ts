@@ -22,16 +22,16 @@ export const ACCESS_LEVELS = ["public", "signed-in", "author", "admin", "owner",
 export type ApiAccess = (typeof ACCESS_LEVELS)[number];
 
 /** 외부 서비스 — 짧게. 무엇으로 알아보는지는 SERVICE_RULES */
-export const SERVICES = ["ai", "translate", "tts", "storage", "mail", "github", "photos", "weather", "fonts"] as const;
-export type ApiService = (typeof SERVICES)[number];
+const SERVICES = ["ai", "translate", "tts", "storage", "mail", "github", "photos", "weather", "fonts"] as const;
+type ApiService = (typeof SERVICES)[number];
 
-export interface ApiEndpoint {
+interface ApiEndpoint {
   method: string;
   path: string;
   access: ApiAccess;
 }
 
-export interface ApiRoute {
+interface ApiRoute {
   path: string;
   file: string;
   methods: { method: string; access: ApiAccess }[];
@@ -102,9 +102,9 @@ const SERVICE_RULES: { service: ApiService; module?: RegExp; url?: RegExp }[] = 
 ];
 
 /** 이만큼보다 엔드포인트가 적은 묶음은 접는다 — 묶음이 50개 넘게 나와 빛줄기가 겹쳐 읽히지 않았다 */
-export const MIN_GROUP = 4;
-export const MISC_KEY = "etc";
-export const ADMIN_MISC_KEY = "admin";
+const MIN_GROUP = 4;
+const MISC_KEY = "etc";
+const ADMIN_MISC_KEY = "admin";
 
 /* ── 파일 경로 → 주소 ── */
 export function routePathOf(file: string): string {
@@ -399,7 +399,7 @@ const zeroAccess = (): Record<ApiAccess, number> =>
  * 엔드포인트가 MIN_GROUP 보다 적은 묶음은 접는다 — admin/x 는 'admin' 하나로, 나머지는 'etc' 하나로.
  * 접은 묶음의 원래 이름은 folded 에 남는다.
  */
-export function groupRoutes(routes: ApiRoute[]): ApiGroup[] {
+function groupRoutes(routes: ApiRoute[]): ApiGroup[] {
   const raw = new Map<string, ApiRoute[]>();
   for (const r of routes) {
     const k = groupKeyOf(r.path);

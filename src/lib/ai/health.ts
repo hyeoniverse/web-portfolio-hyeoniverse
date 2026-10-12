@@ -12,7 +12,7 @@
  */
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isDisabledNow } from "./status";
-import { clearServiceLog, logService, readServiceLog } from "@/lib/serviceLog";
+import { logService } from "@/lib/serviceLog";
 import type { ServiceLogEntry } from "@/lib/serviceLogTypes";
 import {
   FATAL_KINDS,
@@ -180,7 +180,7 @@ export async function recordFailure(err: ProviderError): Promise<ProviderFailure
 }
 
 /** 성공하면 이어진 실패와 차단을 지운다(마지막 오류 문장은 남겨 둔다) */
-export async function recordSuccess(provider: AiProvider): Promise<void> {
+async function recordSuccess(provider: AiProvider): Promise<void> {
   const health = await readHealth();
   const h = health[provider];
   if (h && h.fails === 0 && !h.disabled) {
@@ -221,7 +221,7 @@ export async function readUsage(): Promise<UsageDoc> {
 }
 
 /** 이번 달 사용량에 더한다. units 는 공급자의 단위(chars·bytes). requests 단위면 비운다 */
-export async function recordUsage(provider: AiProvider, units?: number): Promise<void> {
+async function recordUsage(provider: AiProvider, units?: number): Promise<void> {
   const doc = await readUsage();
   const prev = doc.providers[provider] ?? { requests: 0, units: 0 };
   doc.providers[provider] = { requests: prev.requests + 1, units: prev.units + (units ?? 1) };
@@ -239,17 +239,9 @@ export async function recordOk(provider: AiProvider, units?: number): Promise<vo
 
 /* ── 호출 기록 — service_logs(lib/serviceLog) ── */
 
-export async function readLog(): Promise<ServiceLogEntry[]> {
-  return readServiceLog();
-}
-
 async function appendLog(entry: Omit<ServiceLogEntry, "category">): Promise<void> {
   const { at: _at, ...rest } = entry;
   await logService({ ...rest, category: "ai" });
-}
-
-export async function clearLog(): Promise<void> {
-  await clearServiceLog();
 }
 
 /**
