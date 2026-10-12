@@ -13,7 +13,7 @@ import { markReady, ReadyWait } from "@/lib/readyGate";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { colorTone, NAV_BACKDROP_EVENT } from "@/lib/navBackdrop";
 import { minuteOfPhase, phaseOf, skyAnchors, SKY_KEYS, type SkyKey } from "@/lib/weather/sky";
-import { altAz, localSiderealHours, seasonOf } from "@/lib/weather/stars";
+import { seasonOf } from "@/lib/weather/stars";
 import { moonLitPath, moonPhaseName, moonState } from "@/lib/weather/moon";
 import { SKY_CONSTELLATIONS, SKY_STARS } from "@/data/generated/skyCatalog";
 import StarChart from "./StarChart";
@@ -118,7 +118,8 @@ export default function TimeSky() {
       const bucket = Math.round(minute / 5);
       if (bucket !== lastBucket) {
         lastBucket = bucket;
-        const ahead = (((minute - nowMinute) % 1440) + 1440) % 1440;
+        /* 분 단위로 반올림 — 단계 ↔ 분 왕복의 소수 오차로 지금보다 아주 조금 이르게 나오면 하루 뒤 하늘이 된다 */
+        const ahead = ((Math.round(minute - nowMinute) % 1440) + 1440) % 1440;
         setSkyTime(new Date(now.getTime() + ahead * 60_000));
       }
 
@@ -178,7 +179,7 @@ export default function TimeSky() {
   const lon = weather?.lon ?? 127;
   /* 계절 — 지평선 빛깔이 달라진다(날짜가 하늘에서 보이게). 첫 그림 전에는 정하지 않는다(서버 · 클라이언트 날짜가 다를 수 있다) */
   const season = skyTime ? seasonOf(skyTime, lat) : undefined;
-  const caption = skyTime ? skyCaption(skyTime, lat, lon, weather?.city ?? (language === "ko" ? "서울" : "Seoul"), language) : null;
+  const caption = skyTime ? skyCaption(skyTime, lat, weather?.city ?? (language === "ko" ? "서울" : "Seoul"), language) : null;
   return (
     <div ref={ref} className={styles.sky} data-weather={kind} data-season={season} aria-hidden>
       <ReadyWait id="about-sky" />
@@ -217,15 +218,12 @@ const STAR_COUNT = SKY_STARS.length / 3;
 const CONSTELLATION_COUNT = new Set(SKY_CONSTELLATIONS.map((c) => c.id)).size;
 
 /** "서울 · 10월 10일 오전 4:46의 실제 하늘 — 별 921개 · 별자리 88개" + 달 위상(아이콘으로 그린다) */
-function skyCaption(date: Date, lat: number, lon: number, city: string, language: "ko" | "en") {
+function skyCaption(date: Date, lat: number, city: string, language: "ko" | "en") {
   const when = new Intl.DateTimeFormat(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
   const m = moonState(date);
-  const moonUp = altAz(m.ra, m.dec, lat, localSiderealHours(date, lon)).alt > 0;
-  const name = moonPhaseName(m.phase)[language];
   const text =
     language === "ko"
       ? `${city} · ${when}의 실제 하늘 — 별 ${STAR_COUNT}개 · 별자리 ${CONSTELLATION_COUNT}개`
       : `Real sky over ${city} at ${when} — ${STAR_COUNT} stars · ${CONSTELLATION_COUNT} constellations`;
-  const phase = `${name}${moonUp ? "" : language === "ko" ? "(지평선 아래)" : " (below the horizon)"}`;
-  return { text, phase, illum: m.illum, litLeft: m.waxing === lat < 0 };
+  return { text, phase: moonPhaseName(m.phase)[language], illum: m.illum, litLeft: m.waxing === lat < 0 };
 }
