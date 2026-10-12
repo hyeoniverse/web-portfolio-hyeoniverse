@@ -13,6 +13,7 @@ import {
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
 import type { Language } from "@/types";
+import { getServerSiteLangSnapshot, getSiteLangSnapshot, subscribeSiteLang } from "@/lib/siteLang";
 
 export type { Language };
 
@@ -48,6 +49,8 @@ interface LanguageContextType extends LanguageControls {
   getLanguage: () => Language;
   /** 정적 사전 + 지연 로드분 */
   dict: Record<Language, Translations>;
+  /** 사이트 "다른 언어"(lib/siteLang)의 화면 글 번역을 t() 에 얹을지 — 관리 화면(AdminDictProvider)은 false */
+  siteOverlay?: boolean;
 }
 
 function getNestedValue(obj: Translations, path: string): string {
@@ -157,14 +160,31 @@ const getServerLanguage = (): Language => "ko";
 
 export function useLanguage(): LanguageControls & {
   language: Language;
+  /** 사이트에 걸린 다른 언어(ko · en 밖) — 없으면 null. 걸려 있으면 language 는 늘 "en" 이다 */
+  foreignLang: string | null;
   t: TFunction;
   tAlt: TFunction;
   tLang: (key: string, lang: Language) => string;
 } {
-  const { subscribe, getLanguage, dict, ...controls } = useContext(LanguageContext);
-  const language = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
-  const t = useCallback((key: string) => getNestedValue(dict[language], key), [dict, language]);
-  const tAlt = useCallback((key: string) => getNestedValue(dict[language === "ko" ? "en" : "ko"], key), [dict, language]);
+  const { subscribe, getLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
+  const savedLanguage = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
+  /* 다른 언어(ko · en 밖)가 걸려 있으면 화면의 기본 언어는 영어 — 번역되지 않은 글(language === "ko" ? … 분기,
+     <T ko en>, 상세의 viewLang)이 한국어로 섞여 나오지 않게. 저장된 ko/en 선택은 건드리지 않아 번역을 끄면 돌아온다.
+     화면 글 번역이 왔으면 그것, 번역에 빠진 글(받지 못한 · 깨진 자리표시)은 영어 사전.
+     서버 · 하이드레이션 때는 늘 꺼진 상태라 ko/en 으로 먼저 그린다. 관리 화면(siteOverlay false)은 늘 ko/en */
+  const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
+  const foreignLang = siteOverlay ? site.lang : null;
+  const language: Language = foreignLang ? "en" : savedLanguage;
+  const overlay = foreignLang ? site.ui : null;
+  const t = useCallback(
+    (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[language], key)),
+    [dict, language, overlay],
+  );
+  /* 반대 언어 말풍선 — 다른 언어로 볼 때는 한국어를 꺼내 보이지 않는다(같은 글을 돌려주면 T 가 말풍선을 생략한다) */
+  const tAlt = useCallback(
+    (key: string) => (foreignLang ? t(key) : getNestedValue(dict[language === "ko" ? "en" : "ko"], key)),
+    [dict, language, foreignLang, t],
+  );
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
-  return { language, t, tAlt, tLang, ...controls };
+  return { language, foreignLang, t, tAlt, tLang, ...controls };
 }

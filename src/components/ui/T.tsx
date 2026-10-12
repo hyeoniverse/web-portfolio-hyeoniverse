@@ -48,14 +48,15 @@ export default function T(props: TProps) {
     noTooltip,
     ...rest
   } = props;
-  const { t, tAlt, language } = useLanguage();
+  const { t, tAlt, language, foreignLang } = useLanguage();
 
   let text: string;
   let altText: string;
 
   if (ko !== undefined || en !== undefined) {
     text = language === "ko" ? (ko ?? en ?? "") : (en ?? ko ?? "");
-    altText = language === "ko" ? (en ?? ko ?? "") : (ko ?? en ?? "");
+    /* 다른 언어로 볼 때는 한국어 말풍선을 띄우지 않는다 */
+    altText = foreignLang ? text : language === "ko" ? (en ?? ko ?? "") : (ko ?? en ?? "");
   } else if (k) {
     text = t(k);
     altText = tAlt(k);
