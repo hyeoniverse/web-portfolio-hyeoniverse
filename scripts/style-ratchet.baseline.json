@@ -139,7 +139,7 @@
     "src/components/works/WorkArticleHeader.module.css": 5,
     "src/components/works/WorkEditor.module.css": 3,
     "src/styles/globals/_base.css": 8,
-    "src/styles/globals/_hljs.css": 15,
+    "src/styles/globals/_hljs.css": 14,
     "src/styles/globals/_poll.css": 27,
     "src/styles/globals/_tabs.css": 3
   },
@@ -542,7 +542,7 @@
     "src/components/works/WorkArticleTeam.module.css": 2,
     "src/components/works/WorkEditor.module.css": 2,
     "src/styles/globals/_base.css": 4,
-    "src/styles/globals/_hljs.css": 11,
+    "src/styles/globals/_hljs.css": 10,
     "src/styles/globals/_poll.css": 11,
     "src/styles/globals/_tabs.css": 2
   },

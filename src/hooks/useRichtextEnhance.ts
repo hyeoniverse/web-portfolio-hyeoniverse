@@ -66,8 +66,6 @@ export function useRichtextEnhance(
         scrollTitle: lb.codeScrollTitle,
         copy: lb.codeCopy,
         copied: lb.codeCopied,
-        expand: lb.codeExpand,
-        collapse: lb.codeCollapse,
       });
       // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
       code.applyColorSwatches(el);
