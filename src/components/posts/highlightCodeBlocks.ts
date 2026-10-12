@@ -132,6 +132,10 @@ function attachWheelRouting(pre: HTMLElement) {
   );
 }
 
+/* lucide wrap-text — 에디터 코드블록 헤더(<WrapText />)와 같은 아이콘 */
+const WRAP_ICON =
+  '<svg class="code-wrap-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" x2="21" y1="6" y2="6"/><path d="M3 12h15a3 3 0 1 1 0 6h-4"/><polyline points="16 16 14 18 16 20"/><line x1="3" x2="10" y1="18" y2="18"/></svg>';
+
 /**
  * 코드블록 줄바꿈 토글 — 이벤트 위임 (컨테이너에 한 번만 등록)
  * HTML 내 `<button data-wrap-btn>` 클릭 시 동작
@@ -263,6 +267,10 @@ export function attachCodeWrapToggle(
     const pre = wrap?.querySelector("pre");
     const isWrapped = pre?.style.whiteSpace === "pre-wrap";
     btn.textContent = "";
+    /* 좁은 화면에서는 라벨 대신 이 아이콘만 보인다(_hljs.css). 켜짐은 data-on 강조색 — 에디터와 같은 결 */
+    btn.insertAdjacentHTML("beforeend", WRAP_ICON);
+    btn.toggleAttribute("data-on", isWrapped);
+    btn.setAttribute("aria-label", labels.wrap);
     const spanDefault = document.createElement("span");
     spanDefault.className = "code-wrap-label-default";
     const spanHover = document.createElement("span");
@@ -372,6 +380,8 @@ export function attachCodeWrapToggle(
       pre.style.wordBreak = "break-all";
       pre.style.overflowX = "visible";
     }
+
+    btn.toggleAttribute("data-on", !isWrapped);
 
     // 클릭 직후: 텍스트 안 바꾸고 just-clicked만 추가
     // → hover 중이던 라벨(= 전환된 새 상태)이 그대로 유지
