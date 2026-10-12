@@ -11,6 +11,7 @@ import { motion, AnimatePresence, useMotionValue, type TargetAndTransition } fro
 import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useAdminTexts } from "@/hooks/useAdminTexts";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
@@ -78,7 +79,7 @@ const LOADING_INTRO_PRESETS: Record<string, { initial: TargetAndTransition; visi
 
 /* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
 type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
-function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, onClick: () => void, actionLabel: string) {
+function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, onClick: () => void, actionLabel: string, ts: (s: string) => string) {
   const formatTime = (iso: string) => formatRelativeTime(iso, now, language, { withYear: false });
   return (
     /* 알림 목록의 그 항목으로 보낸다 — 페이지가 ?id 로 찾아 스크롤하고 활성 표시를 건다.
@@ -89,7 +90,7 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, o
       onClick={onClick}
     >
       <div className={styles.notifDropdownItemTop}>
-        <span className={styles.notifDropdownItemTitle}>{n.title}</span>
+        <span className={styles.notifDropdownItemTitle}>{ts(n.title)}</span>
         {/* 결정을 내려야 하는 알림 — 정보성 알림 사이에서 지나치지 않게 표시한다 */}
         {isPending(n) && (
           <span className={styles.notifDropdownItemAction}>
@@ -98,7 +99,7 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, o
         )}
         <span className={styles.notifDropdownItemTime}>{formatTime(n.created_at)}</span>
       </div>
-      <span className={styles.notifDropdownItemMessage}>{n.message}</span>
+      <span className={styles.notifDropdownItemMessage}>{ts(n.message)}</span>
     </Link>
   );
 }
@@ -246,6 +247,11 @@ export default function Navigation() {
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
     notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
   } = useNavNotifications(pathname, canSeeNotifications);
+  /* 알림 제목 · 본문은 서버가 만든 정해진 글 — 다른 언어로 볼 때 드롭다운을 열면 번역한다 */
+  const ts = useAdminTexts(useMemo(
+    () => (notifOpen ? notifs.slice(0, 10).flatMap((n) => [n.title, n.message]) : []),
+    [notifOpen, notifs],
+  ));
 
   /* 관리 화면으로 들어가는 자리 — 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
      보일지는 로그인 여부만 본다(화면 크기와 무관). 갈 곳은 권한이 정한다.
@@ -744,7 +750,7 @@ export default function Navigation() {
 
       <div className={styles.navActions}>
         {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
-        {!isAdminPage && siteConfig.translation?.enabled !== false && <SiteLangMenu />}
+        {siteConfig.translation?.enabled !== false && <SiteLangMenu />}
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={t("navMenu.ui.switchLanguage")} delay={600} placement="bottom">
           <Pressable noTapScale
@@ -889,7 +895,7 @@ export default function Navigation() {
                     <ul className={styles.notifDropdownList} data-lenis-prevent>
                       {notifs.slice(0, 5).map((n) => (
                         <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
-                          {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"))}
+                          {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
                         </li>
                       ))}
                       {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
@@ -908,7 +914,7 @@ export default function Navigation() {
                             }}
                             style={{ overflow: "hidden" }}
                           >
-                            {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"))}
+                            {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
                           </motion.li>
                         ))}
                       </AnimatePresence>

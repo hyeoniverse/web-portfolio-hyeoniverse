@@ -12,15 +12,8 @@ import { tryRequest } from "@/lib/sendAction";
 import { CodedError, errorText } from "@/lib/apiError";
 import { showToast } from "@/stores/toastStore";
 import styles from "./CommentReportModal.module.css";
+import { REPORT_REASONS } from "@/lib/reportReasons";
 
-/** 신고 사유 프리셋 — 선택 후 상세 입력 가능. "other" 는 직접 입력. */
-const REPORT_REASONS: { value: string; labelKey: string }[] = [
-  { value: "spam", labelKey: "comments.reportReasonSpam" },
-  { value: "abuse", labelKey: "comments.reportReasonAbuse" },
-  { value: "inappropriate", labelKey: "comments.reportReasonInappropriate" },
-  { value: "privacy", labelKey: "comments.reportReasonPrivacy" },
-  { value: "other", labelKey: "comments.reportReasonOther" },
-];
 
 /** 댓글 신고 — 모달 내용. 사유 프리셋 선택(기본) + 구체 내용/직접 입력. */
 export default function CommentReportModal({ apiBase, commentId }: { apiBase: string; commentId: string }) {

@@ -2,6 +2,8 @@
 
 import { useContext, useEffect, useMemo, type ReactNode } from "react";
 import { LanguageContext, type Language, type Translations } from "@/providers/LanguageProvider";
+import { useSiteLang } from "@/providers/SiteTranslationProvider";
+import { ensureAdminUi } from "@/lib/adminLang";
 
 /**
  * admin 사전을 이미 로드한 상태로 대시보드 하위 트리에 제공한다.
@@ -31,11 +33,17 @@ export default function AdminDictProvider({
     addTranslations(dict);
   }, [addTranslations, dict]);
 
+  /* 다른 언어가 걸려 있으면 관리자 사전 번역을 받아 t() 에 얹는다(lib/adminLang → siteLang 스냅숏의 adminUi) */
+  const { lang } = useSiteLang();
+  useEffect(() => {
+    if (lang) void ensureAdminUi(lang);
+  }, [lang]);
+
   const value = useMemo(
     () => ({
       ...parent,
-      /* 관리 화면은 사이트 "다른 언어" 번역을 얹지 않는다 — 늘 ko/en */
-      siteOverlay: false,
+      /* 화면 글(메뉴 · 라벨 · 안내)은 고른 언어로, 사이트 내용 글(홈 글 · 카테고리 · 태그)은 원문 — 관리자는 원문을 보고 고친다 */
+      contentOverlay: false,
       dict: {
         ko: { ...parent.dict.ko, ...dict.ko },
         en: { ...parent.dict.en, ...dict.en },

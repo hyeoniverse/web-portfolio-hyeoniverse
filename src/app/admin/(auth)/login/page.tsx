@@ -19,7 +19,7 @@ function safeNextPath(raw: string | null): string | null {
 }
 
 export default function AdminLoginPage() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { setInfinite } = useLenis();
 
   useEffect(() => {
@@ -180,12 +180,12 @@ export default function AdminLoginPage() {
 
         {/* GitHub OAuth — 초대받은 저자용(및 owner). Supabase provider 로 로그인. */}
         <div className={styles.oauthDivider}>
-          <span>{language === "ko" ? "또는" : "or"}</span>
+          <span>{t("admin.inline.loginPage.or")}</span>
         </div>
         <Button type="button" variant="outline" fullWidth onClick={handleGithub} soundDisabled>
           <span className={styles.oauthBtnInner}>
             <SiGithub size={16} />
-            {language === "ko" ? "GitHub 로 로그인" : "Sign in with GitHub"}
+            {t("admin.inline.loginPage.signInWithGithub")}
           </span>
         </Button>
 

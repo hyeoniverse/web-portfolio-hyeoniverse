@@ -117,7 +117,7 @@ describe("describeImport — 적용 전 경고", () => {
     expect(posts.added).toEqual(["slug"]);
     expect(posts.changed).toEqual([{ name: "title", before: "text", after: "varchar(200)" }]);
     /* 병합에선 memo 가 살아남으므로 삭제 항목이 없다 */
-    expect(posts.changed.some((c) => c.after === "(삭제)")).toBe(false);
+    expect(posts.changed.some((c) => c.after === null)).toBe(false);
   });
 
   it("교체 — 사라지는 테이블과 컬럼까지 알려준다", () => {
@@ -126,7 +126,7 @@ describe("describeImport — 적용 전 경고", () => {
     expect(plan.keptTables).toEqual([]);
 
     const posts = plan.updatedTables.find((t) => t.name === "posts")!;
-    expect(posts.changed).toContainEqual({ name: "memo", before: "text", after: "(삭제)" });
+    expect(posts.changed).toContainEqual({ name: "memo", before: "text", after: null });
   });
 });
 
@@ -174,6 +174,6 @@ describe("mergeErd — 명시적 삭제", () => {
     expect(plan.removedTables).toEqual(["junk"]);
     expect(plan.keptTables).not.toContain("junk");
     const posts = plan.updatedTables.find((t) => t.name === "posts")!;
-    expect(posts.changed).toContainEqual({ name: "legacy", before: "text", after: "(삭제)" });
+    expect(posts.changed).toContainEqual({ name: "legacy", before: "text", after: null });
   });
 });

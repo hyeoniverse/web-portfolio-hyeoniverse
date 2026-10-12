@@ -2,7 +2,7 @@
 
 import css from "../../AboutStudio.module.css";
 import { ListLimit, RemoveButton, SortableList, useSortableItem } from "../listControls";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
 import proc from "@/app/about/_panels/panels/ProcessPanel.module.css";
 import { GripVertical, Plus } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
@@ -10,6 +10,10 @@ import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { NEW_TITLE: "새 단계" } as const;
 export type ProcessItem = NonNullable<SiteConfigData["about"]["process"]>[number];
 
 /* ═══════════ Process ═══════════ */
@@ -23,7 +27,6 @@ const renumberSteps = (list: ProcessItem[]) => list.map((it, i) => ({ ...it, ste
 export function ProcessBlock({ value, onChange, lang, t, title }: {
   value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
-  const L = useL();
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
   const atMax = value.length >= MAX;
@@ -31,7 +34,7 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
   return (
     <PanelStage>
       <h3 className={sec.panelTitle}>{title}</h3>
-      <p className={css.procHint}>{L("** 로 감싼 텍스트는 강조 색으로 표시됩니다.", "Text wrapped in ** appears as an accent highlight.")}</p>
+      <p className={css.procHint}>{t("admin.inline.processBlock.textWrappedInAppears")}</p>
       {/* 타임라인 (실제 렌더 그대로) */}
       <div className={proc.processTimeline}>
         <div className={`${proc.processTimelineTrack} ${css.procTrack}`}><div className={proc.processTimelineProgress} style={{ width: "100%" }} /></div>
@@ -53,8 +56,8 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
           ))}
         </SortableList>
         {atMax ? <ListLimit max={MAX} /> : (
-          <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }]))}>
-            <Plus size={18} /> {L("단계 추가", "Add step")}
+          <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: KO_CONTENT.NEW_TITLE, title_en: "New", description_ko: "", description_en: "" }]))}>
+            <Plus size={18} /> {t("admin.inline.processBlock.addStep")}
           </Pressable>
         )}
       </div>
@@ -68,47 +71,46 @@ function ProcessRow({ index, item, lang, t, set, onRemove }: {
   index: number; item: ProcessItem; lang: Language; t: TFunction;
   set: (i: number, p: Partial<ProcessItem>) => void; onRemove: () => void;
 }) {
-  const L = useL();
   const { ref, style, isDragging, handle } = useSortableItem(index);
   return (
     <div ref={ref} style={style} className={`${css.procRow} ${isDragging ? css.procRowDragging : ""}`}>
       <span className={css.procNum} data-cursor="grab"
-        title={L("끌어서 순서 변경", "Drag to reorder")}
-        aria-label={L("끌어서 순서 변경", "Drag to reorder")}
+        title={t("admin.inline.processBlock.dragToReorder")}
+        aria-label={t("admin.inline.processBlock.dragToReorder")}
         {...handle}>
         <GripVertical className={css.procGrip} size={16} strokeWidth={1.8} aria-hidden />
         {stepNo(index)}
       </span>
       <div className={css.procBody}>
         <EditableText wrap className={css.procTitle} value={lang === "ko" ? item.title_ko : item.title_en}
-          onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
+          onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={t("admin.inline.processBlock.title")} style={{ maxWidth: "100%" }} />
         <EditableText multiline className={css.procDesc} value={lang === "ko" ? item.description_ko : item.description_en}
-          onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+          onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.processBlock.description")} style={{ width: "100%" }} />
         {/* 기간·수치 — 언어와 무관하다. 공개 화면의 타임라인 막대 길이와 수치가 된다 */}
         <div className={css.procMeta}>
           <EditableText value={item.start ?? ""} onChange={(v) => set(index, { start: v })}
-            placeholder="2026-02-05" ariaLabel={L("시작일", "Start date")} />
+            placeholder="2026-02-05" ariaLabel={t("admin.inline.processBlock.startDate")} />
           <span aria-hidden>~</span>
           <EditableText value={item.end ?? ""} onChange={(v) => set(index, { end: v })}
-            placeholder="2026-02-22" ariaLabel={L("종료일", "End date")} />
+            placeholder="2026-02-22" ariaLabel={t("admin.inline.processBlock.endDate")} />
           <EditableText value={item.commits ?? ""} onChange={(v) => set(index, { commits: v })}
-            placeholder={L("커밋 수", "Commits")} ariaLabel={L("커밋 수", "Commits")} />
+            placeholder={t("admin.inline.processBlock.commits")} ariaLabel={t("admin.inline.processBlock.commits")} />
           <EditableText value={item.prs ?? ""} onChange={(v) => set(index, { prs: v })}
-            placeholder={L("PR 수", "PRs")} ariaLabel={L("병합 PR 수", "Merged PRs")} />
+            placeholder={t("admin.inline.processBlock.prs")} ariaLabel={t("admin.inline.processBlock.mergedPrs")} />
         </div>
         {/* 대표 수치(언어 무관) · 그 이름(지금 언어) · 주별 커밋 · 커밋 종류 */}
         <div className={css.procMeta}>
           <EditableText value={item.metric ?? ""} onChange={(v) => set(index, { metric: v })}
-            placeholder="4.8 → 1.0 MB" ariaLabel={L("대표 수치", "Key metric")} />
+            placeholder="4.8 → 1.0 MB" ariaLabel={t("admin.inline.processBlock.keyMetric")} />
           <EditableText value={(lang === "ko" ? item.metric_label_ko : item.metric_label_en) ?? ""}
             onChange={(v) => set(index, lang === "ko" ? { metric_label_ko: v } : { metric_label_en: v })}
-            placeholder={L("대표 수치 이름", "Metric label")} ariaLabel={L("대표 수치 이름", "Metric label")} />
+            placeholder={t("admin.inline.processBlock.metricLabel")} ariaLabel={t("admin.inline.processBlock.metricLabel")} />
         </div>
         <div className={css.procMeta}>
           <EditableText value={item.weekly ?? ""} onChange={(v) => set(index, { weekly: v })}
-            placeholder={L("주별 커밋 (예: 106 101 48)", "Weekly commits (e.g. 106 101 48)")} ariaLabel={L("주별 커밋", "Weekly commits")} />
+            placeholder={t("admin.inline.processBlock.weeklyCommitsEG")} ariaLabel={t("admin.inline.processBlock.weeklyCommits")} />
           <EditableText value={item.mix ?? ""} onChange={(v) => set(index, { mix: v })}
-            placeholder="feat:82 fix:77 design:27 refactor:32 perf:5 etc:32" ariaLabel={L("커밋 종류", "Commit types")} />
+            placeholder="feat:82 fix:77 design:27 refactor:32 perf:5 etc:32" ariaLabel={t("admin.inline.processBlock.commitTypes")} />
         </div>
       </div>
       <span className={css.itemTools}><RemoveButton onClick={onRemove} /></span>

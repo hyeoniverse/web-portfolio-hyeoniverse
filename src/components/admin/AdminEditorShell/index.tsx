@@ -357,7 +357,7 @@ export default function AdminEditorShell({
   /** revision meta group 한 개 렌더 — items 모드 vs fields 모드 분기. */
   const renderMetaGroup = (group: RevisionMetaGroup) => {
     const curGroup = currentSnapshot?.meta?.find((g) => g.label === group.label);
-    const emptyLabel = revisionLang === "ko" ? "없음" : "None";
+    const emptyLabel = t("admin.inline.adminEditorShell.none");
     if (group.items && group.items.length > 0) {
       return (
         <div key={group.label} className={styles.revisionMetaGroup}>
@@ -755,10 +755,9 @@ export default function AdminEditorShell({
                         {/* Title + 부제목 + 설명 — label | value grid (meta groups 와 동일 패턴) */}
                         {(() => {
                           const labels = revisionDetail?.headerLabels ?? currentSnapshot?.headerLabels ?? {};
-                          const isKo = revisionLang === "ko";
-                          const titleLabel = labels.title ?? (isKo ? "제목" : "Title");
-                          const subtitleLabel = labels.subtitle ?? (isKo ? "부제목" : "Subtitle");
-                          const excerptLabel = labels.excerpt ?? (isKo ? "설명" : "Description");
+                          const titleLabel = labels.title ?? t("admin.inline.adminEditorShell.title");
+                          const subtitleLabel = labels.subtitle ?? t("admin.inline.adminEditorShell.subtitle");
+                          const excerptLabel = labels.excerpt ?? t("admin.inline.adminEditorShell.description");
                           const oldT = currentSnapshot?.title ?? "";
                           const newT = revisionDetail?.title ?? revisions[viewingRevision].title ?? "";
                           const oldS = currentSnapshot?.subtitle ?? "";

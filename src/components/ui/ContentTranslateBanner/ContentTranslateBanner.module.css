@@ -52,8 +52,29 @@
   to { opacity: 0.3; }
 }
 
+/* 사이트 전체 번역 중 — 화면(main)이 상세의 .region 과 같이 숨 쉰다 */
+:global(html[data-site-translating]) main {
+  opacity: 0.45;
+  animation: regionBreathe var(--duration-slower) var(--ease-standard) infinite alternate;
+}
+
+/* 사이트 전체 번역 중 안내 — 화면 아래 가운데에 떠 있는 한 줄 */
+.sitePill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: var(--z-index-float);
+  margin: 0;
+  max-width: calc(100vw - var(--spacing-32));
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-floating);
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .banner[data-busy]::before,
+  :global(html[data-site-translating]) main,
   .region[data-active] {
     animation: none;
   }

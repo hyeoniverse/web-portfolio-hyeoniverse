@@ -4,6 +4,8 @@ import styles from "./VisitHeatmap.module.css";
 import { useState } from "react";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 /* ── 방문 시간대 히트맵 — KST 요일(행)×시각(열) 방문 분포(#1161).
    방문은 ip·날짜당 1행이라 "그날 첫 방문 시각" 분포다 — 언제 들어오기 시작하는지를 본다.
@@ -34,27 +36,23 @@ const to12 = (hour: number) => (hour % 12 === 0 ? 12 : hour % 12);
 function VisitHeatmap({
   matrix,
   max,
-  language,
 }: {
   matrix: number[][];
   max: number;
   language: "ko" | "en";
 }) {
+  const { t } = useLanguage();
   const [hourFormat, setHourFormat] = useState<HourFormat>("24");
 
   const dowLabels =
-    language === "ko"
-      ? ["일", "월", "화", "수", "목", "금", "토"]
-      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    [0, 1, 2, 3, 4, 5, 6].map((i) => t(`admin.inline.visitHeatmap.dow${i}`));
 
   const meridiem = (hour: number) =>
-    language === "ko" ? (hour < 12 ? "오전" : "오후") : hour < 12 ? "AM" : "PM";
+    t(hour < 12 ? "admin.inline.visitHeatmap.am" : "admin.inline.visitHeatmap.pm");
 
   const tooltipHour = (hour: number) => {
-    if (hourFormat === "24") return language === "ko" ? `${hour}시` : `${hour}:00`;
-    return language === "ko"
-      ? `${meridiem(hour)} ${to12(hour)}시`
-      : `${to12(hour)} ${meridiem(hour)}`;
+    if (hourFormat === "24") return fillTemplate(t("admin.inline.visitHeatmap.hour24"), { hour });
+    return fillTemplate(t("admin.inline.visitHeatmap.hour12"), { meridiem: meridiem(hour), hour: to12(hour) });
   };
 
   return (
@@ -62,8 +60,8 @@ function VisitHeatmap({
       <div className={styles.heatmapToolbar}>
         <SegmentedControl<HourFormat>
           items={[
-            { value: "12", label: language === "ko" ? "12시간" : "12h" },
-            { value: "24", label: language === "ko" ? "24시간" : "24h" },
+            { value: "12", label: t("admin.inline.visitHeatmap.n12h") },
+            { value: "24", label: t("admin.inline.visitHeatmap.n24h") },
           ]}
           value={hourFormat}
           onChange={setHourFormat}
@@ -111,11 +109,11 @@ function VisitHeatmap({
         )}
       </div>
       <div className={styles.heatmapLegend} aria-hidden>
-        <span>{language === "ko" ? "적음" : "Less"}</span>
+        <span>{t("admin.inline.visitHeatmap.less")}</span>
         {LEVEL_COLORS.map((color, i) => (
           <span key={i} className={styles.heatmapCell} style={{ background: color }} />
         ))}
-        <span>{language === "ko" ? "많음" : "More"}</span>
+        <span>{t("admin.inline.visitHeatmap.more")}</span>
       </div>
     </div>
   );

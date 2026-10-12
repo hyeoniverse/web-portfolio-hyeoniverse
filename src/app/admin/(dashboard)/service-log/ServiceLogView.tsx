@@ -197,7 +197,7 @@ export default function ServiceLogView() {
         {demo && <p className={styles.demo}>{th("logDemo")}</p>}
         {/* 무엇을 남기는지 — 줄마다 한 가지 */}
         <ul className={styles.hintList}>
-          {th("logHint").split("\n").map((line) => <li key={line}>{line}</li>)}
+          {th("logHint").split("\n").filter((l) => l.trim()).map((line, i) => <li key={i}>{line}</li>)}
         </ul>
 
         {entries === null ? (

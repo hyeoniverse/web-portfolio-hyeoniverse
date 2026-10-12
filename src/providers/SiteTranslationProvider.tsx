@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { showToast } from "@/stores/toastStore";
 import { fillTemplate } from "@/utils/format";
 import { findTranslationLanguage } from "@/lib/translationLanguages";
+import { SiteTranslatingStatus } from "@/components/ui/ContentTranslateBanner";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -22,8 +23,8 @@ export function useSiteLang() {
 }
 
 /**
- * 사이트 전체 번역의 연결부 — 그리는 것은 없다. 루트 레이아웃의 LanguageProvider 안에 둔다.
- *   - 번역이 꺼진 사이트(설정) · 관리 화면(/admin)에서는 언어를 걸지 않는다 — 관리 화면은 늘 ko/en
+ * 사이트 전체 번역의 연결부 — 그리는 것은 번역 중 안내 한 줄뿐. 루트 레이아웃의 LanguageProvider 안에 둔다.
+ *   - 번역이 꺼진 사이트(설정)에서는 언어를 걸지 않는다. 관리 화면(/admin)도 같은 언어 — 화면 글만 번역(AdminDictProvider)
  *   - 걸린 언어의 화면 글 번역을 한 번 받아 둔다(메모리 + localStorage, lib/siteLang)
  *   - 그 언어의 화면 글이 처음 걸릴 때 "기계 번역" 안내를 토스트로 한 번(언어마다, 탭을 닫을 때까지) — 늘 보이는 표시는
  *     내비게이션 🌐 단추의 언어 코드다. 푸터는 홈 · 작업물 · 소개 화면에서 숨으므로 안내 자리로 쓰지 않는다
@@ -38,8 +39,8 @@ export default function SiteTranslationProvider() {
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
   const configEnabled = siteConfig?.translation?.enabled !== false;
   useEffect(() => {
-    setSiteLangEnabled(configEnabled && !isAdmin);
-  }, [configEnabled, isAdmin]);
+    setSiteLangEnabled(configEnabled);
+  }, [configEnabled]);
 
   useEffect(() => {
     if (site.lang && site.uiStatus === "idle") void ensureSiteUi(site.lang);
@@ -49,8 +50,9 @@ export default function SiteTranslationProvider() {
      화면을 옮길 때마다 부르지만 이미 받았으면 바로 돌아온다 — 실패했던 것만 그때 다시 묻는다 */
   const onAbout = pathname === "/about" || pathname.startsWith("/about/");
   useEffect(() => {
-    if (site.lang) void ensureSiteContent(site.lang);
-  }, [site.lang, pathname]);
+    /* 관리 화면은 내용 글을 원문으로 보인다 — 받지 않는다 */
+    if (site.lang && !isAdmin) void ensureSiteContent(site.lang);
+  }, [site.lang, pathname, isAdmin]);
   useEffect(() => {
     if (site.lang && onAbout) void ensureSiteContent(site.lang, "about");
   }, [site.lang, onAbout, pathname]);
@@ -74,5 +76,14 @@ export default function SiteTranslationProvider() {
     document.documentElement.setAttribute("lang", shownLang);
   }, [shownLang]);
 
-  return null;
+  /* 화면 글을 받는 동안 — 영어가 그대로 드러나 보이지 않게 상세 번역과 같은 효과(흐리게 숨 쉬기 + 번역 중 안내).
+     관리 화면은 관리자 사전 번역까지 받을 때까지 */
+  const translating = !!site.lang && (site.uiStatus === "loading" || (isAdmin && site.adminUiLoading));
+  useEffect(() => {
+    const el = document.documentElement;
+    if (translating) el.setAttribute("data-site-translating", "");
+    else el.removeAttribute("data-site-translating");
+  }, [translating]);
+
+  return translating && site.lang ? <SiteTranslatingStatus lang={site.lang} /> : null;
 }

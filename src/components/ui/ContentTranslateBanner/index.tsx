@@ -65,3 +65,21 @@ export function TranslatingRegion({ active, children }: { active: boolean; child
     </div>
   );
 }
+
+/**
+ * 사이트 전체 "다른 언어로 보기"의 화면 글을 받아 오는 동안 — 상세 번역과 같은 효과.
+ * 화면(<main>)이 흐리게 숨 쉬고(<html data-site-translating>, SiteTranslationProvider 가 건다),
+ * 아래에 "~(으)로 번역하는 중…" 한 줄이 뜬다. 받으면 사라진다.
+ */
+export function SiteTranslatingStatus({ lang }: { lang: string }) {
+  const { t, language } = useLanguage();
+  return (
+    <div className={`${styles.banner} ${styles.sitePill}`} role="status" aria-live="polite" data-busy="">
+      <Languages className={styles.icon} size={14} aria-hidden />
+      <p className={styles.message}>
+        {fillTemplate(t("contentTranslate.translating"), { lang: localLangName(lang, language) })}
+        <LoadingDots className={styles.dots} />
+      </p>
+    </div>
+  );
+}
