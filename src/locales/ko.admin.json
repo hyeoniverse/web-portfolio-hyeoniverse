@@ -351,7 +351,7 @@
       "siteTitle": "사이트 제목",
       "siteTitleHint": "브라우저 탭 및 SEO에 사용",
       "defaultLanguage": "기본 언어",
-      "defaultLanguageHint": "콘텐츠를 쓰는 언어이자 방문자에게 처음 보이는 언어 · 한국어 · 영어 밖이면 KO 자리를 그 언어가 대신함(글의 원문 칸 · JA/EN 토글 · 화면 글은 기계 번역)",
+      "defaultLanguageHint": "콘텐츠를 작성하는 언어이며, 언어를 선택하지 않은 방문자에게 처음 표시되는 언어입니다. 한국어나 영어가 아닌 언어를 선택하면 해당 언어가 한국어 자리를 대신하여 글의 원문 칸과 언어 전환 버튼에 사용되고, 화면 문구는 기계 번역으로 표시됩니다.",
       "description": "설명",
       "descriptionHint": "검색 엔진 결과에 표시",
       "keywords": "키워드",
