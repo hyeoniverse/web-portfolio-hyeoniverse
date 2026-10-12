@@ -7,6 +7,7 @@ import { PERM } from "@/lib/api/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
+import { WORK_COLUMNS, staleAutoTranslationPatch } from "@/lib/api/autoTranslationMark";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -104,6 +105,12 @@ export async function PATCH(request: Request, context: RouteContext) {
         { status: 403 },
       );
     }
+  }
+
+  /* 원문이 바뀌었으면 자동 번역해 둔 반대 언어 칸을 비운다 — 다음 방문 때 새 원문으로 다시 번역된다 */
+  if ([...WORK_COLUMNS.ko, ...WORK_COLUMNS.en].some((c) => c in filtered)) {
+    const { data: cur } = await createAdminClient().from("works").select("*").eq("id", id).maybeSingle();
+    Object.assign(filtered, staleAutoTranslationPatch(cur, filtered, WORK_COLUMNS));
   }
 
   filtered.updated_at = new Date().toISOString();

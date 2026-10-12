@@ -235,6 +235,8 @@ CREATE TABLE IF NOT EXISTS posts (
   title_en     text NOT NULL DEFAULT '',
   content_en   text NOT NULL DEFAULT '',
   excerpt_en   text NOT NULL DEFAULT '',
+  -- 자동 번역 표식 (src/lib/api/autoTranslationMark.ts)
+  auto_translation jsonb,
   -- 고유 번호
   post_number  int NOT NULL DEFAULT nextval('posts_post_number_seq'),
   -- 시리즈 연결
@@ -637,6 +639,8 @@ CREATE TABLE IF NOT EXISTS works (
   -- Flow 레이아웃 카드 사이즈는 sort_order 에서 cycle derive — 별도 컬럼 없음 (single source of truth)
   content_ko       text NOT NULL DEFAULT '',
   content_en       text NOT NULL DEFAULT '',
+  -- 자동 번역 표식 (src/lib/api/autoTranslationMark.ts)
+  auto_translation jsonb,
   content_type     text NOT NULL DEFAULT 'markdown'
     CHECK (content_type IN ('markdown', 'richtext')),
   -- legacy separate sections (backward compat)

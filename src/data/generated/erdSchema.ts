@@ -256,6 +256,10 @@ export const schemaTables: ErdTable[] = [
         "required": true
       },
       {
+        "name": "auto_translation",
+        "type": "jsonb"
+      },
+      {
         "name": "post_number",
         "type": "int",
         "required": true,
@@ -663,6 +667,10 @@ export const schemaTables: ErdTable[] = [
         "name": "content_en",
         "type": "text",
         "required": true
+      },
+      {
+        "name": "auto_translation",
+        "type": "jsonb"
       },
       {
         "name": "content_type",

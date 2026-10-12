@@ -12,6 +12,7 @@ import {
   translateWithFallback,
   translationFailure,
 } from "@/lib/api/translationProviders";
+import { WORK_COLUMNS, makeMark } from "@/lib/api/autoTranslationMark";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -88,6 +89,8 @@ export async function POST(request: Request, context: RouteContext) {
   const update: Record<string, string> = {};
   for (const f of fields) if (translated[f]) update[dst[f]] = translated[f]!;
   await admin.from("works").update(update).eq("id", id);
+  /* 표식은 따로 쓴다 — 칸이 없는 DB 에서 실패해도 번역 저장은 남는다(autoTranslationMark) */
+  await admin.from("works").update({ auto_translation: makeMark({ ...row, ...update }, WORK_COLUMNS, to) }).eq("id", id);
   revalidatePublicWorks();
 
   return NextResponse.json({
