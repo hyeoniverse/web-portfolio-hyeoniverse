@@ -22,10 +22,7 @@ export function usePostDetailFetches({ postId, isAdmin }: { postId: string; isAd
     const ac = new AbortController();
     const { signal } = ac;
 
-    // admin 본인 조회는 skip — 자기 글 inflate 방지 (서버측에서도 한 번 더 거름)
-    if (!isAdmin) {
-      fetch(`/api/posts/${postId}/view`, { method: "POST", signal }).catch(() => {});
-    }
+    // 조회수는 따로 보내지 않는다 — 페이지 조회 기록(VisitTracker → /api/page-views)이 /posts/{slug} 조회로 view_count 를 올린다
 
     fetch(`/api/posts/${postId}/adjacent`, { signal })
       .then((r) => r.json())

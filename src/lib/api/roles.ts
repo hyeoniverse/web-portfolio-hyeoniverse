@@ -73,6 +73,11 @@ export function getUserRole(user: User | null | undefined): UserRole {
   return { ...EMPTY, authorId };
 }
 
+/** 사이트 운영 권한(owner · admin)인가 — 조회수 · 방문 기록에서 빼는 '사이트 주인' 판정. 작성자(레벨 1)는 방문자처럼 센다 */
+export function isSiteStaff(role: UserRole): boolean {
+  return role.isOwner || role.level >= PERM.ADMIN;
+}
+
 /** 이 역할이 대상 글(author_ids)을 편집할 수 있는가. owner/admin 은 전부, author 는 본인 글만. */
 export function canEditPost(role: UserRole, authorIds: string[] | null | undefined): boolean {
   if (role.isOwner || role.level >= PERM.ADMIN) return true;

@@ -64,7 +64,7 @@ function buildSmoothPath(pts: { x: number; y: number }[]): string {
 }
 
 /* ── 시각화 컴포넌트 ── */
-/** 일별 조회수 — SVG 면적 차트. 시작일/종료일 기반 날짜 범위 선택. 부드러운 스플라인 + 그라데이션 fill.
+/** 일별 방문자 — SVG 면적 차트. 시작일/종료일 기반 날짜 범위 선택. 부드러운 스플라인 + 그라데이션 fill.
  *  점/하단 라벨 클릭 시 해당 날짜의 상세 분석 패널이 펼쳐짐. */
 function DailyViewsChart({
   data: rawData,
@@ -605,7 +605,7 @@ function DailyViewsChart({
                   }}
                   onClick={() => toggle(i)}
                   onMouseEnter={() => setHoveredIdx(i)}
-                  aria-label={`${data[i].day}: ${data[i].views} views`}
+                  aria-label={`${data[i].day}: ${data[i].views} visitors`}
                 >
                   {/* 각 dot 위 숫자 label — today/selected/hover 시 강조 */}
                   <span

@@ -14,7 +14,7 @@ import type { ErdTable, ErdRelation } from "./types";
 
 /* 개념 모델에 올릴 엔티티는 고르지 않고 관계에서 도출한다 —
    손으로 목록을 유지하면 새 테이블에 관계가 생겨도 개념 ERD 에는 안 나타난다.
-   실제로 revisions·post_views·comment_reactions 가 그렇게 빠져 있었고,
+   실제로 revisions·조회 기록·comment_reactions 가 그렇게 빠져 있었고,
    그 바람에 스키마 관계 16개 중 9개가 개념에서 사라졌다.
    조인 테이블은 엔티티가 아니라 M:N 마름모로 접히므로 제외한다. */
 function coreEntities(tables: ErdTable[], relations: ErdRelation[]): string[] {
@@ -40,8 +40,6 @@ const SHOWN_ATTRS: Record<string, string[]> = {
   work_comments: ["id", "nickname", "content"],
   likes: ["id", "target_type"],
   revisions: ["id", "entity_type", "snapshot"],
-  post_views: ["id", "ip", "viewed_date"],
-  work_views: ["id", "ip", "viewed_date"],
   comment_reactions: ["id", "emoji"],
 };
 
@@ -84,8 +82,6 @@ const REL_VERB: Record<string, LocalizedText> = {
   "likes→works": { ko: "좋아요", en: "likes" },
   "revisions→posts": { ko: "이력", en: "revision of" },
   "revisions→works": { ko: "이력", en: "revision of" },
-  "post_views→posts": { ko: "조회", en: "viewed" },
-  "work_views→works": { ko: "조회", en: "viewed" },
   "comment_reactions→comments": { ko: "반응", en: "reacts to" },
   "comment_reactions→work_comments": { ko: "반응", en: "reacts to" },
 };

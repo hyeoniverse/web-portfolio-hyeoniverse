@@ -83,10 +83,7 @@ export default function WorkDetailClient({
   const [relatedPosts, setRelatedPosts] = useState<RelatedPostItem[]>([]);
   const [relatedSeries, setRelatedSeries] = useState<RelatedSeriesItem[]>([]);
 
-  // 조회수 기록 (posts 미러) — admin/bot 은 서버에서 skip, IP+KST 하루 1회 dedup. fire-and-forget.
-  useEffect(() => {
-    fetch(`/api/works/${project.id}/view`, { method: "POST" }).catch(() => {});
-  }, [project.id]);
+  // 조회수는 따로 보내지 않는다 — 페이지 조회 기록(VisitTracker → /api/page-views)이 /works/{slug} 조회로 view_count 를 올린다
 
   useEffect(() => {
     const ac = new AbortController();

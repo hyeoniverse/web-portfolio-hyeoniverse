@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 192,
-  "routeFiles": 133,
+  "total": 191,
+  "routeFiles": 132,
   "access": {
-    "public": 66,
+    "public": 65,
     "signed-in": 58,
     "author": 27,
     "admin": 16,
@@ -25,25 +25,25 @@ export const apiMap: ApiMap = {
     "cover_image_history",
     "custom_emojis",
     "likes",
+    "page_views",
     "poll_votes",
-    "post_views",
     "post_work_relations",
     "posts",
     "revisions",
     "series",
     "series_work_relations",
     "site_settings",
-    "site_visits",
     "traffic_excluded_ips",
     "work_comments",
     "works"
   ],
   "rpcs": [
-    "daily_post_views",
+    "page_view_stats",
+    "page_view_totals",
     "publish_scheduled",
-    "record_post_view",
-    "record_work_view",
-    "sum_post_views"
+    "record_page_duration",
+    "record_page_view",
+    "visitor_counts"
   ],
   "services": [
     "ai",
@@ -59,7 +59,7 @@ export const apiMap: ApiMap = {
   "groups": [
     {
       "key": "works",
-      "files": 17,
+      "files": 16,
       "endpoints": [
         {
           "method": "GET",
@@ -132,11 +132,6 @@ export const apiMap: ApiMap = {
           "access": "author"
         },
         {
-          "method": "POST",
-          "path": "/api/works/[id]/view",
-          "access": "public"
-        },
-        {
           "method": "GET",
           "path": "/api/works/export",
           "access": "admin"
@@ -181,9 +176,7 @@ export const apiMap: ApiMap = {
         "site_settings",
         "works"
       ],
-      "rpcs": [
-        "record_work_view"
-      ],
+      "rpcs": [],
       "services": [
         "ai",
         "translate",
@@ -192,7 +185,7 @@ export const apiMap: ApiMap = {
         "github"
       ],
       "access": {
-        "public": 6,
+        "public": 5,
         "signed-in": 1,
         "author": 12,
         "admin": 3,
@@ -202,7 +195,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "posts",
-      "files": 16,
+      "files": 15,
       "endpoints": [
         {
           "method": "GET",
@@ -280,11 +273,6 @@ export const apiMap: ApiMap = {
           "access": "author"
         },
         {
-          "method": "POST",
-          "path": "/api/posts/[id]/view",
-          "access": "public"
-        },
-        {
           "method": "GET",
           "path": "/api/posts/auto-cover",
           "access": "signed-in"
@@ -317,15 +305,13 @@ export const apiMap: ApiMap = {
         "site_settings",
         "works"
       ],
-      "rpcs": [
-        "record_post_view"
-      ],
+      "rpcs": [],
       "services": [
         "ai",
         "translate"
       ],
       "access": {
-        "public": 8,
+        "public": 7,
         "signed-in": 5,
         "author": 8,
         "admin": 0,
@@ -1248,20 +1234,19 @@ export const apiMap: ApiMap = {
         "comments",
         "cover_image_history",
         "custom_emojis",
+        "page_views",
         "poll_votes",
-        "post_views",
         "post_work_relations",
         "posts",
         "series",
         "site_settings",
-        "site_visits",
         "traffic_excluded_ips",
         "work_comments",
         "works"
       ],
       "rpcs": [
-        "daily_post_views",
-        "sum_post_views"
+        "page_view_stats",
+        "page_view_totals"
       ],
       "services": [
         "ai",
@@ -1282,7 +1267,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 26,
+      "files": 27,
       "folded": [
         "auth",
         "brand-symbol-font",
@@ -1295,12 +1280,12 @@ export const apiMap: ApiMap = {
         "favicon",
         "fonts",
         "highlight",
+        "page-views",
         "polls",
         "service-status",
         "site-translate",
         "translate",
         "upload",
-        "visits",
         "weather",
         "works-categories"
       ],
@@ -1397,6 +1382,21 @@ export const apiMap: ApiMap = {
         },
         {
           "method": "GET",
+          "path": "/api/page-views",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/page-views",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/page-views/duration",
+          "access": "public"
+        },
+        {
+          "method": "GET",
           "path": "/api/polls/[pollId]",
           "access": "public"
         },
@@ -1442,16 +1442,6 @@ export const apiMap: ApiMap = {
         },
         {
           "method": "GET",
-          "path": "/api/visits",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/visits",
-          "access": "public"
-        },
-        {
-          "method": "GET",
           "path": "/api/weather",
           "access": "public"
         },
@@ -1473,16 +1463,19 @@ export const apiMap: ApiMap = {
         "comment_reactions",
         "content_translations",
         "custom_emojis",
+        "page_views",
         "poll_votes",
         "posts",
         "series",
         "site_settings",
-        "site_visits",
         "traffic_excluded_ips",
         "works"
       ],
       "rpcs": [
-        "publish_scheduled"
+        "publish_scheduled",
+        "record_page_duration",
+        "record_page_view",
+        "visitor_counts"
       ],
       "services": [
         "translate",
@@ -1493,7 +1486,7 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 23,
+        "public": 24,
         "signed-in": 5,
         "author": 1,
         "admin": 0,
