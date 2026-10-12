@@ -290,8 +290,11 @@
     drop-shadow(0 0 6px color-mix(in oklch, var(--text-black) 50%, transparent));
 }
 
+/* 라벨은 줄지 않는다 — 값이 nowrap 이라 긴 값 옆에서 라벨이 눌려, 띄어쓰기 없는 글(일본어 "名前")은 한 글자씩 세로로 꺾였다 */
 .bgInfoLabel {
   display: inline-block;
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.2em 0.7em;
   border: var(--border-white-muted);
   width: fit-content;
