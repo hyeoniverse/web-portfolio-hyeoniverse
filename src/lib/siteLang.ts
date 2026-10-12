@@ -33,9 +33,11 @@ export interface SiteLangSnapshot {
   content: Readonly<Record<string, string>> | null;
   /** 지금 언어의 관리자 화면 글 번역(lib/adminLang — 관리 화면에서만 받는다) — 아직 없으면 null */
   adminUi: Readonly<Record<string, string>> | null;
+  /** 관리자 화면 글 번역을 받는 중인가 */
+  adminUiLoading: boolean;
 }
 
-const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null };
+const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
 
 /** 저장된 선택 › 브라우저 언어 — 순수 함수(테스트용으로 뗀다) */
 export function resolveInitialLang(saved: string | null, browserLangs: readonly string[]): { lang: string | null; auto: boolean } {
@@ -126,6 +128,11 @@ function contentFor(lang: string): Record<string, string> | null {
 
 /* 관리자 화면 글 번역 — 받아 오기 · 저장소는 lib/adminLang(관리자 사전을 공개 번들에 싣지 않으려고 따로 둔다). 여기는 메모리만 */
 const adminUiMemory = new Map<string, Record<string, string>>();
+const adminUiInflight = new Set<string>();
+export function setAdminUiLoading(lang: string, loading: boolean) {
+  if (loading) adminUiInflight.add(lang); else adminUiInflight.delete(lang);
+  emit();
+}
 export function setAdminUi(lang: string, strings: Record<string, string>) {
   adminUiMemory.set(lang, strings);
   emit();
@@ -148,11 +155,11 @@ function current() {
 function build(): SiteLangSnapshot {
   const { lang: chosen, auto } = current();
   const lang = enabled ? chosen : null;
-  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null };
+  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
   const ui = uiFor(lang);
   const err = uiErrors.get(lang);
   const uiStatus: SiteUiStatus = ui ? "ready" : err ?? (uiInflight.has(lang) ? "loading" : "idle");
-  return { lang, auto, ui, uiStatus, content: contentFor(lang), adminUi: adminUiMemory.get(lang) ?? null };
+  return { lang, auto, ui, uiStatus, content: contentFor(lang), adminUi: adminUiMemory.get(lang) ?? null, adminUiLoading: adminUiInflight.has(lang) };
 }
 
 function emit() {
@@ -268,5 +275,6 @@ export function __resetSiteLangForTest() {
   contentFetched.clear();
   mergedCache.clear();
   adminUiMemory.clear();
+  adminUiInflight.clear();
   sourceCache = null;
 }

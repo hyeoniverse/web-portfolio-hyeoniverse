@@ -1,6 +1,6 @@
 import enAdmin from "@/locales/en.admin.json";
 import { adminUiHash, sanitizeSiteUi, siteUiSource, type SiteUiSource } from "@/lib/siteTranslation";
-import { setAdminUi } from "@/lib/siteLang";
+import { setAdminUi, setAdminUiLoading } from "@/lib/siteLang";
 
 /**
  * 관리자 화면 글(locales/en.admin.json)의 "다른 언어" 번역 — 사이트 언어(lib/siteLang)와 같은 언어를 쓴다.
@@ -45,6 +45,7 @@ export async function ensureAdminUi(lang: string, fetcher: typeof fetch = fetch)
     return;
   }
   inflight.add(lang);
+  setAdminUiLoading(lang, true);
   try {
     const res = await fetcher("/api/admin/site-translate-ui", {
       method: "POST",
@@ -64,6 +65,7 @@ export async function ensureAdminUi(lang: string, fetcher: typeof fetch = fetch)
     done.add(lang);
   } finally {
     inflight.delete(lang);
+    setAdminUiLoading(lang, false);
   }
 }
 
