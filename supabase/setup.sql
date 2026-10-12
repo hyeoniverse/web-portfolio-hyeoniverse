@@ -93,6 +93,7 @@
 --   2026_10_15  page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사, 글/작업물 view_count 도 record_page_view 에서
 --   2026_10_16  visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)
 --   2026_10_17  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
+--   2026_10_19  posts · works.source_lang · content_translations 원문 백업(post_source · work_source · settings_source) — 기본 언어를 바꾸면 원문을 번역해 덮어쓴다
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -221,6 +222,8 @@ CREATE TABLE IF NOT EXISTS posts (
   -- /api/posts 는 body 를 필터 없이 insert 하므로 컬럼이 없으면 저장이 400 으로 실패한다.
   language     text NOT NULL DEFAULT 'ko'
     CHECK (language IN ('ko', 'en')),
+  -- 원문 칸(title · content · excerpt)이 쓰인 언어(#1425) — 비어 있으면 ko. 기본 언어가 바뀌면 편집 화면에서 번역해 덮어쓴다
+  source_lang  text,
   view_count   int NOT NULL DEFAULT 0,
   like_count   int NOT NULL DEFAULT 0,
   github_url   text DEFAULT '',
@@ -676,6 +679,7 @@ CREATE TABLE IF NOT EXISTS works (
   -- AI 요약
   summary_ko       text NOT NULL DEFAULT '',
   summary_en       text NOT NULL DEFAULT '',
+  source_lang      text,                       -- 원문 칸(ko)이 쓰인 언어(#1425) — 비어 있으면 ko
   created_at       timestamptz DEFAULT now(),
   updated_at       timestamptz DEFAULT now(),
   deleted_at       timestamptz DEFAULT NULL,
@@ -940,7 +944,7 @@ REVOKE ALL ON service_logs FROM anon, authenticated;
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS content_translations (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  source_type text NOT NULL CHECK (source_type IN ('post', 'work', 'ui', 'site_ui', 'post_meta', 'work_meta', 'series_meta', 'admin_text')),
+  source_type text NOT NULL CHECK (source_type IN ('post', 'work', 'ui', 'site_ui', 'post_meta', 'work_meta', 'series_meta', 'admin_text', 'post_source', 'work_source', 'settings_source')),
   source_id   uuid NOT NULL,
   lang        text NOT NULL,
   fields      jsonb NOT NULL DEFAULT '{}',

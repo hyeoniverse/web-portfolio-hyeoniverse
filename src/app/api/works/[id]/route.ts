@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
@@ -108,6 +109,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   /* 원문이 바뀌었으면 자동 번역해 둔 반대 언어 칸을 비운다 — 다음 방문 때 새 원문으로 다시 번역된다 */
+  /* 원문 칸을 고쳐 저장하면 그 작업물의 원문 언어는 지금 기본 언어다(#1425) */
+  if (WORK_COLUMNS.ko.some((c) => c in filtered)) {
+    const sourceLang = await currentSourceLang();
+    if (sourceLang) filtered.source_lang = sourceLang;
+  }
   if ([...WORK_COLUMNS.ko, ...WORK_COLUMNS.en].some((c) => c in filtered)) {
     const { data: cur } = await createAdminClient().from("works").select("*").eq("id", id).maybeSingle();
     Object.assign(filtered, staleAutoTranslationPatch(cur, filtered, WORK_COLUMNS));

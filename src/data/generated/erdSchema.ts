@@ -190,6 +190,10 @@ export const schemaTables: ErdTable[] = [
         "defaultValue": "'ko'"
       },
       {
+        "name": "source_lang",
+        "type": "text"
+      },
+      {
         "name": "view_count",
         "type": "int",
         "required": true,
@@ -801,6 +805,10 @@ export const schemaTables: ErdTable[] = [
         "name": "summary_en",
         "type": "text",
         "required": true
+      },
+      {
+        "name": "source_lang",
+        "type": "text"
       },
       {
         "name": "created_at",

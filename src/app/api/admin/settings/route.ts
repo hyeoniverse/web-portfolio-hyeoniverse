@@ -9,7 +9,9 @@ import { checkAboutContent } from "@/lib/api/validateAboutContent";
 import { checkRequiredSettings } from "@/lib/api/validateRequiredSettings";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
-import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getSiteConfig, mergeSiteConfig } from "@/lib/getSiteConfig";
+import { translateConfigSource, translateProfileSource } from "@/lib/api/sourceTranslate";
+import { sourceTargetOf } from "@/lib/siteLanguage";
 import { prewarmDefaultLangUi } from "@/lib/api/defaultLangUi";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { siteConfig } from "@/config/site.config";
@@ -148,6 +150,24 @@ export async function PATCH(request: Request) {
     }
   }
 
+  /* 기본 언어를 바꿨으면 설정 글 · 프로필의 원문 칸(ko 자리)을 새 언어로 번역해 덮어쓴다(#1425).
+     번역에 실패하면 저장하지 않는다 — 언어만 바뀌고 글은 그대로인 상태가 남지 않게 */
+  let sourceTranslated = false;
+  {
+    const delta = (body.config.delta ?? body.config) as Record<string, unknown>;
+    const full = mergeSiteConfig(delta);
+    const target = sourceTargetOf(full.metadata?.defaultLanguage);
+    const from = full.metadata?.sourceLanguage || "ko";
+    if (target && target !== from && full.translation?.enabled !== false) {
+      const ok = await translateConfigSource(full as unknown as Record<string, unknown>, delta, from, target, full)
+        && await translateProfileSource(from, target, full);
+      if (!ok) return jsonError("원문을 새 기본 언어로 번역하지 못했습니다. 잠시 뒤 다시 저장해 주세요.", 502, { code: "TRANSLATION_FAILED" });
+      const meta = (delta.metadata ?? {}) as Record<string, unknown>;
+      delta.metadata = { ...meta, sourceLanguage: target };
+      sourceTranslated = true;
+    }
+  }
+
   const { data, error } = await admin
     .from("site_settings")
     .upsert({ id: "default", config: body.config, updated_at: new Date().toISOString() })
@@ -191,5 +211,6 @@ export async function PATCH(request: Request) {
     }
   } catch { /* notify 실패는 swallow */ }
 
-  return NextResponse.json(data);
+  /* 원문을 번역해 덮어썼으면 알린다 — 설정 화면이 들고 있는 값은 번역 전이라 다시 불러와야 한다 */
+  return NextResponse.json(sourceTranslated ? { ...data, sourceTranslated } : data);
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import { revalidatePath } from "next/cache";
 import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
@@ -96,6 +97,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   /* 원문이 바뀌었으면 자동 번역해 둔 반대 언어 칸을 비운다 — 다음 방문 때 새 원문으로 다시 번역된다 */
+  /* 원문 칸을 고쳐 저장하면 그 글의 원문 언어는 지금 기본 언어다(#1425) */
+  if (POST_COLUMNS.ko.some((c) => c in body)) {
+    const sourceLang = await currentSourceLang();
+    if (sourceLang) body.source_lang = sourceLang;
+  }
   if ([...POST_COLUMNS.ko, ...POST_COLUMNS.en].some((c) => c in body)) {
     const { data: cur } = await createAdminClient().from("posts").select("*").eq("id", id).maybeSingle();
     Object.assign(body, staleAutoTranslationPatch(cur, body, POST_COLUMNS));
