@@ -22,6 +22,7 @@ import { isPending } from "@/lib/notificationTypes";
 import styles from "./Notifications.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { useAdminTexts } from "@/hooks/useAdminTexts";
 import { errorText } from "@/lib/apiError";
 import { sendAction } from "@/lib/sendAction";
 
@@ -112,6 +113,9 @@ export default function NotificationsPage() {
     if (!q) return result;
     return result.filter((n) => matchesSearch(q, n.title ?? "", n.message ?? ""));
   }, [notifications, tab, search]);
+
+  /* 알림 제목 · 본문은 서버가 만든 정해진 글 — 다른 언어로 볼 때 번역한다(받기 전 · 실패하면 원문) */
+  const ts = useAdminTexts(useMemo(() => filteredNotifs.flatMap((n) => [n.title, n.message]), [filteredNotifs]));
 
   /* 결정을 내려야 하는 미처리 항목은 시간순과 무관하게 맨 위에 모은다. 정보성 알림이 계속
      쌓이면 권한 요청은 며칠만 지나도 아래로 밀려 보이지 않는다 — 전용 탭을 만드는 대신
@@ -530,8 +534,8 @@ export default function NotificationsPage() {
                       {typeIcon(n.type)}
                     </span>
                     <div className={styles.body}>
-                      <div className={styles.itemTitle}>{typeLabel(n.type, n.title)}</div>
-                      <div className={styles.itemMessage}>{n.message}</div>
+                      <div className={styles.itemTitle}>{typeLabel(n.type, ts(n.title))}</div>
+                      <div className={styles.itemMessage}>{ts(n.message)}</div>
                       <div className={styles.itemMeta}>
                         <span className={styles.itemDate}>{formatDate(n.created_at)}</span>
                         {hasLink && <span className={styles.itemLink}>↗ <T k="admin.notifications.view" /></span>}

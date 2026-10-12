@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useAdminTexts } from "@/hooks/useAdminTexts";
 import styles from "./NotificationDetail.module.css";
 
 export interface NotificationDetailData {
@@ -53,6 +54,8 @@ export default function NotificationDetail({
   onResolve?: (action: "grant" | "reject") => Promise<{ ok: boolean; reason?: string }>;
 }) {
   const { language } = useLanguage();
+  /* 제목 · 본문은 서버가 만든 정해진 글 — 다른 언어로 볼 때 번역한다 */
+  const ts = useAdminTexts([data.title, data.message]);
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
@@ -81,11 +84,11 @@ export default function NotificationDetail({
         {icon && <span className={styles.icon}>{icon}</span>}
         <div className={styles.headText}>
           <span className={styles.type}>{data.typeLabel}</span>
-          <h3 className={styles.title}>{data.title}</h3>
+          <h3 className={styles.title}>{ts(data.title)}</h3>
         </div>
       </div>
 
-      {data.message && <p className={styles.message}>{data.message}</p>}
+      {data.message && <p className={styles.message}>{ts(data.message)}</p>}
 
       <dl className={styles.meta}>
         <div className={styles.metaRow}>
