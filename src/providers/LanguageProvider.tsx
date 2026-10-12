@@ -165,6 +165,10 @@ export function useLanguage(): LanguageControls & {
   t: TFunction;
   tAlt: TFunction;
   tLang: (key: string, lang: Language) => string;
+  /** 사이트 내용 글(설정 · DB 에서 온 원문 — 홈 글 · 카테고리 · 태그)을 걸린 다른 언어로. 번역이 없거나 다른 언어가 꺼져 있으면 원문 */
+  tx: (text: string) => string;
+  /** 날짜 · 숫자를 쓸 언어 — 다른 언어가 걸려 있으면 그 언어(ja 등), 아니면 ko-KR · en-US */
+  dateLocale: string;
 } {
   const { subscribe, getLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
   const savedLanguage = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
@@ -186,5 +190,8 @@ export function useLanguage(): LanguageControls & {
     [dict, language, foreignLang, t],
   );
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
-  return { language, foreignLang, t, tAlt, tLang, ...controls };
+  const content = foreignLang ? site.content : null;
+  const tx = useCallback((text: string) => (content && text ? content[text.trim()] ?? text : text), [content]);
+  const dateLocale = foreignLang ?? (language === "ko" ? "ko-KR" : "en-US");
+  return { language, foreignLang, t, tAlt, tLang, tx, dateLocale, ...controls };
 }

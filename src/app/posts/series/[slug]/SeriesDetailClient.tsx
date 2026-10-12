@@ -88,7 +88,7 @@ export default function SeriesDetailClient({ data }: { data: SeriesPageData }) {
           </div>
         )}
         <div className={styles.heroText}>
-          {series.category && <span className={styles.eyebrow}>{series.category}</span>}
+          {series.category && <span className={styles.eyebrow}><CategoryLabel category={series.category} /></span>}
           <h1 className={styles.title}>{title}</h1>
           {description && <p className={styles.description}>{description}</p>}
           <p className={styles.meta}>{fillCount(t, "postsPage.countPosts", posts.length)}</p>

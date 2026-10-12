@@ -25,10 +25,10 @@ export default function BridgeSection({
   oval2X,
   oval2Y,
 }: BridgeSectionProps) {
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
   const { lenis } = useLenis();
   const cfg = useSiteConfig();
-  const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
+  const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline.map(tx);
 
   const groupRef = useRef<HTMLDivElement>(null);
 

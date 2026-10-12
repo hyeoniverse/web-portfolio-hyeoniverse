@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { siteConfig } from "@/config/site.config";
 import type { BilingualCategory } from "@/types/common";
 import { normalizeCategories, findCategoryNode } from "@/lib/categoryTree";
@@ -56,4 +57,14 @@ export function useCategories(): BilingualCategory[] {
   }, []);
 
   return categories;
+}
+
+/**
+ * 카테고리 저장값(한국어 leaf 이름 등) → 보이는 이름. 화면 언어(ko/en)로 바꾸고, 다른 언어가 걸려 있으면
+ * 그 영어 이름을 사이트 내용 글 번역(tx)으로 한 번 더 — 글 카드 · 시리즈 · 카테고리 목록이 같은 이름을 쓴다
+ */
+export function useCategoryText(): (value: string) => string {
+  const { language, tx } = useLanguage();
+  const cats = useCategories();
+  return useCallback((value: string) => tx(translateCategory(value, language, cats)), [language, tx, cats]);
 }

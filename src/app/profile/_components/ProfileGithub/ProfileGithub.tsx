@@ -83,9 +83,9 @@ export default function ProfileGithub({
   /** 한 패널에 다 넣으면 빽빽해서 훑기 어렵다 — 지표와 저장소를 두 패널로 나눈다. */
   part?: "overview" | "pinned";
 }) {
-  const { language } = useLanguage();
+  const { language, dateLocale } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
-  const locale = language === "ko" ? "ko-KR" : "en-US";
+  const locale = dateLocale;
 
   /* 막대가 자라고 숫자가 올라가는 연출은 한 번만 돈다.
      신호는 두 갈래다 — 데스크톱 가로 스크롤은 부모가 주는 active, 모바일 세로 스크롤은

@@ -1,5 +1,6 @@
 "use client";
 
+import { SITE_TIME_ZONE } from "@/constants";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import HighlightedText from "@/components/ui/HighlightedText";
@@ -28,7 +29,7 @@ export default function PostCardTimeline({
   imgError?: boolean;
 }) {
   const {
-    t, language, cardRef, readTime, showImage, category, author, langBadge,
+    t, language, foreignLang, dateLocale, cardRef, readTime, showImage, category, author, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate).
@@ -51,7 +52,10 @@ export default function PostCardTimeline({
       {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
       <div className={styles.timelineEyebrow}>
         <time className={styles.timelineDate} dateTime={post.created_at}>
-          {d && (language === "ko" ? (
+          {d && (foreignLang ? (
+            /* 다른 언어로 볼 때는 그 언어의 날짜 형식 */
+            new Date(post.created_at).toLocaleDateString(dateLocale, { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE })
+          ) : language === "ko" ? (
             <>
               {d.year}<span className={styles.timelineDateUnit}>年</span>{" "}
               {mm}<span className={styles.timelineDateUnit}>月</span>{" "}
