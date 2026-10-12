@@ -41,7 +41,7 @@ export type IpVisitRow = {
 export type IpVisitor = {
   key: string;
   masked: string;
-  /** 기간 내 방문한 날 수 — site_visits 는 IP 하루 1행 */
+  /** 기간 내 방문한 날 수 — 하루에 여러 번 와도 하루 */
   days: number;
   firstDate: string;
   lastDate: string;
@@ -69,7 +69,7 @@ export function aggregateIpVisitors(rows: IpVisitRow[], limit = 20): IpVisitor[]
     visitors.push({
       key: ipKey(ip),
       masked,
-      days: sorted.length,
+      days: new Set(sorted.map((r) => r.date)).size,
       firstDate: sorted[0].date!,
       lastDate: latest.date!,
       country: latest.country ?? null,

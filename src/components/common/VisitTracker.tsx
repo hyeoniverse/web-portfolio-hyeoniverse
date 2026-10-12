@@ -5,30 +5,31 @@ import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { createPageViewTracker } from "@/lib/pageViewTracker";
 
 const SESSION_KEY = "pageViewSession";
+/* 방문자 id — 신규 · 재방문을 가른다. 세션과 달리 기한 없이 남는다(사람을 식별하지 않는 임의 값) */
+const VISITOR_KEY = "pageViewVisitor";
+
+function visitorId(): string | null {
+  try {
+    const saved = localStorage.getItem(VISITOR_KEY);
+    if (saved) return saved;
+    const id = crypto.randomUUID();
+    localStorage.setItem(VISITOR_KEY, id);
+    return id;
+  } catch {
+    return null;
+  }
+}
 
 export default function VisitTracker() {
-  useEffect(() => {
-    // 랜딩 경로·쿼리(UTM)를 함께 보낸다 — 추가 요청 없이 기존 호출에 실어 보내는 것이라
-    // 방문자 쪽 비용은 그대로다. 마운트는 하드 로드당 1회라 이 값이 곧 랜딩 페이지다.
-    fetch("/api/visits", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        path: window.location.pathname,
-        search: window.location.search,
-      }),
-    }).catch(() => {});
-  }, []);
-
   usePageViews();
-
   return null;
 }
 
 /**
- * 페이지 조회 · 머문 시간(#1399) — 방문 기록(위)은 하드 로드에 한 번이라 사이트 안에서 옮긴 페이지를 못 셌다.
- * 주소가 바뀔 때마다 조회를 기록하고, 떠날 때(다른 페이지 · 탭 숨김 · 탭 닫기) 보인 채 있었던 시간을 보낸다.
- * 세션 id 는 이 브라우저의 임의 값이라 사람을 식별하지 않는다. 저장소를 못 쓰면 조회마다 새 세션이 된다.
+ * 사이트의 조회 기록(#1399) — 방문 · 방문자 · 유입 · 기기 · 페이지 조회 · 머문 시간 · 글 · 작업물 조회수가 전부 이 기록에서 나온다.
+ * 주소가 바뀔 때마다(사이트 안 이동 포함) 조회를 기록하고, 떠날 때(다른 페이지 · 탭 숨김 · 탭 닫기) 보인 채 있었던 시간을 보낸다.
+ * 유입 경로(document.referrer)와 쿼리(UTM)도 실어 보낸다 — 서버는 방문의 첫 조회에만 담는다.
+ * 세션 · 방문자 id 는 이 브라우저의 임의 값이라 사람을 식별하지 않는다. 저장소를 못 쓰면 조회마다 새 세션이 된다.
  */
 function usePageViews() {
   const pathname = useRoutePathname();
@@ -40,7 +41,13 @@ function usePageViews() {
         fetch("/api/page-views", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ path, session }),
+          body: JSON.stringify({
+            path,
+            session,
+            visitor: visitorId(),
+            referrer: document.referrer,
+            search: window.location.search,
+          }),
         })
           .then((r) => (r.ok ? r.json() : null))
           .then((d: { id?: unknown } | null) => (typeof d?.id === "string" ? d.id : null)),

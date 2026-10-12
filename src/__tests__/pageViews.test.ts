@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { clampDuration, isPageViewId, isSessionId, normalizePagePath, PAGE_VIEW_SESSION_MS } from "@/lib/pageViews";
+import { clampDuration, isPageViewId, isSessionId, normalizePagePath, PAGE_VIEW_SESSION_MS, parseUtm, referrerHost } from "@/lib/pageViews";
 import { createPageViewTracker, type PageViewTrackerDeps } from "@/lib/pageViewTracker";
 import { parsePageViewStats } from "@/lib/api/pageViewStats";
 import { isSiteStaff, PERM } from "@/lib/api/roles";
@@ -22,8 +22,25 @@ describe("normalizePagePath", () => {
   it("/administrator 처럼 앞만 같은 경로는 기록한다", () => {
     expect(normalizePagePath("/administrator")).toBe("/administrator");
   });
+  it("인코딩된 한글 slug 를 풀어 둔다(글 조회수를 slug 로 맞춘다)", () => {
+    expect(normalizePagePath("/posts/%ED%95%9C%EA%B8%80")).toBe("/posts/한글");
+    expect(normalizePagePath("/posts/%E0%A4%A")).toBe("/posts/%E0%A4%A");
+  });
   it("200자에서 자른다", () => {
     expect(normalizePagePath("/" + "a".repeat(300))).toHaveLength(200);
+  });
+});
+
+describe("방문 정보", () => {
+  it("UTM 은 랜딩 쿼리에서, 없으면 null", () => {
+    expect(parseUtm("?utm_source=x&utm_medium=social&foo=1")).toEqual({ utm_source: "x", utm_medium: "social", utm_campaign: null });
+    expect(parseUtm(undefined)).toEqual({ utm_source: null, utm_medium: null, utm_campaign: null });
+  });
+  it("유입 경로는 호스트만, 자기 사이트 · 빈 값은 Direct", () => {
+    expect(referrerHost("https://www.google.com/search?q=a", "www.hyeoniverse.com")).toBe("google.com");
+    expect(referrerHost("https://hyeoniverse.com/posts", "www.hyeoniverse.com")).toBe("Direct");
+    expect(referrerHost("", "x.com")).toBe("Direct");
+    expect(referrerHost("not a url")).toBe("Direct");
   });
 });
 

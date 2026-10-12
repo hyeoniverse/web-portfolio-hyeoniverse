@@ -38,13 +38,13 @@ export const erdDesignNotes: ErdDesignNote[] = [
     relatedTable: "site_settings",
   },
   {
-    title: { ko: "조회수 — 생성 컬럼으로 KST 하루 집계", en: "View Counts — Generated Column for KST Days" },
-    tag: "viewed_date GENERATED · UNIQUE (post_id, ip, viewed_date)",
+    title: { ko: "조회 기록 하나에서 모든 숫자를", en: "Every Count from One View Log" },
+    tag: "page_views · session_id / visitor_id / is_landing · viewed_date GENERATED",
     description: {
-      ko: "viewed_date 는 viewed_at 을 Asia/Seoul 로 변환해 저장하는 생성 컬럼입니다. 애플리케이션이 날짜를 계산해 넣지 않으므로 서버 타임존이 달라도 집계가 흔들리지 않습니다. 여기에 (post_id, ip, viewed_date) UNIQUE 를 걸어 같은 IP 의 같은 날 조회를 한 번만 세고, 동시 요청이 겹쳐도 DB 가 막습니다. work_views 도 같은 구조이며, 두 테이블의 IP 는 90일 뒤 비웁니다.",
-      en: "viewed_date is a generated column that converts viewed_at to Asia/Seoul. The app never computes the date itself, so counts don't drift when the server timezone differs. A UNIQUE index on (post_id, ip, viewed_date) counts one view per IP per day and blocks races at the DB level. work_views has the same shape, and IPs in both tables are cleared after 90 days.",
+      ko: "페이지가 보일 때마다 page_views 에 한 줄을 남기고, 방문 · 방문자 · 유입 · 기기 · 국가 · UTM · 페이지 조회수 · 머문 시간 · 글과 작업물 조회수를 전부 여기서 셉니다. 예전에는 방문(IP·하루 1행), 글 조회, 작업물 조회, 페이지 조회를 네 테이블에 따로 적어 기준이 달랐고, 푸터 · 대시보드 · 글 조회수가 서로 맞지 않았습니다. 방문은 30분 동안 아무것도 안 보면 끝나는 세션(session_id)이고, 그 첫 조회(is_landing)에만 유입 · 기기 · 국가 · UTM 을 담습니다. 같은 IP 가 같은 경로를 30분 안에 다시 보면 한 번으로 세고, 글 · 작업물 경로의 새 조회는 같은 함수 안에서 view_count 를 올립니다. viewed_date 는 viewed_at 을 Asia/Seoul 로 바꿔 저장하는 생성 컬럼이라 서버 타임존이 달라도 날짜 집계가 흔들리지 않습니다. IP 는 90일 뒤 비웁니다.",
+      en: "Every page view adds one row to page_views, and visits, visitors, referrers, devices, countries, UTM, page views, time on page and post/project view counts are all counted from it. Visits (one row per IP per day), post views, project views and page views used to live in four tables with different rules, so the footer, dashboard and post counts disagreed. A visit is a session (session_id) that ends after 30 idle minutes, and only its first view (is_landing) carries referrer, device, country and UTM. A repeat view of the same path by the same IP within 30 minutes counts once, and a new view of a post or project path bumps view_count in the same function. viewed_date is a generated column converting viewed_at to Asia/Seoul, so day counts don't drift with the server timezone. IPs are cleared after 90 days.",
     },
-    relatedTable: "post_views",
+    relatedTable: "page_views",
   },
   {
     title: { ko: "조인 테이블에는 대리 키를 두지 않음", en: "No Surrogate Key on the Join Table" },
@@ -207,15 +207,6 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "work_comments mirrors the comments schema (nickname, password auth, threading, likes, notification email) in a separate table. Only the FK references works.id, allowing independent RLS policies.",
     },
     relatedTable: "work_comments",
-  },
-  {
-    title: { ko: "IP + 날짜 일간 방문자", en: "Daily Visitors by IP + Date" },
-    tag: "UNIQUE (ip, date) · 90일 익명화",
-    description: {
-      ko: "같은 IP 의 같은 날 방문은 한 행만 남습니다. 봇은 ip 앞에 bot: 을 붙여 사람 방문과 따로 셉니다. 90일이 지나면 pg_cron 이 ip 를 anon:<id> 로 바꾸고, 기기·국가·유입 컬럼만 집계에 남습니다.",
-      en: "One row per IP per day. Bots get a bot: prefix on ip and are counted apart from people. After 90 days pg_cron rewrites ip to anon:<id>, leaving only the device, country, and referral columns for stats.",
-    },
-    relatedTable: "site_visits",
   },
   {
     title: { ko: "서비스 호출 기록", en: "Service Call Log" },

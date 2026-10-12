@@ -396,9 +396,9 @@ export default function AdminDashboard() {
             }}
           >
             <div className={styles.heroLeft}>
-              {/* 페이지 조회수(#1399) — page_views 마이그레이션 전이면 예전 값(게시물 조회수 합계) */}
+              {/* 총 조회수 = 페이지 조회수(#1399) */}
               <Tooltip
-                content={t(data.stats.pageViews ? "admin.dashboard.totalViewsTooltip" : "admin.dashboard.totalViewsTooltipLegacy")}
+                content={t("admin.dashboard.totalViewsTooltip")}
                 placement="top"
                 delay={300}
               >
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
               </Tooltip>
               <div className={styles.heroValueRow}>
                 <span className={styles.heroValue}>
-                  <CountUp value={data.stats.pageViews?.total ?? data.stats.totalPostViews} duration={1400} />
+                  <CountUp value={data.stats.pageViews.total} duration={1400} />
                 </span>
                 {wow && (
                   <Tooltip
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
                     ? `최근 7일 ${recent7.toLocaleString()}회`
                     : `${recent7.toLocaleString()} last 7d`;
                   /* 지난 페이지 조회는 기록이 없어 채울 수 없다 — 언제부터 센 값인지 같이 */
-                  const since = data.stats.pageViews?.since;
+                  const since = data.stats.pageViews.since;
                   return since
                     ? `${recent} · ${fillTemplate(t("admin.dashboard.countingSince"), { date: since })}`
                     : recent;
@@ -956,7 +956,7 @@ export default function AdminDashboard() {
                     {data.stats.visitSummary.viewsPerVisit.toLocaleString()}
                   </span>
                 </span>
-                {data.stats.pageViews?.avgDurationMs30 != null && (
+                {data.stats.pageViews.avgDurationMs30 != null && (
                   <span className={styles.trafficStat}>
                     <span className={styles.trafficStatLabel}>
                       <T k="admin.dashboard.avgDwell" />

@@ -259,18 +259,18 @@ export const groupJourneys: Record<string, Journey> = {
 
   etc: {
     key: "etc",
-    label: { ko: "방문 기록", en: "Record a visit" },
+    label: { ko: "조회 기록", en: "Record a page view" },
     method: "POST",
-    path: "/api/visits",
+    path: "/api/page-views",
     group: "etc",
     steps: [
-      { layer: "client", title: { ko: "첫 로드", en: "First load" }, body: { ko: "페이지를 처음 불러올 때 한 번, 랜딩 경로와 쿼리를 보냅니다.", en: "Once per hard load, the landing path and query are sent." }, file: "src/components/common/VisitTracker.tsx" },
+      { layer: "client", title: { ko: "주소가 바뀔 때마다", en: "On every route change" }, body: { ko: "사이트 안에서 옮긴 페이지까지 경로 · 세션 · 방문자 id 와 유입 경로 · 쿼리를 보냅니다. 떠날 때는 화면에 보인 시간을 sendBeacon 으로 보냅니다.", en: "Every page, including in-site navigation, sends its path, session and visitor ids, referrer and query. On leave, the visible time goes out via sendBeacon." }, file: "src/components/common/VisitTracker.tsx" },
       PROXY_STEP,
-      { layer: "auth", title: { ko: "본인 제외", en: "Skip the admin" }, body: { ko: "로그인한 관리자의 방문은 세지 않습니다.", en: "Visits by a signed-in admin aren't counted." }, file: "src/app/api/visits/route.ts" },
-      { layer: "check", title: { ko: "제외 IP · 봇", en: "Excluded IP · bots" }, body: { ko: "운영자가 지정한 IP 는 건너뜁니다. 봇은 사람 지표와 섞이지 않게 따로 표시해 남깁니다.", en: "Operator-excluded IPs are skipped; bots are stored separately so they don't mix with human metrics." }, file: "src/app/api/visits/route.ts" },
-      { layer: "db", title: { ko: "하루 한 번", en: "Once a day" }, body: { ko: "(IP, 날짜) 유니크로 하루 한 번만 넣습니다. 분석 칸이 없는 DB 면 기존 칸만으로 다시 넣습니다.", en: "An (IP, date) unique key stores one row per day; without the analytics columns it retries with the legacy ones." }, file: "src/app/api/visits/route.ts" },
+      { layer: "auth", title: { ko: "운영자 제외", en: "Skip the operator" }, body: { ko: "owner · admin 으로 로그인한 본인의 조회는 세지 않습니다. 작성자 · 다른 로그인 사용자는 셉니다.", en: "Views by a signed-in owner or admin aren't counted; authors and other signed-in users are." }, file: "src/app/api/page-views/route.ts" },
+      { layer: "check", title: { ko: "제외 IP · 봇", en: "Excluded IP · bots" }, body: { ko: "운영자가 지정한 IP 는 건너뜁니다. 봇은 기기를 bot 으로 남겨 모든 집계에서 뺍니다.", en: "Operator-excluded IPs are skipped; bots are stored with device bot and left out of every count." }, file: "src/app/api/page-views/route.ts" },
+      { layer: "db", title: { ko: "30분에 한 번", en: "Once per 30 minutes" }, body: { ko: "같은 IP 가 같은 경로를 30분 안에 다시 보면 앞 조회를 돌려줍니다. 방문의 첫 조회에만 유입 · 기기 · 국가 · UTM 을 담고, 글 · 작업물 경로면 조회수도 올립니다.", en: "A repeat view of the same path by the same IP within 30 minutes returns the earlier view. Only a visit's first view carries referrer, device, country and UTM, and post or project paths bump their view count." }, file: "src/app/api/page-views/route.ts" },
       { layer: "side", title: { ko: "급증 알림", en: "Spike alert" }, body: { ko: "오늘 방문이 15건 이상이고 지난 7일 평균의 3배를 넘으면 하루 한 번 관리자 알림을 만듭니다.", en: "At 15+ visits and 3x the 7-day average, an admin notification is made once a day." }, file: "src/lib/api/dashboardAggregates.ts" },
-      { layer: "response", title: { ko: "200 OK", en: "200 OK" }, body: { ko: "기록하지 못해도 방문자 화면을 막지 않도록 200 으로 답합니다.", en: "Always answers 200, so a failed write never affects the visitor." }, file: "src/app/api/visits/route.ts" },
+      { layer: "response", title: { ko: "200 OK", en: "200 OK" }, body: { ko: "기록하지 못해도 방문자 화면을 막지 않도록 200 으로 답합니다. 응답의 조회 id 로 머문 시간을 보냅니다.", en: "Always answers 200, so a failed write never affects the visitor. The returned view id is used to send time on page." }, file: "src/app/api/page-views/route.ts" },
     ],
   },
 };

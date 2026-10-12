@@ -72,7 +72,6 @@ export interface DashboardData {
     }>;
   };
   stats: {
-    totalPostViews: number;
     popularPosts: Array<{
       id: string;
       title: string;
@@ -86,7 +85,7 @@ export interface DashboardData {
     dailyViews: DailyViews[];
     categories: Array<{ name: string; postCount: number; views: number }>;
     tags: Array<{ tag: string; count: number }>;
-    /** 기기 분석 — UA 파싱 후 desktop/mobile/tablet 비율 (site_visits.user_agent 필요) */
+    /** 기기 분석 — 방문(첫 조회)의 UA 파싱 결과 desktop/mobile/tablet 비율 */
     devices?: Array<{
       kind: "desktop" | "mobile" | "tablet";
       count: number;
@@ -109,10 +108,10 @@ export interface DashboardData {
     /** 최근 30일 방문·조회 요약 — 방문당 평균 조회수 */
     visitSummary?: { visits30: number; views30: number; viewsPerVisit: number };
     /**
-     * 페이지 조회수(#1399) — total 은 처음 센 날(since)부터의 합계, avgDurationMs30 은 최근 30일 평균 머문 시간.
-     * page_views 마이그레이션 전이면 null — 화면은 예전 값(게시물 조회수 합계 totalPostViews)을 보인다
+     * 총 조회수 = 페이지 조회수(#1399) — total 은 처음 센 날(since, 옛 방문 기록에서 옮긴 것 포함)부터의 합계,
+     * avgDurationMs30 은 최근 30일 평균 머문 시간(잰 조회만, 없으면 null)
      */
-    pageViews?: { total: number; since: string | null; avgDurationMs30: number | null } | null;
+    pageViews: { total: number; since: string | null; avgDurationMs30: number | null };
   };
   services: Record<string, "configured" | "missing">;
 }
@@ -146,7 +145,7 @@ export interface TrafficData {
   dailyVisits: Array<{ day: string; count: number }>;
   /** 기간 내 걸러진 봇 방문 수 (집계엔 미포함) */
   botVisits: number;
-  /** 기간 내 조회 상위 글 — 누적이 아니라 선택한 창 안의 post_views 기준 */
+  /** 기간 내 조회 상위 글 — 누적이 아니라 선택한 창 안의 /posts/{slug} 페이지 조회 기준 */
   topContent: Array<{ id: string; title: string; slug: string; count: number; pct: number }>;
   /** 직전 동기간 대비 증감률(%) — 이전 값이 0 이면 null */
   changes: {
@@ -178,7 +177,7 @@ export interface TrafficData {
     count: number;
   }>;
   visitSummary: { visits30: number; views30: number; viewsPerVisit: number };
-  /** 기간 내 페이지 조회 · 머문 시간(#1399) — page_views 마이그레이션 전이면 null */
+  /** 기간 내 페이지 조회 · 머문 시간(#1399) — 집계 함수가 없으면(마이그레이션 전) null */
   pageStats: PageViewStats | null;
   /** IP 별 방문 상위 — 마스킹 값과 불투명 키만 (원문 IP 는 응답에 없다) */
   ipVisitors: Array<{

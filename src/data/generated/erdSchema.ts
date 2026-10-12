@@ -828,7 +828,7 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
-    "name": "site_visits",
+    "name": "page_views",
     "columns": [
       {
         "name": "id",
@@ -838,33 +838,58 @@ export const schemaTables: ErdTable[] = [
         "defaultValue": "gen_random_uuid()"
       },
       {
-        "name": "ip",
+        "name": "path",
         "type": "text",
-        "required": true,
-        "indexed": true,
-        "unique": true
+        "indexed": true
       },
       {
-        "name": "date",
-        "type": "date",
+        "name": "ip",
+        "type": "text",
+        "indexed": true
+      },
+      {
+        "name": "session_id",
+        "type": "text",
+        "indexed": true
+      },
+      {
+        "name": "visitor_id",
+        "type": "text"
+      },
+      {
+        "name": "is_landing",
+        "type": "boolean",
+        "required": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "viewed_at",
+        "type": "timestamptz",
         "required": true,
         "indexed": true,
-        "unique": true,
-        "defaultValue": "CURRENT_DATE"
+        "defaultValue": "now()"
+      },
+      {
+        "name": "viewed_date",
+        "type": "date",
+        "indexed": true,
+        "defaultValue": "(viewed_at AT TIME ZONE 'Asia/Seoul')::date"
+      },
+      {
+        "name": "duration_ms",
+        "type": "integer"
+      },
+      {
+        "name": "device_kind",
+        "type": "text"
       },
       {
         "name": "referrer",
-        "type": "text",
-        "indexed": true
+        "type": "text"
       },
       {
         "name": "user_agent",
         "type": "text"
-      },
-      {
-        "name": "device_kind",
-        "type": "text",
-        "indexed": true
       },
       {
         "name": "os",
@@ -883,10 +908,6 @@ export const schemaTables: ErdTable[] = [
         "type": "text"
       },
       {
-        "name": "path",
-        "type": "text"
-      },
-      {
         "name": "utm_source",
         "type": "text"
       },
@@ -897,129 +918,10 @@ export const schemaTables: ErdTable[] = [
       {
         "name": "utm_campaign",
         "type": "text"
-      }
-    ]
-  },
-  {
-    "name": "post_views",
-    "columns": [
-      {
-        "name": "id",
-        "type": "uuid",
-        "pk": true,
-        "required": true,
-        "defaultValue": "gen_random_uuid()"
       },
       {
-        "name": "post_id",
-        "type": "uuid",
-        "required": true,
-        "fk": "posts.id",
-        "indexed": true,
-        "unique": true
-      },
-      {
-        "name": "ip",
-        "type": "text",
-        "indexed": true,
-        "unique": true
-      },
-      {
-        "name": "viewed_at",
-        "type": "timestamptz",
-        "required": true,
-        "indexed": true,
-        "defaultValue": "now()"
-      },
-      {
-        "name": "viewed_date",
-        "type": "date",
-        "indexed": true,
-        "unique": true,
-        "defaultValue": "(viewed_at AT TIME ZONE 'Asia/Seoul')::date"
-      }
-    ]
-  },
-  {
-    "name": "work_views",
-    "columns": [
-      {
-        "name": "id",
-        "type": "uuid",
-        "pk": true,
-        "required": true,
-        "defaultValue": "gen_random_uuid()"
-      },
-      {
-        "name": "work_id",
-        "type": "uuid",
-        "required": true,
-        "fk": "works.id",
-        "indexed": true,
-        "unique": true
-      },
-      {
-        "name": "ip",
-        "type": "text",
-        "indexed": true,
-        "unique": true
-      },
-      {
-        "name": "viewed_at",
-        "type": "timestamptz",
-        "required": true,
-        "defaultValue": "now()"
-      },
-      {
-        "name": "viewed_date",
-        "type": "date",
-        "indexed": true,
-        "unique": true,
-        "defaultValue": "(viewed_at AT TIME ZONE 'Asia/Seoul')::date"
-      }
-    ]
-  },
-  {
-    "name": "page_views",
-    "columns": [
-      {
-        "name": "id",
-        "type": "uuid",
-        "pk": true,
-        "required": true,
-        "defaultValue": "gen_random_uuid()"
-      },
-      {
-        "name": "path",
-        "type": "text",
-        "required": true,
-        "indexed": true
-      },
-      {
-        "name": "ip",
-        "type": "text",
-        "indexed": true
-      },
-      {
-        "name": "session_id",
+        "name": "migrated_from",
         "type": "text"
-      },
-      {
-        "name": "viewed_at",
-        "type": "timestamptz",
-        "required": true,
-        "indexed": true,
-        "defaultValue": "now()"
-      },
-      {
-        "name": "viewed_date",
-        "type": "date",
-        "indexed": true,
-        "defaultValue": "(viewed_at AT TIME ZONE 'Asia/Seoul')::date"
-      },
-      {
-        "name": "duration_ms",
-        "type": "integer"
       }
     ]
   },
@@ -1672,20 +1574,6 @@ export const schemaRelations: ErdRelation[] = [
     "from": "comments",
     "fromField": "parent_id",
     "to": "comments",
-    "toField": "id",
-    "label": "N:1"
-  },
-  {
-    "from": "post_views",
-    "fromField": "post_id",
-    "to": "posts",
-    "toField": "id",
-    "label": "N:1"
-  },
-  {
-    "from": "work_views",
-    "fromField": "work_id",
-    "to": "works",
     "toField": "id",
     "label": "N:1"
   },
