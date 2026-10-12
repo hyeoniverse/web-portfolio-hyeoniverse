@@ -1,25 +1,17 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { deepEqual, getByPath } from "../../../_data/settingsConstants";
 import { type SettingsTabProps } from "../../../_types";
 import css from "../AboutStudio.module.css";
-import { ABOUT_PANELS } from "../aboutPanels";
 import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
-import { Download, Lock } from "@/components/icons";
+import { Download } from "@/components/icons";
 import Button from "@/components/ui/Button";
-import Pressable from "@/components/ui/Pressable";
-import { Switch } from "@/components/ui/Switch";
 import { siteConfig, type SiteConfigData } from "@/config/site.config";
-import { aboutPanelLabel } from "@/data/about/panels";
 import { canUseMarkdown, contentPathOf } from "@/lib/about/contentSources";
 import { loadPanelFiles } from "@/lib/about/loadPanelFiles";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
-import { type Language } from "@/types";
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
-import { CSS as DndCSS } from "@dnd-kit/utilities";
 import { type ChangeEvent } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
@@ -40,102 +32,6 @@ export function PanelGroup({ children, ...head }: PanelSaveHeaderProps & { child
   );
 }
 
-/* ═══════════ Panel manager — 순서(DnD) + 표시 토글. hero/credits 는 순서 고정 ═══════════ */
-const LOCKED_PANELS = new Set(["hero", "credits"]);
-
-export function PanelManager({ about, setAny, t, lang }: {
-  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: TFunction; lang: Language;
-}) {
-  const { t: tA } = useLanguage();
-  const hidden = (about.hiddenPanels ?? []) as string[];
-  const titles = about.panelTitles ?? {};
-  const allKeys = ABOUT_PANELS.map((p) => p.key);
-  const savedOrder = (about.panelOrder ?? []).filter((k) => allKeys.includes(k));
-  const ordered = [...savedOrder, ...allKeys.filter((k) => !savedOrder.includes(k))];
-  const middle = ordered.filter((k) => !LOCKED_PANELS.has(k));
-  const defaultLabel = (k: string) => ABOUT_PANELS.find((p) => p.key === k)?.label ?? k;
-  /* 칩에는 마침표를 뗀 이름을 보인다. 지정한 제목도 같은 형태로 — 여기서 보이는 그대로를
-     다시 저장하게 되므로, 마침표가 붙은 채 보이면 고칠 때마다 하나씩 더 붙는다. */
-  const labelOf = (k: string) => aboutPanelLabel(k, titles[k]?.[lang]);
-  const shownCount = allKeys.length - hidden.filter((k) => allKeys.includes(k) && !LOCKED_PANELS.has(k)).length;
-  const [editKey, setEditKey] = useState<string | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
-  );
-  const onDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    if (!over || active.id === over.id) return;
-    const oldIdx = middle.indexOf(String(active.id));
-    const newIdx = middle.indexOf(String(over.id));
-    if (oldIdx === -1 || newIdx === -1) return;
-    setAny("panelOrder", ["hero", ...arrayMove(middle, oldIdx, newIdx), "credits"]);
-  };
-  const toggle = (k: string) => {
-    const set = new Set(hidden);
-    if (set.has(k)) set.delete(k); else set.add(k);
-    setAny("hiddenPanels", Array.from(set));
-  };
-  const rename = (k: string, name: string) => {
-    const next: Record<string, { ko?: string; en?: string }> = { ...titles };
-    const cur = { ...(next[k] ?? {}) };
-    const v = name.trim();
-    if (v && v !== defaultLabel(k)) cur[lang] = v; else delete cur[lang];
-    if (cur.ko || cur.en) next[k] = cur; else delete next[k];
-    setAny("panelTitles", next);
-    setEditKey(null);
-  };
-
-  const chipCls = (k: string) => `${css.chip} ${!hidden.includes(k) ? css.chipOn : css.chipOff}`;
-  const editInput = (k: string) => (
-    <input key={k} className={`${css.chip} ${css.chipEdit}`} autoFocus defaultValue={labelOf(k)} aria-label={tA("admin.inline.panels.panelName")}
-      onBlur={(e) => rename(k, e.target.value)}
-      onKeyDown={(e) => { if (e.key === "Enter") rename(k, e.currentTarget.value); else if (e.key === "Escape") setEditKey(null); }} />
-  );
-  /* intro/credits — 순서·표시 모두 잠금(항상 표시). 이름만 더블클릭으로 수정 가능. */
-  const lockedChip = (k: string) => (
-    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={tA("admin.inline.panels.lockedRenameHint")}>
-      <Lock className={css.chipLock} size={11} />{labelOf(k)}
-    </Pressable>
-  );
-
-  return (
-    <div className={css.strip}>
-      <div className={css.stripHead}>
-        <span className={css.stripTitle}>{t("admin.settings.aboutPanelVisibility")} · {shownCount}/{allKeys.length}</span>
-        <Switch checked={about.infiniteScroll ?? false} onCheckedChange={(v) => setAny("infiniteScroll", v)}
-          label={t("admin.settings.aboutInfiniteScrollLabel")} showStateText stateLabels={{ on: "ON", off: "OFF" }} />
-      </div>
-      <p className={css.stripHint}>{tA("admin.inline.panels.dragToReorderDouble")}</p>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <div className={css.stripChips}>
-          {editKey === "hero" ? editInput("hero") : lockedChip("hero")}
-          <SortableContext items={middle} strategy={rectSortingStrategy}>
-            {middle.map((k) => (
-              editKey === k
-                ? editInput(k)
-                : <PanelSortChip key={k} id={k} className={chipCls(k)} label={labelOf(k)} onToggle={() => toggle(k)} onEdit={() => setEditKey(k)} />
-            ))}
-          </SortableContext>
-          {editKey === "credits" ? editInput("credits") : lockedChip("credits")}
-        </div>
-      </DndContext>
-    </div>
-  );
-}
-
-function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string; className: string; label: string; onToggle: () => void; onEdit: () => void }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style: CSSProperties = { transform: DndCSS.Transform.toString(transform), transition, zIndex: isDragging ? 2 : undefined, position: isDragging ? "relative" : undefined };
-  return (
-    <Pressable ref={setNodeRef} style={style}
-      className={`${className} ${css.chipDrag} ${isDragging ? css.chipDragging : ""}`}
-      onClick={onToggle} onDoubleClick={onEdit} {...attributes} {...listeners}>
-      <span className={css.chipDot} />{label}
-    </Pressable>
-  );
-}
 
 /* ═══════════ 패널별 저장 헤더 — 해당 패널 config 경로만 저장/dirty 판정 ═══════════ */
 export interface PanelSaveHeaderProps {

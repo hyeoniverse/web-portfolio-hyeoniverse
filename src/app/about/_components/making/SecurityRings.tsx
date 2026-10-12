@@ -10,14 +10,17 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { aboutSecurity } from "@/data/generated/aboutContent";
-import { securityText } from "../../_data/making";
-import { securityLayers, securityRingsText } from "../../_data/security";
+
+
 import { STAR_PATH, StarMark, useL, useWide } from "../features/shared";
 import { useFrameSteps } from "../prezi/context";
 import fx from "../features/Features.module.css";
 import styles from "./SecurityRings.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+/* 고리 · 항목 수와 각도는 코드 기본값 — 관리자는 글만 바꾼다 */
+import { securityLayers as securityLayersBase } from "../../_data/security";
 
-const N = securityLayers.length;
+const N = securityLayersBase.length;
 const byIcon = new Map(aboutSecurity.map((s) => [s.icon, s]));
 
 /** 요청이 각 겹에서 멈추는 자리(도) — 겹 이름(위쪽 가운데)과 항목 자리를 피해 골랐다 */
@@ -43,8 +46,8 @@ interface Stop {
   item: number | null;
   angle: number;
 }
-const LAYER_STOPS: Stop[] = securityLayers.map((_, i) => ({ layer: i, item: null, angle: STOP_ANGLES[i] }));
-const ITEM_STOPS: Stop[] = securityLayers.flatMap((l, i) => l.items.map((it, j) => ({ layer: i, item: j, angle: it.angle })));
+const LAYER_STOPS: Stop[] = securityLayersBase.map((_, i) => ({ layer: i, item: null, angle: STOP_ANGLES[i] }));
+const ITEM_STOPS: Stop[] = securityLayersBase.flatMap((l, i) => l.items.map((it, j) => ({ layer: i, item: j, angle: it.angle })));
 
 /** 본문의 **굵게** · `코드` 만 살린다 */
 function Rich({ text }: { text: string }): ReactNode {
@@ -64,7 +67,7 @@ function geometry(w: number) {
   const outer = c - Math.max(CAP + TEXT_GAP + 8, w * 0.04);
   const core = outer * 0.16;
   const step = (outer - core) / N;
-  const radii = securityLayers.map((_, i) => outer - i * step);
+  const radii = securityLayersBase.map((_, i) => outer - i * step);
   /* 요청이 출발하는 곳 — 바깥 고리 한 칸 밖 */
   const start = Math.min(c, outer + step);
   return { c, outer, core, step, radii, start };
@@ -98,6 +101,7 @@ interface Polar {
 }
 
 export default function SecurityRings() {
+  const { securityText, securityLayers, securityRingsText } = useAboutText().decisions;
   const L = useL();
   const { language } = useLanguage();
   const wide = useWide();

@@ -1,0 +1,231 @@
+/* 장 편집 — 장면 카드 · 한국어/영어 두 칸 · 목록 항목 */
+
+.scenes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.scene {
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+}
+
+.sceneHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding-right: var(--spacing-12);
+}
+
+.sceneToggle {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  text-align: left;
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-tertiary);
+  transform: rotate(-90deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.scene[data-open] .chevron {
+  transform: none;
+}
+
+.sceneTitle {
+  overflow: hidden;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sceneMeta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-left: auto;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.editedBadge {
+  color: var(--text-accent);
+}
+
+.sceneBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-16) var(--spacing-16);
+  border-top: var(--border-light);
+}
+
+/* 줄 — 이름 · 한국어 · 영어. 좁은 화면은 이름이 위로, 두 칸이 아래로 쌓인다 */
+.colHead,
+.row,
+.simpleItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-8);
+  align-items: start;
+}
+
+.colHead {
+  display: none;
+  padding-top: var(--spacing-8);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.label {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.input {
+  width: 100%;
+  min-height: var(--control-height-sm);
+  padding: var(--spacing-4) var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  resize: none;
+  field-sizing: content;
+}
+
+.input:focus-visible {
+  border-color: var(--border-color-accent-strong);
+}
+
+.input[data-edited] {
+  background: var(--bg-secondary);
+}
+
+.wide {
+  min-width: 0;
+}
+
+.wide .input {
+  max-width: 16rem;
+}
+
+/* 목록 — 머리(이름 · 개수 · 규칙), 항목 카드, 추가 단추 */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+
+.listHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-8);
+}
+
+.listTitle {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.listMeta {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.itemNo {
+  flex: none;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.itemTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemKey {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.tools {
+  display: inline-flex;
+  flex: none;
+  gap: var(--spacing-2);
+}
+
+.simpleItem .tools {
+  justify-self: end;
+}
+
+.add {
+  align-self: flex-start;
+}
+
+.empty {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+@media (width >= 768px) {
+  .colHead,
+  .row {
+    grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .simpleItem {
+    grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .colHead {
+    display: grid;
+  }
+
+  .label {
+    padding-top: var(--spacing-8);
+  }
+
+  .wide {
+    grid-column: 2 / 4;
+  }
+
+  .simpleItem .label {
+    font: var(--font-code-xs);
+  }
+}

@@ -1,67 +1,73 @@
 "use client";
 
+import { useState } from "react";
 import css from "../../AboutStudio.module.css";
 import FlowDiagramEditor from "../../FlowDiagramEditor";
 import { type ParsedErd } from "@/lib/about/parseSqlErd";
-import { EditableText, PanelStage, sec } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
-import uf from "@/app/about/_panels/panels/UserFlowPanel.module.css";
-import { X } from "@/components/icons";
+import { Trash2 } from "@/components/icons";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type UserFlow } from "@/data/about/types";
-import { type TFunction } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { type Language } from "@/types";
 /* ═══════════ User Flow ═══════════ */
-const UF_MAX = 8;
+const UF_MAX = 12;
 
-/* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
+/* 흐름 하나씩 — 위는 이름 · 누구 · 설명(한국어 · 영어 나란히), 아래는 흐름 그림.
+   그림 칸의 글은 한 언어씩 고치므로 그림 위에만 언어 고르기를 둔다.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */
-export function UserFlowBlock({ value, onChange, lang, t, title }: {
-  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; title: string;
+export function UserFlowBlock({ value, onChange }: {
+  value: UserFlow[]; onChange: (v: UserFlow[]) => void;
 }) {
+  const { t } = useLanguage();
+  const T = (k: string) => t(`admin.inline.userFlowBlock.${k}`);
+  const [lang, setLang] = useState<Language>("ko");
   const list = useStageList(value, onChange, (): UserFlow => ({ title: "", persona: { ko: "", en: "" }, description: { ko: "", en: "" }, nodes: [], edges: [] }));
   const { cur, it, set } = list;
-  const setLocal = (k: "persona" | "description", v: string) =>
-    set({ [k]: { ...it[k], [lang]: v } } as Partial<UserFlow>);
+  const setLocal = (k: "persona" | "description", l: "ko" | "en", v: string) =>
+    set({ [k]: { ...it[k], [l]: v } } as Partial<UserFlow>);
+  /* "누구 (한국어)" 처럼 칸 이름에 언어를 붙인 이름 */
+  const named = (field: string, l: "korean" | "english") => `${T(field)} (${T(l)})`;
 
   return (
-    <section className={css.block}>
-      <StageTabs list={list} max={UF_MAX} addLabel={t("admin.inline.userFlowBlock.addFlow")}
-        labelOf={(i) => list.items[i]?.title || t("admin.inline.userFlowBlock.untitled")} />
+    <section className={css.ufBlock}>
+      <StageTabs list={list} max={UF_MAX} addLabel={T("addFlow")}
+        labelOf={(i) => list.items[i]?.title || T("untitled")} />
       {it && (
-        <PanelStage>
-          <div key={cur} className={css.ufStage}>
-            <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={t("admin.inline.userFlowBlock.remove")}>
-                <X size={14} />
-              </Button>
+        <div key={cur} className={css.ufCard}>
+          <div className={css.ufFields}>
+            <label className={css.ufField}>
+              <span className={css.ufFieldLabel}>{T("name")}</span>
+              <Input value={it.title} onChange={(v) => set({ title: v })} placeholder={T("flowName")}
+                autoFocus={list.isDraft} clearable={false} />
+            </label>
+            <div className={css.ufPair}>
+              <span className={css.ufFieldLabel}>{T("persona")}</span>
+              <Input value={it.persona.ko ?? ""} onChange={(v) => setLocal("persona", "ko", v)} placeholder={T("korean")} aria-label={named("persona", "korean")} clearable={false} />
+              <Input value={it.persona.en ?? ""} onChange={(v) => setLocal("persona", "en", v)} placeholder={T("english")} aria-label={named("persona", "english")} clearable={false} />
             </div>
-            <h3 className={sec.panelTitle}>{title}</h3>
-
-            <div className={uf.ufFlowLayout}>
-              {/* 좌측 — 실제와 같은 페르소나 카드 */}
-              <div className={uf.ufFlowInfo}>
-                <EditableText className={uf.ufFlowTitle} value={it.title}
-                  onChange={(v) => set({ title: v })} placeholder={t("admin.inline.userFlowBlock.flowTitle")}
-                  ariaLabel={t("admin.inline.userFlowBlock.title")} autoFocus={list.isDraft} />
-                <div className={uf.ufFlowProfile}>
-                  <div className={uf.ufFlowProfileText}>
-                    <EditableText wrap className={uf.ufFlowPersona} value={it.persona[lang] ?? ""}
-                      onChange={(v) => setLocal("persona", v)}
-                      placeholder={t("admin.inline.userFlowBlock.persona")} ariaLabel={t("admin.inline.userFlowBlock.persona")} />
-                    <EditableText multiline className={uf.ufFlowDesc} value={it.description[lang] ?? ""}
-                      onChange={(v) => setLocal("description", v)}
-                      placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.userFlowBlock.description")} style={{ width: "100%" }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* 우측 — 실제 도형 위에서 드래그·선택하는 비주얼 편집 */}
-              <FlowDiagramEditor flow={it} onChange={set} lang={lang} />
+            <div className={css.ufPair}>
+              <span className={css.ufFieldLabel}>{T("description")}</span>
+              <textarea className={css.ufText} rows={2} value={it.description.ko ?? ""} placeholder={T("korean")}
+                aria-label={named("description", "korean")} onChange={(e) => setLocal("description", "ko", e.target.value)} />
+              <textarea className={css.ufText} rows={2} value={it.description.en ?? ""} placeholder={T("english")}
+                aria-label={named("description", "english")} onChange={(e) => setLocal("description", "en", e.target.value)} />
             </div>
           </div>
-        </PanelStage>
+
+          <div className={css.ufDiagramHead}>
+            <span className={css.ufFieldLabel}>{T("diagram")}</span>
+            <SegmentedControl<Language> value={lang} onChange={setLang} className={css.segFit}
+              items={[{ value: "ko", label: T("korean") }, { value: "en", label: T("english") }]} />
+            <Button size="sm" variant="ghost" icon={<Trash2 size={14} />} onClick={list.remove} className={css.ufRemove}>
+              {T("deleteFlow")}
+            </Button>
+          </div>
+          <FlowDiagramEditor flow={it} onChange={set} lang={lang} />
+        </div>
       )}
     </section>
   );

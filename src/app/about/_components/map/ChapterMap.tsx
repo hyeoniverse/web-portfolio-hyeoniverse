@@ -6,12 +6,13 @@
    카메라는 지도 판 전체에 거는 transform 하나(확대 기준점 = 그 별) */
 import { forwardRef, type CSSProperties } from "react";
 import { STAR_PATH, useL } from "../features/shared";
-import { toc } from "../../_data/showcase";
 import { MAP_WIDE, type MapGeo } from "../../_data/map";
 import styles from "./ChapterMap.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+import type { AboutTexts } from "../../_data/texts";
 
 /** 목차 순서대로 별 — 배치(geo)의 자리 · 크기에 목차 이름 · 번호를 붙인다 */
-const starsOf = (geo: MapGeo) =>
+const starsOf = (geo: MapGeo, toc: AboutTexts["showcase"]["toc"]) =>
   toc
     .filter((t) => t.href && geo.stars[t.href])
     .map((t, i) => ({ href: t.href!, label: t.label, n: i + 1, ...geo.stars[t.href!] }));
@@ -32,7 +33,8 @@ interface Props {
 
 const ChapterMap = forwardRef<HTMLDivElement, Props>(function ChapterMap({ focus, reached = 0, onPick, flying, className, style, geo = MAP_WIDE }, ref) {
   const L = useL();
-  const mapStars = starsOf(geo);
+  const { toc } = useAboutText().showcase;
+  const mapStars = starsOf(geo, toc);
   const { w: MAP_W, h: MAP_H } = geo;
   return (
     <div

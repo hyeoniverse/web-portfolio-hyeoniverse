@@ -5,14 +5,15 @@
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import { useContactStore } from "@/stores/contactStore";
-import { heroCta, trust, faq, finalCta } from "../../_data/landing";
 import { useL } from "../features/shared";
 import { GuideAnchor } from "../guide/GuideStar";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import styles from "./Landing.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 /** 첫 화면 — 한 줄 가치 제안과 단추 둘 */
 export function HeroCta() {
+  const { heroCta } = useAboutText().landing;
   const L = useL();
   const openForm = useContactStore((s) => s.openForm);
   return (
@@ -28,6 +29,7 @@ export function HeroCta() {
 
 /** 신뢰 — 점수판(숫자 셋)과 그 아래 근거. 단계마다 숫자 하나가 앞으로 나오고 근거가 바뀐다 */
 export function Trust() {
+  const { trust } = useAboutText().landing;
   const L = useL();
   const { step, setStep } = useFrameSteps(trust.items.length);
   return (
@@ -64,6 +66,7 @@ export function Trust() {
 
 /** 자주 묻는 질문 — 왼쪽 질문 목록, 오른쪽 답 하나. 단계마다 다음 질문으로(누르면 그 질문으로) */
 export function Faq() {
+  const { faq } = useAboutText().landing;
   const L = useL();
   const { step, setStep } = useFrameSteps(faq.items.length);
   const total = String(faq.items.length).padStart(2, "0");
@@ -99,6 +102,7 @@ export function Faq() {
 
 /** 마무리 — 한 화면 가운데에 길잡이 별 · 큰 제목 · 단추 셋. 이 프레임에 들어오면 차례로 떠오른다 */
 export function FinalCta() {
+  const { finalCta } = useAboutText().landing;
   const L = useL();
   const openForm = useContactStore((s) => s.openForm);
   const { current } = useFrame();

@@ -9,13 +9,17 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ComponentType } from "react";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
-import { aiChapter, summaryPanel, fallbackPanel, translatePanel, coverPanel, voicePanel, type FailKind } from "../../_data/ai";
+import { type FailKind } from "../../_data/ai";
 import { SummaryDemo, TranslateDemo, CoverDemo, SpeechDemo } from "../demos/ai";
 import type { L10n } from "../../_data/showcase";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import { STAR_PATH, StarMark, useL, useWide } from "../features/shared";
 import FitZoom from "../features/FitZoom";
 import styles from "./Ai.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+/* 공급자 수 · 순서 같은 구조는 코드 기본값 — 관리자는 글만 바꾼다 */
+import { fallbackPanel as fallbackBase } from "../../_data/ai";
+import type { AboutTexts } from "../../_data/texts";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const v = (o: Record<string, string | number>) => o as React.CSSProperties;
@@ -34,7 +38,7 @@ const KIND_ORDER: FailKind[] = ["ok", "expired", "quota", "rate_limit"];
 /** 저절로 보내는 간격(ms) — 연속 실패가 쌓여 꺼지는 데까지 볼 수 있게 */
 const AUTO_SEND_MS = 2400;
 /** 기능마다 공급자 수가 달라도 목록 높이는 가장 긴 기능에 맞춘다 — 탭을 바꿔도 아래가 들썩이지 않게 */
-const MAX_PROVIDERS = Math.max(...fallbackPanel.features.map((f) => f.providers.length));
+const MAX_PROVIDERS = Math.max(...fallbackBase.features.map((f) => f.providers.length));
 
 const initialSim = (count: number): SimState => ({
   /* 첫 공급자가 요청 속도 제한에 걸린 채로 시작 — 다섯 번 이어 실패하면 꺼지는 데까지가 저절로 보인다 */
@@ -47,6 +51,7 @@ const initialSim = (count: number): SimState => ({
 
 /** 요청 한 번 — 꺼진 곳은 건너뛰고, 실패하면 연속 실패를 세다가 한도에 닿으면 끈다. 성공하면 그 곳의 연속 실패는 0 */
 function sendOnce(s: SimState): SimState {
+  const fallbackPanel = fallbackBase;
   const streak = [...s.streak];
   const off = [...s.off];
   const outcome: Outcome[] = s.kinds.map(() => "idle");
@@ -63,6 +68,7 @@ function sendOnce(s: SimState): SimState {
 
 /** 공급자 전환 — 공급자 하나가 별 하나. 요청이 지나간 점선은 빛나고, 응답한 별은 강조색으로 커진다 */
 function FallbackSim() {
+  const { fallbackPanel } = useAboutText().ai;
   const L = useL();
   const [feature, setFeature] = useState(0);
   const providers = fallbackPanel.features[feature].providers;
@@ -178,7 +184,7 @@ function FallbackSim() {
 /* ── 장 ── */
 
 /** 기능 다섯 — 설명(왼쪽)과 데모(오른쪽). 모두 같은 틀이라 바꿔도 자리가 들썩이지 않는다 */
-const TABS: { key: string; label: L10n; title: L10n; body?: L10n; points: L10n[]; Demo: ComponentType }[] = [
+const tabsOf = ({ summaryPanel, translatePanel, coverPanel, voicePanel, fallbackPanel }: AboutTexts["ai"]): { key: string; label: L10n; title: L10n; body?: L10n; points: L10n[]; Demo: ComponentType }[] => [
   { key: "summary", label: summaryPanel.label, title: summaryPanel.title, points: summaryPanel.points, Demo: SummaryDemo },
   { key: "translate", label: translatePanel.label, title: translatePanel.title, points: translatePanel.points, Demo: TranslateDemo },
   { key: "cover", label: coverPanel.label, title: coverPanel.title, points: coverPanel.points, Demo: CoverDemo },
@@ -197,6 +203,9 @@ const MAP: [number, number][] = [
 
 /** AI 장 — 단계 0 은 표지(별자리 목차), 다음 단계부터 기능 하나씩. 넓은 화면은 기능 하나가 한 단계, 좁은 화면은 설명 · 데모 두 단계 */
 export function AiChapter() {
+  const texts = useAboutText().ai;
+  const { aiChapter } = texts;
+  const TABS = tabsOf(texts);
   const L = useL();
   const wide = useWide();
   const per = wide ? 1 : 2;

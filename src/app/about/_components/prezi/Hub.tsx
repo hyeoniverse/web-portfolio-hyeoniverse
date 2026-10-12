@@ -3,7 +3,7 @@
 /* 허브 — 프레지 세계의 가운데. 큰 별자리 지도와 짧은 소개. 별(이름)을 누르면 카메라가 그 별로 날아 들어간다.
    별마다 그 장의 장면들이 작게 들어 있다(PreziStage 가 별 자리에 무리를 놓는다) */
 import { useLayoutEffect, useRef } from "react";
-import { hero, type L10n } from "../../_data/showcase";
+import { type L10n } from "../../_data/showcase";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { LiveRow, type LiveInfo } from "../AboutNext";
 import { HeroCta } from "../landing/Landing";
@@ -12,6 +12,7 @@ import { usePrezi } from "./context";
 import type { MapBox } from "./layout";
 import { useL } from "../features/shared";
 import styles from "./Prezi.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 const HINT: L10n = {
   ko: "별을 누르면 그 장으로, 아래로 굴리면 처음부터 차례로 날아갑니다.",
@@ -19,6 +20,7 @@ const HINT: L10n = {
 };
 
 export default function Hub({ live, map, onIntro }: { live: LiveInfo; map: MapBox; onIntro?: (bottom: number) => void }) {
+  const { hero } = useAboutText().showcase;
   const { language, tx } = useLanguage();
   const L = useL();
   const prezi = usePrezi();

@@ -8,12 +8,13 @@ import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode 
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { aboutProcess, aboutDecisions } from "@/data/generated/aboutContent";
-import { makingChapter, processText, decisionsText, processLayers, processLayerOf } from "../../_data/making";
-import { decisionExtras } from "../../_data/decisionOptions";
+import { processLayerOf } from "../../_data/making";
 import { StarMark, useL } from "../features/shared";
 import { useFrameSteps } from "../prezi/context";
 import fx from "../features/Features.module.css";
 import styles from "./Making.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+import type { L10n } from "../../_data/showcase";
 
 /** 본문의 **굵게** · `코드` 만 살린다 */
 function Rich({ text }: { text: string }): ReactNode {
@@ -90,6 +91,7 @@ const MONTHS = (() => {
 })();
 
 function ProcessChart({ step, setStep }: { step: number; setStep: (i: number) => void }) {
+  const { processText, processLayers } = useAboutText().making;
   const L = useL();
   const { language } = useLanguage();
   const title = (x: (typeof aboutProcess)[number]) => (language === "en" ? x.title_en : x.title_ko);
@@ -246,6 +248,7 @@ function ProcessChart({ step, setStep }: { step: number; setStep: (i: number) =>
 }
 
 export function Process() {
+  const { makingChapter } = useAboutText().making;
   const L = useL();
   const n = aboutProcess.length;
   const { step, setStep } = useFrameSteps(n);
@@ -254,7 +257,7 @@ export function Process() {
       <div className={styles.processHead}>
         {/* 장 머리 — 장 이름과, 단계 수를 데이터에서 센 제목 */}
         <span className={fx.sceneLabel}>{L(makingChapter.eyebrow)}</span>
-        <h3 className={styles.processTitle}>{L(makingTitle)}</h3>
+        <h3 className={styles.processTitle}>{L(makingTitleOf(makingChapter.title))}</h3>
       </div>
       <ProcessChart step={step} setStep={setStep} />
     </div>
@@ -306,6 +309,7 @@ function walkTo(pts: Pt[], d: number, w: number, h: number): { done: Pt[]; at: P
 const toD = (pts: Pt[]) => (pts.length > 1 ? pts.map(([x, y], i) => `${i ? "L" : "M"} ${x} ${y}`).join(" ") : "");
 
 export function Decisions() {
+  const { decisionsText, decisionExtras } = useAboutText().decisions;
   const L = useL();
   const { language, tx } = useLanguage();
   /* 다른 언어로 볼 때는 영어 칸을 About 글 번역(tx)으로 */
@@ -586,7 +590,7 @@ export function Decisions() {
 }
 
 /** 장 제목 — 단계 수는 데이터에서 센다 */
-const makingTitle = (() => {
+const makingTitleOf = (title: L10n) => {
   const fill = (t: string) => t.replace("{phases}", String(aboutProcess.length));
-  return { ko: fill(makingChapter.title.ko), en: fill(makingChapter.title.en) };
-})();
+  return { ko: fill(title.ko), en: fill(title.en) };
+};

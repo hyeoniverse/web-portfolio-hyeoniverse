@@ -20,12 +20,13 @@ import {
 } from "@/app/about/_panels/panels/archDiagramData";
 import { userFlows as staticFlows } from "@/data/about/architecture";
 import { erdTables as staticTables, erdRelations as staticRelations, erdDesignNotes } from "@/data/about/erd";
-import { keyNotes, stackKey, stackScene, flowScene, erdScene, erdGroups, erdOtherGroup, erdTour } from "../../_data/architecture";
+import { erdTour } from "../../_data/architecture";
 import { RowNum, SceneHead, STAR_PATH, StarMark, useL } from "../features/shared";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import NoteArt from "./NoteArt";
 import fx from "../features/Features.module.css";
 import styles from "./Architecture.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 const ErdExplorer = dynamic(() => import("@/components/about/ErdExplorer"), { ssr: false });
 
@@ -46,6 +47,7 @@ function StepCount({ i, n }: { i: number; n: number }) {
 const VISIT_MS = 650;
 
 export function SceneStack() {
+  const { stackKey, stackScene } = useAboutText().architecture;
   const L = useL();
   const about = useAboutConfig();
   const nodes: ArchNode[] = about.archDiagram?.nodes?.length ? about.archDiagram.nodes : DEFAULT_ARCH_NODES;
@@ -330,6 +332,7 @@ function FlowStars({ flow, language, maxRows, live }: { flow: Flow; language: "k
 /* ── 2 · 사용자 흐름 — 단계마다 흐름 하나. 탭을 누르면 그 단계로 ── */
 
 export function SceneFlows() {
+  const { flowScene } = useAboutText().architecture;
   const L = useL();
   const { language } = useLanguage();
   const about = useAboutConfig();
@@ -367,6 +370,7 @@ export function SceneFlows() {
 /* ── 4 · DB 설계 — 테이블 목록(위) · 탐색기 · 고른 테이블의 메모(옆). 휠은 탐색기가 아니라 프레지로 넘긴다 ── */
 
 export function SceneErd() {
+  const { erdScene, erdGroups, erdOtherGroup } = useAboutText().architecture;
   const L = useL();
   const { language } = useLanguage();
   const about = useAboutConfig();
@@ -390,7 +394,7 @@ export function SceneErd() {
       .filter((g) => g.tables.length);
     const rest = tables.map((t) => t.name).filter((n) => !known.has(n));
     return rest.length ? [...list, { label: erdOtherGroup, tables: rest }] : list;
-  }, [tables]);
+  }, [tables, erdGroups, erdOtherGroup]);
   const focusNotes = useMemo(() => erdDesignNotes.filter((n) => n.relatedTable === focus), [focus]);
   /* 메모가 여럿인 테이블(posts 셋 등) — 한 번에 하나만 펴고 번호로 넘긴다. 어느 테이블의 번호인지 함께 쥔다 */
   const [notePick, setNotePick] = useState<{ table: string | null; i: number }>({ table: null, i: 0 });
@@ -495,6 +499,7 @@ export function SceneErd() {
    지금 장은 크게(도식 · 큰 제목 · 문제 → 해결 · 근거), 옆 장은 작고 흐리게. 아래 번호 줄로 바로 고른다 ── */
 
 export function SceneErdNotes() {
+  const { keyNotes, erdScene } = useAboutText().architecture;
   const L = useL();
   const { step: noteIdx, setStep, current: live } = useFrameSteps(keyNotes.length);
   return (
