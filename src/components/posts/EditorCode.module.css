@@ -428,3 +428,16 @@
 .codeBarLang .codeLangTrigger:hover {
   color: var(--text-primary);
 }
+
+/* 헤더 폭 — 모바일 우선. 좁은 화면에서는 정중앙 언어 피커가 우측 컨트롤과 겹치므로 기본은 피커를 flow 로 신호등 옆에,
+   컨트롤은 아이콘만(리더 _hljs.css 와 같은 기준). 768px 초과에서 정중앙 피커 · 글자 라벨로 되돌린다. */
+.codeBar { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+.codeBarLang { position: static; transform: none; min-width: 0; }
+.codeBarControls { flex-shrink: 0; }
+.codeBarCtrlLabel { display: none; }
+
+@media (width > 768px) {
+  .codeBar { gap: var(--spacing-12); padding: 0 var(--spacing-16); }
+  .codeBarLang { position: absolute; transform: translate(-50%, -50%); }
+  .codeBarCtrlLabel { display: inline; }
+}
