@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
+import type { ApiErrorCode } from "@/lib/apiError";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { getSiteConfig } from "@/lib/getSiteConfig";
 import { assembleSiteUi, chunkIndices, sanitizeSiteUi, type SiteUiSource } from "@/lib/siteTranslation";
@@ -14,7 +15,7 @@ const PARALLEL = 3;
  * 사전마다 다른 source_id)로 캐시하고, 해시가 같으면 공급자를 부르지 않는다.
  * onMiss 는 캐시에 없을 때만 부른다(요청 상한) — false 면 429.
  */
-export async function serveSiteUi(opts: {
+interface SiteUiOpts {
   source: SiteUiSource;
   hash: string;
   sourceId: string;
@@ -22,7 +23,33 @@ export async function serveSiteUi(opts: {
   config: Awaited<ReturnType<typeof getSiteConfig>>;
   tag: string;
   onMiss?: () => boolean;
-}): Promise<NextResponse> {
+}
+
+type SiteUiResult =
+  | { strings: Record<string, string>; complete: boolean; cached: boolean }
+  | { error: { status: NonNullable<Parameters<typeof jsonError>[1]>; code?: ApiErrorCode; message: string } };
+
+/** 캐시에 있는 번역만 읽는다(공급자를 부르지 않는다) — 해시가 다르면(사전이 바뀌었으면) null */
+export async function readCachedSiteUi(opts: Pick<SiteUiOpts, "source" | "hash" | "sourceId" | "lang">): Promise<Record<string, string> | null> {
+  const { source, hash, sourceId, lang } = opts;
+  const { data: cached } = await createAdminClient()
+    .from("content_translations")
+    .select("fields, source_hash")
+    .eq("source_type", "site_ui").eq("source_id", sourceId).eq("lang", lang)
+    .maybeSingle();
+  if (cached?.source_hash !== hash) return null;
+  const strings = sanitizeSiteUi(source, (cached.fields as { strings?: unknown } | null)?.strings);
+  return Object.keys(strings).length ? strings : null;
+}
+
+export async function serveSiteUi(opts: SiteUiOpts): Promise<NextResponse> {
+  const res = await translateSiteUi(opts);
+  if ("error" in res) return jsonError(res.error.message, res.error.status, res.error.code ? { code: res.error.code } : undefined);
+  return NextResponse.json({ lang: opts.lang, hash: opts.hash, ...res });
+}
+
+/** 사전 한 벌을 번역한다 — 캐시에 있으면 그것, 없으면 공급자를 불러 다 받았을 때 캐시한다 */
+export async function translateSiteUi(opts: SiteUiOpts): Promise<SiteUiResult> {
   const { source, hash, sourceId, lang, config, tag, onMiss } = opts;
   const admin = createAdminClient();
 
@@ -33,10 +60,10 @@ export async function serveSiteUi(opts: {
     .maybeSingle();
   if (cached?.source_hash === hash) {
     const strings = sanitizeSiteUi(source, (cached.fields as { strings?: unknown } | null)?.strings);
-    return NextResponse.json({ lang, hash, strings, complete: Object.keys(strings).length === source.length, cached: true });
+    return { strings, complete: Object.keys(strings).length === source.length, cached: true };
   }
 
-  if (onMiss && !onMiss()) return jsonError("Too many requests", 429);
+  if (onMiss && !onMiss()) return { error: { status: 429, message: "Too many requests" } };
 
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const providers = buildProviderList(primary, config?.translation?.fallback);
@@ -63,7 +90,7 @@ export async function serveSiteUi(opts: {
   const { strings, complete } = assembleSiteUi(source, translations, failed);
   if (!Object.keys(strings).length) {
     const { status, code } = translationFailure(failures);
-    return jsonError("Translation failed", status, { code: code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : code });
+    return { error: { status, code: code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : code, message: "Translation failed" } };
   }
   if (complete) {
     const { error } = await admin.from("content_translations").upsert({
@@ -74,5 +101,5 @@ export async function serveSiteUi(opts: {
   } else {
     console.warn(tag, `partial: ${Object.keys(strings).length}/${source.length}`);
   }
-  return NextResponse.json({ lang, hash, strings, complete, cached: false });
+  return { strings, complete, cached: false };
 }

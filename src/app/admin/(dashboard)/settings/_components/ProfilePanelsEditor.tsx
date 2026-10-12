@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { fillTemplate } from "@/utils/format";
 import type { Dispatch, SetStateAction } from "react";
 import { Plus, Trash2 } from "@/components/icons";
@@ -55,6 +56,7 @@ export default function ProfilePanelsEditor({
   styles: Record<string, string>;
   shared: Record<string, string>;
 }) {
+  const srcBadge = useSourceBadge();
   const { t } = useLanguage();
 
   const bunny = data.bunny ?? bunnyProfile;
@@ -85,12 +87,12 @@ export default function ProfilePanelsEditor({
         <>
           {/* maxHint — 카운터가 뜨고 한도를 넘긴 글자에 표시가 붙는다. 잘라내지는 않아서
               쓰는 도중에 문장이 끊기지 않고, 넘겼다는 건 바로 보인다. */}
-          <Textarea size="md" inlineLabel="KO" maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} rows={2} />
+          <Textarea size="md" inlineLabel={srcBadge} maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} rows={2} />
           <Textarea size="md" inlineLabel="EN" maxHint={MAX_STORY_CHARS} value={value.en} onChange={(v) => onChange({ ...value, en: v })} rows={2} />
         </>
       ) : (
         <>
-          <Input inlineLabel="KO" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
+          <Input inlineLabel={srcBadge} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
           <Input inlineLabel="EN" value={value.en} onChange={(v) => onChange({ ...value, en: v })} />
         </>
       )}

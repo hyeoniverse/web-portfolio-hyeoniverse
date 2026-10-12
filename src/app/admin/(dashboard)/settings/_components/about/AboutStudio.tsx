@@ -7,6 +7,7 @@
    저장은 탭 상단 Save Tab 에 위임(폼 헤더 없음).
    ───────────────────────────────────────────────────────────── */
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import css from "./AboutStudio.module.css";
 /* 실제 About Hero 와 픽셀 동일하게 렌더하려고 그 CSS 모듈을 그대로 재사용 */
 import hero from "@/app/about/_panels/panels/HeroPanel.module.css";
@@ -67,6 +68,7 @@ type AboutStudioProps = {
 };
 /* ═══════════ 메인 ═══════════ */
 export default function AboutStudio({ config, setConfig, update, savedConfig, saveSection, revertSection, resetSection, savingPaths, t, themeBg, techStackSlot }: AboutStudioProps) {
+  const badgeOf = useLangBadge();
   const about = config.about;
   const rec = about as unknown as Record<string, string | undefined>;
   const [lang, setLang] = useState<Language>("ko");
@@ -258,7 +260,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       {/* ── 상단 바 ── */}
       <div className={css.bar}>
         <SegmentedControl<Language> value={lang} onChange={setLang} className={css.segFit}
-          items={[{ value: "ko", label: "KO" }, { value: "en", label: "EN" }]} />
+          items={[{ value: "ko", label: badgeOf("ko") }, { value: "en", label: "EN" }]} />
         <p className={css.barHint}>{t("admin.settings.aboutStudioHint")}</p>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
 import type { Language } from "@/types";
@@ -22,6 +23,8 @@ const animationConfig = {
 };
 
 export default function LanguageToggle({ lang, onLangChange, size = "md" }: LanguageToggleProps) {
+  /* ko 자리 — 사이트 기본 언어가 ko · en 밖이면 그 언어 코드(JA 등, #1406) */
+  const { koLabel } = useLanguage();
   const [hoveredBtn, setHoveredBtn] = useState<Language | null>(null);
   const [indicatorAt, setIndicatorAt] = useStateFromProp<Language>(lang);
   const [locked, setLocked] = useState(false);
@@ -92,8 +95,8 @@ export default function LanguageToggle({ lang, onLangChange, size = "md" }: Lang
           className={styles.btn}
           onMouseEnter={() => setHoveredBtn("ko")}
         >
-          <span className={styles.textInverse} style={{ opacity: indicatorAt === "ko" ? 1 : 0 }}>KO</span>
-          <span className={styles.textPrimary} style={{ opacity: indicatorAt === "ko" ? 0 : 1 }}>KO</span>
+          <span className={styles.textInverse} style={{ opacity: indicatorAt === "ko" ? 1 : 0 }}>{koLabel}</span>
+          <span className={styles.textPrimary} style={{ opacity: indicatorAt === "ko" ? 0 : 1 }}>{koLabel}</span>
         </span>
         <span
           ref={enBtnRef}

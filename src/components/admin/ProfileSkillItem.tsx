@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState } from "react";
 import type { LocalizedText } from "@/types/common";
 import { ChevronRight } from "@/components/icons";
@@ -18,6 +19,7 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
   removeSkill: (gi: number, si: number) => void;
   styles: Record<string, string>;
 }) {
+  const srcBadge = useSourceBadge();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -40,7 +42,7 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
           <div className={styles.fieldGroup}>
             <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
             <div className={styles.profileGrid}>
-              <Textarea size="md" inlineLabel="KO" value={skill.description.ko} onChange={(v) => updateSkill(gi, si, "description.ko", v)} rows={1} />
+              <Textarea size="md" inlineLabel={srcBadge} value={skill.description.ko} onChange={(v) => updateSkill(gi, si, "description.ko", v)} rows={1} />
               <Textarea size="md" inlineLabel="EN" value={skill.description.en} onChange={(v) => updateSkill(gi, si, "description.en", v)} rows={1} />
             </div>
           </div>

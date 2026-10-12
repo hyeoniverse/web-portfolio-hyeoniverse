@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
 import { Book } from "@/components/icons";
@@ -43,6 +44,7 @@ export default function CategoryReassignModal({
   onConfirm,
   onCancel: _onCancel,
 }: Props) {
+  const srcBadge = useSourceBadge();
   const { t, language } = useLanguage();
   const tc = (key: string) => t(`admin.settings.reassignModal.${key}`);
 
@@ -213,7 +215,7 @@ export default function CategoryReassignModal({
                 <span className={styles.newCatFormLabel}>{t("admin.settings.name")}</span>
                 <div className={styles.newCatGroup}>
                   <Input
-                    inlineLabel="KO"
+                    inlineLabel={srcBadge}
                     value={newKo}
                     onChange={setNewKo}
                   />
@@ -230,7 +232,7 @@ export default function CategoryReassignModal({
                 <span className={styles.newCatFormLabel}>{t("admin.settings.categoryDescPlaceholder")}</span>
                 <div className={styles.newCatGroup}>
                   <Input
-                    inlineLabel="KO"
+                    inlineLabel={srcBadge}
                     value={newDescKo}
                     onChange={setNewDescKo}
                   />
