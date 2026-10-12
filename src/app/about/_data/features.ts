@@ -43,8 +43,8 @@ export const publicScene = {
     {
       title: { ko: "스크롤에 반응하는 홈", en: "A home that answers the scroll" },
       body: {
-        ko: "끝까지 내리면 처음으로 이어지는 무한 스크롤 루프, 마우스 패럴랙스, Three.js 토러스 · 커피잔.",
-        en: "An infinite scroll loop, mouse parallax, and a Three.js torus and coffee cup.",
+        ko: "끝까지 내리면 처음으로 이어지는 무한 스크롤 루프, 마우스 패럴랙스, Three.js 토러스 · 커피잔. MacFolio 의 휴대폰 화면 안에 띄우면 상태 표시줄 뒤 색을 페이지 맨 위 색에 맞춥니다.",
+        en: "An infinite scroll loop, mouse parallax, and a Three.js torus and coffee cup. Shown inside MacFolio's phone screen, it matches the color behind the status bar to the top of the page.",
       },
       shot: { src: `${PC}/home-light.png`, srcDark: `${PC}/home-dark.png` },
     },
@@ -75,8 +75,8 @@ export const publicScene = {
     {
       title: { ko: "번역 배너", en: "Translate banner" },
       body: {
-        ko: "보는 언어의 본문이 없으면 단추 하나로 그 자리에서 AI 번역을 받습니다.",
-        en: "When a body is missing in your language, one button translates it in place.",
+        ko: "보는 언어의 본문이 없으면 단추 하나로 그 자리에서 AI 번역을 받습니다. 메뉴의 🌐 단추로는 화면 글 · 목록 · 본문 · About · Profile 까지 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장해 둡니다.",
+        en: "When a body is missing in your language, one button translates it in place. The 🌐 button in the menu switches the whole site — UI text, lists, bodies, About and Profile — into one of 33 languages, and each translation is made once per language and stored.",
       },
       shot: { src: `${CMS}/10-translate-banner-light.png` },
     },
@@ -178,18 +178,20 @@ export const adminItems: FeatureItem[] = [
   {
     title: { ko: "대시보드 · 트래픽", en: "Dashboard and traffic" },
     body: {
-      ko: "첫 화면은 운영 현황 한 장입니다. 달력에서 날짜를 누르면 그날의 순위와 많이 본 글이 열립니다. 방문은 IP와 날짜로 하루 한 번만 세고, 봇과 내 IP는 빼며, 유입 · 기기 · 국가 · UTM으로 나눠 봅니다.",
-      en: "The first screen is a one-page status report. Click a day on the calendar for its rank and top posts. Visits count once per IP per day, excluding bots and your own IP, split by referrer, device, country and UTM.",
+      ko: "첫 화면은 운영 현황 한 장이고, 맨 위 숫자는 방문자 수입니다. 달력에서 날짜를 누르면 그날의 순위와 많이 본 글이 열립니다. 방문 · 방문자 · 페이지 조회 · 머문 시간은 조회 기록 하나에서 세고, 같은 페이지는 30분에 한 번, 봇과 내 IP 는 뺍니다. 트래픽 화면은 유입 · 기기 · 국가 · UTM 과, 들어온 뒤 어느 페이지로 이어 갔는지(방문 흐름)를 보여 줍니다.",
+      en: "The first screen is a one-page status report led by the visitor count. Click a day on the calendar for its rank and top posts. Visits, visitors, page views and time on page all come from one view log; the same page counts once per 30 minutes, and bots and your own IP are excluded. The traffic screen shows referrer, device, country and UTM, plus where visitors went after landing (visit flow).",
     },
     points: [
       { ko: "달력 히트맵", en: "Calendar heatmap" },
       { ko: "방문 급증 알림", en: "Traffic spike alerts" },
       { ko: "IP 익명화", en: "IP anonymization" },
+      { ko: "방문 흐름 · 머문 시간", en: "Visit flow · time on page" },
     ],
     shots: [
       { label: { ko: "대시보드", en: "Dashboard" }, src: `${CMS}/17-dashboard-light.png` },
-      { label: { ko: "일별 조회", en: "Daily views" }, src: `${CMS}/18-dashboard-daily-views-light.png` },
+      { label: { ko: "일별 방문자", en: "Daily visitors" }, src: `${CMS}/18-dashboard-daily-views-light.png` },
       { label: { ko: "트래픽", en: "Traffic" }, src: `${CMS}/19-traffic-light.png` },
+      { label: { ko: "방문 흐름", en: "Visit flow" }, src: `${CMS}/29-traffic-flow-light.png` },
       { label: { ko: "IP · UTM", en: "IP · UTM" }, src: `${CMS}/20-traffic-ip-utm-light.png` },
     ],
   },
@@ -212,11 +214,12 @@ export const adminItems: FeatureItem[] = [
   {
     title: { ko: "자동 번역과 AI", en: "Auto-translation and AI" },
     body: {
-      ko: "EN으로 바꾸면 비어 있는 영어 칸을 제목부터 본문까지 한 번에 채웁니다. 번역 · 요약 · 커버 · TTS마다 공급자 순서를 정하고, 같은 원인으로 거듭 실패한 공급자는 잠시 꺼집니다.",
-      en: "Switch to EN and empty English fields fill at once. Each AI feature has its own provider order, and a provider that keeps failing is switched off for a while.",
+      ko: "EN으로 바꾸면 비어 있는 영어 칸을 제목부터 본문까지 한 번에 채웁니다. 자동으로 채운 번역은 표식을 남겨, 원문을 고치면 그 칸을 비우고 다음 방문 때 다시 번역합니다(사람이 고친 번역은 그대로 둡니다). 번역 · 요약 · 커버 · TTS마다 공급자 순서와 모델을 정하고, 같은 원인으로 거듭 실패한 공급자는 잠시 꺼집니다.",
+      en: "Switch to EN and empty English fields fill at once. Auto-filled translations carry a mark, so editing the source clears them and they are re-translated on the next visit (translations a person edited are kept). Each AI feature has its own provider order and model, and a provider that keeps failing is switched off for a while.",
     },
     points: [
       { ko: "범위 골라 재번역", en: "Re-translate by scope" },
+      { ko: "원문 수정 시 다시 번역", en: "Re-translate on source edit" },
       { ko: "공급자 대체 순서", en: "Provider fallback" },
       { ko: "실패 시 자동 차단", en: "Auto-disable on failure" },
     ],
@@ -244,11 +247,12 @@ export const adminItems: FeatureItem[] = [
   {
     title: { ko: "설정 · 계정 · 보안", en: "Settings, accounts and security" },
     body: {
-      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 처음 보는 기기는 이메일 승인을 거칩니다.",
-      en: "Six settings tabs, with required values guarded at UI, API and DB. Members sign in with GitHub; five failures lock for 15 minutes, and new devices need email approval.",
+      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 라이브러리 탭은 달력(쓰인 글 · 프로젝트 표시) · 투표 · 커스텀 이모지(두 이모지를 섞는 이모지 조합 포함) · 커버 기록 · 올린 파일을 한 페이지에 모읍니다. 로고는 올린 이미지와 기본 로고 중에 고르고, 짧은 로고 · 긴 로고 · 로딩 화면 · 파비콘을 따로 정하며, 밑 배경 밝기에 맞춰 색이 바뀝니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 처음 보는 기기는 이메일 승인을 거칩니다.",
+      en: "Six settings tabs, with required values guarded at UI, API and DB. The library tab gathers calendars (with the posts and projects that use them), polls, custom emojis (including Emoji Kitchen mixes), cover history and uploaded files. The logo can be an uploaded image or the default one, with separate short and long logos, loading-screen logo and favicon, and it adapts to the brightness behind it. Members sign in with GitHub; five failures lock for 15 minutes, and new devices need email approval.",
     },
     points: [
       { ko: "세 겹 검증", en: "Three-layer validation" },
+      { ko: "브랜드 로고 · 파비콘", en: "Brand logo · favicon" },
       { ko: "멤버와 역할", en: "Members and roles" },
       { ko: "새 기기 메일 승인", en: "New-device approval" },
     ],

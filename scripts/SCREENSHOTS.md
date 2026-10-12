@@ -401,9 +401,10 @@ cms/21-posts-list-light.png · 22-works-list-light.png
 cms/23-notifications-light.png · 24-service-log-light.png · 25-comments-light.png
 cms/26-settings-library-light.png · 27-settings-account-light.png
 cms/28-login-light.png
+cms/29-traffic-flow-light.png
 ```
 
-17 ~ 28 은 운영 화면(대시보드 · 트래픽 · 목록 · 알림 · 기록 · 설정 · 로그인)입니다. 방문 · 글 · 댓글이 쌓인 사이트에서 찍어야 그림이 찹니다. 18 은 달력 히트맵에서 조회가 가장 많은 날을 눌러 분석 패널을 연 채로, 24 는 `?demo` 예시 기록으로(실제 기록은 `--real-log`), 28 은 세션 없이 찍습니다.
+17 ~ 29 는 운영 화면(대시보드 · 트래픽 · 목록 · 알림 · 기록 · 설정 · 로그인 · 방문 흐름)입니다. 방문 · 글 · 댓글이 쌓인 사이트에서 찍어야 그림이 찹니다. 18 은 달력 히트맵에서 방문자가 가장 많은 날을 눌러 분석 패널을 연 채로, 24 는 `?demo` 예시 기록으로(실제 기록은 `--real-log`), 28 은 세션 없이 찍습니다.
 
 서버에는 아무것도 쓰지 않습니다:
 - 저장 단추는 어디서도 누르지 않고, 편집기 자동저장(`POST /api/revisions` · 떠날 때 `sendBeacon`)은 막아 둡니다 — 캡처하려고 폼을 건드린 것이 다음 편집 때 "복원할까요" 로 나오지 않게.

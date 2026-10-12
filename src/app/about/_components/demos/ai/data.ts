@@ -65,18 +65,21 @@ export const COVER_STYLE_LABEL: Record<CoverStyle, string> = {
 
 /** 공급자 이름 — 서버가 소문자 키로 알려 준다. 모르는 키는 그대로 보인다 */
 export const PROVIDER_NAME: Record<string, string> = {
+  /* 서버의 공급자 키(lib/ai/providers · translationProviders · tts)와 같게 둔다 */
   deepl: "DeepL",
   google: "Google",
+  google_translate: "Google Translate",
+  google_tts: "Google TTS",
   gemini: "Gemini",
   groq: "Groq",
   openai: "OpenAI",
-  anthropic: "Anthropic",
-  cloudflare: "Cloudflare",
+  claude: "Claude",
+  nanobanana: "NanoBanana",
   huggingface: "Hugging Face",
   fish: "Fish Audio",
   edge: "Edge",
-  azure: "Azure",
-  elevenlabs: "ElevenLabs",
+  unsplash: "Unsplash",
+  pexels: "Pexels",
 };
 
 export const providerName = (key: string | undefined) => (key ? (PROVIDER_NAME[key.toLowerCase()] ?? key) : "");

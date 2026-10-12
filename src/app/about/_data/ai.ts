@@ -26,8 +26,12 @@ export const summaryPanel = {
       en: "The model picks blocks that suit the post — paragraph, list, steps, metrics, before/after, callout, quote, heading.",
     },
     {
-      ko: "본문 해시를 함께 저장해, 본문이 그대로면 다시 만들지 않습니다.",
-      en: "A hash of the body is stored with it, so an unchanged post is never summarized twice.",
+      ko: "긴 글은 제목 · 소제목 · 각 문단 앞부분 같은 뼈대만 6,000자 안으로 추려 보냅니다. 본문 해시를 함께 저장해, 본문이 그대로면 다시 만들지 않습니다.",
+      en: "Long posts are trimmed to a skeleton — headings and the start of each paragraph — within 6,000 characters. A hash of the body is stored with it, so an unchanged post is never summarized twice.",
+    },
+    {
+      ko: "편집 화면에서 다시 만들면 지금 요약과 새 요약을 나란히 놓고 고릅니다. 문체 · 블록 고르는 요령 같은 작성 지침은 설정에서 고칩니다.",
+      en: "Regenerating in the editor puts the current and new summaries side by side to choose from. The writing guide — voice, how to pick blocks — is editable in settings.",
     },
     {
       ko: "요약이 없는 글은 방문자가 처음 만들 수 있고, IP 당 1분에 한 번으로 막아 둡니다.",
@@ -92,7 +96,7 @@ export const fallbackPanel = {
       retry: { ko: "1시간 뒤 다시 시도", en: "Retried after an hour" },
     },
   } satisfies Record<FailKind, { label: L10n; limit: number; retry: L10n }>,
-  /** 기능별 공급자 — 순서는 예시(관리자가 정한다). 음성만 실제 기본값(fish → google → edge) */
+  /** 기능별 공급자 — 순서는 예시(관리자가 정한다). 음성은 고른 목소리의 공급자부터, 그다음 기본 순서(fish → google → edge) */
   features: [
     {
       id: "summary",
@@ -138,6 +142,10 @@ export const translatePanel = {
       ko: "Google 번역은 무료 50만 자 가운데 45만 자에서 앱이 스스로 멈춥니다.",
       en: "Google Translate is stopped by the app at 450k of its 500k free monthly characters.",
     },
+    {
+      ko: "공급자마다 쓸 모델 이름을 설정에서 정하고, 비워 두면 공급자의 최신 별칭(gemini-flash-latest 등)을 씁니다.",
+      en: "The model name for each provider is set in settings; left empty, it uses the provider's latest alias (such as gemini-flash-latest).",
+    },
   ] satisfies L10n[],
 };
 
@@ -147,12 +155,16 @@ export const voicePanel = {
   title: { ko: "대본을 넣으면, 갤러리가 쓰는 목소리로", en: "Type a script, hear the gallery's voice" } satisfies L10n,
   points: [
     {
-      ko: "편집 화면에서 만드는 음성은 Fish → Google → Edge 순서로 시도하고, 실패하면 다른 공급자의 같은 성별 목소리로 넘어갑니다.",
-      en: "Narration made in the editor tries Fish → Google → Edge, falling back to a same-gender voice from the next provider.",
+      ko: "편집 화면에서 고른 목소리의 공급자부터 시도하고, 실패하면 정해 둔 순서(기본 Fish → Google → Edge)대로 다음 공급자의 같은 성별 목소리로 넘어갑니다.",
+      en: "Narration starts with the provider of the voice picked in the editor; on failure it moves to a same-gender voice from the next provider in the set order (Fish → Google → Edge by default).",
     },
     {
-      ko: "읽기 사전으로 화면에 쓰는 말과 실제로 읽을 말을 따로 정합니다.",
-      en: "A pronunciation lexicon separates what is shown from what is spoken.",
+      ko: "대본과 음성은 한국어 · 영어로 나뉘고, 언어마다 목소리와 읽기 사전을 따로 둡니다. 읽기 사전은 화면에 쓰는 말과 실제로 읽을 말을 나눕니다.",
+      en: "Scripts and audio are split into Korean and English, each with its own voice and pronunciation lexicon, which separates what is shown from what is spoken.",
+    },
+    {
+      ko: "합성 대신 편집 화면에서 마이크로 바로 녹음할 수도 있고, 만든 장의 음성 파일은 내려받을 수 있습니다.",
+      en: "Instead of synthesis, a slide can be recorded with the microphone right in the editor, and each slide's audio file can be downloaded.",
     },
     {
       ko: "음성 파일이 없는 장은 방문자 브라우저의 음성(Web Speech API)이 무료로 읽습니다.",
