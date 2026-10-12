@@ -111,7 +111,6 @@
       "serviceLogStats": "최근 24시간 {{total}}건 · 실패 {{fails}}건",
       "serviceLogOff": "꺼진 공급자 {{n}}개",
       "totalViewsTooltip": "사이트 페이지가 보인 횟수입니다. 같은 사람이 같은 페이지를 30분 안에 다시 보면 한 번으로 셉니다.",
-      "totalViewsTooltipLegacy": "발행된 모든 게시물의 누적 조회수 합계입니다. 페이지 조회 기록은 마이그레이션을 적용한 뒤부터 셉니다.",
       "countingSince": "{{date}}부터 셈",
       "avgDwell": "평균 머문 시간",
       "pageViews": "페이지 조회",

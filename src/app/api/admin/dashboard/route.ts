@@ -9,13 +9,12 @@ import {
   aggregateNewVsReturning,
   aggregateTraffic,
   fillDailyViews,
-  HUMAN_VISITS_FILTER,
   kstDateStr,
-  type AnalyticsVisitRow,
   type PostAggRow,
 } from "@/lib/api/dashboardAggregates";
 import { loadExcludedIps } from "@/lib/api/ipAnalytics";
 import { loadDailyPageViews, loadPageViewStats, loadPageViewTotals } from "@/lib/api/pageViewStats";
+import { loadLandingRows, visitorHistory } from "@/lib/api/pageViewVisits";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -58,12 +57,10 @@ export async function GET() {
     notifications,
     unreadNotifications,
     popularPosts,
-    viewsAgg,
     secretsRow,
     dailyViewsRes,
     allPostsAgg,
-    trafficAgg,
-    allVisitsAgg,
+    allLandings,
     pageStats30,
   ] = await Promise.all([
     admin.from("posts").select("*", { count: "exact", head: true }).is("deleted_at", null),
@@ -105,27 +102,18 @@ export async function GET() {
       .gt("view_count", 0)
       .order("view_count", { ascending: false })
       .limit(5),
-    admin.rpc("sum_post_views").maybeSingle(),
     admin.from("site_settings").select("config").eq("id", "secrets").maybeSingle(),
     // 일별 조회수 — 차트·달력·날짜 선택기용 (KST 기준). 클라이언트에서 기간 슬라이스.
     // 고정 90일 창이었는데 추적이 그보다 길어지자 앞이 잘려 달력이 과거로 못 갔다(#1154).
     // 가장 오래된 기록부터 오늘까지를 창으로 쓴다 — 90일 하한(차트 기본 구간·WoW 슬라이스),
     // 2년 캡(응답 크기). 첫 기록 조회는 이 항목 안에서 직렬이라 다른 집계와는 계속 병렬이다.
-    // 페이지 조회(page_views, #1399)가 있으면 그것을, 마이그레이션 전이면 예전처럼 게시물 조회(post_views)를 센다.
+    // 페이지 조회(page_views, #1399) 기준 — 총 조회수 · 처음 센 날도 여기서 함께 받는다.
     (async () => {
       const pageTotals = await loadPageViewTotals(admin, excludedIps);
-      const first = pageTotals
-        ? { viewed_date: pageTotals.since ?? undefined }
-        : (await admin
-          .from("post_views")
-          .select("viewed_date")
-          .order("viewed_date", { ascending: true })
-          .limit(1)
-          .maybeSingle()).data;
       const end = new Date();
       const todayKst = kstDateStr(end);
       let days = 90;
-      const firstDay = (first as { viewed_date?: string } | null)?.viewed_date;
+      const firstDay = pageTotals?.since;
       if (firstDay) {
         const [fy, fm, fd] = firstDay.split("-").map(Number);
         const [ty, tm, td] = todayKst.split("-").map(Number);
@@ -134,15 +122,8 @@ export async function GET() {
       }
       const start = new Date(end);
       start.setDate(start.getDate() - (days - 1));
-      if (pageTotals) {
-        const data = await loadDailyPageViews(admin, kstDateStr(start), todayKst, excludedIps);
-        return { data: data ?? [], days, pageTotals };
-      }
-      const res = await admin.rpc("daily_post_views", {
-        p_start: kstDateStr(start),
-        p_end: todayKst,
-      });
-      return { data: res.data, days, pageTotals: null };
+      const data = await loadDailyPageViews(admin, kstDateStr(start), todayKst, excludedIps);
+      return { data: data ?? [], days, pageTotals };
     })(),
     // 카테고리/태그 집계용 — 발행된 게시물 전체
     admin
@@ -150,21 +131,8 @@ export async function GET() {
       .select("category, tags, view_count")
       .is("deleted_at", null)
       .eq("published", true),
-    // 트래픽 분석 — site_visits 메타 (최근 30일).
-    // 컬럼을 나열하지 않고 * 로 받는다 — 분석 컬럼(country·path·utm_*, #1161)은 마이그레이션
-    // 전 DB 엔 없어서, 나열하면 쿼리 전체가 죽고 기기 분석까지 같이 사라진다.
-    (() => {
-      const end = new Date();
-      const start = new Date(end);
-      start.setDate(start.getDate() - 30);
-      return admin
-        .from("site_visits")
-        .select("*")
-        .gte("date", start.toISOString().slice(0, 10))
-        .or(HUMAN_VISITS_FILTER);
-    })(),
-    // 신규/재방문 판별용 전체 방문 이력 — ip 하루 1행이라 크기가 작다 (방문자수×방문일수)
-    admin.from("site_visits").select("ip, date").or(HUMAN_VISITS_FILTER),
+    // 방문(세션의 첫 조회) 전체 — 최근 30일 유입 · 기기 집계와 신규/재방문 판별(이력) 둘 다 여기서
+    loadLandingRows(admin, excludedIps),
     // 최근 30일 평균 머문 시간 (#1399) — 마이그레이션 전이면 null
     (() => {
       const start = new Date();
@@ -177,21 +145,16 @@ export async function GET() {
     (allPostsAgg.data ?? []) as PostAggRow[],
   );
 
-  const notExcluded = (r: { ip?: string | null }) => !r.ip || !excludedIps.has(r.ip);
-  const trafficRows = ((trafficAgg.data ?? []) as Array<AnalyticsVisitRow & { ip?: string | null }>).filter(notExcluded);
-  const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
-
-  // 트래픽 간략 세트(#1161) — 심화(국가·랜딩·시간대·UTM)는 /api/admin/traffic 이 가진다
-  const channels = aggregateChannels(trafficRows);
+  // 최근 30일(오늘 포함) 방문 — 트래픽 간략 세트(#1161). 심화(국가·랜딩·시간대·UTM)는 /api/admin/traffic 이 가진다
   const windowStart = (() => {
     const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return d.toISOString().slice(0, 10);
+    d.setDate(d.getDate() - 29);
+    return kstDateStr(d);
   })();
-  const newVsReturning = aggregateNewVsReturning(
-    ((allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>).filter(notExcluded),
-    windowStart,
-  );
+  const trafficRows = allLandings.filter((r) => r.date >= windowStart);
+  const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
+  const channels = aggregateChannels(trafficRows);
+  const newVsReturning = aggregateNewVsReturning(visitorHistory(allLandings), windowStart);
 
   const filledDailyViews = fillDailyViews(
     (dailyViewsRes.data ?? []) as Array<{ day: string; views: number }>,
@@ -239,20 +202,6 @@ export async function GET() {
     });
   }
 
-  // 총 조회수: RPC가 없으면 fallback으로 view_count 합산 직접 집계
-  let totalPostViews = 0;
-  // viewsAgg.data가 { sum: number } 형태일 것으로 기대. 없으면 fallback.
-  const aggData = viewsAgg.data as { sum?: number } | null;
-  if (aggData && typeof aggData.sum === "number") {
-    totalPostViews = aggData.sum;
-  } else {
-    const { data: viewRows } = await admin
-      .from("posts")
-      .select("view_count")
-      .is("deleted_at", null);
-    totalPostViews = (viewRows ?? []).reduce((sum, r) => sum + (r.view_count ?? 0), 0);
-  }
-
   // AI 서비스 키 상태 — DB 값 우선, 없으면 process.env, 둘 다 없으면 missing
   const dbSecrets = (secretsRow.data?.config as Record<string, string>) ?? {};
   const services: Record<string, "configured" | "missing"> = {};
@@ -284,12 +233,14 @@ export async function GET() {
       recent: notifications.data ?? [],
     },
     stats: {
-      totalPostViews,
-      pageViews: dailyViewsRes.pageTotals
-        ? { ...dailyViewsRes.pageTotals, avgDurationMs30: pageStats30?.avgDurationMs ?? null }
-        : null,
+      // 총 조회수 = 페이지 조회수(처음 센 날부터). 마이그레이션 전이면 0
+      pageViews: {
+        total: dailyViewsRes.pageTotals?.total ?? 0,
+        since: dailyViewsRes.pageTotals?.since ?? null,
+        avgDurationMs30: pageStats30?.avgDurationMs ?? null,
+      },
       popularPosts: popularPosts.data ?? [],
-      // 첫 기록~오늘 일별 조회수(페이지 조회, 마이그레이션 전이면 게시물 조회). 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
+      // 첫 기록~오늘 일별 페이지 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
       dailyViews: filledDailyViews,
       categories,
       tags,

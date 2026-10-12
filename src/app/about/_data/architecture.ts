@@ -159,11 +159,11 @@ export const erdGroups: { label: L10n; tables: string[] }[] = [
   },
   {
     label: { ko: "반응", en: "Reactions" },
-    tables: ["comments", "work_comments", "likes", "comment_reactions", "comment_reports", "custom_emojis", "poll_votes", "post_views", "work_views"],
+    tables: ["comments", "work_comments", "likes", "comment_reactions", "comment_reports", "custom_emojis", "poll_votes"],
   },
   {
     label: { ko: "운영", en: "Operations" },
-    tables: ["site_settings", "site_visits", "service_logs", "traffic_excluded_ips", "admin_notifications", "applied_migrations", "demo_usage"],
+    tables: ["site_settings", "page_views", "service_logs", "traffic_excluded_ips", "admin_notifications", "applied_migrations", "demo_usage"],
   },
   {
     label: { ko: "보안 · 권한", en: "Security" },
