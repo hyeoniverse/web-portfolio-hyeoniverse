@@ -19,6 +19,7 @@ import {
 } from "@/lib/api/dashboardAggregates";
 import { aggregateIpVisitors, ipKey, loadExcludedIps, maskIp, type IpVisitRow } from "@/lib/api/ipAnalytics";
 import { getIp } from "@/utils/getIp";
+import { loadPageViewStats } from "@/lib/api/pageViewStats";
 
 const ALLOWED_DAYS = [7, 14, 30, 90] as const;
 
@@ -101,10 +102,17 @@ export async function GET(request: Request) {
   const requestIp = getIp(request);
   const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
 
-  const views = ((dailyViewsRes.data ?? []) as Array<{ views: number }>).reduce(
-    (s, d) => s + (Number(d.views) || 0),
-    0,
-  );
+  // 페이지 조회 · 머문 시간 (#1399) — '내 IP' 를 알아야 해서 위 묶음 뒤에 부른다. 마이그레이션 전이면 null
+  const pageStats = await (() => {
+    const start = new Date();
+    start.setDate(start.getDate() - (days - 1));
+    return loadPageViewStats(admin, kstDateStr(start), kstDateStr(new Date()), excludedIps);
+  })();
+
+  // 방문당 조회수의 분자 — 페이지 조회가 있으면 그것, 마이그레이션 전이면 게시물 조회
+  const views = pageStats
+    ? pageStats.total
+    : ((dailyViewsRes.data ?? []) as Array<{ views: number }>).reduce((s, d) => s + (Number(d.views) || 0), 0);
   const visits = trafficRows.length;
   const newVsReturning = aggregateNewVsReturning(allVisits, windowStart);
 
@@ -140,6 +148,7 @@ export async function GET(request: Request) {
       newVisitors: pctChange(newVsReturning.newCount, prevNvr.newCount),
       returning: pctChange(newVsReturning.returningCount, prevNvr.returningCount),
     },
+    pageStats,
     visitSummary: {
       visits30: visits,
       views30: views,

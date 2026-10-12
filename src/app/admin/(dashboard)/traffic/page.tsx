@@ -21,6 +21,7 @@ import UtmBuilder, { UtmHelpButton } from "./UtmBuilder";
 import IpVisitors from "./IpVisitors";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import Link from "next/link";
+import { formatDwell } from "@/utils/format";
 
 const styles = { ...dashStyles, ...local };
 
@@ -182,6 +183,81 @@ export default function AdminTrafficPage() {
                 <VisitsTrend data={data.dailyVisits} language={language} />
               </Panel>
             )}
+
+            {/* ── 페이지별 조회 · 머문 시간(#1399) — 마이그레이션 전엔 안내만 ── */}
+            <Panel className={styles.panelCell}>
+              <PanelTitle>
+                <T k="admin.dashboard.pageViewsTitle" />
+              </PanelTitle>
+              {!data.pageStats ? (
+                <p className={styles.muted}>
+                  <T k="admin.dashboard.pageViewsPending" />
+                </p>
+              ) : data.pageStats.total === 0 ? (
+                <p className={styles.muted}>
+                  <T k="admin.dashboard.noPageViews" />
+                </p>
+              ) : (
+                <>
+                  <div className={styles.trafficSummary}>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.pageViews" />
+                      </span>
+                      <span className={styles.trafficStatValue}>
+                        {data.pageStats.total.toLocaleString()}
+                      </span>
+                    </span>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.avgDwell" />
+                      </span>
+                      <span className={styles.trafficStatValue}>
+                        {data.pageStats.avgDurationMs != null ? formatDwell(data.pageStats.avgDurationMs, language) : "-"}
+                      </span>
+                    </span>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.pagesPerSession" />
+                      </span>
+                      <span className={styles.trafficStatValue}>
+                        {data.pageStats.pagesPerSession != null ? data.pageStats.pagesPerSession.toLocaleString() : "-"}
+                      </span>
+                    </span>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.sessionDwell" />
+                      </span>
+                      <span className={styles.trafficStatValue}>
+                        {data.pageStats.avgSessionMs != null ? formatDwell(data.pageStats.avgSessionMs, language) : "-"}
+                      </span>
+                    </span>
+                  </div>
+                  <List>
+                    {data.pageStats.topPaths.map((p) => (
+                      <ListItem key={p.path} layout="grid" className={styles.referrerRow}>
+                        <span className={`${styles.referrerSource} ${styles.landingPath}`} title={p.path}>
+                          {p.path}
+                        </span>
+                        <div className={styles.bar} aria-hidden>
+                          <div
+                            className={`${styles.barFill} ${styles.barFillSoft}`}
+                            style={{ width: `${Math.round((p.views / data.pageStats!.topPaths[0].views) * 100)}%` }}
+                          />
+                        </div>
+                        <span className={styles.referrerMeta}>
+                          {/* 평균 머문 시간 — 못 잰 조회만 있으면 비운다 */}
+                          <span className={styles.referrerPct}>
+                            {p.avgMs != null ? formatDwell(p.avgMs, language) : "-"}
+                          </span>
+                          <span className={styles.referrerCount}>{p.views.toLocaleString()}</span>
+                        </span>
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )}
+            </Panel>
 
             {/* ── 유입 채널 + 기기 분석 ── */}
             <Panel

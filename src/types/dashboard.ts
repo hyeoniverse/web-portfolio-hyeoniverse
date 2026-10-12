@@ -108,6 +108,11 @@ export interface DashboardData {
     newVsReturning?: { newCount: number; returningCount: number; returningPct: number };
     /** 최근 30일 방문·조회 요약 — 방문당 평균 조회수 */
     visitSummary?: { visits30: number; views30: number; viewsPerVisit: number };
+    /**
+     * 페이지 조회수(#1399) — total 은 처음 센 날(since)부터의 합계, avgDurationMs30 은 최근 30일 평균 머문 시간.
+     * page_views 마이그레이션 전이면 null — 화면은 예전 값(게시물 조회수 합계 totalPostViews)을 보인다
+     */
+    pageViews?: { total: number; since: string | null; avgDurationMs30: number | null } | null;
   };
   services: Record<string, "configured" | "missing">;
 }
@@ -118,6 +123,18 @@ export type ChannelStatDto = {
   pct: number;
   hosts: Array<{ host: string; count: number; pct: number }>;
 };
+
+/** 페이지 조회 기간 집계(#1399, page_view_stats) — 머문 시간은 시간이 잡힌 조회만의 평균(못 잰 조회는 빼고) */
+export interface PageViewStats {
+  total: number;
+  avgDurationMs: number | null;
+  /** 방문(30분 기준 세션) 수 · 방문당 본 페이지 · 방문당 머문 시간 */
+  sessions: number;
+  pagesPerSession: number | null;
+  avgSessionMs: number | null;
+  /** 페이지별 조회수 상위 20 · 평균 머문 시간 */
+  topPaths: Array<{ path: string; views: number; avgMs: number | null }>;
+}
 
 /** GET /api/admin/traffic — 트래픽 전용 페이지 데이터(#1161). 대시보드는 이 중 간략 세트만 보여준다. */
 export interface TrafficData {
@@ -161,6 +178,8 @@ export interface TrafficData {
     count: number;
   }>;
   visitSummary: { visits30: number; views30: number; viewsPerVisit: number };
+  /** 기간 내 페이지 조회 · 머문 시간(#1399) — page_views 마이그레이션 전이면 null */
+  pageStats: PageViewStats | null;
   /** IP 별 방문 상위 — 마스킹 값과 불투명 키만 (원문 IP 는 응답에 없다) */
   ipVisitors: Array<{
     key: string;

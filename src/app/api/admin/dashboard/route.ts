@@ -15,6 +15,7 @@ import {
   type PostAggRow,
 } from "@/lib/api/dashboardAggregates";
 import { loadExcludedIps } from "@/lib/api/ipAnalytics";
+import { loadDailyPageViews, loadPageViewStats, loadPageViewTotals } from "@/lib/api/pageViewStats";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -28,6 +29,8 @@ export async function GET() {
   if (authError) return authError;
 
   const admin = createAdminClient();
+  // '내 IP' 로 지정된 방문 · 조회는 트래픽 페이지와 같이 뺀다 (60초 캐시)
+  const excludedIps = await loadExcludedIps(admin);
 
   const AI_PROVIDER_KEYS = [
     "NANOBANANA_API_KEY",
@@ -61,6 +64,7 @@ export async function GET() {
     allPostsAgg,
     trafficAgg,
     allVisitsAgg,
+    pageStats30,
   ] = await Promise.all([
     admin.from("posts").select("*", { count: "exact", head: true }).is("deleted_at", null),
     admin.from("posts").select("*", { count: "exact", head: true }).is("deleted_at", null).eq("published", false),
@@ -107,13 +111,17 @@ export async function GET() {
     // 고정 90일 창이었는데 추적이 그보다 길어지자 앞이 잘려 달력이 과거로 못 갔다(#1154).
     // 가장 오래된 기록부터 오늘까지를 창으로 쓴다 — 90일 하한(차트 기본 구간·WoW 슬라이스),
     // 2년 캡(응답 크기). 첫 기록 조회는 이 항목 안에서 직렬이라 다른 집계와는 계속 병렬이다.
+    // 페이지 조회(page_views, #1399)가 있으면 그것을, 마이그레이션 전이면 예전처럼 게시물 조회(post_views)를 센다.
     (async () => {
-      const { data: first } = await admin
-        .from("post_views")
-        .select("viewed_date")
-        .order("viewed_date", { ascending: true })
-        .limit(1)
-        .maybeSingle();
+      const pageTotals = await loadPageViewTotals(admin, excludedIps);
+      const first = pageTotals
+        ? { viewed_date: pageTotals.since ?? undefined }
+        : (await admin
+          .from("post_views")
+          .select("viewed_date")
+          .order("viewed_date", { ascending: true })
+          .limit(1)
+          .maybeSingle()).data;
       const end = new Date();
       const todayKst = kstDateStr(end);
       let days = 90;
@@ -126,11 +134,15 @@ export async function GET() {
       }
       const start = new Date(end);
       start.setDate(start.getDate() - (days - 1));
+      if (pageTotals) {
+        const data = await loadDailyPageViews(admin, kstDateStr(start), todayKst, excludedIps);
+        return { data: data ?? [], days, pageTotals };
+      }
       const res = await admin.rpc("daily_post_views", {
         p_start: kstDateStr(start),
         p_end: todayKst,
       });
-      return { ...res, days };
+      return { data: res.data, days, pageTotals: null };
     })(),
     // 카테고리/태그 집계용 — 발행된 게시물 전체
     admin
@@ -153,14 +165,18 @@ export async function GET() {
     })(),
     // 신규/재방문 판별용 전체 방문 이력 — ip 하루 1행이라 크기가 작다 (방문자수×방문일수)
     admin.from("site_visits").select("ip, date").or(HUMAN_VISITS_FILTER),
+    // 최근 30일 평균 머문 시간 (#1399) — 마이그레이션 전이면 null
+    (() => {
+      const start = new Date();
+      start.setDate(start.getDate() - 29);
+      return loadPageViewStats(admin, kstDateStr(start), kstDateStr(new Date()), excludedIps);
+    })(),
   ]);
 
   const { categories, tags } = aggregateCategoriesAndTags(
     (allPostsAgg.data ?? []) as PostAggRow[],
   );
 
-  // '내 IP' 로 지정된 방문은 트래픽 페이지와 같이 뺀다
-  const excludedIps = await loadExcludedIps(admin);
   const notExcluded = (r: { ip?: string | null }) => !r.ip || !excludedIps.has(r.ip);
   const trafficRows = ((trafficAgg.data ?? []) as Array<AnalyticsVisitRow & { ip?: string | null }>).filter(notExcluded);
   const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
@@ -269,8 +285,11 @@ export async function GET() {
     },
     stats: {
       totalPostViews,
+      pageViews: dailyViewsRes.pageTotals
+        ? { ...dailyViewsRes.pageTotals, avgDurationMs30: pageStats30?.avgDurationMs ?? null }
+        : null,
       popularPosts: popularPosts.data ?? [],
-      // 첫 기록~오늘 일별 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
+      // 첫 기록~오늘 일별 조회수(페이지 조회, 마이그레이션 전이면 게시물 조회). 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
       dailyViews: filledDailyViews,
       categories,
       tags,

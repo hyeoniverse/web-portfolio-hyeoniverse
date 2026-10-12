@@ -980,6 +980,50 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
+    "name": "page_views",
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "pk": true,
+        "required": true,
+        "defaultValue": "gen_random_uuid()"
+      },
+      {
+        "name": "path",
+        "type": "text",
+        "required": true,
+        "indexed": true
+      },
+      {
+        "name": "ip",
+        "type": "text",
+        "indexed": true
+      },
+      {
+        "name": "session_id",
+        "type": "text"
+      },
+      {
+        "name": "viewed_at",
+        "type": "timestamptz",
+        "required": true,
+        "indexed": true,
+        "defaultValue": "now()"
+      },
+      {
+        "name": "viewed_date",
+        "type": "date",
+        "indexed": true,
+        "defaultValue": "(viewed_at AT TIME ZONE 'Asia/Seoul')::date"
+      },
+      {
+        "name": "duration_ms",
+        "type": "integer"
+      }
+    ]
+  },
+  {
     "name": "traffic_excluded_ips",
     "columns": [
       {
