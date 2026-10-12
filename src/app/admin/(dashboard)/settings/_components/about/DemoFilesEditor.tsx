@@ -1,5 +1,6 @@
 "use client";
 
+import { fillTemplate } from "@/utils/format";
 /* sandbox 데모 파일 편집기.
    줄 번호·신택스 하이라이팅은 Sandpack 의 CodeMirror 에디터를 그대로 쓴다(이미 의존성에 있음).
    탭은 VS Code 처럼 직접 그린다 — Sandpack 기본 탭은 높이/스타일을 주변 컨트롤과 못 맞춘다.
@@ -17,7 +18,7 @@ import {
 import { Plus, X } from "@/components/icons";
 import css from "./DemoFilesEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
-import { useL } from "./studio/primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const SP_EDITOR_THEME: SandpackTheme = {
   colors: {
@@ -65,12 +66,12 @@ export default function DemoFilesEditor({
   files: Files;
   onChange: (f: Files) => void;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const paths = Object.keys(files);
   return (
     <div className={css.panel}>
       <p className={css.hint}>
-        {L("App.tsx 가 진입점입니다. styles.css 는 자동으로 적용되고, 파일을 더 만들어 import 할 수 있습니다.", "App.tsx is the entry point. styles.css is applied automatically; add more files and import them.")}
+        {t("admin.inline.demoFilesEditor.filesHint")}
       </p>
       <SandpackProvider
         template="react-ts"
@@ -85,7 +86,7 @@ export default function DemoFilesEditor({
 }
 
 function Body({ onChange }: { onChange: (f: Files) => void }) {
-  const L = useL();
+  const { t } = useLanguage();
   const { sandpack } = useSandpack();
   const [adding, setAdding] = useState(false);
   const lastSent = useRef<Files | null>(null);
@@ -129,7 +130,7 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
               </Pressable>
               {sandpack.visibleFiles.length > 1 && (
                 <Pressable className={css.tabClose} onClick={() => closeFile(path)}
-                  aria-label={L(`${path.replace(/^\//, "")} 파일 삭제`, `Remove ${path.replace(/^\//, "")}`)}>
+                  aria-label={fillTemplate(t("admin.inline.demoFilesEditor.removeReplace"), { replace: path.replace(/^\//, "") })}>
                   <X size={11} />
                 </Pressable>
               )}
@@ -137,7 +138,7 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
           );
         })}
         {adding ? (
-          <input className={css.tabInput} autoFocus defaultValue="/" aria-label={L("새 파일 경로", "New file path")}
+          <input className={css.tabInput} autoFocus defaultValue="/" aria-label={t("admin.inline.demoFilesEditor.newFilePath")}
             onBlur={(e) => addFile(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
@@ -145,7 +146,7 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
             }} />
         ) : (
           <Pressable className={css.addTab} onClick={() => setAdding(true)}>
-            <Plus size={12} /> {L("파일 추가", "Add file")}
+            <Plus size={12} /> {t("admin.inline.demoFilesEditor.addFile")}
           </Pressable>
         )}
       </div>

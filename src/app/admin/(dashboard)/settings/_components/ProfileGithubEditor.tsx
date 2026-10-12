@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/Switch";
 import FieldRow from "@/components/ui/FieldRow";
 import EmptyState from "@/components/ui/EmptyState";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { errorText } from "@/lib/apiError";
 import type { ProfileData } from "@/types/profile";
 import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
@@ -37,7 +38,6 @@ export default function ProfileGithubEditor({
   styles: Record<string, string>;
 }) {
   const { language, t } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
 
   const gh = data.github ?? {};
   const selected = gh.repos ?? [];
@@ -62,7 +62,7 @@ export default function ProfileGithubEditor({
       const res = await fetch(`/api/admin/profile/github-repos${qs}`);
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(errorText(body, t, L("저장소를 불러오지 못했습니다.", "Could not load repositories.")));
+        setError(errorText(body, t, t("admin.inline.profileGithubEditor.couldNotLoadRepositories")));
         setRepos([]);
       } else {
         setRepos(body.repos ?? []);
@@ -70,7 +70,7 @@ export default function ProfileGithubEditor({
         setLogin(body.login ?? "");
       }
     } catch {
-      setError(L("저장소를 불러오지 못했습니다.", "Could not load repositories."));
+      setError(t("admin.inline.profileGithubEditor.couldNotLoadRepositories"));
     } finally {
       setLoading(false);
     }
@@ -123,10 +123,10 @@ export default function ProfileGithubEditor({
       <div className={styles.switchRow}>
         <span className={styles.switchLabel}>
           <span className={`${outer.fieldLabel} ${styles.switchTitle}`}>
-            <SiGithub size={13} aria-hidden /> {L("GitHub 영역 표시", "Show GitHub section")}
+            <SiGithub size={13} aria-hidden /> {t("admin.inline.profileGithubEditor.showGithubSection")}
           </span>
           <span className={`${outer.fieldHint} ${styles.switchHint}`}>
-            {L("프로필 페이지에 활동 지표와 Pinned 저장소를 보여줍니다.", "Shows activity stats and pinned repositories on the profile page.")}
+            {t("admin.inline.profileGithubEditor.githubSectionHint")}
           </span>
         </span>
         <Switch checked={enabled} onCheckedChange={(v) => patch({ enabled: v })} />
@@ -136,12 +136,12 @@ export default function ProfileGithubEditor({
           바꾸려면 멤버 설정의 링크를 고치는 게 맞고, 여기에 아이디를 적을 수 있으면
           오타 하나로 남의 저장소가 프로필에 뜬다. */}
       <FieldRow
-        label={L("GitHub 계정", "GitHub account")}
-        hint={L("소유자 프로필의 GitHub 링크에서 가져옵니다.", "Taken from the owner profile's GitHub link.")}
+        label={t("admin.inline.profileGithubEditor.githubAccount")}
+        hint={t("admin.inline.profileGithubEditor.usernameSourceHint")}
       >
         <div className={styles.loginRow}>
           <span className={styles.login}>
-            {login ? `@${login}` : L("링크 없음", "no link")}
+            {login ? `@${login}` : t("admin.inline.profileGithubEditor.noLink")}
           </span>
           <Button
             variant="outline"
@@ -150,7 +150,7 @@ export default function ProfileGithubEditor({
             disabled={loading}
             loading={loading}
           >
-            {L("다시 불러오기", "Reload")}
+            {t("admin.inline.profileGithubEditor.reload")}
           </Button>
         </div>
       </FieldRow>
@@ -176,26 +176,26 @@ export default function ProfileGithubEditor({
                 <span className={styles.pickedOrder}>{i + 1}</span>
                 <span className={styles.pickedName}>{name}</span>
                 {i >= PINNED_REPO_LIMIT && (
-                  <span className={styles.pickedOverNote}>{L("표시 안 됨", "Not shown")}</span>
+                  <span className={styles.pickedOverNote}>{t("admin.inline.profileGithubEditor.notShown")}</span>
                 )}
                 <span className={styles.pickedActions}>
                   {/* 화살표 문자 대신 아이콘 — 다른 목록의 조작 버튼과 크기·색이 맞는다 */}
                   <Button
                     variant="ghost" shape="circle"
                     icon={<ChevronUp size={13} strokeWidth={1.8} />}
-                    aria-label={L("위로", "Move up")}
+                    aria-label={t("admin.inline.profileGithubEditor.moveUp")}
                     onClick={() => move(i, i - 1)} disabled={i === 0}
                   />
                   <Button
                     variant="ghost" shape="circle"
                     icon={<ChevronDown size={13} strokeWidth={1.8} />}
-                    aria-label={L("아래로", "Move down")}
+                    aria-label={t("admin.inline.profileGithubEditor.moveDown")}
                     onClick={() => move(i, i + 1)} disabled={i === selected.length - 1}
                   />
                   <Button
                     variant="ghost" shape="circle" className={styles.removeBtn}
                     icon={<X size={13} strokeWidth={1.8} />}
-                    aria-label={L("빼기", "Remove")}
+                    aria-label={t("admin.inline.profileGithubEditor.remove")}
                     onClick={() => toggle(name)}
                   />
                 </span>
@@ -210,9 +210,9 @@ export default function ProfileGithubEditor({
       {error && <p className={styles.error}>{error}</p>}
 
       {loading ? (
-        <EmptyState size="xs" pad="sm">{L("저장소를 불러오는 중…", "Loading repositories…")}</EmptyState>
+        <EmptyState size="xs" pad="sm">{t("admin.inline.profileGithubEditor.loadingRepositories")}</EmptyState>
       ) : repos.length === 0 && !error ? (
-        <EmptyState size="xs" pad="sm">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
+        <EmptyState size="xs" pad="sm">{t("admin.inline.profileGithubEditor.noRepositories")}</EmptyState>
       ) : (
         /* 홈 설정과 같은 목록을 쓴다 — 머리글·검색창·소유 계정별 묶음의 배치가 두 화면에서 같아야 한다 */
         <RepoPickerList
@@ -230,11 +230,10 @@ export default function ProfileGithubEditor({
           styles={outer}
           hint={
             selected.length > PINNED_REPO_LIMIT
-              ? L(`${PINNED_REPO_LIMIT}개까지만 표시됩니다. 위에서 "표시 안 됨" 인 것을 빼 주세요.`,
-                  `Only ${PINNED_REPO_LIMIT} are shown — remove the ones marked "Not shown" above.`)
+              ? fillTemplate(t("admin.inline.profileGithubEditor.overLimit"), { n: PINNED_REPO_LIMIT })
               : atLimit
-                ? L(`${PINNED_REPO_LIMIT}개까지 표시할 수 있습니다.`, `You can show up to ${PINNED_REPO_LIMIT}.`)
-                : L(`프로필에는 ${PINNED_REPO_LIMIT}개까지 표시됩니다.`, `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)
+                ? fillTemplate(t("admin.inline.profileGithubEditor.atLimit"), { n: PINNED_REPO_LIMIT })
+                : fillTemplate(t("admin.inline.profileGithubEditor.limitHint"), { n: PINNED_REPO_LIMIT })
           }
         />
       )}

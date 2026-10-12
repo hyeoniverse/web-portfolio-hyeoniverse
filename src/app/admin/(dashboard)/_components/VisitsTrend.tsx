@@ -2,6 +2,7 @@
 
 import styles from "./VisitsTrend.module.css";
 import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* ── 일별 방문 추이(#1161) — 유니크 방문자(ip·일) 곡선. 일별 조회수 차트와 같은
    monotone hermite 곡선 + 그라데이션 채움이지만, 선택·달력 없이 보기 전용으로 단순하다. */
@@ -39,11 +40,11 @@ function buildPath(pts: Array<{ x: number; y: number }>): string {
 
 function VisitsTrend({
   data,
-  language,
 }: {
   data: Array<{ day: string; count: number }>;
   language: "ko" | "en";
 }) {
+  const { t } = useLanguage();
   if (data.length < 2) return null;
 
   const max = Math.max(1, ...data.map((d) => d.count));
@@ -125,7 +126,7 @@ function VisitsTrend({
         )}
       </div>
       <span className={styles.trendCaption}>
-        {language === "ko" ? "유니크 방문자 · 일별" : "Unique visitors · daily"}
+        {t("admin.inline.visitsTrend.uniqueVisitorsDaily")}
       </span>
     </div>
   );

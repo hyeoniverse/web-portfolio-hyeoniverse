@@ -18,7 +18,8 @@ import { ModalAlert } from "@/components/ui/ModalTemplates";
 import Pressable from "@/components/ui/Pressable";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Tooltip from "@/components/ui/Tooltip";
-import { type TFunction } from "@/providers/LanguageProvider";
+import { type TFunction, useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 /** Catmull-Rom 보간으로 cubic bezier path 생성 (부드러운 곡선) */
 /** Monotone cubic Hermite interpolation (Fritsch-Carlson).
@@ -253,21 +254,17 @@ function DailyViewsChart({
   const { openModal } = useModalStore();
   const notifyClamp = (reason: "future" | "range") => {
     const desc =
-      language === "ko"
-        ? reason === "future"
-          ? "오늘 이후 날짜는 선택할 수 없습니다. 오늘 날짜로 변경했습니다."
-          : "최대 90일(3개월)까지만 선택 가능합니다. 90일 범위로 변경했습니다."
-        : reason === "future"
-          ? "Future dates aren't selectable. Adjusted to today."
-          : "Up to 90 days (3 months) can be selected. Adjusted to a 90-day range.";
+      reason === "future"
+        ? t("admin.inline.dailyViewsChart.clampFuture")
+        : t("admin.inline.dailyViewsChart.clampRange");
     openModal(
       <ModalAlert
         desc={desc}
-        confirmText={language === "ko" ? "확인" : "OK"}
+        confirmText={t("admin.inline.dailyViewsChart.ok")}
       />,
       {
         header: {
-          title: language === "ko" ? "날짜 범위 안내" : "Date range notice",
+          title: t("admin.inline.dailyViewsChart.dateRangeNotice"),
         },
       },
     );
@@ -355,12 +352,8 @@ function DailyViewsChart({
         <div className={styles.dailyChartStatItem}>
           <span className={styles.dailyChartStatLabel}>
             {viewMode === "calendar"
-              ? language === "ko"
-                ? "이 달 합계"
-                : "Month total"
-              : language === "ko"
-                ? "기간 합계"
-                : "Total"}
+              ? t("admin.inline.dailyViewsChart.monthTotal")
+              : t("admin.inline.dailyViewsChart.total")}
           </span>
           <span className={styles.dailyChartTotal}>
             {(viewMode === "calendar"
@@ -410,7 +403,7 @@ function DailyViewsChart({
         <div className={styles.dailyChartHeaderSub}>
           <div className={styles.periodRange}>
             <DateRangeTrigger
-              label={language === "ko" ? "시작일" : "Start"}
+              label={t("admin.inline.dailyViewsChart.start")}
               date={startDate}
               isOpen={openPicker === "start"}
               onOpen={() =>
@@ -426,7 +419,7 @@ function DailyViewsChart({
               —
             </span>
             <DateRangeTrigger
-              label={language === "ko" ? "종료일" : "End"}
+              label={t("admin.inline.dailyViewsChart.end")}
               date={endDate}
               isOpen={openPicker === "end"}
               onOpen={() =>
@@ -449,8 +442,8 @@ function DailyViewsChart({
               const isActive = normStart === presetStart && normEnd === maxDate;
               const label =
                 days === MAX_RANGE_DAYS
-                  ? language === "ko" ? "최대" : "Max"
-                  : language === "ko" ? `${days}일` : `${days}d`;
+                  ? t("admin.inline.dailyViewsChart.max")
+                  : fillTemplate(t("admin.inline.dailyViewsChart.days"), { days });
               return (
                 <Button
                   key={days}
@@ -712,6 +705,7 @@ function DateRangeTrigger({
   minDate: string;
   maxDate: string;
 }) {
+  const { t } = useLanguage();
   const [y, m, d] = date.split("-");
   const formatted = (() => {
     if (!date) return "—";
@@ -724,9 +718,7 @@ function DateRangeTrigger({
   })();
 
   const tooltipText =
-    language === "ko"
-      ? "최대 90일(3개월) 범위, 미래 날짜는 선택 불가"
-      : "Up to 90-day (3-month) range, future dates not allowed";
+    t("admin.inline.dailyViewsChart.upTo90Day");
 
   return (
     <div className={styles.periodTrigger}>

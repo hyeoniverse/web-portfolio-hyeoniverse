@@ -6,7 +6,7 @@ import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordi
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import css from "../AboutStudio.module.css";
 import { ListLimit } from "./listControls";
-import { useL } from "./primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { ChevronLeft, ChevronRight, Plus } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
@@ -81,7 +81,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
   addLabel: string;
   max: number;
 }) {
-  const L = useL();
+  const { t: tA } = useLanguage();
   const { cur, select } = list;
   const count = list.items.length;
   /* 자리가 곧 id — 끌어 놓는 순간에만 쓰이므로 인덱스로 충분하다. 초안은 목록 밖이라 끌 수 없다. */
@@ -102,7 +102,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
   return (
     <div className={css.stageTabs}>
       <div className={css.stageNav}>
-        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={L("이전", "Previous")}
+        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={tA("admin.inline.stageList.previous")}
           disabled={cur <= 0} onClick={() => select(cur - 1)}>
           <ChevronLeft size={14} />
         </Button>
@@ -122,7 +122,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
             </div>
           </SortableContext>
         </DndContext>
-        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={L("다음", "Next")}
+        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={tA("admin.inline.stageList.next")}
           disabled={cur >= count - 1} onClick={() => select(cur + 1)}>
           <ChevronRight size={14} />
         </Button>
@@ -140,13 +140,13 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
 function StageDot({ id, index, active, label, onSelect }: {
   id: string; index: number; active: boolean; label: string; onSelect: (i: number) => void;
 }) {
-  const L = useL();
+  const { t: tA } = useLanguage();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style: CSSProperties = { transform: DndCSS.Translate.toString(transform), transition };
   return (
     <Pressable ref={setNodeRef} style={style}
       className={`${css.stageDot} ${active ? css.stageDotOn : ""} ${isDragging ? css.stageDotDragging : ""}`}
-      title={`${label} · ${L("끌어서 순서 변경", "Drag to reorder")}`}
+      title={`${label} · ${tA("admin.inline.stageList.dragToReorder")}`}
       aria-current={active ? "true" : undefined}
       onClick={() => onSelect(index)} {...attributes} {...listeners}>
       {stepNo(index)}

@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import HomeWorksEditor from "@/app/admin/(dashboard)/settings/_components/HomeWorksEditor";
 import { coverFitStyle } from "@/data/works";
+import { AdminDict } from "./_adminDict";
 
 /* 홈 Selected Works 설정(#1047) — 원 그리드를 무엇으로 채울지만 고른다.
    저장소 연결은 여기서 걷어냈다. GitHub 은 작업물 목록의 "GitHub 불러오기" 가 작업물로 들여온다. */
@@ -10,7 +11,7 @@ afterEach(() => cleanup());
 
 describe("HomeWorksEditor", () => {
   it("고를 수 있는 것은 자동·작업물·게시물 셋이다 — GitHub 은 없다", () => {
-    const { queryAllByText } = render(<HomeWorksEditor source="auto" onSourceChange={() => {}} />);
+    const { queryAllByText } = render(<AdminDict><HomeWorksEditor source="auto" onSourceChange={() => {}} /></AdminDict>);
     expect(queryAllByText("작업물").length).toBeGreaterThan(0);
     expect(queryAllByText("게시물").length).toBeGreaterThan(0);
     expect(queryAllByText("GitHub 저장소")).toHaveLength(0);

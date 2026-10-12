@@ -58,6 +58,7 @@ export default function ThemeContrastReport({ theme }: { theme: ThemeColors }) {
                     <td key={m.mode}>
                       <span className={styles.cell}>
                         <span className={styles.value}>{key === "distinct" ? row.value.toFixed(0) : `${row.value.toFixed(1)}:1`}</span>
+                        {/* eslint-disable-next-line no-restricted-syntax -- themeAudit 가 돌려주는 등급 값과 비교 — 화면 글이 아니다 */}
                         <span className={`${styles.chip} ${STATUS_CLASS[row.status]}`}>{row.grade === "미달" ? k("fail") : row.grade ?? (row.status === "pass" ? "OK" : row.status === "warn" ? k("caution") : k("fail"))}</span>
                         {row.corrected && <span className={styles.corrected}>{k("corrected")}</span>}
                       </span>

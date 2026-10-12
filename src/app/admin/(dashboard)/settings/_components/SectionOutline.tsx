@@ -26,7 +26,7 @@ export default function SectionOutline({
   /** 저장하지 않은 변경이 있는 섹션 — 이름 뒤에 점을 찍는다 */
   dirty?: boolean[];
 }) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const listRef = useRef<HTMLUListElement>(null);
 
   /* 사이드바가 화면보다 길면 사이드바 안에서 스크롤된다. 지금 섹션이 사이드바의 보이는 범위를
@@ -44,14 +44,14 @@ export default function SectionOutline({
   if (sections.length < 2) return null;
 
   return (
-    <ul ref={listRef} className={css.outline} aria-label={language === "ko" ? "이 화면의 섹션" : "Sections on this page"}>
+    <ul ref={listRef} className={css.outline} aria-label={t("admin.inline.sectionOutline.sectionsOnThisPage")}>
       {sections.map((s, i) => (
         <li key={`${s.label}-${i}`}>
           <Pressable
             className={`${css.item} ${i === activeIdx ? css.itemActive : ""}`}
             onClick={() => onJump(i)}
             aria-current={i === activeIdx ? "location" : undefined}
-            aria-label={dirty[i] ? `${s.label}, ${language === "ko" ? "저장 안 됨" : "unsaved"}` : undefined}
+            aria-label={dirty[i] ? `${s.label}, ${t("admin.inline.sectionOutline.unsaved")}` : undefined}
             title={s.label}
           >
             <span className={css.itemLabel}>{s.label}</span>

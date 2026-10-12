@@ -2,7 +2,8 @@
 
 import css from "../../AboutStudio.module.css";
 import { DragHandle, RemoveButton, SortableItem, SortableList } from "../listControls";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_panels/panels/BackendPanel.module.css";
 import { Plus, X } from "@/components/icons";
@@ -21,7 +22,7 @@ const BK_MAX = 12;
 export function BackendBlock({ value, onChange, lang, t, title }: {
   value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
-  const L = useL();
+  const { t: tA } = useLanguage();
   const list = useStageList(value, onChange, (): BackendItem => ({ name: "", kind: "api", description: { ko: "", en: "" }, endpoints: [] }));
   const { cur, it, set } = list;
   const setLocal = (k: "description" | "designNote", v: string) =>
@@ -34,8 +35,8 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
 
   return (
     <section className={css.block}>
-      <StageTabs list={list} max={BK_MAX} addLabel={L("항목 추가", "Add item")}
-        labelOf={(i) => list.items[i]?.name || L("새 항목", "Untitled")} />
+      <StageTabs list={list} max={BK_MAX} addLabel={tA("admin.inline.backendBlock.addItem")}
+        labelOf={(i) => list.items[i]?.name || tA("admin.inline.backendBlock.untitled")} />
       {it && (
         <PanelStage>
           <div key={cur} className={css.bkStage}>
@@ -43,7 +44,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <SegmentedControl<"api" | "table"> value={it.kind}
                 onChange={(v) => set({ kind: v })}
                 items={[{ value: "api", label: "API" }, { value: "table", label: "TABLE" }]} />
-              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={tA("admin.inline.backendBlock.remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -59,7 +60,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     <span className={bk.dbNumber}>{String(i + 1).padStart(2, "0")}</span>
                     <div className={bk.dbListMeta}>
                       <span className={bk.dbListTitle}>
-                        {item.name || (L("새 항목", "Untitled"))}
+                        {item.name || (tA("admin.inline.backendBlock.untitled"))}
                         <span className={`${bk.dbKindBadge} ${bk.dbKindBadgeSm} ${item.kind === "api" ? bk.dbKindApi : bk.dbKindTable}`}>
                           {item.kind === "api" ? "API" : "TABLE"}
                         </span>
@@ -73,14 +74,14 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <div className={bk.dbDetail}>
                 <div className={bk.detailHeader}>
                   <EditableText wrap className={bk.dbTitle} value={it.name}
-                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel={L("이름", "Name")} autoFocus={list.isDraft} />
+                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel={tA("admin.inline.backendBlock.name")} autoFocus={list.isDraft} />
                 </div>
                 <EditableText multiline className={css.bkDesc} value={it.description[lang] ?? ""}
                   onChange={(v) => setLocal("description", v)}
-                  placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+                  placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={tA("admin.inline.backendBlock.description")} style={{ width: "100%" }} />
                 <EditableText multiline className={css.bkNote} value={it.designNote?.[lang] ?? ""}
                   onChange={(v) => setLocal("designNote", v)}
-                  placeholder={L("설계 노트 (선택)", "Design note (optional)")} ariaLabel={L("설계 노트", "Design note")} style={{ width: "100%" }} />
+                  placeholder={tA("admin.inline.backendBlock.designNoteOptional")} ariaLabel={tA("admin.inline.backendBlock.designNote")} style={{ width: "100%" }} />
 
                 {it.kind === "api" ? (
                   <div className={bk.entryBlock}>
@@ -91,16 +92,16 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                           <div ref={row.ref} style={row.style} className={`${bk.dbEndpoint} ${css.bkRow}`}>
                             <EditableText className={css.bkMethod} value={ep.method}
                               onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, method: v.toUpperCase() } : x)))}
-                              placeholder="GET" ariaLabel={L("메서드", "Method")} />
+                              placeholder="GET" ariaLabel={tA("admin.inline.backendBlock.method")} />
                             <EditableText wrap className={bk.dbEndpointPath} value={ep.path}
                               onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, path: v } : x)))}
-                              placeholder="/api/posts" ariaLabel={L("경로", "Path")} />
+                              placeholder="/api/posts" ariaLabel={tA("admin.inline.backendBlock.path")} />
                             <EditableText wrap className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
                               onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("엔드포인트 설명", "Endpoint description")} style={{ flex: 1 }} />
+                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={tA("admin.inline.backendBlock.endpointDescription")} style={{ flex: 1 }} />
                             <span className={css.itemTools}>
                               <DragHandle handle={row.handle} />
-                              <RemoveButton label={L("엔드포인트 삭제", "Remove endpoint")} onClick={() => setEndpoints(endpoints.filter((_, j) => j !== i))} />
+                              <RemoveButton label={tA("admin.inline.backendBlock.removeEndpoint")} onClick={() => setEndpoints(endpoints.filter((_, j) => j !== i))} />
                             </span>
                           </div>
                         )}</SortableItem>
@@ -108,7 +109,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     </SortableList>
                     <Button variant="subtle" icon={<Plus size={13} />}
                       onClick={() => setEndpoints([...endpoints, { method: "GET", path: "", description: { ko: "", en: "" } }])}>
-                      {L("엔드포인트 추가", "Add endpoint")}
+                      {tA("admin.inline.backendBlock.addEndpoint")}
                     </Button>
                   </div>
                 ) : (
@@ -120,19 +121,19 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                           <div ref={row.ref} style={row.style} className={`${bk.dbSchemaRow} ${css.bkRow}`}>
                             <EditableText className={bk.dbColName} value={cl.name}
                               onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, name: v } : x)))}
-                              placeholder="id" ariaLabel={L("컬럼 이름", "Column name")} />
+                              placeholder="id" ariaLabel={tA("admin.inline.backendBlock.columnName")} />
                             <EditableText className={bk.dbColType} value={cl.type}
                               onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, type: v } : x)))}
-                              placeholder="uuid" ariaLabel={L("타입", "Type")} />
+                              placeholder="uuid" ariaLabel={tA("admin.inline.backendBlock.type")} />
                             <EditableText className={bk.dbColConstraint} value={cl.constraint ?? ""}
                               onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, constraint: v } : x)))}
-                              placeholder="PK" ariaLabel={L("제약", "Constraint")} />
+                              placeholder="PK" ariaLabel={tA("admin.inline.backendBlock.constraint")} />
                             <EditableText wrap className={bk.dbColDesc} value={cl.description[lang] ?? ""}
                               onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("컬럼 설명", "Column description")} style={{ flex: 1 }} />
+                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={tA("admin.inline.backendBlock.columnDescription")} style={{ flex: 1 }} />
                             <span className={css.itemTools}>
                               <DragHandle handle={row.handle} />
-                              <RemoveButton label={L("컬럼 삭제", "Remove column")} onClick={() => setColumns(columns.filter((_, j) => j !== i))} />
+                              <RemoveButton label={tA("admin.inline.backendBlock.removeColumn")} onClick={() => setColumns(columns.filter((_, j) => j !== i))} />
                             </span>
                           </div>
                         )}</SortableItem>
@@ -140,7 +141,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     </SortableList>
                     <Button variant="subtle" icon={<Plus size={13} />}
                       onClick={() => setColumns([...columns, { name: "", type: "", description: { ko: "", en: "" } }])}>
-                      {L("컬럼 추가", "Add column")}
+                      {tA("admin.inline.backendBlock.addColumn")}
                     </Button>
                   </div>
                 )}

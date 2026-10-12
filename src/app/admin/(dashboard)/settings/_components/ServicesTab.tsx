@@ -441,7 +441,7 @@ function ProviderFallbackBlock<P extends string>({
 }
 
 export default function ServicesTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig, validationError }: ServicesTabProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   /* AI 자동 요약 하위 칸의 접힌 머리 — 말투 · 분량 · 초점 · 지침(기본값 / 직접 씀) */
   const summaryOpts = sanitizeSummaryOptions((config.aiSummary as { options?: unknown }).options);
   const to = (k: string) => t(`admin.aiSummaryField.options.${k}`);
@@ -451,7 +451,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
     `${to("focus")} ${to(`focus${summaryOpts.focus[0].toUpperCase()}${summaryOpts.focus.slice(1)}`)}`,
     t(typeof (config.aiSummary as { guide?: unknown }).guide === "string" && (config.aiSummary as { guide: string }).guide.trim() ? "admin.aiSummaryField.guide.stateCustom" : "admin.aiSummaryField.guide.stateDefault"),
   ].join(" · ");
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en); // giscus 필드 툴팁 inline 다국어
 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
   /* AI 상태 — 상태 패널과 각 fallback 섹션이 같이 쓴다. 설정 이름 → 상태를 세는 공급자 이름(google 만 기능마다 다르다) */
@@ -520,15 +519,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   };
 
   // 카테고리 help — Select/Field 두 케이스 공용
-  const categoryHelp = L(
-    "댓글 스레드가 생성될 Discussion 카테고리입니다. 관리자만 새 글을 만들 수 있는 'Announcements' 유형을 권장합니다.",
-    "The Discussion category for comment threads. An 'Announcements'-type (maintainers only) is recommended.",
-  );
+  const categoryHelp = t("admin.inline.servicesTab.giscusCategoryHint");
   // 테마 help — light/dark 두 필드 공용
-  const themeHelp = L(
-    "giscus 프리셋을 고르거나 '커스텀 (CSS URL)'로 사이트에 맞춥니다. 커스텀 URL 은 배포된 공개 https 주소여야 합니다.",
-    "Pick a giscus preset, or 'Custom (CSS URL)'. A custom URL must be a deployed public https address.",
-  );
+  const themeHelp = t("admin.inline.servicesTab.pickAGiscusPreset");
 
   return (
     <>
@@ -685,10 +678,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 onChange={(v) => updateGiscus("repo", v)}
                 placeholder="owner/name"
                 maxHint={null}
-                help={L(
-                  "댓글(Discussion)이 저장될 공개 GitHub 저장소를 owner/name 형식으로 지정합니다.",
-                  "The public GitHub repo (owner/name) where comments are stored as Discussions.",
-                )}
+                help={t("admin.inline.servicesTab.thePublicGithubRepo")}
               />
                   </div>
                   <Button variant="outline" onClick={loadGiscusRepo} disabled={giscusLoading || !giscus.repo.trim()}>
@@ -737,10 +727,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   onChange={(v) => updateGiscus("repoId", v)}
                   placeholder="R_kgD..."
                   maxHint={null}
-                  help={L(
-                    "GitHub이 저장소에 부여하는 내부 식별자(R_…)입니다. GITHUB_TOKEN 을 설정하고 위 '저장소 불러오기'를 누르면 자동으로 채워집니다. (또는 giscus.app 스크립트의 data-repo-id 값을 직접 붙여넣어도 됩니다.)",
-                    "GitHub's internal repo ID (R_…). It fills in automatically after you set GITHUB_TOKEN and click 'Load repository' above. (Or paste the data-repo-id from the giscus.app script.)",
-                  )}
+                  help={t("admin.inline.servicesTab.githubSInternalRepo")}
                 />
                 <Field
                   label={t("admin.settings.giscusCategoryId")}
@@ -748,20 +735,14 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   onChange={(v) => updateGiscus("categoryId", v)}
                   placeholder="DIC_kwD..."
                   maxHint={null}
-                  help={L(
-                    "카테고리의 내부 식별자(DIC_…)입니다. '저장소 불러오기' 후 위에서 카테고리를 선택하면 자동으로 채워집니다. (또는 giscus.app 스크립트의 data-category-id 값을 직접 붙여넣어도 됩니다.)",
-                    "The category's internal ID (DIC_…). It fills in when you pick a category above after loading the repository. (Or paste the data-category-id from the giscus.app script.)",
-                  )}
+                  help={t("admin.inline.servicesTab.theCategorySInternal")}
                 />
               </FormGroup>
 
               {/* 표시 — 연결 방식 · 입력창 위치, 그리고 켜고 끄는 네 가지 */}
               {/* 스위치 라벨 칸을 같은 폭으로 — 라벨 길이와 상관없이 스위치가 같은 자리에서 시작한다 */}
               <FormGroup title={t("admin.settings.giscusGroupDisplay")} cols={2} switchLabelWidth="10em">
-              <FieldRow label={<T k="admin.settings.giscusMapping" />} help={L(
-                "페이지와 Discussion 을 연결하는 방식입니다. pathname(경로)을 권장하며, 글 제목을 바꿔도 댓글이 유지됩니다.",
-                "How pages map to Discussions. pathname is recommended — comments survive title edits.",
-              )}>
+              <FieldRow label={<T k="admin.settings.giscusMapping" />} help={t("admin.inline.servicesTab.giscusMappingHint")}>
                 <Select
                   width="full"
                   value={giscus.mapping || "pathname"}
@@ -774,10 +755,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   onChange={(v) => updateGiscus("mapping", v as SiteConfigData["comments"]["giscus"]["mapping"])}
                 />
               </FieldRow>
-              <FieldRow label={<T k="admin.settings.giscusInputPosition" />} help={L(
-                "댓글 입력창을 목록 위/아래 중 어디에 둘지 선택합니다.",
-                "Whether the comment box sits above or below the list.",
-              )}>
+              <FieldRow label={<T k="admin.settings.giscusInputPosition" />} help={t("admin.inline.servicesTab.whetherTheCommentBox")}>
                 <SegmentedControl<"top" | "bottom">
                   items={[
                     { value: "top", label: t("admin.settings.giscusInputTop") },
@@ -793,10 +771,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   checked={giscus.reactionsEnabled !== false}
                   onCheckedChange={(v) => updateGiscus("reactionsEnabled", v)}
                 />
-                <FieldHelp content={L(
-                  "Discussion 메인 글의 이모지 반응을 댓글 위에 표시합니다.",
-                  "Shows the main post's emoji reactions above comments.",
-                )} />
+                <FieldHelp content={t("admin.inline.servicesTab.showsTheMainPost")} />
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
@@ -804,10 +779,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   checked={giscus.strict === true}
                   onCheckedChange={(v) => updateGiscus("strict", v)}
                 />
-                <FieldHelp content={L(
-                  "비슷한 경로가 섞이지 않도록 페이지와 Discussion 을 더 엄격하게 매칭합니다.",
-                  "Matches pages and Discussions more strictly to avoid collisions.",
-                )} />
+                <FieldHelp content={t("admin.inline.servicesTab.matchesPagesAndDiscussions")} />
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
@@ -815,10 +787,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   checked={giscus.emitMetadata === true}
                   onCheckedChange={(v) => updateGiscus("emitMetadata", v)}
                 />
-                <FieldHelp content={L(
-                  "Discussion 메타데이터를 부모 페이지로 전달합니다. 보통 꺼 두어도 됩니다.",
-                  "Sends Discussion metadata to the parent page. Usually fine to leave off.",
-                )} />
+                <FieldHelp content={t("admin.inline.servicesTab.giscusMetadataHint")} />
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
@@ -826,10 +795,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   checked={giscus.lazyLoading !== false}
                   onCheckedChange={(v) => updateGiscus("lazyLoading", v)}
                 />
-                <FieldHelp content={L(
-                  "댓글 영역이 화면에 들어올 때 로드하여 초기 로딩을 아낍니다. 켜 두기를 권장합니다.",
-                  "Loads comments when scrolled into view, saving initial load. Recommended on.",
-                )} />
+                <FieldHelp content={t("admin.inline.servicesTab.loadsCommentsWhenScrolled")} />
               </div>
               </FormGroup>
 

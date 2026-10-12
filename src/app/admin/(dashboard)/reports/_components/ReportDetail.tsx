@@ -9,6 +9,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Report } from "../_types";
 import styles from "./ReportDetail.module.css";
+import { localizeReportReason } from "@/lib/reportReasons";
 
 /**
  * 신고 상세.
@@ -34,8 +35,7 @@ export default function ReportDetail({
   onDismiss?: () => void;
   onDeleteComment?: () => void;
 }) {
-  const { language, t } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { language, t, tLang } = useLanguage();
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
 
@@ -63,7 +63,7 @@ export default function ReportDetail({
             {report.comment?.parentTitle ? ` · ${report.comment.parentTitle}` : ""}
           </span>
           <h3 className={styles.title}>
-            {report.comment?.nickname ?? L("(알 수 없는 작성자)", "(unknown author)")}
+            {report.comment?.nickname ?? t("admin.inline.reportDetail.unknownAuthor")}
             {report.comment?.is_deleted && (
               <span className={styles.deletedBadge}>{t("admin.reports.commentDeleted")}</span>
             )}
@@ -80,11 +80,11 @@ export default function ReportDetail({
         {report.reason && (
           <div className={styles.metaRow}>
             <dt>{t("admin.reports.reason")}</dt>
-            <dd>{report.reason}</dd>
+            <dd>{localizeReportReason(report.reason, t, tLang)}</dd>
           </div>
         )}
         <div className={styles.metaRow}>
-          <dt>{L("상태", "Status")}</dt>
+          <dt>{t("admin.inline.reportDetail.status")}</dt>
           <dd>
             <span className={`${styles.statusChip} ${styles[`status_${report.status}`]}`}>
               {STATUS_LABEL[report.status]}
@@ -92,12 +92,12 @@ export default function ReportDetail({
           </dd>
         </div>
         <div className={styles.metaRow}>
-          <dt>{L("신고 시각", "Reported")}</dt>
+          <dt>{t("admin.inline.reportDetail.reported")}</dt>
           <dd>{formatFull(report.created_at)}</dd>
         </div>
         {report.resolved_at && (
           <div className={styles.metaRow}>
-            <dt>{L("처리 시각", "Handled")}</dt>
+            <dt>{t("admin.inline.reportDetail.handled")}</dt>
             <dd>{formatFull(report.resolved_at)}</dd>
           </div>
         )}
@@ -106,7 +106,7 @@ export default function ReportDetail({
       {footerEl && createPortal(
         <>
           <Button variant="ghost" onClick={() => closeModal()}>
-            {L("닫기", "Close")}
+            {t("admin.inline.reportDetail.close")}
           </Button>
           {url && (
             <Button

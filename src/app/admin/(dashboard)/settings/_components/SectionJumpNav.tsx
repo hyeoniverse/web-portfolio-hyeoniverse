@@ -26,21 +26,21 @@ export default function SectionJumpNav({
   /** 상단 탭바가 고정됐는지 — 고정 시 frost 배경을 켠다 (탭바 frost 와 이어짐). */
   pinned?: boolean;
 }) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   if (sections.length < 2) return null;
 
   return (
     /* 래퍼가 sticky + frost 를 맡고, 안쪽 nav 가 가로 스크롤(overflow) — 탭바와 같은 구조
        (overflow 가 ::before frost 를 자르지 않게). */
     <div className={`${css.jumpWrap} ${pinned ? css.jumpPinned : ""}`}>
-      <div className={css.jumpNav} role="navigation" aria-label={language === "ko" ? "섹션 바로가기" : "Jump to section"}>
+      <div className={css.jumpNav} role="navigation" aria-label={t("admin.inline.sectionJumpNav.jumpToSection")}>
         {sections.map((s, i) => (
           <Pressable
             key={`${s.label}-${i}`}
             className={`${css.item} ${i === activeIdx ? css.itemActive : ""} ${dirty[i] ? css.itemDirty : ""}`}
             onClick={() => onJump(i)}
             title={s.label}
-            aria-label={dirty[i] ? `${s.label}, ${language === "ko" ? "저장 안 됨" : "unsaved"}` : undefined}
+            aria-label={dirty[i] ? `${s.label}, ${t("admin.inline.sectionJumpNav.unsaved")}` : undefined}
           >
             <span className={css.label}>{s.label}</span>
             <span className={css.dot} aria-hidden />
