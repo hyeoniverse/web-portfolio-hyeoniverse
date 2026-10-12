@@ -91,8 +91,9 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
      각자 상태를 들고 있으면 서로 다른 표정을 몽이에게 밀어 넣어 깜빡인다.
      자동 로테이션도 여기가 아니라 ProfileMeSection 에서 한 번만 돈다. */
   const expression = useProfileSectionStore((st) => st.bunnyExpression) ?? "normal";
-  const { language } = useLanguage();
-  const L = (t: { ko: string; en: string }) => (language === "ko" ? t.ko || t.en : t.en || t.ko);
+  const { language, tx } = useLanguage();
+  /* 다른 언어로 볼 때는 영어 칸을 사이트 내용 글 번역(tx)으로 */
+  const L = (t: { ko: string; en: string }) => (language === "ko" ? t.ko || t.en : tx(t.en || t.ko));
   const ac = animateClass ?? "";
 
   const handleExpression = useCallback((expr: Expression) => {

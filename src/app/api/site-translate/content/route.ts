@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getProfileData } from "@/lib/getProfileData";
+import { getGithubShowcase, loginFromLinks } from "@/lib/githubShowcase";
+import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
+import type { Author } from "@/types/author";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
 import { createMissLimiter } from "@/lib/api/contentTranslate";
-import { SITE_CONTENT_SOURCE_ID } from "@/lib/api/siteTranslate";
+import { SITE_ABOUT_SOURCE_ID, SITE_CONTENT_SOURCE_ID } from "@/lib/api/siteTranslate";
+import { aboutSource } from "@/data/generated/aboutDict";
 import { acceptContentString, siteContentHash, siteContentSource, sourceLangOf } from "@/lib/siteContent";
 import { chunkIndices } from "@/lib/siteTranslation";
 import { type Provider, buildProviderList, translateWithFallback, translationFailure } from "@/lib/api/translationProviders";
@@ -15,9 +20,10 @@ const takeMiss = createMissLimiter();
 const PARALLEL = 3;
 
 /**
- * POST /api/site-translate/content  { lang }
+ * POST /api/site-translate/content  { lang, bundle?: "site" | "about" }
  *
- * 사이트 내용 글(lib/siteContent — 홈 글 · 글/작업물 카테고리 · 태그)을 lang 으로. 응답 { strings: { 원문 → 번역 } }.
+ * bundle "about" 은 About 코드의 글(생성 파일 aboutDict — scripts/gen-about-dict)을 같은 방식으로 번역한다(다른 고정 번호).
+ * 사이트 내용 글(lib/siteContent — 홈 글 · 글/작업물 카테고리 · 태그 · 작업물 화면 첫 머리 · 프로필)을 lang 으로. 응답 { strings: { 원문 → 번역 } }.
  * 언어마다 한 줄(content_translations, source_type 'site_ui', source_id SITE_CONTENT_SOURCE_ID)로 캐시한다.
  * 원문 목록이 바뀌면(새 태그 · 설정 수정) 이미 번역한 글은 그대로 두고 새로 생긴 글만 번역해 더한다.
  * 일부만 받았으면 받은 것만 저장하고 해시를 비워 둔다 — 다음 요청이 빠진 글만 다시 번역한다.
@@ -33,24 +39,39 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  const tag = `[site-translate content ${lang}]`;
+  const bundle = body.bundle === "about" ? "about" : "site";
+  const sourceId = bundle === "about" ? SITE_ABOUT_SOURCE_ID : SITE_CONTENT_SOURCE_ID;
+  const tag = `[site-translate ${bundle} ${lang}]`;
 
-  /* 원문 — 공개된 글의 태그 · 공개 작업물의 영어 카테고리 + 설정 글 */
-  const [postsRes, worksRes] = await Promise.all([
-    admin.from("posts").select("tags").eq("published", true).is("deleted_at", null),
-    admin.from("works").select("categories_en").eq("published", true).is("deleted_at", null),
-  ]);
-  const source = siteContentSource(config as unknown as Record<string, unknown>, {
-    tags: (postsRes.data ?? []).flatMap((r) => (Array.isArray(r.tags) ? (r.tags as string[]) : [])),
-    workCategories: (worksRes.data ?? []).flatMap((r) => (Array.isArray(r.categories_en) ? (r.categories_en as string[]) : [])),
-  });
+  /* 원문 — About 은 생성 파일, 사이트 내용 글은 공개된 글의 태그 · 공개 작업물의 영어 카테고리 · 프로필 + 설정 글 */
+  let source: string[];
+  if (bundle === "about") {
+    source = aboutSource;
+  } else {
+    const [postsRes, worksRes, profile] = await Promise.all([
+      admin.from("posts").select("tags").eq("published", true).is("deleted_at", null),
+      admin.from("works").select("categories_en").eq("published", true).is("deleted_at", null),
+      getProfileData().catch(() => null),
+    ]);
+    /* 프로필 GitHub 영역의 저장소 설명 — 프로필 페이지(app/profile/page)와 같은 방법으로 사용자명을 찾는다. 실패하면 뺀다 */
+    const gh = profile?.github;
+    const ghLogin = loginFromLinks(findOwnerAuthor((config.authors as Author[] | undefined) ?? [])?.links);
+    const showcase = gh?.enabled === false || !ghLogin
+      ? null
+      : await getGithubShowcase(ghLogin, gh?.repos ?? []).catch(() => null);
+    source = siteContentSource(config as unknown as Record<string, unknown>, {
+      tags: (postsRes.data ?? []).flatMap((r) => (Array.isArray(r.tags) ? (r.tags as string[]) : [])),
+      workCategories: (worksRes.data ?? []).flatMap((r) => (Array.isArray(r.categories_en) ? (r.categories_en as string[]) : [])),
+      repoDescriptions: (showcase?.repos ?? []).map((r) => r.description),
+    }, profile);
+  }
   const hash = siteContentHash(source);
   if (!source.length) return NextResponse.json({ lang, hash, strings: {}, complete: true, cached: true });
 
   const { data: cached } = await admin
     .from("content_translations")
     .select("fields, source_hash")
-    .eq("source_type", "site_ui").eq("source_id", SITE_CONTENT_SOURCE_ID).eq("lang", lang)
+    .eq("source_type", "site_ui").eq("source_id", sourceId).eq("lang", lang)
     .maybeSingle();
   const prev = ((cached?.fields as { strings?: Record<string, unknown> } | null)?.strings ?? {}) as Record<string, unknown>;
   const strings: Record<string, string> = {};
@@ -100,7 +121,7 @@ export async function POST(request: Request) {
     return jsonError("Translation failed", status, { code: code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : code });
   }
   const { error } = await admin.from("content_translations").upsert({
-    source_type: "site_ui", source_id: SITE_CONTENT_SOURCE_ID, lang, fields: { strings }, source_hash: complete ? hash : "",
+    source_type: "site_ui", source_id: sourceId, lang, fields: { strings }, source_hash: complete ? hash : "",
     provider: providers[0], updated_at: new Date().toISOString(),
   }, { onConflict: "source_type,source_id,lang" });
   if (error) console.error(tag, "cache upsert failed", error.message);

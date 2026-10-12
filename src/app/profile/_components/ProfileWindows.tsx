@@ -25,7 +25,9 @@ interface Props {
 }
 
 export default function ProfileWindows({ className, isMobile, infoBlocks }: Props) {
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
+  /* 정보 창 글 — 다른 언어로 볼 때 사이트 내용 글 번역(라벨 · 값, lib/siteContent 의 profilePlainTexts) */
+  const tr = (s: string) => (language === "ko" ? s : tx(s));
   const siteConfig = useSiteConfig();
   const TEXT_POSITIONS = getTextPositions(siteConfig, infoBlocks);
 
@@ -242,8 +244,8 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
             <h3 className={styles.magName}>{heroLines[0]?.value}</h3>
             {detailLines.map((row) => (
               <div key={row.label} className={styles.magInfoRow}>
-                <span className={styles.magInfoLabel}>{row.label}</span>
-                <span className={styles.magInfoValue}>{row.value}</span>
+                <span className={styles.magInfoLabel}>{tr(row.label)}</span>
+                <span className={styles.magInfoValue}>{tr(row.value)}</span>
               </div>
             ))}
           </div>
@@ -251,7 +253,7 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
 
         {/* Pull quote */}
         <blockquote className={styles.magQuote}>
-          &ldquo;{pullQuote}&rdquo;
+          &ldquo;{tr(pullQuote)}&rdquo;
         </blockquote>
 
         {/* About + Dev Notes */}
@@ -259,8 +261,8 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
           <div className={styles.magAbout}>
             {aboutLines.map((row) => (
               <div key={row.label} className={styles.magInfoRow}>
-                <span className={styles.magInfoLabel}>{row.label}</span>
-                <span className={styles.magInfoValue}>{row.value}</span>
+                <span className={styles.magInfoLabel}>{tr(row.label)}</span>
+                <span className={styles.magInfoValue}>{tr(row.value)}</span>
               </div>
             ))}
           </div>
@@ -269,8 +271,8 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
             <span className={styles.magNotesTag}><T k="profilePage.devNotes" /></span>
             {easterEggLines.map((row) => (
               <div key={row.label} className={styles.magInfoRow}>
-                <span className={styles.magInfoLabel}>{row.label}</span>
-                <span className={styles.magInfoValue}>{row.value}</span>
+                <span className={styles.magInfoLabel}>{tr(row.label)}</span>
+                <span className={styles.magInfoValue}>{tr(row.value)}</span>
               </div>
             ))}
           </div>
@@ -389,8 +391,8 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
                 >
                   {tp.lines.map((row) => (
                     <div key={row.label} className={styles.bgInfoRow}>
-                      <span className={styles.bgInfoLabel}>{row.label}</span>
-                      <span className={styles.bgInfoValue}>{row.value}</span>
+                      <span className={styles.bgInfoLabel}>{tr(row.label)}</span>
+                      <span className={styles.bgInfoValue}>{tr(row.value)}</span>
                     </div>
                   ))}
                 </div>
