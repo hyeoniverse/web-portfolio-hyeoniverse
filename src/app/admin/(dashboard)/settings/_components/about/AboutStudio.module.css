@@ -88,22 +88,112 @@
   min-width: 0;
 }
 
+.navPreview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
+}
+
+.navPreview .navHead {
+  margin: 0;
+}
+
+/* ── 미리보기 — 실제 /about 을 데스크톱 크기로 그려 칸 폭에 맞게 줄인다 ── */
+.previewCol {
+  min-width: 0;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.previewBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.previewTitle {
+  flex: 1;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.previewBox {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+.previewFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: top left;
+}
+
+.previewHint {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+/* 넓은 화면 — 목록 | 편집. 미리보기를 켜면 편집 위에 미리보기가 붙어 따라오고,
+   더 넓으면 목록 | 편집 | 미리보기 세 칸 */
 @media (width >= 1024px) {
   .studio {
     display: grid;
-    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    grid-template-areas: "nav main";
     align-items: start;
-    gap: var(--spacing-32);
+    gap: var(--spacing-24) var(--spacing-32);
+  }
+
+  .studio[data-preview] {
+    grid-template-areas:
+      "nav preview"
+      "nav main";
   }
 
   .nav {
     position: sticky;
     top: var(--spacing-24);
+    grid-area: nav;
+  }
+
+  .main {
+    grid-area: main;
+  }
+
+  .previewCol {
+    grid-area: preview;
+    width: 100%;
+    max-width: 36rem;
   }
 
   .navList {
     flex-direction: column;
     flex-wrap: nowrap;
+  }
+}
+
+@media (width >= 1280px) {
+  .studio[data-preview] {
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "nav main preview";
+  }
+
+  .previewCol {
+    position: sticky;
+    top: var(--spacing-24);
+    max-width: none;
   }
 }
 

@@ -36,19 +36,54 @@ test.describe("About 설정 화면", () => {
     await expect(page.locator("[data-section-label]")).toHaveCount(1);
   });
 
-  test("장 글: 한국어 · 영어 칸이 나란히 있고, 고치면 표시되고 되돌리면 사라진다", async ({ page }) => {
+  test("장 글: 한국어 · 영어 칸이 나란히 있고, 고치면 표시되고 장면을 기본값으로 되돌릴 수 있다", async ({ page }) => {
     await openAbout(page);
     const opening = section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance");
-    const ko = opening.getByRole("textbox", { name: /^(소개 문장 앞|Lead Before) \(KO\)$/ });
+    const ko = opening.getByRole("textbox", { name: /^(소개 문장 · 앞|Lead · Before) \(KO\)$/ });
     await expect(ko).toBeVisible();
-    await expect(opening.getByRole("textbox", { name: /^(소개 문장 앞|Lead Before) \(EN\)$/ })).toBeVisible();
+    await expect(opening.getByRole("textbox", { name: /^(소개 문장 · 앞|Lead · Before) \(EN\)$/ })).toBeVisible();
     const before = await ko.inputValue();
     await ko.click();
     await page.keyboard.press("End");
     await page.keyboard.type(" z");
     await expect(nav(page, "첫 화면 · 한눈에 보기", "Opening · At a glance").locator('[class*="navDirty"]'), "목록에 저장 안 됨 표시").toHaveCount(1);
-    await opening.getByRole("button", { name: /^(소개 문장 앞 기본값으로|Reset Lead Before)$/ }).click();
+    await opening.getByRole("button", { name: /^(기본값으로|Reset)$/ }).first().click();
     await expect(ko, "되돌리면 기본 글").toHaveValue(before);
+  });
+
+  test("목록: 항목을 복제 · 삭제 · 옮길 수 있고, 그림과 묶인 목록은 막힌다", async ({ page }) => {
+    await openAbout(page);
+    await nav(page, "신뢰 · 질문 · 단추 · 크레딧", "Trust · FAQ · CTAs · Credits").click();
+    const landing = section(page, "신뢰 · 질문 · 단추 · 크레딧", "Trust · FAQ · CTAs · Credits");
+    await landing.getByRole("button", { name: /^(자주 묻는 질문|FAQ)/ }).click();
+    const questions = landing.getByRole("textbox", { name: /^(질문|Question) \(KO\)$/ });
+    const n = await questions.count();
+    await landing.getByRole("button", { name: /^(복제|Duplicate)$/ }).first().click();
+    await expect(questions, "복제하면 하나 는다").toHaveCount(n + 1);
+    await landing.getByRole("button", { name: /^(삭제|Delete)$/ }).first().click();
+    await expect(questions, "삭제하면 하나 준다").toHaveCount(n);
+    const first = await questions.first().inputValue();
+    await landing.getByRole("button", { name: /^(아래로|Move down)$/ }).first().click();
+    await expect(questions.nth(1), "아래로 옮긴다").toHaveValue(first);
+
+    await nav(page, "설계 결정 · 보안", "Decisions · Security").click();
+    const decisions = section(page, "설계 결정 · 보안", "Decisions · Security");
+    await decisions.getByRole("button", { name: /^(보안 고리|Security rings)/ }).click();
+    await expect(decisions.getByText(/(그림과 묶여 개수 · 순서 고정|count and order fixed)/).first(), "보안 고리는 고정").toBeVisible();
+  });
+
+  test("미리보기: 실제 About 을 띄우고 고친 글이 바로 보인다", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 1000 });
+    await openAbout(page);
+    const frame = page.frameLocator('iframe[title="About 미리보기"], iframe[title="About preview"]');
+    await expect(frame.locator("body"), "미리보기가 뜬다").toBeVisible({ timeout: 60_000 });
+    const opening = section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance");
+    await opening.getByRole("button", { name: /^(한눈에 보기|At a glance)/ }).click();
+    const title = opening.getByRole("textbox", { name: /^(제목|Title) \(EN\)$/ });
+    await title.click();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" PREVIEW");
+    await expect(frame.getByText(/PREVIEW/).first(), "저장 전 글이 미리보기에 보인다").toBeVisible({ timeout: 15_000 });
   });
 
   test("찾기: 맞는 칸이 없는 장은 흐려지고, 장 안에서는 맞는 칸만 보인다", async ({ page }) => {
