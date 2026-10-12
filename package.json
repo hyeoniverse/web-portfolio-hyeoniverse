@@ -58,7 +58,6 @@
     "@emoji-mart/data": "^1.2.1",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
-    "@formspree/react": "^3.0.0",
     "@huggingface/inference": "^4.13.30",
     "@lezer/highlight": "^1.2.5",
     "@platejs/basic-nodes": "53.0.0",

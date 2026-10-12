@@ -11,9 +11,6 @@ import {
 import type { ContentFields } from "@/lib/api/contentTranslate";
 import type { BodyLabels } from "@/lib/bodyLabels";
 
-/** 방문자가 고른 읽기 언어의 저장 열쇠 — 사이트 전체가 같이 쓴다(lib/siteLang) */
-export { CONTENT_LANG_STORAGE_KEY } from "@/lib/siteLang";
-
 export type ContentTranslateError = "failed" | "rateLimited";
 
 /**

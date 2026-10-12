@@ -2,7 +2,7 @@
    Decision · Key Insight 절을 줄여 옮겼다(새로 지은 사실은 없다). 키는 결정 id(aboutDecisions[].id) */
 import type { L10n } from "./showcase";
 
-export interface DecisionOption {
+interface DecisionOption {
   name: L10n;
   /** 한 줄 — 그 선택지의 장점 또는 막히는 점 */
   note: L10n;

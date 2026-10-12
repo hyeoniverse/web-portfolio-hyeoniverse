@@ -22,18 +22,6 @@ export async function loadPageViewTotals(
   return { total: num(row?.total) ?? 0, since: typeof row?.since === "string" ? row.since : null };
 }
 
-/** 일별 조회수(KST) — 빈 날은 없다(fillDailyViews 가 채운다) */
-export async function loadDailyPageViews(
-  admin: SupabaseClient,
-  start: string,
-  end: string,
-  excluded: Set<string>,
-): Promise<Array<{ day: string; views: number }> | null> {
-  const { data, error } = await admin.rpc("daily_page_views", { p_start: start, p_end: end, p_excluded: [...excluded] });
-  if (error) return null;
-  return ((data ?? []) as Array<{ day: string; views: unknown }>).map((r) => ({ day: r.day, views: num(r.views) ?? 0 }));
-}
-
 /** 기간 집계 — page_view_stats 의 jsonb 를 화면 모양으로 */
 export async function loadPageViewStats(
   admin: SupabaseClient,

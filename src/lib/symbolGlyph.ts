@@ -31,7 +31,7 @@ function symbolFont(): Font | null {
 }
 
 /** 이 글자를 기호 글꼴이 담고 있는가 */
-export function hasSymbolGlyph(char: string): boolean {
+function hasSymbolGlyph(char: string): boolean {
   const font = symbolFont();
   if (!font || !char) return false;
   try {

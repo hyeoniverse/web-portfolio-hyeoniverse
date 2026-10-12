@@ -27,7 +27,7 @@ export const WORK_COLUMNS: LangColumns = {
 type Row = Record<string, unknown>;
 const text = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
-export function hashColumns(row: Row, cols: readonly string[]): string {
+function hashColumns(row: Row, cols: readonly string[]): string {
   return createHash("sha256").update(JSON.stringify(cols.map((c) => text(row[c])))).digest("hex").slice(0, 32);
 }
 

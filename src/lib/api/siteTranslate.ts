@@ -13,7 +13,7 @@ export type ListMetaSourceType = `${ListItemType}_meta`;
 export const metaSourceType = (t: ListItemType): ListMetaSourceType => `${t}_meta`;
 
 /** 캐시 판 — 담는 칸이 바뀌면 올린다 */
-export const LIST_META_VERSION = 1;
+const LIST_META_VERSION = 1;
 
 export interface ListMetaSource {
   lang: "ko" | "en";

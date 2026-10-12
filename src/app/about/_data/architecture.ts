@@ -188,7 +188,7 @@ export const journeyLayers = [
   { key: "response", label: { ko: "응답", en: "Response" } },
 ] as const;
 
-export type JourneyLayer = (typeof journeyLayers)[number]["key"];
+type JourneyLayer = (typeof journeyLayers)[number]["key"];
 
 export interface JourneyStep {
   layer: JourneyLayer;

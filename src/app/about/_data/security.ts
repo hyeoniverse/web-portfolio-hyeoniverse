@@ -4,7 +4,7 @@
    댓글 수정은 id 형식을 먼저 보고(lib/api/commentDetailHandler.ts 의 isValidUUID) 그다음 bcrypt 로 비밀번호를 맞춘다. */
 import type { L10n } from "./showcase";
 
-export interface SecLayerItem {
+interface SecLayerItem {
   /** aboutSecurity 항목의 icon — 항목마다 하나뿐이라 열쇠로 쓴다 */
   icon: string;
   /** 고리 위에 적을 짧은 이름 */

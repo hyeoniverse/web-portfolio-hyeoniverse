@@ -67,7 +67,7 @@ export interface MarkdownHeadings {
 }
 
 /** 파서가 소제목으로 필드를 찾으므로 내보낼 때도 같은 영문 라벨을 쓴다. */
-export const CANONICAL_HEADINGS: MarkdownHeadings = {
+const CANONICAL_HEADINGS: MarkdownHeadings = {
   definition: "Context",
   cause: "Considerations",
   solution: "Decision",

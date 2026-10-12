@@ -1,10 +1,10 @@
 /* 장 별자리 지도 — 첫 화면의 목차가 별자리가 되고, 장으로 들어갈 때 카메라가 그 별로 날아 들어간다.
    별 자리는 지도 판(1000 × 640) 위 좌표. 차례대로 선이 이어진다(목차 순서). 이름은 목차(showcase.ts 의 toc)에서 */
-export const MAP_W = 1000;
-export const MAP_H = 640;
+const MAP_W = 1000;
+const MAP_H = 640;
 
 /** 목차 href → 별 자리 · 크기(밝기) */
-export const MAP_STARS: Record<string, { x: number; y: number; r: number }> = {
+const MAP_STARS: Record<string, { x: number; y: number; r: number }> = {
   "#facts": { x: 170, y: 420, r: 14 },
   "#features": { x: 320, y: 250, r: 22 },
   "#ai": { x: 450, y: 340, r: 18 },
