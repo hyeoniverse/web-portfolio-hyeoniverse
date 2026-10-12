@@ -102,15 +102,15 @@ function Daily() {
       {D_PATHS.map((d) => <path key={d} className={styles.wire} d={d} />)}
       {[0, 1, 2].map((i) => (
         <g key={i} className={styles.dChip} style={{ "--i": i } as CSSProperties}>
-          <Node x={12} y={18 + i * 56} w={94} h={32} label="1.2.3.4" sub="10/09 KST" />
+          <Node x={12} y={18 + i * 56} w={94} h={32} label="1.2.3.4" sub="/about" />
         </g>
       ))}
-      {/* UNIQUE 문 — 표 바로 앞 */}
+      {/* 30분 중복 확인 — 표 바로 앞 */}
       <path className={styles.gate} d="M200 60 V120" />
-      <Node x={214} y={66} w={96} h={48} label="views" className={styles.dDb} />
+      <Node x={214} y={66} w={96} h={48} label="page_views" className={styles.dDb} />
       {D_PATHS.map((d, i) => <Packet key={d} d={d} className={i === 0 ? styles.dP0 : `${styles.dPx} ${i === 1 ? styles.dP1 : styles.dP2}`} />)}
       <text className={styles.count} x={262} y={146} textAnchor="middle">+1</text>
-      <text className={styles.gateLabel} x={200} y={50} textAnchor="middle">UNIQUE</text>
+      <text className={styles.gateLabel} x={200} y={50} textAnchor="middle">30 min</text>
     </>
   );
 }

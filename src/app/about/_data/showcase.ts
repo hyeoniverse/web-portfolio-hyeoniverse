@@ -1,6 +1,7 @@
 /* About 내용 — MacFolio 의 hyeoniverse 사례 페이지에서 가져오고, 숫자는 이 레포에서 다시 셌다
    (API 라우트 = src/app/api 의 route.ts 수, 테스트 = vitest, 결정 기록 = docs/design-system-decisions.md 의 D 항목,
    성능 = README). 방향이 정해지면 관리자 About 편집(site.config about)으로 옮긴다. */
+import { apiMap } from "@/data/generated/apiMap";
 
 export interface L10n {
   ko: string;
@@ -87,10 +88,11 @@ export const facts = {
   } satisfies L10n,
   items: [
     { value: "98", unit: "", label: { ko: "Lighthouse 성능", en: "Lighthouse performance" } },
-    { value: "123", unit: "", label: { ko: "API 라우트", en: "API routes" } },
+    /* 라우트 수는 생성 파일(scripts/gen-api-map)에서 — 손으로 적으면 라우트가 늘 때마다 어긋났다 */
+    { value: String(apiMap.routeFiles), unit: "", label: { ko: "API 라우트", en: "API routes" } },
     { value: "4", unit: { ko: "단계", en: "tiers" }, label: { ko: "권한 — DB 규칙으로 판정", en: "Roles — enforced by DB rules" } },
-    { value: "1,062", unit: "", label: { ko: "단위 테스트", en: "Unit tests" } },
-    { value: "50", unit: { ko: "건", en: "" }, label: { ko: "디자인 결정 기록", en: "Design decision records" } },
+    { value: "1,194", unit: "", label: { ko: "단위 테스트", en: "Unit tests" } },
+    { value: "70", unit: { ko: "건", en: "" }, label: { ko: "디자인 결정 기록", en: "Design decision records" } },
     { value: "6", unit: { ko: "가지", en: "" }, label: { ko: "작업물 레이아웃", en: "Work layouts" } },
   ] as { value: string; unit: string | L10n; label: L10n }[],
 };

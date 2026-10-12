@@ -155,7 +155,7 @@ export const erdScene = {
 export const erdGroups: { label: L10n; tables: string[] }[] = [
   {
     label: { ko: "콘텐츠", en: "Content" },
-    tables: ["posts", "series", "works", "post_work_relations", "series_work_relations", "revisions", "cover_image_history", "calendars"],
+    tables: ["posts", "series", "works", "post_work_relations", "series_work_relations", "revisions", "cover_image_history", "calendars", "content_translations"],
   },
   {
     label: { ko: "반응", en: "Reactions" },
@@ -362,12 +362,12 @@ export const keyNotes: KeyNote[] = [
   },
   {
     art: "daily",
-    caption: { ko: "같은 IP · 같은 한국 날짜면 한 번만 셉니다.", en: "Same IP, same Korean day — counted once." },
-    short: { ko: "KST 하루 한 번", en: "Once per KST day" },
-    headline: { ko: "조회수는 한국 시간 하루에 IP 당 한 번", en: "One view per IP per Korean day" },
-    problem: { ko: "서버 시간대에 따라 '오늘'이 달라지고, 동시 요청이 겹치면 두 번 셀 수 있습니다.", en: "'Today' shifts with the server timezone, and overlapping requests can double-count." },
-    fix: { ko: "날짜는 DB 가 Asia/Seoul 로 계산하는 생성 컬럼으로, 중복은 (글, IP, 날짜) 유니크 인덱스로 막습니다.", en: "The date is a generated column computed in Asia/Seoul by the database; a (post, IP, date) unique index blocks duplicates." },
-    proof: "UNIQUE (post_id, ip, viewed_date)",
+    caption: { ko: "같은 IP 가 같은 페이지를 30분 안에 다시 보면 한 번으로 셉니다.", en: "The same IP viewing the same page within 30 minutes counts once." },
+    short: { ko: "30분에 한 번", en: "Once per 30 minutes" },
+    headline: { ko: "조회 기록은 하나, 같은 페이지는 30분에 한 번", en: "One view log, the same page once per 30 minutes" },
+    problem: { ko: "방문 · 글 조회 · 작업물 조회를 테이블마다 다른 기준으로 세면 화면마다 숫자가 다르고, 새로고침이나 동시 요청으로 숫자가 부풉니다.", en: "Counting visits, post views and project views in separate tables with different rules makes every screen disagree, and refreshes or overlapping requests inflate the numbers." },
+    fix: { ko: "page_views 한 테이블에 페이지마다 한 줄을 남깁니다. 같은 IP · 경로의 30분 안 조회는 앞 줄을 돌려주고, 동시 요청은 advisory lock 으로 줄 세웁니다. 날짜는 DB 가 Asia/Seoul 로 계산하는 생성 컬럼입니다.", en: "page_views stores one row per page view. A repeat view of the same path by the same IP within 30 minutes returns the earlier row, and an advisory lock serializes concurrent requests. The date is a generated column computed in Asia/Seoul by the database." },
+    proof: "pg_advisory_xact_lock · viewed_at > now() - interval '30 minutes'",
   },
   {
     art: "likes",
