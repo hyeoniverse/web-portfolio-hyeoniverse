@@ -2,7 +2,7 @@
 
 import css from "../../AboutStudio.module.css";
 import { ChipList, DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
 import ov from "@/app/about/_panels/panels/OverviewPanel.module.css";
 import { Plus } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
@@ -17,7 +17,6 @@ const STATS_MAX = 8;
 export function OverviewBlock({ about, lang, setAny, t, title }: {
   about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; title: string;
 }) {
-  const L = useL();
   const stats = (about.overview_stats ?? []) as OverviewStat[];
   const setStats = (v: OverviewStat[]) => setAny("overview_stats", v);
   const descKey = lang === "ko" ? "overview_description_ko" : "overview_description_en";
@@ -30,10 +29,10 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
         <div className={ov.overviewLayout}>
           <div className={ov.overviewTop}>
             <EditableText multiline className={ov.overviewDesc} value={rec[descKey] ?? ""} onChange={(v) => setAny(descKey, v)}
-              placeholder={t("admin.settings.aboutOverviewDesc")} ariaLabel={L("개요 설명", "Overview description")} style={{ width: "100%" }} />
+              placeholder={t("admin.settings.aboutOverviewDesc")} ariaLabel={t("admin.inline.overviewBlock.overviewDescription")} style={{ width: "100%" }} />
             <div className={ov.overviewHighlights}>
               <ChipList items={highlights} onChange={setHighlights} chipClassName={css.highlightChip}
-                addLabel={L("하이라이트 추가", "Add highlight")} itemLabel={L("하이라이트", "highlight")} />
+                addLabel={t("admin.inline.overviewBlock.addHighlight")} itemLabel={t("admin.inline.overviewBlock.highlight")} />
             </div>
           </div>
           <div className={ov.overviewStats}>
@@ -41,10 +40,10 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
               {stats.map((s, i) => (
                 <SortableItem key={i} index={i}>{(row) => (
                   <div ref={row.ref} style={row.style} className={`${ov.overviewStat} ${css.editStat}`}>
-                    <EditableText className={ov.statValue} value={s.value} onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], value: v }; setStats(n); }} placeholder="50+" ariaLabel={L("지표 값", "Metric value")} />
+                    <EditableText className={ov.statValue} value={s.value} onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], value: v }; setStats(n); }} placeholder="50+" ariaLabel={t("admin.inline.overviewBlock.metricValue")} />
                     <EditableText className={ov.statLabel} value={lang === "ko" ? s.label_ko : s.label_en}
                       onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], [lang === "ko" ? "label_ko" : "label_en"]: v }; setStats(n); }}
-                      placeholder={L("라벨", "label")} ariaLabel={L("지표 이름", "Metric label")} />
+                      placeholder={t("admin.inline.overviewBlock.label")} ariaLabel={t("admin.inline.overviewBlock.metricLabel")} />
                     <span className={css.itemTools}>
                       <DragHandle handle={row.handle} />
                       <RemoveButton onClick={() => setStats(stats.filter((_, x) => x !== i))} />
@@ -55,7 +54,7 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
             </SortableList>
             {stats.length < STATS_MAX && (
               <Pressable className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: "라벨", label_en: "Label" }])}>
-                <Plus size={18} /> {L("지표 추가", "Add metric")}
+                <Plus size={18} /> {t("admin.inline.overviewBlock.addMetric")}
               </Pressable>
             )}
           </div>

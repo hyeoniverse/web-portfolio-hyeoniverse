@@ -15,33 +15,34 @@ import { type ErdRelation, type ErdTable } from "@/data/about/types";
 import { useModalStore } from "@/stores/modalStore";
 import { type Language } from "@/types";
 import { useDeferredValue } from "react";
-import { useL } from "../primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 /* 가져오기 적용 전 경고 — 숫자만 보여주면 "무엇이 덮어써지는지" 를 알 수 없다.
    바뀌는 컬럼을 이름과 전/후로 짚어주고, 사라지는 것은 따로 모아 보여준다. */
 function ImportWarning({ plan, onConfirm }: {
   plan: ImportPlan; onConfirm: () => void;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const changedCount = plan.updatedTables.reduce((n, t) => n + t.changed.length, 0);
   return (
     <ModalConfirm
       desc={plan.mode === "replace"
-        ? (L("기존 ERD 를 SQL 내용으로 통째로 교체합니다. 되돌릴 수 없습니다.", "This replaces the entire ERD with the parsed SQL. It cannot be undone."))
-        : (L("SQL 내용을 기존 ERD 에 병합합니다. 아래 항목은 SQL 정의로 덮어써집니다.", "This merges the parsed SQL into your ERD. The items below get overwritten by the SQL definition."))}
-      confirmText={plan.mode === "replace" ? (L("교체", "Replace")) : (L("병합", "Merge"))}
+        ? (t("admin.inline.erdBlock.thisReplacesTheEntire"))
+        : (t("admin.inline.erdBlock.thisMergesTheParsed"))}
+      confirmText={plan.mode === "replace" ? (t("admin.inline.erdBlock.replace")) : (t("admin.inline.erdBlock.merge"))}
       danger
       onConfirm={onConfirm}
     >
       <ul className={css.planList}>
         {plan.removedTables.length > 0 && (
           <li className={css.planDanger}>
-            <strong>{L(`테이블 ${plan.removedTables.length}개가 삭제됩니다`, `${plan.removedTables.length} tables will be deleted`)}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.removedtablesTablesWillBe"), { removedTables: plan.removedTables.length })}</strong>
             <span className={css.planNames}>{plan.removedTables.join(", ")}</span>
           </li>
         )}
         {changedCount > 0 && (
           <li className={css.planDanger}>
-            <strong>{L(`컬럼 ${changedCount}개가 덮어써집니다`, `${changedCount} columns will be overwritten`)}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.changedcountColumnsWillBe"), { changedCount })}</strong>
             <div className={css.planDiff}>
               {plan.updatedTables.flatMap((t) => t.changed.map((c) => (
                 <span key={`${t.name}.${c.name}`} className={css.planDiffRow}>
@@ -56,12 +57,12 @@ function ImportWarning({ plan, onConfirm }: {
         )}
         {plan.addedTables.length > 0 && (
           <li>
-            <strong>{L(`테이블 ${plan.addedTables.length}개 추가`, `${plan.addedTables.length} tables added`)}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.addedtablesTablesAdded"), { addedTables: plan.addedTables.length })}</strong>
             <span className={css.planNames}>{plan.addedTables.join(", ")}</span>
           </li>
         )}
         {plan.keptTables.length > 0 && (
-          <li>{L(`테이블 ${plan.keptTables.length}개는 그대로 유지됩니다`, `${plan.keptTables.length} tables stay untouched`)}</li>
+          <li>{fillTemplate(t("admin.inline.erdBlock.kepttablesTablesStayUntouched"), { keptTables: plan.keptTables.length })}</li>
         )}
       </ul>
     </ModalConfirm>
@@ -75,7 +76,7 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
   tables: ErdTable[]; relations: ErdRelation[];
   onChange: (t: ErdTable[], r: ErdRelation[]) => void; lang: Language;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const openModal = useModalStore((st) => st.openModal);
   const [sql, setSql] = useState("");
   /* SQL 입력은 한 번 쓰고 마는 도구다 — 상시 펼쳐두면 캔버스를 계속 밀어낸다 */
@@ -113,7 +114,7 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
       setFileName(f.name);
       setImportOpen(true);
     } catch {
-      setErr(L("파일을 읽지 못했습니다.", "Could not read the file."));
+      setErr(t("admin.inline.erdBlock.couldNotReadThe"));
     }
   };
   const [result, setResult] = useState<{ tables: number; relations: number; skipped: number } | null>(null);
@@ -152,7 +153,7 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
     setErr(null);
     const parsed = parseSqlErd(sql, tables);
     if (!hasEffect(parsed)) {
-      setErr(emptyReason(parsed, sql, L));
+      setErr(emptyReason(parsed, sql, t));
       setResult(null);
       return;
     }
@@ -207,19 +208,19 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
                 이 영역이 드롭 존이자 붙여넣기 대상 — 클릭해 포커스한 뒤 붙여넣으면 된다. */}
             {/* 포커스하는 순간 입력창으로 펼친다 — 뭔가 붙여넣어야 바뀌면 동작을 알 수 없다 */}
             <div className={css.erdDrop} tabIndex={0} role="button"
-              aria-label={L("SQL 입력 열기", "Open SQL input")}
+              aria-label={t("admin.inline.erdBlock.openSqlInput")}
               onFocus={() => setImportOpen(true)}
               onClick={() => setImportOpen(true)}>
               <FileCode size={14} />
               <span>
-                {L("여기에 .sql 파일을 놓거나 스키마(SQL)를 붙여넣습니다", "Drop a .sql file here, or paste your SQL schema")}
+                {t("admin.inline.erdBlock.dropASqlFile")}
               </span>
             </div>
             {/* 파일 선택은 두 상태에서 늘 행의 오른쪽 끝 — 상태에 따라 자리가 옮겨다니면
                 같은 버튼인지 알아보기 어렵다. 닫힘에선 flex:1 드롭존이 밀어서 오른쪽에 선다. */}
             <Button className={css.erdFileBtn} variant="subtle"
               icon={<FileCode size={15} />} onClick={() => fileRef.current?.click()}>
-              {L("파일 선택", "Choose file")}
+              {t("admin.inline.erdBlock.chooseFile")}
             </Button>
           </div>
         )}
@@ -228,10 +229,8 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
           <div className={css.erdMeta}>
             {result && (
               <span className={css.erdResult}>
-                {L(
-                  `테이블 ${result.tables}개 · 관계 ${result.relations}개 생성${result.skipped ? ` · ${result.skipped}줄 건너뜀` : ""}`,
-                  `${result.tables} tables · ${result.relations} relations${result.skipped ? ` · ${result.skipped} skipped` : ""}`,
-                )}
+                {fillTemplate(t("admin.inline.erdBlock.resultGenerated"), { tables: result.tables, relations: result.relations })}
+                  {result.skipped ? fillTemplate(t("admin.inline.erdBlock.resultSkipped"), { skipped: result.skipped }) : ""}
               </span>
             )}
             {err && <span className={css.erdErr}>{err}</span>}
@@ -242,12 +241,12 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
         <div className={`${css.erdCollapse} ${importOpen ? css.erdCollapseOpen : ""}`}>
           <div className={css.erdCollapseInner} ref={sqlBoxRef} inert={!importOpen}>
             <p className={css.erdHint}>
-              {L("CREATE TABLE · ALTER TABLE · DROP TABLE 을 순서대로 적용합니다. PRIMARY KEY 와 REFERENCES 로 키와 관계를 인식하고, 인덱스·정책·함수 등은 무시합니다.", "Applies CREATE TABLE, ALTER TABLE, and DROP TABLE in order. PRIMARY KEY and REFERENCES define keys and links; indexes, policies, and functions are ignored.")}
+              {t("admin.inline.erdBlock.appliesCreateTableAlter")}
             </p>
             {/* 하이라이팅되는 편집기 — 투명 textarea 오버레이는 캐럿·스크롤이 어긋나 쓰지 않는다
                 (CodeBlockEditor 주석 참고). 편집은 CodeMirror 에 맡긴다. */}
             <SqlEditor value={sql} onChange={setSql} tables={tables} lang={lang}
-              ariaLabel={L("SQL 스키마", "SQL schema")} />
+              ariaLabel={t("admin.inline.erdBlock.sqlSchema")} />
             {/* 무엇이 만들어질지 입력하는 동안 계속 알려준다 — 생성은 되돌릴 수 없다 */}
             <div className={css.erdMeta}>
               {fileName && (
@@ -261,32 +260,32 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
                     {(() => {
                       /* 모드에 따라 실제 결과가 다르다 — 인식 수만 보여주면 병합 결과를 오해한다 */
                       if (tables.length === 0 || mode === "replace") {
-                        return L(`테이블 ${preview.tables.length}개 · 관계 ${preview.relations.length}개 인식`, `${preview.tables.length} tables · ${preview.relations.length} relations detected`);
+                        return fillTemplate(t("admin.inline.erdBlock.tablesTablesRelationsRelations"), { tables: preview.tables.length, relations: preview.relations.length });
                       }
                       const m = mergeErd({ tables, relations }, preview).stats;
                       /* 삭제는 되돌릴 수 없어 0 이 아닐 때 반드시 드러나야 한다 */
                       const gone = [
-                        m.removedTables && L(`테이블 ${m.removedTables}개 삭제`, `${m.removedTables} tables removed`),
-                        m.removedColumns && L(`컬럼 ${m.removedColumns}개 삭제`, `${m.removedColumns} columns removed`),
+                        m.removedTables && fillTemplate(t("admin.inline.erdBlock.removedtablesTablesRemoved"), { removedTables: m.removedTables }),
+                        m.removedColumns && fillTemplate(t("admin.inline.erdBlock.removedcolumnsColumnsRemoved"), { removedColumns: m.removedColumns }),
                       ];
-                      const base = L(`새 테이블 ${m.addedTables}개 · 기존 ${m.updatedTables}개 갱신 · ${m.keptTables}개 유지`, `${m.addedTables} new · ${m.updatedTables} updated · ${m.keptTables} untouched`);
+                      const base = fillTemplate(t("admin.inline.erdBlock.addedtablesNewUpdatedtablesUpdated"), { addedTables: m.addedTables, updatedTables: m.updatedTables, keptTables: m.keptTables });
                       return [base, ...gone.filter(Boolean)].join(" · ");
                     })()}
                     {preview.skipped > 0 && (
                       <span className={css.erdPreviewMuted}>
-                        {L(` · ${preview.skipped}줄 건너뜀`, ` · ${preview.skipped} lines skipped`)}
+                        {fillTemplate(t("admin.inline.erdBlock.skippedLinesSkipped"), { skipped: preview.skipped })}
                       </span>
                     )}
                   </span>
                 ) : (
                   <span className={css.erdPreviewNone}>
-                    {emptyReason(preview, deferredSql, L)}
+                    {emptyReason(preview, deferredSql, t)}
                   </span>
                 )
               )}
               {tables.length > 0 && preview && hasEffect(preview) && mode === "replace" && (
                 <span className={css.erdReplaceWarn}>
-                  {L(`기존 ${tables.length}개 테이블이 모두 지워집니다`, `All ${tables.length} existing tables will be removed`)}
+                  {fillTemplate(t("admin.inline.erdBlock.allTablesExistingTables"), { tables: tables.length })}
                 </span>
               )}
             </div>
@@ -295,26 +294,26 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
               {tables.length > 0 && (
                 <SegmentedControl<"merge" | "replace"> value={mode} onChange={setMode}
                   items={[
-                    { value: "merge", label: L("병합", "Merge") },
-                    { value: "replace", label: L("교체", "Replace") },
+                    { value: "merge", label: t("admin.inline.erdBlock.merge") },
+                    { value: "replace", label: t("admin.inline.erdBlock.replace") },
                   ]} />
               )}
               <Button variant="primary"
                 disabled={!preview || !hasEffect(preview)} onClick={applySql}>
                 {preview && hasEffect(preview)
                   ? (tables.length > 0 && mode === "merge"
-                      ? (L("병합", "Merge"))
-                      : (L(`테이블 ${preview.tables.length}개 생성`, `Generate ${preview.tables.length} tables`)))
-                  : (L("생성", "Generate"))}
+                      ? (t("admin.inline.erdBlock.merge"))
+                      : (fillTemplate(t("admin.inline.erdBlock.generateTablesTables"), { tables: preview.tables.length })))
+                  : (t("admin.inline.erdBlock.generate"))}
               </Button>
               <Button variant="subtle" onClick={() => { setImportOpen(false); setErr(null); setFileName(null); }}>
-                {L("취소", "Cancel")}
+                {t("admin.inline.erdBlock.cancel")}
               </Button>
               {err && <span className={css.erdErr}>{err}</span>}
               {/* 닫힘 상태와 같은 라벨·같은 자리(오른쪽 끝) — 이름이나 위치가 바뀌면 다른 기능처럼 보인다 */}
               <Button className={css.erdFileBtn} variant="subtle"
                 icon={<FileCode size={15} />} onClick={() => fileRef.current?.click()}>
-                {L("파일 선택", "Choose file")}
+                {t("admin.inline.erdBlock.chooseFile")}
               </Button>
             </div>
           </div>

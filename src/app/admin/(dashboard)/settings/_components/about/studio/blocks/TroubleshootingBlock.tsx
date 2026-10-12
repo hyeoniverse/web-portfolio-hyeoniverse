@@ -2,7 +2,9 @@
 
 import css from "../../AboutStudio.module.css";
 import { ChipList } from "../listControls";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_panels/panels/BackendPanel.module.css";
 import { X } from "@/components/icons";
@@ -21,7 +23,7 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
   value: TroubleShootingItem[]; onChange: (v: TroubleShootingItem[]) => void;
   lang: Language; title: string;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const list = useStageList(value, onChange, (): TroubleShootingItem => ({
     id: `custom-${Date.now().toString(36)}`,
     problem: { ko: "", en: "" }, definition: { ko: "", en: "" },
@@ -34,17 +36,17 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
 
   const tags = it?.tags ?? [];
   const label = (k: (typeof TS_FIELDS)[number]) => ({
-    problem: L("문제", "Problem"),
-    definition: L("정의", "Definition"),
-    cause: L("원인", "Cause"),
-    solution: L("해결", "Solution"),
-    keyInsight: L("핵심", "Key insight"),
+    problem: t("admin.inline.troubleshootingBlock.problem"),
+    definition: t("admin.inline.troubleshootingBlock.definition"),
+    cause: t("admin.inline.troubleshootingBlock.cause"),
+    solution: t("admin.inline.troubleshootingBlock.solution"),
+    keyInsight: t("admin.inline.troubleshootingBlock.keyInsight"),
   }[k]);
 
   return (
     <section className={css.block}>
-      <StageTabs list={list} max={TS_MAX} addLabel={L("항목 추가", "Add item")}
-        labelOf={(i) => list.items[i]?.problem[lang] || list.items[i]?.problem.ko || L("새 항목", "Untitled")} />
+      <StageTabs list={list} max={TS_MAX} addLabel={t("admin.inline.troubleshootingBlock.addItem")}
+        labelOf={(i) => list.items[i]?.problem[lang] || list.items[i]?.problem.ko || t("admin.inline.troubleshootingBlock.untitled")} />
       {it && (
         <PanelStage>
           <div key={cur} className={css.tsStage}>
@@ -55,9 +57,9 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
               <Button variant={it.recommended ? "primary" : "subtle"}
                 onClick={() => set({ recommended: !it.recommended })}
                 aria-pressed={!!it.recommended}>
-                {L("추천", "Featured")}
+                {t("admin.inline.troubleshootingBlock.featured")}
               </Button>
-              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={t("admin.inline.troubleshootingBlock.remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -77,13 +79,13 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
                 <span className={bk.entryLabel}>TAGS</span>
                 <div className={css.tsTags}>
                   <ChipList items={tags} onChange={(v) => set({ tags: v })} chipClassName={css.tsTag}
-                    addLabel={L("태그 추가", "Add tag")} itemLabel={L("태그", "tag")} />
+                    addLabel={t("admin.inline.troubleshootingBlock.addTag")} itemLabel={t("admin.inline.troubleshootingBlock.tag")} />
                 </div>
               </div>
 
               {/* 구조가 깊은 부가 콘텐츠는 개수만 — 본문 편집을 가리지 않게 */}
               <p className={css.tsMeta}>
-                {L(`비교표 ${it.comparisons?.length ?? 0} · 다이어그램 ${it.diagrams?.length ?? 0} · 이미지 ${it.images?.length ?? 0}`, `${it.comparisons?.length ?? 0} tables · ${it.diagrams?.length ?? 0} diagrams · ${it.images?.length ?? 0} images`)}
+                {fillTemplate(t("admin.inline.troubleshootingBlock.extrasCount"), { tables: it.comparisons?.length ?? 0, diagrams: it.diagrams?.length ?? 0, images: it.images?.length ?? 0 })}
               </p>
             </div>
           </div>

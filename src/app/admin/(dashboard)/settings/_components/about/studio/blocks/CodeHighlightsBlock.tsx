@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import css from "../../AboutStudio.module.css";
 import { CodeBlockEditor, DemoFilesEditor } from "../lazyEditors";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
 import CodeDemoSlot, { type CodeDemoMode } from "@/app/about/_panels/panels/CodeDemoSlot";
 import ch from "@/app/about/_panels/panels/CodeHighlightsPanel.module.css";
@@ -15,7 +15,7 @@ import Pressable from "@/components/ui/Pressable";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { codeExamples } from "@/data/about/codeExamples";
 import { useNearViewport } from "@/hooks/useNearViewport";
-import { type TFunction } from "@/providers/LanguageProvider";
+import { type TFunction, useLanguage } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ Code Highlights ═══════════ */
 export type CodeItem = { title: string; description_ko: string; description_en: string; language: string; code: string;
@@ -64,7 +64,6 @@ export const seedCode = (): CodeItem[] => codeExamples.map((c) => ({
 export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
   value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
-  const L = useL();
   const [dropOver, setDropOver] = useState(false);
 
   const [dropErr, setDropErr] = useState(false);
@@ -89,14 +88,14 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
 
   return (
     <section className={css.block}>
-      <StageTabs list={list} max={MAX} addLabel={L("코드 추가", "Add snippet")}
-        labelOf={(i) => list.items[i]?.title || L("새 스니펫", "Untitled")} />
+      <StageTabs list={list} max={MAX} addLabel={t("admin.inline.codeHighlightsBlock.addSnippet")}
+        labelOf={(i) => list.items[i]?.title || t("admin.inline.codeHighlightsBlock.untitled")} />
       {it && (
         <PanelStage>
           {/* key = 스니펫별 remount — 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
           <div key={cur} className={css.chStage}>
             <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={t("admin.inline.codeHighlightsBlock.remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -106,10 +105,10 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                 <span className={ch.codeSingleNumber}>{String(cur + 1).padStart(2, "0")}</span>
                 <div className={ch.codeSingleMeta}>
                   <EditableText wrap className={css.chTitle} value={it.title} autoFocus={list.isDraft}
-                    onChange={(v) => set({ title: v })} placeholder="StaggerText Component" ariaLabel={L("제목", "Title")} />
+                    onChange={(v) => set({ title: v })} placeholder="StaggerText Component" ariaLabel={t("admin.inline.codeHighlightsBlock.title")} />
                   <EditableText multiline className={ch.codeSingleDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                     onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}
-                    placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+                    placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.codeHighlightsBlock.description")} style={{ width: "100%" }} />
                 </div>
               </div>
               <div className={`${ch.codeSingleBody} ${css.chBody}`}>
@@ -141,21 +140,21 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                       <SegmentedControl value={it.demoMode ?? "sandbox"}
                         onChange={(v) => setDemoMode(v as CodeDemoMode)}
                         items={[
-                          { value: "media", label: L("미디어", "Media") },
-                          { value: "sandbox", label: L("코드", "Code") },
+                          { value: "media", label: t("admin.inline.codeHighlightsBlock.media") },
+                          { value: "sandbox", label: t("admin.inline.codeHighlightsBlock.code") },
                         ]} />
                       {/* 미설정(투명)일 때 피커 초기값 — 저장 전까진 demoBg 가 undefined 라 투명 유지 */}
                       <ColorPicker value={it.demoBg || "#ffffff"} onChange={(c) => set({ demoBg: c.hex })}>
                         {({ toggle }) => (
                           <Pressable className={css.demoBgSwatch}
                             style={it.demoBg ? { background: it.demoBg } : undefined}
-                            onClick={toggle} title={L("데모 배경색", "Demo background")}
-                            aria-label={L("데모 배경색", "Demo background")} />
+                            onClick={toggle} title={t("admin.inline.codeHighlightsBlock.demoBackground")}
+                            aria-label={t("admin.inline.codeHighlightsBlock.demoBackground")} />
                         )}
                       </ColorPicker>
                       {it.demoBg && (
                         <Button variant="subtle" shape="circle" onClick={() => set({ demoBg: undefined })}
-                          aria-label={L("배경색 지우기", "Clear background")}>
+                          aria-label={t("admin.inline.codeHighlightsBlock.clearBackground")}>
                           <X size={11} />
                         </Button>
                       )}
@@ -163,7 +162,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                         ? <DemoMediaUpload url={it.demoMedia} onChange={(u) => set({ demoMedia: u })} />
                         : <Popover placement="top-start" trigger={
                             <Button variant="subtle" icon={<Code2 size={15} />}>
-                              {L("코드 편집", "Edit code")}
+                              {t("admin.inline.codeHighlightsBlock.editCode")}
                             </Button>
                           }>
                             <DemoFilesEditor key={cur}
@@ -178,24 +177,24 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                       {it.demoMode === "media" ? (
                         <>
                           <span className={css.demoEmptyLabel}>
-                            {L("실행 화면 녹화물을 올립니다", "Upload a recording")}
+                            {t("admin.inline.codeHighlightsBlock.uploadARecording")}
                           </span>
                           <DemoMediaUpload url={it.demoMedia} onChange={(u) => set({ demoMedia: u })} />
                           <Pressable className={css.demoSwitch} onClick={() => setDemoMode("sandbox")}>
-                            {L("직접 코드로 만들기", "Write code instead")}
+                            {t("admin.inline.codeHighlightsBlock.writeCodeInstead")}
                           </Pressable>
                         </>
                       ) : (
                         <>
-                          <span className={css.demoEmptyLabel}>{L("데모 추가", "Add a demo")}</span>
+                          <span className={css.demoEmptyLabel}>{t("admin.inline.codeHighlightsBlock.addADemo")}</span>
                           <div className={css.demoEmptyActions}>
                             <Button variant="outline" icon={<ImageIcon size={16} />}
                               onClick={() => setDemoMode("media")}>
-                              {L("미디어 업로드", "Upload media")}
+                              {t("admin.inline.codeHighlightsBlock.uploadMedia")}
                             </Button>
                             <Button variant="outline" icon={<Code2 size={16} />}
                               onClick={() => setDemoMode("sandbox")}>
-                              {L("코드", "Code")}
+                              {t("admin.inline.codeHighlightsBlock.code")}
                             </Button>
                           </div>
                         </>
@@ -205,7 +204,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                   )}
                   {dropErr && (
                     <span className={css.demoDropErr}>
-                      {L("업로드에 실패했습니다.", "Upload failed.")}
+                      {t("admin.inline.codeHighlightsBlock.uploadFailed")}
                     </span>
                   )}
                 </div>
@@ -236,7 +235,7 @@ async function uploadDemoFile(file: File): Promise<string> {
 function DemoMediaUpload({ url, onChange }: {
   url?: string; onChange: (u: string) => void;
 }) {
-  const L = useL();
+  const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -247,7 +246,7 @@ function DemoMediaUpload({ url, onChange }: {
     try {
       onChange(await uploadDemoFile(file));
     } catch {
-      setErr(L("업로드에 실패했습니다.", "Upload failed."));
+      setErr(t("admin.inline.codeHighlightsBlock.uploadFailed"));
     } finally {
       setBusy(false);
     }
@@ -264,13 +263,13 @@ function DemoMediaUpload({ url, onChange }: {
         }} />
       <Button variant="subtle" icon={<ImageIcon size={14} />} disabled={busy}
         onClick={() => inputRef.current?.click()}>
-        {busy ? (L("업로드 중", "Uploading"))
-          : url ? (L("변경", "Change"))
-            : (L("업로드", "Upload"))}
+        {busy ? (t("admin.inline.codeHighlightsBlock.uploading"))
+          : url ? (t("admin.inline.codeHighlightsBlock.change"))
+            : (t("admin.inline.codeHighlightsBlock.upload"))}
       </Button>
       {name && <span className={css.mediaName}>{name}</span>}
       {url && (
-        <Button variant="subtle" shape="circle" onClick={() => onChange("")} aria-label={L("미디어 삭제", "Remove media")}>
+        <Button variant="subtle" shape="circle" onClick={() => onChange("")} aria-label={t("admin.inline.codeHighlightsBlock.removeMedia")}>
           <X size={11} />
         </Button>
       )}

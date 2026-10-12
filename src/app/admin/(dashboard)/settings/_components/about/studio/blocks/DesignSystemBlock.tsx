@@ -1,7 +1,7 @@
 "use client";
 
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, useL } from "../primitives";
+import { EditableText, PanelStage } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
 import dc from "@/app/about/_panels/panels/DesignSystemPanel.module.css";
 import { ImageIcon, X } from "@/components/icons";
@@ -48,14 +48,13 @@ export const seedConcepts = (): ConceptItem[] => designConcepts.map((c) => ({
 export function DesignSystemBlock({ value, onChange, lang, t }: {
   value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: TFunction;
 }) {
-  const L = useL();
   const MAX = 8;
   const list = useStageList(value, onChange, (): ConceptItem => ({ id: `concept-${Date.now()}`, title: "", subtitle_ko: "", subtitle_en: "", description_ko: "", description_en: "", image: "" }));
   const { it, set } = list;
   return (
     <section className={css.block}>
-      <StageTabs list={list} max={MAX} addLabel={L("컨셉 추가", "Add concept")}
-        labelOf={(i) => list.items[i]?.title || L("새 컨셉", "Untitled")} />
+      <StageTabs list={list} max={MAX} addLabel={t("admin.inline.designSystemBlock.addConcept")}
+        labelOf={(i) => list.items[i]?.title || t("admin.inline.designSystemBlock.untitled")} />
       {it && (
         <PanelStage>
           {/* key = 컨셉별 remount — 탭을 바꿔도 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
@@ -66,17 +65,17 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
             </div>
             <div className={`${dc.dcCardOverlay} ${css.dsOverlay}`}>
               <EditableText className={dc.dcCardTitle} value={it.title} autoFocus={list.isDraft}
-                onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel={L("제목", "Title")} />
+                onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel={t("admin.inline.designSystemBlock.title")} />
               <EditableText wrap className={dc.dcCardSubtitle} value={lang === "ko" ? it.subtitle_ko : it.subtitle_en}
                 onChange={(v) => set(lang === "ko" ? { subtitle_ko: v } : { subtitle_en: v })}
-                placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel={L("부제", "Subtitle")} />
+                placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel={t("admin.inline.designSystemBlock.subtitle")} />
               <EditableText multiline className={dc.dcCardDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                 onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}
-                placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+                placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.designSystemBlock.description")} style={{ width: "100%" }} />
             </div>
             <div className={css.slideTools}>
               <Popover placement="bottom-end" trigger={
-                <Button variant="difference" shape="circle" aria-label={L("배경 이미지", "Background image")}>
+                <Button variant="difference" shape="circle" aria-label={t("admin.inline.designSystemBlock.backgroundImage")}>
                   <ImageIcon size={14} />
                 </Button>
               }>
@@ -85,7 +84,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
                     postContext={{ title: it.title, tags: [], excerpt: it.description_en }} />
                 </div>
               </Popover>
-              <Button variant="difference" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="difference" shape="circle" onClick={list.remove} aria-label={t("admin.inline.designSystemBlock.remove")}>
                 <X size={14} />
               </Button>
             </div>

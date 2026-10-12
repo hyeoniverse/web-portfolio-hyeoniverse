@@ -3,7 +3,7 @@
 import { useState } from "react";
 import css from "../../AboutStudio.module.css";
 import { DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
-import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec } from "../primitives";
 import feat from "@/app/about/_panels/panels/FeaturesPanel.module.css";
 import { ImageIcon, Plus } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -21,7 +21,6 @@ export type FeatureItem = NonNullable<SiteConfigData["about"]["features"]>[numbe
 export function FeaturesBlock({ value, onChange, lang, t, title }: {
   value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
-  const L = useL();
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
   /* 끄는 동안에는 hover 확장을 그 모양 그대로 멈춘다. 끌기 시작에 칸 크기를 되돌리면 잡은 칸이
@@ -55,15 +54,15 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
                     ? <MediaThumb className={css.featImg} src={it.image} fill sizes="(max-width: 768px) 100vw, 35vw" />
                     : <div className={css.featNoImg} />}
                   <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
-                    <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
+                    <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={t("admin.inline.featuresBlock.title")} style={{ maxWidth: "100%" }} />
                     <div className={`${feat.featureDfDetails} ${css.featDetails}`}>
                       <EditableText multiline className={feat.featureDfDesc} value={lang === "ko" ? it.description_ko : it.description_en}
-                        onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
-                      <EditableText wrap className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel={L("기술", "Tech")} style={{ maxWidth: "100%" }} />
+                        onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.featuresBlock.description")} style={{ width: "100%" }} />
+                      <EditableText wrap className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel={t("admin.inline.featuresBlock.tech")} style={{ maxWidth: "100%" }} />
                     </div>
                   </div>
                   <div className={css.itemTools}>
-                    <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" aria-label={L("이미지 변경", "Change image")}><ImageIcon size={13} /></Button>}>
+                    <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" aria-label={t("admin.inline.featuresBlock.changeImage")}><ImageIcon size={13} /></Button>}>
                       <div className={css.bgPanel}>
                         <CoverImagePicker onSelect={(u) => set(i, { image: u })} onClose={() => { }} currentUrl={it.image}
                           postContext={{ title: it.title, tags: it.tech.split(",").map((s) => s.trim()).filter(Boolean), excerpt: it.description_en }} />
@@ -78,7 +77,7 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
           </SortableList>
           {!atMax && (
             <Pressable className={`${css.featCell} ${css.featAdd}`} onClick={() => onChange([...value, { icon: "", title: lang === "ko" ? "새 기능" : "New", description_ko: "", description_en: "", tech: "", image: "" }])}>
-              <Plus size={18} /> {L("기능 추가", "Add feature")}
+              <Plus size={18} /> {t("admin.inline.featuresBlock.addFeature")}
             </Pressable>
           )}
         </div>

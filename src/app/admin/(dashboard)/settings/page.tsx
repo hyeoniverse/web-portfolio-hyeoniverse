@@ -84,7 +84,7 @@ function saveFailure(err: unknown, t: TFunction): { message: string; reason: str
 
 
 export default function SettingsPage() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   useStaticPageScroll();
   const { openModal, closeModal } = useModalStore();
   const [config, setConfig] = useState<SiteConfigData>(
@@ -1060,7 +1060,7 @@ export default function SettingsPage() {
                       return (
                         <div key={key} className={styles.conflictPreviewItem}
                           role="button" tabIndex={0}
-                          aria-label={language === "ko" ? `${label} 차이 보기` : `View diff for ${label}`}
+                          aria-label={fillTemplate(t("admin.inline.settingsPage.viewDiffFor"), { label })}
                           onClick={() => openDiffModal(c)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDiffModal(c); }
@@ -1174,7 +1174,7 @@ export default function SettingsPage() {
                 {/* 멤버 — 작성자 프로필 + 로그인 계정 관리. owner=전체 관리 / 비owner=목록 + 본인 프로필만 수정 (이슈 #334) */}
                 <section className={`${styles.section} ${styles.sectionWide}`}>
                   <SectionHeader
-                    title={language === "ko" ? "멤버" : "Members"}
+                    title={t("admin.inline.settingsPage.members")}
                     paths={["authors"]}
                     config={config}
                     savedConfig={savedConfigRef.current}
@@ -1185,9 +1185,7 @@ export default function SettingsPage() {
                     titleClassName={styles.sectionTitle}
                   />
                   <p className={styles.sectionHint}>
-                    {language === "ko"
-                      ? "작성자 프로필과 로그인 권한을 함께 관리합니다. 이메일로 초대하면 동일한 GitHub 계정으로 로그인 시 권한이 부여됩니다."
-                      : "Manage author profiles and login access together. Invite by email — access is granted when they sign in with the matching GitHub account."}
+                    {t("admin.inline.settingsPage.manageAuthorProfilesAnd")}
                   </p>
                   <AuthorsEditor
                     authors={config.authors ?? []}

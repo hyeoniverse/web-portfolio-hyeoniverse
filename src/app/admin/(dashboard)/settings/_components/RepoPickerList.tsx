@@ -8,6 +8,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useLenis } from "@/providers/LenisProvider";
 import { repoKey, type GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
@@ -57,8 +58,7 @@ export default function RepoPickerList({
   /* 제목·안내의 크기·색은 설정 화면의 역할 클래스가 정한다 */
   styles: Record<string, string>;
 }) {
-  const { language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { t } = useLanguage();
 
   /* 줄을 체크하면 위쪽 카드 목록이 늘거나 줄어서 페이지가 그만큼 밀린다. 고른 것이 하나도 없다가
      첫 줄을 체크하는 순간에는 자동 카드 열한 장이 한 장으로 줄어 화면이 크게 튄다.
@@ -130,7 +130,7 @@ export default function RepoPickerList({
     <>
       <div className={styles.group}>
         <div className={styles.groupHead}>
-          <span className={`${outer.sectionSubTitle} ${styles.groupLabel}`}>{L("저장소", "Repositories")}</span>
+          <span className={`${outer.sectionSubTitle} ${styles.groupLabel}`}>{t("admin.inline.repoPickerList.repositories")}</span>
           <span className={styles.groupCount}>{matched.length}</span>
           {/* 조작은 제목 줄 오른쪽 끝에 — 아래로 내리면 제목과 목록 사이를 한 줄 더 벌린다.
               안내(.groupHint) 는 줄을 통째로 차지하므로 이 묶음보다 뒤에 와야 같은 줄에 남는다 */}
@@ -144,7 +144,7 @@ export default function RepoPickerList({
               className={styles.headSearch}
               search={search}
               onSearchChange={onSearchChange}
-              placeholder={L("저장소 검색", "Search repositories")}
+              placeholder={t("admin.inline.repoPickerList.searchRepositories")}
               historyKey={null}
               showHelp={false}
             />
@@ -153,17 +153,13 @@ export default function RepoPickerList({
           {/* 더하기 단추가 무엇을 받는 칸인지 — 아이콘만 두면 조직을 적는 곳인 줄 알 수 없다 */}
           {onOrgsChange && (
             <span className={`${outer.fieldHint} ${styles.groupHint}`}>
-              {L(
-                "공개로 소속된 조직의 저장소는 적지 않아도 목록에 함께 나타납니다. + 를 눌러 소속을 비공개로 둔 조직만 적어주세요.",
-                "Repositories from organizations you are a public member of appear automatically. Use + to add only organizations where your membership is private.",
-              )}
+              {t("admin.inline.repoPickerList.publicOrgsHint")}
             </span>
           )}
           {/* 조직을 받다가 실패했는지 말해 준다 — 목록이 그냥 짧으면 빠진 줄도 모른다 */}
           {failedOrgs.length > 0 && (
             <span className={`${outer.fieldHint} ${styles.groupHint} ${styles.orgWarn}`}>
-              {L(`조직 ${failedOrgs.join(", ")} 의 저장소를 불러오지 못했습니다.`,
-                 `Could not load repositories from ${failedOrgs.join(", ")}.`)}
+              {fillTemplate(t("admin.inline.repoPickerList.orgLoadFailed"), { orgs: failedOrgs.join(", ") })}
             </span>
           )}
         </div>
@@ -173,7 +169,7 @@ export default function RepoPickerList({
       {showOwners && (
         <div className={styles.owners}>
           <Chip count={matched.length} active={!owner} onClick={() => setOwner("")}>
-            {L("전체", "All")}
+            {t("admin.inline.repoPickerList.all")}
           </Chip>
           {owners.map((o) => (
             <Chip
@@ -191,14 +187,14 @@ export default function RepoPickerList({
               }
               truncate
             >
-              {o.mine ? L("내 저장소", "Mine") : o.name}
+              {o.mine ? t("admin.inline.repoPickerList.mine") : o.name}
             </Chip>
           ))}
         </div>
       )}
 
       {shown.length === 0 ? (
-        <EmptyState size="xs" pad="sm">{L("찾는 저장소가 없습니다.", "No matching repositories.")}</EmptyState>
+        <EmptyState size="xs" pad="sm">{t("admin.inline.repoPickerList.noMatchingRepositories")}</EmptyState>
       ) : (
         /* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지
            않고 페이지만 움직인다(목록 뒷부분에 닿을 방법이 없어진다). */
@@ -255,8 +251,7 @@ export default function RepoPickerList({
  * 테두리가 두 겹이 된다(댓글란의 알림 캡슐, SearchCapsule 도 같은 이유로 그렇게 되어 있다).
  */
 function OrgAdd({ onAdd }: { onAdd: (name: string) => void }) {
-  const { language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -278,7 +273,7 @@ function OrgAdd({ onAdd }: { onAdd: (name: string) => void }) {
         requestAnimationFrame(() => inputRef.current?.focus());
       }}
       data-clickable="true"
-      title={L("조직 더하기", "Add organization")}
+      title={t("admin.inline.repoPickerList.addOrganization")}
     >
       {/* 아이콘 칸은 높이와 같은 정사각 — 펼쳤을 때 + 가 입력칸에 밀려 좁아지지 않게 */}
       <span className={styles.orgAddIcon}>
@@ -289,8 +284,8 @@ function OrgAdd({ onAdd }: { onAdd: (name: string) => void }) {
         className={styles.orgAddInput}
         value={value}
         tabIndex={open ? 0 : -1}
-        placeholder={L("조직 이름", "Organization")}
-        aria-label={L("조직 더하기", "Add organization")}
+        placeholder={t("admin.inline.repoPickerList.organization")}
+        aria-label={t("admin.inline.repoPickerList.addOrganization")}
         onChange={(event) => setValue(event.target.value)}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => {
