@@ -8,18 +8,6 @@ import shell from "@/app/about/_panels/AboutSection.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 export const sec = { ...frame, ...shell };
 
-/* ═══════════ 타입 ═══════════ */
-export type ThemeBg = { primary: string; secondary: string; accent: string };
-
-export const mediaUrlOf = (bg: string) => bg.match(/url\(["']?([^"')]+)["']?\)/)?.[1] ?? bg.match(/^(\S+)/)?.[1] ?? "";
-
-export const isVideoUrl = (u: string) => /\.(mp4|webm|mov|ogv)(\?|#|$)/i.test(u);
-
-/* Hero 미니어처 — 실제 데스크톱 뷰포트 비율(≈16:10)로 그린 뒤 stage 폭에 맞게 scale 다운 */
-export const DESIGN_W = 1440;
-
-export const DESIGN_H = 860;
-
 /* ═══════════ 인라인 편집 텍스트 ═══════════ */
 /**
  * 편집 화면의 글(버튼·안내·placeholder·오류)을 관리자 화면 언어로 고른다. `L("한글", "English")`.
@@ -77,7 +65,7 @@ export function EditableText({ value, onChange, placeholder, multiline, wrap, cl
    줄바꿈은 실제 페이지와 다르지만, 고치는 동안 글이 다 보이는 쪽이 맞다.
    --tool-scale 은 패널 안 편집 버튼의 counter-scale 용이라 1 로 고정된다. */
 export function PanelStage({ children }: { children: ReactNode }) {
-  const panelStyle: CSSProperties = { width: "100%", height: "auto", minHeight: DESIGN_H, padding: "clamp(24px, 2.4vw, 48px)" };
+  const panelStyle: CSSProperties = { width: "100%", height: "auto", minHeight: 860, padding: "clamp(24px, 2.4vw, 48px)" };
   (panelStyle as Record<string, string | number>)["--tool-scale"] = 1;
 
   return (

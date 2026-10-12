@@ -120,7 +120,6 @@ export {
   LayoutDashboard,
   LayoutGrid,
   LayoutPanelTop,
-  LayoutTemplate,
   Lightbulb,
   LineChart,
   Link,
@@ -238,7 +237,6 @@ export {
   ZoomIn,
   ZoomOut,
   Key,
-  Route,
 } from "lucide-react";
 export type { LucideIcon } from "lucide-react";
 
