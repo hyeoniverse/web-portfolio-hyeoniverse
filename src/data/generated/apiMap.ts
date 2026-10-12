@@ -2,11 +2,11 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 191,
-  "routeFiles": 132,
+  "total": 192,
+  "routeFiles": 133,
   "access": {
     "public": 65,
-    "signed-in": 58,
+    "signed-in": 59,
     "author": 27,
     "admin": 16,
     "owner": 23,
@@ -1000,7 +1000,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "admin",
-      "files": 31,
+      "files": 32,
       "folded": [
         "admin/ai-health",
         "admin/ai-log",
@@ -1020,6 +1020,7 @@ export const apiMap: ApiMap = {
         "admin/project-images",
         "admin/reports",
         "admin/settings",
+        "admin/site-translate-ui",
         "admin/tags",
         "admin/traffic",
         "admin/translate",
@@ -1188,6 +1189,11 @@ export const apiMap: ApiMap = {
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/api/admin/site-translate-ui",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/api/admin/tags",
           "access": "signed-in"
@@ -1232,6 +1238,7 @@ export const apiMap: ApiMap = {
         "admin_notifications",
         "comment_reports",
         "comments",
+        "content_translations",
         "cover_image_history",
         "custom_emojis",
         "page_views",
@@ -1258,7 +1265,7 @@ export const apiMap: ApiMap = {
       ],
       "access": {
         "public": 2,
-        "signed-in": 14,
+        "signed-in": 15,
         "author": 2,
         "admin": 10,
         "owner": 12,

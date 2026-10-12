@@ -121,7 +121,7 @@ describe("화면 글 번역 캐시", () => {
 });
 
 describe("t() 에 얹기 — 하나의 언어 상태", () => {
-  it("다른 언어의 화면 글이 있으면 그것, 빠진 글은 영어 — 관리 화면(AdminDictProvider)은 그대로", async () => {
+  it("다른 언어의 화면 글이 있으면 그것, 빠진 글은 영어 — 관리 화면도 같은 언어(내용 글 tx 만 원문)", async () => {
     const { renderHook, act } = await import("@testing-library/react");
     const { createElement } = await import("react");
     const { LanguageProvider, useLanguage } = await import("@/providers/LanguageProvider");
@@ -143,15 +143,35 @@ describe("t() 에 얹기 — 하나의 언어 상태", () => {
     expect(result.current.foreignLang).toBe("de");
     expect(localStorage.getItem("language")).toBe("ko");
     expect(result.current.tAlt("nav.home")).toBe("Startseite");
-    expect(admin.result.current.language).toBe("ko");
+    expect(admin.result.current.language).toBe("en");
     expect(result.current.t("nav.home")).toBe("Startseite");
     expect(result.current.t("nav.about")).toBe(en.nav.about);
-    expect(admin.result.current.t("nav.home")).not.toBe("Startseite");
+    expect(admin.result.current.t("nav.home")).toBe("Startseite");
 
     act(() => selectSiteLang(null));
     expect(result.current.t("nav.home")).not.toBe("Startseite");
     /* 끄면 저장된 ko 로 돌아온다 */
     expect(result.current.language).toBe("ko");
     expect(result.current.foreignLang).toBeNull();
+  });
+});
+
+describe("관리자 화면 글 번역(lib/adminLang)", () => {
+  it("받아 와서 스냅숏(adminUi)에 두고 localStorage(해시)에 저장한다 — 다음에는 묻지 않는다", async () => {
+    const { ensureAdminUi, adminUiSourceInfo, __resetAdminLangForTest } = await import("@/lib/adminLang");
+    __resetAdminLangForTest();
+    const { source, hash } = adminUiSourceInfo();
+    const [k1] = source.find(([, v]) => !/[{<>]/.test(v))!;
+    const fetcher = vi.fn(() => Promise.resolve(new Response(JSON.stringify({ hash, complete: true, strings: { [k1]: "Übersetzt" } }))));
+    selectSiteLang("de");
+    await ensureAdminUi("de", fetcher as unknown as typeof fetch);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]).toEqual(["/api/admin/site-translate-ui", expect.anything()]);
+    expect(getSiteLangSnapshot().adminUi).toEqual({ [k1]: "Übersetzt" });
+    expect(JSON.parse(localStorage.getItem("adminUi:de")!).h).toBe(hash);
+
+    __resetAdminLangForTest();
+    await ensureAdminUi("de", fetcher as unknown as typeof fetch);
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
