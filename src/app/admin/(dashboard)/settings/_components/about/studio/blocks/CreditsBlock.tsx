@@ -82,7 +82,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
       {/* 긴 문장이라 헤더 옆 inline 대신 헤더 아래 block hint 로 (AccountTab·AppearanceTab 과 동일 패턴) */}
       <p className={css.creditsNotice}>
         <Lock size={12} />
-        {tA("admin.inline.creditsBlock.theAttributionPhraseAnd")}
+        {tA("admin.inline.creditsBlock.attributionLocked")}
       </p>
       <div className={css.creditsPreview}>
         {/* 폭 고정 — 이름을 추가하면 줄이 길어져 래퍼가 늘어나고 아래 textarea 까지 같이 넓어진다 */}
@@ -92,7 +92,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
             <span className={cf.heart}>❤</span>
             <span className={css.creditsLocked}>{after} </span>
             <span className={css.creditsFixed}
-              title={tA("admin.inline.creditsBlock.originalAuthorAttributionPlease")}>
+              title={tA("admin.inline.creditsBlock.attributionNotice")}>
               {nickname}
               <Lock size={11} />
             </span>

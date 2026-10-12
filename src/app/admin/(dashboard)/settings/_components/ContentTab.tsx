@@ -745,7 +745,7 @@ export default function ContentTab({
               paths={["works.emptyTitle", "works.emptyTitle_ko", "works.emptySub", "works.emptySub_ko"]}
               extra={
                 <span className={`${styles.sectionHint} ${styles.sectionHintInline}`}>
-                  {t("admin.inline.contentTab.shownWithTheStarry")}
+                  {t("admin.inline.contentTab.emptyWorksHint")}
                 </span>
               }
               {...sh}

@@ -40,18 +40,18 @@ export default function GiscusHelp() {
         </div>
 
         <p className={styles.intro}>
-          {t("admin.inline.giscusHelp.theRepoIdAnd")}
+          {t("admin.inline.giscusHelp.idsCopyHint")}
           <Kbd>data-repo-id</Kbd> · <Kbd>data-category-id</Kbd>
           {t("admin.inline.giscusHelp.attributesOfTheScript")}
         </p>
 
         <section className={styles.sec}>
-          <span className={styles.secTitle}>{t("admin.inline.giscusHelp.howToSetIt")}</span>
+          <span className={styles.secTitle}>{t("admin.inline.giscusHelp.setupTitle")}</span>
           <ol className={styles.steps}>
             <li>
               {t("admin.inline.giscusHelp.makeSureTheComment")}
               <Hl>Public</Hl>
-              {t("admin.inline.giscusHelp.andThat")}
+              {t("admin.inline.giscusHelp.fragAndThat")}
               <Hl>Discussions</Hl>
               {t("admin.inline.giscusHelp.isEnabled")}
               <Kbd>{t("admin.inline.giscusHelp.settingsGeneralFeaturesDiscussions")}</Kbd>
@@ -59,25 +59,25 @@ export default function GiscusHelp() {
             </li>
             <li>
               <b>{t("admin.inline.giscusHelp.installTheGiscusApp")}</b>
-              {t("admin.inline.giscusHelp.goTo")}
+              {t("admin.inline.giscusHelp.fragGoTo")}
               <Ext href="https://github.com/apps/giscus">github.com/apps/giscus</Ext>
-              {t("admin.inline.giscusHelp.atClick")}
-              <Kbd>Install</Kbd>{t("admin.inline.giscusHelp.or")}<Kbd>Configure</Kbd>{t("admin.inline.giscusHelp.ifAlreadyInstalledChoose")}
+              {t("admin.inline.giscusHelp.fragAndClick")}
+              <Kbd>Install</Kbd>{t("admin.inline.giscusHelp.fragOr")}<Kbd>Configure</Kbd>{t("admin.inline.giscusHelp.ifAlreadyInstalledChoose")}
               <Kbd>Only select repositories</Kbd>
-              {t("admin.inline.giscusHelp.pickTheRepoFor")}
+              {t("admin.inline.giscusHelp.fragPickRepo")}
               <Kbd>All repositories</Kbd>
-              {t("admin.inline.giscusHelp.andGrantAccessWith")}
+              {t("admin.inline.giscusHelp.fragGrantAccess")}
               <Kbd>Install / Save</Kbd>
-              {t("admin.inline.giscusHelp.text2")}
+              {t("admin.inline.giscusHelp.fragPeriod")}
             </li>
           </ol>
         </section>
 
         <section className={styles.sec}>
-          <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionAAutomaticRecommended")}</span>
+          <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionAuto")}</span>
           <ol className={styles.steps} start={3}>
             <li>
-              {t("admin.inline.giscusHelp.inThe")}
+              {t("admin.inline.giscusHelp.fragInThe")}
               <Kbd>{t("admin.inline.giscusHelp.repository")}</Kbd>
               {t("admin.inline.giscusHelp.fieldEnter")}
               <Kbd>owner/repository-name</Kbd>
@@ -85,29 +85,29 @@ export default function GiscusHelp() {
               <Kbd>{t("admin.inline.giscusHelp.loadRepository")}</Kbd>
               {t("admin.inline.giscusHelp.requires")}
               <Kbd>GITHUB_TOKEN</Kbd>
-              {t("admin.inline.giscusHelp.text3")}
+              {t("admin.inline.giscusHelp.fragCloseParen")}
             </li>
-            <li>{t("admin.inline.giscusHelp.theRepoIdAnd2")}</li>
+            <li>{t("admin.inline.giscusHelp.autoFillHint")}</li>
           </ol>
         </section>
 
         <section className={styles.sec}>
-          <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionBManual")}</span>
+          <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionManual")}</span>
           <ol className={styles.steps} start={3}>
             <li>
               {t("admin.inline.giscusHelp.goToTheGiscus")}
               <Ext href="https://giscus.app/ko">giscus.app</Ext>
-              {t("admin.inline.giscusHelp.text4")}
+              {t("admin.inline.giscusHelp.fragCloseParenPeriod")}
             </li>
             <li>
-              {t("admin.inline.giscusHelp.enterYourRepositoryAs")}
-              <Kbd>{t("admin.inline.giscusHelp.usernameRepositoryName")}</Kbd>
-              {t("admin.inline.giscusHelp.text5")}
+              {t("admin.inline.giscusHelp.fragEnterRepo")}
+              <Kbd>{t("admin.inline.giscusHelp.repoFormat")}</Kbd>
+              {t("admin.inline.giscusHelp.fragPeriod2")}
             </li>
             <li>
-              {t("admin.inline.giscusHelp.underDiscussionCategoryChoose")}
+              {t("admin.inline.giscusHelp.fragChooseCategory")}
               <Hl>Announcements</Hl>
-              {t("admin.inline.giscusHelp.text6")}
+              {t("admin.inline.giscusHelp.fragCloseParenPeriod2")}
             </li>
             <li>
               {t("admin.inline.giscusHelp.findTheGenerated")}

@@ -71,7 +71,7 @@ export default function DemoFilesEditor({
   return (
     <div className={css.panel}>
       <p className={css.hint}>
-        {t("admin.inline.demoFilesEditor.appTsxIsThe")}
+        {t("admin.inline.demoFilesEditor.filesHint")}
       </p>
       <SandpackProvider
         template="react-ts"

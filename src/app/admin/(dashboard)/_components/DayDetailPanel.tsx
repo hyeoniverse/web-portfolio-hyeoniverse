@@ -228,7 +228,7 @@ function DayDetailPanel({
           </p>
         ) : topPosts.length === 0 ? (
           <p className={styles.muted}>
-            {t("admin.inline.dayDetailPanel.noPostsViewedThis")}
+            {t("admin.inline.dayDetailPanel.noPostViews")}
           </p>
         ) : (
           <List>

@@ -325,7 +325,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 <p className={hero.heroSubtitle}>
                   <EditableText multiline value={heroText("heroSubtitle") || t("aboutPage.description")}
                     onChange={(v) => setHeroText("heroSubtitle", v)} placeholder={t("aboutPage.description")}
-                    ariaLabel={t("admin.inline.aboutStudio.subtitle2")} onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
+                    ariaLabel={t("admin.inline.aboutStudio.subtitleLabel")} onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
                 </p>
               )}
               <Pressable className={css.accentHit} title={t("admin.inline.aboutStudio.underlineColor")} aria-label={t("admin.inline.aboutStudio.underlineColor")}
@@ -342,12 +342,12 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 <div className={css.field}>
                   <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.horizontal")}</span>
                   <SegmentedControl<"left" | "center" | "right"> value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
-                    items={[{ value: "left", label: t("admin.inline.aboutStudio.l") }, { value: "center", label: t("admin.inline.aboutStudio.c") }, { value: "right", label: t("admin.inline.aboutStudio.r") }]} />
+                    items={[{ value: "left", label: t("admin.inline.aboutStudio.alignLeftShort") }, { value: "center", label: t("admin.inline.aboutStudio.alignCenterShort") }, { value: "right", label: t("admin.inline.aboutStudio.alignRightShort") }]} />
                 </div>
                 <div className={css.field}>
                   <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.vertical")}</span>
                   <SegmentedControl<"top" | "center" | "bottom"> value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
-                    items={[{ value: "top", label: t("admin.inline.aboutStudio.t") }, { value: "center", label: t("admin.inline.aboutStudio.m") }, { value: "bottom", label: t("admin.inline.aboutStudio.b") }]} />
+                    items={[{ value: "top", label: t("admin.inline.aboutStudio.alignTopShort") }, { value: "center", label: t("admin.inline.aboutStudio.alignMiddleShort") }, { value: "bottom", label: t("admin.inline.aboutStudio.alignBottomShort") }]} />
                 </div>
                 <div className={css.field}>
                   <span className={css.fieldLabel}>{t("admin.inline.aboutStudio.elements")}</span>

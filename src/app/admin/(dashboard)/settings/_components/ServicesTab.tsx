@@ -519,7 +519,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   };
 
   // 카테고리 help — Select/Field 두 케이스 공용
-  const categoryHelp = t("admin.inline.servicesTab.theDiscussionCategoryFor");
+  const categoryHelp = t("admin.inline.servicesTab.giscusCategoryHint");
   // 테마 help — light/dark 두 필드 공용
   const themeHelp = t("admin.inline.servicesTab.pickAGiscusPreset");
 
@@ -742,7 +742,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               {/* 표시 — 연결 방식 · 입력창 위치, 그리고 켜고 끄는 네 가지 */}
               {/* 스위치 라벨 칸을 같은 폭으로 — 라벨 길이와 상관없이 스위치가 같은 자리에서 시작한다 */}
               <FormGroup title={t("admin.settings.giscusGroupDisplay")} cols={2} switchLabelWidth="10em">
-              <FieldRow label={<T k="admin.settings.giscusMapping" />} help={t("admin.inline.servicesTab.howPagesMapTo")}>
+              <FieldRow label={<T k="admin.settings.giscusMapping" />} help={t("admin.inline.servicesTab.giscusMappingHint")}>
                 <Select
                   width="full"
                   value={giscus.mapping || "pathname"}
@@ -787,7 +787,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   checked={giscus.emitMetadata === true}
                   onCheckedChange={(v) => updateGiscus("emitMetadata", v)}
                 />
-                <FieldHelp content={t("admin.inline.servicesTab.sendsDiscussionMetadataTo")} />
+                <FieldHelp content={t("admin.inline.servicesTab.giscusMetadataHint")} />
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch

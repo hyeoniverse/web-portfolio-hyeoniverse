@@ -47,13 +47,13 @@ export function UtmHelpButton(_props: { language: "ko" | "en" }) {
       <div className={styles.helpContent}>
         <p className={styles.helpTitle}>{t("admin.inline.utmBuilder.whatIsUtm")}</p>
         <p className={styles.helpText}>
-          {t("admin.inline.utmBuilder.trackingParametersAppendedTo")}
+          {t("admin.inline.utmBuilder.utmHelp")}
         </p>
         <ul className={styles.helpParams}>
           <li>
             <code>source</code>
             <span>
-              {t("admin.inline.utmBuilder.whereYouPostedThe")}
+              {t("admin.inline.utmBuilder.sourceHint")}
             </span>
           </li>
           <li>
@@ -71,7 +71,7 @@ export function UtmHelpButton(_props: { language: "ko" | "en" }) {
         </ul>
         <p className={styles.helpTitle}>{t("admin.inline.utmBuilder.howToUse")}</p>
         <ol className={styles.helpSteps}>
-          <li>{t("admin.inline.utmBuilder.pickASourceOr")}</li>
+          <li>{t("admin.inline.utmBuilder.sourcePickHint")}</li>
           <li>{t("admin.inline.utmBuilder.fillPathMediumCampaign")}</li>
           <li>
             {t("admin.inline.utmBuilder.useTheCopiedLink")}

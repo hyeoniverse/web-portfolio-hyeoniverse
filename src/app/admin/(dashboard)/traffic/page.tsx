@@ -508,7 +508,7 @@ export default function AdminTrafficPage() {
               </PanelTitle>
                 {data.topContent.length === 0 ? (
                   <p className={styles.muted}>
-                    {t("admin.inline.trafficPage.noViewsInThis")}
+                    {t("admin.inline.trafficPage.noViewsInPeriod")}
                   </p>
                 ) : (
                   <List>

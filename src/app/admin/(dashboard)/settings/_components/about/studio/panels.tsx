@@ -95,7 +95,7 @@ export function PanelManager({ about, setAny, t, lang }: {
   );
   /* intro/credits — 순서·표시 모두 잠금(항상 표시). 이름만 더블클릭으로 수정 가능. */
   const lockedChip = (k: string) => (
-    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={tA("admin.inline.panels.lockedDoubleClickTo")}>
+    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={tA("admin.inline.panels.lockedRenameHint")}>
       <Lock className={css.chipLock} size={11} />{labelOf(k)}
     </Pressable>
   );
@@ -177,7 +177,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
     const files = await Promise.all(picked.map(async (f) => ({ name: f.name, text: await f.text() })));
     const result = loadPanelFiles(panelKey!, files);
     if (!result || result.count === 0) {
-      showToast(result?.warnings[0] ?? (tA("admin.inline.panels.couldNotReadThe")), "error");
+      showToast(result?.warnings[0] ?? (tA("admin.inline.panels.filesUnreadable")), "error");
       return;
     }
     for (const [path, value] of Object.entries(result.values)) {

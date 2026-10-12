@@ -168,7 +168,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
           <div className={css.panelActions}>
             <Pressable noTapScale className={`${css.add} ${connectFrom === sel.id ? css.connectOn : ""}`}
               onClick={() => setConnectFrom(connectFrom === sel.id ? null : sel.id)}>
-              <Link2 size={13} /> {connectFrom === sel.id ? t("admin.inline.archDiagramEditor.clickANodeTo") : t("admin.inline.archDiagramEditor.connectEdge")}
+              <Link2 size={13} /> {connectFrom === sel.id ? t("admin.inline.archDiagramEditor.connectHint") : t("admin.inline.archDiagramEditor.connectEdge")}
             </Pressable>
             <Button variant="outline" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>{t("admin.inline.archDiagramEditor.deleteNode")}</Button>
           </div>
