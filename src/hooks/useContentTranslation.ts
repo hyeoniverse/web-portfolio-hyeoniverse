@@ -1,68 +1,46 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { matchVisitorLanguage, normalizeTranslationLang } from "@/lib/translationLanguages";
+import {
+  dismissAutoSiteLang,
+  getServerSiteLangSnapshot,
+  getSiteLangSnapshot,
+  selectSiteLang,
+  subscribeSiteLang,
+} from "@/lib/siteLang";
 import type { ContentFields } from "@/lib/api/contentTranslate";
 import type { BodyLabels } from "@/lib/bodyLabels";
 
-/** 방문자가 고른 읽기 언어 — 언어 코드, 또는 "original"(원문으로 보겠다고 고른 것) */
-export const CONTENT_LANG_STORAGE_KEY = "contentTranslateLang";
-const ORIGINAL = "original";
+/** 방문자가 고른 읽기 언어의 저장 열쇠 — 사이트 전체가 같이 쓴다(lib/siteLang) */
+export { CONTENT_LANG_STORAGE_KEY } from "@/lib/siteLang";
 
 export type ContentTranslateError = "failed" | "rateLimited";
-
-function readSaved(): string | null {
-  try { return localStorage.getItem(CONTENT_LANG_STORAGE_KEY); } catch { return null; }
-}
-function writeSaved(v: string | null) {
-  try {
-    if (v) localStorage.setItem(CONTENT_LANG_STORAGE_KEY, v);
-    else localStorage.removeItem(CONTENT_LANG_STORAGE_KEY);
-  } catch { /* 저장소를 못 쓰면 이번 방문에만 */ }
-}
 
 /**
  * 글·작업물 상세의 "다른 언어로 읽기" — ko · en 이 아닌 언어(lib/translationLanguages)로 번역해 보여 준다.
  *
- * targetLang 이 null 이면 지금처럼 KO/EN(viewLang)으로 본다.
- * 처음 언어:
- *   - 저장된 선택이 있으면 그것("original" 이면 번역하지 않는다)
- *   - 없으면 브라우저 언어(navigator.languages)의 첫 언어가 ko · en 이 아닐 때 그 언어로 바로 번역해 보여 준다.
- *     번역은 서버에 저장돼(content_translations) 두 번째 방문자부터는 공급자를 부르지 않고, 캐시에 없는 요청은
- *     서버가 IP 당 상한을 둔다. 대신 화면에 "기계 번역" 안내와 원문 보기를 늘 띄운다.
- *     자동으로 건 번역이 서버 설정 때문에 안 되면(번역 꺼짐 · 키 없음) 조용히 원문으로 돌아간다 — 방문자가 고른 게 아니다.
- * 고르면 저장한다. 원문 보기 · KO/EN 토글은 "original" 로 저장해 다음 방문에 자동 번역이 다시 걸리지 않게 한다.
+ * 언어는 사이트 전체가 나눠 쓰는 하나의 상태(lib/siteLang)다 — 내비게이션의 🌐 메뉴에서 고른 언어가 여기에도,
+ * 상세 헤더의 메뉴에서 고른 언어가 목록 · 화면 글에도 걸린다. targetLang 이 null 이면 지금처럼 KO/EN(viewLang)으로 본다.
+ * 처음 언어(저장된 선택 › 브라우저 언어)와 저장 규칙도 lib/siteLang 에 있다.
+ *   번역은 서버에 저장돼(content_translations) 두 번째 방문자부터는 공급자를 부르지 않고, 캐시에 없는 요청은
+ *   서버가 IP 당 상한을 둔다. 대신 화면에 "기계 번역" 안내와 원문 보기를 늘 띄운다.
+ *   자동으로 건 번역이 서버 설정 때문에 안 되면(번역 꺼짐 · 키 없음) 조용히 원문으로 돌아간다 — 방문자가 고른 게 아니다.
+ *   번역할 본문이 없는 글(404)은 이 글만 원문으로 둔다 — 사이트의 언어는 그대로.
  * 상세 화면은 ISR 이라 언어 판단은 브라우저에서만 한다(마운트 뒤).
  */
-const noopSubscribe = () => () => {};
-/** 처음 언어(브라우저에서만) — 저장된 선택 › 브라우저 언어. "original" 이면 null */
-function initialLang(): { lang: string | null; auto: boolean } {
-  const saved = readSaved();
-  if (saved === ORIGINAL) return { lang: null, auto: false };
-  const fromSaved = normalizeTranslationLang(saved);
-  if (fromSaved) return { lang: fromSaved, auto: false };
-  const langs = navigator.languages?.length ? navigator.languages : [navigator.language];
-  return { lang: matchVisitorLanguage(langs), auto: true };
-}
-/* useSyncExternalStore 는 같은 값을 돌려받아야 하므로 페이지 수명 동안 한 번만 읽는다 */
-let initialCache: { lang: string | null; auto: boolean } | null = null;
-const getInitial = () => (initialCache ??= initialLang());
-const getServerInitial = () => null;
-
 export function useContentTranslation({ type, id, enabled }: { type: "post" | "work"; id: string; enabled: boolean }) {
-  /* 서버 · 하이드레이션 때는 null(원문), 그 뒤 브라우저 값 — effect 안에서 상태를 바꾸지 않고 얻는다 */
-  const initial = useSyncExternalStore(noopSubscribe, getInitial, getServerInitial);
-  /* undefined = 아직 고르지 않았다(처음 언어를 따른다) */
-  const [chosen, setChosen] = useState<string | null | undefined>(undefined);
+  /* 서버 · 하이드레이션 때는 null(원문), 그 뒤 브라우저 값 — 사이트 전체의 언어 */
+  const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
+  /* 번역할 본문이 없다고 서버가 답한 언어 — 이 글만 원문으로 */
+  const [nothing, setNothing] = useState<Record<string, true>>({});
   const [results, setResults] = useState<Record<string, ContentFields>>({});
   /* 본문 안 라벨(코드 블록 단추 · 투표 …)의 번역 — 응답에 없으면(라벨 번역 실패) 빈 자리, 화면 언어 라벨을 쓴다 */
   const [uiResults, setUiResults] = useState<Record<string, Partial<BodyLabels>>>({});
   const [errors, setErrors] = useState<Record<string, ContentTranslateError>>({});
 
-  const auto = chosen === undefined;
-  const targetLang = !enabled ? null : auto ? initial?.lang ?? null : chosen;
+  const targetLang = !enabled || !site.lang || nothing[site.lang] ? null : site.lang;
   /* 자동으로 건 번역인가 — 서버 설정 때문에 못 하면 조용히 물러난다 */
-  const isAuto = auto && !!initial?.auto;
+  const isAuto = site.auto;
 
   const fields = targetLang ? results[targetLang] ?? null : null;
   /* 본문과 같은 때에 바뀌어야 본문 후처리가 한 번에 새 라벨로 다시 걸린다 — 본문(fields)이 있을 때만 */
@@ -87,9 +65,14 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
           setResults((prev) => ({ ...prev, [targetLang]: data.fields ?? {} }));
           return;
         }
-        /* 자동으로 건 번역 — 서버가 못 하면(번역 꺼짐 · 키 없음 · 번역할 본문 없음) 저장하지 않고 원문 그대로 */
-        if (isAuto && (res.status === 503 || res.status === 404)) {
-          setChosen(null);
+        /* 번역할 본문이 없는 글 — 이 글만 원문으로(사이트 언어는 그대로) */
+        if (res.status === 404) {
+          setNothing((prev) => ({ ...prev, [targetLang]: true }));
+          return;
+        }
+        /* 자동으로 건 번역 — 서버가 못 하면(번역 꺼짐 · 키 없음) 저장하지 않고 원문 그대로 */
+        if (isAuto && res.status === 503) {
+          dismissAutoSiteLang();
           return;
         }
         fail(res.status === 429 ? "rateLimited" : "failed");
@@ -102,9 +85,8 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
 
   /** 언어 고르기 — null 이면 원문(KO/EN)으로. 고른 것은 저장한다(원문은 "original") */
   const selectLang = useCallback((lang: string | null) => {
-    setChosen(lang);
     if (lang) setErrors((prev) => { const next = { ...prev }; delete next[lang]; return next; });
-    writeSaved(lang ?? ORIGINAL);
+    selectSiteLang(lang);
   }, []);
 
   /** 실패한 언어 다시 시도 — 오류를 지우면 위 effect 가 다시 부른다 */

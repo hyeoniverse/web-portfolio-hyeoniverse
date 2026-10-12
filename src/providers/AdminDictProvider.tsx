@@ -34,6 +34,8 @@ export default function AdminDictProvider({
   const value = useMemo(
     () => ({
       ...parent,
+      /* 관리 화면은 사이트 "다른 언어" 번역을 얹지 않는다 — 늘 ko/en */
+      siteOverlay: false,
       dict: {
         ko: { ...parent.dict.ko, ...dict.ko },
         en: { ...parent.dict.en, ...dict.en },

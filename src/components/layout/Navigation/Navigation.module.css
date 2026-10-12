@@ -503,6 +503,23 @@
 }
 
 
+/* 사이트를 다른 언어로 보기(🌐, SiteLangMenu) — 다른 단추와 같은 원. 켜지면 언어 코드가 붙어 캡슐로 늘어나고
+   강조색이 된다. 아이콘 크기는 ContentLangMenu 가 정한다(14) */
+.siteLangBtn {
+  gap: var(--spacing-4);
+}
+
+.siteLangBtn:hover {
+  color: var(--text-accent-alt);
+}
+
+.siteLangActive {
+  width: auto;
+  padding: 0 var(--spacing-8);
+  color: var(--text-accent-alt);
+  font: var(--font-label-sm);
+}
+
 .soundBtnWrap {
   position: relative;
 }
