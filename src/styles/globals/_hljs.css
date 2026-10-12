@@ -621,6 +621,25 @@ code .token.italic {
   }
 }
 
+/* ── 좁은 화면: 헤더 겹침 방지 ──
+   정중앙 절대배치 언어 라벨이 우측 컨트롤과 겹친다. 라벨을 flow 로 돌려 신호등 옆에 두고(남는 폭에서 말줄임),
+   컨트롤은 복사 = 아이콘만, 줄바꿈 = 현재 상태 라벨 하나만 남겨 폭을 줄인다. */
+@media (width <= 768px) {
+  .code-block-bar { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+  .code-block-bar .code-lang-label {
+    position: static;
+    transform: none;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .code-block-bar .code-block-controls { flex-shrink: 0; }
+  .code-block-wrap .code-copy-btn .code-copy-labels { display: none; }
+  .code-block-wrap .code-wrap-toggle .code-wrap-label-hover { display: none; }
+  .code-block-wrap .code-wrap-toggle .code-wrap-label-default::after { content: none; }
+  .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-default { opacity: 1; transform: none; }
+}
+
 /* ── Math element — appear animation ── */
 @keyframes mathRevealBlock {
   0% { max-width: 0; opacity: 0; }
