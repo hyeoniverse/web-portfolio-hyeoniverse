@@ -111,3 +111,19 @@
   color: var(--text-tertiary);
   white-space: nowrap;
 }
+
+/* 방문 흐름(#1399) — 최근 방문 한 줄: 위는 시각 · 유입 · 기기, 아래는 이동 경로와 페이지마다 머문 시간 */
+.journeyMeta {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.journeySteps {
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.journeyDwell {
+  color: var(--text-tertiary);
+}

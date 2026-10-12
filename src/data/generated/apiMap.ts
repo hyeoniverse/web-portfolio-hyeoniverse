@@ -38,12 +38,12 @@ export const apiMap: ApiMap = {
     "works"
   ],
   "rpcs": [
-    "daily_page_views",
     "page_view_stats",
     "page_view_totals",
     "publish_scheduled",
     "record_page_duration",
-    "record_page_view"
+    "record_page_view",
+    "visitor_counts"
   ],
   "services": [
     "ai",
@@ -1245,7 +1245,6 @@ export const apiMap: ApiMap = {
         "works"
       ],
       "rpcs": [
-        "daily_page_views",
         "page_view_stats",
         "page_view_totals"
       ],
@@ -1475,7 +1474,8 @@ export const apiMap: ApiMap = {
       "rpcs": [
         "publish_scheduled",
         "record_page_duration",
-        "record_page_view"
+        "record_page_view",
+        "visitor_counts"
       ],
       "services": [
         "translate",

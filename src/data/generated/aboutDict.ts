@@ -1104,7 +1104,7 @@ export const aboutSource: string[] = [
   "Title length",
   "Titles (ko/en) over 80 characters are rejected.",
   "To",
-  "Today/total visits (visit = session, bots excluded)",
+  "Today/total visitors (people, bots and \"my IP\" excluded)",
   "Toggle",
   "Toggle a reaction (reactor_hash = SHA-256 of IP+UA)",
   "Toggle like (IP-based insert/delete)",

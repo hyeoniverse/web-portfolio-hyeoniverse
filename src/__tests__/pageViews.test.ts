@@ -221,3 +221,37 @@ describe("formatDwell", () => {
     expect(formatDwell(-5, "ko")).toBe("0초");
   });
 });
+
+describe("analyzeJourneys", () => {
+  const row = (session: string, path: string | null, at: string, ms: number | null = null, landing = false) => ({
+    session_id: session, path, viewed_at: `2026-10-12T${at}:00Z`, duration_ms: ms, is_landing: landing, referrer: landing ? "google.com" : null, device_kind: landing ? "mobile" : null,
+  });
+
+  it("들어온 페이지 → 다음 페이지 · 나간 페이지 · 이탈률 · 최근 경로", async () => {
+    const { analyzeJourneys } = await import("@/lib/api/visitJourneys");
+    const j = analyzeJourneys([
+      row("a", "/posts/x", "01:01", 60_000),
+      row("a", "/", "01:00", 5_000, true),
+      row("a", "/works/y", "01:02"),
+      row("b", "/", "02:00", 3_000, true),
+      row("b", "/posts/x", "02:01"),
+      row("c", "/about", "03:00", 1_000, true),
+      row("d", null, "04:00", null, true), // 경로를 모르는 옛 방문은 흐름에서 뺀다
+    ]);
+    expect(j.sessions).toBe(3);
+    expect(j.bounceRate).toBe(33);
+    expect(j.nextPages).toEqual([{ from: "/", to: "/posts/x", count: 2 }]);
+    expect(j.exitPages).toEqual([
+      { path: "/about", count: 1, pct: 33 },
+      { path: "/posts/x", count: 1, pct: 33 },
+      { path: "/works/y", count: 1, pct: 33 },
+    ]);
+    expect(j.recent[0].steps).toEqual([{ path: "/about", ms: 1000 }]);
+    expect(j.recent[2]).toMatchObject({ referrer: "google.com", device: "mobile", steps: [{ path: "/", ms: 5000 }, { path: "/posts/x", ms: 60000 }, { path: "/works/y", ms: null }] });
+  });
+
+  it("비어 있으면 0", async () => {
+    const { analyzeJourneys } = await import("@/lib/api/visitJourneys");
+    expect(analyzeJourneys([])).toEqual({ sessions: 0, bounceRate: 0, nextPages: [], exitPages: [], recent: [] });
+  });
+});

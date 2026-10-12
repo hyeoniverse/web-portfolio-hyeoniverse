@@ -8,13 +8,15 @@ import { parseUserAgent } from "@/utils/uaParser";
 import { isSessionId, normalizePagePath, parseUtm, referrerHost } from "@/lib/pageViews";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// GET /api/page-views — 오늘 · 전체 방문 수(푸터). 방문 = 세션의 첫 조회, 봇 제외. 마이그레이션 전이면 0
+// GET /api/page-views — 오늘 · 전체 방문자 수(푸터). 대시보드 맨 위 숫자와 같은 기준 — 사람 수(방문자 id, 옛 기록은 IP),
+// 봇 · '내 IP' 제외(visitor_counts). 함수가 없으면(마이그레이션 전) 0
 export async function GET() {
   const admin = createAdminClient();
-  const landings = () =>
-    admin.from("page_views").select("*", { count: "exact", head: true }).eq("is_landing", true).or(HUMAN_VISITS_FILTER);
-  const [todayRes, totalRes] = await Promise.all([landings().eq("viewed_date", kstDateStr(new Date())), landings()]);
-  return jsonOk({ today: todayRes.count ?? 0, total: totalRes.count ?? 0 });
+  const { data, error } = await admin
+    .rpc("visitor_counts", { p_today: kstDateStr(new Date()), p_excluded: [...(await loadExcludedIps(admin))] })
+    .maybeSingle();
+  const row = (error ? null : data) as { today?: number | string; total?: number | string } | null;
+  return jsonOk({ today: Number(row?.today ?? 0), total: Number(row?.total ?? 0) });
 }
 
 // POST /api/page-views { path, session, visitor, referrer, search } — 페이지 조회 한 건 기록(#1399). 응답 { id } — 떠날 때 머문 시간을 이 id 로 보낸다.

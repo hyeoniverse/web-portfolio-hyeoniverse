@@ -259,6 +259,122 @@ export default function AdminTrafficPage() {
               )}
             </Panel>
 
+            {/* ── 방문 흐름(#1399) — 들어와서 무엇을 봤는지: 다음 페이지 · 나간 페이지 · 최근 방문 경로 ── */}
+            <Panel className={styles.panelCell}>
+              <PanelTitle>
+                <T k="admin.dashboard.journeysTitle" />
+              </PanelTitle>
+              {data.journeys.sessions === 0 ? (
+                <p className={styles.muted}>
+                  <T k="admin.dashboard.noJourneys" />
+                </p>
+              ) : (
+                <>
+                  <div className={styles.trafficSummary}>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.visits" />
+                      </span>
+                      <span className={styles.trafficStatValue}>{data.journeys.sessions.toLocaleString()}</span>
+                    </span>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.bounceRate" />
+                      </span>
+                      <span className={styles.trafficStatValue}>{data.journeys.bounceRate}%</span>
+                    </span>
+                  </div>
+                  <Panel variant="grid" className={styles.twoCol}>
+                    <Panel className={styles.panelCell}>
+                      <PanelTitle>
+                        <T k="admin.dashboard.nextPages" />
+                      </PanelTitle>
+                      {data.journeys.nextPages.length === 0 ? (
+                        <p className={styles.muted}>
+                          <T k="admin.dashboard.noNextPages" />
+                        </p>
+                      ) : (
+                        <List>
+                          {data.journeys.nextPages.map((n) => (
+                            <ListItem key={`${n.from}>${n.to}`} layout="grid" className={styles.referrerRow}>
+                              <span className={`${styles.referrerSource} ${styles.landingPath}`} title={`${n.from} → ${n.to}`}>
+                                {n.from} → {n.to}
+                              </span>
+                              <div className={styles.bar} aria-hidden>
+                                <div
+                                  className={`${styles.barFill} ${styles.barFillSoft}`}
+                                  style={{ width: `${Math.round((n.count / data.journeys.nextPages[0].count) * 100)}%` }}
+                                />
+                              </div>
+                              <span className={styles.referrerMeta}>
+                                <span className={styles.referrerCount}>{n.count.toLocaleString()}</span>
+                              </span>
+                            </ListItem>
+                          ))}
+                        </List>
+                      )}
+                    </Panel>
+                    <Panel className={styles.panelCell}>
+                      <PanelTitle>
+                        <T k="admin.dashboard.exitPages" />
+                      </PanelTitle>
+                      <List>
+                        {data.journeys.exitPages.map((p) => (
+                          <ListItem key={p.path} layout="grid" className={styles.referrerRow}>
+                            <span className={`${styles.referrerSource} ${styles.landingPath}`} title={p.path}>
+                              {p.path}
+                            </span>
+                            <div className={styles.bar} aria-hidden>
+                              <div
+                                className={`${styles.barFill} ${styles.barFillSoft}`}
+                                style={{ width: `${p.pct}%` }}
+                              />
+                            </div>
+                            <span className={styles.referrerMeta}>
+                              <span className={styles.referrerPct}>{p.pct}%</span>
+                              <span className={styles.referrerCount}>{p.count.toLocaleString()}</span>
+                            </span>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Panel>
+                  </Panel>
+                  <PanelTitle>
+                    <T k="admin.dashboard.recentJourneys" />
+                  </PanelTitle>
+                  <List>
+                    {/* 옛 방문 기록에서 옮긴 줄은 시각이 그날 0시라 시각 · 경로가 겹칠 수 있다 — 순서로 열쇠를 만든다 */}
+                    {data.journeys.recent.map((j, i) => (
+                      <ListItem key={`${j.startedAt}-${i}`} layout="column">
+                        <span className={styles.journeyMeta}>
+                          {[
+                            new Date(j.startedAt).toLocaleString(language === "ko" ? "ko-KR" : "en-US", {
+                              timeZone: "Asia/Seoul",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }),
+                            j.referrer,
+                            j.device,
+                          ].filter(Boolean).join(" · ")}
+                        </span>
+                        <span className={styles.journeySteps}>
+                          {j.steps.map((step, i) => (
+                            <span key={i}>
+                              {i > 0 && " → "}
+                              {step.path}
+                              {step.ms != null && <span className={styles.journeyDwell}> ({formatDwell(step.ms, language)})</span>}
+                            </span>
+                          ))}
+                        </span>
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )}
+            </Panel>
+
             {/* ── 유입 채널 + 기기 분석 ── */}
             <Panel
               variant="grid"

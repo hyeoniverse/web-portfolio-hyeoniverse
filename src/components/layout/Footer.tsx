@@ -94,7 +94,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   }, [updateIndicator]);
 
   useEffect(() => {
-    // 오늘 · 전체 방문 수 — 페이지 조회 기록의 방문(세션) 수, 봇 제외
+    // 오늘 · 전체 방문자 수 — 대시보드 맨 위 숫자와 같은 기준(사람 수, 봇 · '내 IP' 제외)
     fetch("/api/page-views")
       .then((res) => res.json())
       .then((data) => setVisits(data))

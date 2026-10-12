@@ -16,7 +16,8 @@ import {
   pctChange,
 } from "@/lib/api/dashboardAggregates";
 import { aggregateIpVisitors, ipKey, loadExcludedIps, maskIp } from "@/lib/api/ipAnalytics";
-import { countBotVisits, countPostViews, loadLandingRows, visitorHistory } from "@/lib/api/pageViewVisits";
+import { countBotVisits, countPostViews, loadJourneyRows, loadLandingRows, visitorHistory } from "@/lib/api/pageViewVisits";
+import { analyzeJourneys } from "@/lib/api/visitJourneys";
 import { getIp } from "@/utils/getIp";
 import { loadPageViewStats } from "@/lib/api/pageViewStats";
 
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
   // '내 IP' — 이미 쌓인 기록도 집계에서 뺀다 (새 조회는 /api/page-views 가 기록 전에 거른다)
   const excludedIps = await loadExcludedIps(admin, { fresh: true });
 
-  const [allLandings, botVisits, pageStats, topContent] = await Promise.all([
+  const [allLandings, botVisits, pageStats, topContent, journeyRows] = await Promise.all([
     // 방문(세션의 첫 조회) 전체 — 기간 집계 · 신규/재방문 · 일별 추이 · 직전 기간 비교가 모두 이 이력에서
     loadLandingRows(admin, excludedIps),
     // 봇 방문 수 — 집계에선 제외되지만 얼마나 걸러졌는지 보여준다
@@ -73,6 +74,8 @@ export async function GET(request: Request) {
         return [{ id: p.id, title: p.title, slug: p.slug, count, pct: Math.round((count / total) * 100) }];
       });
     })(),
+    // 방문 흐름 — 기간 내 조회 줄을 방문마다 시간순으로 잇는다
+    loadJourneyRows(admin, excludedIps, windowStart),
   ]);
 
   const trafficRows = allLandings.filter((r) => r.date >= windowStart);
@@ -118,6 +121,7 @@ export async function GET(request: Request) {
       returning: pctChange(newVsReturning.returningCount, prevNvr.returningCount),
     },
     pageStats,
+    journeys: analyzeJourneys(journeyRows),
     visitSummary: {
       visits30: visits,
       views30: views,
