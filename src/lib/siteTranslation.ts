@@ -4,7 +4,7 @@
  *  1) 화면 글(UI 문자열) — 방문자 사전(locales/en.json) 전체를 언어마다 한 번 번역해 한 줄로 캐시한다.
  *     원문은 영어 사전 — 키 순서로 펼친 [열쇠, 글] 묶음. 해시는 그 묶음으로 만들어 브라우저도 같은 값을
  *     계산한다(localStorage 캐시가 지금 사전과 맞는지 서버에 묻지 않고 안다).
- *     관리자 사전(*.admin.json)은 넣지 않는다 — 관리 화면은 번역하지 않는다.
+ *     관리자 사전(*.admin.json)은 따로 한 벌 — 같은 방식, 다른 해시(adminUiHash). 관리 화면의 내용(편집하는 글)은 번역하지 않는다.
  *  2) 목록의 짧은 칸(제목 · 요약 · 부제목 · 설명) — 카드가 보이는 대로 모아 한 번에 묻는다(batch).
  */
 
@@ -46,6 +46,11 @@ function cyrb53(str: string, seed = 0): string {
 /** 화면 글 묶음의 해시 — 영어 글을 고치거나 더하면 바뀌어 다음 요청이 다시 번역한다 */
 export function siteUiHash(source: SiteUiSource): string {
   return cyrb53(JSON.stringify(["site-ui", SITE_UI_VERSION, source]));
+}
+
+/** 관리자 사전 묶음의 해시 — 방문자 사전과 섞이지 않게 머리말이 다르다 */
+export function adminUiHash(source: SiteUiSource): string {
+  return cyrb53(JSON.stringify(["admin-ui", SITE_UI_VERSION, source]));
 }
 
 /* ── 받을 수 있는 번역인가 ──

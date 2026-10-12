@@ -1,5 +1,6 @@
 "use client";
 
+import { authoringLangOf } from "@/lib/siteLanguage";
 import { useState, useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
 import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash2 } from "@/components/icons";
@@ -78,7 +79,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   const openModal = useModalStore((s) => s.openModal);
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
   // 콘텐츠 작성 기본 언어 — 필수 제목의 기준 (en 기본이면 영문 제목이 필수)
-  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
+  const primaryLang = authoringLangOf(useSiteConfig().metadata.defaultLanguage);
   const isEdit = !!series;
 
   /* 초기값 — revert 시 이 값으로 복원. series prop 변경 시 갱신.

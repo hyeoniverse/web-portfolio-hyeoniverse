@@ -48,7 +48,7 @@ export default function T(props: TProps) {
     noTooltip,
     ...rest
   } = props;
-  const { t, tAlt, tx, language, foreignLang } = useLanguage();
+  const { t, tAlt, tx, language, foreignLang, koLabel } = useLanguage();
 
   let text: string;
   let altText: string;
@@ -73,7 +73,7 @@ export default function T(props: TProps) {
     return <span {...rest}>{text}</span>;
   }
 
-  const langLabel = language === "ko" ? "EN" : "KO";
+  const langLabel = language === "ko" ? "EN" : koLabel;
 
   const tooltipContent = (
     <>

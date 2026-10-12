@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useMemo, useCallback, useRef, useLayoutEffect, type ReactNode, type Dispatch, type SetStateAction } from "react";
 import { GripVertical, ChevronRight } from "@/components/icons";
 import type { DatePeriod } from "@/data/profile";
@@ -125,6 +126,7 @@ function useDragEndHandler(ids: string[], move: (oldIdx: number, newIdx: number)
 }
 
 export default function ProfileSections({ data, setData, expanded, setExpanded, styles: baseStyles }: ProfileSectionsProps) {
+  const srcBadge = useSourceBadge();
   // skill/profile 전용 클래스는 ProfileSkill.module.css 로 분리됨 — Settings 에서 내려온
   // 공유 스타일과 병합해 기존 styles.X 참조를 그대로 유지하고 자식에게도 그대로 전달한다.
   const styles = useMemo(() => ({ ...baseStyles, ...skillStyles }), [baseStyles]);
@@ -365,7 +367,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
                 <div className={styles.profileGrid}>
-                  <Input inlineLabel="KO" value={item.role.ko} onChange={(v) => updateTimeline(key, i, "role.ko", v)} />
+                  <Input inlineLabel={srcBadge} value={item.role.ko} onChange={(v) => updateTimeline(key, i, "role.ko", v)} />
                   <Input inlineLabel="EN" value={item.role.en} onChange={(v) => updateTimeline(key, i, "role.en", v)} />
                 </div>
               </div>
@@ -376,7 +378,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                 <div className={styles.profileGrid}>
-                  <Textarea size="md" inlineLabel="KO" value={item.description.ko} onChange={(v) => updateTimeline(key, i, "description.ko", v)} rows={2} />
+                  <Textarea size="md" inlineLabel={srcBadge} value={item.description.ko} onChange={(v) => updateTimeline(key, i, "description.ko", v)} rows={2} />
                   <Textarea size="md" inlineLabel="EN" value={item.description.en} onChange={(v) => updateTimeline(key, i, "description.en", v)} rows={2} />
                 </div>
               </div>
@@ -418,7 +420,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                 <div className={styles.profileGrid}>
-                  <Textarea size="md" inlineLabel="KO" value={group.description.ko} onChange={(v) => updateSkillGroup(gi, "description.ko", v)} rows={2} />
+                  <Textarea size="md" inlineLabel={srcBadge} value={group.description.ko} onChange={(v) => updateSkillGroup(gi, "description.ko", v)} rows={2} />
                   <Textarea size="md" inlineLabel="EN" value={group.description.en} onChange={(v) => updateSkillGroup(gi, "description.en", v)} rows={2} />
                 </div>
               </div>
@@ -471,7 +473,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
               <div className={styles.profileGrid}>
-                <Textarea size="md" inlineLabel="KO" value={item.description.ko} onChange={(v) => updatePhilosophy(i, "description.ko", v)} rows={2} />
+                <Textarea size="md" inlineLabel={srcBadge} value={item.description.ko} onChange={(v) => updatePhilosophy(i, "description.ko", v)} rows={2} />
                 <Textarea size="md" inlineLabel="EN" value={item.description.en} onChange={(v) => updatePhilosophy(i, "description.en", v)} rows={2} />
               </div>
             </div>
@@ -509,7 +511,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
               <div className={styles.profileGrid}>
-                <Textarea size="md" inlineLabel="KO" value={step.description.ko} onChange={(v) => updateApproach(i, "description.ko", v)} rows={2} />
+                <Textarea size="md" inlineLabel={srcBadge} value={step.description.ko} onChange={(v) => updateApproach(i, "description.ko", v)} rows={2} />
                 <Textarea size="md" inlineLabel="EN" value={step.description.en} onChange={(v) => updateApproach(i, "description.en", v)} rows={2} />
               </div>
             </div>
@@ -560,7 +562,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.issuer" /></label>
               <div className={styles.profileGrid}>
-                <Input inlineLabel="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
+                <Input inlineLabel={srcBadge} value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
                 <Input inlineLabel="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
               </div>
             </div>
@@ -568,7 +570,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.grade" /></label>
               <div className={styles.profileGrid}>
-                <Input inlineLabel="KO" value={cert.grade?.ko ?? ""} onChange={(v) => updateCertification(i, "grade.ko", v)} />
+                <Input inlineLabel={srcBadge} value={cert.grade?.ko ?? ""} onChange={(v) => updateCertification(i, "grade.ko", v)} />
                 <Input inlineLabel="EN" value={cert.grade?.en ?? ""} onChange={(v) => updateCertification(i, "grade.en", v)} />
               </div>
             </div>
@@ -614,7 +616,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.organization" /></label>
               <div className={styles.profileGrid}>
-                <Input inlineLabel="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
+                <Input inlineLabel={srcBadge} value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
                 <Input inlineLabel="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
               </div>
             </div>
@@ -622,7 +624,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.awardDescription" /></label>
               <div className={styles.profileGrid}>
-                <Textarea size="md" inlineLabel="KO" rows={2} value={award.description?.ko ?? ""} onChange={(v) => updateAward(i, "description.ko", v)} />
+                <Textarea size="md" inlineLabel={srcBadge} rows={2} value={award.description?.ko ?? ""} onChange={(v) => updateAward(i, "description.ko", v)} />
                 <Textarea size="md" inlineLabel="EN" rows={2} value={award.description?.en ?? ""} onChange={(v) => updateAward(i, "description.en", v)} />
               </div>
             </div>

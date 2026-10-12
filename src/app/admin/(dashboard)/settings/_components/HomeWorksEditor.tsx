@@ -20,23 +20,19 @@ export default function HomeWorksEditor({
   source: HomeWorksSource;
   onSourceChange: (v: HomeWorksSource) => void;
 }) {
-  const { language } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const { t } = useLanguage();
 
   return (
     <FieldRow
-      label={L("채울 내용", "What to show")}
-      hint={L(
-        "자동으로 설정하면 작업물, 표지가 있는 글 순으로 사용할 수 있는 항목을 표시합니다. 하나를 지정하면 해당 항목만 사용하며, 표시할 내용이 없는 경우 이 섹션은 노출되지 않습니다.",
-        "On auto, the first available of works and posts with a cover is displayed. Selecting one uses that source only, and if there is nothing to display, this section is hidden.",
-      )}
+      label={t("admin.inline.homeWorksEditor.whatToShow")}
+      hint={t("admin.inline.homeWorksEditor.sourceHint")}
     >
       <Select
         value={source}
         options={[
-          { value: "auto", label: L("자동", "Auto") },
-          { value: "works", label: L("작업물", "Works") },
-          { value: "posts", label: L("게시물", "Posts") },
+          { value: "auto", label: t("admin.inline.homeWorksEditor.auto") },
+          { value: "works", label: t("admin.inline.homeWorksEditor.works") },
+          { value: "posts", label: t("admin.inline.homeWorksEditor.posts") },
         ]}
         onChange={(v) => onSourceChange(v as HomeWorksSource)}
       />

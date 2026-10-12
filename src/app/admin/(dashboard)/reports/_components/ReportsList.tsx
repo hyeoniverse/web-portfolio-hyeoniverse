@@ -18,6 +18,7 @@ import styles from "../Reports.module.css";
 import type { Report, StatusFilter } from "../_types";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { localizeReportReason } from "@/lib/reportReasons";
 
 function ReportsSkeleton() {
   return (
@@ -62,7 +63,7 @@ export default function ReportsList({
   filter?: StatusFilter;
   onFilterChange?: (v: StatusFilter) => void;
 }) {
-  const { language, t } = useLanguage();
+  const { language, t, tLang } = useLanguage();
   /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
   const { openModal } = useModalStore();
@@ -210,7 +211,7 @@ export default function ReportsList({
               {r.reason && (
                 <p className={styles.reason}>
                   <Flag size={12} strokeWidth={1.8} aria-hidden />
-                  <span>{r.reason}</span>
+                  <span>{localizeReportReason(r.reason, t, tLang)}</span>
                 </p>
               )}
             </div>

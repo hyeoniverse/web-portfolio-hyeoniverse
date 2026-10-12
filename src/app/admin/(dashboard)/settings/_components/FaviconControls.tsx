@@ -170,7 +170,7 @@ export function FaviconShadowControls({
                 const p = FAVICON_SHADOW_PRESETS.find((x) => x.key === key);
                 if (p) applyPreset(p);
               }}
-              options={FAVICON_SHADOW_PRESETS.map((p) => ({ value: p.key, label: p.label }))}
+              options={FAVICON_SHADOW_PRESETS.map((p) => ({ value: p.key, label: t(p.labelKey) }))}
             />
             {/* 번짐(blur) px — 직접 미세 조정 (드래그 거리로도 조절됨) */}
             <FieldRow label={t("admin.settings.faviconShadowSize")} className={styles.faviconShadowRow}>

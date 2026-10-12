@@ -4,6 +4,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { sendAction } from "@/lib/sendAction";
 import type { TrafficData } from "@/types";
 import { List, ListItem } from "../components";
@@ -22,7 +23,6 @@ type Props = Pick<TrafficData, "ipVisitors" | "currentIp" | "excludedIps"> & {
    '내 IP' 로 지정하면 그 IP 의 방문은 기록되지 않고 이미 쌓인 방문도 집계에서 빠진다. */
 export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChanged }: Props) {
   const { t, language } = useLanguage();
-  const ko = language === "ko";
   const [pending, setPending] = useState<string | null>(null);
 
   const toggle = async (target: { key: string } | { current: true }, exclude: boolean, pendingId: string) => {
@@ -35,7 +35,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
         body: JSON.stringify(target),
       },
       t,
-      ko ? "내 IP 설정을 바꾸지 못했습니다." : "Could not update your IP setting.",
+      t("admin.inline.ipVisitors.updateFailed"),
     );
     setPending(null);
     if (res) onChanged();
@@ -48,17 +48,17 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
     <div className={styles.ipAnalysis}>
       {currentIp && (
         <div className={styles.ipCurrent}>
-          <span className={styles.ipCurrentLabel}>{ko ? "지금 접속한 IP" : "Your current IP"}</span>
+          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.currentIp")}</span>
           <span className={styles.ipMasked}>{currentIp.masked}</span>
           {currentIp.excluded ? (
             <>
-              <span className={styles.ipCurrentState}>{ko ? "내 IP · 집계 제외 중" : "Marked as yours · excluded"}</span>
+              <span className={styles.ipCurrentState}>{t("admin.inline.ipVisitors.excludedState")}</span>
               <Button
                 variant="outline"
                 loading={pending === "current"}
                 onClick={() => toggle({ current: true }, false, "current")}
               >
-                {ko ? "해제" : "Unmark"}
+                {t("admin.inline.ipVisitors.unmark")}
               </Button>
             </>
           ) : (
@@ -67,7 +67,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               loading={pending === "current"}
               onClick={() => toggle({ current: true }, true, "current")}
             >
-              {ko ? "내 IP 로 등록" : "Mark as mine"}
+              {t("admin.inline.ipVisitors.markMine")}
             </Button>
           )}
         </div>
@@ -75,7 +75,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
 
       {ipVisitors.length === 0 ? (
         <p className={styles.muted}>
-          {ko ? "기간 내 IP 방문 기록이 없습니다." : "No IP visits in this period."}
+          {t("admin.inline.ipVisitors.empty")}
         </p>
       ) : (
         <List>
@@ -100,7 +100,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
                 />
               </div>
               <span className={styles.referrerMeta}>
-                <span className={styles.referrerPct}>{ko ? `${v.days}일` : `${v.days}d`}</span>
+                <span className={styles.referrerPct}>{fillTemplate(t("admin.inline.ipVisitors.days"), { n: v.days })}</span>
                 <span className={styles.ipDates}>
                   {v.firstDate === v.lastDate
                     ? shortDate(v.lastDate)
@@ -112,7 +112,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
                 loading={pending === v.key}
                 onClick={() => toggle({ key: v.key }, true, v.key)}
               >
-                {ko ? "내 IP" : "Mine"}
+                {t("admin.inline.ipVisitors.mine")}
               </Button>
             </ListItem>
           ))}
@@ -121,7 +121,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
 
       {excludedIps.length > 0 && (
         <div className={styles.ipExcluded}>
-          <span className={styles.ipCurrentLabel}>{ko ? "집계에서 제외된 IP" : "Excluded IPs"}</span>
+          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.excludedIps")}</span>
           {excludedIps.map((e) => (
             <Chip key={e.key} onRemove={() => toggle({ key: e.key }, false, e.key)}>
               <span className={styles.ipMasked}>{e.masked}</span>

@@ -3,6 +3,7 @@ import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import ProfileGithubEditor from "@/app/admin/(dashboard)/settings/_components/ProfileGithubEditor";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 import type { ProfileData } from "@/types/profile";
+import { AdminDict } from "./_adminDict";
 
 /* 프로필 GitHub 설정의 저장소 고르기(#1057). 조직 저장소가 개인 저장소 사이에 파묻히지 않게
    소유 계정별로 나눠 보여주고, 고를 때 적히는 키가 조직은 owner/name 이어야 한다. */
@@ -29,7 +30,7 @@ const emptyProfile = {} as ProfileData;
 describe("ProfileGithubEditor", () => {
   it("조직 저장소도 같은 목록에 오고, 소속은 이름으로 밝힌다", async () => {
     const { findByText, getAllByText, getByText } = render(
-      <ProfileGithubEditor data={emptyProfile} setData={() => {}} styles={styles} />,
+      <AdminDict><ProfileGithubEditor data={emptyProfile} setData={() => {}} styles={styles} /></AdminDict>,
     );
     await findByText("alpha");
     expect(getByText("PurrFectDay.")).toBeTruthy();
@@ -40,7 +41,7 @@ describe("ProfileGithubEditor", () => {
   /* 홈 설정과 같은 목록 컴포넌트를 쓴다(#1061) — 전에는 두 화면의 묶음·검색창 자리가 달랐다 */
   it("계정 칩으로 내 저장소와 조직을 갈라 본다", async () => {
     const { findByText, getByText } = render(
-      <ProfileGithubEditor data={emptyProfile} setData={() => {}} styles={styles} />,
+      <AdminDict><ProfileGithubEditor data={emptyProfile} setData={() => {}} styles={styles} /></AdminDict>,
     );
     await findByText("alpha");
     expect(getByText("전체")).toBeTruthy();
@@ -58,8 +59,7 @@ describe("ProfileGithubEditor", () => {
 
   it("조직 저장소를 고르면 owner/name 으로 적힌다", async () => {
     const setData = vi.fn();
-    const { findByText } = render(
-      <ProfileGithubEditor data={emptyProfile} setData={setData} styles={styles} />,
+    const { findByText } = render(<AdminDict><ProfileGithubEditor data={emptyProfile} setData={setData} styles={styles} /></AdminDict>,
     );
     fireEvent.click(await findByText("PurrFectDay."));
     await waitFor(() => expect(setData).toHaveBeenCalled());

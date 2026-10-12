@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { RotateCcw } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Button from "@/components/ui/Button";
@@ -32,9 +33,7 @@ type PollItem = Omit<PollBlock, "options"> & {
 };
 
 export default function PollManager() {
-  const { language } = useLanguage();
-  const ko = language === "ko";
-  const t = (k: string, e: string) => (ko ? k : e);
+  const { language, t } = useLanguage();
   const openModal = useModalStore((s) => s.openModal);
   const [items, setItems] = useState<PollItem[] | null>(null);
   const [search, setSearch] = useState("");
@@ -50,20 +49,20 @@ export default function PollManager() {
     return () => { cancelled = true; };
   }, []);
 
-  const label = (p: PollItem) => p.title || p.options.map((o) => o.label).join(" / ") || t("제목 없는 투표", "Untitled poll");
+  const label = (p: PollItem) => p.title || p.options.map((o) => o.label).join(" / ") || t("admin.inline.pollManager.untitled");
   const q = search.trim().toLowerCase();
   const filtered = items && q
     ? items.filter((p) => label(p).toLowerCase().includes(q) || p.where.some((w) => w.title.toLowerCase().includes(q)))
     : items;
   const paged = usePagedList(filtered, PAGE_SIZE);
 
-  const fmtDate = (s: string) => new Date(s).toLocaleDateString(ko ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
+  const fmtDate = (s: string) => new Date(s).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
   /* 기간 — 시작 전 / 진행 중 / 끝남. 기간이 없으면 표시하지 않는다 */
   const period = (p: PollItem) => {
     if (!p.startAt && !p.endAt) return null;
     const now = loadedAt;
-    const state = p.startAt && Date.parse(p.startAt) > now ? t("시작 전", "Upcoming")
-      : p.endAt && Date.parse(p.endAt) < now ? t("끝남", "Ended") : t("진행 중", "Open");
+    const state = p.startAt && Date.parse(p.startAt) > now ? t("admin.inline.pollManager.upcoming")
+      : p.endAt && Date.parse(p.endAt) < now ? t("admin.inline.pollManager.ended") : t("admin.inline.pollManager.open");
     const range = [p.startAt ? fmtDate(p.startAt) : "", p.endAt ? fmtDate(p.endAt) : ""].join(" – ");
     return `${state} · ${range}`;
   };
@@ -71,17 +70,16 @@ export default function PollManager() {
   const reset = (p: PollItem) => {
     openModal(
       <ModalConfirm
-        desc={t(`"${label(p)}" 투표의 표 ${p.votes}개를 모두 지울까요? 투표 블록은 글에 그대로 남고, 되돌릴 수 없습니다.`,
-          `Delete all ${p.votes} votes of "${label(p)}"? The poll block stays in the post. This can't be undone.`)}
-        confirmText={t("초기화", "Reset")}
+        desc={fillTemplate(t("admin.inline.pollManager.resetDesc"), { label: label(p), votes: p.votes })}
+        confirmText={t("admin.inline.pollManager.reset")}
         danger
         onConfirm={async () => {
           const res = await tryRequest(`/api/admin/polls/${encodeURIComponent(p.pollId)}`, { method: "DELETE" });
-          if (!(res instanceof Response) || !res.ok) { showToast(t("투표를 초기화하지 못했어요.", "Couldn’t reset the poll."), "error"); return; }
+          if (!(res instanceof Response) || !res.ok) { showToast(t("admin.inline.pollManager.resetFailed"), "error"); return; }
           setItems((prev) => prev?.map((x) => x.pollId === p.pollId ? { ...x, votes: 0, voters: 0, options: x.options.map((o) => ({ ...o, count: 0 })) } : x) ?? prev);
         }}
       />,
-      { id: "poll-reset", header: { title: t("투표 초기화", "Reset poll") }, closeButton: true, width: "min(460px, 92vw)" },
+      { id: "poll-reset", header: { title: t("admin.inline.pollManager.resetTitle") }, closeButton: true, width: "min(460px, 92vw)" },
     );
   };
 
@@ -89,17 +87,16 @@ export default function PollManager() {
     <section className={`${settings.section} ${settings.sectionWide}`}>
       <div className={lib.wrap}>
         <LibraryHead
-          title={t("투표", "Polls")}
+          title={t("admin.inline.pollManager.title")}
           count={items?.length}
-          hint={t("글·프로젝트에 넣은 투표 블록의 결과예요. 초기화하면 표만 지워지고 투표 블록은 그대로 남아요.",
-            "Results of poll blocks in posts and projects. Resetting deletes the votes only; the poll block stays.")}
-          search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("질문·글 제목 검색", "Search question or post") }}
+          hint={t("admin.inline.pollManager.hint")}
+          search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("admin.inline.pollManager.searchPlaceholder") }}
         />
 
         {filtered === null ? (
           <div className={styles.list}>{[0, 1].map((i) => <div key={i} className={styles.item}><SkeletonLine width="50%" height={14} /></div>)}</div>
         ) : filtered.length === 0 ? (
-          <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("글에 넣은 투표가 없습니다", "No polls in posts yet")}</EmptyState>
+          <EmptyState pad="sm">{search ? t("admin.inline.pollManager.noResults") : t("admin.inline.pollManager.noPolls")}</EmptyState>
         ) : (
           <div className={styles.list}>
             {paged.slice!.map((p) => {
@@ -110,13 +107,14 @@ export default function PollManager() {
                   <div className={styles.head}>
                     <h3 className={`${styles.title}${p.title ? "" : ` ${lib.muted}`}`}>{label(p)}</h3>
                     <Button variant="ghost" icon={<RotateCcw size={13} />} disabled={p.votes === 0} onClick={() => reset(p)} soundDisabled>
-                      {t("초기화", "Reset")}
+                      {t("admin.inline.pollManager.reset")}
                     </Button>
                   </div>
                   <p className={styles.meta}>
                     {[
-                      t(`${p.voters}명 참여 · 표 ${p.votes}개`, `${p.voters} voter${p.voters === 1 ? "" : "s"} · ${p.votes} vote${p.votes === 1 ? "" : "s"}`),
-                      p.multiple ? t("복수 선택", "Multiple choice") : "",
+                      fillTemplate(t(p.voters === 1 ? "admin.inline.pollManager.votersOne" : "admin.inline.pollManager.votersMany"), { n: p.voters }),
+                      fillTemplate(t(p.votes === 1 ? "admin.inline.pollManager.votesOne" : "admin.inline.pollManager.votesMany"), { n: p.votes }),
+                      p.multiple ? t("admin.inline.pollManager.multiple") : "",
                       per ?? "",
                     ].filter(Boolean).join(" · ")}
                   </p>
@@ -139,7 +137,7 @@ export default function PollManager() {
                       <span key={`${w.kind}-${w.id}`}>
                         {i > 0 && " · "}
                         <TransitionLink href={w.kind === "post" ? `/admin/posts/${w.id}/edit` : `/admin/works/${w.id}/edit`} className={styles.whereLink}>
-                          {w.kind === "post" ? t("글", "Post") : t("프로젝트", "Project")} · {w.title || w.slug}
+                          {w.kind === "post" ? t("admin.inline.pollManager.post") : t("admin.inline.pollManager.project")} · {w.title || w.slug}
                         </TransitionLink>
                       </span>
                     ))}

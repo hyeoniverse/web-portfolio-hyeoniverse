@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from "@/components/icons";
 import type { Channel } from "@/lib/api/dashboardAggregates";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* ── 유입 채널 — 검색/SNS/커뮤니티/개발/직접/기타 + 채널별 호스트 드릴다운(#1161) ── */
 
@@ -31,22 +32,22 @@ type ChannelStat = {
   hosts: Array<{ host: string; count: number; pct: number }>;
 };
 
-const CHANNEL_META: Record<Channel, { ko: string; en: string; icon: LucideIcon }> = {
-  search: { ko: "검색", en: "Search", icon: Search },
-  social: { ko: "SNS", en: "Social", icon: Users },
-  community: { ko: "커뮤니티·블로그", en: "Communities", icon: MessageSquare },
-  dev: { ko: "개발 플랫폼", en: "Dev platforms", icon: Code2 },
-  direct: { ko: "직접 방문", en: "Direct", icon: Zap },
-  other: { ko: "기타", en: "Other", icon: Globe },
+const CHANNEL_META: Record<Channel, { labelKey: string; icon: LucideIcon }> = {
+  search: { labelKey: "admin.inline.trafficChannels.search", icon: Search },
+  social: { labelKey: "admin.inline.trafficChannels.social", icon: Users },
+  community: { labelKey: "admin.inline.trafficChannels.community", icon: MessageSquare },
+  dev: { labelKey: "admin.inline.trafficChannels.dev", icon: Code2 },
+  direct: { labelKey: "admin.inline.trafficChannels.direct", icon: Zap },
+  other: { labelKey: "admin.inline.trafficChannels.other", icon: Globe },
 };
 
 function TrafficChannels({
   channels,
-  language,
 }: {
   channels: ChannelStat[];
   language: "ko" | "en";
 }) {
+  const { t } = useLanguage();
   const [openChannel, setOpenChannel] = useState<Channel | null>(null);
 
   return (
@@ -60,7 +61,7 @@ function TrafficChannels({
           <>
             <span className={styles.referrerSource}>
               <Icon size={11} strokeWidth={2} />
-              {language === "ko" ? meta.ko : meta.en}
+              {t(meta.labelKey)}
             </span>
             <div className={styles.bar} aria-hidden>
               <div

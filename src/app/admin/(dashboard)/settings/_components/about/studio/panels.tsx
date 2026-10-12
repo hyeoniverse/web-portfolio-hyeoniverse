@@ -13,7 +13,8 @@ import { loadPanelFiles } from "@/lib/about/loadPanelFiles";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import { type ChangeEvent } from "react";
-import { useL } from "./primitives";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 /* 한 패널 = 헤더 + 편집 블록. 둘을 한 <section> 으로 묶는다.
    헤더가 sticky 라서 필요하다 — 형제로 늘어놓으면 지나간 헤더들이 전부 같은 자리에
    붙어 남고, glass 가 서로 겹쳐 blur 가 곱해진다. 묶으면 sticky 가 자기 구역 안에서만
@@ -42,7 +43,7 @@ export interface PanelSaveHeaderProps {
 }
 
 function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, t }: PanelSaveHeaderProps) {
-  const L = useL();
+  const { t: tA, language } = useLanguage();
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
   const atDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
@@ -72,7 +73,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
     const files = await Promise.all(picked.map(async (f) => ({ name: f.name, text: await f.text() })));
     const result = loadPanelFiles(panelKey!, files);
     if (!result || result.count === 0) {
-      showToast(result?.warnings[0] ?? (L("읽지 못했습니다.", "Could not read the files.")), "error");
+      showToast(result?.warnings[0] ?? (tA("admin.inline.panels.filesUnreadable")), "error");
       return;
     }
     for (const [path, value] of Object.entries(result.values)) {
@@ -80,12 +81,12 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
     }
     if (result.warnings.length > 0) {
       showToast(
-        `${result.count}${L("개를 불러왔지만 경고가 있습니다 — ", " loaded with warnings — ")}${result.warnings[0]}`,
+        `${result.count}${tA("admin.inline.panels.loadedWithWarnings")}${result.warnings[0]}`,
         "error",
       );
     } else {
       showToast(
-        L(`${result.count}개를 불러왔습니다. 확인 후 저장하세요.`, `Loaded ${result.count}. Review, then save.`),
+        fillTemplate(tA("admin.inline.panels.loadedCount"), { n: result.count }),
         "success",
       );
     }
@@ -109,16 +110,16 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
           <>
             <Button variant="outline" icon={<Download size={12} strokeWidth={1.8} />}
               onClick={() => fileRef.current?.click()}
-              title={L(".md 파일을 읽어 채웁니다", "Fill from .md files")}>
-              {L("md 불러오기", "Load .md")}
+              title={tA("admin.inline.panels.fillFromMdFiles")}>
+              {tA("admin.inline.panels.loadMd")}
             </Button>
             <input ref={fileRef} type="file" accept=".md" multiple hidden onChange={onPickFiles} />
           </>
         )}
         {mdCapable && syncedAt && (
           <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
-            {L("파일에서 ", "from files ")}
-            {new Date(syncedAt).toLocaleString(L("ko-KR", "en-US"), {
+            {tA("admin.inline.panels.fromFiles")}
+            {new Date(syncedAt).toLocaleString(language === "ko" ? "ko-KR" : "en-US", {
               month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
             })}
           </span>

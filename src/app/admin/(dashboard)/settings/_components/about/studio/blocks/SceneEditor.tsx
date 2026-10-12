@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import { deepEqual } from "@/lib/settingsDelta";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useL } from "../primitives";
+import { fillTemplate } from "@/utils/format";
 
 /* ═══════════ 장 편집 — 장면(카드)마다 실제 모양 그대로 고친다 ═══════════
    장면 값은 코드 기본값(_data/*)과 같은 모양이고, 고친 장면만 about.texts[장][장면] 에 장면째 남는다.
@@ -19,33 +19,7 @@ import { useL } from "../primitives";
 type Lang = "ko" | "en";
 type Obj = Record<string, unknown>;
 
-/* 칸 이름 — 기본값 데이터의 키를 사람이 읽는 말로. 모르는 키는 그대로 */
-const FIELD_NAMES: Record<string, [string, string]> = {
-  eyebrow: ["머리말", "Eyebrow"], title: ["제목", "Title"], label: ["이름", "Label"], body: ["본문", "Body"],
-  note: ["덧붙임", "Note"], lead: ["소개 문장", "Lead"], before: ["앞", "Before"], accent: ["강조", "Accent"],
-  after: ["뒤", "After"], value: ["값", "Value"], unit: ["단위", "Unit"], points: ["요점", "Points"],
-  q: ["질문", "Question"], a: ["답", "Answer"], primary: ["주 단추", "Primary button"], secondary: ["보조 단추", "Secondary button"],
-  desc: ["설명", "Description"], description: ["설명", "Description"], caption: ["캡션", "Caption"], hint: ["안내", "Hint"],
-  name: ["이름", "Name"], wordmark: ["워드마크", "Wordmark"], here: ["도시를 모를 때", "Unknown city"],
-  latest: ["최근 글", "Latest"], posts: ["글", "Posts"], works: ["작업물", "Works"], summary: ["요약", "Summary"],
-  steps: ["단계", "Steps"], items: ["항목", "Items"], reset: ["다시 단추", "Reset button"], order: ["순서", "Order"],
-  why: ["이유", "Why"], tags: ["태그", "Tags"], cta: ["단추", "Button"], role: ["역할", "Role"], shots: ["화면", "Screens"],
-  cards: ["카드", "Cards"], layouts: ["레이아웃", "Layouts"], acts: ["동작", "Actions"], options: ["선택지", "Options"],
-  groups: ["묶음", "Groups"], weather: ["날씨 이름", "Weather names"], features: ["기능", "Features"], providers: ["공급자", "Providers"],
-};
-const SCENE_NAMES: Record<string, [string, string]> = {
-  hero: ["첫 화면 문장", "Opening line"], toc: ["목차", "Contents"], live: ["살아 있는 정보", "Live info"],
-  facts: ["한눈에 보기", "At a glance"], heroCta: ["첫 화면 단추", "Opening buttons"], trust: ["신뢰", "Trust"],
-  faq: ["자주 묻는 질문", "FAQ"], finalCta: ["마지막 단추", "Final call to action"], credits: ["크레딧", "Credits"],
-  adminItems: ["관리자 기능 목록", "Admin features"], stackKey: ["그래프 범례", "Graph legend"],
-  erdGroups: ["테이블 묶음", "Table groups"], erdOtherGroup: ["나머지 묶음 이름", "Other group name"],
-  journeyLayers: ["요청 정거장", "Request stations"], keyNotes: ["설계 메모", "Design notes"],
-  groupJourneys: ["API 묶음별 요청 길", "Request journeys by API group"], decisionExtras: ["설계 결정 덧붙임", "Decision extras"],
-  securityLayers: ["보안 고리", "Security rings"], designSteps: ["디자인 단계", "Design steps"],
-  contrastRows: ["대비 표", "Contrast table"], guardRows: ["검사 표", "Guard table"], codeSources: ["코드 출처", "Code sources"],
-  processLayers: ["만든 과정 층", "Process layers"],
-};
-const CHAPTER_HEAD: [string, string] = ["장 머리", "Chapter heading"];
+/* 칸 · 장면 이름은 사전(admin.inline.sceneEditor.field.* · scene.*)에서 — 없는 키는 데이터의 키 그대로 */
 const PLAIN_KEYS = new Set(["value", "unit", "wordmark"]);
 
 const isObj = (v: unknown): v is Obj => !!v && typeof v === "object" && !Array.isArray(v);
@@ -123,7 +97,8 @@ function uniqueKey(item: unknown, siblings: unknown[]): unknown {
 interface Ctx {
   ui: Lang;
   q: string;
-  L: (ko: string, en: string) => string;
+  /** 화면 글 — admin.inline.sceneEditor.* */
+  T: (k: string, values?: Record<string, string | number>) => string;
   name: (k: string) => string;
 }
 
@@ -134,7 +109,7 @@ function TextInput({ value, base, onChange, label, lang }: {
   return (
     <textarea className={se.input} rows={1} value={value} lang={lang}
       data-edited={base !== undefined && value !== base ? "" : undefined}
-      placeholder={base || (lang === "ko" ? "한국어" : lang === "en" ? "English" : "")}
+      placeholder={base}
       aria-label={lang ? `${label} (${lang.toUpperCase()})` : label}
       onChange={(e) => onChange(e.target.value)} />
   );
@@ -200,7 +175,7 @@ function Node({ value, base, onChange, path, fieldKey, ctx }: {
     const b = isObj(base) ? base : {};
     /* 이름 붙은 묶음(API 묶음별 요청 길 · 설계 결정 덧붙임) — 칸마다 카드로 */
     const entries = Object.entries(value);
-    const isMap = entries.length > 1 && entries.every(([k, c]) => isObj(c) && !isL10n(c) && !isL10nGroup(c) && !FIELD_NAMES[k]);
+    const isMap = entries.length > 1 && entries.every(([k, c]) => isObj(c) && !isL10n(c) && !isL10nGroup(c) && ctx.name(k) === k);
     if (isMap) {
       return (
         <div className={se.list}>
@@ -237,7 +212,7 @@ function Node({ value, base, onChange, path, fieldKey, ctx }: {
 function ListNode({ value, base, onChange, path, fieldKey, ctx }: {
   value: unknown[]; base: unknown[]; onChange: (v: unknown[]) => void; path: string; fieldKey: string; ctx: Ctx;
 }) {
-  const { L } = ctx;
+  const { T } = ctx;
   const rule = listRule(path);
   const canMove = rule !== "locked";
   const canResize = rule === "free";
@@ -262,14 +237,14 @@ function ListNode({ value, base, onChange, path, fieldKey, ctx }: {
     <span className={se.tools}>
       {canMove && (
         <>
-          <Button size="sm" variant="ghost" shape="circle" icon={<ArrowUp size={13} />} disabled={i === 0} onClick={() => move(i, -1)} aria-label={L("위로", "Move up")} title={L("위로", "Move up")} />
-          <Button size="sm" variant="ghost" shape="circle" icon={<ArrowDown size={13} />} disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={L("아래로", "Move down")} title={L("아래로", "Move down")} />
+          <Button size="sm" variant="ghost" shape="circle" icon={<ArrowUp size={13} />} disabled={i === 0} onClick={() => move(i, -1)} aria-label={T("moveUp")} title={T("moveUp")} />
+          <Button size="sm" variant="ghost" shape="circle" icon={<ArrowDown size={13} />} disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={T("moveDown")} title={T("moveDown")} />
         </>
       )}
       {canResize && (
         <>
-          <Button size="sm" variant="ghost" shape="circle" icon={<Copy size={13} />} onClick={() => dup(i)} aria-label={L("복제", "Duplicate")} title={L("복제", "Duplicate")} />
-          <Button size="sm" variant="ghost" shape="circle" icon={<Trash2 size={13} />} disabled={value.length <= 1} onClick={() => remove(i)} aria-label={L("삭제", "Delete")} title={L("삭제", "Delete")} />
+          <Button size="sm" variant="ghost" shape="circle" icon={<Copy size={13} />} onClick={() => dup(i)} aria-label={T("duplicate")} title={T("duplicate")} />
+          <Button size="sm" variant="ghost" shape="circle" icon={<Trash2 size={13} />} disabled={value.length <= 1} onClick={() => remove(i)} aria-label={T("delete")} title={T("delete")} />
         </>
       )}
     </span>
@@ -280,9 +255,9 @@ function ListNode({ value, base, onChange, path, fieldKey, ctx }: {
       <div className={se.listHead}>
         <span className={se.listTitle}>{label}</span>
         <span className={se.listMeta}>
-          {L(`${value.length}개`, `${value.length}`)}
-          {rule === "locked" && ` · ${L("그림과 묶여 개수 · 순서 고정", "count and order fixed")}`}
-          {rule === "fixed" && ` · ${L("순서만 바꿀 수 있음", "reorder only")}`}
+          {T("count", { n: value.length })}
+          {rule === "locked" && ` · ${T("lockedNote")}`}
+          {rule === "fixed" && ` · ${T("fixedNote")}`}
         </span>
       </div>
       {value.map((it, i) => {
@@ -304,7 +279,7 @@ function ListNode({ value, base, onChange, path, fieldKey, ctx }: {
           <div key={i} className={se.item}>
             <div className={se.itemHead}>
               <span className={se.itemNo}>{i + 1}</span>
-              <span className={se.itemTitle}>{t || L("(제목 없음)", "(untitled)")}</span>
+              <span className={se.itemTitle}>{t || T("untitled")}</span>
               {tools(i)}
             </div>
             <Node value={it} base={b} onChange={(v) => set(i, v)} path={`${path}.${i}`} fieldKey="" ctx={ctx} />
@@ -313,7 +288,7 @@ function ListNode({ value, base, onChange, path, fieldKey, ctx }: {
       })}
       {canResize && (
         <Button size="sm" variant="outline" icon={<Plus size={14} />} onClick={add} className={se.add}>
-          {L(`${label} 추가`, `Add ${label.toLowerCase()}`)}
+          {T("add", { label: ctx.ui === "ko" ? label : label.toLowerCase() })}
         </Button>
       )}
     </div>
@@ -331,14 +306,21 @@ export function SceneEditor({ chapter, defaults, value, onChange, query }: {
   onChange: (v: Record<string, unknown>) => void;
   query: string;
 }) {
-  const L = useL();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const ui: Lang = language === "ko" ? "ko" : "en";
   const q = query.trim().toLowerCase();
-  const ctx: Ctx = useMemo(() => ({
-    ui, q, L,
-    name: (k: string) => (k ? (FIELD_NAMES[k] ?? SCENE_NAMES[k])?.[ui === "ko" ? 0 : 1] ?? k : L("글", "Text")),
-  }), [ui, q, L]);
+  const ctx: Ctx = useMemo(() => {
+    const T = (k: string, values?: Record<string, string | number>) => {
+      const s = t(`admin.inline.sceneEditor.${k}`);
+      return values ? fillTemplate(s, values) : s;
+    };
+    /* 사전에 없으면 t 가 키를 그대로 돌려준다 — 그때는 데이터의 키 */
+    const known = (k: string) => {
+      const s = t(`admin.inline.sceneEditor.${k}`);
+      return s === `admin.inline.sceneEditor.${k}` ? null : s;
+    };
+    return { ui, q, T, name: (k: string) => (k ? known(`field.${k}`) ?? known(`scene.${k}`) ?? k : T("text")) };
+  }, [ui, q, t]);
   const scenes = Object.keys(defaults).filter((k) => hasText(defaults[k], k));
   const [open, setOpen] = useState<Set<string>>(() => new Set(scenes.slice(0, 1)));
   const toggle = (k: string) => setOpen((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; });
@@ -351,7 +333,7 @@ export function SceneEditor({ chapter, defaults, value, onChange, query }: {
   };
 
   const shown = scenes.filter((k) => !q || textMatches(value[k] ?? defaults[k], q));
-  if (!shown.length) return <p className={se.empty}>{L("찾는 글이 없습니다.", "No matching text.")}</p>;
+  if (!shown.length) return <p className={se.empty}>{ctx.T("noMatch")}</p>;
 
   return (
     <div className={se.scenes}>
@@ -359,7 +341,8 @@ export function SceneEditor({ chapter, defaults, value, onChange, query }: {
         const cur = value[k] ?? defaults[k];
         const edited = k in value;
         const isOpen = !!q || open.has(k);
-        const title = (k.endsWith("Chapter") ? CHAPTER_HEAD[ui === "ko" ? 0 : 1] : SCENE_NAMES[k]?.[ui === "ko" ? 0 : 1]) ?? titleOf(defaults[k], ui) ?? k;
+        const named = ctx.name(k);
+        const title = k.endsWith("Chapter") ? ctx.T("chapterHead") : named !== k ? named : titleOf(defaults[k], ui) ?? k;
         return (
           <section key={k} className={se.scene} data-open={isOpen || undefined}>
             <div className={se.sceneHead}>
@@ -367,13 +350,13 @@ export function SceneEditor({ chapter, defaults, value, onChange, query }: {
                 <ChevronDown size={16} className={se.chevron} />
                 <span className={se.sceneTitle}>{title}</span>
                 <span className={se.sceneMeta}>
-                  {L(`${countText(cur, k)}칸`, `${countText(cur, k)} fields`)}
-                  {edited && <span className={se.editedBadge}>{L("고침", "Edited")}</span>}
+                  {ctx.T("fields", { n: countText(cur, k) })}
+                  {edited && <span className={se.editedBadge}>{ctx.T("edited")}</span>}
                 </span>
               </Pressable>
               {edited && (
                 <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={() => setScene(k, defaults[k])}>
-                  {L("기본값으로", "Reset")}
+                  {ctx.T("reset")}
                 </Button>
               )}
             </div>
@@ -381,8 +364,8 @@ export function SceneEditor({ chapter, defaults, value, onChange, query }: {
               <div className={se.sceneBody}>
                 <div className={se.colHead} aria-hidden>
                   <span />
-                  <span>한국어</span>
-                  <span>English</span>
+                  <span>{ctx.T("colKo")}</span>
+                  <span>{ctx.T("colEn")}</span>
                 </div>
                 <Node value={cur} base={defaults[k]} onChange={(v) => setScene(k, v)} path={`${chapter}.${k}`} fieldKey={k} ctx={ctx} />
               </div>

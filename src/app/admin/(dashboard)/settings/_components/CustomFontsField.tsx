@@ -12,6 +12,10 @@ import styles from "./AppearanceTab.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
 
+/* 글꼴 미리보기 표본 글자 — 화면 글이 아니라 한글 글리프를 보이려는 것(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { GLYPHS: "Ag 가나다 123" } as const;
+
 /** 파일명 → 표시/패밀리 이름 (scan-fonts.mjs 와 동일 규칙) */
 function prettyName(file: string): string {
   return file
@@ -86,7 +90,7 @@ export default function CustomFontsField({ fonts, onChange }: Props) {
             <li key={`local-${f.name}`} className={styles.customFontRow}>
               <span className={styles.customFontName}>{f.name}</span>
               <span className={styles.customFontPreview} style={{ fontFamily: `"${f.name}"` }}>
-                Ag 가나다 123
+                {KO_CONTENT.GLYPHS}
               </span>
               <span className={styles.customFontBadge}>public/fonts</span>
             </li>
@@ -95,7 +99,7 @@ export default function CustomFontsField({ fonts, onChange }: Props) {
             <li key={`up-${f.name}`} className={styles.customFontRow}>
               <span className={styles.customFontName}>{f.name}</span>
               <span className={styles.customFontPreview} style={{ fontFamily: `"${f.name}"` }}>
-                Ag 가나다 123
+                {KO_CONTENT.GLYPHS}
               </span>
               <Pressable
                 className={styles.customFontRemove}
