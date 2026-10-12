@@ -1,14 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { type CSSProperties, type ReactNode } from "react";
-import css from "../AboutStudio.module.css";
-import frame from "@/app/about/_panels/AboutPanel.module.css";
-import shell from "@/app/about/_panels/AboutSection.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
-export const sec = { ...frame, ...shell };
 
-/* ═══════════ 인라인 편집 텍스트 ═══════════ */
 /**
  * 편집 화면의 글(버튼·안내·placeholder·오류)을 관리자 화면 언어로 고른다. `L("한글", "English")`.
  *
@@ -24,56 +18,3 @@ export function useL() {
   /* 효과·메모의 deps 에 넣을 수 있게 언어가 바뀔 때만 새로 만든다 */
   return React.useCallback((ko: string, en: string) => (language === "ko" ? ko : en), [language]);
 }
-
-export function EditableText({ value, onChange, placeholder, multiline, wrap, className, style, ariaLabel, onFocus, autoFocus }: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  multiline?: boolean;
-  /** 값은 한 줄(줄바꿈 없음)이지만 칸 폭을 넘으면 접어서 보여 준다. input 은 접지 못해 긴 제목·경로가
-      칸 끝에서 잘렸다(Key Features 제목, Backend 경로). Enter·붙여넣기의 줄바꿈은 공백으로 바꾼다. */
-  wrap?: boolean;
-  className?: string;
-  style?: CSSProperties;
-  ariaLabel?: string;
-  onFocus?: (e: React.FocusEvent<HTMLElement>) => void;
-  autoFocus?: boolean;
-}) {
-  const cls = `${css.edit} ${wrap ? css.editWrap : ""} ${className ?? ""}`;
-  if (multiline || wrap) {
-    return (
-      <textarea className={cls} style={style} value={value} placeholder={placeholder} aria-label={ariaLabel}
-        rows={1} autoFocus={autoFocus} onFocus={onFocus}
-        onChange={(e) => onChange(wrap ? e.target.value.replace(/\r?\n/g, " ") : e.target.value)}
-        /* 조합 중 Enter 는 글자를 확정하는 키라 막지 않는다 */
-        onKeyDown={wrap ? (e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) e.preventDefault(); } : undefined} />
-    );
-  }
-  return (
-    <input className={cls} style={style} value={value} placeholder={placeholder} aria-label={ariaLabel}
-      autoFocus={autoFocus} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} />
-  );
-}
-
-/* 패널 편집 스테이지 — 편집 열 폭에 맞춰 그린다.
-   글자를 줄이지도, 잘라내지도 않는다. 두 방법 모두 한 번씩 써 보고 물렀다.
-   - 실제 뷰포트 폭(1440px)으로 그리고 넘치는 만큼 가로 스크롤: 열이 990px 이라 450px 이
-     늘 화면 밖이었다. 글이 많은 패널(Backend·Design Decisions)은 한 줄을 읽으려고
-     좌우로 밀어야 했고, 편집 중에 커서가 보이지 않는 자리로 넘어갔다.
-   - transform 으로 축소: 0.72 배가 걸려 16px 본문이 11.5px 이 됐다.
-   패널 CSS 는 원래 반응형이라 폭만 넘겨주면 그 폭에 맞춰 다시 흐른다. 편집기에서 보는
-   줄바꿈은 실제 페이지와 다르지만, 고치는 동안 글이 다 보이는 쪽이 맞다.
-   --tool-scale 은 패널 안 편집 버튼의 counter-scale 용이라 1 로 고정된다. */
-export function PanelStage({ children }: { children: ReactNode }) {
-  const panelStyle: CSSProperties = { width: "100%", height: "auto", minHeight: 860, padding: "clamp(24px, 2.4vw, 48px)" };
-  (panelStyle as Record<string, string | number>)["--tool-scale"] = 1;
-
-  return (
-    <div className={css.panelStage}>
-      <div className={`${sec.section} ${sec.panel}`} style={panelStyle}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
