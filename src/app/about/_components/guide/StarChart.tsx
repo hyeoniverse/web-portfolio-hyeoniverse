@@ -5,7 +5,8 @@
    오리온 · 북두칠성 같은 별자리가 책에서 보던 모양으로 보인다.
    지평선 위에 뜬 것만 그린다. 이름은 큰 별자리(rank 1 · 2)와 밝은 별만 적어 어지럽지 않게 한다.
    달은 그 시각의 위치 · 위상대로, 밝은 쪽이 해를 향하게 그린다(lib/weather/moon).
-   하루 내내 깔려 있고 하늘이 밝을수록 흐릿하게, 어두울수록 또렷하게 보인다(TimeSky.module.css --night) */
+   하루 내내 깔려 있고 하늘이 밝을수록 흐릿하게, 어두울수록 또렷하게 보인다(TimeSky.module.css --night).
+   달은 낮에도 보이니 그 규칙에서 빼서 따로 한 장 더 겹친다 */
 import { memo, useMemo } from "react";
 import { altAz, localSiderealHours } from "@/lib/weather/stars";
 import { moonLitPath, moonState } from "@/lib/weather/moon";
@@ -101,31 +102,35 @@ function StarChart({ date, lat, lon, language }: { date: Date; lat: number; lon:
   }, [date, lat, lon, language]);
 
   return (
-    <svg className={styles.chart} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
-      {sky.constellations.map((c) => (c.d ? <path key={c.key} className={styles.chartLine} d={c.d} /> : null))}
-      {sky.stars.map((s, i) => (
-        <circle key={i} className={styles.chartStar} cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} />
-      ))}
-      {sky.names.map((s) => (
-        <text key={s.name} className={styles.chartStarName} x={(s.x + 8).toFixed(1)} y={(s.y + 4).toFixed(1)}>
-          {s.name}
-        </text>
-      ))}
-      {sky.constellations.map((c) =>
-        c.label ? (
-          <text key={`l-${c.key}`} className={styles.chartName} x={c.label.x.toFixed(1)} y={c.label.y.toFixed(1)} textAnchor="middle">
-            {c.name}
+    <>
+      <svg className={styles.chart} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {sky.constellations.map((c) => (c.d ? <path key={c.key} className={styles.chartLine} d={c.d} /> : null))}
+        {sky.stars.map((s, i) => (
+          <circle key={i} className={styles.chartStar} cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} />
+        ))}
+        {sky.names.map((s) => (
+          <text key={s.name} className={styles.chartStarName} x={(s.x + 8).toFixed(1)} y={(s.y + 4).toFixed(1)}>
+            {s.name}
           </text>
-        ) : null,
-      )}
+        ))}
+        {sky.constellations.map((c) =>
+          c.label ? (
+            <text key={`l-${c.key}`} className={styles.chartName} x={c.label.x.toFixed(1)} y={c.label.y.toFixed(1)} textAnchor="middle">
+              {c.name}
+            </text>
+          ) : null,
+        )}
+      </svg>
       {sky.moon && (
-        <g className={styles.moon} transform={`translate(${sky.moon.x.toFixed(1)} ${sky.moon.y.toFixed(1)}) rotate(${sky.moon.angle.toFixed(1)})`}>
-          {/* 어두운 쪽 — 지구빛에 희미하게 비치는 원 */}
-          <circle className={styles.moonDark} r={MOON_R} />
-          {sky.moon.illum > 0.01 && <path className={styles.moonLit} d={moonLitPath(sky.moon.illum, MOON_R)} />}
-        </g>
+        <svg className={styles.moonLayer} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
+          <g className={styles.moon} transform={`translate(${sky.moon.x.toFixed(1)} ${sky.moon.y.toFixed(1)}) rotate(${sky.moon.angle.toFixed(1)})`}>
+            {/* 어두운 쪽 — 지구빛에 희미하게 비치는 원 */}
+            <circle className={styles.moonDark} r={MOON_R} />
+            {sky.moon.illum > 0.01 && <path className={styles.moonLit} d={moonLitPath(sky.moon.illum, MOON_R)} />}
+          </g>
+        </svg>
       )}
-    </svg>
+    </>
   );
 }
 
