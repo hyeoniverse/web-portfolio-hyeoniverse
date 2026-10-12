@@ -193,6 +193,10 @@ export const siteConfig = {
     // 콘텐츠 작성 기본 언어 — admin 폼에서 어느 언어를 필수 항목 기준으로 둘지 결정.
     // (방문자에게 보이는 언어와 무관 — 그건 LanguageProvider 가 브라우저/토글로 처리)
     defaultLanguage: "ko" as "ko" | "en",
+    // 사이트 기본 언어(#1406) — 따로 언어를 고르지 않은 방문자에게 처음 보이는 언어. ko · en 이거나
+    // lib/translationLanguages 의 코드(ja 등). ko · en 밖이면 영어 화면 글을 기계 번역해 보이고,
+    // 글 · 작업물의 한국어 칸(ko)을 그 언어의 "원문" 칸으로 쓴다
+    siteLanguage: "ko" as string,
   },
 
   // ---------------------------------------------------------------------------

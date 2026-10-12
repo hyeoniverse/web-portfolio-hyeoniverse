@@ -352,6 +352,8 @@
       "siteTitleHint": "Used in browser tab & SEO",
       "defaultLanguage": "Default Language",
       "defaultLanguageHint": "Which language is required when authoring content · unrelated to what visitors see",
+      "siteLanguage": "Site Language",
+      "siteLanguageHint": "What visitors see first if they haven't picked a language · other than Korean/English, UI text is machine-translated and the Korean field holds the original text in that language",
       "description": "Description",
       "descriptionHint": "Shown in search engine results",
       "keywords": "Keywords",

@@ -13,7 +13,8 @@ import {
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
 import type { Language } from "@/types";
-import { getServerSiteLangSnapshot, getSiteLangSnapshot, subscribeSiteLang } from "@/lib/siteLang";
+import { getServerSiteLangSnapshot, getSiteLangSnapshot, setSiteDefaultLang, subscribeSiteLang } from "@/lib/siteLang";
+import { baseLanguageOf, isForeignSiteLanguage } from "@/lib/siteLanguage";
 
 export type { Language };
 
@@ -47,6 +48,8 @@ interface LanguageControls {
 interface LanguageContextType extends LanguageControls {
   subscribe: (onChange: () => void) => () => void;
   getLanguage: () => Language;
+  /** 서버 · 하이드레이션 때 그리는 언어 — 사이트 기본 언어가 ko 면 ko, 아니면 en(#1406) */
+  getServerLanguage: () => Language;
   /** 정적 사전 + 지연 로드분 */
   dict: Record<Language, Translations>;
   /** 사이트 "다른 언어"(lib/siteLang)의 화면 글 번역을 t() 에 얹을지 — 관리 화면(AdminDictProvider)은 false */
@@ -68,8 +71,8 @@ function getNestedValue(obj: Translations, path: string): string {
   return typeof value === "string" ? value : path;
 }
 
-function applyLangToDom(lang: Language) {
-  localStorage.setItem("language", lang);
+function applyLangToDom(lang: Language, persist = true) {
+  if (persist) localStorage.setItem("language", lang);
   document.documentElement.setAttribute("lang", lang);
 }
 
@@ -81,6 +84,7 @@ const defaultContextValue: LanguageContextType = {
   addTranslations: () => {},
   subscribe: () => () => {},
   getLanguage: () => "ko",
+  getServerLanguage: () => "ko",
   dict: translations,
 };
 
@@ -91,9 +95,23 @@ export type { LanguageContextType };
 
 /* ── Provider ── */
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // 언어 저장소 — 서버와 첫 렌더(hydration)는 늘 "ko" 로 그려 서버 HTML 과 맞춘다
-  const languageRef = useRef<Language>("ko");
+export function LanguageProvider({
+  children,
+  siteLanguage = "ko",
+}: {
+  children: React.ReactNode;
+  /** 사이트 기본 언어(site.config metadata.siteLanguage) — ko · en 또는 번역 언어 코드 */
+  siteLanguage?: string;
+}) {
+  /* 사이트 기본 언어 — ko · en 밖(ja 등)이면 화면은 영어 사전 위에 그 언어의 기계 번역을 건다(lib/siteLang).
+     첫 렌더에 알려 둬야 저장소가 처음 언어를 정할 때 쓴다. 설정이 바뀌면(관리자 저장) 아래 effect 가 다시 알린다 */
+  const baseLanguage = baseLanguageOf(siteLanguage);
+  useState(() => setSiteDefaultLang(siteLanguage));
+  useEffect(() => { setSiteDefaultLang(siteLanguage); }, [siteLanguage]);
+
+  // 언어 저장소 — 서버와 첫 렌더(hydration)는 기본 언어(ko/en)로 그려 서버 HTML 과 맞춘다
+  const languageRef = useRef<Language>(baseLanguage);
+  const getServerLanguage = useCallback(() => baseLanguage, [baseLanguage]);
   const listenersRef = useRef(new Set<() => void>());
   const subscribe = useCallback((onChange: () => void) => {
     const listeners = listenersRef.current;
@@ -101,12 +119,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return () => { listeners.delete(onChange); };
   }, []);
   const getLanguage = useCallback(() => languageRef.current, []);
-  const setLanguage = useCallback((next: Language) => {
-    applyLangToDom(next);
+  const applyLanguage = useCallback((next: Language, persist: boolean) => {
+    applyLangToDom(next, persist);
     if (languageRef.current === next) return;
     languageRef.current = next;
     listenersRef.current.forEach((notify) => notify());
   }, []);
+  const setLanguage = useCallback((next: Language) => applyLanguage(next, true), [applyLanguage]);
   const toggleLanguage = useCallback(() => {
     setLanguage(languageRef.current === "ko" ? "en" : "ko");
   }, [setLanguage]);
@@ -131,22 +150,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [extra],
   );
 
-  // 마운트 시 localStorage/브라우저 언어 감지. 구독한 소비자만 다시 그리고 context 값은 그대로다
+  /* 마운트 시 저장값 › 브라우저 언어(ko · en) › 사이트 기본 언어. 구독한 소비자만 다시 그리고 context 값은 그대로다.
+     저장값이 없으면 고른 것으로 남기지 않는다 — 기본 언어를 바꾸면 고른 적 없는 방문자에게 새 기본값이 걸리게.
+     기본 언어가 ko · en 밖이면 브라우저 언어를 보지 않는다 — 번역 화면의 바탕이 영어여야 한다(lib/siteLang) */
+  const foreignDefault = isForeignSiteLanguage(siteLanguage);
   useEffect(() => {
     const stored = localStorage.getItem("language") as Language | null;
-    const target: Language =
-      stored === "ko" || stored === "en"
-        ? stored
-        : navigator.language?.startsWith("en")
-          ? "en"
-          : "ko";
-    setLanguage(target);
-  }, [setLanguage]);
+    if (stored === "ko" || stored === "en") {
+      applyLanguage(stored, true);
+      return;
+    }
+    const browser = navigator.language?.toLowerCase() ?? "";
+    const target: Language = foreignDefault
+      ? "en"
+      : browser.startsWith("en")
+        ? "en"
+        : browser.startsWith("ko")
+          ? "ko"
+          : baseLanguage;
+    applyLanguage(target, false);
+  }, [applyLanguage, baseLanguage, foreignDefault]);
 
   // 사전이 늘 때(admin 번역 지연 로드)만 바뀐다
   const value = useMemo(
-    () => ({ toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, dict }),
-    [toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, dict]
+    () => ({ toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, dict }),
+    [toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, dict]
   );
 
   return (
@@ -155,8 +183,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     </LanguageContext.Provider>
   );
 }
-
-const getServerLanguage = (): Language => "ko";
 
 export function useLanguage(): LanguageControls & {
   language: Language;
@@ -170,7 +196,7 @@ export function useLanguage(): LanguageControls & {
   /** 날짜 · 숫자를 쓸 언어 — 다른 언어가 걸려 있으면 그 언어(ja 등), 아니면 ko-KR · en-US */
   dateLocale: string;
 } {
-  const { subscribe, getLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
+  const { subscribe, getLanguage, getServerLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
   const savedLanguage = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
   /* 다른 언어(ko · en 밖)가 걸려 있으면 화면의 기본 언어는 영어 — 번역되지 않은 글(language === "ko" ? … 분기,
      <T ko en>, 상세의 viewLang)이 한국어로 섞여 나오지 않게. 저장된 ko/en 선택은 건드리지 않아 번역을 끄면 돌아온다.

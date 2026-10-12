@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { Eraser } from "@/components/icons";
 import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
@@ -41,6 +42,7 @@ export default function BilingualInputPair({
   size = "md",
   layout = "auto",
 }: BilingualInputPairProps) {
+  const srcBadge = useSourceBadge();
   const { t } = useLanguage();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!onEnter) return;
@@ -53,7 +55,7 @@ export default function BilingualInputPair({
   return (
     <div className={`${styles.pair} ${width === "fit" ? styles.pairFit : ""} ${layout === "row" ? styles.pairRow : ""}`}>
       <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
-        <span className={styles.badge}>KO</span>
+        <span className={styles.badge}>{srcBadge}</span>
         <input
           type={type}
           className={styles.input}
@@ -73,7 +75,7 @@ export default function BilingualInputPair({
               e.stopPropagation();
               onChange({ ...value, ko: "" });
             }}
-            aria-label={`${t("common.clear")} KO`}
+            aria-label={`${t("common.clear")} ${srcBadge}`}
             title={t("common.clear")}
           >
             <Eraser size={11} strokeWidth={2} />

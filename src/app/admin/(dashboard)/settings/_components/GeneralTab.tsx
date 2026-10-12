@@ -6,6 +6,7 @@ import Field, { UploadField, TagField } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
 import Select from "@/components/ui/Select";
 import FieldRow from "@/components/ui/FieldRow";
+import { SITE_LANGUAGE_OPTIONS, normalizeSiteLanguage } from "@/lib/siteLanguage";
 import styles from "../Settings.module.css";
 
 export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, validationError }: SettingsTabProps) {
@@ -50,6 +51,18 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                 { value: "ko", label: "한국어" },
                 { value: "en", label: "English" },
               ]}
+            />
+          </FieldRow>
+          {/* 사이트 기본 언어(#1406) — 언어를 고르지 않은 방문자에게 처음 보이는 언어. */}
+          <FieldRow
+            label={t("admin.settings.siteLanguage")}
+            hint={t("admin.settings.siteLanguageHint")}
+          >
+            <Select
+              value={normalizeSiteLanguage(config.metadata.siteLanguage)}
+              onChange={(v) => update("metadata", "siteLanguage", v)}
+              width="min"
+              options={[...SITE_LANGUAGE_OPTIONS]}
             />
           </FieldRow>
         </div>

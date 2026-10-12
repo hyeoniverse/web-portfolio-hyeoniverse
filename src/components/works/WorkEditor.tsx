@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { LocalizedText } from "@/types/common";
@@ -103,6 +104,7 @@ const isFileDrag = (e: React.DragEvent) => e.dataTransfer.types.includes("Files"
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
+  const srcBadge = useSourceBadge();
   const { t, tLang, language } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
@@ -1341,7 +1343,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 {isCustom && (
                   <>
                     <div className={styles.customCategoryInputWrap}>
-                      <span className={styles.customCategoryBadge}>KO</span>
+                      <span className={styles.customCategoryBadge}>{srcBadge}</span>
                       <input
                         className={`${es.fieldInput} ${styles.customCategoryInput}`}
                         type="text"
@@ -1417,7 +1419,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    hasSavedId, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
+    hasSavedId, srcBadge, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
