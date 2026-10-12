@@ -2,10 +2,10 @@ import type { Language } from "@/types";
 import { TRANSLATION_LANGUAGES, normalizeTranslationLang } from "@/lib/translationLanguages";
 
 /**
- * 사이트 기본 언어(#1406, site.config metadata.siteLanguage) 도우미 — 서버 · 브라우저 모두 쓴다.
+ * 사이트 기본 언어(#1406, site.config metadata.defaultLanguage) 도우미 — 서버 · 브라우저 모두 쓴다.
  *
- * ko · en 은 사전(ko.json · en.json)이 따로 있어 그대로 그린다. 그 밖(ja 등)은 사전이 없어
- * 서버는 영어로 그리고 브라우저에서 기계 번역을 건다(lib/siteLang).
+ * ko · en 은 사전(ko.json · en.json)이 따로 있어 그대로 그린다. 그 밖(ja 등)은 ko 자리를 대신한다 —
+ * 글의 ko 칸이 그 언어의 원문이고, 화면 글은 사전이 없어 서버는 영어로 그리고 브라우저에서 기계 번역을 건다(lib/siteLang).
  */
 
 /** 고를 수 있는 값으로 고친다 — 모르는 값이면 ko */
@@ -25,7 +25,12 @@ export function isForeignSiteLanguage(code: unknown): boolean {
   return n !== "ko" && n !== "en";
 }
 
-/** 관리자 편집 화면의 원문 칸(ko) 배지 — 기본 언어가 ko · en 밖이면 그 언어 코드(JA 등), 아니면 KO */
+/** 글을 쓰는 칸 — en 이면 en, 그 밖(ko · ja 등)은 원문 칸 ko */
+export function authoringLangOf(code: unknown): Language {
+  return normalizeSiteLanguage(code) === "en" ? "en" : "ko";
+}
+
+/** ko 자리 배지(토글 · 편집 칸) — 기본 언어가 ko · en 밖이면 그 언어 코드(JA 등), 아니면 KO */
 export function sourceBadgeOf(code: unknown): string {
   return isForeignSiteLanguage(code) ? normalizeSiteLanguage(code).toUpperCase() : "KO";
 }

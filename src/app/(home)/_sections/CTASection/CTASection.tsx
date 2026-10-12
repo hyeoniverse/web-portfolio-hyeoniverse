@@ -24,7 +24,7 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ magnetic, resumeMagnetic, onContactClick }, ref) => {
-    const { t, language, foreignLang, tx } = useLanguage();
+    const { t, language, foreignLang, tx, koLabel } = useLanguage();
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
 
@@ -32,7 +32,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     const combinedTooltip = (label: string, ko: string, en: string) => {
       const text = language === "ko" ? ko : tx(en);
       const alt = language === "ko" ? en : ko;
-      const langLabel = language === "ko" ? "EN" : "KO";
+      const langLabel = language === "ko" ? "EN" : koLabel;
       /* 다른 언어로 볼 때는 한국어 · 영어 말풍선을 덧붙이지 않는다 */
       const hasTranslation = !foreignLang && alt !== text;
       return hasTranslation

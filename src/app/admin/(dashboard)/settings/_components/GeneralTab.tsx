@@ -38,29 +38,14 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           <Field label={t("admin.settings.description")} hint={t("admin.settings.descriptionHint")} value={config.metadata.description} onChange={(v) => update("metadata", "description", v)} multiline maxHint={160} />
           <TagField label={t("admin.settings.keywords")} hint={t("admin.settings.keywordsHint")} value={config.metadata.keywords} onChange={(v) => update("metadata", "keywords", v)} placeholder={t("admin.settings.tagPlaceholder")} size="md" />
           <Field label={t("admin.settings.author")} value={config.metadata.author} onChange={(v) => update("metadata", "author", v)} maxHint={80} />
-          {/* Default Language — width:min Select (짧은 값이라 예외적으로 fit) */}
+          {/* 사이트 기본 언어 = 콘텐츠 작성 언어(#1406) */}
           <FieldRow
             label={t("admin.settings.defaultLanguage")}
             hint={t("admin.settings.defaultLanguageHint")}
           >
             <Select
-              value={config.metadata.defaultLanguage}
-              onChange={(v) => update("metadata", "defaultLanguage", v as "ko" | "en")}
-              width="min"
-              options={[
-                { value: "ko", label: "한국어" },
-                { value: "en", label: "English" },
-              ]}
-            />
-          </FieldRow>
-          {/* 사이트 기본 언어(#1406) — 언어를 고르지 않은 방문자에게 처음 보이는 언어. */}
-          <FieldRow
-            label={t("admin.settings.siteLanguage")}
-            hint={t("admin.settings.siteLanguageHint")}
-          >
-            <Select
-              value={normalizeSiteLanguage(config.metadata.siteLanguage)}
-              onChange={(v) => update("metadata", "siteLanguage", v)}
+              value={normalizeSiteLanguage(config.metadata.defaultLanguage)}
+              onChange={(v) => update("metadata", "defaultLanguage", v)}
               width="min"
               options={[...SITE_LANGUAGE_OPTIONS]}
             />
