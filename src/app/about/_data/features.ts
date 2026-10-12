@@ -43,8 +43,8 @@ export const publicScene = {
     {
       title: { ko: "스크롤에 반응하는 홈", en: "A home that answers the scroll" },
       body: {
-        ko: "끝까지 내리면 처음으로 이어지는 무한 스크롤 루프, 마우스 패럴랙스, Three.js 토러스 · 커피잔.",
-        en: "An infinite scroll loop, mouse parallax, and a Three.js torus and coffee cup.",
+        ko: "끝까지 내리면 처음으로 이어지는 무한 스크롤 루프, 마우스 패럴랙스, Three.js 토러스 · 커피잔. MacFolio 의 휴대폰 화면 안에 띄우면 상태 표시줄 뒤 색을 페이지 맨 위 색에 맞춥니다.",
+        en: "An infinite scroll loop, mouse parallax, and a Three.js torus and coffee cup. Shown inside MacFolio's phone screen, it matches the color behind the status bar to the top of the page.",
       },
       shot: { src: `${PC}/home-light.png`, srcDark: `${PC}/home-dark.png` },
     },
@@ -189,8 +189,9 @@ export const adminItems: FeatureItem[] = [
     ],
     shots: [
       { label: { ko: "대시보드", en: "Dashboard" }, src: `${CMS}/17-dashboard-light.png` },
-      { label: { ko: "일별 조회", en: "Daily views" }, src: `${CMS}/18-dashboard-daily-views-light.png` },
+      { label: { ko: "일별 방문자", en: "Daily visitors" }, src: `${CMS}/18-dashboard-daily-views-light.png` },
       { label: { ko: "트래픽", en: "Traffic" }, src: `${CMS}/19-traffic-light.png` },
+      { label: { ko: "방문 흐름", en: "Visit flow" }, src: `${CMS}/29-traffic-flow-light.png` },
       { label: { ko: "IP · UTM", en: "IP · UTM" }, src: `${CMS}/20-traffic-ip-utm-light.png` },
     ],
   },
@@ -246,8 +247,8 @@ export const adminItems: FeatureItem[] = [
   {
     title: { ko: "설정 · 계정 · 보안", en: "Settings, accounts and security" },
     body: {
-      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 로고는 올린 이미지와 기본 로고 중에 고르고, 짧은 로고 · 긴 로고 · 로딩 화면 · 파비콘을 따로 정하며, 밑 배경 밝기에 맞춰 색이 바뀝니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 처음 보는 기기는 이메일 승인을 거칩니다.",
-      en: "Six settings tabs, with required values guarded at UI, API and DB. The logo can be an uploaded image or the default one, with separate short and long logos, loading-screen logo and favicon, and it adapts to the brightness behind it. Members sign in with GitHub; five failures lock for 15 minutes, and new devices need email approval.",
+      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 라이브러리 탭은 달력(쓰인 글 · 프로젝트 표시) · 투표 · 커스텀 이모지(두 이모지를 섞는 이모지 조합 포함) · 커버 기록 · 올린 파일을 한 페이지에 모읍니다. 로고는 올린 이미지와 기본 로고 중에 고르고, 짧은 로고 · 긴 로고 · 로딩 화면 · 파비콘을 따로 정하며, 밑 배경 밝기에 맞춰 색이 바뀝니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 처음 보는 기기는 이메일 승인을 거칩니다.",
+      en: "Six settings tabs, with required values guarded at UI, API and DB. The library tab gathers calendars (with the posts and projects that use them), polls, custom emojis (including Emoji Kitchen mixes), cover history and uploaded files. The logo can be an uploaded image or the default one, with separate short and long logos, loading-screen logo and favicon, and it adapts to the brightness behind it. Members sign in with GitHub; five failures lock for 15 minutes, and new devices need email approval.",
     },
     points: [
       { ko: "세 겹 검증", en: "Three-layer validation" },

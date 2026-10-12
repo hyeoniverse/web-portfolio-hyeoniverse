@@ -736,16 +736,16 @@ const SCENES: Scene[] = [
   {
     n: 18,
     name: "dashboard-daily-views",
-    // 18. 대시보드 — 일별 조회수 곡선 + 달력 히트맵, 가장 많이 본 날을 눌러 분석 패널까지
+    // 18. 대시보드 — 일별 방문자 곡선 + 달력 히트맵, 방문자가 가장 많은 날을 눌러 분석 패널까지
     run: async (browser) => {
       const ctx = await newContext(browser);
       const page = await ctx.newPage();
       await open(page, "/admin", 2500);
-      const heading = page.getByRole("heading", { name: "일별 조회수" }).first();
+      const heading = page.getByRole("heading", { name: "일별 방문자" }).first();
       await heading.waitFor({ timeout: 30_000 });
       await scrollTopTo(heading, 110);
-      /* 히트맵 셀의 aria-label 은 "YYYY-MM-DD: n views" — 조회가 가장 많은 날을 고른다 */
-      const cells = page.locator('[aria-label$=" views"]');
+      /* 히트맵 셀의 aria-label 은 "YYYY-MM-DD: n visitors" — 방문자가 가장 많은 날을 고른다 */
+      const cells = page.locator('[aria-label$=" visitors"]');
       const count = await cells.count();
       let best = -1;
       let bestViews = 0;
@@ -787,6 +787,22 @@ const SCENES: Scene[] = [
       await scrollTopTo(heading, 110);
       await wait(800);
       await shot(page, "20-traffic-ip-utm");
+      await ctx.close();
+    },
+  },
+  {
+    n: 29,
+    name: "traffic-flow",
+    // 29. 트래픽 — 페이지별 조회 · 방문 흐름(들어온 페이지 → 다음 페이지 · 나간 페이지 · 최근 방문 경로)
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/traffic", 2500);
+      const heading = page.getByRole("heading", { name: "방문 흐름" }).first();
+      await heading.waitFor({ timeout: 30_000 });
+      await scrollTopTo(heading, 110);
+      await wait(800);
+      await shot(page, "29-traffic-flow");
       await ctx.close();
     },
   },

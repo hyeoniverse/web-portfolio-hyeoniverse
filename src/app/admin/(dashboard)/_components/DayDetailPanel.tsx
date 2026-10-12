@@ -185,7 +185,7 @@ function DayDetailPanel({
             <CountUp value={sel.views} duration={700} />
           </div>
           <span className={styles.dayDetailUnit}>
-            {language === "ko" ? "조회" : "views"}
+            {language === "ko" ? "명" : "visitors"}
           </span>
         </Item>
 

@@ -278,6 +278,15 @@ export const aboutSecurity: CfgSecurity[] = [
     "description_en": "External service API keys live in the `secrets` row of `site_settings`, readable only by the server (`service_role`) and the owner under RLS, with server environment variables as the fallback. `SUPABASE_SERVICE_ROLE_KEY` stays on the server, and only `NEXT_PUBLIC_`-prefixed keys reach the browser. Error messages written to the service call log are stored with keys masked.",
     "scope_ko": "환경변수, API 키",
     "scope_en": "Env vars, API keys"
+  },
+  {
+    "icon": "gauge",
+    "title_ko": "남용 · 비용 제한",
+    "title_en": "Abuse & Cost Limits",
+    "description_ko": "공급자 비용이 드는 요청은 앞에서 수를 묶습니다. 저장된 번역이 없어 공급자를 부르는 번역은 **IP 당 10분에 5번, 전체 60번**까지, 방문자가 처음 만드는 AI 요약은 **IP 당 1분에 한 번**까지 받습니다. About 체험 데모는 IP 를 HMAC 으로 바꾼 값으로 하루 횟수를 세고, Google 번역은 달마다 45만 자, Google TTS 는 80만 바이트에서 앱이 스스로 멈춰 무료 한도를 넘지 않습니다.",
+    "description_en": "Requests that cost provider money are capped up front. Translations that miss the cache and call a provider are limited to **5 per IP and 60 overall every 10 minutes**, and a visitor-created AI summary to **once a minute per IP**. The About live demos count daily uses by an HMAC of the IP, and the app stops Google Translate at 450k characters and Google TTS at 800k bytes a month, staying inside the free tiers.",
+    "scope_ko": "번역 · 요약 · 체험 데모 · 유료 API",
+    "scope_en": "Translation, summaries, live demos, paid APIs"
   }
 ];
 
@@ -293,9 +302,9 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "02",
     "title": "i18n Bilingual System",
-    "description_ko": "한국어·영어를 즉시 전환하고, 글·작업물·프로필도 두 언어로 저장합니다. 자동 번역은 DeepL·Google·Gemini·Claude·OpenAI 를 설정한 순서대로 시도합니다.",
-    "description_en": "Korean and English switch instantly, and posts, works, and profiles are stored in both languages. Auto-translation tries DeepL, Google, Gemini, Claude, and OpenAI in the configured order.",
-    "tech": "Context API, JSON Locale, Bilingual Content, DeepL/Google/Gemini/Claude/OpenAI",
+    "description_ko": "한국어·영어를 즉시 전환하고, 글·작업물·프로필도 두 언어로 저장합니다. 비어 있는 언어 칸은 DeepL·Google·Gemini·Claude 를 설정한 순서대로 시도해 자동 번역하고, 원문을 고치면 다시 번역합니다. 메뉴의 🌐 단추로는 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장합니다.",
+    "description_en": "Korean and English switch instantly, and posts, works, and profiles are stored in both languages. Empty language fields are auto-translated by trying DeepL, Google, Gemini, and Claude in the configured order, and re-translated when the source changes. The 🌐 button in the menu switches the whole site into one of 33 languages, and each translation is made once per language and stored.",
+    "tech": "Context API, JSON Locale, Bilingual Content, DeepL/Google/Gemini/Claude, 33 Languages",
     "image": "/images/screenshots/pc/feat-i18n.png"
   },
   {
@@ -317,9 +326,9 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "05",
     "title": "Dark / Light Theme",
-    "description_ko": "다크·라이트 전환 때 모든 요소가 함께 부드럽게 바뀝니다. 시스템 설정을 따르다가 사용자가 고르면 그 선택을 기억합니다.",
-    "description_en": "Switching between dark and light changes every element smoothly together. It follows the system setting until you pick one, then remembers your choice.",
-    "tech": "CSS Variables, data-theme, prefers-color-scheme, localStorage",
+    "description_ko": "색은 역할 토큰 안의 `light-dark()` 와 `color-scheme` 으로 정해, 다크·라이트를 바꾸면 모든 요소가 한 번에 바뀝니다. 전환은 View Transitions 로 이어지고, 움직임 줄이기를 켜면 바로 바뀝니다. 시스템 설정을 따르다가 사용자가 고르면 그 선택을 기억합니다.",
+    "description_en": "Colors are set through `light-dark()` and `color-scheme` inside role tokens, so switching dark and light changes every element at once. The switch is animated with View Transitions, or instant with reduced motion on. It follows the system setting until you pick one, then remembers your choice.",
+    "tech": "light-dark(), color-scheme, View Transitions, prefers-color-scheme, localStorage",
     "image": "/images/screenshots/pc/feat-colors.png"
   },
   {
@@ -333,8 +342,8 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "07",
     "title": "Posts & Series",
-    "description_ko": "Plate 리치 텍스트 에디터로 쓰는 블로그입니다. 시리즈 발행, 검색·태그 필터, 커버 이미지(Unsplash·Pexels·AI 생성), 발행 시 Gemini·OpenAI·Claude 한/영 자동 요약을 지원합니다.",
-    "description_en": "A blog written in the Plate rich-text editor. It supports series, search and tag filters, cover images (Unsplash, Pexels, AI-generated), and Korean/English AI summaries from Gemini, OpenAI, or Claude on publish.",
+    "description_ko": "Plate 리치 텍스트 에디터로 쓰는 블로그입니다. 시리즈 발행, 검색·태그 필터, 커버 이미지(Unsplash·Pexels·AI 생성), 발행 시 Gemini·OpenAI·Groq·Claude 한/영 자동 요약을 지원합니다.",
+    "description_en": "A blog written in the Plate rich-text editor. It supports series, search and tag filters, cover images (Unsplash, Pexels, AI-generated), and Korean/English AI summaries from Gemini, OpenAI, Groq, or Claude on publish.",
     "tech": "Supabase, Plate, Series, AI Cover, AI Summary",
     "image": "/images/screenshots/pc/feat-series.png"
   },
@@ -349,8 +358,8 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "09",
     "title": "Admin CMS",
-    "description_ko": "URL 로 직접 들어가는 숨겨진 어드민입니다. 포스트·작업물·프로필을 이중 언어로 관리하고, 테마·폰트·브랜드 설정을 바로 바꿉니다. 트래픽 페이지에서 유입 채널·기기·국가·UTM·재방문 IP 를 봅니다. 번역·요약·TTS 같은 외부 서비스는 실패 원인을 가려 알리고, 같은 원인으로 이어 실패하면 그 공급자를 꺼 두며, 이번 달 사용량과 호출 기록을 한 화면에서 봅니다. DB 에 연결되지 않으면 정적 데이터로 돌아갑니다.",
-    "description_en": "A hidden admin reached by direct URL. Posts, works, and profiles are managed in two languages, and theme, font, and brand settings change instantly. The traffic page shows referral channels, devices, countries, UTM campaigns, and returning IPs. External services like translation, summaries, and TTS report why they failed, providers that keep failing for the same reason are switched off, and this month's usage and the call log are on one screen. Without a database it falls back to static data.",
+    "description_ko": "URL 로 직접 들어가는 숨겨진 어드민입니다. 포스트·작업물·프로필을 이중 언어로 관리하고, 테마·폰트·브랜드 설정을 바로 바꿉니다. 대시보드 맨 위는 방문자 수이고, 트래픽 페이지에서 유입 채널·기기·국가·UTM·페이지별 머문 시간과 방문 흐름을 봅니다. 번역·요약·TTS 같은 외부 서비스는 실패 원인을 가려 알리고, 같은 원인으로 이어 실패하면 그 공급자를 꺼 두며, 이번 달 사용량과 호출 기록을 한 화면에서 봅니다. DB 에 연결되지 않으면 정적 데이터로 돌아갑니다.",
+    "description_en": "A hidden admin reached by direct URL. Posts, works, and profiles are managed in two languages, and theme, font, and brand settings change instantly. The dashboard leads with the visitor count, and the traffic page shows referral channels, devices, countries, UTM campaigns, time on page, and visit flow. External services like translation, summaries, and TTS report why they failed, providers that keep failing for the same reason are switched off, and this month's usage and the call log are on one screen. Without a database it falls back to static data.",
     "tech": "Supabase Auth, Next.js Proxy, JSONB, Static Fallback, Circuit Breaker",
     "image": "/images/screenshots/pc/feat-admin.png"
   }
@@ -490,20 +499,20 @@ export const aboutProcess: CfgProcess[] = [
 export const aboutOverview: OverviewValues | null = {
   "overview_description_ko": "Claude와 함께 만든 풀스택 포트폴리오. Next.js 16 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
   "overview_description_en": "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 16 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
-  "overview_highlights": "Next.js 16, GSAP ScrollTrigger, Framer Motion, Lenis Smooth Scroll, Three.js (R3F), CSS Variables, Supabase, i18n (KO/EN), IP-Based Likes, Dark/Light Theme",
+  "overview_highlights": "Next.js 16, GSAP ScrollTrigger, Framer Motion, Lenis Smooth Scroll, Three.js (R3F), CSS Variables, Supabase, i18n (KO/EN + 33), IP-Based Likes, Dark/Light Theme",
   "overview_stats": [
     {
-      "value": "7 Mo+",
+      "value": "8 Mo+",
       "label_ko": "개발 기간\n(2/5 – 지속 업데이트 중)",
       "label_en": "Dev Period\n(Feb 5 – continuously updated)"
     },
     {
-      "value": "300+",
+      "value": "600+",
       "label_ko": "컴포넌트",
       "label_en": "Components"
     },
     {
-      "value": "100+",
+      "value": "150+",
       "label_ko": "커스텀 훅",
       "label_en": "Custom Hooks"
     },
@@ -513,9 +522,9 @@ export const aboutOverview: OverviewValues | null = {
       "label_en": "Lighthouse\n(desktop performance)"
     },
     {
-      "value": "2",
-      "label_ko": "언어 지원",
-      "label_en": "Languages"
+      "value": "33",
+      "label_ko": "번역해 볼 수 있는 언어",
+      "label_en": "Languages to translate into"
     },
     {
       "value": "80+",
