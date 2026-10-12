@@ -75,9 +75,7 @@ export default function AdminTrafficPage() {
             errorText(
               e,
               t,
-              language === "ko"
-                ? "트래픽 데이터를 불러오지 못했습니다."
-                : "Failed to load traffic data.",
+              t("admin.inline.trafficPage.failedToLoadTraffic"),
             ),
           );
         }
@@ -389,7 +387,7 @@ export default function AdminTrafficPage() {
                 </PanelTitle>
                 {data.channels.length === 0 ? (
                   <p className={styles.muted}>
-                    {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
+                    {t("admin.inline.trafficPage.noVisitDataYet")}
                   </p>
                 ) : (
                   <TrafficChannels channels={data.channels} language={language} />
@@ -401,7 +399,7 @@ export default function AdminTrafficPage() {
                 </PanelTitle>
                 {data.devices.length === 0 ? (
                   <p className={styles.muted}>
-                    {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
+                    {t("admin.inline.trafficPage.noVisitDataYet")}
                   </p>
                 ) : (
                   <DevicesBreakdown
@@ -510,9 +508,7 @@ export default function AdminTrafficPage() {
               </PanelTitle>
                 {data.topContent.length === 0 ? (
                   <p className={styles.muted}>
-                    {language === "ko"
-                      ? "기간 내 조회 기록이 없습니다."
-                      : "No views in this period."}
+                    {t("admin.inline.trafficPage.noViewsInThis")}
                   </p>
                 ) : (
                   <List>
@@ -569,9 +565,7 @@ export default function AdminTrafficPage() {
                 </PanelTitle>
                 {data.utmCampaigns.length === 0 ? (
                   <p className={styles.muted}>
-                    {language === "ko"
-                      ? "아직 UTM 링크로 들어온 방문이 없습니다."
-                      : "No visits from UTM links yet."}
+                    {t("admin.inline.trafficPage.noVisitsFromUtm")}
                   </p>
                 ) : (
                   <List>

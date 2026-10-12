@@ -12,12 +12,12 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { LibrarySection } from "../_data/settingsConstants";
 import lib from "./Library.module.css";
 
-const SECTIONS: { id: LibrarySection; ko: string; en: string; Manager: ComponentType }[] = [
-  { id: "calendars", ko: "달력", en: "Calendars", Manager: dynamic(() => import("./CalendarManager")) },
-  { id: "polls", ko: "투표", en: "Polls", Manager: dynamic(() => import("./PollManager")) },
-  { id: "emojis", ko: "커스텀 이모지", en: "Custom emojis", Manager: dynamic(() => import("./CustomEmojiManager")) },
-  { id: "covers", ko: "커버 이미지 기록", en: "Cover image history", Manager: dynamic(() => import("./CoverHistoryManager")) },
-  { id: "files", ko: "업로드한 파일", en: "Uploaded files", Manager: dynamic(() => import("./MediaManager")) },
+const SECTIONS: { id: LibrarySection; labelKey: string; Manager: ComponentType }[] = [
+  { id: "calendars", labelKey: "admin.inline.libraryTab.calendars", Manager: dynamic(() => import("./CalendarManager")) },
+  { id: "polls", labelKey: "admin.inline.libraryTab.polls", Manager: dynamic(() => import("./PollManager")) },
+  { id: "emojis", labelKey: "admin.inline.libraryTab.emojis", Manager: dynamic(() => import("./CustomEmojiManager")) },
+  { id: "covers", labelKey: "admin.inline.libraryTab.covers", Manager: dynamic(() => import("./CoverHistoryManager")) },
+  { id: "files", labelKey: "admin.inline.libraryTab.files", Manager: dynamic(() => import("./MediaManager")) },
 ];
 
 /** 화면 가까이(위아래 600px) 오면 한 번 그린다. 그 전엔 자리만 잡아 둔다(섹션 바로가기가 라벨을 읽는다) */
@@ -51,11 +51,11 @@ function LazySection({ id, label, eager, focus, children }: { id: string; label:
 }
 
 export default function LibraryTab({ focus }: { focus?: LibrarySection }) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   return (
     <>
-      {SECTIONS.map(({ id, ko, en, Manager }, i) => (
-        <LazySection key={id} id={id} label={language === "ko" ? ko : en} eager={i === 0} focus={focus === id}>
+      {SECTIONS.map(({ id, labelKey, Manager }, i) => (
+        <LazySection key={id} id={id} label={t(labelKey)} eager={i === 0} focus={focus === id}>
           <Manager />
         </LazySection>
       ))}

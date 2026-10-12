@@ -14,6 +14,7 @@ import { ChevronRight, Monitor, Smartphone, Tablet } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
 /* ── Devices Breakdown — Type / OS / Browser 탭, 각 탭마다 도넛 + 범례 ── */
 type DeviceTab = "type" | "os" | "browser";
 
@@ -24,7 +25,6 @@ function DevicesBreakdown({
   operatingSystems,
   browsers,
   deviceModels,
-  language,
   drillKind,
   onDrillChange,
 }: {
@@ -40,20 +40,21 @@ function DevicesBreakdown({
   drillKind: DeviceKind | null;
   onDrillChange: (k: DeviceKind | null) => void;
 }) {
+  const { t } = useLanguage();
   const tabs: { id: DeviceTab; label: string; available: boolean }[] = [
     {
       id: "type",
-      label: language === "ko" ? "기기" : "Type",
+      label: t("admin.inline.devicesBreakdown.type"),
       available: deviceTypes.length > 0,
     },
     {
       id: "os",
-      label: language === "ko" ? "OS" : "OS",
+      label: t("admin.inline.devicesBreakdown.os"),
       available: !!operatingSystems?.length,
     },
     {
       id: "browser",
-      label: language === "ko" ? "브라우저" : "Browser",
+      label: t("admin.inline.devicesBreakdown.browser"),
       available: !!browsers?.length,
     },
   ];
@@ -84,9 +85,9 @@ function DevicesBreakdown({
   }[] = [];
   if (activeTab === "type") {
     const labels = {
-      desktop: language === "ko" ? "데스크탑" : "Desktop",
-      mobile: language === "ko" ? "모바일" : "Mobile",
-      tablet: language === "ko" ? "태블릿" : "Tablet",
+      desktop: t("admin.inline.devicesBreakdown.desktop"),
+      mobile: t("admin.inline.devicesBreakdown.mobile"),
+      tablet: t("admin.inline.devicesBreakdown.tablet"),
     };
     const icons = { desktop: Monitor, mobile: Smartphone, tablet: Tablet };
     items = deviceTypes.map((d) => ({
@@ -123,17 +124,11 @@ function DevicesBreakdown({
           .filter((t) => t.available)
           .map((tab) => {
             const tipMap: Record<DeviceTab, string> =
-              language === "ko"
-                ? {
-                    type: "기기 종류 (데스크탑 / 모바일 / 태블릿) — 클릭 시 모델 분포",
-                    os: "운영체제 (macOS / Windows / iOS / Android ...)",
-                    browser: "브라우저 (Chrome / Safari / Firefox ...)",
-                  }
-                : {
-                    type: "Device kind — click to see specific models",
-                    os: "Operating system breakdown",
-                    browser: "Browser breakdown",
-                  };
+              {
+                type: t("admin.inline.devicesBreakdown.tipType"),
+                os: t("admin.inline.devicesBreakdown.tipOs"),
+                browser: t("admin.inline.devicesBreakdown.tipBrowser"),
+              };
             return (
               <Tooltip
                 key={tab.id}
@@ -191,7 +186,7 @@ function DevicesBreakdown({
             textAnchor="middle"
             className={styles.donutCenterLabel}
           >
-            {language === "ko" ? "방문" : "visits"}
+            {t("admin.inline.devicesBreakdown.visits")}
           </text>
         </svg>
         <List className={styles.deviceLegend}>
@@ -267,7 +262,6 @@ function DevicesBreakdown({
             <DeviceModelsPanel
               kind={drillKind}
               models={deviceModels[drillKind]}
-              language={language}
               onClose={() => onDrillChange(null)}
             />
           </motion.div>
@@ -281,18 +275,17 @@ function DevicesBreakdown({
 function DeviceModelsPanel({
   kind,
   models,
-  language,
   onClose,
 }: {
   kind: DeviceKind;
   models: { model: string; count: number; pct: number }[];
-  language: "ko" | "en";
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const kindLabels = {
-    desktop: language === "ko" ? "데스크탑" : "Desktop",
-    mobile: language === "ko" ? "모바일" : "Mobile",
-    tablet: language === "ko" ? "태블릿" : "Tablet",
+    desktop: t("admin.inline.devicesBreakdown.desktop"),
+    mobile: t("admin.inline.devicesBreakdown.mobile"),
+    tablet: t("admin.inline.devicesBreakdown.tablet"),
   };
   const max = Math.max(...models.map((m) => m.count), 1);
 
@@ -303,16 +296,16 @@ function DeviceModelsPanel({
     >
       <div className={styles.deviceDrillHeader}>
         <span className={styles.deviceDrillTitle}>
-          {kindLabels[kind]} · {language === "ko" ? "기기 모델" : "Top devices"}
+          {kindLabels[kind]} · {t("admin.inline.devicesBreakdown.topDevices")}
         </span>
         <CloseButton
           onClick={onClose}
-          ariaLabel={language === "ko" ? "닫기" : "Close"}
+          ariaLabel={t("admin.inline.devicesBreakdown.close")}
         />
       </div>
       {models.length === 0 ? (
         <p className={styles.deviceDrillEmpty}>
-          {language === "ko" ? "데이터가 없습니다." : "No data yet."}
+          {t("admin.inline.devicesBreakdown.noDataYet")}
         </p>
       ) : (
         <List className={styles.deviceDrillList}>

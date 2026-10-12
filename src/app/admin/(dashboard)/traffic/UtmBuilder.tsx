@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Popover from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { Check, Copy, FileText, HelpCircle, MessageCircle, PenLine, SocialBrandIcon } from "@/components/icons";
 
 /* ── UTM 링크 생성기(#1161) — 이력서·SNS·DM 에 뿌릴 링크에 utm_* 를 붙여 준다.
@@ -24,8 +25,9 @@ const SOURCE_OPTIONS = [
 ];
 
 /** 패널 제목 옆 ? — UTM 이 뭔지·어떻게 쓰는지 (SearchCapsule 의 문법 도움말과 같은 패턴) */
-export function UtmHelpButton({ language }: { language: "ko" | "en" }) {
-  const ko = language === "ko";
+/* language 는 호출부 호환용 — 글은 사전 t() 로 고른다 */
+export function UtmHelpButton(_props: { language: "ko" | "en" }) {
+  const { t } = useLanguage();
   return (
     <Popover
       placement="bubble"
@@ -36,53 +38,43 @@ export function UtmHelpButton({ language }: { language: "ko" | "en" }) {
         <Pressable
           noTapScale
           className={styles.helpBtn}
-          aria-label={ko ? "UTM 도움말" : "About UTM"}
+          aria-label={t("admin.inline.utmBuilder.aboutUtm")}
         >
           <HelpCircle size={13} strokeWidth={2} />
         </Pressable>
       }
     >
       <div className={styles.helpContent}>
-        <p className={styles.helpTitle}>{ko ? "UTM이란" : "What is UTM?"}</p>
+        <p className={styles.helpTitle}>{t("admin.inline.utmBuilder.whatIsUtm")}</p>
         <p className={styles.helpText}>
-          {ko
-            ? "링크 뒤에 붙는 출처 표식입니다(utm_source·utm_medium·utm_campaign). 카카오톡·노션·PDF처럼 방문 기록에 출처가 안 남는 경로에서도 어떤 링크로 왔는지 구분해 줍니다."
-            : "Tracking parameters appended to a link (utm_source·utm_medium·utm_campaign). They identify which link a visit came from, even where no referrer survives — messengers, Notion, PDFs."}
+          {t("admin.inline.utmBuilder.trackingParametersAppendedTo")}
         </p>
         <ul className={styles.helpParams}>
           <li>
             <code>source</code>
             <span>
-              {ko
-                ? "출처 — 링크를 올린 곳입니다. 예: resume, linkedin"
-                : "where you posted the link, e.g. resume, linkedin"}
+              {t("admin.inline.utmBuilder.whereYouPostedThe")}
             </span>
           </li>
           <li>
             <code>medium</code>
             <span>
-              {ko
-                ? "매체 — 전달 방식입니다. 예: social, email, qr"
-                : "how it travels, e.g. social, email, qr"}
+              {t("admin.inline.utmBuilder.howItTravelsE")}
             </span>
           </li>
           <li>
             <code>campaign</code>
             <span>
-              {ko
-                ? "캠페인 — 활동·시기 이름입니다. 예: job-2026"
-                : "the effort or season, e.g. job-2026"}
+              {t("admin.inline.utmBuilder.theEffortOrSeason")}
             </span>
           </li>
         </ul>
-        <p className={styles.helpTitle}>{ko ? "만드는 법" : "How to use"}</p>
+        <p className={styles.helpTitle}>{t("admin.inline.utmBuilder.howToUse")}</p>
         <ol className={styles.helpSteps}>
-          <li>{ko ? "출처를 고르거나, 더블클릭해 직접 입력합니다." : "Pick a source, or double-click to type your own."}</li>
-          <li>{ko ? "필요하면 경로·매체·캠페인을 채웁니다." : "Fill path, medium, campaign as needed."}</li>
+          <li>{t("admin.inline.utmBuilder.pickASourceOr")}</li>
+          <li>{t("admin.inline.utmBuilder.fillPathMediumCampaign")}</li>
           <li>
-            {ko
-              ? "복사한 링크를 이력서·프로필·DM에 씁니다. 그 링크로 들어온 방문이 UTM 캠페인 목록에 집계됩니다."
-              : "Use the copied link in your resume, profiles, or DMs. Visits from it show up in the UTM campaigns list."}
+            {t("admin.inline.utmBuilder.useTheCopiedLink")}
           </li>
         </ol>
         <code className={styles.helpExample}>?utm_source=resume&utm_campaign=2026</code>
@@ -92,13 +84,13 @@ export function UtmHelpButton({ language }: { language: "ko" | "en" }) {
 }
 
 function UtmBuilder({
-  language,
   siteUrl,
 }: {
   language: "ko" | "en";
   /** 링크의 기준 도메인 — SITE_URL(정본). 비어 있으면(dev) 현재 origin 폴백 */
   siteUrl?: string;
 }) {
+  const { t } = useLanguage();
   const [path, setPath] = useState("/");
   const [source, setSource] = useState("resume");
   const [medium, setMedium] = useState("");
@@ -131,14 +123,13 @@ function UtmBuilder({
     }
   };
 
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
 
   return (
     <div className={styles.builder}>
       <div className={styles.fieldsGrid}>
         {/* 출처 + 경로 — 한 캡슐로 묶은 그룹 (좌: 출처 Select, 우: 경로 입력) */}
         <div className={styles.comboCell}>
-          <span className={styles.fieldLabel}>{L("출처 · 경로", "Source · Path")}</span>
+          <span className={styles.fieldLabel}>{t("admin.inline.utmBuilder.sourcePath")}</span>
           {/* 한 캡슐 안에서 [출처 │ 경로] — 가운데 세로 hairline 으로 나눈다 */}
           <div className={styles.comboCapsule}>
             <Select
@@ -171,19 +162,19 @@ function UtmBuilder({
               value={path}
               onChange={setPath}
               placeholder="/"
-              aria-label={L("경로", "Path")}
+              aria-label={t("admin.inline.utmBuilder.path")}
               className={styles.comboPath}
             />
           </div>
         </div>
         <Input
-          label={L("매체", "Medium")}
+          label={t("admin.inline.utmBuilder.medium")}
           value={medium}
           onChange={setMedium}
           placeholder="utm_medium"
         />
         <Input
-          label={L("캠페인", "Campaign")}
+          label={t("admin.inline.utmBuilder.campaign")}
           value={campaign}
           onChange={setCampaign}
           placeholder="utm_campaign"
@@ -206,7 +197,7 @@ function UtmBuilder({
           icon={copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={2} />}
           onClick={copy}
         >
-          {copied ? L("복사됨", "Copied") : L("복사", "Copy")}
+          {copied ? t("admin.inline.utmBuilder.copied") : t("admin.inline.utmBuilder.copy")}
         </Button>
       </div>
     </div>

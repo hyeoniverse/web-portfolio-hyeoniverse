@@ -48,7 +48,6 @@ interface Props {
  *  작성자 프로필과 연결 안 된 로그인 계정도 별도 그룹 없이 같은 멤버 리스트에 통합 표시(등록/삭제 인라인). */
 export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const { language, t } = useLanguage();
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
   const { openModal } = useModalStore();
@@ -80,8 +79,8 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const isOwner = (ctx?.isOwner ?? false) || membersLoaded;
 
   const LEVELS = [
-    { value: "1", label: L("자기 글만 (작성자)", "Own posts (Author)") },
-    { value: "2", label: L("모든 글 (편집자)", "All posts (Editor)") },
+    { value: "1", label: t("admin.inline.authorsEditor.ownPostsAuthor") },
+    { value: "2", label: t("admin.inline.authorsEditor.allPostsEditor") },
   ];
 
   // owner 전용 상세 멤버 데이터 (배지/상태/미연결 그룹/관리)
@@ -158,7 +157,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const unlinked = members.filter((m) => !matchedIds.has(m.id) && !isMineMember(m));
 
   const relative = (iso: string | null) =>
-    iso ? formatRelativeTime(iso, now, language) : L("로그인 기록 없음", "never signed in");
+    iso ? formatRelativeTime(iso, now, language) : t("admin.inline.authorsEditor.neverSignedIn");
 
   /** 프로필 draft 를 config 에 upsert (id 기준). */
   const saveAuthor = async (author: Author): Promise<SaveResult> => {
@@ -181,11 +180,11 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       openModal(
         <ModalAlert
           desc={r.reason
-            ? `${L("저장하지 못했습니다.", "Could not save.")} ${r.reason}`
-            : L("저장하지 못했습니다.", "Could not save.")}
-          confirmText={L("확인", "OK")}
+            ? `${t("admin.inline.authorsEditor.couldNotSave")} ${r.reason}`
+            : t("admin.inline.authorsEditor.couldNotSave")}
+          confirmText={t("admin.inline.authorsEditor.ok")}
         />,
-        { id: "authors-save-failed", header: { title: L("저장 실패", "Save failed") }, closeButton: true, width: "420px" },
+        { id: "authors-save-failed", header: { title: t("admin.inline.authorsEditor.saveFailed") }, closeButton: true, width: "420px" },
       );
     }
   };
@@ -199,19 +198,19 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ email: a.email, author_id: a.id, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: errorText(data, t, L("초대에 실패했습니다.", "The invite failed.")) };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, t("admin.inline.authorsEditor.theInviteFailed")) };
       const parts = [
-        data.appliedNow ? L("기존 계정에 권한을 부여했습니다.", "Granted access to the existing account.") : L("초대를 등록했습니다.", "The invite has been created."),
+        data.appliedNow ? t("admin.inline.authorsEditor.grantedAccessToThe") : t("admin.inline.authorsEditor.theInviteHasBeen"),
         data.emailed
-          ? L("초대 메일을 발송했습니다.", "The invite email was sent.")
+          ? t("admin.inline.authorsEditor.theInviteEmailWas")
           : data.emailReason === "no_api_key"
-            ? L("RESEND_API_KEY 가 없어 메일은 발송하지 못했습니다.", "The email was not sent because RESEND_API_KEY is missing.")
-            : `${L("메일을 발송하지 못했습니다.", "The email could not be sent.")}${data.emailReason ? ` (${data.emailReason})` : ""}`,
+            ? t("admin.inline.authorsEditor.theEmailWasNot")
+            : `${t("admin.inline.authorsEditor.theEmailCouldNot")}${data.emailReason ? ` (${data.emailReason})` : ""}`,
       ];
       await refetchMembers();
       return { ok: !!data.emailed || data.appliedNow, msg: parts.join(" ") };
     } catch {
-      return { ok: false, msg: L("오류가 발생했습니다.", "An error occurred.") };
+      return { ok: false, msg: t("admin.inline.authorsEditor.anErrorOccurred") };
     }
   };
 
@@ -224,11 +223,11 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ id: memberId, author_id: authorId, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: errorText(data, t, L("권한을 변경하지 못했습니다.", "Failed to change access.")) };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, t("admin.inline.authorsEditor.failedToChangeAccess")) };
       await refetchMembers();
-      return { ok: true, msg: L("권한을 변경했습니다.", "Access level updated.") };
+      return { ok: true, msg: t("admin.inline.authorsEditor.accessLevelUpdated") };
     } catch {
-      return { ok: false, msg: L("오류가 발생했습니다.", "An error occurred.") };
+      return { ok: false, msg: t("admin.inline.authorsEditor.anErrorOccurred") };
     }
   };
 
@@ -241,11 +240,11 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ id: memberId, author_id: authorId, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: errorText(data, t, L("연결하지 못했습니다.", "Failed to link.")) };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, t("admin.inline.authorsEditor.failedToLink")) };
       await refetchMembers();
-      return { ok: true, msg: L("프로필과 연결하고 권한을 부여했습니다.", "Linked to the profile and granted access.") };
+      return { ok: true, msg: t("admin.inline.authorsEditor.linkedToTheProfile") };
     } catch {
-      return { ok: false, msg: L("오류가 발생했습니다.", "An error occurred.") };
+      return { ok: false, msg: t("admin.inline.authorsEditor.anErrorOccurred") };
     }
   };
 
@@ -298,7 +297,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         id: "member-edit",
         /* 이름은 모달 안에 이미 크게 적힌다. 제목까지 이름으로 두면 같은 말이 두 번 나오고,
            멤버마다 제목이 달라져서 무슨 화면인지가 흐려진다. */
-        header: { title: opts?.title ?? (opts?.isNew ? L("멤버 추가", "Add member") : L("상세 정보", "Details")) },
+        header: { title: opts?.title ?? (opts?.isNew ? t("admin.inline.authorsEditor.addMember") : t("admin.inline.authorsEditor.details")) },
         closeButton: true,
         width: "560px",
       },
@@ -315,14 +314,14 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const registerMember = (m: Member) =>
     openEditor(
       { id: newAuthorId(), name: m.name ?? "", avatar: m.avatar ?? "", role: "", email: m.email ?? "", bio: "", links: ghLinks(m.githubUrl) },
-      { linkMemberId: m.id, title: L("멤버로 등록", "Register member"), githubInfo: { name: m.name, avatar: m.avatar, url: m.githubUrl } },
+      { linkMemberId: m.id, title: t("admin.inline.authorsEditor.registerMember"), githubInfo: { name: m.name, avatar: m.avatar, url: m.githubUrl } },
     );
 
   /** 프로필 없는 본인(비owner) 이 GitHub 정보로 자기 프로필을 생성. 이메일 매칭으로 연결됨(권한은 owner 가 부여). */
   const openMyProfile = () =>
     openEditor(
       { id: newAuthorId(), name: ctx?.myName ?? "", avatar: ctx?.myAvatar ?? "", role: "", email: ctx?.email ?? "", bio: "", links: ghLinks(ctx?.myGithubUrl) },
-      { isNew: true, title: L("내 프로필", "My profile"), githubInfo: { name: ctx?.myName ?? null, avatar: ctx?.myAvatar ?? null, url: ctx?.myGithubUrl ?? null } },
+      { isNew: true, title: t("admin.inline.authorsEditor.myProfile"), githubInfo: { name: ctx?.myName ?? null, avatar: ctx?.myAvatar ?? null, url: ctx?.myGithubUrl ?? null } },
     );
 
   /** 프로필 행 클릭 → 상세 모달. 권한 있으면 "수정" 으로 편집 모달 전환. */
@@ -345,7 +344,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
           )
         }
       />,
-      { id: "member-detail", header: { title: L("멤버 상세", "Member") }, closeButton: true, width: "480px" },
+      { id: "member-detail", header: { title: t("admin.inline.authorsEditor.member") }, closeButton: true, width: "480px" },
     );
 
   /** 미생성(합성) 행 클릭 → GitHub 정보 기반 상세. 본인/owner 면 "만들기" 로 생성 모달 전환. */
@@ -370,7 +369,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         canEdit={canCreate}
         onEdit={openMyProfile}
       />,
-      { id: "member-detail", header: { title: L("멤버 상세", "Member") }, closeButton: true, width: "480px" },
+      { id: "member-detail", header: { title: t("admin.inline.authorsEditor.member") }, closeButton: true, width: "480px" },
     );
   };
 
@@ -391,10 +390,10 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       <ModalConfirm
         desc={
           member
-            ? L("이 작성자와 연결된 로그인 계정이 완전히 삭제됩니다. 되돌릴 수 없습니다.", "The linked login account will be permanently deleted. This cannot be undone.")
-            : L("이 작성자에게 보낸 초대가 취소됩니다.", "The pending invite for this author will be cancelled.")
+            ? t("admin.inline.authorsEditor.theLinkedLoginAccount")
+            : t("admin.inline.authorsEditor.thePendingInviteFor")
         }
-        confirmText={L("삭제", "Delete")}
+        confirmText={t("admin.inline.authorsEditor.delete")}
         danger
         onConfirm={async () => {
           try {
@@ -403,11 +402,11 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
             onChange(authors.filter((x) => x.id !== a.id));
             await refetchMembers();
           } catch (e) {
-            setNotice(errorText(e, t, L("삭제하지 못했습니다.", "Delete failed.")));
+            setNotice(errorText(e, t, t("admin.inline.authorsEditor.deleteFailed")));
           }
         }}
       />,
-      { id: "delete-author", header: { title: L("멤버 삭제", "Remove member") }, closeButton: true, width: "420px" },
+      { id: "delete-author", header: { title: t("admin.inline.authorsEditor.removeMember") }, closeButton: true, width: "420px" },
     );
   };
 
@@ -415,19 +414,19 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const removeUnlinked = (m: Member) => {
     openModal(
       <ModalConfirm
-        desc={L("이 로그인 계정이 완전히 삭제됩니다. 되돌릴 수 없습니다.", "This login account will be permanently deleted. This cannot be undone.")}
-        confirmText={L("삭제", "Delete")}
+        desc={t("admin.inline.authorsEditor.thisLoginAccountWill")}
+        confirmText={t("admin.inline.authorsEditor.delete")}
         danger
         onConfirm={async () => {
           try {
             await deleteAccount(m.id);
             await refetchMembers();
           } catch (e) {
-            setNotice(errorText(e, t, L("삭제하지 못했습니다.", "Delete failed.")));
+            setNotice(errorText(e, t, t("admin.inline.authorsEditor.deleteFailed")));
           }
         }}
       />,
-      { id: "delete-account", header: { title: L("계정 삭제", "Delete account") }, closeButton: true, width: "420px" },
+      { id: "delete-account", header: { title: t("admin.inline.authorsEditor.deleteAccount") }, closeButton: true, width: "420px" },
     );
   };
 
@@ -449,7 +448,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
     if (!isOwner) return null; // 초대 상태(초대됨·미초대)는 관리 정보라 owner 만
     return (
       <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>
-        {invited ? L("초대됨 · 미가입", "Invited · pending") : L("미초대", "Not invited")}
+        {invited ? t("admin.inline.authorsEditor.invitedPending") : t("admin.inline.authorsEditor.notInvited")}
       </span>
     );
   };
@@ -485,7 +484,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
        역할 아이콘과 겹치지 않는 Check 를 쓴다 — UserRound 는 "멤버" 역할이 이미 쓴다. */
     <span className={mStyles.meBadge}>
       <Check size={11} strokeWidth={2.4} aria-hidden />
-      {L("나", "You")}
+      {t("admin.inline.authorsEditor.you")}
     </span>
   );
 
@@ -500,7 +499,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         tabIndex={0}
         onClick={() => openDetail(a)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(a); } }}
-        title={L("상세 보기", "View details")}
+        title={t("admin.inline.authorsEditor.viewDetails")}
       >
         <span className={mStyles.avatar}>
           <AuthorAvatar
@@ -513,12 +512,12 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         </span>
         <div className={mStyles.info}>
           <div className={mStyles.nameRow}>
-            <span className={mStyles.name}>{a.name || L("(이름 없음)", "(unnamed)")}</span>
+            <span className={mStyles.name}>{a.name || t("admin.inline.authorsEditor.unnamed")}</span>
             {isMine(a) && meBadge}
             {statusBadge(a, member, invited)}
           </div>
           <div className={mStyles.meta}>
-            <span className={mStyles.email}>{a.email || L("이메일 없음", "no email")}</span>
+            <span className={mStyles.email}>{a.email || t("admin.inline.authorsEditor.noEmail")}</span>
             {member?.lastSignInAt && (
               <span className={mStyles.since}>
                 <Clock size={11} strokeWidth={2} />
@@ -541,19 +540,19 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         {isOwner ? (
           <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
-              {L("수정", "Edit")}
+              {t("admin.inline.authorsEditor.edit")}
             </Button>
             {/* 소유자 프로필은 삭제 불가 */}
             {!isOwnerAuthor(a) && (
               <Button variant="ghost" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeAuthor(a)}>
-                {L("삭제", "Delete")}
+                {t("admin.inline.authorsEditor.delete")}
               </Button>
             )}
           </div>
         ) : isMine(a) && !isOwnerAuthor(a) ? (
           <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
-              {L("수정", "Edit")}
+              {t("admin.inline.authorsEditor.edit")}
             </Button>
           </div>
         ) : null}
@@ -593,10 +592,10 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       {m.role !== "owner" && (
         <div className={mStyles.rowActions}>
           <Button variant="ghost" icon={<UserPlus size={13} />} onClick={() => registerMember(m)}>
-            {L("등록", "Register")}
+            {t("admin.inline.authorsEditor.register")}
           </Button>
           <Button variant="ghost" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeUnlinked(m)}>
-            {L("삭제", "Delete")}
+            {t("admin.inline.authorsEditor.delete")}
           </Button>
         </div>
       )}
@@ -617,7 +616,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
               tabIndex={0}
               onClick={() => openSyntheticDetail("owner")}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSyntheticDetail("owner"); } }}
-              title={L("상세 보기", "View details")}
+              title={t("admin.inline.authorsEditor.viewDetails")}
             >
               <span className={mStyles.avatar}>
                 <AuthorAvatar
@@ -643,7 +642,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
               {iAmOwner && (
                 <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
                   <Button variant="ghost" icon={<Pencil size={13} />} onClick={openMyProfile}>
-                    {L("수정", "Edit")}
+                    {t("admin.inline.authorsEditor.edit")}
                   </Button>
                 </div>
               )}
@@ -657,7 +656,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
               tabIndex={0}
               onClick={() => openSyntheticDetail("me")}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSyntheticDetail("me"); } }}
-              title={L("상세 보기", "View details")}
+              title={t("admin.inline.authorsEditor.viewDetails")}
             >
               <span className={mStyles.avatar}>
                 <AuthorAvatar
@@ -680,7 +679,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
               </div>
               <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" icon={<Pencil size={13} />} onClick={openMyProfile}>
-                  {L("수정", "Edit")}
+                  {t("admin.inline.authorsEditor.edit")}
                 </Button>
               </div>
             </li>
@@ -694,7 +693,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       {/* 추가는 owner 만 */}
       {isOwner && (
         <Button variant="outline" icon={<Plus size={14} />} onClick={openAdd}>
-          {L("멤버 추가", "Add member")}
+          {t("admin.inline.authorsEditor.addMember")}
         </Button>
       )}
 
