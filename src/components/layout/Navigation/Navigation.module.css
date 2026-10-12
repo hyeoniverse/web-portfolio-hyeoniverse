@@ -1268,8 +1268,8 @@
   /* mix-blend-mode: difference 유지 */
   /* 로고는 fixed 라 navCenter 가 로고 밑에서 시작한다. admin 은 링크가 많고 로고 옆에 배지까지 붙어
      폭과 상관없이 첫 링크가 로고에 붙거나 겹친다. 실제 로고 폭(--_logo-w, Navigation 이 잼)에
-     넉넉한 간격(spacing-64)을 더한 만큼 시작 여백을 줘 항상 비켜나게 한다. */
-  --_logo-reserve: calc(var(--_logo-w, var(--size-112)) + var(--spacing-64));
+     간격(spacing-48)을 더한 만큼 시작 여백을 줘 항상 비켜나게 한다. */
+  --_logo-reserve: calc(var(--_logo-w, var(--size-112)) + var(--spacing-48));
 }
 
 /* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강
