@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { inAboutPreview, isAboutPreviewMessage } from "@/lib/about/previewMessages";
 import { ABOUT_TEXT_DEFAULTS, applyAboutTexts, type AboutTexts } from "@/app/about/_data/texts";
 import type { SiteConfigData } from "@/config/site.config";
 
@@ -13,9 +14,22 @@ const AboutConfigContext = createContext<AboutConfig | null>(null);
 const AboutTextsContext = createContext<AboutTexts>(ABOUT_TEXT_DEFAULTS);
 
 export function AboutConfigProvider({ about, children }: { about: AboutConfig; children: ReactNode }) {
-  const texts = useMemo(() => applyAboutTexts(about.texts), [about.texts]);
+  /* 편집기 미리보기 — 부모(관리자 About 편집기)가 보낸 저장 전 설정으로 그린다 */
+  const [draft, setDraft] = useState<AboutConfig | null>(null);
+  useEffect(() => {
+    if (!inAboutPreview()) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== window.parent || !isAboutPreviewMessage(e)) return;
+      if (e.data.type === "about-preview:config") setDraft(e.data.about);
+    };
+    window.addEventListener("message", onMessage);
+    window.parent.postMessage({ type: "about-preview:ready" }, window.location.origin);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+  const live = draft ?? about;
+  const texts = useMemo(() => applyAboutTexts(live.texts), [live.texts]);
   return (
-    <AboutConfigContext.Provider value={about}>
+    <AboutConfigContext.Provider value={live}>
       <AboutTextsContext.Provider value={texts}>{children}</AboutTextsContext.Provider>
     </AboutConfigContext.Provider>
   );

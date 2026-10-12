@@ -12,6 +12,7 @@
    카메라는 세계 상자 하나를 크게 확대하지 않고 프레임마다 자기 자리를 계산해 준다 — 별 자리의 무리는 아주 작아서(배율 0.02 남짓)
    세계를 40배 키우면 변환 값이 수만 px 이 되어 그릴 때 몇 px 씩 밀린다. 프레임별로 계산하면 지금 프레임은 정확히 제자리(배율 1)다 */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { inAboutPreview, isAboutPreviewMessage } from "@/lib/about/previewMessages";
 import Pressable from "@/components/ui/Pressable";
 import { useLenis } from "@/providers/LenisProvider";
 import { STAR_PATH, useL } from "../features/shared";
@@ -225,6 +226,17 @@ export default function PreziStage({ live }: { live: LiveInfo }) {
     },
     [go, order.length, setStep],
   );
+
+  /* 편집기 미리보기 — 고치는 장으로 카메라를 옮긴다 */
+  useEffect(() => {
+    if (!inAboutPreview()) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== window.parent || !isAboutPreviewMessage(e)) return;
+      if (e.data.type === "about-preview:goto") goTo(e.data.anchor);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [goTo]);
 
   const api = useMemo<PreziApi>(() => ({ goTo, next: () => advance(1), prev: () => advance(-1) }), [advance, goTo]);
 
