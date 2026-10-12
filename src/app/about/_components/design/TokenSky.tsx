@@ -7,10 +7,11 @@
    층은 세 줄, 색은 팔레트 줄, 글자는 묶음 · 크기 순서, 움직임은 길이 · 곡선. 별은 칸 사이를 날아서 옮겨 간다 */
 import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from "react";
 import { tokenSky, type TokenGroup, type TokenKind, type TokenLayer } from "@/data/generated/tokenSky";
-import { contrastRows, guardRows } from "../../_data/design";
 import { useL } from "../features/shared";
 import type { L10n } from "../../_data/showcase";
 import styles from "./TokenSky.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+import { guardRows as guardBase } from "../../_data/design";
 
 /** 하늘 판의 좌표 — 가로 150 · 세로 100(판은 3:2) */
 const W = 150;
@@ -135,10 +136,10 @@ const FONT_PINS = ["--font-grotesk-headline-sm", "--font-body-md", "--font-code-
 const MOTION_PINS = ["--duration-base", "--duration-slow", "--ease-standard", "--ease-enter"];
 /** 검사 칸 — 손으로 쓴 값. 위에서 떨어지다 해당하는 줄 위에서 막힌다 */
 const BAD: { value: string; tool: string; x: number; y: number }[] = [
-  { value: "color: #ff4fa0", tool: guardRows[0].tool, x: 40, y: 4 },
-  { value: "font-size: 11px", tool: guardRows[1].tool, x: 78, y: 35 },
-  { value: "padding: 13px", tool: guardRows[2].tool, x: 112, y: 66 },
-  { value: "border-radius: 7px", tool: guardRows[3].tool, x: 138, y: 35 },
+  { value: "color: #ff4fa0", tool: guardBase[0].tool, x: 40, y: 4 },
+  { value: "font-size: 11px", tool: guardBase[1].tool, x: 78, y: 35 },
+  { value: "padding: 13px", tool: guardBase[2].tool, x: 112, y: 66 },
+  { value: "border-radius: 7px", tool: guardBase[3].tool, x: 138, y: 35 },
 ];
 
 type Caption = { text: ReactNode; x: number; y: number };
@@ -172,6 +173,7 @@ function useCaptions(mode: SkyMode): Caption[] {
 const GLYPH: Partial<Record<TokenKind, string>> = { font: "가", fontSize: "가", fontWeight: "가", fontFamily: "Aa", tracking: "AVA" };
 
 export default function TokenSky({ mode, live, motionValue }: { mode: SkyMode; live: boolean; motionValue?: (name: string) => string }) {
+  const { contrastRows } = useAboutText().design;
   const L = useL();
   const layout = mode === "cover" ? SKY : LAYOUTS[mode];
   const captions = useCaptions(mode);
@@ -290,7 +292,7 @@ export default function TokenSky({ mode, live, motionValue }: { mode: SkyMode; l
                 ? BAD.map((b) => ({ key: b.value, x: b.x, y: b.y, bad: true, label: <code>{b.value}</code>, sub: `✕ ${b.tool}` }))
                 : [];
     return list.filter((p): p is Pin => !!p);
-  }, [mode, L, motionValue]);
+  }, [mode, L, motionValue, contrastRows]);
   const pinned = new Set(pins.map((p) => p.key));
   const pinIndex = new Map(pins.map((p, i) => [p.key, i]));
   const pct = (x: number) => (x / W) * 100;

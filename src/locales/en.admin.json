@@ -1019,7 +1019,7 @@
       "aboutPanelHideAll": "Hide all",
       "aboutPanelBadgeEdit": "Editable",
       "aboutPanelBadgeStatic": "Display",
-      "aboutStudioHint": "Edit directly on the live About page. Click any text to change it, and hover an item to add or remove it. Each panel saves on its own, and Revert or Defaults restores it anytime.",
+      "aboutStudioHint": "Edit the new About page's text, chapter by chapter in page order. Leave a field empty or reset it to fall back to the built-in text. The architecture chapter's graph, flows and database design are edited right after that chapter. Each chapter saves on its own.",
       "aboutHeroBgTypeMedia": "Image · Video",
       "aboutHeroBgTypeColor": "Solid",
       "aboutHeroBgTypeGradient": "Gradient",

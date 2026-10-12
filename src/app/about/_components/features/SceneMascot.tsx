@@ -13,19 +13,20 @@ import Pressable from "@/components/ui/Pressable";
 import BunnyDock from "@/app/profile/_components/BunnyShowcase/BunnyDock";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import { bunnyProfile } from "@/data/profile";
-import { mascotScene } from "../../_data/features";
 import { RowNum, useL } from "./shared";
 import { useFrameSteps } from "../prezi/context";
 import { GuideAnchor } from "../guide/GuideStar";
 import NightSky from "@/app/profile/_components/BunnyShowcase/NightSky";
 import styles from "./Features.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+import type { mascotScene as mascotBase } from "../../_data/features";
 
 const FloatingObject = dynamic(() => import("@/app/profile/_components/FloatingObject/FloatingObject"), { ssr: false });
 
 /** 프로필에서 몽이 패널의 차례 — 말풍선 글(profilePage.bubble.1)이 이것으로 정해진다 */
 const BUNNY_SECTION = 1;
 
-type Act = (typeof mascotScene.acts)[number]["key"];
+type Act = (typeof mascotBase.acts)[number]["key"];
 
 /** 몽이 자리 상자 안의 한 점(0~1)을 화면 정규 좌표(NDC)로 — 입력 상자가 넘기는 것과 같은 좌표계 */
 function ndcIn(el: HTMLElement, fx: number, fy: number) {
@@ -54,6 +55,7 @@ const ACT_DELAY = 350;
 const ACT_DELAY_FIRST = 1100;
 
 export default function SceneMascot() {
+  const { mascotScene } = useAboutText().features;
   const L = useL();
   const acts = mascotScene.acts;
   const { step, setStep, current } = useFrameSteps(acts.length + 1);

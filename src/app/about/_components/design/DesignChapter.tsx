@@ -7,11 +7,11 @@
 import { useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
 import Pressable from "@/components/ui/Pressable";
-import { designChapter, designSteps } from "../../_data/design";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import { ChapterHead, useL } from "../features/shared";
 import TokenSky, { type SkyMode } from "./TokenSky";
 import styles from "./Design.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 const EASES = ["standard", "enter", "exit", "spring"] as const;
 const DURATIONS = ["instant", "fast", "base", "slow", "slower"] as const;
@@ -55,6 +55,7 @@ const posOf = (i: number, step: number) => (i < step ? "before" : i > step ? "af
 
 /** 첫 프레임 — 장 표지 */
 export function DesignCover() {
+  const { designChapter } = useAboutText().design;
   const L = useL();
   const { current } = useFrame();
   return (
@@ -74,6 +75,7 @@ export function DesignCover() {
 
 /** 둘째 프레임 — 다섯 단계. 위쪽 별을 눌러도 그 칸으로 간다 */
 export function DesignTokens() {
+  const { designSteps } = useAboutText().design;
   const L = useL();
   const n = designSteps.length;
   const { step, setStep, current } = useFrameSteps(n);

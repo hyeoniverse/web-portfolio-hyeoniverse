@@ -7,8 +7,8 @@
 import type { ReactNode } from "react";
 import type { L10n } from "../../_data/showcase";
 import { ChapterHead } from "../features/shared";
-import { featuresChapter } from "../../_data/features";
-import { architectureChapter } from "../../_data/architecture";
+
+
 import { factsScenes } from "./scenes/intro";
 import { trustScenes, faqScenes } from "./scenes/end";
 import { designScenes, aiScenes, codeScenes } from "./scenes/singles";
@@ -16,6 +16,7 @@ import { featuresScenes } from "../features/preziScenes";
 import { architectureScenes } from "../architecture/preziScenes";
 import { decisionsScenes, makingScenes } from "../making/preziScenes";
 import { k, type SceneDef } from "./types";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 export interface ClusterDef {
   id: string;
@@ -26,6 +27,17 @@ export interface ClusterDef {
   scenes: SceneDef[];
 }
 
+/* 장 머리 — 글은 관리자가 고친 값(useAboutText)으로 */
+function FeaturesHead() {
+  const { featuresChapter } = useAboutText().features;
+  return <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} />;
+}
+
+function ArchitectureHead() {
+  const { architectureChapter } = useAboutText().architecture;
+  return <ChapterHead eyebrow={architectureChapter.eyebrow} title={architectureChapter.title} />;
+}
+
 export const CLUSTERS: ClusterDef[] = [
   /* 중요한 것부터 — 무엇인지(한눈에 보기) → 기능 → AI → 구조 → 설계 결정 · 보안 → 디자인 → 코드 → 만든 과정 → 신뢰 · 질문 */
   { id: "facts", anchor: "#facts", scenes: factsScenes },
@@ -34,7 +46,7 @@ export const CLUSTERS: ClusterDef[] = [
     anchor: "#features",
     head: {
       label: k("기능", "Features"),
-      render: () => <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} />,
+      render: () => <FeaturesHead />,
     },
     scenes: featuresScenes,
   },
@@ -44,7 +56,7 @@ export const CLUSTERS: ClusterDef[] = [
     anchor: "#architecture",
     head: {
       label: k("구조", "Architecture"),
-      render: () => <ChapterHead eyebrow={architectureChapter.eyebrow} title={architectureChapter.title} />,
+      render: () => <ArchitectureHead />,
     },
     scenes: architectureScenes,
   },
