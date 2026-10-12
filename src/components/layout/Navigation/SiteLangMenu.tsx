@@ -26,6 +26,8 @@ export default function SiteLangMenu() {
       busy={site.uiStatus === "loading"}
       triggerClassName={cn(styles.actionBtn, styles.siteLangBtn)}
       triggerActiveClassName={styles.siteLangActive}
+      /* 언어 코드는 옆 KO/EN 토글과 같은 글꼴 · 크기 — 글꼴이 달라(Pretendard 500 · Space Grotesk 400) 높이가 미묘하게 어긋나 보였다 */
+      codeClassName={styles.langText}
       tooltipPlacement="bottom"
       labels={{
         open: t("contentTranslate.siteMenuLabel"),

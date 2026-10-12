@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
@@ -93,14 +94,15 @@ export function PostArticleHeader({
   langMenu,
   translating,
 }: PostArticleViewProps) {
-  const { t, language } = useLanguage();
+  const { t, language, foreignLang } = useLanguage();
   const foreign = useForeignReading();
   const authed = useIsAuthenticated();
   const isAdmin = isAdminProp ?? authed;
   const handleLangChange = onLangChange ?? (() => {});
 
   // 한국 시간 기준 — 실행 환경의 시간대를 따르면 서버(UTC)가 미리 그린 날짜와 브라우저의 날짜가 갈려 하이드레이션이 깨진다(#927)
-  const date = new Date(data.createdAt).toLocaleDateString("en-US", {
+  /* 영어 형식이 기본 — 다른 언어로 볼 때는 그 언어 */
+  const date = new Date(data.createdAt).toLocaleDateString(foreignLang ?? "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -170,7 +172,7 @@ export function PostArticleHeader({
           <div className={header.tags}>
             {data.tags.map((tag) => (
               <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={header.tag}>
-                <span className={header.tagHash} aria-hidden>#</span>{tag}
+                <span className={header.tagHash} aria-hidden>#</span><SiteText text={tag} />
               </Link>
             ))}
           </div>

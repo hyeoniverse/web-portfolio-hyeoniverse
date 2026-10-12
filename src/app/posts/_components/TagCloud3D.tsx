@@ -1,5 +1,6 @@
 "use client";
 
+import SiteText from "@/components/ui/SiteText";
 import { useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Tags, ChevronRight } from "@/components/icons";
@@ -202,7 +203,7 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
               onClick={() => onTagClick?.(tg.tag)}
               data-clickable="true"
             >
-              <span>#{tg.tag}</span>
+              <span>#<SiteText text={tg.tag} /></span>
               <span className={styles.chipCount}>{tg.count}</span>
             </Pressable>
           ))}

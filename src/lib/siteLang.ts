@@ -29,9 +29,11 @@ export interface SiteLangSnapshot {
   /** 지금 언어의 화면 글 번역(열쇠 → 글) — 아직 없으면 null */
   ui: Readonly<Record<string, string>> | null;
   uiStatus: SiteUiStatus;
+  /** 지금 언어의 사이트 내용 글 번역(원문 → 글, lib/siteContent — 홈 글 · 카테고리 · 태그) — 아직 없으면 null */
+  content: Readonly<Record<string, string>> | null;
 }
 
-const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle" };
+const SERVER_SNAPSHOT: SiteLangSnapshot = { lang: null, auto: false, ui: null, uiStatus: "idle", content: null };
 
 /** 저장된 선택 › 브라우저 언어 — 순수 함수(테스트용으로 뗀다) */
 export function resolveInitialLang(saved: string | null, browserLangs: readonly string[]): { lang: string | null; auto: boolean } {
@@ -87,6 +89,26 @@ function uiFor(lang: string): Record<string, string> | null {
   return stored;
 }
 
+/* 사이트 내용 글 번역 — 메모리 + localStorage(원문 목록은 서버만 알아 해시로 고르지 않는다 — 저장된 것을 먼저 쓰고,
+   이번 방문에 한 번 서버에서 새로 받아 덮는다. 새 태그 · 설정 수정이 다음 화면부터 반영된다) */
+const CONTENT_CACHE_PREFIX = "siteContent:";
+const contentMemory = new Map<string, Record<string, string>>();
+const contentFetched = new Set<string>();
+function contentFor(lang: string): Record<string, string> | null {
+  const mem = contentMemory.get(lang);
+  if (mem) return mem;
+  try {
+    const raw = localStorage.getItem(CONTENT_CACHE_PREFIX + lang);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    if (parsed && typeof parsed === "object") {
+      const strings = Object.fromEntries(Object.entries(parsed as Record<string, unknown>).filter(([, v]) => typeof v === "string")) as Record<string, string>;
+      contentMemory.set(lang, strings);
+      return strings;
+    }
+  } catch { /* 저장소를 못 쓰면 받아 올 때까지 원문 */ }
+  return null;
+}
+
 /* ── 저장소 ── */
 let state: { lang: string | null; auto: boolean } | null = null;
 let enabled = true;
@@ -104,11 +126,11 @@ function current() {
 function build(): SiteLangSnapshot {
   const { lang: chosen, auto } = current();
   const lang = enabled ? chosen : null;
-  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle" };
+  if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null };
   const ui = uiFor(lang);
   const err = uiErrors.get(lang);
   const uiStatus: SiteUiStatus = ui ? "ready" : err ?? (uiInflight.has(lang) ? "loading" : "idle");
-  return { lang, auto, ui, uiStatus };
+  return { lang, auto, ui, uiStatus, content: contentFor(lang) };
 }
 
 function emit() {
@@ -182,6 +204,31 @@ export async function ensureSiteUi(lang: string, fetcher: typeof fetch = fetch):
   }
 }
 
+/**
+ * 지금 언어의 사이트 내용 글 번역을 받아 온다 — 이번 방문에 한 번(저장된 것이 있어도 새로 받아 덮는다).
+ * 실패하면 저장된 것(없으면 원문)을 그대로 쓴다.
+ */
+export async function ensureSiteContent(lang: string, fetcher: typeof fetch = fetch): Promise<void> {
+  if (contentFetched.has(lang)) return;
+  contentFetched.add(lang);
+  try {
+    const res = await fetcher("/api/site-translate/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang }),
+    });
+    if (!res.ok) return;
+    const data = (await res.json()) as { strings?: unknown };
+    if (!data.strings || typeof data.strings !== "object") return;
+    const strings = Object.fromEntries(
+      Object.entries(data.strings as Record<string, unknown>).filter(([, v]) => typeof v === "string" && v.trim()),
+    ) as Record<string, string>;
+    contentMemory.set(lang, strings);
+    try { localStorage.setItem(CONTENT_CACHE_PREFIX + lang, JSON.stringify(strings)); } catch { /* 메모리에만 */ }
+    emit();
+  } catch { /* 저장된 것 · 원문을 그대로 쓴다 */ }
+}
+
 /** 테스트용 — 모듈 상태를 처음으로 */
 export function __resetSiteLangForTest() {
   state = null;
@@ -190,5 +237,7 @@ export function __resetSiteLangForTest() {
   uiMemory.clear();
   uiErrors.clear();
   uiInflight.clear();
+  contentMemory.clear();
+  contentFetched.clear();
   sourceCache = null;
 }
