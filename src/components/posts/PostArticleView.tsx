@@ -18,6 +18,7 @@ import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ShareButton from "@/components/ui/ShareButton";
+import ListenButton from "@/components/ui/ListenButton";
 import Button from "@/components/ui/Button";
 import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
@@ -158,6 +159,7 @@ export function PostArticleHeader({
               GitHub
             </Button>
           )}
+          <ListenButton title={data.displayTitle} />
           <ShareButton />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
