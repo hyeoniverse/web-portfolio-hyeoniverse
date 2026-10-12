@@ -4,7 +4,7 @@ import { test, expect, type Page } from "@playwright/test";
  * About 설정 화면 안전망.
  *
  * 새 /about 의 글은 코드 기본값(src/app/about/_data) 위에 관리자가 고친 글(about.texts[장])을 겹친다.
- * 편집기는 장 순서대로 글 패널 열 개를 두고, 구조 장 뒤에 그림 셋(그래프 · 흐름 · DB 설계)을 둔다.
+ * 편집기는 왼쪽에 고칠 곳(장 글 열 · 구조 그림 셋), 오른쪽에 고른 곳 하나를 그린다.
  *
  * 이 검사는 화면을 열고 눌러 보기만 한다. 저장 단추(Save Tab·Reset to Defaults)는
  * 누르지 않는다. 실제 사이트 설정을 상대로 돌기 때문에 누르면 설정이 바뀐다.
@@ -12,46 +12,50 @@ import { test, expect, type Page } from "@playwright/test";
 
 const ABOUT_TAB = "/admin/settings?tab=content&sub=about";
 
-/* 패널 이름은 공개 페이지의 장면 라벨이고 관리자 화면 언어를 따른다 */
+/* 이름은 관리자 화면 언어를 따른다 */
 const section = (page: Page, ko: string, en: string) =>
   page.locator(`[data-section-label="${ko}"], [data-section-label="${en}"]`);
+const nav = (page: Page, ko: string, en: string) =>
+  page.getByRole("navigation", { name: /^(About 편집할 곳|About sections)$/ }).getByRole("button", { name: new RegExp(`^(${ko}|${en})`) });
 
 async function openAbout(page: Page) {
   await page.goto(ABOUT_TAB, { waitUntil: "load" });
-  await expect(section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance"), "첫 패널이 떠야 한다").toBeVisible({ timeout: 60_000 });
+  await expect(section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance"), "첫 장이 떠야 한다").toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("About 설정 화면", () => {
   test.setTimeout(180_000);
 
-  test("장 글 패널 열 개와 구조 장의 그림 셋이 그려진다", async ({ page }) => {
+  test("왼쪽에 고칠 곳 열셋, 오른쪽에는 고른 곳 하나만", async ({ page }) => {
     await openAbout(page);
-    await expect(section(page, "기술 그래프", "Tech graph"), "기술 그래프").toBeAttached();
-    await expect(section(page, "사용자 흐름", "User flows"), "사용자 흐름").toBeAttached();
-    await expect(section(page, "DB 설계", "Database design"), "DB 설계").toBeAttached();
-    await expect(page.locator("[data-section-label]"), "패널은 열셋").toHaveCount(13);
+    const items = page.getByRole("navigation", { name: /^(About 편집할 곳|About sections)$/ }).getByRole("button");
+    await expect(items, "장 글 열 + 그림 셋").toHaveCount(13);
+    await expect(page.locator("[data-section-label]"), "한 번에 한 곳").toHaveCount(1);
+    await nav(page, "사용자 흐름", "User flows").click();
+    await expect(section(page, "사용자 흐름", "User flows")).toBeVisible();
+    await expect(page.locator("[data-section-label]")).toHaveCount(1);
   });
 
-  test("장 글: 칸을 고치면 기본값이 보이고, 되돌리면 사라진다. 찾기는 칸을 거른다", async ({ page }) => {
+  test("장 글: 한국어 · 영어 칸이 나란히 있고, 고치면 표시되고 되돌리면 사라진다", async ({ page }) => {
     await openAbout(page);
     const opening = section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance");
-    const field = opening.getByRole("textbox", { name: "facts › title" });
-    const before = await field.inputValue();
-    await field.click();
+    const ko = opening.getByRole("textbox", { name: /^(소개 문장 앞|Lead Before) \(KO\)$/ });
+    await expect(ko).toBeVisible();
+    await expect(opening.getByRole("textbox", { name: /^(소개 문장 앞|Lead Before) \(EN\)$/ })).toBeVisible();
+    const before = await ko.inputValue();
+    await ko.click();
     await page.keyboard.press("End");
     await page.keyboard.type(" z");
-    await expect(opening.getByText(/^(기본값|Default):/), "고친 칸 아래 기본값").toHaveCount(1);
-    await opening.getByRole("button", { name: /^(기본값으로|Reset to default)$/ }).and(page.locator(":enabled")).first().click();
-    await expect(field, "되돌리면 기본 글").toHaveValue(before);
-
-    await page.getByRole("textbox", { name: /^(글 찾기|Find text)$/ }).fill("zzzz-없는-글");
-    await expect(opening.getByText(/^(찾는 글이 없습니다\.|No matching text\.)$/), "찾는 글이 없다").toBeVisible();
+    await expect(nav(page, "첫 화면 · 한눈에 보기", "Opening · At a glance").locator('[class*="navDirty"]'), "목록에 저장 안 됨 표시").toHaveCount(1);
+    await opening.getByRole("button", { name: /^(소개 문장 앞 기본값으로|Reset Lead Before)$/ }).click();
+    await expect(ko, "되돌리면 기본 글").toHaveValue(before);
   });
 
-  test("한국어·영어 전환 탭이 있다", async ({ page }) => {
+  test("찾기: 맞는 칸이 없는 장은 흐려지고, 장 안에서는 맞는 칸만 보인다", async ({ page }) => {
     await openAbout(page);
-    await expect(page.getByRole("tab", { name: "KO" }).first(), "KO 탭").toBeVisible();
-    await expect(page.getByRole("tab", { name: "EN" }).first(), "EN 탭").toBeVisible();
+    await page.getByRole("textbox", { name: /^(글 찾기|Find text)$/ }).fill("zzzz-없는-글");
+    const opening = section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance");
+    await expect(opening.getByText(/^(찾는 글이 없습니다\.|No matching text\.)$/)).toBeVisible();
   });
 
   test("저장 단추가 있다", async ({ page }) => {
@@ -60,12 +64,21 @@ test.describe("About 설정 화면", () => {
     await expect(page.getByRole("button", { name: /^(Save Tab|탭 저장)/ }), "저장 단추").toBeVisible();
   });
 
+  test("About 을 열기만 해서는 저장할 것이 생기지 않는다", async ({ page }) => {
+    await openAbout(page);
+    const save = page.getByRole("button", { name: /^(Save Tab|탭 저장)$/ });
+    await expect(save).toBeDisabled();
+    await page.waitForTimeout(1_000);
+    await expect(save, "고친 것이 없으면 저장 단추는 꺼져 있다").toBeDisabled();
+  });
+
   test("ERD 표 모달: 컬럼을 추가하면 새 이름 칸에 포커스가 가고 오류가 나지 않는다", async ({ page }) => {
     // 칸 이름을 화면 언어로 바꾸면서 이 칸을 찾던 선택자가 깨져 추가할 때마다 페이지 오류가 났다(#818).
     // 모달의 "저장"은 누르지 않고 Esc 로 닫는다.
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await openAbout(page);
+    await nav(page, "DB 설계", "Database design").click();
     const erd = section(page, "DB 설계", "Database design");
     await erd.getByRole("tab", { name: /^(목록|List)$/ }).click();
     await erd.locator('[class*="cardMain"]').first().click();
@@ -84,6 +97,7 @@ test.describe("About 설정 화면", () => {
     // 예전에는 HTML5 끌기라 키보드·터치로 옮길 수 없었고, 선택 표시는 몇 번째인지로만 들고 있어
     // 순서를 바꾸면 다른 컬럼이 선택된 채로 남았다. 모달의 "저장"은 누르지 않고 Esc 로 닫는다.
     await openAbout(page);
+    await nav(page, "DB 설계", "Database design").click();
     const erd = section(page, "DB 설계", "Database design");
     await erd.getByRole("tab", { name: /^(목록|List)$/ }).click();
     await erd.locator('[class*="cardMain"]').first().click();
@@ -108,29 +122,5 @@ test.describe("About 설정 화면", () => {
     const checked = await groups.evaluateAll((bs) => bs.map((b, i) => (b.querySelector('input[type="checkbox"]:checked') ? i : -1)).filter((i) => i >= 0));
     expect(checked, "선택 표시가 옮긴 컬럼(이제 2번)을 따라간다").toEqual([1]);
     await page.keyboard.press("Escape");
-  });
-
-  test("About 을 열기만 해서는 저장할 것이 생기지 않는다", async ({ page }) => {
-    await openAbout(page);
-    const save = page.getByRole("button", { name: /^(Save Tab|탭 저장)$/ });
-    await expect(save).toBeDisabled();
-    await page.waitForTimeout(1_000);
-    await expect(save, "고친 것이 없으면 저장 단추는 꺼져 있다").toBeDisabled();
-  });
-
-  test("고친 패널은 사이드바 목록에 표시되고, 되돌리면 빠진다", async ({ page }) => {
-    await openAbout(page);
-    const outline = page.getByRole("list", { name: /^(이 화면의 섹션|Sections on this page)$/ });
-    const marked = outline.getByRole("button", { name: /, (저장 안 됨|unsaved)$/ });
-    await expect(marked, "처음에는 표시가 없다").toHaveCount(0);
-    const flows = section(page, "사용자 흐름", "User flows");
-    const desc = flows.getByRole("textbox", { name: /^(설명|Description)$/ }).first();
-    await desc.click();
-    await page.keyboard.press("End");
-    await page.keyboard.type(" z");
-    await expect(marked, "고친 패널에 표시").toHaveCount(1);
-    await desc.scrollIntoViewIfNeeded();
-    await flows.getByRole("button", { name: /^(Revert|되돌리기)$/ }).first().click();
-    await expect(marked, "되돌린 패널은 표시가 빠진다").toHaveCount(0);
   });
 });

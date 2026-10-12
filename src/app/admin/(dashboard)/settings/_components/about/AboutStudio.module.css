@@ -11,6 +11,178 @@
   position: relative;
 }
 
+/* ── 두 칸 — 왼쪽 고칠 곳 목록(붙어 따라온다), 오른쪽 고른 곳 하나 ── */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.navHead {
+  margin: var(--spacing-12) 0 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.navList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  min-height: var(--control-height-sm);
+  padding: var(--spacing-4) var(--spacing-12);
+  border-radius: var(--radius-control);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.navItem:hover {
+  background: var(--bg-secondary);
+}
+
+.navItem[data-on] {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.navItem[data-dim] {
+  opacity: 0.45;
+}
+
+.navLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.navCount {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.navDirty {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--bg-accent-solid);
+}
+
+.navHint {
+  margin: var(--spacing-16) 0 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (width >= 1024px) {
+  .studio {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--spacing-32);
+  }
+
+  .nav {
+    position: sticky;
+    top: var(--spacing-24);
+  }
+
+  .navList {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+}
+
+/* ── 사용자 흐름 — 이름 · 누구 · 설명 폼 + 흐름 그림 ── */
+.ufBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-16);
+}
+
+.ufCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.ufFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.ufField,
+.ufPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-8);
+  align-items: start;
+}
+
+.ufFieldLabel {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.ufText {
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  resize: vertical;
+  field-sizing: content;
+}
+
+.ufText:focus-visible {
+  border-color: var(--border-color-accent-strong);
+}
+
+.ufDiagramHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-light);
+}
+
+.ufRemove {
+  margin-left: auto;
+}
+
+@media (width >= 768px) {
+  .ufField {
+    grid-template-columns: minmax(0, 6rem) minmax(0, 1fr);
+  }
+
+  .ufPair {
+    grid-template-columns: minmax(0, 6rem) minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .ufFieldLabel {
+    padding-top: var(--spacing-8);
+  }
+}
+
 /* SegmentedControl 을 내용 폭에 맞게 (부모 flex 의 stretch 방지) */
 .segFit {
   align-self: flex-start;
@@ -19,17 +191,6 @@
 /* 활성 Hero 요소 위에 뜨는 floating 타입 툴바 — stage overflow 밖(studio 기준)에서 렌더해 안 잘림 */
 
 /* ── 상단 바 — 언어 토글 + 안내 ── */
-.bar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-16);
-  flex-wrap: wrap;
-}
-.barHint {
-  margin: 0;
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
-}
 
 /* ── 편집 가능 텍스트 프리미티브 ──
    이 입력들은 실제 패널 CSS 의 클래스를 같이 단다(`${css.edit} ${secu.secScope}`). 글꼴·색·
@@ -42,20 +203,6 @@
    - padding 은 그 리셋(0,0,1)의 0 은 이기고 패널 클래스(0,1,0)에는 져야 해서 (0,0,2) 로 —
      Security 의 scope 칸은 패널 칩 여백(3xs xs)을 쓴다.
    - 테두리·모서리·쉼 상태 링은 반대로 .edit 가 이겨야 한다. .edit.edit (0,2,0). */
-:where(.edit) {
-  letter-spacing: inherit;
-  line-height: inherit;
-  text-align: inherit;
-  resize: none;
-  /* 내용에 맞춰 자동 크기 (지원 브라우저) */
-  field-sizing: content;
-  min-width: 2ch;
-  max-width: 100%;
-  transition: box-shadow var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
-}
-:where(.edit):is(input, textarea):is(input, textarea) {
-  padding: var(--spacing-2) var(--spacing-4);
-}
 /* 편집 칸의 테두리와 모서리.
    테두리는 오직 box-shadow 링 하나로 그린다. 진짜 border 까지 있으면 선이 두 겹으로
    겹쳐 보인다 — Security 의 scope 칸 8개가 그랬다(.secScope 가 자기 border 를 갖고 있다).
@@ -65,268 +212,35 @@
    모서리는 각져야 한다(R6 예외). 이 패널들에는 capsule 인 칩·뱃지·버튼이 이미 깔려 있어서,
    같은 알약 모양을 쓰면 고칠 수 있는 칸인지 그냥 표시인지 구분이 안 된다. 24px(2xl)도
    한 줄 입력 높이(26px)에선 사실상 알약이다. */
-.edit.edit {
-  border: 0;
-  outline: var(--border-width-1) solid var(--border-color-light);
-  outline-offset: calc(-1 * var(--border-width-1));
-  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 위 주석 */
-  border-radius: var(--radius-mark);
-}
-
-.edit::placeholder {
-  color: inherit;
-  opacity: 0.4;
-}
-
-.edit:hover {
-  outline: var(--border-width-1) solid var(--border-color-default);
-  outline-offset: calc(-1 * var(--border-width-1));
-}
-.edit:focus {
-  background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
-  outline: var(--border-width-1) solid var(--border-color-accent-strong);
-  outline-offset: calc(-1 * var(--border-width-1));
-}
 /* 한 줄 값이지만 접어서 보여 주는 칸(EditableText wrap). 패널 클래스가 제목을 한 줄로 두고
    말줄임표로 자르는 경우(Key Features 카드 제목)가 있어 그보다 높게 (0,2,0) 로 푼다.
    편집기에서 보는 줄바꿈이 실제 페이지와 달라도, 고치는 동안 글이 다 보이는 쪽을 택한다(PanelStage 와 같은 판단). */
-.editWrap.editWrap {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  text-overflow: clip;
-}
 /* 한 줄 입력은 flex 줄에서 자기 내용 아래로 눌리지 않게. input 은 줄바꿈을 못 해서
    눌리는 만큼 글자가 잘린다 — User Flow 의 VISITOR 가 VISITO 로 나왔다.
    textarea 는 눌려도 줄바꿈으로 흡수하므로 그대로 둔다. */
-input.edit {
-  flex-shrink: 0;
-}
 
 /* 여러 줄은 여백만 다르다 — 모서리는 한 줄과 같이 간다(위 .edit 주석). */
-textarea.edit {
-  padding: var(--textarea-padding);
-  /* 내용만큼 늘어나되 한 화면을 넘지 않는다. 안 막으면 Design Decisions 의 본문 하나가
-     4,000px 짜리 입력이 되어, 다음 항목으로 가려면 화면 몇 개를 굴려야 했다.
-     넘치는 만큼은 입력 안에서 스크롤한다. */
-  max-height: 50vh;
-}
 
 /* ── Hero 라이브 프리뷰 — 브라우저 크롬 + 뷰포트(실제 Hero 스케일 다운) ── */
-.stageWrap {
-  position: relative;
-  overflow: hidden;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-}
 
 /* ── 타입 툴바 — stage 밖 도킹 바 안에 렌더 (overflow 로 안 잘림) ── */
 /* 툴바 좌측 요소 라벨 (Line 1 / Watermark 등) */
-.ttLabel {
-  padding-right: var(--spacing-4);
-  font: var(--font-code-xs);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--text-tertiary);
-}
-.ttSwatch {
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  flex-shrink: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-}
 /* Hero 액센트 밑줄 클릭 영역 — 얇은 선이라 hit 영역을 넉넉히 (선 위치는 그대로) */
-.accentHit {
-  display: block;
-  width: fit-content;
-  margin: 0;
-  padding: var(--spacing-8) var(--spacing-32) var(--spacing-8) 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
 
 /* ── Hero 배경 컨트롤 (스테이지 우상단 Popover) ── */
-.stageBgBtn {
-  position: absolute;
-  top: var(--spacing-12);
-  right: var(--spacing-12);
-  z-index: 3;
-  display: flex;
-  gap: var(--spacing-4);
-}
 /* Hero 레이아웃 팝오버 — 정렬 + 표시 요소 */
-.layoutPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-16);
-  width: min(360px, 62vw);
-  padding: var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-primary);
-}
 /* Popover 안 배경 편집 패널 — 폭 제한 + 넘치면 스크롤 → 사이드바 침범 방지 */
-.bgPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-16);
-  width: min(560px, 60vw);
-  max-height: 66vh;
-  padding: var(--spacing-16);
-  overflow: auto;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-primary);
-}
-.bgSliderRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-}
 
 /* 배경(단색/그라데이션) 프리뷰 + 색 필드 */
-.bgPreview {
-  width: 100%;
-  height: 68px;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-}
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
-.bgThemeRow {
-  display: grid;
-  gap: var(--spacing-16);
-  grid-template-columns: var(--grid-columns-2);
-}
-.bgThemeCol {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  min-width: 0;
-}
-.bgThemeLabel {
-  font: var(--font-label-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-.swatchField {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
-  width: 100%;
-  min-width: 0;
-  height: var(--control-height-sm);
-  padding: 0 var(--spacing-12);
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  background: transparent;
-  cursor: pointer;
-}
-.swatchField:hover {
-  border-color: var(--text-primary);
-}
-.swatchChip {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-}
-.swatchLabel {
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-.swatchVal {
-  margin-left: auto;
-  overflow: hidden;
-  font: var(--font-code-xs);
-  color: var(--text-tertiary);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.mediaActions {
-  display: flex;
-  gap: var(--spacing-8);
-}
 
 /* ── 패널 스트립 (표시/숨김 + 편집 이동) ── */
-.strip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
-.stripHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-}
-.stripTitle {
-  font: var(--font-code-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-.stripChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-8);
-}
 
 /* 패널 칩 — 드래그로 순서 변경(중간 패널) + 클릭으로 표시 토글 */
-.chipDrag {
-  cursor: grab;
-  touch-action: none;
-}
-.chipDrag:active {
-  cursor: grabbing;
-}
-.chipDragging {
-  opacity: 0.9;
-  box-shadow: var(--shadow-floating);
-}
 /* hero/credits — 순서 고정(드래그 불가), 클릭 토글은 유지 */
-.chipLocked {
-  cursor: pointer;
-}
-.chipLock {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
 /* 칩 더블클릭 이름 편집 인풋 — 칩과 같은 모양 */
-.chipEdit {
-  min-width: 90px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: inherit;
-  outline-color: transparent;
-}
-.chipEdit:focus {
-  border-color: var(--border-color-accent-strong);
-}
-.stripHint {
-  margin: 0;
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-}
 
 /* Design System — 이미지 선택 행 */
-.mediaName {
-  min-width: 0;
-  overflow: hidden;
-  font: var(--font-code-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
 
 /* 한 패널 = 헤더 + 편집 블록. sticky 헤더가 자기 구역을 넘어가지 않도록 묶는 상자다.
    바깥 .studio 는 gap-xl 이라, 예전 .psHeader 의 margin-top(lg)을 여기로 옮기면
@@ -416,38 +330,6 @@ textarea.edit {
   background: var(--bg-accent-solid);
 }
 /* 섹션 칩 — 설정 페이지 컨트롤 높이(sm) */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-height-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--badge-padding-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-sm);
-  cursor: pointer;
-}
-.chipOn {
-  border-color: var(--border-color-accent-strong);
-  color: var(--text-primary);
-}
-.chipOff {
-  color: var(--text-tertiary);
-  opacity: 0.6;
-}
-.chipDot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--text-tertiary);
-}
-.chipOn .chipDot {
-  background: var(--bg-accent-solid);
-}
 
 /* ── 결과형 편집 블록 (Overview/Features/Process/Security) ── */
 .block {
@@ -462,532 +344,58 @@ textarea.edit {
 /* 폭은 편집 열에 맞는다(PanelStage 주석). 가로 스크롤은 안쪽에 자기 폭을 고집하는
    것(넓은 표·다이어그램 캔버스)만을 위한 도피처로 남긴다 — 세로는 페이지가 맡아
    Lenis 스크롤이 패널 위에서 끊기지 않는다. */
-.panelStage {
-  position: relative;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-}
-
-.panelStage::-webkit-scrollbar {
-  height: 8px;
-}
-
-.panelStage::-webkit-scrollbar-thumb {
-  border-radius: var(--radius-full);
-  background: var(--border-color-default);
-}
 /* ── 글자 칩 목록(ChipList) — Credits 이름·Design Decisions 태그·Overview 하이라이트 ── */
 /* 끌어 옮기는 칩의 자리. 칩(공통 Chip)은 ref 를 받지 않아 한 겹 감싼다. z-index 가 먹게 relative */
-.chipSlot {
-  position: relative;
-  display: inline-flex;
-  vertical-align: middle;
-}
 /* 칩을 누르면 그 자리에서 바뀌는 입력 칸 — 칩 모양 클래스를 같이 받아 크기가 튀지 않는다 */
-.chipInput {
-  box-sizing: border-box;
-  width: 8em;
-  padding: var(--spacing-4) var(--spacing-12);
-  border: var(--border-width-1) solid var(--border-color-accent-strong);
-  border-radius: var(--radius-control);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font: inherit;
-  vertical-align: middle;
-  outline-color: transparent;
-}
 /* "+ 무엇 추가" — 누르면 같은 캡슐 안이 입력 칸으로 바뀐다. 캡슐을 갈아끼우면 튀어 보인다 */
-.chipAdd {
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  border: var(--border-light);
-  border-radius: var(--radius-control);
-  color: var(--text-tertiary);
-  vertical-align: middle;
-}
-.chipAdd:hover {
-  border-color: var(--border-color-accent-strong);
-  color: var(--text-accent);
-}
-.chipAddOpen,
-.chipAddOpen:hover {
-  border-color: var(--border-color-accent-strong);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-.chipAddBtn {
-  display: inline-flex;
-  gap: var(--spacing-2);
-  align-items: center;
-  padding: var(--spacing-4) var(--spacing-12);
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.chipAddInput {
-  width: 8em;
-  padding: var(--spacing-4) var(--spacing-12);
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  outline-color: transparent;
-}
 /* Overview 하이라이트 — 공개 패널의 .overviewTag 와 같은 값. 공통 Chip 의 배경 캡슐·글꼴을 이겨야 해서
    두 번 적는다(한 번이면 CSS 청크 순서에 따라 배포에서 뒤집힐 수 있다). */
-.highlightChip.highlightChip {
-  padding: var(--spacing-8) var(--spacing-16);
-  border: var(--border-default);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-lg);
-  font-family: inherit;
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.05em;
-}
-.editStat {
-  position: relative;
-}
 /* 항목 도구(순서 손잡이·삭제, Key Features 는 이미지까지) — 항목 오른쪽 위. 박스/색은 공통 Button,
    여기선 위치와 counter-scale(--tool-scale)만. 마우스를 올리거나 키보드로 항목 안에 들어가면 보이고,
    올리는 동작이 없는 터치 기기에서는 늘 보인다. 예전에는 블록마다 올렸을 때만 보이게 해서
    키보드로는 보이지 않았고(Key Features 만 예외), 터치 기기에서는 투명한 채로 눌렸다.
    도구 묶음은 언제나 항목의 바로 아래 자식이라 부모를 가리지 않고 :hover > 로 잡는다. */
-.itemTools {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: center;
-  opacity: 0;
-  transform: scale(var(--tool-scale));
-  transform-origin: top right;
-}
-:hover > .itemTools,
-:focus-within > .itemTools {
-  opacity: 1;
-}
-@media (hover: none) {
-  .itemTools {
-    opacity: 1;
-  }
-}
 /* 손잡이 — 끌 때 터치 스크롤이 먼저 가로채지 않게. Pressable 의 cursor 를 이기려고 두 번 적는다 */
-.dragHandle.dragHandle {
-  touch-action: none;
-  cursor: grab;
-}
 
 /* Overview 지표 추가 — stat 셀 하나 크기의 버튼(Key Features add 셀처럼).
    overviewStats 그리드의 다음 셀을 차지하고, 높이는 stat 행(--font-size-display-md 리드 + 상하 패딩)과 동일. */
-.addStatCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  min-height: calc(var(--font-size-display-md) * var(--_lh-title) + 2 * clamp(0.6rem, 1vh, 1rem));
-  padding: 0;
-  /* overviewStat 과 동일한 border-bottom line 모델 — flush, radius/여백 없음, 겹침 없이 1px */
-  border-bottom: var(--_line-secondary);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-xl);
-  cursor: pointer;
-}
-.addStatCell:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
 
 /* Security 프리뷰 래퍼. display:contents 라 레이아웃에 영향이 없다.
    예전에는 여기서 폰트를 1.2~1.28 배로 키웠다 — 미리보기가 0.72 배로 축소돼 글자가
    작았기 때문이다. 미리보기를 실제 크기로 바꾸면서 보정할 이유가 없어졌다. */
-.secStage {
-  display: contents;
-}
 /* Security 항목 추가 — secItem 셀 하나 크기의 버튼 */
-.addSecCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  min-height: 7rem;
-  padding: clamp(0.8rem, 1.5vh, 1.4rem) clamp(0.6rem, 1.5vw, 1.5rem);
-  /* secItem 과 같은 line 모델 — gap:0 그리드라 인접 border 와 겹쳐 굵어지지 않고 항상 1px.
-     다만 세로 선(border-right)은 빼야 한다. 이 셀은 언제나 그리드의 마지막이라 오른쪽에
-     칸이 없다. 왼쪽 열에 놓이면 빈 칸과 자기를 가르는 선을 혼자 긋고, 오른쪽 열에 놓이면
-     그리드 바깥 모서리에 선이 남는다(secItem 도 짝수 번째엔 이 선을 안 긋는다). */
-  border-bottom: var(--_line-secondary);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-xl);
-  cursor: pointer;
-}
-.addSecCell:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
 
 /* Popover 가 trigger 를 span 으로 한 번 감싼다. 그 span 이 줄 높이를 받아야
    안의 버튼이 제목 입력과 같은 높이가 된다. */
-.secIconTrigger {
-  align-self: stretch;
-}
 
 /* Security 아이콘 고르기 — 이 패널에서 글자가 아닌 유일한 편집 지점이다.
    결과물과 똑같이 아이콘만 놓여 있어서 눌러서 바꿀 수 있다는 걸 알 수가 없었다.
    옆 입력 칸(.edit)과 같은 세 단계로 맞춘다: 쉼(light) → 가리킴(default) → 편집 중(accent).
    편집 중은 :focus 로 잡는다 — 눌러서 피커를 열면 이 버튼이 포커스를 쥔 채 남는다. */
-.secIconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  /* 높이는 같은 줄의 제목 입력에 맞춘다. 제목 글자 크기가 clamp 라 화면 폭에 따라 변하므로
-     숫자로 박으면 어긋난다 — 줄 높이를 그대로 받아 정사각으로 만든다.
-     늘어나는 것은 위 .secIconTrigger(Popover 래퍼)이고, 버튼은 그 높이를 채운다. */
-  height: 100%;
-  aspect-ratio: 1;
-  padding: 0;
-
-  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸과 같은 모서리(R6 예외). .edit 주석 참고 */
-  border-radius: var(--radius-mark);
-  border: var(--border-width-1) solid var(--border-color-light);
-  transition: box-shadow var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
-}
-.secIconBtn:hover {
-  outline: var(--border-width-1) solid var(--border-color-default);
-  outline-offset: calc(-1 * var(--border-width-1));
-}
-.secIconBtn:focus {
-  background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
-  outline: var(--border-width-1) solid var(--border-color-accent-strong);
-  outline-offset: calc(-1 * var(--border-width-1));
-}
 
 /* Security 아이콘 피커 (Popover) */
-.editSecItem {
-  position: relative;
-}
-.iconPickPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  width: 236px;
-  padding: var(--spacing-12);
-}
-.iconPickGrid {
-  display: grid;
-  grid-template-columns: var(--grid-columns-4);
-  gap: var(--spacing-4);
-}
-.iconPickBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-xl);
-  cursor: pointer;
-}
-.iconPickBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-.iconPickOn {
-  color: var(--text-accent);
-  border-color: var(--border-color-accent-strong);
-}
 
 /* Features — 좁은 화면은 한 줄에 한 카드씩 쌓는다. 데스크톱 3×3 틀을 흉내 내면 칸 폭이 80px 남짓이라 제목이
    글자 단위로 쪼개졌다. hover 로만 펼치던 설명·기술 칸도 늘 보인다 — 터치에는 hover 가 없다. 틀 흉내용 grid 크기는
    인라인 style 이라 flex 에서는 무시된다.
    넓은 화면(아래 media)은 실제 DynamicFrameLayout 흉내: 동적 fr 그리드(hover 확장) + hover reveal + blur */
-.featGrid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  flex: 1;
-  min-height: 0;
-  margin-top: var(--spacing-24);
-  transition: grid-template-columns var(--duration-base) var(--ease-standard), grid-template-rows var(--duration-base) var(--ease-standard);
-}
 /* 이미지·글·도구가 모두 absolute 라 flex 는 좁은 화면의 글(.featInfo, relative)만 아래로 붙인다 */
-.featCell {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-  min-width: 0;
-  min-height: 200px;
-  background: var(--bg-tertiary);
-  transition: transform var(--duration-base) var(--ease-standard);
-}
-.featImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.featNoImg {
-  position: absolute;
-  inset: 0;
-  background: var(--bg-tertiary-alt);
-}
-.featInfo {
-  position: relative;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: auto;
-  transition: backdrop-filter var(--duration-base) var(--ease-standard);
-}
-.featCell:hover .featInfo {
-  backdrop-filter: blur(6px);
-}
 /* 설명·기술 — 넓은 화면에선 평소엔 접힘, hover/편집 시 펼침 (실제 hover reveal 재현) */
-.featDetails {
-  max-height: none;
-  overflow: hidden;
-  opacity: 1;
-  transition: max-height var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
-}
-.featCell:hover .featDetails,
-.featCell:focus-within .featDetails {
-  max-height: 12rem;
-  opacity: 1;
-}
-.featAdd {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 64px;
-  border: var(--border-light);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-@media (width > 768px) {
-  .featGrid {
-    display: grid;
-    gap: 0;
-    min-height: clamp(360px, 58vh, 600px);
-  }
-  .featCell {
-    min-height: 0;
-  }
-  .featInfo {
-    position: absolute;
-  }
-  .featDetails {
-    max-height: 0;
-    opacity: 0;
-  }
-}
 
 /* Process 정적 프리뷰 — 타임라인 + 편집용 스텝 리스트 */
-.procList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-20);
-  margin-top: var(--spacing-32);
-}
-.procRow {
-  position: relative;
-  display: flex;
-  gap: var(--spacing-20);
-  align-items: baseline;
-  padding-right: var(--spacing-32);
-  padding-bottom: var(--spacing-20);
-  border-bottom: var(--border-light);
-}
 /* 번호이자 순서 손잡이. 글자 입력이 아니라 자리에서 나오는 값이라 테두리를 주지 않는다 —
    .edit 처럼 보이면 고칠 수 있는 칸으로 읽힌다. */
-.procNum {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  font: var(--font-headline-xl);
-  color: var(--text-accent);
-  opacity: 0.55;
-  touch-action: none;
-  cursor: grab;
-}
-.procNum:active {
-  cursor: grabbing;
-}
 /* 손잡이 표시는 평소 숨긴다 — 번호가 주인공이고, 줄에 마우스가 오면 끌 수 있음을 알린다 */
-.procGrip {
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-standard);
-}
-.procRow:hover .procGrip,
-.procRow:focus-within .procGrip {
-  opacity: 1;
-}
-@media (hover: none) {
-  .procGrip {
-    opacity: 1;
-  }
-}
-.procNum:hover {
-  opacity: 1;
-}
-.procRowDragging {
-  opacity: 0.85;
-}
-.procBody {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  min-width: 0;
-}
-.procTitle {
-  font: var(--font-headline-md);
-  font-style: italic;
-  color: var(--text-primary);
-}
-.procDesc {
-  font: var(--font-headline-sm);
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
 /* Process 기간·수치 줄 — 시작일 ~ 종료일 · 커밋 · PR */
-.procMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-8) var(--spacing-16);
-  align-items: baseline;
-  margin-top: var(--spacing-12);
-  font: var(--font-code-sm);
-  color: var(--text-tertiary);
-}
 /* Process 제목 아래 ** 강조 문법 안내 — hint 색은 accent */
-.procHint {
-  margin: var(--spacing-4) 0 var(--spacing-24);
-  font: var(--font-body-xl);
-  color: var(--text-accent);
-}
 /* Process 타임라인(dot rail) — 스튜디오 프리뷰만 확대. double-class 로 실제 proc 클래스보다 우선. */
-.procTrack.procTrack {
-  height: 4px;
-}
-.procDotWrap.procDotWrap {
-  width: 34px;
-  height: 34px;
-}
-.procDot.procDot {
-  width: 20px;
-  height: 20px;
-}
-.procNodeLabel.procNodeLabel {
-  font-size: var(--font-size-headline-xs);
-}
 /* 단계 추가 — 리스트 폭 전체 flush 버튼(radius/여백 없음). 위 procRow 의 border-bottom 이 구분선. */
-.addStepBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  width: 100%;
-  margin-top: calc(-1 * var(--spacing-20));
-  height: var(--control-height-xl);
-  padding: 0 var(--control-padding-inline-xl);
-  border-bottom: var(--border-light);
-  background: transparent;
-  color: var(--text-secondary);
-  font: var(--font-body-xl);
-  cursor: pointer;
-}
-.addStepBtn:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-.rcardMedia {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-surface);
-  aspect-ratio: 16 / 9;
-  border: var(--border-light);
-}
-.rcardMedia img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 /* ═══════════ Design System — 실제 풀블리드 슬라이드 프리뷰 ═══════════ */
-.dsSlide {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  border-radius: var(--radius-surface);
-}
-.dsBg {
-  position: absolute;
-  inset: 0;
-  background: var(--bg-inverse);
-}
-.dsBg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center bottom;
-  /* 실제 .dcCardBg img 와 동일 — 흰 텍스트 가독성용 스크림 */
-  filter: brightness(0.35) saturate(0.5);
-}
 /* 실제는 vh 기반(헤더+15vh) — 스테이지는 1440×860 고정 설계라 실측 px 로 동일 비율 재현 */
-.dsOverlay.dsOverlay {
-  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 미리보기 무대 여백 — 실제 About 페이지 여백을 축소 재현한 값. 간격 눈금 밖이다 */
-  padding: 240px 96px 160px;
-}
 
 /* ═══════════ Code Highlights — 실제 단일 패인 레이아웃 ═══════════ */
-.chStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-32);
-  /* chTools 가 패널 우상단에 붙도록 기준점 */
-  position: relative;
-}
-.chPane {
-  position: relative;
-  padding-bottom: var(--spacing-32);
-  border-bottom: var(--border-light);
-}
-.chPane:last-of-type {
-  border-bottom: 0;
-}
 /* 실제 .codeSingleMeta h4 와 동일 — EditableText 는 input 이라 선택자가 안 걸림 */
-.chTitle {
-  margin-bottom: var(--_space-line);
-  width: 100%;
-  font-family: var(--_font-grotesk);
-  font-size: inherit;
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-135);
-}
-.chBody.chBody {
-  height: 380px;
-  padding-bottom: 0;
-}
 /* 코드 편집 — 하이라이팅된 pre 위에 투명 textarea 를 정확히 겹친다.
    metric(폰트/줄높이/패딩/whitespace)이 pre 와 1px 이라도 어긋나면 커서가 글자와 안 맞으므로 전부 동일하게. */
 
@@ -995,45 +403,13 @@ textarea.edit {
 /* 코드 하이라이팅 언어 선택 — 실제 페이지엔 안 나오고 prism 토큰 기준으로만 쓰인다 */
 
 /* ═══════════ 슬라이드/패인 공용 툴 ═══════════ */
-.slideTools,
-.chTools {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: center;
-  z-index: 2;
-  transform: scale(var(--tool-scale));
-  transform-origin: top right;
-}
 /* 스테이지 도구(삭제·종류·난이도)는 늘 보인다. 예전에는 평소 숨기고 올렸을 때만 보이게 했는데,
    보이게 하는 규칙이 Code Highlights 스테이지에만 걸려 있어 Backend·User Flow·Design Decisions 에서는
    올려도 보이지 않았다. 터치 기기에는 올리는 동작이 없기도 하다. */
-.chTools {
-  top: 0;
-  right: 0;
-}
 
 /* ── Code Highlights 데모 칸 편집 컨트롤 ── */
 /* 채워진 데모 위 편집 바 — 데모 하단 hint 와 겹치지 않게 좌상단.
    z-index 필수: 샌드박스(iframe·sp-loading)가 위를 덮어 클릭이 안 닿는다. */
-.demoEdit {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 3;
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: center;
-  opacity: 0;
-  transform: scale(var(--tool-scale));
-  transform-origin: top left;
-}
-.chPane:hover .demoEdit,
-.chPane:focus-within .demoEdit {
-  opacity: 1;
-}
 
 
 /* ── 스테이지 전환 스트립 — 번호가 줄에 안 들어가면 다음 줄로 내려간다 ── */
@@ -1124,317 +500,58 @@ textarea.edit {
   margin: 0;
 }
 
-.demoUploadErr {
-  color: var(--text-accent);
-  font: var(--font-body-sm);
-  white-space: nowrap;
-}
-
-.demoEditorLoading {
-  padding: var(--spacing-8) var(--spacing-16);
-  width: 40rem;
-  max-width: 84vw;
-  color: var(--text-tertiary);
-  font: var(--font-body-md);
-}
-
 /* 데모 칸 기준 위치 — 실제 .codeDemo 는 static 이라 스튜디오에서만 relative.
    이게 없으면 편집 바가 패인 기준으로 잡혀 칸 밖으로 나간다. */
-.chPane :global([class*="codeDemo"]) {
-  position: relative;
-}
 
 /* ── 데모 빈 상태 — 칸 한가운데서 어떤 데모를 만들지 고르게 ── */
-.demoEmpty {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-16);
-  border: var(--border-light);
-  color: var(--text-tertiary);
-}
 /* 파일을 끌어다 놓는 중 */
 /* 스테이지가 scale 다운돼도 컨트롤은 실제 크기로 */
-.demoEmptyInner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-12);
-  transform: scale(var(--tool-scale));
-}
-.demoEmptyLabel {
-  font: var(--font-body-md);
-}
-.demoEmptyActions {
-  display: flex;
-  gap: var(--spacing-8);
-}
-.demoSwitch {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--text-accent);
-  font: var(--font-body-sm);
-  text-decoration: underline;
-  cursor: pointer;
-}
 
 /* 데모 배경색 스와치 — 미설정이면 투명임을 체커보드로 보여준다 */
-.demoBgSwatch {
-  flex-shrink: 0;
-  /* 옆 세그먼트 · 코드 편집 단추와 같은 높이(sm) */
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  background-image:
-    linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--border-color-light) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--border-color-light) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--border-color-light) 75%);
-  background-size: 8px 8px;
-  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-  cursor: pointer;
-}
 
 /* ── Credits — 한 줄 문구라 패널 스테이지 없이 컴팩트하게 ── */
 /* 원작자 표기 유지 안내 — 문장이 길어 헤더 아래 block hint.
    규격은 다른 탭의 sectionHint(Space Grotesk / xs / tertiary)와 동일. */
-.creditsNotice {
-  display: flex;
-  gap: var(--spacing-4);
-  align-items: flex-start;
-  margin: 0;
-  font: var(--font-body-sm);
-  line-height: var(--line-height-135);
-  color: var(--text-tertiary);
-}
-.creditsNotice svg {
-  flex-shrink: 0;
-  margin-top: 0.15em;
-}
 /* 내용과 무관하게 폭 고정 — 이름 추가로 줄이 길어져도 textarea 너비가 안 변한다 */
-.creditsBody {
-  width: min(100%, 46rem);
-}
 /* 문구 영역 기본 타이포 — 인라인 noteStyle 이 이 위에 얹힌다 */
-.creditsNoteWrap {
-  font: var(--font-body-md);
-}
-.creditsPreview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* 내용 길이와 무관하게 폭 유지 */
-  width: 100%;
-  padding: var(--spacing-16) 0;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  /* 실제 About 패널은 배경이 투명(패널 바탕이 그대로 비침) — 회색 칠하면 실제와 달라진다 */
-  background: transparent;
-  /* 폰트도 실제와 동일하게. About 패널(.section)이 mono 를 걸어서 크레딧도 mono 로 렌더된다 */
-  font-family: var(--font-family-code);
-}
 /* 고정 문구 — 편집 대상이 아님을 커서로 드러낸다 */
-.creditsLocked {
-  cursor: not-allowed;
-  user-select: none;
-}
 /* 덧붙이는 문구 — 공통 Textarea 래퍼. 폭만 잡고 나머지는 컴포넌트 규격을 따른다.
    타이포는 중간 래퍼에서 끊기지 않게 여기서도 상속시킨다. */
-.creditsNote,
-.creditsNote * {
-  font-family: inherit;
-  font-size: inherit;
-  text-align: inherit;
-}
-.creditsNote {
-  margin-top: var(--spacing-12);
-  width: 100%;
-}
 /* 비편집 상태 — 같은 요소를 유지한 채 편집 chrome 만 숨긴다(높이 불변) */
-.creditsNoteQuiet :global([class*="editableWrap"]),
-.creditsNoteQuiet :global([class*="resizeOverlay"]) {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-.creditsNoteQuiet :global([class*="bottomRow"]) {
-  opacity: 0;
-  pointer-events: none;
-}
 /* rows 로 높이를 고정해 글자 수가 늘어도 프리뷰 박스가 출렁이지 않는다.
    Textarea 내부 폰트 규칙이 상속을 덮어서, 래퍼가 내려준 --note-* 로 확정한다.
    Textarea 는 components 층이라 층 밖의 이 규칙이 이기고, 위 `.creditsNote *` 와는 파일 순서로 이긴다 */
-.creditsNoteInput {
-  font-family: var(--note-ff, inherit);
-  font-size: var(--note-fs, inherit);
-  line-height: var(--note-lh, inherit);
-  text-align: var(--note-align, inherit);
-  color: var(--text-tertiary);
-  resize: none;
-}
 /* 소유자 이름 — 프로필 설정에서 오는 고정값이라 편집 대상이 아님을 형태로 드러낸다 */
-.creditsFixed {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: 0.1em 0.6em;
-  box-sizing: border-box;
-  min-height: 1.7em;
-  border-radius: var(--radius-control);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
 /* 추가된 이름 chip — 크레딧 줄의 폰트/크기를 그대로 상속받아야 주변과 안 튄다.
    공통 Chip 기본은 12px/28px 라 두면 고정 칩(20px/34px)보다 작다. */
-.creditsChip {
-  margin-left: 0.5em;
-  vertical-align: middle;
-  box-sizing: border-box;
-  height: 1.7em;
-  min-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  font-family: inherit;
-  font-size: inherit;
-}
-.creditsChip *,
-.creditsChip button {
-  font-family: inherit;
-  font-size: inherit;
-}
 
 /* 이름 추가 캡슐 — 이름 칩과 같은 높이로 문장 줄에 이어 붙는다. 글자는 편집 도구라 작게 */
-.creditsAdd.creditsAdd {
-  height: 1.7em;
-  margin-left: 0.5em;
-}
-.creditsAdd .chipAddBtn,
-.creditsAdd .chipAddInput {
-  font-size: var(--font-size-body-sm);
-}
 
 /* floating bar 안 컨트롤 — 배경/높이를 서로 맞춘다.
    NumberInput 은 기본이 bg-tertiary 라 혼자 옅은 판이 깔려 튄다. */
-.barStepper,
-.fontTrigger {
-  height: 28px;
-  background: transparent;
-}
 /* triggerClassName 은 FontPicker root 에 붙고 실제 버튼은 그 안쪽 —
    버튼까지 내려가야 주변 컨트롤과 높이가 맞는다 */
-.fontTrigger {
-  max-width: 10rem;
-}
-.fontTrigger button {
-  height: 28px;
-  min-height: 28px;
-  background: transparent;
-}
-.fontDropdown {
-  min-width: 12rem;
-}
 
 
 /* floating bar 그룹 구분선 — 타이포 컨트롤 / 정렬 사이 */
-.barDivider {
-  align-self: center;
-  width: 1px;
-  height: 18px;
-  margin: 0 var(--spacing-4);
-  background: var(--border-color-light);
-}
 
 /* 채워진 데모 위로 파일을 끌어다 놓는 중 */
-.demoDropOver {
-  outline: 2px solid var(--border-color-accent-strong);
-  outline-offset: -2px;
-}
-
-.demoDropErr {
-  position: absolute;
-  bottom: var(--spacing-8);
-  left: 50%;
-  translate: -50% 0;
-  z-index: 3;
-  color: var(--text-accent);
-  font: var(--font-body-sm);
-  transform: scale(var(--tool-scale));
-}
 
 /* ── Backend ── */
-.bkStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  position: relative;
-}
-.bkBody {
-  display: flex;
-  gap: var(--spacing-32);
-  min-height: 0;
-  /* 좁은 폭에서는 왼쪽 목록을 뺀다(아래 media 에서 되돌린다) */
-  --db-list-display: none;
-}
-.bkBody > :first-child {
-  flex: 0 0 34%;
-}
-.bkBody > :last-child {
-  flex: 1;
-  min-width: 0;
-}
 /* 좁은 폭에서는 왼쪽 목록을 뺀다. 목록이 34% 를 잡아 모바일에서 상세 칸이 한 줄에 몇 자씩만 남았다.
    항목 선택은 위의 번호 탭(01·02…)이 같은 일을 한다. 숨김은 기본 규칙(.bkBody)에 두고 넓은 폭에서 되돌린다 —
    목록의 display 는 백엔드 패널(.dbList)이 변수로 연다 */
-@media (width > 768px) {
-  .bkBody {
-    --db-list-display: initial;
-  }
-}
-.bkDesc,
-.bkNote {
-  color: var(--text-secondary);
-}
-.bkNote {
-  color: var(--text-tertiary);
-  font: var(--font-body-md);
-}
 /* 엔드포인트/컬럼 한 줄.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서
    Settings.module.css 의 행 유틸을 composes 해서 display·gap 이 패널과 같은 (0,1,0) 으로 겨뤘고, 번들 순서가 승자를
    정했다. 패널이 안 정하는 align-items 만 :where 로 남긴다 — (0,0,0) 이라 패널이 정하면
    언제나 진다. */
-:where(.bkRow) {
-  align-items: center;
-}
 /* 손잡이·삭제는 오른쪽 위 도구 묶음(.itemTools)이라 격자 칸을 차지하지 않는다. 예전에는 삭제 단추가
    3열 격자의 네 번째 칸이라, 줄마다 단추 하나만 든 줄이 아래에 한 줄 더 생겼다.
    도구가 글을 가리지 않게 오른쪽을 비운다. 패널의 padding 단축 속성을 이겨야 해서 두 번 적는다. */
-.bkRow.bkRow {
-  position: relative;
-  padding-right: calc(2 * var(--control-height-xs) + var(--spacing-12));
-}
 /* DELETE·OPTIONS 까지 들어가는 폭. 5ch 일 때 DELETE 가 DELE 로 잘렸다(칸 여백 포함). */
-.bkMethod {
-  width: calc(7ch + 2 * var(--spacing-4));
-  color: var(--text-accent);
-  font-family: var(--font-family-code);
-  text-transform: uppercase;
-}
 
 /* ── User Flow ── */
-.ufStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  position: relative;
-}
 
 /* ── ERD ── */
 .erdImport {
@@ -1539,40 +656,6 @@ textarea.edit {
 }
 
 /* ── Troubleshooting ── */
-.tsStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  position: relative;
-}
-.tsBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-20);
-}
-.tsField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-.tsText {
-  color: var(--text-secondary);
-  line-height: var(--line-height-160);
-}
-.tsTags {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
-}
-.tsTag {
-  font: var(--font-body-md);
-}
-.tsMeta {
-  margin: 0;
-  color: var(--text-tertiary);
-  font: var(--font-code-md);
-}
 
 /* SQL 가져오기 — 파일 출처 · 파싱 미리보기 · 교체 경고. 결정하는 자리(버튼) 바로 위에 둔다.
    내용이 없을 땐 높이를 차지하지 않는다(:empty) — 빈 줄이 설명과 입력을 갈라놓았다. */

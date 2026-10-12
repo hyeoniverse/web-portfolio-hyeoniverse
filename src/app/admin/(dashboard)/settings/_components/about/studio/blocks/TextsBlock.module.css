@@ -1,38 +1,153 @@
-.list {
+/* 장 글 편집 — 장면 카드 · 한국어/영어 두 칸 */
+
+.scenes {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
+.scene {
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+}
+
+.sceneHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding-right: var(--spacing-12);
+}
+
+.sceneToggle {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  text-align: left;
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-tertiary);
+  transform: rotate(-90deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.scene[data-open] .chevron {
+  transform: none;
+}
+
+.sceneTitle {
+  overflow: hidden;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sceneMeta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-left: auto;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.editedBadge {
+  color: var(--text-accent);
+}
+
+.sceneBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-4) var(--spacing-16) var(--spacing-16);
+  border-top: var(--border-light);
+}
+
+/* 줄 — 이름 · 한국어 · 영어 · 되돌리기. 좁은 화면은 이름이 위로, 두 칸이 아래로 쌓인다 */
+.colHead,
 .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--spacing-12);
+  gap: var(--spacing-4) var(--spacing-8);
   align-items: start;
+}
+
+.colHead {
+  display: none;
+  padding-top: var(--spacing-12);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.groupTitle {
+  margin: var(--spacing-8) 0 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
 }
 
 .label {
   grid-column: 1 / -1;
-  font: var(--font-code-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
-  overflow-wrap: anywhere;
 }
 
 .row[data-edited] .label {
-  color: var(--text-primary);
+  color: var(--text-accent);
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
+.input {
+  grid-column: 1;
+  width: 100%;
+  min-height: var(--control-height-sm);
+  padding: var(--spacing-4) var(--spacing-8);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  resize: none;
+  field-sizing: content;
+}
+
+.input:focus-visible {
+  border-color: var(--border-color-accent-strong);
+}
+
+.input[data-edited] {
+  background: var(--bg-secondary);
+}
+
+.wide {
+  grid-column: 1;
   min-width: 0;
 }
 
-.base,
+.wide .input {
+  max-width: 16rem;
+}
+
+.none {
+  display: none;
+}
+
+.reset {
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .empty {
   margin: 0;
   font: var(--font-body-sm);
@@ -40,12 +155,36 @@
 }
 
 @media (width >= 768px) {
+  .colHead,
   .row {
-    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .colHead {
+    display: grid;
   }
 
   .label {
     grid-column: auto;
     padding-top: var(--spacing-8);
+  }
+
+  .input {
+    grid-column: auto;
+  }
+
+  .wide {
+    grid-column: 2 / 4;
+  }
+
+  .none {
+    display: block;
+    padding-top: var(--spacing-8);
+    color: var(--text-tertiary);
+  }
+
+  .reset {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
