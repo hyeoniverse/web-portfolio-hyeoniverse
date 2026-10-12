@@ -11,11 +11,12 @@ import { useEffect, useRef } from "react";
 import { FinalCta } from "./Landing";
 import { techStack } from "@/data/about/stack";
 import { aboutProcess } from "@/data/generated/aboutContent";
-import { toc } from "../../_data/showcase";
-import { credits } from "../../_data/landing";
+
+
 import { useFrame, usePrezi } from "../prezi/context";
 import { useL } from "../features/shared";
 import styles from "./Landing.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 /** 들어온 직후 · 다 흐른 직후 이 시간 동안의 걸음은 삼킨다 — 들어오던(관성) 휠의 꼬리가 빨리 감기 · 지도로 가기를 부르지 않게(ms) */
 const GRACE_MS = 1200;
@@ -39,6 +40,8 @@ const METEOR_MS = 1000;
 const PEN = 20;
 
 export default function CreditsRoll() {
+  const { toc } = useAboutText().showcase;
+  const { credits } = useAboutText().landing;
   const L = useL();
   const stageRef = useRef<HTMLDivElement>(null);
   const rollRef = useRef<HTMLDivElement>(null);

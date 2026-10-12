@@ -3,8 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * About 설정 화면 안전망.
  *
- * 개편된 /about 은 글 · 장면을 코드에 두고, 구조 장의 기술 그래프 · 사용자 흐름 · DB 설계 세 장면만
- * 관리자 설정(about.archDiagram · userFlows · erdTables/erdRelations)을 먼저 쓴다. 편집기도 그 셋만 둔다.
+ * 새 /about 의 글은 코드 기본값(src/app/about/_data) 위에 관리자가 고친 글(about.texts[장])을 겹친다.
+ * 편집기는 장 순서대로 글 패널 열 개를 두고, 구조 장 뒤에 그림 셋(그래프 · 흐름 · DB 설계)을 둔다.
  *
  * 이 검사는 화면을 열고 눌러 보기만 한다. 저장 단추(Save Tab·Reset to Defaults)는
  * 누르지 않는다. 실제 사이트 설정을 상대로 돌기 때문에 누르면 설정이 바뀐다.
@@ -18,17 +18,34 @@ const section = (page: Page, ko: string, en: string) =>
 
 async function openAbout(page: Page) {
   await page.goto(ABOUT_TAB, { waitUntil: "load" });
-  await expect(section(page, "기술 그래프", "Tech graph"), "첫 패널이 떠야 한다").toBeVisible({ timeout: 60_000 });
+  await expect(section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance"), "첫 패널이 떠야 한다").toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("About 설정 화면", () => {
   test.setTimeout(180_000);
 
-  test("공개 페이지가 읽는 세 패널만 그려진다", async ({ page }) => {
+  test("장 글 패널 열 개와 구조 장의 그림 셋이 그려진다", async ({ page }) => {
     await openAbout(page);
-    await expect(section(page, "사용자 흐름", "User flows"), "사용자 흐름").toBeVisible();
-    await expect(section(page, "DB 설계", "Database design"), "DB 설계").toBeVisible();
-    await expect(page.locator("[data-section-label]"), "패널은 셋").toHaveCount(3);
+    await expect(section(page, "기술 그래프", "Tech graph"), "기술 그래프").toBeAttached();
+    await expect(section(page, "사용자 흐름", "User flows"), "사용자 흐름").toBeAttached();
+    await expect(section(page, "DB 설계", "Database design"), "DB 설계").toBeAttached();
+    await expect(page.locator("[data-section-label]"), "패널은 열셋").toHaveCount(13);
+  });
+
+  test("장 글: 칸을 고치면 기본값이 보이고, 되돌리면 사라진다. 찾기는 칸을 거른다", async ({ page }) => {
+    await openAbout(page);
+    const opening = section(page, "첫 화면 · 한눈에 보기", "Opening · At a glance");
+    const field = opening.getByRole("textbox", { name: "facts › title" });
+    const before = await field.inputValue();
+    await field.click();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" z");
+    await expect(opening.getByText(/^(기본값|Default):/), "고친 칸 아래 기본값").toHaveCount(1);
+    await opening.getByRole("button", { name: /^(기본값으로|Reset to default)$/ }).and(page.locator(":enabled")).first().click();
+    await expect(field, "되돌리면 기본 글").toHaveValue(before);
+
+    await page.getByRole("textbox", { name: /^(글 찾기|Find text)$/ }).fill("zzzz-없는-글");
+    await expect(opening.getByText(/^(찾는 글이 없습니다\.|No matching text\.)$/), "찾는 글이 없다").toBeVisible();
   });
 
   test("한국어·영어 전환 탭이 있다", async ({ page }) => {

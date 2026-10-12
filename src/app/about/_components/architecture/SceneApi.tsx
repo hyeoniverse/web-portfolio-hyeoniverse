@@ -16,14 +16,16 @@ import { Pause, Play, ZoomIn, ZoomOut } from "@/components/icons";
 import { backendItems } from "@/data/about/backend";
 import { apiMap } from "@/data/generated/apiMap";
 import { ACCESS_LEVELS, type ApiAccess, type ApiGroup } from "@/lib/about/apiMap";
-import { apiScene, journeyLayers, journeyScene, type Journey } from "../../_data/architecture";
-import { groupJourneys } from "../../_data/groupJourneys";
+import { type Journey } from "../../_data/architecture";
 import { k as l10n } from "../prezi/types";
 import type { L10n } from "../../_data/showcase";
 import { STAR_PATH, useL } from "../features/shared";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import fx from "../features/Features.module.css";
 import styles from "./Architecture.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+/* 정거장 수 · 순서는 코드 기본값 — 관리자는 글만 바꾼다 */
+import { journeyLayers as journeyLayersBase } from "../../_data/architecture";
 
 /** 좌표는 소수 둘째 자리까지 — 서버와 브라우저의 삼각함수가 마지막 자리에서 달라 하이드레이션이 어긋난다 */
 
@@ -59,9 +61,9 @@ const GROUPS: Group[] = apiMap.groups.map((g) => {
 /** 화면에 쓰는 경로 — 앞의 /api 는 가운데 별이 이미 말한다 */
 const shortPath = (p: string) => p.replace(/^\/api(?=\/)/, "");
 /** 정거장은 궤도 오른쪽 절반에 위에서 아래로 */
-const stationAngle = (i: number) => (-62 + (i * 124) / (journeyLayers.length - 1)) * (Math.PI / 180);
+const stationAngle = (i: number) => (-62 + (i * 124) / (journeyLayersBase.length - 1)) * (Math.PI / 180);
 const stationXY = (i: number) => ({ x: r2(Math.cos(stationAngle(i)) * ORBIT), y: r2(Math.sin(stationAngle(i)) * ORBIT) });
-const layerIndex = (k: string) => journeyLayers.findIndex((l) => l.key === k);
+const layerIndex = (k: string) => journeyLayersBase.findIndex((l) => l.key === k);
 
 /** 정거장 하나에 머무는 시간(ms) — 요청 단계 안에서 저절로 다음 정거장으로 */
 const STATION_MS = 3800;
@@ -74,6 +76,8 @@ const FAST_GRACE_MS = 700;
 type Box = { x: number; y: number; w: number; h: number };
 
 export default function SceneApi() {
+  const { apiScene, journeyLayers, journeyScene } = useAboutText().architecture;
+  const { groupJourneys } = useAboutText().journeys;
   const L = useL();
   const groups = GROUPS;
   const n = groups.length;
@@ -617,6 +621,7 @@ type LFn = (v: L10n) => string;
 
 /** 접근 등급 띠 — 등급마다 칸 너비 = 엔드포인트 수, 아래에 색 · 이름 · 수(지도 별 색의 범례) */
 function AccessBar({ counts, total, L, compact }: { counts: Record<ApiAccess, number>; total: number; L: LFn; compact?: boolean }) {
+  const { apiScene } = useAboutText().architecture;
   const levels = ACCESS_LEVELS.filter((a) => counts[a] > 0);
   return (
     <div className={styles.accessBar} data-compact={compact || undefined} aria-label={L(apiScene.accessLabel)}>
@@ -651,6 +656,7 @@ function GroupDetail({ g, name, journey, onPlay, hotEp, setHotEp, narrow, L }: {
   narrow: boolean;
   L: LFn;
 }) {
+  const { apiScene, journeyScene } = useAboutText().architecture;
   /* 같은 경로의 메서드는 한 줄로 — 줄 수가 경로 수가 된다 */
   const routes: { path: string; eps: Group["endpoints"] }[] = [];
   for (const e of g.endpoints) {

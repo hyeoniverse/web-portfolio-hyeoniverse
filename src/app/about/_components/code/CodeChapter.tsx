@@ -12,11 +12,11 @@ import { FileCode2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { codeExamples } from "@/data/about/codeExamples";
 import CodeDemoSlot from "@/app/about/_panels/panels/CodeDemoSlot";
-import { codeChapter, codeSources } from "../../_data/code";
 import { useFrameSteps } from "../prezi/context";
 import { useL, useWide } from "../features/shared";
 import ChapterCover from "../design/ChapterCover";
 import styles from "./Code.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -88,6 +88,7 @@ type Pane = "all" | "preview" | "desc" | "code";
 
 /** 첫 프레임 — 장 표지. 목차는 파일 이름과 실제 경로 */
 export function CodeCover() {
+  const { codeChapter, codeSources } = useAboutText().code;
   return (
     <ChapterCover
       id="code"
@@ -101,6 +102,7 @@ export function CodeCover() {
 
 /** 둘째 프레임 — 편집기. 넓고 높은 화면은 파일 하나가 한 단계, 낮으면 두 단계, 좁으면 세 단계 */
 export function CodeEditor() {
+  const { codeChapter, codeSources } = useAboutText().code;
   const L = useL();
   const { language, tx } = useLanguage();
   const wide = useWide();

@@ -5,7 +5,7 @@
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { live as liveText, facts, type L10n } from "../_data/showcase";
+import { type L10n } from "../_data/showcase";
 import GuideStar, { GuideAnchor } from "./guide/GuideStar";
 import TimeSky from "./guide/TimeSky";
 import { useVisitorWeather } from "./guide/useVisitorWeather";
@@ -14,6 +14,7 @@ import { useFrameSteps } from "./prezi/context";
 import { AboutConfigProvider } from "@/app/about/_panels/AboutConfig";
 import type { SiteConfigData } from "@/config/site.config";
 import styles from "./AboutNext.module.css";
+import { useAboutText } from "../_panels/AboutConfig";
 
 function useL() {
   const { language, tx } = useLanguage();
@@ -49,6 +50,7 @@ const clockStore = {
 };
 
 export function LiveRow({ live }: { live: LiveInfo }) {
+  const { live: liveText } = useAboutText().showcase;
   const L = useL();
   const { language } = useLanguage();
   const time = useSyncExternalStore(clockStore.subscribe, clockStore.get, clockStore.server);
@@ -88,6 +90,7 @@ export function LiveRow({ live }: { live: LiveInfo }) {
 const FACT_GROUP = 3;
 
 export function Facts() {
+  const { facts } = useAboutText().showcase;
   const L = useL();
   const groups = Array.from({ length: Math.ceil(facts.items.length / FACT_GROUP) }, (_, g) =>
     facts.items.slice(g * FACT_GROUP, (g + 1) * FACT_GROUP),

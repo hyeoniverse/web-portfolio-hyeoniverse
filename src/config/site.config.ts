@@ -933,6 +933,8 @@ export const siteConfig = {
     panelOrder: [] as string[],
     /* ── Panel 표시 제목 override — key → { ko, en }. 미설정 시 각 패널 기본 제목 사용. ── */
     panelTitles: {} as Record<string, { ko?: string; en?: string }>,
+    /* 새 About 의 글 덮어쓰기 — 장 → { "이름.경로": 글자 }. 비어 있으면 코드 기본값(src/app/about/_data/texts) */
+    texts: {} as Partial<Record<string, Record<string, string>>>,
     /* ── 콘텐츠 시각 — key → ISO 문자열 ──
      * About 내용은 설정 화면과 content/about/ 의 md 두 곳에서 온다. 어느 쪽을 쓸지 사람이
      * 고르지 않고, 동기화가 **더 최근에 손댄 쪽**을 남긴다.

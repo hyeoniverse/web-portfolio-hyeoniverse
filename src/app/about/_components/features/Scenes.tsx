@@ -13,7 +13,6 @@ import Image from "next/image";
 import Pressable from "@/components/ui/Pressable";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { auditTheme } from "@/lib/themeAudit";
-import { publicScene, layoutsScene, adminScene, adminItems, voiceScene, cmsScene, themeScene } from "../../_data/features";
 import type { L10n } from "../../_data/showcase";
 import { AutoBar, BrowserFrame, RowNum, SceneHead, ShotMedia, STAR_PATH, useAutoStep, useL, useShotSrc, WithCode } from "./shared";
 import { useFrameSteps } from "../prezi/context";
@@ -24,6 +23,8 @@ import { DemoChip, DemoReplayContext, DemoStatusContext, type DemoStatus } from 
 import { GuideAnchor } from "../guide/GuideStar";
 import { WORKS_LAYOUT_MESSAGE } from "@/lib/worksLayoutMessage";
 import styles from "./Features.module.css";
+import { useAboutText } from "../../_panels/AboutConfig";
+import type { adminItems as adminItemsBase } from "../../_data/features";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -82,6 +83,7 @@ function StarSteps({ n, step, setStep, label }: { n: number; step: number; setSt
    가운데 장은 크게, 양옆은 작고 흐리게 — 옆 장을 누르면 그 장으로 ── */
 
 export function ScenePublic() {
+  const { publicScene } = useAboutText().features;
   const L = useL();
   const shotSrc = useShotSrc();
   const cards = publicScene.cards;
@@ -132,6 +134,7 @@ const AUTO_SCROLL_DOWN = 9000;
 const AUTO_SCROLL_REST = 1500;
 
 export function SceneLayouts() {
+  const { layoutsScene } = useAboutText().features;
   const L = useL();
   const n = layoutsScene.layouts.length;
   const { step: index, setStep } = useFrameSteps(n);
@@ -285,7 +288,7 @@ export function SceneLayouts() {
 /* ── 4 · 관리자 — 단계마다 기능 하나. 그 기능의 화면(2~4장)은 칩으로 고르거나 저절로 넘어간다 ── */
 
 /** 한 기능의 화면들 — 기능이 바뀌면 새로 그려 첫 화면부터 다시 센다 */
-function AdminShots({ item }: { item: (typeof adminItems)[number] }) {
+function AdminShots({ item }: { item: (typeof adminItemsBase)[number] }) {
   const L = useL();
   const shotSrc = useShotSrc();
   const { ref, index, go } = useAutoStep<HTMLDivElement>(item.shots.length, 3500);
@@ -315,6 +318,7 @@ function AdminShots({ item }: { item: (typeof adminItems)[number] }) {
 }
 
 export function SceneAdmin() {
+  const { adminScene, adminItems } = useAboutText().features;
   const L = useL();
   const { step, setStep } = useFrameSteps(adminItems.length);
   const item = adminItems[step];
@@ -370,6 +374,7 @@ const CMS_MAP: [number, number][] = [
 ];
 
 export function SceneCms() {
+  const { cmsScene } = useAboutText().features;
   const L = useL();
   const { step, setStep } = useFrameSteps(cmsDemos.length + 1);
   const [run, setRun] = useState(0);
@@ -528,6 +533,7 @@ export function SceneCms() {
    그 음성을 만드는 편집 화면의 두 도구(파형 편집 · PDF/PPTX 변환)를 다음 두 프레임에 하나씩 둔다. 셋 다 직접 만질 수 있다 ── */
 
 export function SceneVoice() {
+  const { voiceScene } = useAboutText().features;
   return (
     <section className={`${styles.pz} ${styles.voice}`}>
       <SceneHead label={voiceScene.label} title={voiceScene.title} body={voiceScene.body} />
@@ -540,6 +546,7 @@ export function SceneVoice() {
 
 /** 편집 도구 프레임의 글 칸 — 머리, 무엇인지, 해 볼 차례 */
 function VoiceToolText({ title, body, steps }: { title: L10n; body: L10n; steps?: L10n[] }) {
+  const { voiceScene, cmsScene } = useAboutText().features;
   const L = useL();
   return (
     <div className={styles.voiceToolText}>
@@ -559,6 +566,7 @@ function VoiceToolText({ title, body, steps }: { title: L10n; body: L10n; steps?
 }
 
 export function SceneVoiceWave() {
+  const { voiceScene } = useAboutText().features;
   return (
     <section className={`${styles.pz} ${styles.voiceTool}`}>
       <VoiceToolText title={voiceScene.wave} body={voiceScene.waveBody} steps={voiceScene.waveSteps} />
@@ -570,6 +578,7 @@ export function SceneVoiceWave() {
 }
 
 export function SceneVoiceConvert() {
+  const { voiceScene } = useAboutText().features;
   return (
     <section className={`${styles.pz} ${styles.voiceTool}`}>
       <VoiceToolText title={voiceScene.convert} body={voiceScene.convertBody} />
@@ -584,6 +593,7 @@ export function SceneVoiceConvert() {
    설정 화면과 같은 auditTheme 로 계산한 대비 점검표가 들어온다 ── */
 
 function MiniHome({ bg, text, accent }: { bg: string; text: string; accent: string }) {
+  const { themeScene } = useAboutText().features;
   const s = themeScene.sample;
   return (
     <div className={styles.miniHome} style={{ background: bg, color: text }}>
@@ -604,6 +614,7 @@ const THEME_STEPS = [
 ];
 
 export function SceneTheme() {
+  const { themeScene } = useAboutText().features;
   const L = useL();
   const { step, setStep } = useFrameSteps(2);
   const n = THEME_PRESETS.length;

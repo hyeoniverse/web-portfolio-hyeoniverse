@@ -1019,7 +1019,7 @@
       "aboutPanelHideAll": "전체 숨김",
       "aboutPanelBadgeEdit": "편집",
       "aboutPanelBadgeStatic": "표시만",
-      "aboutStudioHint": "실제 About 페이지 위에서 그대로 편집합니다. 텍스트를 클릭해 고치고, 항목은 hover 하면 나타나는 버튼으로 추가·삭제합니다. 패널마다 따로 저장하며, 되돌리기와 기본값으로 언제든 복구할 수 있습니다.",
+      "aboutStudioHint": "새 About 페이지의 글을 장 순서대로 고칩니다. 비워 두거나 기본값으로 되돌리면 코드의 기본 글이 나옵니다. 구조 장의 그래프 · 흐름 · DB 설계는 그 장 바로 뒤에서 그림째 고칩니다. 장마다 따로 저장합니다.",
       "aboutHeroBgTypeMedia": "이미지 · 영상",
       "aboutHeroBgTypeColor": "단색",
       "aboutHeroBgTypeGradient": "그라데이션",
