@@ -1,5 +1,6 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import { useState, useRef, useMemo, useCallback, useId } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -117,12 +118,13 @@ function placeCaretAtEnd(el: HTMLElement) {
 }
 
 export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions, inputClassName, onFocus, onBlur, tabFill }: FieldProps) {
+  const badgeOf = useLangBadge();
   const { t } = useLanguage();
   const listId = useId();
   /* 라벨은 텍스트만 담고 입력칸은 형제라 htmlFor 로 연결한다 — 안 하면 스크린리더가 필드 이름을 못 읽는다 */
   const fieldId = useId();
   const options = suggestions?.filter(Boolean) ?? [];
-  const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
+  const badgeStr = langBadge ? badgeOf(langBadge) : undefined;
   const hintNum = resolveMaxHint(maxHint, !!multiline);
   /* langBadge 는 입력칸·여러 줄 칸 모두 칸 안 배지로(여러 줄 칸은 오른쪽 위, 입력 중엔 숨김) */
   const control = multiline ? (
