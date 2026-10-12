@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 192,
-  "routeFiles": 133,
+  "total": 194,
+  "routeFiles": 135,
   "access": {
-    "public": 66,
+    "public": 68,
     "signed-in": 58,
     "author": 27,
     "admin": 16,
@@ -39,8 +39,13 @@ export const apiMap: ApiMap = {
     "works"
   ],
   "rpcs": [
+    "daily_page_views",
     "daily_post_views",
+    "page_view_stats",
+    "page_view_totals",
     "publish_scheduled",
+    "record_page_duration",
+    "record_page_view",
     "record_post_view",
     "record_work_view",
     "sum_post_views"
@@ -1260,7 +1265,10 @@ export const apiMap: ApiMap = {
         "works"
       ],
       "rpcs": [
+        "daily_page_views",
         "daily_post_views",
+        "page_view_stats",
+        "page_view_totals",
         "sum_post_views"
       ],
       "services": [
@@ -1282,7 +1290,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 26,
+      "files": 28,
       "folded": [
         "auth",
         "brand-symbol-font",
@@ -1295,6 +1303,7 @@ export const apiMap: ApiMap = {
         "favicon",
         "fonts",
         "highlight",
+        "page-views",
         "polls",
         "service-status",
         "site-translate",
@@ -1396,6 +1405,16 @@ export const apiMap: ApiMap = {
           "access": "public"
         },
         {
+          "method": "POST",
+          "path": "/api/page-views",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/page-views/duration",
+          "access": "public"
+        },
+        {
           "method": "GET",
           "path": "/api/polls/[pollId]",
           "access": "public"
@@ -1482,7 +1501,9 @@ export const apiMap: ApiMap = {
         "works"
       ],
       "rpcs": [
-        "publish_scheduled"
+        "publish_scheduled",
+        "record_page_duration",
+        "record_page_view"
       ],
       "services": [
         "translate",
@@ -1493,7 +1514,7 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 23,
+        "public": 25,
         "signed-in": 5,
         "author": 1,
         "admin": 0,

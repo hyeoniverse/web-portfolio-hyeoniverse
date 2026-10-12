@@ -89,6 +89,7 @@
 --   2026_10_09  demo_usage — About 라이브 데모 하루 상한(demo_take/refund/remaining) + 7일 보관 pg_cron
 --   2026_10_11  content_translations.source_type 에 ui — 본문 안 라벨 번역 캐시(언어마다 한 줄)
 --   2026_10_12  content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta — 사이트 전체 번역 캐시
+--   2026_10_14  page_views — 페이지 조회 기록(30분 중복 제거) + 머문 시간 + 집계 RPC, IP 90일 보관에 포함
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -816,6 +817,30 @@ ALTER TABLE work_views ENABLE ROW LEVEL SECURITY;
 
 
 -- ────────────────────────────────────────────────────────────
+-- 7-2-1. page_views — 페이지 조회 기록 + 머문 시간 (#1399)
+--        페이지가 보일 때마다 한 행(같은 IP · 경로 30분 안은 한 번). 대시보드 총 조회수 · 일별 그래프 · 트래픽 페이지별 집계.
+--        session_id 는 브라우저 저장소의 임의 값(30분 무활동이면 새로), IP 는 90일 뒤 NULL. service_role 전용.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.page_views (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  path        text NOT NULL,
+  ip          text,
+  session_id  text,
+  viewed_at   timestamptz NOT NULL DEFAULT now(),
+  viewed_date date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED,
+  duration_ms integer
+);
+
+-- 일별 · 기간 집계
+CREATE INDEX IF NOT EXISTS idx_page_views_viewed_date ON public.page_views (viewed_date DESC);
+-- 30분 중복 확인
+CREATE INDEX IF NOT EXISTS idx_page_views_ip_path_at ON public.page_views (ip, path, viewed_at DESC);
+
+ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.page_views FROM anon, authenticated;
+
+
+-- ────────────────────────────────────────────────────────────
 -- 7-3. traffic_excluded_ips — 운영자가 '내 IP' 로 지정한 IP (#1169)
 --      이 IP 의 방문은 기록하지 않고, 이미 쌓인 방문도 트래픽 집계에서 뺀다.
 --      서버(service_role)만 읽고 쓴다 — RLS 켜고 정책은 두지 않는다.
@@ -1286,6 +1311,121 @@ AS $$
   ORDER BY viewed_date ASC;
 $$;
 
+-- 페이지 조회 (#1399) — 30분 중복 제거 기록 · 머문 시간 더하기 · 집계. 모두 service_role 전용
+-- 조회 기록 — 반환: 이 조회의 행 id (30분 안의 같은 조회면 앞 행 id). 머문 시간을 이 id 로 보낸다
+CREATE OR REPLACE FUNCTION public.record_page_view(p_path text, p_ip text, p_session text)
+RETURNS uuid
+LANGUAGE plpgsql
+VOLATILE
+SET search_path = public
+AS $$
+DECLARE
+  v_id uuid;
+BEGIN
+  -- 같은 IP · 경로의 동시 요청이 둘 다 새 행을 만들지 않게 줄 세운다
+  PERFORM pg_advisory_xact_lock(hashtext('page_view:' || coalesce(p_ip, '') || ':' || p_path));
+
+  SELECT id INTO v_id
+    FROM page_views
+   WHERE ip = p_ip AND path = p_path AND viewed_at > now() - interval '30 minutes'
+   ORDER BY viewed_at DESC
+   LIMIT 1;
+  IF v_id IS NOT NULL THEN
+    RETURN v_id;
+  END IF;
+
+  INSERT INTO page_views (path, ip, session_id)
+  VALUES (p_path, p_ip, p_session)
+  RETURNING id INTO v_id;
+  RETURN v_id;
+END;
+$$;
+
+-- 머문 시간 더하기 — 같은 IP 가 하루 안에 보낸 것만 받는다(남의 조회 id 로 시간을 부풀리지 못하게)
+CREATE OR REPLACE FUNCTION public.record_page_duration(p_id uuid, p_ip text, p_ms integer)
+RETURNS void
+LANGUAGE sql
+VOLATILE
+SET search_path = public
+AS $$
+  UPDATE page_views
+     SET duration_ms = LEAST(COALESCE(duration_ms, 0) + GREATEST(p_ms, 0), 7200000)
+   WHERE id = p_id
+     AND ip IS NOT DISTINCT FROM p_ip
+     AND viewed_at > now() - interval '1 day';
+$$;
+
+-- 일별 페이지 조회수 (KST)
+CREATE OR REPLACE FUNCTION public.daily_page_views(p_start date, p_end date, p_excluded text[] DEFAULT '{}')
+RETURNS TABLE(day date, views bigint)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT viewed_date AS day, COUNT(*)::bigint AS views
+    FROM page_views
+   WHERE viewed_date >= p_start AND viewed_date <= p_end
+     AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))))
+   GROUP BY viewed_date
+   ORDER BY viewed_date ASC;
+$$;
+
+-- 전체 합계와 처음 센 날 — 대시보드 "총 조회수"와 "언제부터 센 값인지"
+CREATE OR REPLACE FUNCTION public.page_view_totals(p_excluded text[] DEFAULT '{}')
+RETURNS TABLE(total bigint, since date)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT COUNT(*)::bigint AS total, MIN(viewed_date) AS since
+    FROM page_views
+   WHERE ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}')));
+$$;
+
+-- 기간 집계 — 조회수 · 평균 머문 시간 · 방문(세션) 수 · 방문당 페이지 · 방문당 머문 시간 · 페이지별 조회수와 평균 머문 시간(상위 20)
+-- 머문 시간 평균은 시간이 잡힌 조회만 센다(떠날 때 신호를 못 보낸 조회는 0 이 아니라 모르는 값)
+CREATE OR REPLACE FUNCTION public.page_view_stats(p_start date, p_end date, p_excluded text[] DEFAULT '{}')
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  WITH v AS (
+    SELECT path, session_id, duration_ms
+      FROM page_views
+     WHERE viewed_date >= p_start AND viewed_date <= p_end
+       AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))))
+  ), s AS (
+    SELECT session_id, COUNT(*) AS n, SUM(COALESCE(duration_ms, 0)) AS ms
+      FROM v
+     WHERE session_id IS NOT NULL
+     GROUP BY session_id
+  ), p AS (
+    SELECT path, COUNT(*) AS views, ROUND(AVG(duration_ms) FILTER (WHERE duration_ms > 0))::bigint AS avg_ms
+      FROM v
+     GROUP BY path
+     ORDER BY views DESC, path
+     LIMIT 20
+  )
+  SELECT jsonb_build_object(
+    'total', (SELECT COUNT(*) FROM v),
+    'avg_duration_ms', (SELECT ROUND(AVG(duration_ms))::bigint FROM v WHERE duration_ms > 0),
+    'sessions', (SELECT COUNT(*) FROM s),
+    'pages_per_session', (SELECT ROUND(AVG(n)::numeric, 1) FROM s),
+    'avg_session_ms', (SELECT ROUND(AVG(ms))::bigint FROM s),
+    'top_paths', COALESCE(
+      (SELECT jsonb_agg(jsonb_build_object('path', path, 'views', views, 'avg_ms', avg_ms) ORDER BY views DESC, path) FROM p),
+      '[]'::jsonb
+    )
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.record_page_view(text, text, text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.record_page_duration(uuid, text, integer) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.daily_page_views(date, date, text[]) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.page_view_totals(text[]) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.page_view_stats(date, date, text[]) FROM PUBLIC, anon, authenticated;
+
 -- slug 자동 생성 — JS 의 generateSlug 와 동일 로직 (a-z, 0-9, 한글, 공백→하이픈, 80자 cap).
 -- 마이그레이션에서 빈 slug 채울 때 사용. 클라이언트는 별도 generateSlug() 함수 사용.
 CREATE OR REPLACE FUNCTION _sql_slugify(t text)
@@ -1552,6 +1692,7 @@ $$;
 -- 방문 IP 보관 기한 (#1169) — retention_days 가 지난 기록의 원문 IP 를 지운다.
 --   site_visits: (ip, date) 유니크를 지키려고 'anon:<id>' 로 바꾼다. 기기·국가·유입 등 집계 컬럼은 남는다.
 --   post_views / work_views: IP 는 당일 중복 조회 방지에만 쓰이므로 NULL 로 비운다(조회수는 그대로).
+--   page_views: 같은 이유(30분 중복 확인 · 머문 시간 본인 확인)로 NULL 로 비운다.
 CREATE OR REPLACE FUNCTION public.anonymize_old_site_visits(retention_days int DEFAULT 90)
 RETURNS integer
 LANGUAGE plpgsql SECURITY DEFINER
@@ -1572,6 +1713,11 @@ BEGIN
      AND ip IS NOT NULL;
 
   UPDATE public.work_views
+     SET ip = NULL
+   WHERE viewed_date < CURRENT_DATE - retention_days
+     AND ip IS NOT NULL;
+
+  UPDATE public.page_views
      SET ip = NULL
    WHERE viewed_date < CURRENT_DATE - retention_days
      AND ip IS NOT NULL;
@@ -1854,6 +2000,7 @@ END $$;
 --   site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타 + country/path/utm_*)
 --   post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
 --   work_views           : 작업물별 시계열 조회 기록 (post_views 미러)
+--   page_views           : 페이지 조회 기록 + 머문 시간 (경로 · IP · 세션, 30분 중복 제거, service_role 전용)
 --   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
 --   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
 --   content_translations : 상세 화면 다른 언어 번역 캐시 (글/작업물 × 언어, service_role 전용)
@@ -1875,6 +2022,9 @@ END $$;
 --   record_work_view(p_work_id, p_ip)             : record_post_view 의 works 미러
 --   sum_post_views()                              : 누적 조회수 합계
 --   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
+--   record_page_view(p_path, p_ip, p_session)    : 페이지 조회 기록 — 같은 IP · 경로 30분 안이면 앞 행 id (service_role 전용)
+--   record_page_duration(p_id, p_ip, p_ms)        : 그 조회에 머문 시간 더하기 (한 조회 2시간 상한, service_role 전용)
+--   daily_page_views / page_view_totals / page_view_stats : 페이지 조회 집계 — 일별 · 전체와 처음 센 날 · 기간 상세 (service_role 전용)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
 --   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
 --   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 방문·조회 기록의 IP 익명화 (cron 매일 KST 03:30)

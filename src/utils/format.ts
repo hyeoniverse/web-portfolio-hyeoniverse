@@ -35,3 +35,15 @@ export function fillTemplate(template: string, values: Record<string, string | n
 export function fillCount(t: (key: string) => string, key: string, n: number): string {
   return fillTemplate(t(`${key}.${n === 1 ? "one" : "other"}`), { n: n.toLocaleString("en-US") });
 }
+
+/** 머문 시간 — 1분 미만은 초, 1시간 미만은 분 · 초, 그 위는 시간 · 분(#1399). 0 · 음수는 "0초" / "0s" */
+export function formatDwell(ms: number, language: "ko" | "en"): string {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const ko = language === "ko";
+  if (h > 0) return ko ? `${h}시간 ${m}분` : `${h}h ${m}m`;
+  if (m > 0) return ko ? `${m}분 ${s}초` : `${m}m ${s}s`;
+  return ko ? `${s}초` : `${s}s`;
+}

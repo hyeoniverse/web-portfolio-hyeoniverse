@@ -109,7 +109,17 @@
       "groupTraffic": "Traffic",
       "serviceLog": "Service call log",
       "serviceLogStats": "Last 24 hours: {{total}} calls · {{fails}} failed",
-      "serviceLogOff": "{{n}} providers off"
+      "serviceLogOff": "{{n}} providers off",
+      "totalViewsTooltip": "How many times site pages were viewed. Repeat views of the same page by the same person within 30 minutes count once.",
+      "totalViewsTooltipLegacy": "Cumulative view count across all published posts. Page views are counted once the migration is applied.",
+      "countingSince": "Counting since {{date}}",
+      "avgDwell": "Avg. time on page",
+      "pageViews": "Page views",
+      "pageViewsTitle": "Views by page",
+      "pagesPerSession": "Pages per visit",
+      "sessionDwell": "Time per visit",
+      "pageViewsPending": "Page views are recorded once the migration is applied.",
+      "noPageViews": "No page views were recorded in this period."
     },
     "notifications": {
       "title": "Notifications",

@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { isStaffViewer } from "@/lib/api/staffViewer";
 import { getIp } from "@/utils/getIp";
 import { jsonOk } from "@/lib/api/response";
 import { parseUserAgent } from "@/utils/uaParser";
@@ -11,15 +11,13 @@ interface RouteContext {
 // POST /api/works/[id]/view — 조회수 증가 (posts 미러)
 // 동작:
 //   - record_work_view RPC 가 (IP + KST date) dedup + works.view_count atomic +1 을 한 트랜잭션으로 처리
-//   - admin (로그인한 본인) 의 조회는 카운트 제외 — 자기 작업물 inflate 방지
+//   - 사이트 운영자(owner · admin) 본인의 조회는 카운트 제외 — 자기 작업물 inflate 방지. 작성자 · 다른 로그인 사용자는 센다
 //   - bot 의 조회도 카운트 제외 — 크롤러 노이즈 차단
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  // admin 인지 확인 (cookie 기반) — 본인 조회는 skip
-  const server = await createServerClient();
-  const { data: { user } } = await server.auth.getUser();
-  if (user) {
+  // 운영자 본인 조회는 skip (cookie 세션) — 예전에는 로그인한 사용자 전부를 뺐다
+  if (await isStaffViewer()) {
     return jsonOk({ success: true, skipped: "admin" });
   }
 
