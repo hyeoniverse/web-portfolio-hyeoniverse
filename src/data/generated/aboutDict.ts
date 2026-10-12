@@ -568,7 +568,7 @@ export const aboutSource: string[] = [
   "Motion",
   "Move to trash — sets deleted_at + purge_after (30 days) (admin)",
   "Moving the authorization decision from code into database rules",
-  "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner, admin, author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
+  "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. There are two roles, owner and author, and authors get a permission level (1: own posts, 2: admin — all posts and moderation). Both live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
   "Muted",
   "My cover image history (up to 24)",
   "NanoBanana is polled for its task; Hugging Face routes to a provider that serves the model. Each outcome is recorded.",
