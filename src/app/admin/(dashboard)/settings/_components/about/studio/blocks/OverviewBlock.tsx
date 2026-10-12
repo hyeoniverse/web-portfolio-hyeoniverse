@@ -10,6 +10,10 @@ import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { LABEL: "라벨" } as const;
 export type OverviewStat = NonNullable<SiteConfigData["about"]["overview_stats"]>[number];
 
 /* ═══════════ Overview ═══════════ */
@@ -53,7 +57,7 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
               ))}
             </SortableList>
             {stats.length < STATS_MAX && (
-              <Pressable className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: "라벨", label_en: "Label" }])}>
+              <Pressable className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: KO_CONTENT.LABEL, label_en: "Label" }])}>
                 <Plus size={18} /> {t("admin.inline.overviewBlock.addMetric")}
               </Pressable>
             )}

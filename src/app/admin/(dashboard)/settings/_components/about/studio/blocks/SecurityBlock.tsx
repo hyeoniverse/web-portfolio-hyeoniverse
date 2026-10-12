@@ -12,6 +12,10 @@ import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { NEW_TITLE: "새 항목" } as const;
 export type SecurityItem = NonNullable<SiteConfigData["about"]["security"]>[number];
 
 /* ═══════════ Security ═══════════ */
@@ -70,7 +74,7 @@ export function SecurityBlock({ value, onChange, lang, t, title }: {
         </SortableList>
         {!atMax && (
           <Pressable className={css.addSecCell}
-            onClick={() => onChange([...value, { icon: "shield", title_ko: "새 항목", title_en: "New", description_ko: "", description_en: "", scope_ko: "", scope_en: "" }])}>
+            onClick={() => onChange([...value, { icon: "shield", title_ko: KO_CONTENT.NEW_TITLE, title_en: "New", description_ko: "", description_en: "", scope_ko: "", scope_en: "" }])}>
             <Plus size={18} /> {t("admin.inline.securityBlock.addItem")}
           </Pressable>
         )}

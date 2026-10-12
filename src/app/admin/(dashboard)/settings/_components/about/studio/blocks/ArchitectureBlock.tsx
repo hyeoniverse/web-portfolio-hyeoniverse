@@ -13,6 +13,10 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { useLanguage } from "@/providers/LanguageProvider";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { ROOT: "소스 코드 루트" } as const;
 export type ArchitectureItem = { path: string; description_ko: string; description_en: string; indent: number };
 
 /* ═══════════ Architecture (비주얼 트리) ═══════════ */
@@ -115,7 +119,7 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
       <Input label={tA("admin.inline.architectureBlock.description")} clearable={false}
         value={lang === "ko" ? item.description_ko : item.description_en}
         onChange={(v) => setItem(index, lang === "ko" ? { description_ko: v } : { description_en: v })}
-        placeholder={lang === "ko" ? "소스 코드 루트" : "Source code root"} />
+        placeholder={lang === "ko" ? KO_CONTENT.ROOT : "Source code root"} />
       <div className={sub.nodeEditBar}>
         <div className={sub.nodeMoveGroup}>
           <Button variant="subtle" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label={tA("admin.inline.architectureBlock.moveUp")} />

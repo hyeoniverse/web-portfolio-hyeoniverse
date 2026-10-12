@@ -15,6 +15,10 @@ import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { NEW_TITLE: "새 기능" } as const;
 export type FeatureItem = NonNullable<SiteConfigData["about"]["features"]>[number];
 
 /* ═══════════ Features ═══════════ */
@@ -76,7 +80,7 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
             ))}
           </SortableList>
           {!atMax && (
-            <Pressable className={`${css.featCell} ${css.featAdd}`} onClick={() => onChange([...value, { icon: "", title: lang === "ko" ? "새 기능" : "New", description_ko: "", description_en: "", tech: "", image: "" }])}>
+            <Pressable className={`${css.featCell} ${css.featAdd}`} onClick={() => onChange([...value, { icon: "", title: lang === "ko" ? KO_CONTENT.NEW_TITLE : "New", description_ko: "", description_en: "", tech: "", image: "" }])}>
               <Plus size={18} /> {t("admin.inline.featuresBlock.addFeature")}
             </Pressable>
           )}

@@ -165,7 +165,7 @@ export default function PostPreviewPage() {
     if (!ready) return null;
     return (
       <div className={styles.loadingState}>
-        미리보기 데이터가 없습니다. 에디터에서 Preview 버튼을 눌러주세요.
+        {t("admin.inline.previewPage.noData")}
       </div>
     );
   }

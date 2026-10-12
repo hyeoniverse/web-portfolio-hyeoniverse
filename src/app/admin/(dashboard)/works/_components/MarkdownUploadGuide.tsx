@@ -22,6 +22,7 @@ const FIELDS: { keys: string[]; type: string; desc: string }[] = [
 ];
 
 /* 예시는 올릴 파일의 내용이라 화면 언어와 상관없이 그대로 둔다 */
+// eslint-disable-next-line no-restricted-syntax -- 예시 마크다운 파일의 내용 — 화면 글이 아니라 올릴 파일의 표본
 const EXAMPLE = `---
 title: 포트폴리오 웹사이트
 title_en: Portfolio Website

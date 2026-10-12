@@ -10,6 +10,7 @@
 import { Fragment, useContext, useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import Button from "@/components/ui/Button";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import EmptyState from "@/components/ui/EmptyState";
@@ -38,9 +39,7 @@ function loadData(): Promise<Data> {
 }
 
 export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenEmojiRow) => void }) {
-  const { language, t: tr } = useLanguage();
-  const ko = language === "ko";
-  const t = (k: string, e: string) => (ko ? k : e);
+  const { t } = useLanguage();
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
   /* 두 칸(첫·두 번째)에 이모지를 하나씩 — 칸을 누르면 그 칸이 "바꿀 칸"이 되고, 아래 격자에서 고른 이모지가 그 칸에 들어간다 */
@@ -88,21 +87,18 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
     }
     return out;
   };
-  const GROUP_LABEL: Record<string, [string, string]> = {
-    "smileys & emotion": ["표정·감정", "Smileys & emotion"],
-    "people & body": ["사람·몸", "People & body"],
-    "animals & nature": ["동물·자연", "Animals & nature"],
-    "food & drink": ["음식·음료", "Food & drink"],
-    "travel & places": ["여행·장소", "Travel & places"],
-    "activities": ["활동", "Activities"],
-    "objects": ["사물", "Objects"],
-    "symbols": ["기호", "Symbols"],
-    "": ["기타", "Other"],
+  const GROUP_LABEL: Record<string, string> = {
+    "smileys & emotion": "groupSmileys",
+    "people & body": "groupPeople",
+    "animals & nature": "groupAnimals",
+    "food & drink": "groupFood",
+    "travel & places": "groupTravel",
+    "activities": "groupActivities",
+    "objects": "groupObjects",
+    "symbols": "groupSymbols",
+    "": "groupOther",
   };
-  const groupLabel = (g: number) => {
-    const [ko, en] = GROUP_LABEL[data!.meta.groups[g]] ?? GROUP_LABEL[""];
-    return t(ko, en);
-  };
+  const groupLabel = (g: number) => t(`admin.inline.emojiKitchenModal.${GROUP_LABEL[data!.meta.groups[g]] ?? GROUP_LABEL[""]}`);
 
   /* 바꿀 칸에 넣는다 — 첫 칸을 채웠고 두 번째가 비어 있으면 두 번째 칸으로 넘어간다 */
   const choose = (i: number) => {
@@ -125,11 +121,11 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
       });
       if (!(res instanceof Response) || !res.ok) {
         const err = res instanceof Response ? await errorFromResponse(res) : null;
-        showToast(errorText(err, tr, t("조합 이모지를 추가하지 못했어요.", "Couldn’t add the combined emoji.")), "error");
+        showToast(errorText(err, t, t("admin.inline.emojiKitchenModal.addFailed")), "error");
         return;
       }
       onAdded((await res.json()) as KitchenEmojiRow);
-      showToast(t("조합 이모지를 추가했어요.", "Combined emoji added."), "success");
+      showToast(t("admin.inline.emojiKitchenModal.added"), "success");
       setSlots([null, null]);
       setActive(0);
     } finally {
@@ -137,10 +133,10 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
     }
   };
 
-  if (failed) return <div className={styles.pad}><EmptyState pad="sm">{t("조합 목록을 불러오지 못했습니다", "Couldn’t load combinations")}</EmptyState></div>;
+  if (failed) return <div className={styles.pad}><EmptyState pad="sm">{t("admin.inline.emojiKitchenModal.loadFailed")}</EmptyState></div>;
 
   const slotEmoji = (s: 0 | 1) => (data && slots[s] !== null ? data.meta.emojis[slots[s]!] : null);
-  const slotLabel = (s: 0 | 1) => (s === 0 ? t("첫 번째", "First") : t("두 번째", "Second"));
+  const slotLabel = (s: 0 | 1) => (s === 0 ? t("admin.inline.emojiKitchenModal.first") : t("admin.inline.emojiKitchenModal.second"));
   return (
     <div className={styles.wrap}>
       {/* 식 — [첫 이모지] + [두 번째 이모지] = [결과]. 앞 두 칸은 눌러서 바꿀 칸으로 고른다 */}
@@ -152,7 +148,7 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
               {s === 1 && <span className={styles.op} aria-hidden>+</span>}
               <Pressable className={styles.slot} data-active={active === s ? "" : undefined} aria-pressed={active === s}
                 onClick={() => focusSlot(s)} title={e?.n}
-                aria-label={e ? `${slotLabel(s)}: ${e.n} — ${t("바꾸기", "change")}` : slotLabel(s)}>
+                aria-label={e ? `${slotLabel(s)}: ${e.n} — ${t("admin.inline.emojiKitchenModal.change")}` : slotLabel(s)}>
                 {e ? <span className={styles.slotChar}>{e.e}</span> : <span className={styles.slotHint}>{slotLabel(s)}</span>}
               </Pressable>
             </Fragment>
@@ -162,18 +158,18 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
         <span className={styles.slot} data-result="">
           {picked
             /* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기, next/image 허용 호스트가 아니다 */
-            ? <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt={t("섞은 결과", "Mixed result")} className={styles.slotImg} />
-            : <span className={styles.slotHint}>{t("결과", "Result")}</span>}
+            ? <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt={t("admin.inline.emojiKitchenModal.mixedResult")} className={styles.slotImg} />
+            : <span className={styles.slotHint}>{t("admin.inline.emojiKitchenModal.result")}</span>}
         </span>
       </div>
 
       <div className={styles.bar}>
         <span className={styles.step}>
-          {t(`${slotLabel(active)} 칸에 넣을 이모지`, `Pick the ${active === 0 ? "first" : "second"} emoji`)}
-          {data && <span className={styles.count}>{t(`${candidates.length}개`, `${candidates.length}`)}</span>}
+          {t(active === 0 ? "admin.inline.emojiKitchenModal.pickFirst" : "admin.inline.emojiKitchenModal.pickSecond")}
+          {data && <span className={styles.count}>{fillTemplate(t("admin.inline.emojiKitchenModal.count"), { n: candidates.length })}</span>}
         </span>
         <div className={styles.search}>
-          <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("이름·키워드 검색 (영어)", "Search name or keyword")} align="left" />
+          <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("admin.inline.emojiKitchenModal.searchPlaceholder")} align="left" />
         </div>
       </div>
 
@@ -198,17 +194,17 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
               </div>
             </section>
           ))
-        ) : <EmptyState pad="sm">{t("맞는 이모지가 없습니다", "No matching emoji")}</EmptyState>}
+        ) : <EmptyState pad="sm">{t("admin.inline.emojiKitchenModal.noMatch")}</EmptyState>}
       </div>
 
       {/* 아래 단은 늘 그린다 — 조합을 고를 때만 나타나면 모달 높이가 바뀌어 화면이 튀었다. 고르기 전엔 비활성 */}
       {footerEl && createPortal(
         <div className={styles.foot}>
           {/* 라벨 · 입력 · 단추를 한 줄에 — 입력과 단추는 같은 높이(md, 32px) */}
-          <label className={styles.nameLabel} htmlFor={nameId}>{t("이모지 이름", "Emoji name")}</label>
+          <label className={styles.nameLabel} htmlFor={nameId}>{t("admin.inline.emojiKitchenModal.emojiName")}</label>
           <Input id={nameId} value={picked ? name : ""} onChange={setName} disabled={!picked} className={styles.nameInput}
-            placeholder={picked ? t("이모지 이름", "Emoji name") : t("두 이모지를 고르면 이름을 정할 수 있어요", "Pick two emojis to name it")} />
-          <Button variant="primary" loading={saving} disabled={!picked} onClick={() => void add()}>{t("추가", "Add")}</Button>
+            placeholder={picked ? t("admin.inline.emojiKitchenModal.emojiName") : t("admin.inline.emojiKitchenModal.pickTwoHint")} />
+          <Button variant="primary" loading={saving} disabled={!picked} onClick={() => void add()}>{t("admin.inline.emojiKitchenModal.add")}</Button>
         </div>,
         footerEl,
       )}

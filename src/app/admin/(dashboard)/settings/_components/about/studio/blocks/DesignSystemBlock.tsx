@@ -12,6 +12,10 @@ import Popover from "@/components/ui/Popover";
 import { designConcepts } from "@/data/about/concepts";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+
+/* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
+// eslint-disable-next-line no-restricted-syntax -- 위 설명
+const KO_CONTENT = { SUBTITLE: "4가지 서체 시스템" } as const;
 /* ═══════════ 상수 ═══════════ */
 export const WEIGHTS = [
   { value: "100", label: "100 · Thin" }, { value: "200", label: "200 · ExtraLight" },
@@ -68,7 +72,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
                 onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel={t("admin.inline.designSystemBlock.title")} />
               <EditableText wrap className={dc.dcCardSubtitle} value={lang === "ko" ? it.subtitle_ko : it.subtitle_en}
                 onChange={(v) => set(lang === "ko" ? { subtitle_ko: v } : { subtitle_en: v })}
-                placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel={t("admin.inline.designSystemBlock.subtitle")} />
+                placeholder={lang === "ko" ? KO_CONTENT.SUBTITLE : "4-Font Type System"} ariaLabel={t("admin.inline.designSystemBlock.subtitle")} />
               <EditableText multiline className={dc.dcCardDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                 onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}
                 placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={t("admin.inline.designSystemBlock.description")} style={{ width: "100%" }} />
