@@ -106,8 +106,8 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
       if (!key) list.push(tr("admin.inline.erdCanvas.tableNameIsEmpty"));
       else if ((nameCount.get(key) ?? 0) > 1) list.push(tr("admin.inline.erdCanvas.duplicateTableName"));
       if (t.columns.length === 0) list.push(tr("admin.inline.erdCanvas.noColumns"));
-      if (t.columns.some((c) => !c.name.trim())) list.push(tr("admin.inline.erdCanvas.columnWithAnEmpty"));
-      if (t.columns.some((c) => !c.type.trim())) list.push(tr("admin.inline.erdCanvas.columnWithAnEmpty2"));
+      if (t.columns.some((c) => !c.name.trim())) list.push(tr("admin.inline.erdCanvas.columnNameEmpty"));
+      if (t.columns.some((c) => !c.type.trim())) list.push(tr("admin.inline.erdCanvas.columnTypeEmpty"));
       const seen = new Set<string>();
       const dupCol = t.columns.some((c) => {
         const k = c.name.trim().toLowerCase();
@@ -207,7 +207,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
                 {tr("admin.inline.erdCanvas.noTablesYet")}
               </p>
               <p className={css.emptyHint}>
-                {tr("admin.inline.erdCanvas.addATableOr")}
+                {tr("admin.inline.erdCanvas.emptyHint")}
               </p>
               <Button variant="subtle" icon={<Plus size={14} />} onClick={addTable}>
                 {tr("admin.inline.erdCanvas.addTable")}

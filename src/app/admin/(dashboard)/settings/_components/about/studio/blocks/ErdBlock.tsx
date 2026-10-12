@@ -36,13 +36,13 @@ function ImportWarning({ plan, onConfirm }: {
       <ul className={css.planList}>
         {plan.removedTables.length > 0 && (
           <li className={css.planDanger}>
-            <strong>{fillTemplate(t("admin.inline.erdBlock.removedtablesTablesWillBe"), { removedTables: plan.removedTables.length })}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.planRemoveTables"), { removedTables: plan.removedTables.length })}</strong>
             <span className={css.planNames}>{plan.removedTables.join(", ")}</span>
           </li>
         )}
         {changedCount > 0 && (
           <li className={css.planDanger}>
-            <strong>{fillTemplate(t("admin.inline.erdBlock.changedcountColumnsWillBe"), { changedCount })}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.planOverwriteColumns"), { changedCount })}</strong>
             <div className={css.planDiff}>
               {plan.updatedTables.flatMap((tb) => tb.changed.map((c) => (
                 <span key={`${tb.name}.${c.name}`} className={css.planDiffRow}>
@@ -57,12 +57,12 @@ function ImportWarning({ plan, onConfirm }: {
         )}
         {plan.addedTables.length > 0 && (
           <li>
-            <strong>{fillTemplate(t("admin.inline.erdBlock.addedtablesTablesAdded"), { addedTables: plan.addedTables.length })}</strong>
+            <strong>{fillTemplate(t("admin.inline.erdBlock.planAddTables"), { addedTables: plan.addedTables.length })}</strong>
             <span className={css.planNames}>{plan.addedTables.join(", ")}</span>
           </li>
         )}
         {plan.keptTables.length > 0 && (
-          <li>{fillTemplate(t("admin.inline.erdBlock.kepttablesTablesStayUntouched"), { keptTables: plan.keptTables.length })}</li>
+          <li>{fillTemplate(t("admin.inline.erdBlock.planKeepTables"), { keptTables: plan.keptTables.length })}</li>
         )}
       </ul>
     </ModalConfirm>
@@ -114,7 +114,7 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
       setFileName(f.name);
       setImportOpen(true);
     } catch {
-      setErr(t("admin.inline.erdBlock.couldNotReadThe"));
+      setErr(t("admin.inline.erdBlock.fileUnreadable"));
     }
   };
   const [result, setResult] = useState<{ tables: number; relations: number; skipped: number } | null>(null);
@@ -265,10 +265,10 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
                       const m = mergeErd({ tables, relations }, preview).stats;
                       /* 삭제는 되돌릴 수 없어 0 이 아닐 때 반드시 드러나야 한다 */
                       const gone = [
-                        m.removedTables && fillTemplate(t("admin.inline.erdBlock.removedtablesTablesRemoved"), { removedTables: m.removedTables }),
+                        m.removedTables && fillTemplate(t("admin.inline.erdBlock.resultRemovedTables"), { removedTables: m.removedTables }),
                         m.removedColumns && fillTemplate(t("admin.inline.erdBlock.removedcolumnsColumnsRemoved"), { removedColumns: m.removedColumns }),
                       ];
-                      const base = fillTemplate(t("admin.inline.erdBlock.addedtablesNewUpdatedtablesUpdated"), { addedTables: m.addedTables, updatedTables: m.updatedTables, keptTables: m.keptTables });
+                      const base = fillTemplate(t("admin.inline.erdBlock.resultSummary"), { addedTables: m.addedTables, updatedTables: m.updatedTables, keptTables: m.keptTables });
                       return [base, ...gone.filter(Boolean)].join(" · ");
                     })()}
                     {preview.skipped > 0 && (

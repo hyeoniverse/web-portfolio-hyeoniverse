@@ -129,7 +129,7 @@ export default function MemberEditModal({
     setGhLoading(false);
 
     if (!fetched && !githubInfo) {
-      setStatus({ ok: false, msg: errorText(failure, t, t("admin.inline.memberEditModal.couldNotLoadFrom")) });
+      setStatus({ ok: false, msg: errorText(failure, t, t("admin.inline.memberEditModal.githubLoadFailed")) });
       return;
     }
 
@@ -172,7 +172,7 @@ export default function MemberEditModal({
         ? t("admin.inline.memberEditModal.filledTheEmptyFields")
         : fetched?.enriched
         ? t("admin.inline.memberEditModal.filledFromYourGithub")
-        : t("admin.inline.memberEditModal.couldNotReadThe"),
+        : t("admin.inline.memberEditModal.githubProfileUnreadable"),
     });
   };
 
@@ -225,7 +225,7 @@ export default function MemberEditModal({
 
   const invite = async () => {
     if (!draft.name.trim()) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.pleaseEnterAName") }); return; }
-    if (!draft.email) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.pleaseEnterAnEmail2") }); return; }
+    if (!draft.email) { setStatus({ ok: false, msg: t("admin.inline.memberEditModal.emailRequiredFirst") }); return; }
     setBusy(true);
     onSaveProfile(draft); // author_id 정합성 위해 프로필 먼저 저장
     const r = await onInvite(draft, Number(inviteLevel));
@@ -309,13 +309,13 @@ export default function MemberEditModal({
       <HintLines lines={[
         ghHasData && t("admin.inline.memberEditModal.loadFromGithubFills"),
         ghHasData && t("admin.inline.memberEditModal.whereAFieldAlready"),
-        t("admin.inline.memberEditModal.switchKoEnTo"),
+        t("admin.inline.memberEditModal.langSwitchHint"),
         t("admin.inline.memberEditModal.emptyEnglishFieldsFall"),
       ]} />
 
       {ghConflicts && (
         <div className={styles.ghCompare}>
-          <span className={shared.fieldLabel}>{t("admin.inline.memberEditModal.fieldsThatDifferFrom")}</span>
+          <span className={shared.fieldLabel}>{t("admin.inline.memberEditModal.githubDiffFields")}</span>
           <div className={styles.ghCompareHead} aria-hidden>
             <span />
             <span>{t("admin.inline.memberEditModal.current")}</span>
@@ -435,7 +435,7 @@ export default function MemberEditModal({
           <>
             <span className={`${shared.fieldHint} ${shared.hintItem}`}>
               {localInvited
-                ? t("admin.inline.memberEditModal.inviteSentAccessIs")
+                ? t("admin.inline.memberEditModal.inviteSent")
                 : t("admin.inline.memberEditModal.accessIsGrantedWhen")}
             </span>
             <div className={styles.authorInviteRow}>

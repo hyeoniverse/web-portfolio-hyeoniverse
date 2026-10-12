@@ -74,14 +74,14 @@ export default function AccessRequestModal({
         <p className={styles.resultTitle}>
           {ok
             ? t("admin.inline.accessRequestModal.accessRequestSent")
-            : t("admin.inline.accessRequestModal.couldNotSendThe")}
+            : t("admin.inline.accessRequestModal.sendFailed")}
         </p>
         <p className={styles.resultDesc}>
           {ok
             ? partial
-              ? fillTemplate(t("admin.inline.accessRequestModal.sentcountOfTargetsWere"), { targets: targets.length, sentCount })
+              ? fillTemplate(t("admin.inline.accessRequestModal.partialSent"), { targets: targets.length, sentCount })
               : t("admin.inline.accessRequestModal.theOwnerHasBeen")
-            : t("admin.inline.accessRequestModal.thisMayBeA")}
+            : t("admin.inline.accessRequestModal.networkRetryHint")}
         </p>
         {ok && targets.length > 1 && (
           <ul className={styles.resultTargets}>

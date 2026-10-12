@@ -186,11 +186,11 @@ export default function ErdTableModal({
 
   const issues: string[] = [];
   if (nameMissing) issues.push(tA("admin.inline.erdTableModal.enterATableName"));
-  if (nameTaken) issues.push(tA("admin.inline.erdTableModal.thatTableNameIs"));
+  if (nameTaken) issues.push(tA("admin.inline.erdTableModal.tableNameTaken"));
   if (draft.columns.length === 0) issues.push(tA("admin.inline.erdTableModal.addAtLeastOne"));
-  if (colMissing.some((m) => m.name)) issues.push(tA("admin.inline.erdTableModal.someColumnsHaveNo"));
-  if (colMissing.some((m) => m.type)) issues.push(tA("admin.inline.erdTableModal.someColumnsHaveNo2"));
-  if (dupCols.size > 0) issues.push(tA("admin.inline.erdTableModal.columnNamesMustBe"));
+  if (colMissing.some((m) => m.name)) issues.push(tA("admin.inline.erdTableModal.columnNameMissing"));
+  if (colMissing.some((m) => m.type)) issues.push(tA("admin.inline.erdTableModal.columnTypeMissing"));
+  if (dupCols.size > 0) issues.push(tA("admin.inline.erdTableModal.columnNameDuplicate"));
 
   const addColumn = () => {
     setCols([...draft.columns, { name: "", type: "text" }]);
@@ -325,7 +325,7 @@ export default function ErdTableModal({
                     </Tooltip>
                     <Tooltip content={tA("admin.inline.erdTableModal.unique")} delay={200}>
                       <Pressable className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
-                        aria-label={tA("admin.inline.erdTableModal.unique2")} aria-pressed={!!c.unique}
+                        aria-label={tA("admin.inline.erdTableModal.uniqueLabel")} aria-pressed={!!c.unique}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, unique: !x.unique || undefined } : x)))}>
                         <Fingerprint size={13} />
                       </Pressable>
@@ -336,7 +336,7 @@ export default function ErdTableModal({
                       className={`${css.cell} ${tried && (colMissing[i].name || dupCols.has(i)) ? css.invalid : ""}`}
                       value={c.name} aria-label={tA("admin.inline.erdTableModal.columnName")} data-col-name
                       aria-required aria-invalid={tried && (colMissing[i].name || dupCols.has(i))}
-                      placeholder={tA("admin.inline.erdTableModal.name2")}
+                      placeholder={tA("admin.inline.erdTableModal.namePlaceholder")}
                       onChange={(e) => setCols(draft.columns.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
                       onBlur={(e) => {
                         /* 아무것도 안 넣고 벗어나면 빈 행을 남기지 않는다.
@@ -398,7 +398,7 @@ export default function ErdTableModal({
                         <label className={css.detailField}>
                           <span>{tA("admin.inline.erdTableModal.description")}</span>
                           <input className={css.cell} value={c.comment ?? ""}
-                            placeholder={tA("admin.inline.erdTableModal.whatThisColumnIs")}
+                            placeholder={tA("admin.inline.erdTableModal.columnDescPlaceholder")}
                             onChange={(e) => setCols(draft.columns.map((x, j) =>
                               (j === i ? { ...x, comment: e.target.value || undefined } : x)))} />
                         </label>

@@ -126,7 +126,7 @@ export default function ProfileGithubEditor({
             <SiGithub size={13} aria-hidden /> {t("admin.inline.profileGithubEditor.showGithubSection")}
           </span>
           <span className={`${outer.fieldHint} ${styles.switchHint}`}>
-            {t("admin.inline.profileGithubEditor.showsActivityStatsAnd")}
+            {t("admin.inline.profileGithubEditor.githubSectionHint")}
           </span>
         </span>
         <Switch checked={enabled} onCheckedChange={(v) => patch({ enabled: v })} />
@@ -137,7 +137,7 @@ export default function ProfileGithubEditor({
           오타 하나로 남의 저장소가 프로필에 뜬다. */}
       <FieldRow
         label={t("admin.inline.profileGithubEditor.githubAccount")}
-        hint={t("admin.inline.profileGithubEditor.takenFromTheOwner")}
+        hint={t("admin.inline.profileGithubEditor.usernameSourceHint")}
       >
         <div className={styles.loginRow}>
           <span className={styles.login}>

@@ -37,7 +37,7 @@ export function ProviderChips({ providers }: { providers: string[] }) {
           <span
             key={p}
             className={styles.provider}
-            title={t("admin.inline.memberBadges.canSignInWith")}
+            title={t("admin.inline.memberBadges.githubLoginTip")}
           >
             {/* 수단 아이콘 대신 체크 배지 — "연결돼 사용 가능" 상태임을 모양으로 말한다.
                라벨도 수단 이름만이 아니라 상태까지 — "OAuth 미연결" 배지와 짝이 되는 문구 */}
@@ -48,7 +48,7 @@ export function ProviderChips({ providers }: { providers: string[] }) {
           <span
             key={p}
             className={styles.provider}
-            title={t("admin.inline.memberBadges.canSignInWith2")}
+            title={t("admin.inline.memberBadges.emailLoginTip")}
           >
             <RiVerifiedBadgeFill size={12} aria-hidden />
             {t("admin.inline.memberBadges.emailLoginEnabled")}
@@ -66,7 +66,7 @@ export function ProviderUnlinkedBadge() {
   return (
     <span
       className={`${styles.role} ${styles.rolePendingBadge}`}
-      title={t("admin.inline.memberBadges.hasNeverSignedIn")}
+      title={t("admin.inline.memberBadges.githubNeverSignedInTip")}
     >
       <RiVerifiedBadgeLine size={12} aria-hidden />
       {t("admin.inline.memberBadges.oauthNotLinked")}

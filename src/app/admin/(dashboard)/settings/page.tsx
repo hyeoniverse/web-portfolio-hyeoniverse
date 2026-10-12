@@ -1185,7 +1185,7 @@ export default function SettingsPage() {
                     titleClassName={styles.sectionTitle}
                   />
                   <p className={styles.sectionHint}>
-                    {t("admin.inline.settingsPage.manageAuthorProfilesAnd")}
+                    {t("admin.inline.settingsPage.authorsSectionHint")}
                   </p>
                   <AuthorsEditor
                     authors={config.authors ?? []}

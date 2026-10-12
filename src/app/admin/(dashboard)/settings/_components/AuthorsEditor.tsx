@@ -200,12 +200,12 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return { ok: false, msg: errorText(data, t, t("admin.inline.authorsEditor.theInviteFailed")) };
       const parts = [
-        data.appliedNow ? t("admin.inline.authorsEditor.grantedAccessToThe") : t("admin.inline.authorsEditor.theInviteHasBeen"),
+        data.appliedNow ? t("admin.inline.authorsEditor.accessGranted") : t("admin.inline.authorsEditor.theInviteHasBeen"),
         data.emailed
-          ? t("admin.inline.authorsEditor.theInviteEmailWas")
+          ? t("admin.inline.authorsEditor.inviteEmailSent")
           : data.emailReason === "no_api_key"
-            ? t("admin.inline.authorsEditor.theEmailWasNot")
-            : `${t("admin.inline.authorsEditor.theEmailCouldNot")}${data.emailReason ? ` (${data.emailReason})` : ""}`,
+            ? t("admin.inline.authorsEditor.emailSkippedNoKey")
+            : `${t("admin.inline.authorsEditor.emailSendFailed")}${data.emailReason ? ` (${data.emailReason})` : ""}`,
       ];
       await refetchMembers();
       return { ok: !!data.emailed || data.appliedNow, msg: parts.join(" ") };
@@ -390,8 +390,8 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       <ModalConfirm
         desc={
           member
-            ? t("admin.inline.authorsEditor.theLinkedLoginAccount")
-            : t("admin.inline.authorsEditor.thePendingInviteFor")
+            ? t("admin.inline.authorsEditor.linkedAccountDeleteWarning")
+            : t("admin.inline.authorsEditor.pendingInviteCancelWarning")
         }
         confirmText={t("admin.inline.authorsEditor.delete")}
         danger
@@ -414,7 +414,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const removeUnlinked = (m: Member) => {
     openModal(
       <ModalConfirm
-        desc={t("admin.inline.authorsEditor.thisLoginAccountWill")}
+        desc={t("admin.inline.authorsEditor.accountDeleteWarning")}
         confirmText={t("admin.inline.authorsEditor.delete")}
         danger
         onConfirm={async () => {
