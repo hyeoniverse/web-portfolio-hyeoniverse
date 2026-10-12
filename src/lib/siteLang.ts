@@ -231,7 +231,8 @@ export async function ensureSiteContent(lang: string, bundle: Bundle = "site", f
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lang, bundle }),
     });
-    if (!res.ok) return;
+    /* 실패하면 다음 기회(다른 화면으로 옮김 · About 재진입)에 다시 묻는다 — 이번 방문 내내 원문으로 굳지 않게 */
+    if (!res.ok) { contentFetched.delete(key); return; }
     const data = (await res.json()) as { strings?: unknown };
     if (!data.strings || typeof data.strings !== "object") return;
     const strings = Object.fromEntries(
@@ -240,7 +241,10 @@ export async function ensureSiteContent(lang: string, bundle: Bundle = "site", f
     contentMemory.set(key, strings);
     try { localStorage.setItem(CONTENT_CACHE_PREFIX[bundle] + lang, JSON.stringify(strings)); } catch { /* 메모리에만 */ }
     emit();
-  } catch { /* 저장된 것 · 원문을 그대로 쓴다 */ }
+  } catch {
+    /* 저장된 것 · 원문을 그대로 쓰고, 다음 기회에 다시 묻는다 */
+    contentFetched.delete(key);
+  }
 }
 
 /** 테스트용 — 모듈 상태를 처음으로 */
