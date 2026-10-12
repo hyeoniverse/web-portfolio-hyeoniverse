@@ -9,6 +9,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Report } from "../_types";
 import styles from "./ReportDetail.module.css";
+import { localizeReportReason } from "@/lib/reportReasons";
 
 /**
  * 신고 상세.
@@ -34,7 +35,7 @@ export default function ReportDetail({
   onDismiss?: () => void;
   onDeleteComment?: () => void;
 }) {
-  const { language, t } = useLanguage();
+  const { language, t, tLang } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
@@ -80,7 +81,7 @@ export default function ReportDetail({
         {report.reason && (
           <div className={styles.metaRow}>
             <dt>{t("admin.reports.reason")}</dt>
-            <dd>{report.reason}</dd>
+            <dd>{localizeReportReason(report.reason, t, tLang)}</dd>
           </div>
         )}
         <div className={styles.metaRow}>

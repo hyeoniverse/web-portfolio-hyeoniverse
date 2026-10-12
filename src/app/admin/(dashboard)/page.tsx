@@ -54,10 +54,11 @@ import DevicesBreakdown from "./_components/DevicesBreakdown";
 import TrafficChannels from "./_components/TrafficChannels";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { fillTemplate, formatDwell } from "@/utils/format";
+import { localizeReportReason } from "@/lib/reportReasons";
 
 
 export default function AdminDashboard() {
-  const { t, language } = useLanguage();
+  const { t, tLang, language } = useLanguage();
   /* 상대시간 기준 시각. 렌더에서 현재 시각을 직접 읽으면 매 렌더 값이 달라진다. */
   const now = useNow();
   const router = useRouter();
@@ -719,7 +720,7 @@ export default function AdminDashboard() {
                   )}
                   {r.reason && (
                     <p className={styles.reportReason}>
-                      <Flag size={11} strokeWidth={1.8} /> {r.reason}
+                      <Flag size={11} strokeWidth={1.8} /> {localizeReportReason(r.reason, t, tLang)}
                     </p>
                   )}
                   {r.comment?.parentSlug ? (
