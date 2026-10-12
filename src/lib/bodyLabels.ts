@@ -75,8 +75,6 @@ const DEFS = {
   /* 코드 블록 바 — highlightCodeBlocks.attachCodeWrapToggle · processRichtextHtml · MarkdownRenderer */
   codeCopy: common("codeCopy"),
   codeCopied: common("codeCopied"),
-  codeExpand: common("codeExpand"),
-  codeCollapse: common("codeCollapse"),
   codeScroll: common("codeScroll"),
   codeWrap: common("codeWrap"),
   codeScrollTitle: common("codeScrollTitle"),
