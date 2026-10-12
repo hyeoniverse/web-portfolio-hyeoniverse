@@ -3282,6 +3282,10 @@
         "unresolved": "{{name}} is neither in the ERD nor created here, so this is skipped.",
         "unknownRef": "{{name}} does not exist, so this relation won't be drawn."
       }
+    },
+    "sourceTranslate": {
+      "translating": "Translating the original text into the default language ({{lang}}). Long content may take a moment.",
+      "failed": "Could not translate the original text into the default language. You are editing the existing original."
     }
   }
 }

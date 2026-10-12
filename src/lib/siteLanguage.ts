@@ -41,3 +41,12 @@ export const SITE_LANGUAGE_OPTIONS: ReadonlyArray<{ value: string; label: string
   { value: "en", label: "English" },
   ...TRANSLATION_LANGUAGES.map((l) => ({ value: l.code, label: l.native })),
 ];
+
+/**
+ * 원문 칸(ko)을 써야 할 언어(#1425) — 기본 언어가 en 이면 원문은 en 칸이라 ko 칸은 건드리지 않는다(null).
+ * ko 면 ko, 그 밖은 그 언어 코드. 원문 칸의 언어(source_lang · metadata.sourceLanguage)가 이와 다르면 번역해 덮어쓴다
+ */
+export function sourceTargetOf(code: unknown): string | null {
+  const n = normalizeSiteLanguage(code);
+  return n === "en" ? null : n;
+}

@@ -11,6 +11,8 @@ import type { Work } from "@/types/work";
 import wStyles from "@/components/works/WorkEditor.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { errorText } from "@/lib/apiError";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { ensureSourceLang } from "@/lib/sourceTranslateClient";
 
 function WorkEditorSkeleton() {
   return (
@@ -89,6 +91,7 @@ export default function EditWorkPage() {
   const [loading, setLoading] = useState(true);
   const [failure, setFailure] = useState<LoadFailure | null>(null);
   const { setInfinite } = useLenis();
+  const defaultLanguage = useSiteConfig().metadata.defaultLanguage;
 
   useEffect(() => {
     setInfinite(false);
@@ -97,7 +100,12 @@ export default function EditWorkPage() {
   useEffect(() => {
     async function load() {
       /* 응답 코드를 구분한다 — 권한이 없어 403 이 온 경우를 "없는 작품" 으로 그리면 안 된다. */
-      const res = await fetch(`/api/works/${params.id}`);
+      let res = await fetch(`/api/works/${params.id}`);
+      /* 원문 칸이 지금 기본 언어가 아니면 이 작업물만 번역해 덮어쓰고 다시 불러온다(#1425) */
+      if (res.ok) {
+        const first = await res.clone().json().catch(() => null);
+        if (first?.id && await ensureSourceLang("work", first, defaultLanguage, t)) res = await fetch(`/api/works/${params.id}`);
+      }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         setFailure({ status: res.status, body });
@@ -109,6 +117,7 @@ export default function EditWorkPage() {
       setLoading(false);
     }
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 작업물을 처음 불러올 때 한 번만
   }, [params.id]);
 
   if (loading) {
