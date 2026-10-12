@@ -28,9 +28,10 @@ export const processLayers: L10n[] = [
   { ko: "배포 · 품질", en: "CI · release" },
   { ko: "구조 · 권한", en: "Structure" },
   { ko: "성능 · 접근성", en: "Perf · a11y" },
+  { ko: "디자인 시스템 · 번역", en: "Design system · i18n" },
 ];
 /** 단계 번호("01") → processLayers 의 자리 */
-export const processLayerOf: Record<string, number> = { "01": 0, "02": 1, "03": 2, "04": 3, "05": 2, "06": 4, "07": 5 };
+export const processLayerOf: Record<string, number> = { "01": 0, "02": 1, "03": 2, "04": 3, "05": 2, "06": 4, "07": 5, "08": 6 };
 
 export const decisionsText = {
   label: { ko: "설계 결정", en: "Design decisions" } satisfies L10n,
