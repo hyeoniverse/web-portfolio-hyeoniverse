@@ -491,7 +491,7 @@ if (role.isOwner) await ensureOwnerRole(admin, session.user);`,
       en: "Page-view logging plus admin dashboard and traffic aggregation APIs. Raw IPs are never returned.",
     },
     endpoints: [
-      { method: "GET", path: "/api/page-views", description: { ko: "오늘·전체 방문 수 (방문 = 세션, 봇 제외)", en: "Today/total visits (visit = session, bots excluded)" } },
+      { method: "GET", path: "/api/page-views", description: { ko: "오늘·전체 방문자 수 (사람 수, 봇·'내 IP' 제외)", en: "Today/total visitors (people, bots and \"my IP\" excluded)" } },
       { method: "POST", path: "/api/page-views", description: { ko: "조회 기록 (30분 중복 제거, 첫 조회에 유입·기기·국가·UTM, 운영자·'내 IP' 제외)", en: "Record a page view (30-minute dedup, referrer/device/country/UTM on the first view, skips the operator and \"my IP\")" } },
       { method: "POST", path: "/api/page-views/duration", description: { ko: "머문 시간 더하기 (sendBeacon, 같은 IP 만)", en: "Add time on page (sendBeacon, same IP only)" } },
       { method: "GET", path: "/api/admin/dashboard", description: { ko: "대시보드 집계 (admin)", en: "Dashboard aggregates (admin)" } },

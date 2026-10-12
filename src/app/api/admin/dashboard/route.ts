@@ -13,8 +13,8 @@ import {
   type PostAggRow,
 } from "@/lib/api/dashboardAggregates";
 import { loadExcludedIps } from "@/lib/api/ipAnalytics";
-import { loadDailyPageViews, loadPageViewStats, loadPageViewTotals } from "@/lib/api/pageViewStats";
-import { loadLandingRows, visitorHistory } from "@/lib/api/pageViewVisits";
+import { loadPageViewStats, loadPageViewTotals } from "@/lib/api/pageViewStats";
+import { loadLandingRows, visitorHistory, visitorKey } from "@/lib/api/pageViewVisits";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -58,7 +58,7 @@ export async function GET() {
     unreadNotifications,
     popularPosts,
     secretsRow,
-    dailyViewsRes,
+    pageTotals,
     allPostsAgg,
     allLandings,
     pageStats30,
@@ -103,28 +103,8 @@ export async function GET() {
       .order("view_count", { ascending: false })
       .limit(5),
     admin.from("site_settings").select("config").eq("id", "secrets").maybeSingle(),
-    // 일별 조회수 — 차트·달력·날짜 선택기용 (KST 기준). 클라이언트에서 기간 슬라이스.
-    // 고정 90일 창이었는데 추적이 그보다 길어지자 앞이 잘려 달력이 과거로 못 갔다(#1154).
-    // 가장 오래된 기록부터 오늘까지를 창으로 쓴다 — 90일 하한(차트 기본 구간·WoW 슬라이스),
-    // 2년 캡(응답 크기). 첫 기록 조회는 이 항목 안에서 직렬이라 다른 집계와는 계속 병렬이다.
-    // 페이지 조회(page_views, #1399) 기준 — 총 조회수 · 처음 센 날도 여기서 함께 받는다.
-    (async () => {
-      const pageTotals = await loadPageViewTotals(admin, excludedIps);
-      const end = new Date();
-      const todayKst = kstDateStr(end);
-      let days = 90;
-      const firstDay = pageTotals?.since;
-      if (firstDay) {
-        const [fy, fm, fd] = firstDay.split("-").map(Number);
-        const [ty, tm, td] = todayKst.split("-").map(Number);
-        const span = Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000) + 1;
-        days = Math.min(Math.max(span, 90), 730);
-      }
-      const start = new Date(end);
-      start.setDate(start.getDate() - (days - 1));
-      const data = await loadDailyPageViews(admin, kstDateStr(start), todayKst, excludedIps);
-      return { data: data ?? [], days, pageTotals };
-    })(),
+    // 페이지 조회수 합계 · 처음 센 날 (#1399)
+    loadPageViewTotals(admin, excludedIps),
     // 카테고리/태그 집계용 — 발행된 게시물 전체
     admin
       .from("posts")
@@ -156,12 +136,35 @@ export async function GET() {
   const channels = aggregateChannels(trafficRows);
   const newVsReturning = aggregateNewVsReturning(visitorHistory(allLandings), windowStart);
 
-  const filledDailyViews = fillDailyViews(
-    (dailyViewsRes.data ?? []) as Array<{ day: string; views: number }>,
-    dailyViewsRes.days,
+  // 방문자 — 사이트에 들른 사람 수(방문자 id, 옛 기록은 IP). 전체 · 일별(KST)
+  const allVisitors = new Set<string>();
+  const dailyVisitorSets = new Map<string, Set<string>>();
+  for (const r of allLandings) {
+    const key = visitorKey(r);
+    if (!key) continue;
+    allVisitors.add(key);
+    const set = dailyVisitorSets.get(r.date) ?? new Set<string>();
+    set.add(key);
+    dailyVisitorSets.set(r.date, set);
+  }
+  const since = allLandings[0]?.date ?? pageTotals?.since ?? null;
+  // 일별 방문자 — 차트·달력·날짜 선택기용. 클라이언트에서 기간 슬라이스.
+  // 고정 90일 창이었는데 추적이 그보다 길어지자 앞이 잘려 달력이 과거로 못 갔다(#1154).
+  // 가장 오래된 기록부터 오늘까지를 창으로 쓴다 — 90일 하한(차트 기본 구간·WoW 슬라이스), 2년 캡(응답 크기).
+  const chartDays = (() => {
+    if (!since) return 90;
+    const [fy, fm, fd] = since.split("-").map(Number);
+    const [ty, tm, td] = kstDateStr(new Date()).split("-").map(Number);
+    const span = Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000) + 1;
+    return Math.min(Math.max(span, 90), 730);
+  })();
+  const dailyVisitors = fillDailyViews(
+    [...dailyVisitorSets.entries()].map(([day, set]) => ({ day, views: set.size })),
+    chartDays,
   );
-  // 방문당 평균 조회수 — 최근 30일 조회수 합 / 최근 30일 방문 수
-  const views30 = filledDailyViews.slice(-30).reduce((s, d) => s + d.views, 0);
+
+  // 방문당 평균 조회수 — 최근 30일 페이지 조회 / 최근 30일 방문 수
+  const views30 = pageStats30?.total ?? 0;
   const visits30 = trafficRows.length;
   const visitSummary = {
     visits30,
@@ -233,15 +236,15 @@ export async function GET() {
       recent: notifications.data ?? [],
     },
     stats: {
-      // 총 조회수 = 페이지 조회수(처음 센 날부터). 마이그레이션 전이면 0
+      // 맨 위 숫자 = 방문자. 방문(세션) · 페이지 조회 · 머문 시간은 그 옆에 작게
+      visitors: { total: allVisitors.size, visits: allLandings.length, since },
       pageViews: {
-        total: dailyViewsRes.pageTotals?.total ?? 0,
-        since: dailyViewsRes.pageTotals?.since ?? null,
+        total: pageTotals?.total ?? 0,
         avgDurationMs30: pageStats30?.avgDurationMs ?? null,
       },
       popularPosts: popularPosts.data ?? [],
-      // 첫 기록~오늘 일별 페이지 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
-      dailyViews: filledDailyViews,
+      // 첫 기록~오늘 일별 방문자. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
+      dailyVisitors,
       categories,
       tags,
       devices,

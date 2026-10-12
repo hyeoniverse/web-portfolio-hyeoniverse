@@ -82,7 +82,8 @@ export interface DashboardData {
       created_at?: string;
       comment_count?: number;
     }>;
-    dailyViews: DailyViews[];
+    /** 일별 방문자 수(KST, 처음 센 날~오늘, 빈 날 0) — 차트 · 달력 · 최근 7일 비교. views 칸이 방문자 수다 */
+    dailyVisitors: DailyViews[];
     categories: Array<{ name: string; postCount: number; views: number }>;
     tags: Array<{ tag: string; count: number }>;
     /** 기기 분석 — 방문(첫 조회)의 UA 파싱 결과 desktop/mobile/tablet 비율 */
@@ -108,10 +109,12 @@ export interface DashboardData {
     /** 최근 30일 방문·조회 요약 — 방문당 평균 조회수 */
     visitSummary?: { visits30: number; views30: number; viewsPerVisit: number };
     /**
-     * 총 조회수 = 페이지 조회수(#1399) — total 은 처음 센 날(since, 옛 방문 기록에서 옮긴 것 포함)부터의 합계,
-     * avgDurationMs30 은 최근 30일 평균 머문 시간(잰 조회만, 없으면 null)
+     * 방문자(#1399) — 사이트에 들른 사람 수(방문자 id, 옛 기록은 IP). visits 는 방문(세션) 수.
+     * since 는 처음 센 날(옛 방문 기록에서 옮긴 것 포함). 모두 봇 · '내 IP' 제외
      */
-    pageViews: { total: number; since: string | null; avgDurationMs30: number | null };
+    visitors: { total: number; visits: number; since: string | null };
+    /** 페이지 조회수 합계 · 최근 30일 평균 머문 시간(잰 조회만, 없으면 null) */
+    pageViews: { total: number; avgDurationMs30: number | null };
   };
   services: Record<string, "configured" | "missing">;
 }
@@ -133,6 +136,19 @@ export interface PageViewStats {
   avgSessionMs: number | null;
   /** 페이지별 조회수 상위 20 · 평균 머문 시간 */
   topPaths: Array<{ path: string; views: number; avgMs: number | null }>;
+}
+
+/** 방문 흐름(#1399) — 방문마다 본 페이지를 시간순으로 이어 센 것 */
+export interface VisitJourneys {
+  /** 경로가 있는 방문 수 · 한 페이지만 보고 나간 방문의 비율(%) */
+  sessions: number;
+  bounceRate: number;
+  /** 들어온 페이지 → 바로 다음에 본 페이지 (상위 10) */
+  nextPages: Array<{ from: string; to: string; count: number }>;
+  /** 방문의 마지막 페이지 (상위 10) */
+  exitPages: Array<{ path: string; count: number; pct: number }>;
+  /** 최근 방문 10개의 이동 경로 — 페이지마다 머문 시간(못 잰 페이지는 null) */
+  recent: Array<{ startedAt: string; referrer: string | null; device: string | null; steps: Array<{ path: string; ms: number | null }> }>;
 }
 
 /** GET /api/admin/traffic — 트래픽 전용 페이지 데이터(#1161). 대시보드는 이 중 간략 세트만 보여준다. */
@@ -179,6 +195,8 @@ export interface TrafficData {
   visitSummary: { visits30: number; views30: number; viewsPerVisit: number };
   /** 기간 내 페이지 조회 · 머문 시간(#1399) — 집계 함수가 없으면(마이그레이션 전) null */
   pageStats: PageViewStats | null;
+  /** 기간 내 방문 흐름 — 들어온 뒤 무엇을 봤는지 */
+  journeys: VisitJourneys;
   /** IP 별 방문 상위 — 마스킹 값과 불투명 키만 (원문 IP 는 응답에 없다) */
   ipVisitors: Array<{
     key: string;

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { HUMAN_VISITS_FILTER, type AnalyticsVisitRow } from "./dashboardAggregates";
+import type { JourneyRow } from "./visitJourneys";
 
 /**
  * page_views 에서 방문 · 콘텐츠 조회 읽기(#1399) — 대시보드 · 트래픽 페이지가 같이 쓴다.
@@ -117,3 +118,20 @@ export async function countPostViews(
   }
   return counts;
 }
+
+/** 방문 흐름 분석용 — since 이후 사람의 조회 줄(세션 · 경로 · 시각 · 머문 시간, 첫 조회의 유입 · 기기) */
+export async function loadJourneyRows(admin: SupabaseClient, excluded: Set<string>, since: string): Promise<JourneyRow[]> {
+  const rows = await pages<JourneyRow & { ip: string | null }>((from, to) =>
+    admin
+      .from("page_views")
+      .select("ip, session_id, path, viewed_at, duration_ms, is_landing, referrer, device_kind")
+      .or(HUMAN_VISITS_FILTER)
+      .gte("viewed_date", since)
+      .order("viewed_at", { ascending: true })
+      .range(from, to),
+  );
+  return (rows ?? []).filter((r) => !r.ip || !excluded.has(r.ip));
+}
+
+/** 방문자 열쇠 — 방문자 id, 없으면 IP(옛 기록). 둘 다 없으면 셀 수 없다 */
+export const visitorKey = (r: LandingRow): string | null => r.visitor ?? r.ip;

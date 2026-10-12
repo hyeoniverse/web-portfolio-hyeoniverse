@@ -91,7 +91,8 @@
 --   2026_10_12  content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta — 사이트 전체 번역 캐시
 --   2026_10_14  page_views — 페이지 조회 기록(30분 중복 제거) + 머문 시간 + 집계 RPC, IP 90일 보관에 포함
 --   2026_10_15  page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사, 글/작업물 view_count 도 record_page_view 에서
---   2026_10_16  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
+--   2026_10_16  visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)
+--   2026_10_17  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -1299,6 +1300,23 @@ REVOKE ALL ON FUNCTION public.daily_page_views(date, date, text[]) FROM PUBLIC, 
 REVOKE ALL ON FUNCTION public.page_view_totals(text[]) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.page_view_stats(date, date, text[]) FROM PUBLIC, anon, authenticated;
 
+-- 오늘 · 전체 방문자 수 — 푸터 · 대시보드 맨 위 숫자(방문의 첫 조회의 visitor_id, 옛 기록은 IP)
+CREATE OR REPLACE FUNCTION public.visitor_counts(p_today date, p_excluded text[] DEFAULT '{}')
+RETURNS TABLE(today bigint, total bigint)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT COUNT(DISTINCT COALESCE(visitor_id, ip)) FILTER (WHERE viewed_date = p_today) AS today,
+         COUNT(DISTINCT COALESCE(visitor_id, ip)) AS total
+    FROM page_views
+   WHERE is_landing
+     AND (device_kind IS NULL OR device_kind <> 'bot')
+     AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))));
+$$;
+
+REVOKE ALL ON FUNCTION public.visitor_counts(date, text[]) FROM PUBLIC, anon, authenticated;
+
 -- slug 자동 생성 — JS 의 generateSlug 와 동일 로직 (a-z, 0-9, 한글, 공백→하이픈, 80자 cap).
 -- 마이그레이션에서 빈 slug 채울 때 사용. 클라이언트는 별도 generateSlug() 함수 사용.
 CREATE OR REPLACE FUNCTION _sql_slugify(t text)
@@ -1873,6 +1891,7 @@ END $$;
 --   record_page_view(path, ip, session, visitor, meta) : 조회 기록 — 같은 IP · 경로 30분 안이면 앞 행 id, 첫 조회에 방문 정보, 글/작업물 view_count +1 (service_role 전용)
 --   record_page_duration(p_id, p_ip, p_ms)        : 그 조회에 머문 시간 더하기 (한 조회 2시간 상한, service_role 전용)
 --   daily_page_views / page_view_totals / page_view_stats : 페이지 조회 집계 — 일별 · 전체와 처음 센 날 · 기간 상세 (service_role 전용)
+--   visitor_counts(p_today, p_excluded)          : 오늘 · 전체 방문자 수 — 푸터 (service_role 전용)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
 --   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
 --   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 page_views 의 IP 비우기 (cron 매일 KST 03:30)
@@ -2194,7 +2213,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_12_content_translations_site',     'content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta 추가 — 사이트 전체 번역 캐시'),
   ('2026_10_14_page_views',                    'page_views — 페이지 조회 기록(30분 중복 제거) + 페이지별 머문 시간'),
   ('2026_10_15_page_views_unify',              'page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사'),
-  ('2026_10_16_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제')
+  ('2026_10_16_visitor_counts',                'visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)'),
+  ('2026_10_17_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

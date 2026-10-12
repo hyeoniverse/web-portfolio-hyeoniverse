@@ -149,10 +149,10 @@ export default function AdminDashboard() {
     return () => { alive = false; };
   }, []);
 
-  /* Total Views 카드용 WoW (week-over-week) — 최근 7일 vs 이전 7일.
+  /* 방문자 카드용 WoW (week-over-week) — 최근 7일 vs 이전 7일 일별 방문자 합.
      Rules of Hooks: 반드시 early return 앞에서 호출. (Daily Chart 의 WoW 는 차트 내부에서 따로 계산 — 기간 선택에 따라 달라지므로) */
   const wow = useMemo(() => {
-    const dv = data?.stats.dailyViews ?? [];
+    const dv = data?.stats.dailyVisitors ?? [];
     if (dv.length < 14) return null;
     const last7 = dv.slice(-7).reduce((s, d) => s + d.views, 0);
     const prev7 = dv.slice(-14, -7).reduce((s, d) => s + d.views, 0);
@@ -396,19 +396,19 @@ export default function AdminDashboard() {
             }}
           >
             <div className={styles.heroLeft}>
-              {/* 총 조회수 = 페이지 조회수(#1399) */}
+              {/* 맨 위 숫자 = 방문자(#1399) — 몇 명이 왔는지. 와서 무엇을 했는지는 아래 숫자와 트래픽 페이지 */}
               <Tooltip
-                content={t("admin.dashboard.totalViewsTooltip")}
+                content={t("admin.dashboard.visitorsTooltip")}
                 placement="top"
                 delay={300}
               >
                 <span className={styles.heroLabel}>
-                  <T k="admin.dashboard.totalViews" />
+                  <T k="admin.dashboard.visitorsTotal" />
                 </span>
               </Tooltip>
               <div className={styles.heroValueRow}>
                 <span className={styles.heroValue}>
-                  <CountUp value={data.stats.pageViews.total} duration={1400} />
+                  <CountUp value={data.stats.visitors.total} duration={1400} />
                 </span>
                 {wow && (
                   <Tooltip
@@ -431,32 +431,29 @@ export default function AdminDashboard() {
               </div>
               <span className={styles.heroMeta}>
                 {(() => {
-                  const recent7 = data.stats.dailyViews
-                    .slice(-7)
-                    .reduce((s, d) => s + d.views, 0);
-                  const recent = language === "ko"
-                    ? `최근 7일 ${recent7.toLocaleString()}회`
-                    : `${recent7.toLocaleString()} last 7d`;
-                  /* 지난 페이지 조회는 기록이 없어 채울 수 없다 — 언제부터 센 값인지 같이 */
-                  const since = data.stats.pageViews.since;
-                  return since
-                    ? `${recent} · ${fillTemplate(t("admin.dashboard.countingSince"), { date: since })}`
-                    : recent;
+                  /* 방문 · 페이지 조회 · 머문 시간 — 들른 사람이 무엇을 했는지 한 줄로 */
+                  const { visits, since } = data.stats.visitors;
+                  const parts = [
+                    fillTemplate(t("admin.dashboard.heroVisits"), { n: visits.toLocaleString() }),
+                    fillTemplate(t("admin.dashboard.heroPageViews"), { n: data.stats.pageViews.total.toLocaleString() }),
+                  ];
+                  if (data.stats.pageViews.avgDurationMs30 != null) {
+                    parts.push(fillTemplate(t("admin.dashboard.heroDwell"), { d: formatDwell(data.stats.pageViews.avgDurationMs30, language) }));
+                  }
+                  /* 지난 기록은 옮겨 온 날까지만 있다 — 언제부터 센 값인지 같이 */
+                  if (since) parts.push(fillTemplate(t("admin.dashboard.countingSince"), { date: since }));
+                  return parts.join(" · ");
                 })()}
               </span>
             </div>
             <Tooltip
-              content={
-                language === "ko"
-                  ? "최근 14일 일별 조회수 추세"
-                  : "Daily view trend over the last 14 days"
-              }
+              content={t("admin.dashboard.visitorsSparkTooltip")}
               placement="left"
               delay={300}
             >
               <div className={styles.heroSparkWrap} aria-hidden>
                 <Sparkline
-                  values={data.stats.dailyViews.slice(-14).map((d) => d.views)}
+                  values={data.stats.dailyVisitors.slice(-14).map((d) => d.views)}
                 />
               </div>
             </Tooltip>
@@ -552,9 +549,9 @@ export default function AdminDashboard() {
           />
         )}
 
-        {/* 6. 일별 조회수 — 통계 섹션 안 */}
+        {/* 6. 일별 방문자 — 통계 섹션 안 */}
         <DailyViewsChart
-          data={data.stats.dailyViews}
+          data={data.stats.dailyVisitors}
           language={language}
           t={t}
         />

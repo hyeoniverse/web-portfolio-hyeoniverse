@@ -8,6 +8,13 @@
 
 SELECT public._migrate_legacy_views();
 
+-- 옛 방문 기록은 관리 화면(/admin/login 등)을 연 것도 랜딩으로 남겼다 — 새 기록은 관리 화면을 세지 않으므로
+-- 경로만 비운다(방문 수는 그대로, 페이지별 · 흐름 집계에서 빠진다)
+UPDATE public.page_views
+   SET path = NULL
+ WHERE migrated_from IS NOT NULL
+   AND path ~ '^/(admin|api)(/|$)';
+
 DROP FUNCTION IF EXISTS public._migrate_legacy_views();
 
 -- 옛 기록 함수
@@ -48,7 +55,7 @@ $$;
 REVOKE ALL ON FUNCTION public.anonymize_old_site_visits(int) FROM PUBLIC, anon, authenticated;
 
 SELECT log_migration_applied(
-  '2026_10_16_drop_legacy_views',
+  '2026_10_17_drop_legacy_views',
   'page_views 로 조회 기록 통일 2단계 — 남은 줄 복사 후 site_visits · post_views · work_views 와 옛 조회 함수 삭제'
 );
 
