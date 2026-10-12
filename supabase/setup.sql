@@ -89,6 +89,10 @@
 --   2026_10_09  demo_usage — About 라이브 데모 하루 상한(demo_take/refund/remaining) + 7일 보관 pg_cron
 --   2026_10_11  content_translations.source_type 에 ui — 본문 안 라벨 번역 캐시(언어마다 한 줄)
 --   2026_10_12  content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta — 사이트 전체 번역 캐시
+--   2026_10_14  page_views — 페이지 조회 기록(30분 중복 제거) + 머문 시간 + 집계 RPC, IP 90일 보관에 포함
+--   2026_10_15  page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사, 글/작업물 view_count 도 record_page_view 에서
+--   2026_10_16  visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)
+--   2026_10_17  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -729,90 +733,48 @@ CREATE POLICY "works_admin_delete" ON works FOR DELETE TO authenticated USING (i
 
 
 -- ────────────────────────────────────────────────────────────
--- 7. site_visits — 방문자 통계
---    IP + 날짜 조합으로 하루 1회만 기록
+-- 7. page_views — 사이트의 조회 기록 (#1399)
+--    페이지가 보일 때마다 한 행(같은 IP · 경로 30분 안은 한 번). 방문 · 방문자 · 유입 · 기기 · 국가 · UTM ·
+--    페이지 조회수 · 머문 시간 · 글/작업물 조회수(view_count)가 전부 이 기록에서 나온다.
+--    방문(세션) = session_id(30분 무활동이면 새로), 방문의 첫 조회 = is_landing — 유입 · 기기 · 국가 · UTM 은 그 줄에만.
+--    방문자 = visitor_id(브라우저의 임의 값, 신규 · 재방문). 봇은 device_kind 'bot' 으로 남기고 집계에서 뺀다.
+--    IP 는 90일 뒤 NULL. service_role 전용.
 -- ────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS site_visits (
-  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  ip           text NOT NULL DEFAULT '',
-  date         date NOT NULL DEFAULT CURRENT_DATE,
-  -- 트래픽 분석용 메타 (parseUserAgent 결과를 insert 시점에 저장 — admin dashboard 집계 효율화)
-  referrer     text DEFAULT NULL,
-  user_agent   text DEFAULT NULL,
-  device_kind  text DEFAULT NULL,  -- desktop / mobile / tablet
-  os           text DEFAULT NULL,  -- macOS / Windows / iOS / iPadOS / Android / Linux / ChromeOS / Other
-  browser      text DEFAULT NULL,  -- Chrome / Safari / Firefox / Edge / Samsung Internet / Opera / Other
-  device_model text DEFAULT NULL,  -- "iPhone" / "iPad" / "Pixel 8" / "SM-S921N" / "Mac" / "PC" 등
-  -- 분석 확장 (#1161)
-  country      text,               -- Vercel x-vercel-ip-country (ISO 3166-1 alpha-2, 로컬은 null)
-  path         text,               -- 그날 첫 방문의 랜딩 경로 (querystring 제외)
-  utm_source   text,               -- 랜딩 URL 의 UTM 파라미터 (링크 공유 채널 추적)
-  utm_medium   text,
-  utm_campaign text
+CREATE TABLE IF NOT EXISTS public.page_views (
+  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  path          text,               -- 옛 방문 기록에서 옮긴 줄 중 랜딩 경로를 모르는 것은 NULL
+  ip            text,
+  session_id    text,
+  visitor_id    text,
+  is_landing    boolean NOT NULL DEFAULT false,
+  viewed_at     timestamptz NOT NULL DEFAULT now(),
+  viewed_date   date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED,
+  duration_ms   integer,
+  device_kind   text,               -- desktop / mobile / tablet / bot (모든 줄)
+  -- 방문 정보 (첫 조회 줄에만)
+  referrer      text,
+  user_agent    text,
+  os            text,
+  browser       text,
+  device_model  text,
+  country       text,               -- Vercel x-vercel-ip-country (ISO 3166-1 alpha-2)
+  utm_source    text,
+  utm_medium    text,
+  utm_campaign  text,
+  migrated_from text                -- 옛 테이블(site_visits · post_views · work_views)에서 옮긴 줄의 출처. 새 기록은 NULL
 );
 
--- 같은 IP는 하루에 한 번만
-CREATE UNIQUE INDEX IF NOT EXISTS idx_site_visits_ip_date
-  ON site_visits (ip, date);
+-- 일별 · 기간 집계
+CREATE INDEX IF NOT EXISTS idx_page_views_viewed_date ON public.page_views (viewed_date DESC);
+-- 30분 중복 확인
+CREATE INDEX IF NOT EXISTS idx_page_views_ip_path_at ON public.page_views (ip, path, viewed_at DESC);
+-- 방문의 첫 조회 확인 · 세션 집계
+CREATE INDEX IF NOT EXISTS idx_page_views_session ON public.page_views (session_id);
+-- 방문 · 유입 · 기기 집계는 첫 조회 줄만 본다
+CREATE INDEX IF NOT EXISTS idx_page_views_landing_date ON public.page_views (viewed_date DESC) WHERE is_landing;
 
--- 집계용 인덱스
-CREATE INDEX IF NOT EXISTS idx_site_visits_device_kind ON site_visits (device_kind) WHERE device_kind IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_site_visits_referrer    ON site_visits (referrer)    WHERE referrer IS NOT NULL;
-
-ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
-
--- 누구나 방문자 수 조회 가능
-DROP POLICY IF EXISTS "site_visits_public_read" ON site_visits;
-/* site_visits 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
-
--- service_role 전체 접근
-
-
--- ────────────────────────────────────────────────────────────
--- 7-1. post_views — 게시물별 일별 조회수 (시계열)
---      관리자 대시보드의 일별 추세 차트용
---      posts.view_count 는 누적 카운터로 유지, 시계열 분석은 이 테이블에서
---      viewed_date — KST 기준 날짜 (Asia/Seoul). dedup boundary + 일별 group by 통일
--- ────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS post_views (
-  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  post_id     uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  ip          text,
-  viewed_at   timestamptz NOT NULL DEFAULT now(),
-  viewed_date date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED
-);
-
--- 시간 범위 + post 별 조회용
-CREATE INDEX IF NOT EXISTS idx_post_views_post_id_viewed_at
-  ON post_views (post_id, viewed_at DESC);
--- 일별 group by (KST) 빠른 조회
-CREATE INDEX IF NOT EXISTS idx_post_views_viewed_date
-  ON post_views (viewed_date DESC);
--- IP+date dedup unique constraint — 동시 race condition 방지
-CREATE UNIQUE INDEX IF NOT EXISTS uniq_post_views_post_ip_date
-  ON post_views (post_id, ip, viewed_date);
-
-ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
-
-
--- ────────────────────────────────────────────────────────────
--- 7-2. work_views — work 별 일별 조회수 (시계열). post_views 미러.
---      works.view_count 는 누적 카운터, 시계열은 이 테이블에서.
--- ────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS work_views (
-  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  work_id     uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
-  ip          text,
-  viewed_at   timestamptz NOT NULL DEFAULT now(),
-  viewed_date date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED
-);
-CREATE INDEX IF NOT EXISTS idx_work_views_viewed_date
-  ON work_views (viewed_date DESC);
--- IP+date dedup unique constraint — 동시 race condition 방지
-CREATE UNIQUE INDEX IF NOT EXISTS uniq_work_views_work_ip_date
-  ON work_views (work_id, ip, viewed_date);
-
-ALTER TABLE work_views ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.page_views FROM anon, authenticated;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1189,102 +1151,171 @@ CREATE POLICY "series_work_relations_public_read"
 -- RPC 함수
 -- ────────────────────────────────────────────────────────────
 
--- view_count atomic increment — read-then-write race condition 회피
--- /api/posts/[id]/view 가 호출. 다수 IP 동시 view 시에도 누락 없이 +1
-CREATE OR REPLACE FUNCTION increment_post_view_count(p_post_id uuid)
+-- 페이지 조회 (#1399) — 사이트의 조회 기록 하나. 30분 중복 제거 기록(글 · 작업물 view_count 도 여기서 +1) · 머문 시간 · 집계. 모두 service_role 전용
+-- 조회 기록 — 반환: 조회 id · 새로 셌는가 · 방문의 첫 조회인가
+CREATE OR REPLACE FUNCTION public.record_page_view(
+  p_path text, p_ip text, p_session text, p_visitor text, p_meta jsonb DEFAULT '{}'
+)
+RETURNS TABLE(view_id uuid, created boolean, landing boolean)
+LANGUAGE plpgsql
+VOLATILE
+SET search_path = public
+AS $$
+DECLARE
+  v_id uuid;
+  v_landing boolean;
+  v_bot boolean := COALESCE(p_meta->>'device_kind', '') = 'bot';
+  v_slug text;
+BEGIN
+  -- 같은 IP · 경로의 동시 요청이 둘 다 새 행을 만들지 않게 줄 세운다
+  PERFORM pg_advisory_xact_lock(hashtext('page_view:' || COALESCE(p_ip, '') || ':' || COALESCE(p_path, '')));
+
+  SELECT pv.id INTO v_id
+    FROM page_views pv
+   WHERE pv.ip = p_ip AND pv.path = p_path AND pv.viewed_at > now() - interval '30 minutes'
+   ORDER BY pv.viewed_at DESC
+   LIMIT 1;
+  IF v_id IS NOT NULL THEN
+    RETURN QUERY SELECT v_id, false, false;
+    RETURN;
+  END IF;
+
+  v_landing := p_session IS NULL OR NOT EXISTS (SELECT 1 FROM page_views pv WHERE pv.session_id = p_session);
+
+  INSERT INTO page_views (
+    path, ip, session_id, visitor_id, is_landing, device_kind,
+    referrer, user_agent, os, browser, device_model, country, utm_source, utm_medium, utm_campaign
+  )
+  VALUES (
+    p_path, p_ip, p_session, p_visitor, v_landing, p_meta->>'device_kind',
+    CASE WHEN v_landing THEN p_meta->>'referrer' END,
+    CASE WHEN v_landing THEN p_meta->>'user_agent' END,
+    CASE WHEN v_landing THEN p_meta->>'os' END,
+    CASE WHEN v_landing THEN p_meta->>'browser' END,
+    CASE WHEN v_landing THEN p_meta->>'device_model' END,
+    CASE WHEN v_landing THEN p_meta->>'country' END,
+    CASE WHEN v_landing THEN p_meta->>'utm_source' END,
+    CASE WHEN v_landing THEN p_meta->>'utm_medium' END,
+    CASE WHEN v_landing THEN p_meta->>'utm_campaign' END
+  )
+  RETURNING page_views.id INTO v_id;
+
+  -- 글 · 작업물 조회수(목록 정렬 · 표시용 카운터) — 상세 경로의 새 조회일 때만
+  IF NOT v_bot AND p_path ~ '^/(posts|works)/[^/]+$' THEN
+    v_slug := split_part(p_path, '/', 3);
+    IF p_path LIKE '/posts/%' THEN
+      UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE slug = v_slug AND deleted_at IS NULL;
+    ELSE
+      UPDATE works SET view_count = COALESCE(view_count, 0) + 1 WHERE slug = v_slug AND deleted_at IS NULL;
+    END IF;
+  END IF;
+
+  RETURN QUERY SELECT v_id, true, v_landing;
+END;
+$$;
+
+-- 머문 시간 더하기 — 같은 IP 가 하루 안에 보낸 것만 받는다(남의 조회 id 로 시간을 부풀리지 못하게)
+CREATE OR REPLACE FUNCTION public.record_page_duration(p_id uuid, p_ip text, p_ms integer)
 RETURNS void
 LANGUAGE sql
 VOLATILE
+SET search_path = public
 AS $$
-  UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
+  UPDATE page_views
+     SET duration_ms = LEAST(COALESCE(duration_ms, 0) + GREATEST(p_ms, 0), 7200000)
+   WHERE id = p_id
+     AND ip IS NOT DISTINCT FROM p_ip
+     AND viewed_at > now() - interval '1 day';
 $$;
 
--- 조회수 기록 — dedup (IP+post+KST date 1회) + post_views insert + posts.view_count +1 을 한 트랜잭션.
--- 동시 race 는 uniq_post_views_post_ip_date 가 차단 (ON CONFLICT DO NOTHING).
--- 반환: true = 새로 카운트, false = 오늘 이미 카운트됨
-CREATE OR REPLACE FUNCTION record_post_view(p_post_id uuid, p_ip text)
-RETURNS boolean
-LANGUAGE plpgsql
-VOLATILE
-AS $$
-DECLARE
-  v_inserted boolean := false;
-BEGIN
-  -- post 존재 확인 (FK violation 방지)
-  IF NOT EXISTS (SELECT 1 FROM posts WHERE id = p_post_id AND deleted_at IS NULL) THEN
-    RETURN false;
-  END IF;
-
-  -- dedup + insert atomically
-  INSERT INTO post_views (post_id, ip)
-  VALUES (p_post_id, p_ip)
-  ON CONFLICT (post_id, ip, viewed_date) DO NOTHING;
-
-  GET DIAGNOSTICS v_inserted = ROW_COUNT;
-
-  IF v_inserted THEN
-    UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
-    RETURN true;
-  END IF;
-
-  RETURN false;
-END;
-$$;
-
--- work 조회수 기록 — record_post_view 미러 (dedup + work_views insert + works.view_count +1)
-CREATE OR REPLACE FUNCTION record_work_view(p_work_id uuid, p_ip text)
-RETURNS boolean
-LANGUAGE plpgsql
-VOLATILE
-AS $$
-DECLARE
-  v_inserted boolean := false;
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM works WHERE id = p_work_id AND deleted_at IS NULL) THEN
-    RETURN false;
-  END IF;
-
-  INSERT INTO work_views (work_id, ip)
-  VALUES (p_work_id, p_ip)
-  ON CONFLICT (work_id, ip, viewed_date) DO NOTHING;
-
-  GET DIAGNOSTICS v_inserted = ROW_COUNT;
-
-  IF v_inserted THEN
-    UPDATE works SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_work_id;
-    RETURN true;
-  END IF;
-
-  RETURN false;
-END;
-$$;
-
--- 모든 게시물 누적 view_count 합계 — 대시보드의 totalPostViews 용
--- (없으면 라우트가 클라이언트 측 fallback으로 합산하지만, RPC 가 더 효율적)
-CREATE OR REPLACE FUNCTION sum_post_views()
-RETURNS TABLE(sum bigint)
-LANGUAGE sql
-STABLE
-AS $$
-  SELECT COALESCE(SUM(view_count), 0)::bigint AS sum
-  FROM posts
-  WHERE deleted_at IS NULL;
-$$;
-
--- 일별 게시물 조회수 시계열 — 대시보드 차트용 (KST 기준)
--- viewed_date 는 generated column 으로 (viewed_at AT TIME ZONE 'Asia/Seoul')::date
--- 사용: SELECT * FROM daily_post_views('2026-01-01'::date, '2026-01-31'::date);
-CREATE OR REPLACE FUNCTION daily_post_views(p_start date, p_end date)
+-- 집계 — 봇 줄은 모두 뺀다
+CREATE OR REPLACE FUNCTION public.daily_page_views(p_start date, p_end date, p_excluded text[] DEFAULT '{}')
 RETURNS TABLE(day date, views bigint)
 LANGUAGE sql
 STABLE
+SET search_path = public
 AS $$
   SELECT viewed_date AS day, COUNT(*)::bigint AS views
-  FROM post_views
-  WHERE viewed_date >= p_start AND viewed_date <= p_end
-  GROUP BY viewed_date
-  ORDER BY viewed_date ASC;
+    FROM page_views
+   WHERE viewed_date >= p_start AND viewed_date <= p_end
+     AND (device_kind IS NULL OR device_kind <> 'bot')
+     AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))))
+   GROUP BY viewed_date
+   ORDER BY viewed_date ASC;
 $$;
+
+CREATE OR REPLACE FUNCTION public.page_view_totals(p_excluded text[] DEFAULT '{}')
+RETURNS TABLE(total bigint, since date)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT COUNT(*)::bigint AS total, MIN(viewed_date) AS since
+    FROM page_views
+   WHERE (device_kind IS NULL OR device_kind <> 'bot')
+     AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))));
+$$;
+
+CREATE OR REPLACE FUNCTION public.page_view_stats(p_start date, p_end date, p_excluded text[] DEFAULT '{}')
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  WITH v AS (
+    SELECT path, session_id, duration_ms
+      FROM page_views
+     WHERE viewed_date >= p_start AND viewed_date <= p_end
+       AND (device_kind IS NULL OR device_kind <> 'bot')
+       AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))))
+  ), s AS (
+    SELECT session_id, COUNT(*) AS n, SUM(COALESCE(duration_ms, 0)) AS ms
+      FROM v
+     WHERE session_id IS NOT NULL
+     GROUP BY session_id
+  ), p AS (
+    SELECT path, COUNT(*) AS views, ROUND(AVG(duration_ms) FILTER (WHERE duration_ms > 0))::bigint AS avg_ms
+      FROM v
+     WHERE path IS NOT NULL
+     GROUP BY path
+     ORDER BY views DESC, path
+     LIMIT 20
+  )
+  SELECT jsonb_build_object(
+    'total', (SELECT COUNT(*) FROM v),
+    'avg_duration_ms', (SELECT ROUND(AVG(duration_ms))::bigint FROM v WHERE duration_ms > 0),
+    'sessions', (SELECT COUNT(*) FROM s),
+    'pages_per_session', (SELECT ROUND(AVG(n)::numeric, 1) FROM s),
+    'avg_session_ms', (SELECT ROUND(AVG(ms) FILTER (WHERE ms > 0))::bigint FROM s),
+    'top_paths', COALESCE(
+      (SELECT jsonb_agg(jsonb_build_object('path', path, 'views', views, 'avg_ms', avg_ms) ORDER BY views DESC, path) FROM p),
+      '[]'::jsonb
+    )
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.record_page_view(text, text, text, text, jsonb) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.record_page_duration(uuid, text, integer) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.daily_page_views(date, date, text[]) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.page_view_totals(text[]) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.page_view_stats(date, date, text[]) FROM PUBLIC, anon, authenticated;
+
+-- 오늘 · 전체 방문자 수 — 푸터 · 대시보드 맨 위 숫자(방문의 첫 조회의 visitor_id, 옛 기록은 IP)
+CREATE OR REPLACE FUNCTION public.visitor_counts(p_today date, p_excluded text[] DEFAULT '{}')
+RETURNS TABLE(today bigint, total bigint)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT COUNT(DISTINCT COALESCE(visitor_id, ip)) FILTER (WHERE viewed_date = p_today) AS today,
+         COUNT(DISTINCT COALESCE(visitor_id, ip)) AS total
+    FROM page_views
+   WHERE is_landing
+     AND (device_kind IS NULL OR device_kind <> 'bot')
+     AND (ip IS NULL OR NOT (ip = ANY (COALESCE(p_excluded, '{}'))));
+$$;
+
+REVOKE ALL ON FUNCTION public.visitor_counts(date, text[]) FROM PUBLIC, anon, authenticated;
 
 -- slug 자동 생성 — JS 의 generateSlug 와 동일 로직 (a-z, 0-9, 한글, 공백→하이픈, 80자 cap).
 -- 마이그레이션에서 빈 slug 채울 때 사용. 클라이언트는 별도 generateSlug() 함수 사용.
@@ -1550,8 +1581,8 @@ END;
 $$;
 
 -- 방문 IP 보관 기한 (#1169) — retention_days 가 지난 기록의 원문 IP 를 지운다.
---   site_visits: (ip, date) 유니크를 지키려고 'anon:<id>' 로 바꾼다. 기기·국가·유입 등 집계 컬럼은 남는다.
---   post_views / work_views: IP 는 당일 중복 조회 방지에만 쓰이므로 NULL 로 비운다(조회수는 그대로).
+--   page_views: IP 는 30분 중복 확인 · 머문 시간 본인 확인에만 쓰이므로 NULL 로 비운다(조회수 · 방문 정보는 그대로).
+--   (이름은 옛 site_visits 시절 그대로 — cron 작업 · 기록과 맞춘다)
 CREATE OR REPLACE FUNCTION public.anonymize_old_site_visits(retention_days int DEFAULT 90)
 RETURNS integer
 LANGUAGE plpgsql SECURITY DEFINER
@@ -1560,22 +1591,11 @@ AS $$
 DECLARE
   affected integer;
 BEGIN
-  UPDATE public.site_visits
-     SET ip = 'anon:' || id::text
-   WHERE date < CURRENT_DATE - retention_days
-     AND ip NOT LIKE 'anon:%';
+  UPDATE public.page_views
+     SET ip = NULL
+   WHERE viewed_date < CURRENT_DATE - retention_days
+     AND ip IS NOT NULL;
   GET DIAGNOSTICS affected = ROW_COUNT;
-
-  UPDATE public.post_views
-     SET ip = NULL
-   WHERE viewed_date < CURRENT_DATE - retention_days
-     AND ip IS NOT NULL;
-
-  UPDATE public.work_views
-     SET ip = NULL
-   WHERE viewed_date < CURRENT_DATE - retention_days
-     AND ip IS NOT NULL;
-
   RETURN affected;
 END;
 $$;
@@ -1734,7 +1754,7 @@ BEGIN
   -- admin 이상 (중재 · 운영 지표)
   FOREACH t IN ARRAY ARRAY[
     'comments', 'work_comments', 'comment_reports', 'comment_reactions',
-    'admin_notifications', 'site_visits', 'post_views', 'poll_votes'
+    'admin_notifications', 'poll_votes'
   ] LOOP
     IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
     EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_admin_all', t);
@@ -1851,9 +1871,7 @@ END $$;
 --   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
 --                          contributions_ko/en jsonb, tech_notes jsonb,
 --                          team_members jsonb, scheduled_at, soft delete)
---   site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타 + country/path/utm_*)
---   post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
---   work_views           : 작업물별 시계열 조회 기록 (post_views 미러)
+--   page_views           : 사이트의 조회 기록 하나 — 경로 · 세션 · 방문자 · 방문 정보(유입/기기/국가/UTM) · 머문 시간, 30분 중복 제거 (service_role 전용)
 --   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
 --   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
 --   content_translations : 상세 화면 다른 언어 번역 캐시 (글/작업물 × 언어, service_role 전용)
@@ -1870,14 +1888,13 @@ END $$;
 --   admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
 --
 -- RPC:
---   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)
---   record_post_view(p_post_id, p_ip)             : dedup (KST 일자) + post_views insert + view_count +1 한 트랜잭션
---   record_work_view(p_work_id, p_ip)             : record_post_view 의 works 미러
---   sum_post_views()                              : 누적 조회수 합계
---   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
+--   record_page_view(path, ip, session, visitor, meta) : 조회 기록 — 같은 IP · 경로 30분 안이면 앞 행 id, 첫 조회에 방문 정보, 글/작업물 view_count +1 (service_role 전용)
+--   record_page_duration(p_id, p_ip, p_ms)        : 그 조회에 머문 시간 더하기 (한 조회 2시간 상한, service_role 전용)
+--   daily_page_views / page_view_totals / page_view_stats : 페이지 조회 집계 — 일별 · 전체와 처음 센 날 · 기간 상세 (service_role 전용)
+--   visitor_counts(p_today, p_excluded)          : 오늘 · 전체 방문자 수 — 푸터 (service_role 전용)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
 --   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
---   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 방문·조회 기록의 IP 익명화 (cron 매일 KST 03:30)
+--   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 page_views 의 IP 비우기 (cron 매일 KST 03:30)
 --   purge_old_service_logs(retention_days)        : 보관 기한 지난 service_logs 삭제 (cron 매일 KST 03:40)
 --   demo_take(feature, ip_hash, per_ip, total)    : 라이브 데모 하루 상한 확인 + 1회 사용 (남은 횟수, 넘었으면 -1, service_role 전용)
 --   demo_refund(feature, ip_hash, per_ip, total)  : 공급자 실패 시 1회 반환 (남은 횟수, service_role 전용)
@@ -2193,7 +2210,11 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_09_content_translations',          'content_translations — 상세 화면 다른 언어 번역 캐시 (service_role 전용)'),
   ('2026_10_09_demo_usage',                    'demo_usage 테이블 + demo_take/demo_refund/demo_remaining (라이브 데모 하루 상한) + 7일 보관'),
   ('2026_10_11_content_translations_ui',       'content_translations.source_type 에 ui 추가 — 본문 안 라벨 번역 캐시 (언어마다 한 줄)'),
-  ('2026_10_12_content_translations_site',     'content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta 추가 — 사이트 전체 번역 캐시')
+  ('2026_10_12_content_translations_site',     'content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta 추가 — 사이트 전체 번역 캐시'),
+  ('2026_10_14_page_views',                    'page_views — 페이지 조회 기록(30분 중복 제거) + 페이지별 머문 시간'),
+  ('2026_10_15_page_views_unify',              'page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사'),
+  ('2026_10_16_visitor_counts',                'visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)'),
+  ('2026_10_17_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

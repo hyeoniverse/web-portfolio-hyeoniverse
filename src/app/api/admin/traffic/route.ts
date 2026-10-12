@@ -12,13 +12,14 @@ import {
   aggregateTraffic,
   aggregateUtmCampaigns,
   aggregateVisitHeatmap,
-  HUMAN_VISITS_FILTER,
   kstDateStr,
   pctChange,
-  type AnalyticsVisitRow,
 } from "@/lib/api/dashboardAggregates";
-import { aggregateIpVisitors, ipKey, loadExcludedIps, maskIp, type IpVisitRow } from "@/lib/api/ipAnalytics";
+import { aggregateIpVisitors, ipKey, loadExcludedIps, maskIp } from "@/lib/api/ipAnalytics";
+import { countBotVisits, countPostViews, loadJourneyRows, loadLandingRows, visitorHistory } from "@/lib/api/pageViewVisits";
+import { analyzeJourneys } from "@/lib/api/visitJourneys";
 import { getIp } from "@/utils/getIp";
+import { loadPageViewStats } from "@/lib/api/pageViewStats";
 
 const ALLOWED_DAYS = [7, 14, 30, 90] as const;
 
@@ -35,81 +36,60 @@ export async function GET(request: Request) {
   const daysRaw = Number(new URL(request.url).searchParams.get("days"));
   const days = (ALLOWED_DAYS as readonly number[]).includes(daysRaw) ? daysRaw : 30;
 
-  // 창 경계 — 방문의 date 컬럼과 같은 UTC 날짜 문자열 공간에서 계산한다
+  // 창 경계 — page_views.viewed_date 와 같은 KST 날짜 문자열 공간에서 계산한다
   const dayStr = (offset: number) => {
     const d = new Date();
     d.setDate(d.getDate() - offset);
-    return d.toISOString().slice(0, 10);
+    return kstDateStr(d);
   };
   const windowStart = dayStr(days - 1);
   const prevStart = dayStr(2 * days - 1);
 
-  const [trafficAgg, allVisitsAgg, botCountRes, dailyViewsRes, topContent, excludedIps] = await Promise.all([
-    // 분석 컬럼(country·path·utm_*)은 마이그레이션 전 DB 엔 없다 — 나열하면 쿼리가 통째로 죽는다
-    admin.from("site_visits").select("*").gte("date", windowStart).or(HUMAN_VISITS_FILTER),
-    // 신규/재방문·일별 추이·직전 기간 비교용 전체 방문 이력 — ip 하루 1행이라 크기가 작다
-    admin.from("site_visits").select("ip, date").or(HUMAN_VISITS_FILTER),
+  // '내 IP' — 이미 쌓인 기록도 집계에서 뺀다 (새 조회는 /api/page-views 가 기록 전에 거른다)
+  const excludedIps = await loadExcludedIps(admin, { fresh: true });
+
+  const [allLandings, botVisits, pageStats, topContent, journeyRows] = await Promise.all([
+    // 방문(세션의 첫 조회) 전체 — 기간 집계 · 신규/재방문 · 일별 추이 · 직전 기간 비교가 모두 이 이력에서
+    loadLandingRows(admin, excludedIps),
     // 봇 방문 수 — 집계에선 제외되지만 얼마나 걸러졌는지 보여준다
-    admin
-      .from("site_visits")
-      .select("*", { count: "exact", head: true })
-      .eq("device_kind", "bot")
-      .gte("date", windowStart),
-    // 방문당 조회수의 분자 — 기간 내 일별 조회수 (rpc 는 p_start·p_end 둘 다 필수)
-    (() => {
-      const start = new Date();
-      start.setDate(start.getDate() - (days - 1));
-      return admin.rpc("daily_post_views", {
-        p_start: kstDateStr(start),
-        p_end: kstDateStr(new Date()),
-      });
-    })(),
-    // 기간 내 인기 콘텐츠 — 누적 view_count 가 아니라 창 안의 post_views 로 센다.
-    // 글 정보 조인이 필요해 이 항목 안에서만 직렬, 다른 집계와는 병렬이다.
+    countBotVisits(admin, windowStart),
+    // 페이지 조회 · 머문 시간 (#1399)
+    loadPageViewStats(admin, windowStart, dayStr(0), excludedIps),
+    // 기간 내 인기 콘텐츠 — 누적 view_count 가 아니라 창 안의 /posts/{slug} 조회로 센다
     (async (): Promise<TrafficData["topContent"]> => {
-      const { data: viewRows } = await admin
-        .from("post_views")
-        .select("post_id")
-        .gte("viewed_date", windowStart);
-      const counts = new Map<string, number>();
-      for (const r of (viewRows ?? []) as Array<{ post_id: string | null }>) {
-        if (r.post_id) counts.set(r.post_id, (counts.get(r.post_id) ?? 0) + 1);
-      }
+      const counts = await countPostViews(admin, excludedIps, windowStart);
       const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
       if (top.length === 0) return [];
       const { data: posts } = await admin
         .from("posts")
         .select("id, title, slug")
-        .in("id", top.map(([id]) => id));
-      const postMap = new Map(
-        ((posts ?? []) as Array<{ id: string; title: string; slug: string }>).map((p) => [p.id, p]),
+        .in("slug", top.map(([slug]) => slug));
+      const bySlug = new Map(
+        ((posts ?? []) as Array<{ id: string; title: string; slug: string }>).map((p) => [p.slug, p]),
       );
       const total = [...counts.values()].reduce((s, n) => s + n, 0);
-      return top.flatMap(([id, count]) => {
-        const p = postMap.get(id);
-        if (!p) return []; // 삭제됐거나 접근 불가한 글은 조용히 뺀다
-        return [{ id, title: p.title, slug: p.slug, count, pct: Math.round((count / total) * 100) }];
+      return top.flatMap(([slug, count]) => {
+        const p = bySlug.get(slug);
+        if (!p) return []; // 삭제됐거나 slug 가 바뀐 글은 조용히 뺀다
+        return [{ id: p.id, title: p.title, slug: p.slug, count, pct: Math.round((count / total) * 100) }];
       });
     })(),
-    // '내 IP' — 이미 쌓인 방문도 집계에서 뺀다 (새 방문은 /api/visits 가 기록 전에 거른다)
-    loadExcludedIps(admin, { fresh: true }),
+    // 방문 흐름 — 기간 내 조회 줄을 방문마다 시간순으로 잇는다
+    loadJourneyRows(admin, excludedIps, windowStart),
   ]);
 
-  const notExcluded = (r: { ip?: string | null }) => !r.ip || !excludedIps.has(r.ip);
-  const trafficRows = ((trafficAgg.data ?? []) as Array<AnalyticsVisitRow & IpVisitRow>).filter(notExcluded);
-  const allVisits = ((allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>).filter(notExcluded);
+  const trafficRows = allLandings.filter((r) => r.date >= windowStart);
+  const history = visitorHistory(allLandings);
   const requestIp = getIp(request);
   const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
 
-  const views = ((dailyViewsRes.data ?? []) as Array<{ views: number }>).reduce(
-    (s, d) => s + (Number(d.views) || 0),
-    0,
-  );
+  // 방문당 조회수 — 기간 내 페이지 조회 / 방문
+  const views = pageStats?.total ?? 0;
   const visits = trafficRows.length;
-  const newVsReturning = aggregateNewVsReturning(allVisits, windowStart);
+  const newVsReturning = aggregateNewVsReturning(history, windowStart);
 
   // 직전 동기간 — 이력에서 현재 창 이전만 남기고 같은 길이 창으로 다시 계산
-  const prevHistory = allVisits.filter((v) => v.date && v.date < windowStart);
+  const prevHistory = history.filter((v) => v.date && v.date < windowStart);
   const prevVisits = prevHistory.filter((v) => v.date && v.date >= prevStart).length;
   const prevNvr = aggregateNewVsReturning(prevHistory, prevStart);
 
@@ -127,8 +107,8 @@ export async function GET(request: Request) {
     visitHeatmap: aggregateVisitHeatmap(trafficRows),
     newVsReturning,
     utmCampaigns: aggregateUtmCampaigns(trafficRows),
-    dailyVisits: aggregateDailyVisits(allVisits, days),
-    botVisits: botCountRes.count ?? 0,
+    dailyVisits: aggregateDailyVisits(history, days),
+    botVisits,
     topContent,
     ipVisitors: aggregateIpVisitors(trafficRows),
     currentIp: maskIp(requestIp)
@@ -140,6 +120,8 @@ export async function GET(request: Request) {
       newVisitors: pctChange(newVsReturning.newCount, prevNvr.newCount),
       returning: pctChange(newVsReturning.returningCount, prevNvr.returningCount),
     },
+    pageStats,
+    journeys: analyzeJourneys(journeyRows),
     visitSummary: {
       visits30: visits,
       views30: views,

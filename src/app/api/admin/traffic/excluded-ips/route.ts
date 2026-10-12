@@ -24,7 +24,7 @@ async function resolveKey(admin: SupabaseClient, key: string): Promise<string | 
   const since = new Date();
   since.setDate(since.getDate() - 90);
   const [visits, excluded] = await Promise.all([
-    admin.from("site_visits").select("ip").gte("date", since.toISOString().slice(0, 10)),
+    admin.from("page_views").select("ip").eq("is_landing", true).not("ip", "is", null).gte("viewed_date", since.toISOString().slice(0, 10)),
     admin.from("traffic_excluded_ips").select("ip"),
   ]);
   const candidates = new Set<string>([

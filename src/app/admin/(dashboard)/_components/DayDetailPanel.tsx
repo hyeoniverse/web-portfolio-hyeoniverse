@@ -105,13 +105,13 @@ function DayDetailPanel({
     });
 
   // 행 데이터 — staggered animation index 부여 위해 배열로.
-  // baseline 조회수 (ctx) 는 label 괄호 안에 inline 표기 — 별도 컬럼 없이도 비교 기준이 명확함.
+  // baseline 방문자 수 (ctx) 는 label 괄호 안에 inline 표기 — 별도 컬럼 없이도 비교 기준이 명확함.
   const periodLabel =
     language === "ko" ? `${data.length}일` : `${data.length}d`;
   const fmtViews = (n: number) =>
     language === "ko"
-      ? `${n.toLocaleString()}회`
-      : `${n.toLocaleString()} views`;
+      ? `${n.toLocaleString()}명`
+      : `${n.toLocaleString()} visitors`;
   const rows = [
     vsAvg && {
       id: "avg",
