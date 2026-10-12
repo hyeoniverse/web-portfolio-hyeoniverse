@@ -452,6 +452,20 @@
       "12": "나는 이런 자격증과 수상 이력을 갖고 있어 (✌ -͈᷅‎ ⌄ -͈᷄)",
       "13": "끝까지 봐줘서 고마워 💕",
       "2_desktop": "나는 이런 사람이야 ( ⸝⸝⸝˃֊˂) 창을 드래그 해봐! 숨겨진 메시지가 나올지도!?!?"
+    },
+    "github": {
+      "publicRepos": "공개 저장소",
+      "starsEarned": "받은 스타",
+      "followers": "팔로워",
+      "years": "함께한 햇수",
+      "yearsSuffix": "년",
+      "lastActive": "최근 활동",
+      "topLanguages": "주 사용 언어",
+      "last12Months": "최근 1년 커밋",
+      "contributions": "{{count}}회",
+      "grassLabel": "최근 1년 커밋 잔디",
+      "activityByYear": "연도별 활동",
+      "activityTitle": "{{year}}년 {{count}}개 저장소"
     }
   },
   "postsPage": {

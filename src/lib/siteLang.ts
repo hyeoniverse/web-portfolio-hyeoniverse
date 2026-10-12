@@ -89,24 +89,37 @@ function uiFor(lang: string): Record<string, string> | null {
   return stored;
 }
 
-/* 사이트 내용 글 번역 — 메모리 + localStorage(원문 목록은 서버만 알아 해시로 고르지 않는다 — 저장된 것을 먼저 쓰고,
-   이번 방문에 한 번 서버에서 새로 받아 덮는다. 새 태그 · 설정 수정이 다음 화면부터 반영된다) */
-const CONTENT_CACHE_PREFIX = "siteContent:";
+/* 사이트 내용 글 번역 — 묶음(site: 설정 · DB 글, about: About 코드의 글)마다 메모리 + localStorage. 원문 목록은 서버만 알아
+   해시로 고르지 않는다 — 저장된 것을 먼저 쓰고, 이번 방문에 한 번 서버에서 새로 받아 덮는다(새 태그 · 설정 수정이 반영된다) */
+type Bundle = "site" | "about";
+const CONTENT_CACHE_PREFIX: Record<Bundle, string> = { site: "siteContent:", about: "siteAbout:" };
 const contentMemory = new Map<string, Record<string, string>>();
 const contentFetched = new Set<string>();
-function contentFor(lang: string): Record<string, string> | null {
-  const mem = contentMemory.get(lang);
+function bundleFor(bundle: Bundle, lang: string): Record<string, string> | null {
+  const key = `${bundle}:${lang}`;
+  const mem = contentMemory.get(key);
   if (mem) return mem;
   try {
-    const raw = localStorage.getItem(CONTENT_CACHE_PREFIX + lang);
+    const raw = localStorage.getItem(CONTENT_CACHE_PREFIX[bundle] + lang);
     const parsed = raw ? (JSON.parse(raw) as unknown) : null;
     if (parsed && typeof parsed === "object") {
       const strings = Object.fromEntries(Object.entries(parsed as Record<string, unknown>).filter(([, v]) => typeof v === "string")) as Record<string, string>;
-      contentMemory.set(lang, strings);
+      contentMemory.set(key, strings);
       return strings;
     }
   } catch { /* 저장소를 못 쓰면 받아 올 때까지 원문 */ }
   return null;
+}
+/* 화면이 찾는 번역 — 두 묶음을 합친 것. 같은 원문이면 About 쪽이 먼저(About 화면 글) */
+const mergedCache = new Map<string, { site: object | null; about: object | null; merged: Record<string, string> | null }>();
+function contentFor(lang: string): Record<string, string> | null {
+  const site = bundleFor("site", lang);
+  const about = bundleFor("about", lang);
+  const hit = mergedCache.get(lang);
+  if (hit && hit.site === site && hit.about === about) return hit.merged;
+  const merged = site || about ? { ...(site ?? {}), ...(about ?? {}) } : null;
+  mergedCache.set(lang, { site, about, merged });
+  return merged;
 }
 
 /* ── 저장소 ── */
@@ -208,14 +221,15 @@ export async function ensureSiteUi(lang: string, fetcher: typeof fetch = fetch):
  * 지금 언어의 사이트 내용 글 번역을 받아 온다 — 이번 방문에 한 번(저장된 것이 있어도 새로 받아 덮는다).
  * 실패하면 저장된 것(없으면 원문)을 그대로 쓴다.
  */
-export async function ensureSiteContent(lang: string, fetcher: typeof fetch = fetch): Promise<void> {
-  if (contentFetched.has(lang)) return;
-  contentFetched.add(lang);
+export async function ensureSiteContent(lang: string, bundle: Bundle = "site", fetcher: typeof fetch = fetch): Promise<void> {
+  const key = `${bundle}:${lang}`;
+  if (contentFetched.has(key)) return;
+  contentFetched.add(key);
   try {
     const res = await fetcher("/api/site-translate/content", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lang }),
+      body: JSON.stringify({ lang, bundle }),
     });
     if (!res.ok) return;
     const data = (await res.json()) as { strings?: unknown };
@@ -223,8 +237,8 @@ export async function ensureSiteContent(lang: string, fetcher: typeof fetch = fe
     const strings = Object.fromEntries(
       Object.entries(data.strings as Record<string, unknown>).filter(([, v]) => typeof v === "string" && v.trim()),
     ) as Record<string, string>;
-    contentMemory.set(lang, strings);
-    try { localStorage.setItem(CONTENT_CACHE_PREFIX + lang, JSON.stringify(strings)); } catch { /* 메모리에만 */ }
+    contentMemory.set(key, strings);
+    try { localStorage.setItem(CONTENT_CACHE_PREFIX[bundle] + lang, JSON.stringify(strings)); } catch { /* 메모리에만 */ }
     emit();
   } catch { /* 저장된 것 · 원문을 그대로 쓴다 */ }
 }
@@ -239,5 +253,6 @@ export function __resetSiteLangForTest() {
   uiInflight.clear();
   contentMemory.clear();
   contentFetched.clear();
+  mergedCache.clear();
   sourceCache = null;
 }

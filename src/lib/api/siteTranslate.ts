@@ -87,3 +87,6 @@ export const SITE_UI_SOURCE_ID = "00000000-0000-0000-0000-000000000000";
 
 /** 사이트 내용 글(홈 글 · 카테고리 · 태그) 묶음 줄의 source_id — 화면 글(site_ui)과 같은 종류, 다른 고정값(lib/siteContent) */
 export const SITE_CONTENT_SOURCE_ID = "00000000-0000-0000-0000-000000000001";
+
+/** About 글(aboutDict) 묶음 줄의 source_id — 화면 글(site_ui)과 같은 종류, 다른 고정값 */
+export const SITE_ABOUT_SOURCE_ID = "00000000-0000-0000-0000-000000000002";

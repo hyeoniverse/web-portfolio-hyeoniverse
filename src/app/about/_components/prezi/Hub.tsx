@@ -19,10 +19,11 @@ const HINT: L10n = {
 };
 
 export default function Hub({ live, map, onIntro }: { live: LiveInfo; map: MapBox; onIntro?: (bottom: number) => void }) {
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
   const L = useL();
   const prezi = usePrezi();
-  const lead = hero.lead[language] ?? hero.lead.ko;
+  /* 다른 언어로 볼 때는 영어 조각을 About 글 번역(tx)으로 */
+  const lead = language === "ko" ? hero.lead.ko : { before: tx(hero.lead.en.before), accent: tx(hero.lead.en.accent), after: tx(hero.lead.en.after) };
   /* 소개 글의 아래 끝 — 좁은 화면은 지도를 그 아래에 놓는다(글 길이가 언어 · 폭마다 달라 잰다) */
   const introRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {

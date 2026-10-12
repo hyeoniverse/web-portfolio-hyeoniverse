@@ -1,5 +1,6 @@
 import type { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { ProfileInfoBlock } from "@/types/profile";
+import { OWNER_LABELS } from "@/lib/siteContent";
 
 export interface WindowDef {
   id: string;
@@ -46,13 +47,10 @@ export const getTextPositions = (
   infoBlocks: ProfileInfoBlock[] = [],
 ): TextBlock[] => {
   const byKey = new Map(infoBlocks.map((b) => [b.key, b]));
-  const ownerLines = [
-    { label: "Name", value: siteConfig.personal.name },
-    { label: "Role", value: siteConfig.personal.role },
-    { label: "Location", value: siteConfig.personal.location },
-    { label: "Email", value: siteConfig.contact.email },
-    { label: "Status", value: siteConfig.personal.status },
-  ];
+  /* 라벨은 OWNER_LABELS(Name · Role · Location · Email · Status) — 다른 언어로 볼 때 번역 원문에도 같은 목록을 넣는다 */
+  const { personal, contact } = siteConfig;
+  const ownerValues = [personal.name, personal.role, personal.location, contact.email, personal.status];
+  const ownerLines = OWNER_LABELS.map((label, i) => ({ label, value: ownerValues[i] }));
 
   return SLOTS.map((slot) => ({
     ...slot,
