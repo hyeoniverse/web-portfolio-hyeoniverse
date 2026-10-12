@@ -139,7 +139,7 @@ export default function Navigation() {
 
   const pathname = useRoutePathname();
   const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, koLabel } = useLanguage();
   /* 메뉴 이름 — 공개 메뉴는 사전(navMenu.label)에서 읽어 사이트 번역이 덮을 수 있게. 사전에 없는 것(관리 메뉴)은 적힌 이름 */
   const navLabel = (item: { key: string; label: string }) => {
     const v = t(`navMenu.label.${item.key}`);
@@ -752,11 +752,11 @@ export default function Navigation() {
             onClick={langToggle.handleToggle}
             onMouseEnter={langToggle.handleMouseEnter}
             onMouseLeave={langToggle.handleMouseLeave}
-            aria-label={fillTemplate(t("navMenu.ui.switchLanguageAria"), { current: language === "ko" ? "KO" : "EN" })}
+            aria-label={fillTemplate(t("navMenu.ui.switchLanguageAria"), { current: language === "ko" ? koLabel : "EN" })}
             aria-pressed={language === "ko"}
           >
             <span className={`${styles.langText} ${langToggle.isAnimating && !langToggle.isClicking ? styles.animating : ""} ${langToggle.isClicking ? styles.clicking : ""}`}>
-              {langToggle.display === "ko" ? "KO" : "EN"}
+              {langToggle.display === "ko" ? koLabel : "EN"}
             </span>
           </Pressable>
         </Tooltip>

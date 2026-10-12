@@ -164,7 +164,7 @@ export default async function RootLayout({
   const [config, publicKeys] = await Promise.all([getSiteConfig(), getPublicKeys()]);
   /* 사이트 기본 언어(#1406) — 서버는 ko 면 한국어, 그 밖은 영어로 그린다. ko · en 밖의 언어는 브라우저가 번역을 건 뒤
      SiteTranslationProvider 가 <html lang> 을 그 언어로 바꾼다 */
-  const siteLanguage = normalizeSiteLanguage(config.metadata.siteLanguage);
+  const siteLanguage = normalizeSiteLanguage(config.metadata.defaultLanguage);
 
   return (
     <html

@@ -200,6 +200,9 @@ export function setSiteDefaultLang(code: string | null | undefined) {
   }
 }
 
+/** 사이트 기본 언어(ko · en 밖일 때만) — 없으면 null. 이 언어가 걸리면 번역이 아니라 원문(ko 칸)을 그 언어로 본다 */
+export const getSiteDefaultLang = () => siteDefault;
+
 /** 사이트 설정에서 번역이 꺼졌으면 언어가 걸리지 않는다 */
 export function setSiteLangEnabled(on: boolean) {
   if (enabled === on) return;

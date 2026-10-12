@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { baseLanguageOf, isForeignSiteLanguage, normalizeSiteLanguage, sourceBadgeOf } from "@/lib/siteLanguage";
+import { authoringLangOf, baseLanguageOf, isForeignSiteLanguage, normalizeSiteLanguage, sourceBadgeOf } from "@/lib/siteLanguage";
 import { resolveInitialLang } from "@/lib/siteLang";
 
 describe("사이트 기본 언어(#1406)", () => {
@@ -14,6 +14,9 @@ describe("사이트 기본 언어(#1406)", () => {
     expect(isForeignSiteLanguage("ja")).toBe(true);
     expect(sourceBadgeOf("ko")).toBe("KO");
     expect(sourceBadgeOf("ja")).toBe("JA");
+    /* 글을 쓰는 칸 — en 이면 en, 그 밖은 원문 칸 ko */
+    expect(authoringLangOf("en")).toBe("en");
+    expect(authoringLangOf("ja")).toBe("ko");
   });
 
   it("고른 적 없으면 기본 언어, 고른 것이 먼저", () => {

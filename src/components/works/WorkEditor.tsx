@@ -1,5 +1,6 @@
 "use client";
 
+import { authoringLangOf } from "@/lib/siteLanguage";
 import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
@@ -110,7 +111,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
   // 콘텐츠 작성 기본 언어 — nature/categories 필수 항목 + 초기 편집 언어의 기준 (방문자 언어와 무관)
-  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
+  const primaryLang = authoringLangOf(useSiteConfig().metadata.defaultLanguage);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)

@@ -13,8 +13,8 @@ import {
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
 import type { Language } from "@/types";
-import { getServerSiteLangSnapshot, getSiteLangSnapshot, setSiteDefaultLang, subscribeSiteLang } from "@/lib/siteLang";
-import { baseLanguageOf, isForeignSiteLanguage } from "@/lib/siteLanguage";
+import { getServerSiteLangSnapshot, getSiteLangSnapshot, selectSiteLang, setSiteDefaultLang, subscribeSiteLang } from "@/lib/siteLang";
+import { baseLanguageOf, isForeignSiteLanguage, normalizeSiteLanguage } from "@/lib/siteLanguage";
 
 export type { Language };
 
@@ -50,6 +50,8 @@ interface LanguageContextType extends LanguageControls {
   getLanguage: () => Language;
   /** 서버 · 하이드레이션 때 그리는 언어 — 사이트 기본 언어가 ko 면 ko, 아니면 en(#1406) */
   getServerLanguage: () => Language;
+  /** 사이트 기본 언어가 ko · en 밖이면 그 코드(ja 등) — ko 자리를 그 언어가 대신한다. 아니면 null */
+  nativeLang?: string | null;
   /** 정적 사전 + 지연 로드분 */
   dict: Record<Language, Translations>;
   /** 사이트 "다른 언어"(lib/siteLang)의 화면 글 번역을 t() 에 얹을지 — 관리 화면(AdminDictProvider)은 false */
@@ -100,10 +102,11 @@ export function LanguageProvider({
   siteLanguage = "ko",
 }: {
   children: React.ReactNode;
-  /** 사이트 기본 언어(site.config metadata.siteLanguage) — ko · en 또는 번역 언어 코드 */
+  /** 사이트 기본 언어(site.config metadata.defaultLanguage) — ko · en 또는 번역 언어 코드 */
   siteLanguage?: string;
 }) {
-  /* 사이트 기본 언어 — ko · en 밖(ja 등)이면 화면은 영어 사전 위에 그 언어의 기계 번역을 건다(lib/siteLang).
+  /* 사이트 기본 언어 — ko · en 밖(ja 등)이면 ko 자리를 그 언어가 대신한다. 글은 ko 칸(그 언어의 원문)을 그대로,
+     화면 글은 영어 사전 위에 그 언어의 기계 번역을 건다(lib/siteLang).
      첫 렌더에 알려 둬야 저장소가 처음 언어를 정할 때 쓴다. 설정이 바뀌면(관리자 저장) 아래 effect 가 다시 알린다 */
   const baseLanguage = baseLanguageOf(siteLanguage);
   useState(() => setSiteDefaultLang(siteLanguage));
@@ -112,6 +115,7 @@ export function LanguageProvider({
   // 언어 저장소 — 서버와 첫 렌더(hydration)는 기본 언어(ko/en)로 그려 서버 HTML 과 맞춘다
   const languageRef = useRef<Language>(baseLanguage);
   const getServerLanguage = useCallback(() => baseLanguage, [baseLanguage]);
+  const nativeLang = isForeignSiteLanguage(siteLanguage) ? normalizeSiteLanguage(siteLanguage) : null;
   const listenersRef = useRef(new Set<() => void>());
   const subscribe = useCallback((onChange: () => void) => {
     const listeners = listenersRef.current;
@@ -125,7 +129,11 @@ export function LanguageProvider({
     languageRef.current = next;
     listenersRef.current.forEach((notify) => notify());
   }, []);
-  const setLanguage = useCallback((next: Language) => applyLanguage(next, true), [applyLanguage]);
+  /* 기본 언어가 ko · en 밖이면 ko 자리 = 그 언어 — 고르면 사이트 언어도 맞춘다(ko → 그 언어, en → 번역 끔) */
+  const setLanguage = useCallback((next: Language) => {
+    applyLanguage(next, true);
+    if (nativeLang) selectSiteLang(next === "ko" ? nativeLang : null);
+  }, [applyLanguage, nativeLang]);
   const toggleLanguage = useCallback(() => {
     setLanguage(languageRef.current === "ko" ? "en" : "ko");
   }, [setLanguage]);
@@ -152,8 +160,8 @@ export function LanguageProvider({
 
   /* 마운트 시 저장값 › 브라우저 언어(ko · en) › 사이트 기본 언어. 구독한 소비자만 다시 그리고 context 값은 그대로다.
      저장값이 없으면 고른 것으로 남기지 않는다 — 기본 언어를 바꾸면 고른 적 없는 방문자에게 새 기본값이 걸리게.
-     기본 언어가 ko · en 밖이면 브라우저 언어를 보지 않는다 — 번역 화면의 바탕이 영어여야 한다(lib/siteLang) */
-  const foreignDefault = isForeignSiteLanguage(siteLanguage);
+     기본 언어가 ko · en 밖이면 브라우저 언어를 보지 않는다 — ko 자리(그 언어)가 기본이다. 실제 언어는 사이트 언어에서 정한다(useLanguage) */
+  const foreignDefault = !!nativeLang;
   useEffect(() => {
     const stored = localStorage.getItem("language") as Language | null;
     if (stored === "ko" || stored === "en") {
@@ -162,7 +170,7 @@ export function LanguageProvider({
     }
     const browser = navigator.language?.toLowerCase() ?? "";
     const target: Language = foreignDefault
-      ? "en"
+      ? "ko"
       : browser.startsWith("en")
         ? "en"
         : browser.startsWith("ko")
@@ -173,8 +181,8 @@ export function LanguageProvider({
 
   // 사전이 늘 때(admin 번역 지연 로드)만 바뀐다
   const value = useMemo(
-    () => ({ toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, dict }),
-    [toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, dict]
+    () => ({ toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, nativeLang, dict }),
+    [toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, getServerLanguage, nativeLang, dict]
   );
 
   return (
@@ -195,25 +203,34 @@ export function useLanguage(): LanguageControls & {
   tx: (text: string) => string;
   /** 날짜 · 숫자를 쓸 언어 — 다른 언어가 걸려 있으면 그 언어(ja 등), 아니면 ko-KR · en-US */
   dateLocale: string;
+  /** ko 자리의 이름 — 사이트 기본 언어가 ko · en 밖이면 그 코드(JA 등), 아니면 KO */
+  koLabel: string;
 } {
-  const { subscribe, getLanguage, getServerLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
+  const { subscribe, getLanguage, getServerLanguage, nativeLang = null, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
   const savedLanguage = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
   /* 다른 언어(ko · en 밖)가 걸려 있으면 화면의 기본 언어는 영어 — 번역되지 않은 글(language === "ko" ? … 분기,
      <T ko en>, 상세의 viewLang)이 한국어로 섞여 나오지 않게. 저장된 ko/en 선택은 건드리지 않아 번역을 끄면 돌아온다.
      화면 글 번역이 왔으면 그것, 번역에 빠진 글(받지 못한 · 깨진 자리표시)은 영어 사전.
      서버 · 하이드레이션 때는 늘 꺼진 상태라 ko/en 으로 먼저 그린다. 관리 화면(siteOverlay false)은 늘 ko/en */
   const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
-  const foreignLang = siteOverlay ? site.lang : null;
-  const language: Language = foreignLang ? "en" : savedLanguage;
-  const overlay = foreignLang ? site.ui : null;
+  /* 사이트 기본 언어(ko · en 밖)가 걸린 것은 번역이 아니라 ko 자리 — 글은 ko 칸(원문) 그대로, 화면 글만 그 언어로 */
+  const native = !!nativeLang && siteOverlay && site.lang === nativeLang;
+  const foreignLang = siteOverlay && !native ? site.lang : null;
+  /* 기본 언어가 ko · en 밖이면 언어는 사이트 언어로 정한다 — 그 언어면 ko 자리, 아니면 en(번역 끔 · 다른 언어 · 관리 화면) */
+  const language: Language = native ? "ko" : foreignLang || nativeLang ? "en" : savedLanguage;
+  const overlay = foreignLang || native ? site.ui : null;
   const t = useCallback(
-    (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[language], key)),
-    [dict, language, overlay],
+    /* ko 자리가 다른 언어면 바탕 사전은 영어 — 번역을 받기 전에 한국어가 보이지 않게 */
+    (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[native ? "en" : language], key)),
+    [dict, language, overlay, native],
   );
   /* 반대 언어 말풍선 — 다른 언어로 볼 때는 한국어를 꺼내 보이지 않는다(같은 글을 돌려주면 T 가 말풍선을 생략한다) */
   const tAlt = useCallback(
-    (key: string) => (foreignLang ? t(key) : getNestedValue(dict[language === "ko" ? "en" : "ko"], key)),
-    [dict, language, foreignLang, t],
+    (key: string) =>
+      foreignLang || (nativeLang && !native)
+        ? t(key)
+        : getNestedValue(dict[language === "ko" ? "en" : "ko"], key),
+    [dict, language, foreignLang, nativeLang, native, t],
   );
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
   const content = foreignLang ? site.content : null;
@@ -224,6 +241,7 @@ export function useLanguage(): LanguageControls & {
     const hit = m ? content[m[2]] : undefined;
     return hit && m ? m[1] + hit + m[3] : text;
   }, [content]);
-  const dateLocale = foreignLang ?? (language === "ko" ? "ko-KR" : "en-US");
-  return { language, foreignLang, t, tAlt, tLang, tx, dateLocale, ...controls };
+  const dateLocale = foreignLang ?? (native && nativeLang ? nativeLang : language === "ko" ? "ko-KR" : "en-US");
+  const koLabel = nativeLang ? nativeLang.toUpperCase() : "KO";
+  return { language, foreignLang, t, tAlt, tLang, tx, dateLocale, koLabel, ...controls };
 }
