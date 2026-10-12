@@ -23,8 +23,9 @@ export function useWide() {
 }
 
 export function useL() {
-  const { language } = useLanguage();
-  return (v: L10n) => v[language] ?? v.ko;
+  const { language, tx } = useLanguage();
+  /* 다른 언어로 볼 때는 영어 칸을 About 글 번역(tx — 생성 파일 aboutDict 의 원문으로 찾는다)으로 */
+  return (v: L10n) => (language === "ko" ? v.ko ?? v.en : tx(v.en ?? v.ko));
 }
 
 /** 다크 테마면 다크 캡처를(있을 때만) */

@@ -19,8 +19,9 @@ import type { SiteConfigData } from "@/config/site.config";
 import styles from "./AboutNext.module.css";
 
 function useL() {
-  const { language } = useLanguage();
-  return (v: L10n | string) => (typeof v === "string" ? v : v[language] ?? v.ko);
+  const { language, tx } = useLanguage();
+  /* 다른 언어로 볼 때는 영어 칸을 About 글 번역(tx)으로 */
+  return (v: L10n | string) => (typeof v === "string" ? v : language === "ko" ? v.ko ?? v.en : tx(v.en ?? v.ko));
 }
 
 /* ── 첫 화면 ── */
@@ -496,8 +497,9 @@ function useStarPlay(ref: React.RefObject<HTMLElement | null>) {
 /* 첫 화면 — 내비게이션 아래부터 브랜드 색 판. 위에서부터 메타 줄 · 소개와 목차, 엇갈린 스크린샷 · 스택 띠,
    바닥에 화면 폭 워드마크(스크롤하면 커진다). 판 위에 브랜드 별이 흩어져 커서 · 스크롤에 반응한다 */
 export function Hero({ live }: { live: LiveInfo }) {
-  const { language } = useLanguage();
-  const lead = hero.lead[language] ?? hero.lead.ko;
+  const { language, tx } = useLanguage();
+  /* 다른 언어로 볼 때는 영어 조각을 About 글 번역(tx)으로 */
+  const lead = language === "ko" ? hero.lead.ko : { before: tx(hero.lead.en.before), accent: tx(hero.lead.en.accent), after: tx(hero.lead.en.after) };
   const heroRef = useHeroScroll<HTMLElement>();
   const wordRef = useFitWidth<HTMLHeadingElement>();
   const panelRef = useRef<HTMLDivElement>(null);

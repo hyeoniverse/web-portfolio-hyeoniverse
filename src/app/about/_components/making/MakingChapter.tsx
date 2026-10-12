@@ -307,8 +307,9 @@ const toD = (pts: Pt[]) => (pts.length > 1 ? pts.map(([x, y], i) => `${i ? "L" :
 
 export function Decisions() {
   const L = useL();
-  const { language } = useLanguage();
-  const pick = (v?: { ko: string; en: string }) => (v ? v[language] ?? v.ko : "");
+  const { language, tx } = useLanguage();
+  /* 다른 언어로 볼 때는 영어 칸을 About 글 번역(tx)으로 */
+  const pick = (v?: { ko: string; en: string }) => (v ? (language === "ko" ? v.ko : tx(v.en || v.ko)) : "");
   const n = aboutDecisions.length;
   const { step, setStep, current } = useFrameSteps(n);
   const d = aboutDecisions[step];

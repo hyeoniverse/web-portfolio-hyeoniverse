@@ -37,3 +37,18 @@ describe("siteContent — 사이트 내용 글 묶음", () => {
     expect(siteContentHash(["a", "b"])).not.toBe(siteContentHash(["a", "c"]));
   });
 });
+
+describe("pairTexts — 두 언어 쌍 글 훑기", () => {
+  it("{ ko, en } 묶음과 x / x_ko 짝의 영어 쪽을 모은다(영어가 비면 한국어)", async () => {
+    const { pairTexts } = await import("@/lib/siteContent");
+    const out = pairTexts({
+      title: "About Me", title_ko: "소개",
+      list: [{ role: { ko: "개발자", en: "Developer" } }, { note: { ko: "메모", en: "" } }],
+      words: ["A", "B"], words_ko: ["가", "나"],
+      url: "https://x", count: 3,
+    });
+    expect(out).toEqual(expect.arrayContaining(["About Me", "Developer", "메모", "A", "B"]));
+    expect(out).not.toContain("https://x");
+    expect(out).not.toContain("소개");
+  });
+});

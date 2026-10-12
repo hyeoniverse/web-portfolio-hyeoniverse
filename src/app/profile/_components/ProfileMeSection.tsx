@@ -70,9 +70,11 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
   const infoBlocks = profileData?.infoBlocks ?? staticInfoBlocks;
   const bunny = profileData?.bunny ?? staticBunny;
 
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
   const siteConfig = useSiteConfig();
   const ko = language === "ko";
+  /* 두 언어 글(LocalizedText)을 화면 언어로 — 다른 언어로 볼 때는 영어 칸을 사이트 내용 글 번역(tx)으로 */
+  const loc = (v: { ko: string; en: string } | undefined) => (!v ? "" : ko ? v.ko || v.en : tx(v.en || v.ko));
   const p = siteConfig.profile;
   const infiniteScroll = siteConfig.profile.infiniteScroll;
   const isMobile = useMobileLayout();
@@ -271,9 +273,9 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                         </div>
 
                         <div className={styles.expContent}>
-                          <h5 className={styles.expRole} data-emph>{item.role[language]}</h5>
-                          <span className={styles.expCompany} data-emph>{item.company}</span>
-                          <p className={styles.expDesc}>{item.description[language]}</p>
+                          <h5 className={styles.expRole} data-emph>{loc(item.role)}</h5>
+                          <span className={styles.expCompany} data-emph>{ko ? item.company : tx(item.company)}</span>
+                          <p className={styles.expDesc}>{loc(item.description)}</p>
                         </div>
                       </div>
                     ))}
@@ -309,7 +311,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                   </h3>
                   <span className={styles.skillPanelAccent} />
                   <p className={styles.skillPanelDesc}>
-                    {group.description[language]}
+                    {loc(group.description)}
                   </p>
                 </div>
   
@@ -324,7 +326,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                         {skill.name}
                       </h4>
                       <p className={styles.skillPanelItemDesc}>
-                        {skill.description[language]}
+                        {loc(skill.description)}
                       </p>
                     </div>
                   ))}
@@ -363,7 +365,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                     </h3>
                   </div>
                   <p className={styles.philosophyBody}>
-                    {item.description[language]}
+                    {loc(item.description)}
                   </p>
                 </div>
               ))}
@@ -394,7 +396,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                     <h3 className={styles.approachName} data-emph>{step.title}</h3>
                   </div>
                   <p className={styles.approachBody}>
-                    {step.description[language]}
+                    {loc(step.description)}
                   </p>
                 </div>
               ))}
@@ -428,11 +430,11 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                       <span className={styles.credentialYear}>{formatPeriod(cert.period, language)}</span>
                       <div className={styles.credentialInfo}>
                         <h5 className={styles.credentialName} data-emph>
-                          {cert.name[language]}
+                          {loc(cert.name)}
                         </h5>
                         <span className={styles.credentialOrg}>
-                          {cert.issuer[language]}
-                          {cert.grade?.[language] ? ` · ${cert.grade[language]}` : ""}
+                          {loc(cert.issuer)}
+                          {loc(cert.grade) ? ` · ${loc(cert.grade)}` : ""}
                         </span>
                       </div>
                     </div>
@@ -453,13 +455,13 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                       <span className={styles.credentialYear}>{formatPeriod(award.period, language)}</span>
                       <div className={styles.credentialInfo}>
                         <h5 className={styles.credentialName} data-emph>
-                          {award.name[language]}
+                          {loc(award.name)}
                         </h5>
                         <span className={styles.credentialOrg}>
-                          {award.organization[language]}
+                          {loc(award.organization)}
                         </span>
-                        {award.description?.[language] && (
-                          <span className={styles.credentialNote}>{award.description[language]}</span>
+                        {loc(award.description) && (
+                          <span className={styles.credentialNote}>{loc(award.description)}</span>
                         )}
                       </div>
                     </div>

@@ -191,7 +191,13 @@ export function useLanguage(): LanguageControls & {
   );
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
   const content = foreignLang ? site.content : null;
-  const tx = useCallback((text: string) => (content && text ? content[text.trim()] ?? text : text), [content]);
+  /* 원문의 앞뒤 공백은 번역에 그대로 붙인다 — 조각으로 이어 붙이는 글(About 첫 화면 소개 등)의 띄어쓰기가 사라지지 않게 */
+  const tx = useCallback((text: string) => {
+    if (!content || !text) return text;
+    const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(text);
+    const hit = m ? content[m[2]] : undefined;
+    return hit && m ? m[1] + hit + m[3] : text;
+  }, [content]);
   const dateLocale = foreignLang ?? (language === "ko" ? "ko-KR" : "en-US");
   return { language, foreignLang, t, tAlt, tLang, tx, dateLocale, ...controls };
 }

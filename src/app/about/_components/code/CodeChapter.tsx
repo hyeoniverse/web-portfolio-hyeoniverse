@@ -102,7 +102,7 @@ export function CodeCover() {
 /** 둘째 프레임 — 편집기. 넓고 높은 화면은 파일 하나가 한 단계, 낮으면 두 단계, 좁으면 세 단계 */
 export function CodeEditor() {
   const L = useL();
-  const { language } = useLanguage();
+  const { language, tx } = useLanguage();
   const wide = useWide();
   const short = useShort();
   const n = codeExamples.length;
@@ -204,7 +204,7 @@ export function CodeEditor() {
                 <h3 className={styles.descTitle}>{ex.title}</h3>
               </div>
               <p className={styles.descBody}>
-                <Rich text={ex.description[language] ?? ex.description.ko} />
+                <Rich text={language === "ko" ? ex.description.ko : tx(ex.description.en ?? ex.description.ko)} />
               </p>
             </div>
           </div>
