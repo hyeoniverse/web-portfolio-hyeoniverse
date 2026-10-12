@@ -160,6 +160,7 @@
   "common": {
     "toastConfirm": "OK",
     "toastShowAll": "Show all",
+    "toastCopy": "Copy",
     "toastFullTitle": "Full message",
     "partialFailed": "Couldn’t process {{failed}} of {{total}}.",
     "loading": "Loading...",
