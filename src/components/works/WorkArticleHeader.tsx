@@ -83,18 +83,8 @@ export function WorkArticleHeader({
             {project.nature && (
               <Badge variant="outline" tone="accent" size="md" uppercase lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></Badge>
             )}
-          </div>
-          {/* 조회수 — 넓은 화면은 배지 뒤에 구분선과 함께, 좁은 화면은 언어 전환 줄 왼쪽 끝(아래 metaRight) */}
-          {viewCount && (
-            <span className={styles.viewCountWide}>
-              <span className={styles.metaDivider} />
-              {viewCount}
-            </span>
-          )}
-          {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
-          {isAdmin && !isPreview && project.external && onImportEdit && (
-            <>
-              <span className={styles.metaDivider} />
+            {/* 편집 — 배지 바로 오른쪽(구분선 없이). 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
+            {isAdmin && !isPreview && project.external && onImportEdit && (
               <Tooltip content={t("workDetail.editRepoWork")} placement="top" delay={200}>
                 <Pressable
                   onClick={onImportEdit}
@@ -104,11 +94,8 @@ export function WorkArticleHeader({
                   <Pencil size={13} />
                 </Pressable>
               </Tooltip>
-            </>
-          )}
-          {isAdmin && !isPreview && !project.external && (
-            <>
-              <span className={styles.metaDivider} />
+            )}
+            {isAdmin && !isPreview && !project.external && (
               <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
                 <a
                   href={`/admin/works/${project.id}/edit`}
@@ -119,7 +106,14 @@ export function WorkArticleHeader({
                   <Pencil size={13} />
                 </a>
               </Tooltip>
-            </>
+            )}
+          </div>
+          {/* 조회수 — 넓은 화면은 배지 뒤에 구분선과 함께, 좁은 화면은 언어 전환 줄 왼쪽 끝(아래 metaRight) */}
+          {viewCount && (
+            <span className={styles.viewCountWide}>
+              <span className={styles.metaDivider} />
+              {viewCount}
+            </span>
           )}
           {viewHref && (
             <>
