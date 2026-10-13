@@ -2,7 +2,7 @@
 
 /**
  * 컨트롤 높이 범위 — 감싼 영역 안의 공용 컨트롤(Button · Select · Input · HighlightInput · SegmentedControl ·
- * SearchCapsule · Pagination)을 한 높이(사이트 기본 sm, --control-height-sm)로 맞춘다. 각자 넘긴 size 보다 이 범위가 이긴다.
+ * SearchCapsule · Pagination)을 한 높이(사이트 기본 md, --control-height-md)로 맞춘다. 각자 넘긴 size 보다 이 범위가 이긴다.
  * 스위치 · 체크박스는 모양을 키우지 않고 차지하는 높이(줄 높이)만 같게 한다.
  *
  * 설정 페이지처럼 줄마다 단추 · 입력 · 셀렉트 · 세그먼트가 섞이는 화면에서, 파일마다 size 를 고치다 보면 빠뜨려
@@ -13,7 +13,7 @@
  */
 import { createContext, useContext, type ReactNode } from "react";
 
-type ScopeSize = "sm" | null;
+type ScopeSize = "md" | null;
 
 const ControlSizeContext = createContext<ScopeSize>(null);
 
@@ -21,8 +21,8 @@ export function ControlSizeScope({ size, children }: { size: ScopeSize; children
   return <ControlSizeContext.Provider value={size}>{children}</ControlSizeContext.Provider>;
 }
 
-/** 범위가 있으면 그 크기(sm), 없으면 넘긴 크기 그대로 */
-export function useScopedSize<T extends string>(size: T): T | "sm" {
+/** 범위가 있으면 그 크기(md), 없으면 넘긴 크기 그대로 */
+export function useScopedSize<T extends string>(size: T): T | "md" {
   const scoped = useContext(ControlSizeContext);
   return scoped ?? size;
 }
