@@ -910,6 +910,8 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  /* 서랍은 세로 flex — 메뉴가 길어 넘치면(관리 화면) 머리가 눌려 첫 줄이 낮아지고 로고가 단추들보다 위로 떴다 */
+  flex-shrink: 0;
   box-sizing: border-box;
   height: calc(var(--spacing-nav-top) + var(--_row) + var(--spacing-40));
   background: var(--_menu-bg);
