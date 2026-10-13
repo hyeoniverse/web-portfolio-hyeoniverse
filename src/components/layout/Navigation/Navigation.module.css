@@ -1318,17 +1318,10 @@
 
 .navAdmin {
   /* mix-blend-mode: difference 유지 */
-  /* Admin 링크가 로고("H (ADMIN)")를 침범하는 건 폭이 좁아 navCenter 의 중앙 콘텐츠가 로고 밑까지
-     밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어 더 심하다). 그 구간에서만 로고 폭만큼 시작
-     여백을 줘 비켜나게 한다. navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
-  --_logo-reserve: var(--size-112);
-}
-
-/* 넓은 화면은 링크가 로고 근처에 올 일이 없어 예약하면 오히려 우측으로 치우친다 — 예약을 끈다 */
-@media (width > 1024px) {
-  .navAdmin {
-    --_logo-reserve: initial;
-  }
+  /* 로고는 fixed 라 navCenter 가 로고 밑에서 시작한다. admin 은 링크가 많고 로고 옆에 배지까지 붙어
+     폭과 상관없이 첫 링크가 로고에 붙거나 겹친다. 실제 로고 폭(--_logo-w, Navigation 이 잼, 배지 포함)에
+     간격(spacing-24)을 더한 만큼 시작 여백을 줘 항상 비켜나게 한다. */
+  --_logo-reserve: calc(var(--_logo-w, var(--size-112)) + var(--spacing-24));
 }
 
 /* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강

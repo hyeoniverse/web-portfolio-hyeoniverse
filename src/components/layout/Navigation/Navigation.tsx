@@ -477,6 +477,22 @@ export default function Navigation() {
     };
   }, [navOnTop, showMenu]);
 
+  /* admin 은 로고 옆에 배지가 붙어 폭이 로고 설정마다 다르다 — 고정값으로 예약하면 링크가 로고에 붙거나
+     겹친다. 실제 폭을 재서 nav 에 넘기고, CSS(.navAdmin)가 여기에 간격을 더해 시작 여백으로 쓴다. */
+  useEffect(() => {
+    const nav = navRef.current;
+    const logo = logoBarRef.current;
+    if (!isAdminPage || !nav || !logo) return;
+    const sync = () => nav.style.setProperty("--_logo-w", `${logo.offsetWidth}px`);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(logo);
+    return () => {
+      ro.disconnect();
+      nav.style.removeProperty("--_logo-w");
+    };
+  }, [isAdminPage]);
+
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
   /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
      그 뒤 다시 그릴 때 framer 가 옛 값(0)으로 한 프레임 네비게이션 자리를 그리지 않는다. */
