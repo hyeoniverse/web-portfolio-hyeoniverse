@@ -87,9 +87,9 @@ export default function NumberInput({
     onCommit(next);
   }, [draft, value, emptyValue, min, max, step, clamp, onCommit, ko]);
 
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm 높이 */
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md 높이 */
   const inScope = useInControlSizeScope();
-  const rootStyle = { "--_w": `${width}px`, "--_h": inScope ? "var(--control-height-sm)" : `${height}px` } as React.CSSProperties;
+  const rootStyle = { "--_w": `${width}px`, "--_h": inScope ? "var(--control-height-md)" : `${height}px` } as React.CSSProperties;
 
   // unit 이 ellipsis 로 잘렸는지 감지 → 잘렸을 때만 툴팁으로 전체 값 표시
   const unitTextRef = useRef<HTMLSpanElement>(null);

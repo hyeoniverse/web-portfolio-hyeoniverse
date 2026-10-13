@@ -8,6 +8,7 @@ import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import styles from "./SortOrderDragList.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import Badge from "@/components/ui/Badge";
 
 interface SortOrderItem {
   id: string;
@@ -267,7 +268,7 @@ export default function SortOrderDragList({
               </span>
               <span className={styles.title}>
                 {item.isCurrent ? <strong>{item.title}</strong> : item.title}
-                {item.isCurrent && <span className={styles.currentTag}>{currentTag}</span>}
+                {item.isCurrent && <Badge variant="solid" tone="accent">{currentTag}</Badge>}
               </span>
             </div>
           );

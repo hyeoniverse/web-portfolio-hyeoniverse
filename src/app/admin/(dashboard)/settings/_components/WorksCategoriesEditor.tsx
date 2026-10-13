@@ -24,6 +24,7 @@ import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import { matchesSearch } from "@/lib/koSearch";
 import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
+import Badge from "@/components/ui/Badge";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
 interface WorksCategory {
@@ -59,7 +60,7 @@ function WorkMeta({ w }: { w: PostMetaInfo }) {
   const dateStr = formatAdminShortDate(w.published_at || w.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!w.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
+      {!w.published && <Badge tone="warning" uppercase>{t("admin.posts.draft")}</Badge>}
       {dateStr && <span>{dateStr}</span>}
     </span>
   );

@@ -1,7 +1,7 @@
 /* ── /posts 필터바 (PostsFilterBar) — sticky 바 본체(숨김 전환), 검색 줄, 전체태그 토글 + CategoryNav 줄 ── */
 
 /* ── Filter Bar (sticky, below fixed Nav) ──
-   같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h (28px) 로 cascade. */
+   같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h(컨트롤 md) 로 cascade. */
 .filterBar {
   max-width: var(--width-page-max);
   margin: 0 auto var(--spacing-32);

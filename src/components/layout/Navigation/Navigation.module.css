@@ -92,8 +92,6 @@
 
 .adminBadgeFixed {
   pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
 
@@ -105,14 +103,8 @@
 
 
 .adminBadge {
-  font: var(--font-label-xs);
+  /* 모양은 Badge(outline · white). 네비 글꼴과 흐린 농도만 — blend 는 부모(.logoNavBar)가 처리 */
   font-family: var(--font-family-nav);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-white);
-  border: var(--border-white);
-  border-radius: var(--radius-control);
-  padding: var(--badge-padding-md);
   opacity: 0.6;
 }
 

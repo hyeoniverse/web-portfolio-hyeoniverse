@@ -426,19 +426,6 @@
   border-color: var(--text-primary);
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  padding: 0 var(--spacing-8);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
 
 .inputBare {
   flex: 1;

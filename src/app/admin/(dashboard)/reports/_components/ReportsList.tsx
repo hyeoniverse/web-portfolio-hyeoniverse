@@ -19,6 +19,7 @@ import type { Report, StatusFilter } from "../_types";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { localizeReportReason } from "@/lib/reportReasons";
+import Badge from "@/components/ui/Badge";
 
 function ReportsSkeleton() {
   return (
@@ -201,7 +202,7 @@ export default function ReportsList({
                 <>
                   <div className={styles.commentNick}>
                     {r.comment.nickname}
-                    {r.comment.is_deleted && <span className={styles.deletedBadge}><T k="admin.reports.commentDeleted" /></span>}
+                    {r.comment.is_deleted && <Badge><T k="admin.reports.commentDeleted" /></Badge>}
                   </div>
                   <p className={styles.commentBody}>{r.comment.content || "—"}</p>
                 </>

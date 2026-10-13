@@ -70,7 +70,7 @@ export default function SearchCapsule({
   className,
   autoFocus,
   onBlur,
-  size: sizeProp = "sm",
+  size: sizeProp = "md",
   historyKey,
   historyLimit = 10,
   routeParam,
@@ -81,7 +81,7 @@ export default function SearchCapsule({
   collapsible = false,
   expandedWidth = 280,
 }: SearchCapsuleProps) {
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
   const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const clearLabel = t("common.clear");

@@ -418,12 +418,14 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   세로 여백과 글자 크기로 높이를 만들면 같은 `md` 가 글꼴에 따라 26px 도 32px 도 된다.
   — **완료**(이행 8-2, D37): 세로 여백을 담은 컨트롤 여백 토큰 `--button-padding-*` · `--input-padding` · `--field-padding-*` 를 쓰던 57곳을 높이 + `--control-padding-inline-*` 로 바꾸고 토큰을 지웠다.
 - **3.4-3. 공용 컴포넌트의 `size` prop 이름은 위 표의 단계 이름을 그대로 따른다.** `size="sm"` 이면 어느 컴포넌트든 28.
+  공용 컨트롤의 기본값은 md(32)다. 설정 화면의 높이 범위(`ControlSizeScope`)도 md 로 맞춘다(D73).
   — **완료**(이행 8-1): CloseButton 을 표대로 맞췄다(xs 24 · sm 28 · md 32 · lg 36).
 - **3.4-4. 누르는 영역은 24×24 이상.** WCAG 2.2 의 2.5.8(AA).
   - 생김새가 더 작아야 하면 `::before` 로 누르는 영역만 넓힌다.
   - 이웃과 충분히 떨어져 있으면(24px 원이 겹치지 않으면) 작아도 된다 — WCAG 의 간격 예외.
   - 손가락 입력(`@media (pointer: coarse)`)에서는 44 이상으로 넓힌다 — 권장. Apple 44pt · Material 48dp · Primer `minTarget.coarse` 44.
   - 누르지 않는 작은 것(뱃지 20px 등)은 컨트롤이 아니다. 높이는 그 컴포넌트 토큰(`--badge-height`)으로 둔다.
+    배지는 공용 `Badge`(`ui/Badge`)로 그린다 — sm 20(`--badge-height`) · md 24, 줄바꿈 · 줄어듦 없음(D75). 발행 상태는 `StatusBadge`, 누르거나 지우는 것은 `Chip`.
   - — **완료**(이행 8-1): 20px 컨트롤 높이 `--control-height-2xs` 와 Button · HelpButton 의 `size="2xs"` 를 없앴다. 누르는 것은 xs 24, 뱃지 · 트랙은 `--badge-height` · `--size-20`.
 
 **떠 있는 단추** — 이미지 뷰어 · 배너 넘김처럼 화면 위에 떠 있는 원형 단추. 한 줄에 나란히 놓이지 않으므로

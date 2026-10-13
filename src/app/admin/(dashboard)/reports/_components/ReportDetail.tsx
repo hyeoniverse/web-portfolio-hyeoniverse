@@ -10,6 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { Report } from "../_types";
 import styles from "./ReportDetail.module.css";
 import { localizeReportReason } from "@/lib/reportReasons";
+import Badge from "@/components/ui/Badge";
 
 /**
  * 신고 상세.
@@ -65,7 +66,7 @@ export default function ReportDetail({
           <h3 className={styles.title}>
             {report.comment?.nickname ?? t("admin.inline.reportDetail.unknownAuthor")}
             {report.comment?.is_deleted && (
-              <span className={styles.deletedBadge}>{t("admin.reports.commentDeleted")}</span>
+              <Badge>{t("admin.reports.commentDeleted")}</Badge>
             )}
           </h3>
         </div>
@@ -86,9 +87,10 @@ export default function ReportDetail({
         <div className={styles.metaRow}>
           <dt>{t("admin.inline.reportDetail.status")}</dt>
           <dd>
-            <span className={`${styles.statusChip} ${styles[`status_${report.status}`]}`}>
+            {/* 처리 대기는 결정이 필요하다는 뜻이라 알림의 "처리 필요" 와 같은 warning */}
+            <Badge tone={report.status === "pending" ? "warning" : report.status === "resolved" ? "success" : "neutral"}>
               {STATUS_LABEL[report.status]}
-            </span>
+            </Badge>
           </dd>
         </div>
         <div className={styles.metaRow}>
