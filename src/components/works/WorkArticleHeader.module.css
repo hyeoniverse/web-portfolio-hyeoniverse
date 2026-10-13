@@ -33,11 +33,24 @@
   min-width: 0;
 }
 
+/* 번역 · 언어 전환 — 작은 화면에서는 번호 · 배지 줄 위, 오른쪽 끝에 따로 한 줄. 넓은 화면은 같은 줄 오른쪽.
+   grid 로 둔다 — LanguageToggle 이 margin-left: auto 를 갖고 있어 flex 로 줄을 꽉 채우면 번역 단추와 사이가 벌어진다 */
 .metaRight {
-  display: flex;
+  order: -1;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: end;
   align-items: center;
   gap: var(--spacing-8);
-  margin-left: auto;
+  width: 100%;
+}
+
+@media (width > 768px) {
+  .metaRight {
+    order: 0;
+    width: auto;
+    margin-left: auto;
+  }
 }
 
 /* 편집 · 발행본 열기 아이콘 */
