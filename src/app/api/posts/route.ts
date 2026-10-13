@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import { QUERY_PARAM } from "@/constants";
 import { revalidatePath } from "next/cache";
@@ -267,6 +268,9 @@ export async function POST(request: Request) {
   }
 
   /* 생성도 세션 클라이언트로 — posts_admin_insert(is_member) 를 통과해야 들어간다. */
+  /* 원문 칸(ko)이 어느 언어로 쓰였는지(#1425) — 지금 기본 언어 */
+  const sourceLang = await currentSourceLang();
+  if (sourceLang) body.source_lang = sourceLang;
   const { data, error } = await supabase.from("posts").insert(body).select().single();
 
   if (error) {

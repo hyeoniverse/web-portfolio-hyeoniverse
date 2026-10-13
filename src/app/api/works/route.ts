@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { QUERY_PARAM } from "@/constants";
@@ -187,6 +188,10 @@ export async function POST(request: Request) {
   /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 만든다(galleryNotesColumn 참고) */
   const notesDropped = await dropGalleryNotesIfMissing(supabase, filtered);
   const notesHeaders = notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : undefined;
+
+  /* 원문 칸(ko)이 어느 언어로 쓰였는지(#1425) — 지금 기본 언어 */
+  const sourceLang = await currentSourceLang();
+  if (sourceLang) filtered.source_lang = sourceLang;
 
   const { data, error } = await supabase
     .from("works")

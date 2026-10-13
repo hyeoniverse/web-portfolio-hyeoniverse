@@ -11,6 +11,8 @@ import type { Post } from "@/types/post";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "@/components/posts/PostEditor.module.css";
 import { errorText } from "@/lib/apiError";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { ensureSourceLang } from "@/lib/sourceTranslateClient";
 
 /* 실패 응답 본문은 그대로 두고 그릴 때 화면 언어 문구로 바꾼다 — 효과 안에서 번역하면 번역 함수가 바뀔 때마다 다시 불러와야 한다 */
 type LoadFailure = { status: number; body: unknown };
@@ -23,6 +25,7 @@ export default function EditPostPage() {
   const [failure, setFailure] = useState<LoadFailure | null>(null);
   const [loading, setLoading] = useState(true);
   const { setInfinite } = useLenis();
+  const defaultLanguage = useSiteConfig().metadata.defaultLanguage;
 
   useEffect(() => {
     setInfinite(false);
@@ -33,8 +36,10 @@ export default function EditPostPage() {
        그렸는데, 권한이 없어 403 이 온 경우까지 없는 글처럼 보였다. */
     (async () => {
       try {
-        const res = await fetch(`/api/posts/${id}`);
-        const body = await res.json().catch(() => ({}));
+        const load = () => fetch(`/api/posts/${id}`).then(async (r) => ({ res: r, body: await r.json().catch(() => ({})) }));
+        let { res, body } = await load();
+        /* 원문 칸이 지금 기본 언어가 아니면 이 글만 번역해 덮어쓰고 다시 불러온다(#1425) */
+        if (res.ok && body?.id && await ensureSourceLang("post", body as Post, defaultLanguage, t)) ({ res, body } = await load());
         if (!res.ok || !body?.id) {
           setFailure({ status: res.status, body });
         } else {
@@ -46,6 +51,7 @@ export default function EditPostPage() {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 글을 처음 불러올 때 한 번만(언어 · 문구가 바뀌어도 다시 부르지 않는다)
   }, [id]);
 
   if (loading) return <EditorSkeleton />;
