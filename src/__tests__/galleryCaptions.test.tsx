@@ -23,12 +23,16 @@ describe("useGalleryNarration 자막", () => {
   const setup = () => {
     const el = document.createElement("div");
     const notes = { "a.png": { script: "첫 문장입니다. 둘째 문장입니다." } };
-    return renderHook(() => useGalleryNarration({ images: ["a.png"], notes, index: 0, goTo: () => {}, viewRef: { current: el } }));
+    /* 실제 화면처럼 같은 함수를 넘긴다 — 렌더마다 새 함수면 자막이 바뀔 때마다 읽기를 처음부터 다시 건다 */
+    const goTo = () => {};
+    const viewRef = { current: el };
+    return renderHook(() => useGalleryNarration({ images: ["a.png"], notes, index: 0, goTo, viewRef }));
   };
 
   it("읽기 시작한 문장을 자막으로 낸다", async () => {
     const { result } = setup();
-    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
+    /* 끊은 직후에는 잠깐 기다렸다 발화를 넣는다(speak 의 CANCEL_SETTLE_MS) */
+    await act(async () => { await new Promise((r) => setTimeout(r, 120)); });
     expect(result.current.playing).toBe(true);
     act(() => { queue[0].onstart?.(new Event("start") as SpeechSynthesisEvent); });
     expect(result.current.caption).toBe("첫 문장입니다.");
@@ -38,7 +42,8 @@ describe("useGalleryNarration 자막", () => {
 
   it("자막을 끄면 내지 않고, 켜면 다시 낸다", async () => {
     const { result } = setup();
-    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
+    /* 끊은 직후에는 잠깐 기다렸다 발화를 넣는다(speak 의 CANCEL_SETTLE_MS) */
+    await act(async () => { await new Promise((r) => setTimeout(r, 120)); });
     act(() => { queue[0].onstart?.(new Event("start") as SpeechSynthesisEvent); });
     act(() => { result.current.toggleCaptions(); });
     expect(result.current.captionsOn).toBe(false);

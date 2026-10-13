@@ -57,6 +57,17 @@ function speechTimeoutMs(text: string): number {
   return 3000 + text.length * 250;
 }
 
+/* 크롬은 cancel 을 늦게 처리한다. 끊은 직후 바로 넣은 발화가 같이 끊기거나, 읽지도 않았는데 end 를 받아
+   "다 읽었다"로 넘어간다 — 이전 · 다음을 누르면 여러 조각을 건너뛰거나 제자리로 돌아왔다(짧은 조각일수록 잘 났다).
+   끊은 시각을 남겨 두고, 그 뒤 잠깐은 새 발화를 넣지 않는다 */
+const CANCEL_SETTLE_MS = 80;
+let lastCancelAt = -Infinity;
+
+function cancelSpeech(synth: SpeechSynthesis): void {
+  synth.cancel();
+  lastCancelAt = performance.now();
+}
+
 /**
  * 대본을 읽는다. 다 읽으면 onEnd(읽기가 끝나지 않아도 speechTimeoutMs 뒤에는 부른다).
  * 돌려받은 함수를 부르면 멈춘다(그때는 onEnd 를 부르지 않는다).
@@ -82,26 +93,45 @@ export function speak(text: string, onEnd: () => void, onBlocked?: () => void, o
     onEnd();
   };
   const guard = window.setTimeout(finish, speechTimeoutMs(text) / Math.min(1, rate));
-  /* 읽던 게 있을 때만 끊는다 — 크롬은 cancel 직후 바로 넣은 첫 조각을 가끔 건너뛴다 */
-  if (synth.speaking || synth.pending) synth.cancel();
-  chunks.forEach((chunk, i) => {
-    const u = new SpeechSynthesisUtterance(chunk);
-    u.lang = lang;
-    u.rate = rate;
-    if (voice) u.voice = voice;
-    if (onChunk) u.onstart = () => { if (!stopped) onChunk(chunk, i); };
-    if (i === chunks.length - 1) u.onend = finish;
-    u.onerror = (e) => {
-      if (e.error !== "not-allowed" || stopped || finished) return;
-      stopped = true;
-      window.clearTimeout(guard);
-      synth.cancel();
-      onBlocked?.();
-    };
-    synth.speak(u);
-  });
+  /* 읽던 게 있을 때만 끊는다 */
+  if (synth.speaking || synth.pending) cancelSpeech(synth);
+  const queue = () => {
+    queueTimer = 0;
+    if (stopped) return;
+    chunks.forEach((chunk, i) => {
+      const u = new SpeechSynthesisUtterance(chunk);
+      const last = i === chunks.length - 1;
+      /* 실제로 읽기 시작한 마지막 조각의 end 만 끝으로 친다 — 끊겨 버려진 발화도 end 를 받는다 */
+      let started = false;
+      u.lang = lang;
+      u.rate = rate;
+      if (voice) u.voice = voice;
+      u.onstart = () => {
+        started = true;
+        if (onChunk && !stopped) onChunk(chunk, i);
+      };
+      if (last) u.onend = () => { if (started) finish(); };
+      u.onerror = (e) => {
+        if (e.error !== "not-allowed" || stopped || finished) return;
+        stopped = true;
+        window.clearTimeout(guard);
+        cancelSpeech(synth);
+        onBlocked?.();
+      };
+      synth.speak(u);
+    });
+  };
+  /* 방금 끊었으면(이 호출이든 앞서 멈춘 쪽이든) 크롬이 끊기를 마칠 때까지 기다렸다 넣는다 */
+  const settle = CANCEL_SETTLE_MS - (performance.now() - lastCancelAt);
+  let queueTimer = chunks.length > 0 && settle > 0 ? window.setTimeout(queue, settle) : 0;
   if (chunks.length === 0) finish();
-  return () => { stopped = true; window.clearTimeout(guard); synth.cancel(); };
+  else if (!queueTimer) queue();
+  return () => {
+    stopped = true;
+    window.clearTimeout(guard);
+    window.clearTimeout(queueTimer);
+    cancelSpeech(synth);
+  };
 }
 
 /** 목소리 목록은 늦게 온다 — 미리 한 번 불러 두면 첫 재생 때 기본 목소리로 읽는 일이 준다 */

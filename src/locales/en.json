@@ -1045,6 +1045,10 @@
     "prev": "Previous paragraph",
     "next": "Next paragraph",
     "speed": "Reading speed {{rate}}×",
-    "jumpHint": "While reading, tap a paragraph to read from there."
+    "jumpHint": "While reading, tap a paragraph to read from there.",
+    "expand": "Show read aloud controls",
+    "collapse": "Collapse",
+    "goToCurrent": "Go to what's being read",
+    "drag": "Drag to move"
   }
 }

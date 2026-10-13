@@ -29,6 +29,12 @@ export default function ScrollButtons({ threshold = 300 }: ScrollButtonsProps) {
     };
   }, [threshold]);
 
+  /* 보이는지를 <html> 에 알린다 — 그 위에 쌓이는 떠 있는 것(읽어 주기 단추)이 단추가 사라지면 내려앉는다 */
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-scroll-buttons", visible);
+    return () => document.documentElement.removeAttribute("data-scroll-buttons");
+  }, [visible]);
+
   const scrollToTop = useCallback(() => {
     if (lenis) lenis.scrollTo(0, { duration: 1.2 });
     else window.scrollTo({ top: 0, behavior: "smooth" });
