@@ -62,11 +62,7 @@
 }
 
 .titleLine {
-  /* 좁은 화면은 화면 폭을 따라 줄고, 480 초과(아래 media)는 전시 lg */
-  --_line-size: clamp(2.1rem, 0.25rem + 9.17vw, 3rem);
-
-  font: var(--font-display-lg);
-  font-size: var(--_line-size);
+  font: var(--font-display-xl);
   font-family: var(--font-family-headline);
   line-height: 1.125;
   color: var(--text-primary);
@@ -285,10 +281,6 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (width > 480px) {
-  .titleLine {
-    --_line-size: var(--font-size-display-lg);
-  }
-
   .buttonGroup {
     flex-direction: row;
     gap: var(--spacing-24);

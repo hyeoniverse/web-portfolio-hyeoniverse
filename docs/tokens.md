@@ -446,7 +446,7 @@
 | `--font-size-display-sm` | `clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem)` |  |  |
 | `--font-size-display-md` | `clamp(2rem, 1rem + 3vw, 5rem)` |  |  |
 | `--font-size-display-lg` | `clamp(2.5rem, 1.5rem + 5vw, 6.25rem)` |  |  |
-| `--font-size-display-xl` | `clamp(4rem, 2.5rem + 7vw, 12.5rem)` |  |  |
+| `--font-size-display-xl` | `clamp(3rem, 1.5rem + 8vw, 12.5rem)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
 | `--font-display-xl` | `var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-lg` | `var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent)` |  |  |

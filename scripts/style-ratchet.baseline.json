@@ -42,10 +42,9 @@
   "color-local-var": {},
   "color-alpha-token": {},
   "type-font-size-decl": {
-    "src/app/(home)/_sections/CTASection/CTASection.module.css": 3,
-    "src/app/(home)/_sections/HeroSection/HeroSection.module.css": 2,
+    "src/app/(home)/_sections/CTASection/CTASection.module.css": 2,
     "src/app/(home)/_sections/IntroSection/IntroSection.module.css": 2,
-    "src/app/(home)/_sections/WorksSection/WorksSection.module.css": 6,
+    "src/app/(home)/_sections/WorksSection/WorksSection.module.css": 4,
     "src/app/about/_panels/AboutPanel.module.css": 5,
     "src/app/about/_panels/panels/BackendPanel.module.css": 20,
     "src/app/about/_panels/panels/codeHighlights/LiveDemos.module.css": 1,

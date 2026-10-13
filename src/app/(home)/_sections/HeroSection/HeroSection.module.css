@@ -74,8 +74,7 @@
   display: flex;
   gap: var(--spacing-8);
   flex-direction: column;
-  font: var(--font-display-lg);
-  font-size: var(--font-size-display-md);
+  font: var(--font-display-xl);
   font-family: var(--font-family-headline);
 }
 
@@ -212,11 +211,6 @@
 /* ---------------------------------------------------------------------------
    Responsive — 좁은 화면이 기본, 넓어질수록 장식 타원 · 여백을 키운다
    --------------------------------------------------------------------------- */
-@media (width > 480px) {
-  .title {
-    font-size: var(--font-size-display-lg);
-  }
-}
 
 @media (width > 768px) {
   .titleRow {
