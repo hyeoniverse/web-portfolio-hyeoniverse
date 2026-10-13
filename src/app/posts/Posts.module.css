@@ -1,5 +1,7 @@
 .page {
   isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
+  /* isolation 그룹 안에서 필터바·카드의 difference 가 섞일 바탕. 없으면 투명과 섞여 흰색 그대로 보인다. */
+  background: var(--bg-primary);
   /* 필터 바 / posts·series label 행의 모든 컨트롤 (sort capsule, shuffle, search morph,
      category btn, more btn, tag toggle, segmented control 등) 의 통일 높이.
      자식 어디서나 var(--filter-row-h) 로 참조. */
