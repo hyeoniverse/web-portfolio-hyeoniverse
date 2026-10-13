@@ -29,6 +29,7 @@ import { matchesSearch } from "@/lib/koSearch";
 import LetterFilter from "@/components/ui/LetterFilter";
 import { sendAction } from "@/lib/sendAction";
 import styles from "../Settings.module.css";
+import Badge from "@/components/ui/Badge";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
 interface PostCategoryExt extends Omit<BilingualCategory, "description"> {
@@ -95,7 +96,7 @@ function PostMeta({ p }: { p: PostMetaInfo }) {
   const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!p.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
+      {!p.published && <Badge tone="warning" uppercase>{t("admin.posts.draft")}</Badge>}
       {dateStr && <span>{dateStr}</span>}
       {typeof p.view_count === "number" && p.view_count > 0 && <span>· {fillTemplate(t("admin.settings.taxonomy.views"), { n: p.view_count })}</span>}
     </span>

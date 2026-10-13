@@ -925,3 +925,23 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - `.controlsHidden` 의 `!important` 는 같은 파일 안에서 겹치는 값이 없어 지웠다.
 - **보이는 변화.** 없다. 시험 페이지에 ButtonGroup(cta · neutral) · SearchCapsule(옵션 선택 포함) · ImageViewer 를 그려, 평소와 단추마다 hover 한 상태에서 계산값(테두리 · 모서리 · 배경 · 글자색 · 여백 · 크기 · 위치)을 master 와 견줬다 — 같았다. 전체 화면에서 컨트롤이 숨는 상태는 보지 않았다(겹치는 규칙이 없음을 코드로 확인).
 
+### D73. 2026-10-13 — 공용 컨트롤의 기본 높이를 sm(28)에서 md(32)로(3.4-3)
+
+- **왜.** Button · Select · Input · SearchCapsule · SegmentedControl 의 기본값이 sm(28)이었다. 다른 디자인 시스템이 기본으로 두는 값(Primer · Atlassian 32, shadcn 36, Material 40)보다 작아, 28 은 보통 조밀한 단계로 따로 둔다.
+  공개 페이지 · 관리 화면 모두 기본 높이를 32 로 올린다.
+- **정한 것.**
+  - 기본값을 md 로 바꿨다 — Button · Select · Input · HighlightInput · SearchCapsule · SegmentedControl · Pagination · TagListField · HelpButton · CloseButton.
+  - 설정 화면을 한 높이로 묶는 `ControlSizeScope` 를 md 로 바꿨다. 범위 안의 숫자 입력 · 스위치 · 체크박스 줄 높이도 md 를 따른다.
+  - `size="sm"` 을 직접 적은 34곳(About 데모 창 · 편집기 툴바의 글꼴 선택 · 이미지 뷰어 닫기)은 일부러 조밀하게 둔 자리라 그대로 둔다.
+  - 같은 줄의 컨트롤과 높이를 맞추던 값도 함께 올렸다 — /posts 의 `--filter-row-h` · 관리 표 선택 막대의 닫기.
+- **보이는 변화.** 기본 크기를 쓰는 컨트롤이 4px 높아진다. 1440px 에서 공개 7곳 · 관리 7곳을 열어 한 줄 안에 28 과 32 가 섞인 곳을 찾았고, 관리 표 선택 막대 한 곳을 고친 뒤로는 없었다.
+
+### D75. 2026-10-13 — 누르지 않는 배지를 공용 `Badge` 하나로
+
+- **왜.** 누르지 않는 배지(역할 · 상태 · 분류 · 언어 · HOT 등)를 화면마다 `<span>` 과 자기 CSS 로 그렸다. 42곳의 패딩 · 높이 · 색이 제각각이었고(같은 Admin 배지가 다섯 모양), 대부분 줄바꿈을 막지 않아 좁은 화면에서 칸 안에서 글자가 꺾였다(작품 상세의 "개인 · 사이드 프로젝트").
+- **정한 것.**
+  - `ui/Badge` 를 더했다. `variant`(outline · soft · solid · overlay) × `tone`(neutral · accent · success · warning · white), `size` sm 20(`--badge-height`) · md 24, `icon` · `dot` · `uppercase`. 글자는 줄을 바꾸지 않고 배지는 좁아지지 않는다.
+  - 공개 15곳 · 관리 28곳을 옮겼다. 자리(절대 위치 · 흐림 · 격자 칸)만 각자 className 으로 남기고 모양 규칙은 지웠다.
+  - 대시보드의 발행 / 초안 표시는 이미 있는 `StatusBadge` 로 옮겼다. 초안 표시는 모두 warning 으로 맞췄다.
+  - 숫자 카운트, About 일러스트 속 알약, 캘린더 블록 안 표시, Works 레이아웃의 기술 목록은 이번에 옮기지 않았다.
+- **보이는 변화.** 배지마다 높이가 20 또는 24 로, 패딩 · 글자 · 색이 tone 별로 하나로 맞춰진다. 작품 상세 · 디자인 시스템 · 관리 화면 8곳을 390 · 1440px 에서 열어 배지가 모두 한 줄이고 높이가 20 · 24 인 것을 확인했다.

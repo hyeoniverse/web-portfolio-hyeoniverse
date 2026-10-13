@@ -160,6 +160,7 @@
   "common": {
     "toastConfirm": "확인",
     "toastShowAll": "전체 보기",
+    "toastCopy": "복사",
     "toastFullTitle": "알림 전체 보기",
     "partialFailed": "{{total}}개 중 {{failed}}개를 처리하지 못했습니다.",
     "loading": "로딩 중...",

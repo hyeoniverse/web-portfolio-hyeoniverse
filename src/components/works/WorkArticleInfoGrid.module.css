@@ -114,19 +114,6 @@
   color: var(--text-secondary);
 }
 
-.techNoteTag {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-height-xs);
-  padding: 0 var(--spacing-12);
-  border: var(--border-light);
-  border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
 
 .techNoteText {
   flex: 1;

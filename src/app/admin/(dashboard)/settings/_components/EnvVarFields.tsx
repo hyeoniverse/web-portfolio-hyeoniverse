@@ -17,6 +17,7 @@ import styles from "./EnvVarFields.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
+import Badge from "@/components/ui/Badge";
 
 /* env var 메타 — 발급 docs URL / value prefix (typo 감지용). 설명은 번역 키 admin.settings.envVarDesc.<키 이름>.
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
@@ -498,8 +499,9 @@ export default function EnvVarFields({
             {/* 칩은 모든 행에 — read-only 도 소스는 보여주고, 미설정이면 "누락".
                칩이 있다 없다 하면 행마다 슬롯 폭이 달라져 줄이 어긋나 보인다 */}
             {loaded && (
-              <span
-                className={styles.envSourceBadge}
+              /* 소스별 색 — env(성공), db · 선택(기본), 수정 중 · 누락(강조) */
+              <Badge
+                tone={sourceForBadge === "env" ? "success" : sourceForBadge === "edit" || (sourceForBadge === "none" && !optional) ? "accent" : "neutral"}
                 data-source={sourceForBadge === "none" && optional ? "optional" : sourceForBadge}
               >
                 {sourceForBadge === "env" && ".env"}
@@ -507,7 +509,7 @@ export default function EnvVarFields({
                 {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
                 {sourceForBadge === "none" &&
                   (optional ? t("admin.settings.envOptional") : t("admin.settings.envStatMissing"))}
-              </span>
+              </Badge>
             )}
             {isReadOnly && (
               <Tooltip content={t("admin.settings.envVarReadOnlyHint")} placement="top">

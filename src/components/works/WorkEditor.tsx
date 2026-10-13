@@ -88,6 +88,7 @@ import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFor
 import { CodedError, errorFromBody, errorFromResponse, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
+import Badge from "@/components/ui/Badge";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -1346,7 +1347,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 {isCustom && (
                   <>
                     <div className={styles.customCategoryInputWrap}>
-                      <span className={styles.customCategoryBadge}>{srcBadge}</span>
+                      <Badge className={styles.customCategoryBadge}>{srcBadge}</Badge>
                       <input
                         className={`${es.fieldInput} ${styles.customCategoryInput}`}
                         type="text"
@@ -1357,7 +1358,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       />
                     </div>
                     <div className={styles.customCategoryInputWrap}>
-                      <span className={styles.customCategoryBadge}>EN</span>
+                      <Badge className={styles.customCategoryBadge}>EN</Badge>
                       <input
                         className={`${es.fieldInput} ${styles.customCategoryInput}`}
                         type="text"
@@ -1686,10 +1687,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       />
                     )}
                     {isMain && (
-                      <span className={styles.galleryMainBadge}>
-                        <Star size={10} strokeWidth={2.5} fill="currentColor" />
+                      <Badge variant="solid" tone="accent" size="md" icon={<Star size={10} strokeWidth={2.5} fill="currentColor" />} className={styles.galleryMainBadge}>
                         {tw("currentMain")}
-                      </span>
+                      </Badge>
                     )}
                     <div className={styles.galleryOverlay}>
                       {/* 단추를 눌렀을 때만 칸의 고르기가 따라오지 않게 한다 — 겹 전체에 걸면

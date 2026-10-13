@@ -10,6 +10,7 @@ import T from "@/components/ui/T";
 import WorkYear from "@/components/works/WorkYear";
 import styles from "./WorkArticleInfoGrid.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+import Badge from "@/components/ui/Badge";
 
 
 /* ────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ export default function WorkArticleInfoGrid({
                   <ul className={styles.techNotesList}>
                     {withText.map(({ tech, text }) => (
                       <li key={tech} className={styles.techNoteItem}>
-                        <span className={styles.techNoteTag}>{tech}</span>
+                        <Badge variant="outline" size="md">{tech}</Badge>
                         <span className={styles.techNoteText}>{text}</span>
                       </li>
                     ))}
@@ -91,7 +92,7 @@ export default function WorkArticleInfoGrid({
                 {plain.length > 0 && (
                   <div className={styles.techPlainGroup}>
                     {plain.map((tech) => (
-                      <span key={tech} className={styles.techNoteTag}>{tech}</span>
+                      <Badge key={tech} variant="outline" size="md">{tech}</Badge>
                     ))}
                   </div>
                 )}

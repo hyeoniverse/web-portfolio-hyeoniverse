@@ -221,22 +221,6 @@
   flex-wrap: wrap;
 }
 
-/* ── Category badge ── */
-.categoryBadge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  white-space: nowrap;
-  padding: var(--badge-padding-md);
-  border: var(--border-accent-light);
-  border-radius: var(--radius-control);
-  background: transparent;
-  font: var(--font-label-xs);
-  color: var(--text-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 /* ── Title ── */
 .title {
   font: var(--font-headline-lg);
@@ -422,24 +406,11 @@
   right: auto;
 }
 
-/* ── Pinned badge ── */
+/* ── Pinned · 언어 배지 — 모양은 Badge(overlay). 여기서는 흐림과 자리만 ── */
 .pinnedOverlay {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-12);
-  border-radius: var(--radius-control);
-  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: var(--border-ghost-light);
-  font: var(--font-label-xs);
-  color: var(--text-white);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
 }
 
-/* ── Lang badge 우상단 오버레이 ── */
 /* 놓이는 자리가 우하단으로 내릴 수 있다 — --post-card-lang-top: auto · --post-card-lang-bottom(PostsGrid 목록) */
 .langOverlay {
   position: absolute;
@@ -447,18 +418,7 @@
   bottom: var(--post-card-lang-bottom, auto);
   right: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  padding: var(--spacing-2) var(--spacing-12);
-  border-radius: var(--radius-control);
-  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: var(--border-ghost-light);
-  font: var(--font-label-xs);
-  color: var(--text-white);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
 }
 
 /* ═══════════════════════════════════════════

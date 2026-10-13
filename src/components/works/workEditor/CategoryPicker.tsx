@@ -9,6 +9,7 @@ import Chip, { useChipReorder } from "@/components/ui/Chip";
 import Select from "@/components/ui/Select";
 import { type LocalizedText } from "@/types/common";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import Badge from "@/components/ui/Badge";
 export interface WorksCategory {
   ko: string;
   en: string;
@@ -128,7 +129,7 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd:
   return (
     <>
       <div className={styles.customCategoryInputWrap}>
-        <span className={styles.customCategoryBadge}>{srcBadge}</span>
+        <Badge className={styles.customCategoryBadge}>{srcBadge}</Badge>
         <input
           className={`${es.fieldInput} ${styles.customCategoryInput}`}
           type="text"
@@ -140,7 +141,7 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd:
         />
       </div>
       <div className={styles.customCategoryInputWrap}>
-        <span className={styles.customCategoryBadge}>EN</span>
+        <Badge className={styles.customCategoryBadge}>EN</Badge>
         <input
           className={`${es.fieldInput} ${styles.customCategoryInput}`}
           type="text"

@@ -646,28 +646,7 @@
 
 /* ── Revision = Current 일 때 header badge ── */
 /* revision 의 모든 필드가 current form 과 동일하면 diff 가 안 보임 → header 가운데 배지로 식별 */
-.revisionCurrentBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--badge-padding-md);
-  border: var(--border-light);
-  border-radius: var(--radius-control);
-  background: color-mix(in oklch, var(--text-success) 8%, transparent);
-  color: var(--text-success);
-  font: var(--font-body-xs);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
 
-.revisionCurrentDot {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--radius-full);
-  background: var(--text-success);
-  flex-shrink: 0;
-}
 
 /* ── Revision Meta — 그룹 + form-like list (label | value) ── */
 .revisionMetaSection {

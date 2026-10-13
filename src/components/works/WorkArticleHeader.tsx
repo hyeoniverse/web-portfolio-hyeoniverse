@@ -9,6 +9,7 @@ import { GithubIcon } from "@/components/icons";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
 import ListenButton from "@/components/ui/ListenButton";
@@ -66,19 +67,17 @@ export function WorkArticleHeader({
               const others = (project.teamMembers ?? []).filter((m) => m.author_id !== OWNER_AUTHOR_ID).length;
               const total = others + 1;
               return others > 0 ? (
-                <span className={`${styles.tag} ${styles.tagTeam}`}>
-                  <Users size={11} strokeWidth={1.8} />
+                <Badge variant="outline" size="md" uppercase icon={<Users size={11} strokeWidth={1.8} />}>
                   <UiLabel name="workTeamCount" vars={{ n: total }} />
-                </span>
+                </Badge>
               ) : (
-                <span className={`${styles.tag} ${styles.tagSolo}`}>
-                  <User size={11} strokeWidth={1.8} />
+                <Badge variant="outline" size="md" uppercase icon={<User size={11} strokeWidth={1.8} />}>
                   <UiLabel name="workSolo" />
-                </span>
+                </Badge>
               );
             })()}
             {project.nature && (
-              <span className={`${styles.tag} ${styles.tagNature}`} lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></span>
+              <Badge variant="outline" tone="accent" size="md" uppercase lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></Badge>
             )}
           </div>
           {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
@@ -89,7 +88,7 @@ export function WorkArticleHeader({
                 <Pressable
                   onClick={onImportEdit}
                   aria-label={t("workDetail.editRepoWork")}
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)" }}
+                  className={styles.metaIconLink}
                 >
                   <Pencil size={13} />
                 </Pressable>
@@ -104,7 +103,7 @@ export function WorkArticleHeader({
                   href={`/admin/works/${project.id}/edit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                  className={styles.metaIconLink}
                 >
                   <Pencil size={13} />
                 </a>
@@ -119,7 +118,7 @@ export function WorkArticleHeader({
                   href={viewHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                  className={styles.metaIconLink}
                 >
                   <ExternalLink size={13} />
                 </a>
@@ -127,7 +126,7 @@ export function WorkArticleHeader({
             </>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className={styles.metaRight}>
           <ListenButton title={viewLang === "en" ? project.title.en || project.title.ko : project.title.ko} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
@@ -166,13 +165,13 @@ export function WorkArticleHeader({
         transition={{ delay: 0.42, duration: 0.5 }}
       >
         {project.liveUrl && (
-          <Button variant="outline" href={project.liveUrl} external>
+          <Button variant="outline" size="sm" href={project.liveUrl} external>
             <Globe size={14} />
             <UiLabel name="workVisitSite" tooltip="workVisitSiteTip" />
           </Button>
         )}
         {project.githubUrl && (
-          <Button variant="outline" href={project.githubUrl} external>
+          <Button variant="outline" size="sm" href={project.githubUrl} external>
             <GithubIcon size={14} />
             GitHub
           </Button>

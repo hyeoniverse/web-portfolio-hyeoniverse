@@ -337,7 +337,7 @@
   --font-size-display-sm: clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem); /* 아래 24 — 16 이면 폰에서 본문과 같아져 전시가 아니다(D35) */
   --font-size-display-md: clamp(2rem, 1rem + 3vw, 5rem);
   --font-size-display-lg: clamp(2.5rem, 1.5rem + 5vw, 6.25rem);
-  --font-size-display-xl: clamp(4rem, 2.5rem + 7vw, 12.5rem); /* 홈 히어로 · Works 레이아웃 제목 · 큰 번호. 옛 --fluid-font-size-7xl · 8xl 자리 */
+  --font-size-display-xl: clamp(3rem, 1.5rem + 8vw, 12.5rem); /* 홈 히어로 · Works 레이아웃 제목 · 큰 번호. 옛 --fluid-font-size-7xl · 8xl 자리. 아래 48 — 폰(390px)에서 55 로 히어로 가장 긴 줄이 화면에 들어온다(D74) */
 
   /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있다 */
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 구분자 점 글리프, 읽는 글자가 아니다 */
