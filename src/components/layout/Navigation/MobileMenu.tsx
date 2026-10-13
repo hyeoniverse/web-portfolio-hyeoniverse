@@ -159,13 +159,17 @@ export default function MobileMenu({
             );
           })}
 
-          {/* 페이지가 아닌 자리 — 문의(공개 화면)와 건너가는 링크(관리 화면으로 · 사이트 홈으로). 위 목록은 그 화면의
-              페이지고 이 둘은 행동 · 바깥이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
-          {(onContactOpen || crossLink) && (
-            <div className={styles.menuAside}>
+        </nav>
+
+        {/* Footer: email */}
+        <div className={styles.menuFooter}>
+          {/* 페이지가 아닌 자리 — 문의(공개 화면) · 건너가는 링크(관리 화면으로 / 사이트 홈으로) · 로그아웃(로그인했으면).
+              목록 끝에 두면 메뉴가 길 때 아래 고정된 이 꼬리에 가려져, 꼬리 맨 위 한 줄에 나란히 둔다 */}
+          {(onContactOpen || crossLink || onLogout) && (
+            <div className={styles.menuFooterActions}>
               {onContactOpen && (
                 <Pressable noTapScale
-                  className={`${styles.menuLink} ${styles.menuAsideAction} glith-on-hover`}
+                  className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`}
                   onClick={() => {
                     onClose();
                     onContactOpen();
@@ -175,27 +179,22 @@ export default function MobileMenu({
                 </Pressable>
               )}
               {crossLink && (
-                <Link href={crossLink.href} className={`${styles.menuLink} ${styles.menuAsideCross} glith-on-hover`} onClick={onClose}>
+                <Link href={crossLink.href} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
                   {crossLink.label}
                 </Link>
               )}
+              {onLogout && (
+                <Pressable noTapScale
+                  className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`}
+                  onClick={() => {
+                    onClose();
+                    onLogout();
+                  }}
+                >
+                  Logout
+                </Pressable>
+              )}
             </div>
-          )}
-        </nav>
-
-        {/* Footer: email */}
-        <div className={styles.menuFooter}>
-          {/* 로그아웃 — 로그인했으면 화면과 상관없이. 메뉴가 길면 목록 끝은 아래 고정된 이 꼬리에 가려지므로 꼬리 맨 위에 두어 늘 보이게 */}
-          {onLogout && (
-            <Pressable noTapScale
-              className={`${styles.menuLink} ${styles.menuFooterAction} glith-on-hover`}
-              onClick={() => {
-                onClose();
-                onLogout();
-              }}
-            >
-              Logout
-            </Pressable>
           )}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
