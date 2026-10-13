@@ -99,7 +99,8 @@
 .navGroup {
   display: inline-flex;
   align-items: center;
-  flex-wrap: nowrap;
+  /* 아주 좁으면(뒤로 · 확인란 · 언어 전환이 안 들어가면) 줄을 넘긴다 — nowrap 이면 언어 전환이 화면 밖으로 나갔다 */
+  flex-wrap: wrap;
   gap: var(--spacing-12);
   width: 100%;
   min-width: 0;
@@ -111,8 +112,12 @@
 .saveGroup {
   display: inline-flex;
   align-items: center;
-  flex-wrap: nowrap;
+  /* 한 줄에 안 들어가면 오른쪽 정렬로 줄을 넘긴다 — nowrap 이면 오른쪽 정렬 줄에서 왼쪽 화면 밖으로 밀렸다 */
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--spacing-12);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .topBarRow:last-child {

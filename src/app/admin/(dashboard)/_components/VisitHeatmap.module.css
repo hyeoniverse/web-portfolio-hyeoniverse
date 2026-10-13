@@ -9,6 +9,9 @@
   padding: var(--spacing-12) 0 var(--spacing-4);
   /* 범례(align-self: flex-end)가 패널 끝이 아니라 잔디 블록 오른쪽에 붙도록 */
   width: max-content;
+  /* 좁은 화면 — 요일 × 24시간 격자(≈700px)는 줄이면 못 읽어서, 패널 폭 안에서 옆으로 밀어 본다 */
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .heatmap {

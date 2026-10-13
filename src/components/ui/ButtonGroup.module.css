@@ -14,6 +14,16 @@
      묶음만 30 으로 옆 단추보다 높았다. outline 은 레이아웃을 차지하지 않는다 */
   outline: var(--border-strong);
   outline-offset: calc(var(--border-width-1) * -1);
+  /* 좁은 화면 — 붙은 단추라 줄을 넘기면 모양이 깨진다. 줄 폭 안에서 옆으로 밀어 본다(작품 목록 머리 등) */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+@media (width > 768px) {
+  .group {
+    overflow-x: hidden;
+  }
 }
 
 /* 자식 Button 개별 border/radius 제거 */

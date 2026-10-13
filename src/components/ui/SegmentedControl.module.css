@@ -15,6 +15,16 @@
   padding: var(--spacing-2);
   border-radius: var(--radius-control);
   border: var(--border-width-1) solid var(--border-color-default);
+  /* 좁은 화면 — 칸 수가 많으면(알림 · 신고 탭 등) 줄 폭을 넘어 화면 밖으로 나갔다. 줄 폭 안에서 옆으로 밀어 본다 */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+@media (width > 768px) {
+  .group {
+    overflow-x: visible;
+  }
 }
 
 /* variant="subtle" — 테두리만 한 단계 옅게(--border-color-light).

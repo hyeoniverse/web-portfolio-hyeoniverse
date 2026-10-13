@@ -336,9 +336,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 설정 페이지 컨트롤 높이(sm) — 옆 입력 · 셀렉트와 같은 높이 */
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  /* 설정 페이지 컨트롤 높이(md) — 옆 입력 · 셀렉트와 같은 높이 */
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
@@ -891,9 +891,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 설정 페이지 컨트롤 높이(sm) — 옆 입력 · 셀렉트와 같은 높이 */
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  /* 설정 페이지 컨트롤 높이(md) — 옆 입력 · 셀렉트와 같은 높이 */
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
