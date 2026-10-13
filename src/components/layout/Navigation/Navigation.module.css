@@ -965,6 +965,15 @@
   gap: var(--spacing-8);
 }
 
+/* 꼬리 맨 위의 로그아웃(관리 화면) — 위 메뉴 목록과 선으로 끊고 가운데에 */
+.menuFooterAction {
+  align-self: stretch;
+  margin-bottom: var(--spacing-12);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-ghost);
+  text-align: center;
+}
+
 .menuFooterLabel {
   font: var(--font-headline-xs);
   font-family: var(--font-family-nav);
