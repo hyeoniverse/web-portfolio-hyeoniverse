@@ -114,7 +114,7 @@ export default function MobileMenu({
               이 단추와 여기서 연 언어 목록(포털이라도 React 트리로 올라온다)의 탭은 머리까지 보내지 않는다 */}
           {showSiteLang && (
             <span className={styles.menuSiteLangSlot} onClick={(e) => e.stopPropagation()}>
-              <SiteLangMenu />
+              <SiteLangMenu iconSize={18} />
             </span>
           )}
         </div>
