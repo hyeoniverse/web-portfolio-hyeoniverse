@@ -127,7 +127,7 @@ export function WorkArticleHeader({
           )}
         </div>
         <div className={styles.metaRight}>
-          <ListenButton title={viewLang === "en" ? project.title.en || project.title.ko : project.title.ko} />
+          <ListenButton className={styles.metaListen} title={viewLang === "en" ? project.title.en || project.title.ko : project.title.ko} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
