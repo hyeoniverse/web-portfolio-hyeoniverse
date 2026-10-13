@@ -75,7 +75,10 @@
   gap: var(--spacing-8);
   flex-direction: column;
   font: var(--font-display-lg);
+  /* 작은 화면 — 화면 폭에 비례(390px 에서 약 55px). display-lg 는 43px 로 작고 display-xl 은 67px 로 "& Problem Solver" 가 화면을 넘는다 */
+  font-size: var(--_title-size);
   font-family: var(--font-family-headline);
+  --_title-size: min(14vw, 4rem);
 }
 
 .titleRow {
