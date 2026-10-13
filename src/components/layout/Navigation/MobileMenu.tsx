@@ -9,6 +9,7 @@ import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { colorTone, type Tone } from "@/lib/navBackdrop";
+import SiteLangMenu from "./SiteLangMenu";
 
 interface MenuChild {
   key: string;
@@ -34,6 +35,8 @@ interface MobileMenuProps {
   /** 관리 화면으로 들어가는 자리 — 권한이 없거나 이미 관리 화면이면 null */
   adminHref?: string | null;
   contactEmail: string;
+  /** 다른 언어로 보기(🌐) — 좁은 화면 내비게이션에는 자리가 없어 서랍 아래에 둔다 */
+  showSiteLang?: boolean;
   onClose: () => void;
   onContactOpen: () => void;
   onLogout: () => void;
@@ -49,6 +52,7 @@ export default function MobileMenu({
   menuItems,
   adminHref,
   contactEmail,
+  showSiteLang = false,
   onClose,
   onContactOpen,
   onLogout,
@@ -181,6 +185,7 @@ export default function MobileMenu({
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
+          {showSiteLang && <SiteLangMenu className={styles.menuSiteLang} showLabel />}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
             href={`mailto:${contactEmail}`}

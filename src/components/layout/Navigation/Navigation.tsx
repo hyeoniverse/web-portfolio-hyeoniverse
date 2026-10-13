@@ -750,8 +750,11 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
-        {siteConfig.translation?.enabled !== false && <SiteLangMenu />}
+        {/* 사이트를 다른 언어로 보기(🌐) — 사이트 설정에서 번역을 껐으면 숨긴다.
+            좁은 화면은 자리가 모자라 KO/EN 만 두고, 🌐 는 메뉴 서랍 아래(MobileMenu)로 옮긴다 */}
+        {siteConfig.translation?.enabled !== false && (
+          <span className={styles.navSiteLang}><SiteLangMenu /></span>
+        )}
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={t("navMenu.ui.switchLanguage")} delay={600} placement="bottom">
           <Pressable noTapScale
@@ -1014,6 +1017,7 @@ export default function Navigation() {
         menuItems={isAdminPage ? adminMenu : menuItems}
         adminHref={isAdminPage ? null : adminHref}
         contactEmail={siteConfig.contact.email}
+        showSiteLang={siteConfig.translation?.enabled !== false}
         onClose={() => setIsMenuOpen(false)}
         onContactOpen={openForm}
         onLogout={handleLogout}
