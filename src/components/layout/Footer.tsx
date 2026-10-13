@@ -9,6 +9,7 @@ import { cn } from "@/utils/cn";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import ViewModeToggle from "./ViewModeToggle";
 import styles from "./Footer.module.css";
+import { navSectionOf } from "./navSection";
 
 /** Supabase 클라이언트 동적 로드 (번들 절약) */
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
@@ -48,7 +49,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
     [],
   );
 
-  const isAdmin = !isHidden && pathname.startsWith("/admin");
+  const isAdmin = !isHidden && navSectionOf(pathname) === "admin";
 
   const activeLinkHref = isAdmin
     ? ["/admin/settings", "/admin/works", "/admin/posts"].find((h) => pathname.startsWith(h)) ?? (pathname === "/design-system" ? "/design-system" : pathname === "/" ? "/" : null)

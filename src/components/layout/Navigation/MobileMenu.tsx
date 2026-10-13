@@ -19,7 +19,7 @@ interface MenuChild {
 
 interface MenuItem {
   key: string;
-  href: string | null;
+  href: string;
   label?: string;
   children?: MenuChild[];
 }
@@ -30,16 +30,18 @@ interface MobileMenuProps {
   clipWrapperRef: RefObject<HTMLDivElement | null>;
   menuMounted: boolean;
   pathname: string;
-  isAdminPage: boolean;
-  menuItems: MenuItem[];
-  /** 관리 화면으로 들어가는 자리 — 권한이 없거나 이미 관리 화면이면 null */
-  adminHref?: string | null;
+  /** 페이지 목록 — 화면(공개 · 관리)마다 다른 목록은 Navigation 이 NAV_SECTIONS 에서 골라 준다 */
+  items: MenuItem[];
+  /** 건너가는 링크 — 공개 화면은 관리 화면(Admin, 권한이 없으면 null), 관리 화면은 사이트 홈(Home) */
+  crossLink: { href: string; label: string } | null;
   contactEmail: string;
   /** 다른 언어로 보기(🌐) — 좁은 화면 내비게이션에는 자리가 없어 서랍 좌상단에 둔다 */
   showSiteLang?: boolean;
   onClose: () => void;
-  onContactOpen: () => void;
-  onLogout: () => void;
+  /** 문의 — 있으면 목록 아래에 Contacts 를 둔다(공개 화면) */
+  onContactOpen?: () => void;
+  /** 로그아웃 — 로그인했으면 준다. 꼬리 맨 위에 늘 보인다(화면과 상관없이) */
+  onLogout?: () => void;
 }
 
 export default function MobileMenu({
@@ -48,9 +50,8 @@ export default function MobileMenu({
   clipWrapperRef,
   menuMounted,
   pathname,
-  isAdminPage,
-  menuItems,
-  adminHref,
+  items,
+  crossLink,
   contactEmail,
   showSiteLang = false,
   onClose,
@@ -82,17 +83,13 @@ export default function MobileMenu({
 
   // 가장 긴 prefix 매칭만 active — 예: /admin/works 일 때 /admin (dashboard) 까지 active 되던 문제 방지
   const activeHref: string | null = (() => {
-    const matches = menuItems
-      .filter((it) => it.href && (pathname === it.href || pathname.startsWith(it.href + "/")))
-      .map((it) => it.href as string);
+    const matches = items
+      .filter((it) => pathname === it.href || pathname.startsWith(it.href + "/"))
+      .map((it) => it.href);
     if (!matches.length) return null;
     return matches.reduce((best, h) => (h.length > best.length ? h : best));
   })();
 
-  /* 페이지 링크와 행동을 가른다 — 목록에는 페이지만 남기고, href 가 없는 항목(문의·로그아웃)은
-     아래 묶음이 맡는다 */
-  const linkItems = menuItems.filter((item): item is MenuItem & { href: string } => !!item.href);
-  const actionItem = menuItems.find((item) => !item.href);
 
   return createPortal(
     <div
@@ -120,7 +117,7 @@ export default function MobileMenu({
         </div>
 
         <nav aria-label={t("navMenu.ui.mobileMenu")} className={styles.menuNav}>
-          {linkItems.map((item) => {
+          {items.map((item) => {
             if (item.children?.length) {
               return (
                 <Fragment key={item.key}>
@@ -162,11 +159,11 @@ export default function MobileMenu({
             );
           })}
 
-          {/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면. 위 목록은 사이트의
-              페이지고 이 둘은 행동이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
-          {((actionItem && !isAdminPage) || adminHref) && (
+          {/* 페이지가 아닌 자리 — 문의(공개 화면)와 건너가는 링크(관리 화면으로 · 사이트 홈으로). 위 목록은 그 화면의
+              페이지고 이 둘은 행동 · 바깥이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
+          {(onContactOpen || crossLink) && (
             <div className={styles.menuAside}>
-              {actionItem && !isAdminPage && (
+              {onContactOpen && (
                 <Pressable noTapScale
                   className={`${styles.menuLink} ${styles.menuAsideAction} glith-on-hover`}
                   onClick={() => {
@@ -174,12 +171,12 @@ export default function MobileMenu({
                     onContactOpen();
                   }}
                 >
-                  {navLabel(actionItem.key, actionItem.label)}
+                  {navLabel("contacts", "Contacts")}
                 </Pressable>
               )}
-              {adminHref && (
-                <Link href={adminHref} className={`${styles.menuLink} ${styles.menuAsideAdmin} glith-on-hover`} onClick={onClose}>
-                  Admin
+              {crossLink && (
+                <Link href={crossLink.href} className={`${styles.menuLink} ${styles.menuAsideCross} glith-on-hover`} onClick={onClose}>
+                  {crossLink.label}
                 </Link>
               )}
             </div>
@@ -188,8 +185,8 @@ export default function MobileMenu({
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
-          {/* 관리 화면의 로그아웃 — 메뉴가 길어 목록 끝에 두면 아래 고정된 이 꼬리에 가려졌다. 꼬리 맨 위에 두어 늘 보이게 */}
-          {isAdminPage && actionItem && (
+          {/* 로그아웃 — 로그인했으면 화면과 상관없이. 메뉴가 길면 목록 끝은 아래 고정된 이 꼬리에 가려지므로 꼬리 맨 위에 두어 늘 보이게 */}
+          {onLogout && (
             <Pressable noTapScale
               className={`${styles.menuLink} ${styles.menuFooterAction} glith-on-hover`}
               onClick={() => {
@@ -197,7 +194,7 @@ export default function MobileMenu({
                 onLogout();
               }}
             >
-              {navLabel(actionItem.key, actionItem.label)}
+              Logout
             </Pressable>
           )}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
