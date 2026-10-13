@@ -164,18 +164,14 @@ export default function MobileMenu({
 
           {/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면. 위 목록은 사이트의
               페이지고 이 둘은 행동이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
-          {(actionItem || adminHref) && (
+          {((actionItem && !isAdminPage) || adminHref) && (
             <div className={styles.menuAside}>
-              {actionItem && (
+              {actionItem && !isAdminPage && (
                 <Pressable noTapScale
                   className={`${styles.menuLink} ${styles.menuAsideAction} glith-on-hover`}
                   onClick={() => {
                     onClose();
-                    if (isAdminPage) {
-                      onLogout();
-                    } else {
-                      onContactOpen();
-                    }
+                    onContactOpen();
                   }}
                 >
                   {navLabel(actionItem.key, actionItem.label)}
@@ -192,6 +188,18 @@ export default function MobileMenu({
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
+          {/* 관리 화면의 로그아웃 — 메뉴가 길어 목록 끝에 두면 아래 고정된 이 꼬리에 가려졌다. 꼬리 맨 위에 두어 늘 보이게 */}
+          {isAdminPage && actionItem && (
+            <Pressable noTapScale
+              className={`${styles.menuLink} ${styles.menuFooterAction} glith-on-hover`}
+              onClick={() => {
+                onClose();
+                onLogout();
+              }}
+            >
+              {navLabel(actionItem.key, actionItem.label)}
+            </Pressable>
+          )}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
             href={`mailto:${contactEmail}`}
