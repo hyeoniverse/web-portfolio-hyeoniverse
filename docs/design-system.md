@@ -423,6 +423,8 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   - 생김새가 더 작아야 하면 `::before` 로 누르는 영역만 넓힌다.
   - 이웃과 충분히 떨어져 있으면(24px 원이 겹치지 않으면) 작아도 된다 — WCAG 의 간격 예외.
   - 손가락 입력(`@media (pointer: coarse)`)에서는 44 이상으로 넓힌다 — 권장. Apple 44pt · Material 48dp · Primer `minTarget.coarse` 44.
+- **3.4-5. 손가락 입력에서는 컨트롤 높이 눈금을 한 단계씩 올린다.** `@media (pointer: coarse)` 에서 xs 28 · sm 32 · md 36 · lg 40 · xl 44.
+  단계 이름은 그대로라 `size="sm"` 은 어느 컴포넌트든 같은 단계다(3.4-3). 데스크톱의 밀도는 바꾸지 않는다(D72).
   - 누르지 않는 작은 것(뱃지 20px 등)은 컨트롤이 아니다. 높이는 그 컴포넌트 토큰(`--badge-height`)으로 둔다.
   - — **완료**(이행 8-1): 20px 컨트롤 높이 `--control-height-2xs` 와 Button · HelpButton 의 `size="2xs"` 를 없앴다. 누르는 것은 xs 24, 뱃지 · 트랙은 `--badge-height` · `--size-20`.
 
