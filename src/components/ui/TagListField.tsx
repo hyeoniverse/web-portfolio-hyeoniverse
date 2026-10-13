@@ -32,7 +32,7 @@ export default function TagListField({
   separator = ", ",
   commaAsAdd = false,
   langBadge,
-  size = "sm",
+  size = "md",
 }: TagListFieldProps) {
   const badgeOf = useLangBadge();
   const [input, setInput] = useState("");

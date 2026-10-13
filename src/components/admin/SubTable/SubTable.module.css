@@ -91,7 +91,7 @@
 .bulkCancel {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
+  height: var(--control-height-md);
   margin-left: auto;
   border: none;
   background: transparent;
