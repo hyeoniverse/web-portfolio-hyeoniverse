@@ -59,17 +59,67 @@
   color: var(--text-tertiary);
 }
 
+/* 좁은 화면 — 순서 줄(PriorityList)과 같은 두 줄. 1줄: 이름 · 상태 배지, 2줄: 안내문(이름과 같은 시작선) · 단추.
+   한 줄에 두면 사용량 글이 "0 requ" 처럼 잘렸다. 상태 · 안내 묶음(AiHealthPanel .meta)은 상자를 풀어 이 격자에 바로 놓는다.
+   칸은 순서 줄과 같게(손잡이 14 · 남는 폭 · 단추 넷) — 단추가 셋이라 auto 면 셋째 칸이 좁아져 배지가 위 줄과 어긋난다 */
 .stockRow {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 14px minmax(0, 1fr) calc(var(--control-height-sm) * 4 + var(--spacing-4) * 3);
   align-items: center;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8);
   min-height: var(--control-height-sm);
+}
+
+.stockName {
+  grid-column: 1 / 3;
+}
+
+.stockRow > :nth-child(2) {
+  display: contents;
+}
+
+.stockRow > :nth-child(2) > :first-child {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.stockRow > :nth-child(2) > :last-child {
+  grid-column: 1 / 3;
+  grid-row: 2;
+}
+
+.stockRow > :nth-child(3) {
+  grid-column: 3;
+  grid-row: 2;
+  justify-self: end;
 }
 
 /* 상세는 줄을 바꿔 전체 폭으로 */
 .stockRow > :last-child {
   grid-column: 1 / -1;
+}
+
+@media (width > 768px) {
+  .stockRow {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--spacing-12);
+  }
+
+  .stockName {
+    grid-column: auto;
+  }
+
+  .stockRow > :nth-child(2) {
+    display: inline-flex;
+  }
+
+  .stockRow > :nth-child(2) > :first-child,
+  .stockRow > :nth-child(2) > :last-child,
+  .stockRow > :nth-child(3) {
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: auto;
+  }
 }
 
 /* 이름 칸 폭 = 순서 줄의 상자 끝선(핸들 14 + 틈 8 + 상자 22rem + 상자 뒤 여백 8 − 격자 틈 12 + 오차)에 맞춘다 — 상태 배지가 위 줄과 한 열에 선다(실측) */

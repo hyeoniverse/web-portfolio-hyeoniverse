@@ -1069,14 +1069,16 @@ a.commentSource:hover {
 
 .serviceBarStats {
   grid-column: 2;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
-/* 꺼진 공급자 수는 한 덩어리로 — 끝 낱말만 다음 줄로 떨어지지 않게 */
-.serviceBarChunk {
-  white-space: nowrap;
+/* 가운뎃점 — 좁은 화면은 덩어리마다 한 줄이라 감춘다 */
+.serviceBarSep {
+  display: none;
 }
 
 .serviceBar[data-alert] .serviceBarStats {
@@ -1091,6 +1093,15 @@ a.commentSource:hover {
 @media (width > 768px) {
   .serviceBar {
     display: flex;
+  }
+
+  .serviceBarStats {
+    flex-direction: row;
+    white-space: pre;
+  }
+
+  .serviceBarSep {
+    display: inline;
   }
 
   .serviceBarArrow {
