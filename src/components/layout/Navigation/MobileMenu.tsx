@@ -35,7 +35,7 @@ interface MobileMenuProps {
   /** 관리 화면으로 들어가는 자리 — 권한이 없거나 이미 관리 화면이면 null */
   adminHref?: string | null;
   contactEmail: string;
-  /** 다른 언어로 보기(🌐) — 좁은 화면 내비게이션에는 자리가 없어 서랍 아래에 둔다 */
+  /** 다른 언어로 보기(🌐) — 좁은 화면 내비게이션에는 자리가 없어 서랍 좌상단에 둔다 */
   showSiteLang?: boolean;
   onClose: () => void;
   onContactOpen: () => void;
@@ -110,6 +110,13 @@ export default function MobileMenu({
         {/* Header: 풀로고 가운데 */}
         <div className={styles.menuHeader} onClick={onClose}>
           <Logo variant="full" as="link" className={styles.menuLogo} bg={drawerTone ?? undefined} />
+          {/* 다른 언어로 보기(🌐) — 좌상단, 오른쪽 위 닫기 단추와 마주 보는 자리. 머리를 누르면 닫히므로
+              이 단추와 여기서 연 언어 목록(포털이라도 React 트리로 올라온다)의 탭은 머리까지 보내지 않는다 */}
+          {showSiteLang && (
+            <span className={styles.menuSiteLangSlot} onClick={(e) => e.stopPropagation()}>
+              <SiteLangMenu />
+            </span>
+          )}
         </div>
 
         <nav aria-label={t("navMenu.ui.mobileMenu")} className={styles.menuNav}>
@@ -185,7 +192,6 @@ export default function MobileMenu({
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
-          {showSiteLang && <SiteLangMenu className={styles.menuSiteLang} showLabel />}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
             href={`mailto:${contactEmail}`}
