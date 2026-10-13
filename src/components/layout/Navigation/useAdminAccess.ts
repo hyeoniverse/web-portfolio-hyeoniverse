@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import { ADMIN_ACCESS_CHANGED, type AdminAccess } from "@/lib/adminAccess";
+import { navSectionOf } from "../navSection";
 
 /**
  * 로그인한 계정의 권한 — 네비게이션이 관리자 메뉴와 알림 종을 거르는 데 쓴다(#883).
@@ -27,7 +28,7 @@ export function useAdminAccess(pathname: string): AdminAccess | null {
 
   useEffect(() => {
     if (!hasAuthCookie()) return;
-    if (knownRef.current && !pathname.startsWith("/admin")) return;
+    if (knownRef.current && navSectionOf(pathname) !== "admin") return;
     let alive = true;
     fetch("/api/admin/me")
       .then((r) => (r.ok ? r.json() : null))

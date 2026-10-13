@@ -1,3 +1,4 @@
+import type { NavSection } from "../navSection";
 /* ── Navigation data constants ── */
 
 export const navDescs: Record<string, Record<string, string>> = {
@@ -36,11 +37,6 @@ export const navItems: NavItem[] = [
   { key: "about", href: "/about", label: "About" },
 ];
 
-export const menuItems = [
-  { key: "home", href: "/", label: "Home" },
-  ...navItems,
-  { key: "contacts", href: null, label: "Contacts" },
-];
 
 export const adminNavItems: NavItem[] = [
   {
@@ -77,10 +73,56 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
-/* 알림·신고는 Dashboard 하위 메뉴로 옮겨져 최상위 중복 항목을 두지 않는다 */
-export const adminMenuItems = [
-  ...adminNavItems,
-  { key: "logout", href: null as string | null, label: "Logout" },
-];
+/** 화면(공개 사이트 · 관리 화면)마다 네비게이션이 다른 점 — Navigation · MobileMenu 는 라우트를 보지 않고 이 값만 따른다.
+ *  로그아웃 · 알림처럼 로그인 여부로 갈리는 것은 여기 두지 않는다(화면과 상관없이 같다) */
+export interface NavSectionConfig {
+  /** 로고가 가는 곳 */
+  homeHref: string;
+  /** 가운데 메뉴(넓은 화면) */
+  items: NavItem[];
+  /** 메뉴 서랍의 페이지 목록 */
+  drawerItems: NavItem[];
+  /** 권한으로 거르는 메뉴인가 — 열 수 없는 관리 화면은 뺀다(#883) */
+  restricted: boolean;
+  /** 로고 옆 ADMIN 배지 */
+  badge: boolean;
+  /** 처음 들어왔을 때의 BGM 안내 말풍선 */
+  soundTip: boolean;
+  /** 문의 — 로그아웃 상태의 Get in Touch 단추와 서랍의 Contacts */
+  contact: boolean;
+  /** 건너가는 링크 — site: 관리 화면으로(⚙ · 서랍 Admin, 갈 곳은 권한이 정한다), admin: 사이트 홈으로(서랍 Home) */
+  crossLink: "admin" | "home";
+  /** 로그인한 이메일(넓은 화면) */
+  showEmail: boolean;
+  /** 로그아웃한 뒤 갈 곳 — 없으면 그 화면에서 새로 고친다 */
+  afterLogout?: string;
+}
+
+export const NAV_SECTIONS: Record<NavSection, NavSectionConfig> = {
+  site: {
+    homeHref: "/",
+    items: navItems,
+    drawerItems: [{ key: "home", href: "/", label: "Home" }, ...navItems],
+    restricted: false,
+    badge: false,
+    soundTip: true,
+    contact: true,
+    crossLink: "admin",
+    showEmail: false,
+  },
+  admin: {
+    homeHref: "/admin",
+    /* 알림·신고는 Dashboard 하위 메뉴로 옮겨져 최상위 중복 항목을 두지 않는다 */
+    items: adminNavItems,
+    drawerItems: adminNavItems,
+    restricted: true,
+    badge: true,
+    soundTip: false,
+    contact: false,
+    crossLink: "home",
+    showEmail: true,
+    afterLogout: "/admin/login",
+  },
+};
 
 export const SKIP_LOADING_PAGES = ["/privacy"];

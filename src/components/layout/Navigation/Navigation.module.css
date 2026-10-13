@@ -531,6 +531,17 @@
   }
 }
 
+/* 로그아웃 — 좁은 화면은 감춘다. 메뉴 서랍 꼬리에 늘 있다 */
+.navLogout {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navLogout {
+    display: contents;
+  }
+}
+
 /* 관리 화면으로(⚙) — 좁은 화면은 감춘다. 메뉴 서랍에 Admin 링크가 있다 */
 .navAdminLink {
   display: none;
@@ -1227,13 +1238,13 @@
   border-top: var(--border-ghost);
 }
 
-/* 문의는 가운데, 관리 화면은 오른쪽 — 같은 층이되 자리로 갈린다 */
+/* 문의는 가운데, 건너가는 링크(Admin · Home)는 오른쪽 — 같은 층이되 자리로 갈린다 */
 .menuAsideAction {
   justify-content: center;
   text-align: center;
 }
 
-.menuAsideAdmin {
+.menuAsideCross {
   text-align: right;
 }
 
