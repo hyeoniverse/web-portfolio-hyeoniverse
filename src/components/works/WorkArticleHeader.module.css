@@ -45,29 +45,11 @@
   width: 100%;
 }
 
-/* 소리로 읽기 — 작은 화면에서는 이 줄 왼쪽 끝(남는 폭을 차지하는 첫 칸), 넓은 화면은 번역 단추 옆 */
-.metaRight:has(.metaListen) {
-  grid-template-columns: 1fr;
-}
-
-.metaListen {
-  grid-column: 1;
-  justify-self: start;
-}
-
 @media (width > 768px) {
   .metaRight {
     order: 0;
     width: auto;
     margin-left: auto;
-  }
-
-  .metaRight:has(.metaListen) {
-    grid-template-columns: none;
-  }
-
-  .metaListen {
-    grid-column: auto;
   }
 }
 
