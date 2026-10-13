@@ -976,13 +976,21 @@
   gap: var(--spacing-8);
 }
 
-/* 꼬리 맨 위의 로그아웃(관리 화면) — 위 메뉴 목록과 선으로 끊고 가운데에 */
-.menuFooterAction {
-  align-self: stretch;
-  margin-bottom: var(--spacing-12);
+/* 꼬리 맨 위 한 줄 — 문의 · 건너가는 링크 · 로그아웃. 메뉴 목록과 선으로 끊고, 목록보다 작은 글씨로 나란히 */
+.menuFooterActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
+  margin-bottom: var(--spacing-16);
   padding-top: var(--spacing-16);
   border-top: var(--border-ghost);
-  text-align: center;
+}
+
+/* 모양은 메뉴 링크(menuLink) 그대로, 크기만 줄인다 */
+.menuFooterLink {
+  --_menu-link-size: var(--font-size-headline-sm);
 }
 
 .menuFooterLabel {
@@ -1176,7 +1184,8 @@
   /* 폭만 보면 창이 넓어질 때 글자가 두 배로 커져(8vw) 목록이 창보다 길어지고, 아래쪽 항목이
      바닥에 붙은 푸터 뒤로 숨는다. 모바일 폭에서 열어 둔 채 창을 넓히면 실제로 그렇게 됐다.
      높이도 같이 보게 해서 창이 넓어도 목록이 창 안에 남는다 */
-  font-size: clamp(36px, 2.041rem + 0.86vw, 3.05rem);
+  /* 크기는 --_menu-link-size 로 줄일 수 있다(서랍 꼬리 menuFooterLink) */
+  font-size: var(--_menu-link-size, clamp(36px, 2.041rem + 0.86vw, 3.05rem));
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -1225,28 +1234,6 @@
   font-family: var(--font-family-headline);
 }
 
-/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면이 한 층이다.
-   위 목록과는 줄 하나로 끊고, 둘끼리는 크기·정렬을 같게 둔다 */
-.menuAside {
-  display: flex;
-  flex-direction: column;
-  /* 두 항목이 각자 자리를 잡도록 폭을 줄 전체로 늘린다 */
-  align-items: stretch;
-  gap: var(--spacing-12);
-  margin-top: var(--spacing-20);
-  padding-top: var(--spacing-16);
-  border-top: var(--border-ghost);
-}
-
-/* 문의는 가운데, 건너가는 링크(Admin · Home)는 오른쪽 — 같은 층이되 자리로 갈린다 */
-.menuAsideAction {
-  justify-content: center;
-  text-align: center;
-}
-
-.menuAsideCross {
-  text-align: right;
-}
 
 /* Close button — nav 햄버거 버튼과 동일한 우상단 위치 */
 
