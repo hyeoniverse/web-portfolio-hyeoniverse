@@ -356,7 +356,12 @@ export default function AdminDashboard() {
               {t("admin.dashboard.serviceLogStats")
                 .replace("{{total}}", String(service.total24h))
                 .replace("{{fails}}", String(service.fails24h))}
-              {service.off > 0 && ` · ${t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}`}
+              {service.off > 0 && (
+                <>
+                  {" · "}
+                  <span className={styles.serviceBarChunk}>{t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}</span>
+                </>
+              )}
             </span>
             <ChevronRight size={16} strokeWidth={1.6} className={styles.serviceBarArrow} aria-hidden />
           </Link>
