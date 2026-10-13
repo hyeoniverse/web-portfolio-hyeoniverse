@@ -24,12 +24,6 @@
 }
 
 .catBadge {
-  display: inline-block;
-  padding: var(--badge-padding-md);
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-  border-radius: var(--radius-control);
-  font: var(--font-label-sm);
   margin-right: var(--spacing-4);
 }
 

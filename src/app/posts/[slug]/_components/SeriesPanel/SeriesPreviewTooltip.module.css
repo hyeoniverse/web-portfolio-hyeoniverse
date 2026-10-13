@@ -66,13 +66,6 @@
   margin-bottom: var(--spacing-8);
 }
 
-.seriesPreviewTag {
-  padding: var(--badge-padding-md);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-}
 
 .seriesPreviewDate {
   font: var(--font-body-xs);

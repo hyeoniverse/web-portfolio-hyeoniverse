@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Hash } from "@/components/icons";
+import { Star, Hash, User, Pin } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import Tooltip from "@/components/ui/Tooltip";
+import Badge from "@/components/ui/Badge";
 import Chip, { useChipReorder } from "@/components/ui/Chip";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { staggerItemX } from "../../_data/animations";
@@ -92,6 +93,26 @@ export default function ChipsDemos() {
                 {s.label}
               </Chip>
             ))}
+          </motion.div>
+        </DemoGroup>
+
+        {/* Badge */}
+        <DemoGroup
+          title="Badge"
+          ko={"누르지 않는 짧은 표시입니다(역할 · 상태 · 분류 · 언어). variant 는 outline · soft · solid · overlay, tone 은 neutral · accent · success · warning · white, size 는 sm(20) · md(24) 입니다. 글자는 줄을 바꾸지 않고 배지는 좁아지지 않습니다. 누르거나 지우는 것은 Chip, 발행 상태는 StatusBadge 를 씁니다."}
+          en={"Non-interactive short label (role · status · category · language). variant outline · soft · solid · overlay, tone neutral · accent · success · warning · white, size sm(20) · md(24). Never wraps or shrinks. Use Chip for clickable/removable items and StatusBadge for publish status."}
+        >
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-8)", alignItems: "center" }}>
+            <Badge variant="outline" size="md" uppercase icon={<User size={11} strokeWidth={1.8} />}>{language === "ko" ? "개인" : "Solo"}</Badge>
+            <Badge variant="outline" tone="accent" size="md" uppercase>{language === "ko" ? "사이드 프로젝트" : "Side project"}</Badge>
+            <Badge tone="accent">Admin</Badge>
+            <Badge tone="success" dot uppercase>{language === "ko" ? "현재와 동일" : "Same as current"}</Badge>
+            <Badge tone="warning">Draft</Badge>
+            <Badge>KO</Badge>
+            <Badge variant="solid" tone="accent" uppercase icon={<Star size={10} fill="currentColor" />}>HOT</Badge>
+            <span style={{ display: "inline-flex", padding: "var(--spacing-8)", borderRadius: "var(--radius-surface)", background: "var(--bg-inverse)" }}>
+              <Badge variant="overlay" uppercase icon={<Pin size={10} />}>Pinned</Badge>
+            </span>
           </motion.div>
         </DemoGroup>
 

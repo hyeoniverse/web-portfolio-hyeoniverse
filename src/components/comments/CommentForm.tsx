@@ -15,6 +15,7 @@ import CommentEditor, { CommentModeToggle, type CommentEditorMode } from "./Comm
 import styles from "./CommentForm.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { commentErrorText } from "./commentErrorText";
+import Badge from "@/components/ui/Badge";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
   ssr: false,
@@ -169,7 +170,7 @@ export default function CommentForm({
           <span className={styles.avatar} aria-hidden="true">
             {FALLBACK_AVATAR_EMOJI}
           </span>
-          <span className={styles.adminBadge}>Admin</span>
+          <Badge tone="accent">Admin</Badge>
         </div>
       ) : identity ? (
         <div className={styles.identityRow}>

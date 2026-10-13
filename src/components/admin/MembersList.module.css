@@ -132,65 +132,12 @@
   color: var(--text-tertiary);
 }
 
-/* ── Role badge ── */
-.role {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-.roleOwner {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
-
-.roleAdmin {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.roleAuthor,
-.roleMember {
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-}
-
-.rolePendingBadge {
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: var(--font-weight-medium);
-}
-
 /* ── Provider chips ── */
 .providers {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
-}
-
-/* 로그인 수단 표시 — .role 배지와 같은 결(무테·small caps). 테두리를 두르면
-   설정 화면의 아웃라인 버튼과 같은 모양이 되어 눌리는 것처럼 읽힌다.
-   여기 나오는 수단은 전부 "사용 가능" 상태라 성공색으로 — roleOwner(accent) 와 같은 관용구 */
-.provider {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-control);
-  background: var(--bg-success-soft);
-  font: var(--font-label-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-success-strong);
 }
 
 /* 행 우측 액션 버튼 그룹 (수정/삭제) — AuthorsEditor 리스트에서 사용 */
@@ -225,17 +172,3 @@
   text-decoration: underline;
 }
 
-/* 지금 로그인한 계정 표시 — 여러 계정이 섞인 목록에서 내 것을 구분한다.
-   역할 배지 옆에 놓이므로 같은 크기·모양을 쓰되 accent 로 구분한다. */
-.meBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-  font: var(--font-label-xs);
-  line-height: inherit;
-  white-space: nowrap;
-}

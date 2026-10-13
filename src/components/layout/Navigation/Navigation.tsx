@@ -59,6 +59,7 @@ import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import { keepOnTop } from "@/lib/topLayer";
+import Badge from "@/components/ui/Badge";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -675,7 +676,7 @@ export default function Navigation() {
         })()}
       {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
       {isAdminPage && (
-        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</span>
+        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</Badge>
       )}
     </Link>
 

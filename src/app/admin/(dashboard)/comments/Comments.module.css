@@ -134,24 +134,10 @@
 
 .sourceBadge {
   grid-area: source;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
   width: fit-content;
 }
 
-.badgePosts {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
 
-.badgeWorks {
-  background: var(--bg-accent-subtle);
-  color: var(--text-accent);
-}
 
 .author {
   grid-area: author;
@@ -165,14 +151,6 @@
   white-space: nowrap;
 }
 
-.adminBadge {
-  font: var(--font-body-xs);
-  font-weight: 700;
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
 
 .content {
   grid-area: content;

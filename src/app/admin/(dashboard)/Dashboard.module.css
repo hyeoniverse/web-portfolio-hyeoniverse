@@ -507,48 +507,6 @@ a.statCard:hover .statValue {
 
 /* Status pill: 발행=success(녹색), 초안=warning(앰버)
    배경 + 글자색 + capsule 형태로 한눈에 상태 파악. 너비는 컨텐츠 기준 (compact). */
-.statusPub,
-.statusDraft {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  letter-spacing: 0.02em;
-  flex-shrink: 0;
-}
-
-.statusPub::before,
-.statusDraft::before {
-  content: "";
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
-}
-
-.statusPub {
-  background: var(--bg-success-soft);
-  color: var(--text-success-strong);
-}
-
-.statusPub::before {
-  background: var(--text-success);
-}
-
-.statusDraft {
-  background: var(--bg-warning-soft);
-  color: var(--text-warning-strong);
-}
-
-.statusDraft::before {
-  background: var(--bg-warning-solid);
-  box-shadow: var(--ring-warning-solid);
-}
-
 .timeAgo {
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
@@ -634,31 +592,14 @@ a.statCard:hover .statValue {
 
 /* ── Trend 배지 (↑/↓ 퍼센트) ── */
 .trendBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--badge-padding-sm);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
-.trendUp {
-  background: var(--bg-success-soft);
-  color: var(--text-success-strong);
-}
 
-.trendDown {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
 
 /* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up + 지연 등장 */
 .trendBadgeLg {
-  padding: var(--badge-padding-md);
-  font: var(--font-body-sm);
-  gap: var(--spacing-4);
+  font: var(--font-label-sm);
   animation: trendBadgeIn var(--duration-slow) var(--ease-spring) 0.6s both;
 }
 
