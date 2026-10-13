@@ -7,10 +7,48 @@
 
 .metaRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-16);
   margin-bottom: var(--spacing-20);
+}
+
+/* 오른쪽 단추 묶음(GitHub · 공유 · 소리로 읽기 · 번역 · 언어) — 작은 화면에서는 날짜 줄 위에 따로 한 줄, 오른쪽 끝.
+   grid 로 둔다 — LanguageToggle 이 margin-left: auto 를 갖고 있어 flex 로 줄을 꽉 채우면 사이가 벌어진다 */
+.metaActions {
+  order: -1;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: end;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+/* 소리로 읽기 — 작은 화면에서는 이 줄 왼쪽 끝(남는 폭을 차지하는 첫 칸) */
+.metaActions:has(.metaListen) {
+  grid-template-columns: 1fr;
+}
+
+.metaListen {
+  grid-column: 1;
+  justify-self: start;
+}
+
+@media (width > 768px) {
+  .metaActions {
+    order: 0;
+    width: auto;
+  }
+
+  .metaActions:has(.metaListen) {
+    grid-template-columns: none;
+  }
+
+  .metaListen {
+    grid-column: auto;
+  }
 }
 
 .tagsShareRow {

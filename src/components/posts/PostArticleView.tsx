@@ -151,7 +151,7 @@ export function PostArticleHeader({
             </>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className={header.metaActions}>
           {headerActionsLeft}
           {data.githubUrl && (
             <Button variant="outline" href={data.githubUrl} external>
@@ -160,7 +160,7 @@ export function PostArticleHeader({
             </Button>
           )}
           <ShareButton />
-          <ListenButton title={data.displayTitle} />
+          <ListenButton className={header.metaListen} title={data.displayTitle} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
