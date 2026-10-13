@@ -67,6 +67,8 @@ interface PopoverProps {
    *  붙지 않을 만큼(2xs). 예전엔 메뉴를 쓰는 곳마다 contentClassName 으로 같은 여백을 따로 넣었고,
    *  빠뜨린 곳은 항목이 테두리에 붙었다. 터치 bottom sheet 는 sheet 본문 여백을 그대로 쓴다. */
   menu?: boolean;
+  /** 아래 · 위 배치에도 트리거를 가리키는 꼬리를 단다(bubble 은 늘 단다). 꼬리는 패널이 화면 안으로 당겨져도 트리거 가운데를 따라간다 */
+  arrow?: boolean;
 }
 
 // openOnHover popover 는 한 번에 하나만 열림 — 새 hover popover 가 열리면 이전 것을 닫는다
@@ -97,13 +99,14 @@ export default function Popover({
   maxHeight: maxHeightProp,
   openOnHover = false,
   menu = false,
+  arrow: arrowProp = false,
 }: PopoverProps) {
   // placement="bubble" 이면 Select 식 오른쪽 말풍선 — 오른쪽 배치·solid·꼬리를 한 번에(공간 없으면 왼쪽 flip).
   //   별도 shape/variant prop 없이 placement 값 하나로 버블이 된다.
   const isBubble = placementProp === "bubble";
   const placement = isBubble ? "right-start" : placementProp;
   const variant = isBubble ? "solid" : variantProp;
-  const arrow = isBubble;
+  const arrow = isBubble || arrowProp;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? !!controlledOpen : uncontrolledOpen;

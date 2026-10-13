@@ -15,7 +15,8 @@ import styles from "./Navigation.module.css";
  * 여기서 고르면 상세 본문까지, 상세에서 고르면 여기까지 바뀐다.
  * 켜져 있으면 단추에 언어 코드가 붙고, 누르면 메뉴 없이 원문으로 돌아간다. 화면 글을 받아 오는 동안은 점이 움직인다.
  */
-export default function SiteLangMenu() {
+/* iconSize — 메뉴 서랍 좌상단에서는 닫기 단추(점 16px)와 그려진 높이를 맞춘다 */
+export default function SiteLangMenu({ iconSize }: { iconSize?: number } = {}) {
   const { t } = useLanguage();
   const site = useSiteLang();
   /* 사이트 기본 언어(ko · en 밖)는 번역이 아니라 원문으로 친다 — 🌐 를 켜진 것으로 보이지 않는다(#1406) */
@@ -31,6 +32,7 @@ export default function SiteLangMenu() {
       /* 언어 코드는 옆 KO/EN 토글과 같은 글꼴 · 크기 — 글꼴이 달라(Pretendard 500 · Space Grotesk 400) 높이가 미묘하게 어긋나 보였다 */
       codeClassName={styles.langText}
       tooltipPlacement="bottom"
+      iconSize={iconSize}
       labels={{
         open: t("contentTranslate.siteMenuLabel"),
         off: fillTemplate(t("contentTranslate.siteTurnOff"), { lang: name }),
