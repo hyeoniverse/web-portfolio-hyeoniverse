@@ -19,8 +19,8 @@ interface PaginationProps {
   size?: "sm" | "md";
 }
 
-export default function Pagination({ page, totalPages, onChange, className, showJump = true, size: sizeProp = "sm" }: PaginationProps) {
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm */
+export default function Pagination({ page, totalPages, onChange, className, showJump = true, size: sizeProp = "md" }: PaginationProps) {
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md */
   const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const pageNumbers = useMemo(() => {
