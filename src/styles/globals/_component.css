@@ -180,3 +180,14 @@
     oklch(90.54% 0.1546 194.77) 50%, oklch(45.2% 0.3132 264.05) 67%, oklch(70.17% 0.3225 328.36) 83%,
     oklch(62.8% 0.2577 29.23) 100%;
 }
+
+/* 손가락 입력에서는 컨트롤 높이를 한 단계씩 올린다(3.4-5). 단계 이름은 그대로라 size="sm" 은 어디서나 같은 단계다. */
+@media (pointer: coarse) {
+  :root {
+    --control-height-xs: 28px;
+    --control-height-sm: 32px;
+    --control-height-md: 36px;
+    --control-height-lg: 40px;
+    --control-height-xl: 44px;
+  }
+}
