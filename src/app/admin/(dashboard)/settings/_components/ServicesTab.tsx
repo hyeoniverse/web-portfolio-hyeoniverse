@@ -553,7 +553,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           })(),
           envKeyLine([...(CONTACT_KEYS[config.emailService.provider as keyof typeof CONTACT_KEYS] ?? [])], t),
         ]} />
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair} ${shared.fieldPairAlways}`}>
           <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
@@ -841,7 +841,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         {/* 설명이 제목 바로 아래, 켜기 스위치는 그 다음(칸 묶음의 첫 줄) */}
         <HintLines className={styles.sectionHints} lines={[envKeyLine(["NEXT_PUBLIC_RECAPTCHA_SITE_KEY"], t)]} />
         {/* 켜기 · 버전을 두 칸으로 — 이메일 섹션의 공급자 · 파일 업로드와 같은 모양 */}
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair} ${shared.fieldPairAlways}`}>
           <Switch
             label={t("admin.settings.recaptchaEnabled")}
             labelPosition="top"

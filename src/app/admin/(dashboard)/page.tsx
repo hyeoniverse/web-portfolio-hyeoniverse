@@ -352,11 +352,17 @@ export default function AdminDashboard() {
           <Link href="/admin/service-log" className={styles.serviceBar} data-alert={service.fails24h > 0 || service.off > 0 ? "" : undefined}>
             <History size={16} strokeWidth={1.6} aria-hidden />
             <span className={styles.serviceBarTitle}>{t("admin.dashboard.serviceLog")}</span>
+            {/* 덩어리마다 한 줄(좁은 화면) · 가운뎃점으로 이어 한 줄(넓은 화면) */}
             <span className={styles.serviceBarStats}>
-              {t("admin.dashboard.serviceLogStats")
-                .replace("{{total}}", String(service.total24h))
-                .replace("{{fails}}", String(service.fails24h))}
-              {service.off > 0 && ` · ${t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}`}
+              <span>{t("admin.dashboard.serviceLogTotal").replace("{{total}}", String(service.total24h))}</span>
+              <span className={styles.serviceBarSep} aria-hidden> · </span>
+              <span>{t("admin.dashboard.serviceLogFails").replace("{{fails}}", String(service.fails24h))}</span>
+              {service.off > 0 && (
+                <>
+                  <span className={styles.serviceBarSep} aria-hidden> · </span>
+                  <span>{t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}</span>
+                </>
+              )}
             </span>
             <ChevronRight size={16} strokeWidth={1.6} className={styles.serviceBarArrow} aria-hidden />
           </Link>
@@ -369,12 +375,13 @@ export default function AdminDashboard() {
           <T k="admin.dashboard.stats" />
         </SectionHeader>
 
-        <Panel variant="grid" cols="repeat(3, 1fr)" divided>
-          {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
+        {/* 칸 수는 클래스로(statsGrid) — 좁은 화면은 한 줄에 하나, 넓으면 3칸 */}
+        <Panel variant="grid" className={styles.statsGrid} divided>
+          {/* 1. 방문자(heroStat) — 맨 위 한 줄 전체. 좁은 화면은 숫자 아래 그래프(heroStat) */}
           <Item
+            className={styles.heroStat}
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 320px)",
               gridColumn: "1 / -1",
               gap: "var(--spacing-24)",
               alignItems: "center",

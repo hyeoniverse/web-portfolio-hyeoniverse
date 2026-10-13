@@ -147,8 +147,11 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
               : th("stateOk")}
           </Badge>
         </span>
-        {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
-        <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
+        {/* 안내문(원인 · 사용량) 묶음 — 좁은 화면의 순서 줄에서는 배지와 떨어져 다음 줄 왼쪽에 선다(PriorityList) */}
+        <span className={styles.hint}>
+          {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
+          <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
+        </span>
       </span>
       <span className={styles.actions}>
         {/* ⏻ — 자동으로 꺼졌으면 강조색 사선(누르면 다시 켬). 아니면 이 기능에서 쓸지(초록 = 쓰는 중, 흐림 사선 = 뺌, 1번은 잠금).

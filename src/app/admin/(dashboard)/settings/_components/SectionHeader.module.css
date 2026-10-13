@@ -30,32 +30,64 @@
    제목은 difference 반전으로 겹침을 처리하지만 버튼엔 그게 없어서, 스크롤 중
    컨텐츠 버튼 위를 지나가면 서로 비쳐 보였다 — 글래스 칩(blur만, 배경색 없음)으로
    뒤를 흐려 준다. 평소(맨 배경 위)엔 티가 안 난다 */
+/* 좁은 화면은 제목 아래 줄의 오른쪽 끝에, 넘치면 줄을 넘긴다 — 제목 옆 칸에 두면 단추 묶음(≈340px)이 제목 칸을 0 으로
+   밀어 제목이 사라지고 단추가 화면 밖으로 나갔다. 제목과 같은 자리에 붙으면(sticky) 겹치므로 붙이지 않는다 */
 .spacer {
-  grid-column: 2;
-  grid-row: 1;
+  grid-column: 1 / -1;
   justify-self: end;
-  position: sticky;
-  top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
+  /* 점(.dot)의 기준 — 붙이지는 않는다 */
+  position: relative;
   z-index: calc(var(--z-index-nav) - 3);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--spacing-4);
-  flex-shrink: 0;
-  padding: var(--spacing-2) var(--spacing-4);
+  min-width: 0;
+  /* 좁은 화면은 끝선을 본문 오른쪽 끝에 맞춘다 — 옆 여백이 있으면 혼자 안으로 들어가 보인다 */
+  padding: var(--spacing-2) 0;
   border-radius: var(--radius-control);
-  backdrop-filter: blur(24px) saturate(1.6);
 }
 /* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
 .dot {
+  /* 좁은 화면 — 줄 밖 왼쪽에 띄운다. 자리를 차지하면 영어 화면에서 단추가 두 줄로 꺾였다 */
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  translate: 0 -50%;
   width: 6px;
   height: 6px;
   flex-shrink: 0;
-  margin-right: var(--spacing-2);
+  /* 넓은 화면의 점 뒤 여백(2) + 줄 틈(4)과 같은 거리 */
+  margin-right: calc(var(--spacing-2) + var(--spacing-4));
   border-radius: var(--radius-full);
   background: transparent;
 }
 .dotOn {
   background: var(--bg-accent-solid);
+}
+
+/* 768 위 — 제목과 같은 줄 오른쪽 칸에, 제목과 같이 붙는다 */
+@media (width > 768px) {
+  .spacer {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    position: sticky;
+    top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    padding: var(--spacing-2) var(--spacing-4);
+    /* 붙어서 스크롤하면 내용 단추 위를 지나가므로 뒤를 흐린다. 좁은 화면은 붙지 않아 필요 없고,
+       줄 전체로 넓어진 흐림이 따뜻한 바탕의 채도를 올려 노란 상자로 보였다 */
+    backdrop-filter: blur(24px) saturate(1.6);
+  }
+
+  .dot {
+    position: static;
+    translate: none;
+    margin-right: var(--spacing-2);
+  }
 }
 
 /* 넓은 화면 — 탭바가 사이드바로 가니 머리띠 바로 아래 */
@@ -70,4 +102,15 @@
 .extraRow {
   margin-top: calc(var(--spacing-4) - var(--spacing-16));
   min-width: 0;
+}
+
+/* 좁은 화면은 단추 줄이 제목과 설명 사이에 오므로 설명을 당기지 않는다 */
+.spacer + .extraRow {
+  margin-top: 0;
+}
+
+@media (width > 768px) {
+  .spacer + .extraRow {
+    margin-top: calc(var(--spacing-4) - var(--spacing-16));
+  }
 }
