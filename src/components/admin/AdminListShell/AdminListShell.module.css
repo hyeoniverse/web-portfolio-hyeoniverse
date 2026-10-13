@@ -20,11 +20,14 @@
   color: var(--text-primary);
 }
 
+/* 단추가 많으면(작품: 도움말 · GitHub 가져오기 · .md 올리기 · 새 작품) 좁은 화면에서 줄을 넘긴다 */
 .headerActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-8);
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* 제목 앞 아이콘 — 대시보드 · 설정 · 알림 페이지의 titleIcon 과 같은 자리 · 색 */
@@ -102,7 +105,7 @@
 .filterItem button {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
+  height: var(--control-height-md);
   padding: 0 var(--control-padding-inline-sm);
   font-size: var(--font-size-body-sm);
   border-color: var(--border-color-default);
@@ -117,7 +120,7 @@
 .filterPageSize button {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
+  height: var(--control-height-md);
   padding: 0 var(--control-padding-inline-sm);
   font-size: var(--font-size-body-sm);
   border-color: var(--border-color-default);

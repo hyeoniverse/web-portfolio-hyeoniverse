@@ -369,12 +369,13 @@ export default function AdminDashboard() {
           <T k="admin.dashboard.stats" />
         </SectionHeader>
 
-        <Panel variant="grid" cols="repeat(3, 1fr)" divided>
-          {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
+        {/* 칸 수는 클래스로(statsGrid) — 좁은 화면은 한 줄에 하나, 넓으면 3칸 */}
+        <Panel variant="grid" className={styles.statsGrid} divided>
+          {/* 1. 방문자(heroStat) — 맨 위 한 줄 전체. 좁은 화면은 숫자 아래 그래프(heroStat) */}
           <Item
+            className={styles.heroStat}
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 320px)",
               gridColumn: "1 / -1",
               gap: "var(--spacing-24)",
               alignItems: "center",

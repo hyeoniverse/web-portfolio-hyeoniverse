@@ -95,9 +95,16 @@
 }
 
 /* 행 — referrerRow 와 첫 칸 폭을 맞춰 바 시작점이 다른 목록과 나란하고, 끝에 버튼 칸 */
+/* 좁은 화면 — IP · 막대 한 줄, 날짜 · 단추 다음 줄. 네 칸을 한 줄에 두면 단추가 화면 밖으로 나갔다 */
 .ipRow {
-  /* 날짜 칸도 폭을 잡아 둔다 — auto 면 기간 길이 따라 막대 끝이 행마다 어긋난다 */
-  grid-template-columns: 180px 1fr 136px auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (width > 768px) {
+  .ipRow {
+    /* 날짜 칸도 폭을 잡아 둔다 — auto 면 기간 길이 따라 막대 끝이 행마다 어긋난다 */
+    grid-template-columns: 180px 1fr 136px auto;
+  }
 }
 
 .ipIdentity {
