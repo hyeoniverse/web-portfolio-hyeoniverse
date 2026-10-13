@@ -47,6 +47,10 @@ export function WorkArticleHeader({
   const isAdmin = isAdminProp ?? authed;
 
   const handleLangChange = onLangChange ?? (() => {});
+  /* 조회수 — 글 상세 메타 줄과 같은 표기(n 조회). 사이트 밖 자료(저장소)는 세지 않아 없다 */
+  const viewCount = project.viewCount !== undefined && (
+    <span className={styles.viewCount}>{formatCount(project.viewCount)} <UiLabel name="postViews" /></span>
+  );
 
   return (
     <>
@@ -80,9 +84,12 @@ export function WorkArticleHeader({
               <Badge variant="outline" tone="accent" size="md" uppercase lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></Badge>
             )}
           </div>
-          {/* 조회수 — 글 상세 메타 줄과 같은 표기(n 조회). 사이트 밖 자료(저장소)는 세지 않아 없다 */}
-          {project.viewCount !== undefined && (
-            <span className={styles.viewCount}>{formatCount(project.viewCount)} <UiLabel name="postViews" /></span>
+          {/* 조회수 — 넓은 화면은 배지 뒤에 구분선과 함께, 좁은 화면은 언어 전환 줄 왼쪽 끝(아래 metaRight) */}
+          {viewCount && (
+            <span className={styles.viewCountWide}>
+              <span className={styles.metaDivider} />
+              {viewCount}
+            </span>
           )}
           {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
           {isAdmin && !isPreview && project.external && onImportEdit && (
@@ -131,6 +138,7 @@ export function WorkArticleHeader({
           )}
         </div>
         <div className={styles.metaRight}>
+          {viewCount && <span className={styles.viewCountNarrow}>{viewCount}</span>}
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
