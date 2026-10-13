@@ -22,6 +22,7 @@ import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
+import Badge from "@/components/ui/Badge";
 
 /* 새로 만드는 프로필의 임시 id. 컴포넌트 밖에 두는 이유는 두 가지다 —
    같은 식이 세 군데에 복사돼 있었고, 렌더 본문 안의 Date.now() 는 렌더를 순수하지
@@ -447,9 +448,9 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
     if (memberRole) return <RoleBadge role={memberRole} />;
     if (!isOwner) return null; // 초대 상태(초대됨·미초대)는 관리 정보라 owner 만
     return (
-      <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>
+      <Badge>
         {invited ? t("admin.inline.authorsEditor.invitedPending") : t("admin.inline.authorsEditor.notInvited")}
-      </span>
+      </Badge>
     );
   };
 
@@ -482,10 +483,9 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const meBadge = (
     /* 역할 배지(왕관·방패 등)와 나란히 놓이므로 아이콘 유무도 맞춘다.
        역할 아이콘과 겹치지 않는 Check 를 쓴다 — UserRound 는 "멤버" 역할이 이미 쓴다. */
-    <span className={mStyles.meBadge}>
-      <Check size={11} strokeWidth={2.4} aria-hidden />
+    <Badge tone="accent" icon={<Check size={11} strokeWidth={2.4} />}>
       {t("admin.inline.authorsEditor.you")}
-    </span>
+    </Badge>
   );
 
   const renderAuthorRow = (a: Author) => {

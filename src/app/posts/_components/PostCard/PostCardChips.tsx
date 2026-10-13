@@ -1,5 +1,6 @@
 "use client";
 
+import Badge from "@/components/ui/Badge";
 import T from "@/components/ui/T";
 import { Flame, Eye, Heart } from "@/components/icons";
 import { formatCount } from "@/utils/format";
@@ -14,19 +15,18 @@ const cx = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(" ")
 /** HOT 배지 — 인기 상위 글. 아이콘 크기는 변형마다 다르다(10~15). */
 export function HotBadge({ size = 10, className }: { size?: number; className?: string }) {
   return (
-    <span className={cx(styles.hotBadge, className)}>
-      <Flame size={size} fill="currentColor" stroke="none" />
+    <Badge variant="solid" tone="accent" uppercase icon={<Flame size={size} fill="currentColor" stroke="none" />} className={cx(styles.hotBadge, className)}>
       HOT
-    </span>
+    </Badge>
   );
 }
 
 /** 언어 칩 — 한쪽 언어만 있는 글에 KO/EN 표시 */
 export function LangChip({ badge, className }: { badge: "koOnly" | "enOnly"; className?: string }) {
   return (
-    <span className={cx(styles.compactLang, className)}>
+    <Badge variant="outline" uppercase className={cx(styles.compactLang, className)}>
       <T k={`postDetail.${badge}`} />
-    </span>
+    </Badge>
   );
 }
 

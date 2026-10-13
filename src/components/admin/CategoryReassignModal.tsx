@@ -13,6 +13,7 @@ import T from "@/components/ui/T";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import styles from "./CategoryReassignModal.module.css";
+import Badge from "@/components/ui/Badge";
 
 interface PostItem {
   id: string;
@@ -169,7 +170,7 @@ export default function CategoryReassignModal({
   return (
     <div className={styles.body}>
         <p className={styles.subtitle}>
-          <span className={styles.catBadge}>{catLabel}</span>
+          <Badge tone="accent" className={styles.catBadge}>{catLabel}</Badge>
           <T k="admin.settings.reassignModal.description" />
         </p>
 

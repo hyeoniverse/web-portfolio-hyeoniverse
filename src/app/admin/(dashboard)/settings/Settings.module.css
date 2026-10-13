@@ -954,15 +954,6 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
 }
 
-.tagRelatedMetaDraft {
-  padding: var(--badge-padding-sm);
-  border-radius: var(--radius-control);
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-  font: var(--font-body-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 {

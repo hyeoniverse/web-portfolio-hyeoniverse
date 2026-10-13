@@ -77,28 +77,7 @@
   color: var(--text-primary);
 }
 
-.deviceCurrentBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-light);
-  font: var(--font-label-xs);
-  color: var(--text-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
-.devicePendingBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-secondary);
-  font: var(--font-label-xs);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
 .deviceMeta {
   display: flex;
@@ -246,13 +225,4 @@
 }
 
 /* 로그인한 계정이 본인임을 표시 — 목록에서 남의 계정과 섞이지 않도록 */
-.meChip {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-  font: var(--font-label-xs);
-  line-height: 1;
-  white-space: nowrap;
-}
 

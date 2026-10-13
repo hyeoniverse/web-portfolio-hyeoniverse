@@ -32,6 +32,7 @@ import {
 } from "@/lib/ai/providers";
 import type { useAiHealth } from "./useAiHealth";
 import styles from "./AiHealthPanel.module.css";
+import Badge from "@/components/ui/Badge";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -139,12 +140,12 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
       <span className={styles.meta}>
         {/* 칸 폭은 가장 긴 배지에 맞춰 고정, 배지 배경은 글자에 맞게 */}
         <span className={styles.statusCell}>
-          <span className={styles.status} data-state={state}>
+          <Badge tone={state === "ok" ? "success" : state === "failing" ? "warning" : state === "off" ? "accent" : "neutral"} data-state={state}>
             {state === "off" ? th("stateOff")
               : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
               : state === "nokey" ? th("stateNoKey")
               : th("stateOk")}
-          </span>
+          </Badge>
         </span>
         {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
