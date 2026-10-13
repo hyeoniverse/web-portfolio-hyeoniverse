@@ -6,6 +6,7 @@ import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import Badge from "@/components/ui/Badge";
 
 export interface BilingualInputPairProps {
   value: LocalizedText;
@@ -55,7 +56,7 @@ export default function BilingualInputPair({
   return (
     <div className={`${styles.pair} ${width === "fit" ? styles.pairFit : ""} ${layout === "row" ? styles.pairRow : ""}`}>
       <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
-        <span className={styles.badge}>{srcBadge}</span>
+        <Badge>{srcBadge}</Badge>
         <input
           type={type}
           className={styles.input}
@@ -83,7 +84,7 @@ export default function BilingualInputPair({
         )}
       </label>
       <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
-        <span className={styles.badge}>EN</span>
+        <Badge>EN</Badge>
         <input
           type={type}
           className={styles.input}

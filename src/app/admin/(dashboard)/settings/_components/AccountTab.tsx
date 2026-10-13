@@ -25,6 +25,7 @@ import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { useDialogRef } from "@/hooks/useTopLayer";
+import Badge from "@/components/ui/Badge";
 
 interface DeviceRow {
   id: string;
@@ -276,7 +277,7 @@ export default function AccountTab({
           <FieldRow label={<T k="admin.settings.currentEmail" />}>
             <span className={styles.identityRow}>
               <span className={styles.fieldValue}>{accountEmail}</span>
-              <span className={styles.meChip}><T k="admin.settings.meChip" /></span>
+              <Badge tone="accent"><T k="admin.settings.meChip" /></Badge>
             </span>
           </FieldRow>
           {hasPassword ? (
@@ -382,15 +383,14 @@ export default function AccountTab({
                       <div className={styles.deviceName}>
                         {p.browser} · {p.os}
                         {d.isCurrent && (
-                          <span className={styles.deviceCurrentBadge}>
-                            <Check size={10} strokeWidth={2.5} />
+                          <Badge tone="accent" uppercase icon={<Check size={10} strokeWidth={2.5} />}>
                             <T k="admin.settings.deviceCurrentBadge" />
-                          </span>
+                          </Badge>
                         )}
                         {!d.approved && (
-                          <span className={styles.devicePendingBadge}>
+                          <Badge uppercase>
                             <T k="admin.settings.devicePendingBadge" />
-                          </span>
+                          </Badge>
                         )}
                       </div>
                       <div className={styles.deviceMeta}>

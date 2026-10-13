@@ -425,6 +425,7 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   - 이웃과 충분히 떨어져 있으면(24px 원이 겹치지 않으면) 작아도 된다 — WCAG 의 간격 예외.
   - 손가락 입력(`@media (pointer: coarse)`)에서는 44 이상으로 넓힌다 — 권장. Apple 44pt · Material 48dp · Primer `minTarget.coarse` 44.
   - 누르지 않는 작은 것(뱃지 20px 등)은 컨트롤이 아니다. 높이는 그 컴포넌트 토큰(`--badge-height`)으로 둔다.
+    배지는 공용 `Badge`(`ui/Badge`)로 그린다 — sm 20(`--badge-height`) · md 24, 줄바꿈 · 줄어듦 없음(D75). 발행 상태는 `StatusBadge`, 누르거나 지우는 것은 `Chip`.
   - — **완료**(이행 8-1): 20px 컨트롤 높이 `--control-height-2xs` 와 Button · HelpButton 의 `size="2xs"` 를 없앴다. 누르는 것은 xs 24, 뱃지 · 트랙은 `--badge-height` · `--size-20`.
 
 **떠 있는 단추** — 이미지 뷰어 · 배너 넘김처럼 화면 위에 떠 있는 원형 단추. 한 줄에 나란히 놓이지 않으므로

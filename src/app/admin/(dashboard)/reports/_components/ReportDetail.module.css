@@ -48,13 +48,6 @@
   overflow-wrap: anywhere;
 }
 
-.deletedBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-secondary);
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-}
 
 /* 신고된 댓글 전문 — 목록에서는 한 줄로 잘린다. 남의 글이므로 인용부호를 붙이고,
    부호는 글자 흐름 밖(absolute)에 둬서 여러 줄일 때 들여쓰기가 어긋나지 않게 한다. */
@@ -103,29 +96,4 @@
   margin: 0;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
-}
-
-.statusChip {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  line-height: 1;
-}
-
-/* 처리 대기는 결정이 필요하다는 뜻이라 알림의 "처리 필요" 와 같은 warning 을 쓴다. */
-.status_pending {
-  background: var(--bg-warning-soft);
-  color: var(--text-warning-strong);
-}
-
-.status_resolved {
-  background: var(--bg-success-soft);
-  color: var(--text-success-strong);
-}
-
-.status_dismissed {
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
 }

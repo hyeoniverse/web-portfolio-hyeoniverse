@@ -29,6 +29,7 @@ import BoldMarks from "@/components/ui/BoldMarks";
 import shared from "../Settings.module.css";
 import own from "./TagDescriptionsEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import Badge from "@/components/ui/Badge";
 
 const styles = { ...shared, ...own };
 
@@ -73,7 +74,7 @@ function PostMeta({ p }: { p: PostMetaInfo }) {
   const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!p.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
+      {!p.published && <Badge tone="warning" uppercase>{t("admin.posts.draft")}</Badge>}
       {dateStr && <span>{dateStr}</span>}
       {typeof p.view_count === "number" && p.view_count > 0 && <span>{fillTemplate(t("admin.settings.taxonomy.views"), { n: p.view_count })}</span>}
     </span>

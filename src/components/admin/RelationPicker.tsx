@@ -11,6 +11,7 @@ import MediaThumb from "@/components/ui/MediaThumb";
 import styles from "./RelationPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { usePopoverRef } from "@/hooks/useTopLayer";
+import Badge from "@/components/ui/Badge";
 
 interface RelationPickerProps<T> {
   /** 선택 가능한 전체 항목 */
@@ -248,7 +249,7 @@ export default function RelationPicker<T>({
                     <span className={styles.optionTitle}>
                       <span className={styles.optionTitleText}>{getTitle(it)}</span>
                       {status === "draft" && (
-                        <span className={styles.statusDraft}>Draft</span>
+                        <Badge tone="warning">Draft</Badge>
                       )}
                     </span>
                     {getMeta && (
@@ -370,7 +371,7 @@ export default function RelationPicker<T>({
                   <span className={styles.chipLabel}>
                     <span className={styles.chipLabelText}>{getTitle(it)}</span>
                     {status === "draft" && (
-                      <span className={styles.statusDraft}>Draft</span>
+                      <Badge tone="warning">Draft</Badge>
                     )}
                   </span>
                   <CloseButton

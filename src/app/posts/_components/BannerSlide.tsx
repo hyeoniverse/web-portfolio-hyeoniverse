@@ -11,6 +11,7 @@ import CategoryLabel from "@/components/ui/CategoryLabel";
 import T from "@/components/ui/T";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./BannerSlide.module.css";
+import Badge from "@/components/ui/Badge";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
 
@@ -112,7 +113,7 @@ export default function BannerSlide({
           {(post.category || showLangHint) && (
             <span className={styles.badgeRow}>
               {post.category && (
-                <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
+                <Badge variant="outline" tone="white" size="md" uppercase className={styles.categoryBadge}><CategoryLabel category={post.category} /></Badge>
               )}
               {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
               {showLangHint && (

@@ -9,6 +9,7 @@ import { ImageIcon } from "@/components/icons";
 import type { SeriesPreview } from "./useSeriesPanel";
 import styles from "./SeriesPreviewTooltip.module.css";
 import { usePopoverRef } from "@/hooks/useTopLayer";
+import Badge from "@/components/ui/Badge";
 
 /* 시리즈 목록 항목 hover 미리보기 — position: fixed 툴팁(좌표는 useSeriesPanel 이 계산).
    DetailLayout 안의 transform 컨테이너에 갇히지 않도록 PostDetailClient 가 레이아웃 밖에서 렌더한다. */
@@ -59,7 +60,7 @@ export default function SeriesPreviewTooltip({ preview, viewLang }: { preview: S
         {preview.post.tags && preview.post.tags.length > 0 && (
           <div className={styles.seriesPreviewTags}>
             {preview.post.tags.slice(0, 4).map((tag) => (
-              <span key={tag} className={styles.seriesPreviewTag}><SiteText text={tag} /></span>
+              <Badge key={tag}><SiteText text={tag} /></Badge>
             ))}
           </div>
         )}

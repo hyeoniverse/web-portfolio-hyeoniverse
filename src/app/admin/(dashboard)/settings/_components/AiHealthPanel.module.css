@@ -143,33 +143,10 @@
   display: inline-flex;
 }
 
-.status {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  font: var(--font-label-sm);
-  line-height: 1;
-  white-space: nowrap;
-}
 
-.status[data-state="ok"] {
-  background: var(--bg-success-soft);
-  color: var(--bg-success-solid);
-}
 
-.status[data-state="failing"] {
-  background: var(--bg-warning-soft);
-  color: var(--text-warning-strong);
-}
 
-.status[data-state="off"] {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
 
-.status[data-state="nokey"] {
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-}
 
 /* 단추 네 칸(⏻ · 기록 · 콘솔 · ›)을 같은 폭의 칸에 — 없는 단추는 빈 칸으로 채워 줄마다 같은 자리 */
 .actions {
