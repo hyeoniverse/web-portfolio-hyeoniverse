@@ -74,6 +74,43 @@
   background: var(--border-color-light);
 }
 
+.viewCount {
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* 조회수 자리 — 좁은 화면은 언어 전환 줄 왼쪽 끝(남는 폭을 차지하는 첫 칸), 넓은 화면은 배지 뒤 구분선 다음 */
+.viewCountWide {
+  display: none;
+}
+
+.metaRight:has(.viewCountNarrow) {
+  grid-template-columns: 1fr;
+}
+
+.viewCountNarrow {
+  grid-column: 1;
+  justify-self: start;
+}
+
+@media (width > 768px) {
+  .viewCountWide {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-20);
+  }
+
+  .viewCountNarrow {
+    display: none;
+  }
+
+  .metaRight:has(.viewCountNarrow) {
+    grid-template-columns: none;
+  }
+}
+
 .projectNumber {  font: var(--font-body-sm);
 
   font-variant-numeric: tabular-nums;
