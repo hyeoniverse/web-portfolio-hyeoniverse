@@ -81,14 +81,21 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
 
   // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
-  const [notifPos, setNotifPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+  /* right — 창의 오른쪽 끝(화면 오른쪽에서), arrow — 화살표의 오른쪽 끝(창 오른쪽에서) */
+  const [notifPos, setNotifPos] = useState<{ top: number; right: number; arrow: number }>({ top: 0, right: 0, arrow: 32 });
 
   const updateNotifPos = useCallback(() => {
     const el = notifWrapRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    // 트리거 우측 정렬 — top: trigger bottom + 8gap, right: viewport - trigger right
-    setNotifPos({ top: rect.bottom + 8, right: Math.max(8, window.innerWidth - rect.right) });
+    const gap = window.innerWidth - rect.right;
+    /* 창은 종 오른쪽 끝에서 24px 더 오른쪽으로 내민다. 좁은 화면에서는 종이 가운데쯤이라 폭 320 이면 왼쪽이 화면 밖으로
+       나갔다 — 창이 화면 안(좌우 8px)에 들어오게 당기고, 화살표는 창 안에서 옮겨 계속 종 가운데를 가리킨다.
+       폭은 CSS(.notifDropdown)와 같은 값: min(320, 100vw - 32) */
+    const width = Math.min(320, window.innerWidth - 32);
+    const right = Math.min(Math.max(8, gap - 24), window.innerWidth - width - 8);
+    const bellCenter = gap + rect.width / 2;
+    setNotifPos({ top: rect.bottom + 8, right, arrow: Math.round(bellCenter - right - 6) });
   }, []);
 
   useLayoutEffect(() => {

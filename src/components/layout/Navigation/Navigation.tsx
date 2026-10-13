@@ -866,7 +866,7 @@ export default function Navigation() {
                 className={styles.notifDropdown}
                 role="dialog"
                 aria-label={t("navMenu.ui.notifications")}
-                style={{ top: notifPos.top, right: notifPos.right - 24, transformOrigin: "top right" }}
+                style={{ top: notifPos.top, right: notifPos.right, transformOrigin: "top right", "--_arrow-right": `${notifPos.arrow}px` } as React.CSSProperties}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
@@ -941,13 +941,16 @@ export default function Navigation() {
           document.body,
         )}
         {/* 관리 화면으로 — 로그아웃 왼쪽. 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
-            이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다) */}
+            이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다).
+            좁은 화면은 자리가 모자라 감춘다 — 메뉴 서랍에 같은 곳으로 가는 Admin 이 있다 */}
         {!isAdminPage && adminHref && (
-          <Tooltip content={t("navMenu.ui.admin")} delay={200} placement="bottom">
-            <Link href={adminHref} className={styles.actionBtn} aria-label={t("navMenu.ui.admin")}>
-              <Settings size={18} strokeWidth={1.5} />
-            </Link>
-          </Tooltip>
+          <span className={styles.navAdminLink}>
+            <Tooltip content={t("navMenu.ui.admin")} delay={200} placement="bottom">
+              <Link href={adminHref} className={styles.actionBtn} aria-label={t("navMenu.ui.admin")}>
+                <Settings size={18} strokeWidth={1.5} />
+              </Link>
+            </Tooltip>
+          </span>
         )}
 
         {adminEmail ? (

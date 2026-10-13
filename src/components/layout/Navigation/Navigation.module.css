@@ -531,6 +531,17 @@
   }
 }
 
+/* 관리 화면으로(⚙) — 좁은 화면은 감춘다. 메뉴 서랍에 Admin 링크가 있다 */
+.navAdminLink {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navAdminLink {
+    display: contents;
+  }
+}
+
 .siteLangBtn:hover {
   color: var(--text-accent-alt);
 }
@@ -1393,7 +1404,8 @@
   position: absolute;
   /* tip 이 dropdown top edge(y=0) 에 닿도록 — 12*sqrt(2)/2 ≈ 8.5, 그래서 top: -8 + 1.5 보정 = -6 근처 */
   top: -6px;
-  right: 32px;
+  /* 종 가운데를 가리키는 자리 — useNavNotifications 가 창이 화면 안으로 당겨진 만큼 옮겨 준다 */
+  right: var(--_arrow-right);
   width: 12px;
   height: 12px;
   background: var(--bg-primary);
