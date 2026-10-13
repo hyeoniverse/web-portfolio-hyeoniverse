@@ -25,11 +25,12 @@ export function pickVoice(voices: readonly SpeechSynthesisVoice[], lang: string)
   return [...same].sort((a, b) => score(b) - score(a))[0] ?? null;
 }
 
-/** 문장 단위로 나눈다 — 한 조각이 max 자를 넘지 않게. 끊을 자리가 없으면 쉼표·빈칸에서 끊는다 */
+/** 문장 단위로 나눈다 — 한 조각이 max 자를 넘지 않게. 끊을 자리가 없으면 쉼표·빈칸에서 끊는다.
+    줄바꿈은 늘 끊는 자리다 — 마침표 없는 제목 · 소제목이 다음 문장에 붙어 읽히지 않게, 빈칸을 합치기 전에 줄부터 나눈다 */
 export function splitForSpeech(text: string, max = 160): string[] {
   const sentences = text
-    .replace(/\s+/g, " ")
-    .split(/(?<=[.!?。？！…]|다\.|요\.)\s+|\n+/)
+    .split(/\n+/)
+    .flatMap((line) => line.replace(/\s+/g, " ").split(/(?<=[.!?。？！…]|다\.|요\.)\s+/))
     .map((s) => s.trim())
     .filter(Boolean);
   const out: string[] = [];
@@ -56,16 +57,29 @@ function speechTimeoutMs(text: string): number {
   return 3000 + text.length * 250;
 }
 
+/* 크롬은 cancel 을 늦게 처리한다. 끊은 직후 바로 넣은 발화가 같이 끊기거나, 읽지도 않았는데 end 를 받아
+   "다 읽었다"로 넘어간다 — 이전 · 다음을 누르면 여러 조각을 건너뛰거나 제자리로 돌아왔다(짧은 조각일수록 잘 났다).
+   끊은 시각을 남겨 두고, 그 뒤 잠깐은 새 발화를 넣지 않는다 */
+const CANCEL_SETTLE_MS = 80;
+let lastCancelAt = -Infinity;
+
+function cancelSpeech(synth: SpeechSynthesis): void {
+  synth.cancel();
+  lastCancelAt = performance.now();
+}
+
 /**
  * 대본을 읽는다. 다 읽으면 onEnd(읽기가 끝나지 않아도 speechTimeoutMs 뒤에는 부른다).
  * 돌려받은 함수를 부르면 멈춘다(그때는 onEnd 를 부르지 않는다).
+ * 일시정지는 따로 두지 않는다 — Android 는 speechSynthesis.pause 를 멈춤(cancel)으로 처리해 이어 읽을 수 없다.
+ * 이어 읽어야 하는 쪽은 멈췄다가 남은 부분부터 다시 부른다. rate 는 읽는 빠르기(1 = 보통).
  * 음성 합성이 없는 브라우저면 null — 부르는 쪽이 다른 방법(잠시 멈춤)으로 넘어간다.
  * 사람이 페이지를 한 번도 누르지 않아 브라우저가 막으면 onBlocked(onEnd 는 부르지 않는다) — 막힌 채로
  * 두면 읽지도 않은 장이 시간이 차서 넘어간다.
  * onChunk 는 조각(문장)을 읽기 시작할 때마다 그 조각과 순번으로 부른다 — 자막을 읽는 자리에 맞춰 띄운다.
  * lang 은 읽을 말로 바꾸기 전의 표기로 정해 넘긴다 — 없으면 text 로 정한다.
  */
-export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void, lang: SpeechLang = speechLangOf(text)): (() => void) | null {
+export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void, lang: SpeechLang = speechLangOf(text), rate = 1): (() => void) | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const synth = window.speechSynthesis;
   const voice = pickVoice(synth.getVoices(), lang);
@@ -78,25 +92,46 @@ export function speak(text: string, onEnd: () => void, onBlocked?: () => void, o
     window.clearTimeout(guard);
     onEnd();
   };
-  const guard = window.setTimeout(finish, speechTimeoutMs(text));
-  synth.cancel();
-  chunks.forEach((chunk, i) => {
-    const u = new SpeechSynthesisUtterance(chunk);
-    u.lang = lang;
-    if (voice) u.voice = voice;
-    if (onChunk) u.onstart = () => { if (!stopped) onChunk(chunk, i); };
-    if (i === chunks.length - 1) u.onend = finish;
-    u.onerror = (e) => {
-      if (e.error !== "not-allowed" || stopped || finished) return;
-      stopped = true;
-      window.clearTimeout(guard);
-      synth.cancel();
-      onBlocked?.();
-    };
-    synth.speak(u);
-  });
+  const guard = window.setTimeout(finish, speechTimeoutMs(text) / Math.min(1, rate));
+  /* 읽던 게 있을 때만 끊는다 */
+  if (synth.speaking || synth.pending) cancelSpeech(synth);
+  const queue = () => {
+    queueTimer = 0;
+    if (stopped) return;
+    chunks.forEach((chunk, i) => {
+      const u = new SpeechSynthesisUtterance(chunk);
+      const last = i === chunks.length - 1;
+      /* 실제로 읽기 시작한 마지막 조각의 end 만 끝으로 친다 — 끊겨 버려진 발화도 end 를 받는다 */
+      let started = false;
+      u.lang = lang;
+      u.rate = rate;
+      if (voice) u.voice = voice;
+      u.onstart = () => {
+        started = true;
+        if (onChunk && !stopped) onChunk(chunk, i);
+      };
+      if (last) u.onend = () => { if (started) finish(); };
+      u.onerror = (e) => {
+        if (e.error !== "not-allowed" || stopped || finished) return;
+        stopped = true;
+        window.clearTimeout(guard);
+        cancelSpeech(synth);
+        onBlocked?.();
+      };
+      synth.speak(u);
+    });
+  };
+  /* 방금 끊었으면(이 호출이든 앞서 멈춘 쪽이든) 크롬이 끊기를 마칠 때까지 기다렸다 넣는다 */
+  const settle = CANCEL_SETTLE_MS - (performance.now() - lastCancelAt);
+  let queueTimer = chunks.length > 0 && settle > 0 ? window.setTimeout(queue, settle) : 0;
   if (chunks.length === 0) finish();
-  return () => { stopped = true; window.clearTimeout(guard); synth.cancel(); };
+  else if (!queueTimer) queue();
+  return () => {
+    stopped = true;
+    window.clearTimeout(guard);
+    window.clearTimeout(queueTimer);
+    cancelSpeech(synth);
+  };
 }
 
 /** 목소리 목록은 늦게 온다 — 미리 한 번 불러 두면 첫 재생 때 기본 목소리로 읽는 일이 준다 */

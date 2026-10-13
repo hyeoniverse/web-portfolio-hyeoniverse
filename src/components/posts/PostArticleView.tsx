@@ -18,6 +18,7 @@ import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ShareButton from "@/components/ui/ShareButton";
+import ListenButton from "@/components/ui/ListenButton";
 import Button from "@/components/ui/Button";
 import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
@@ -113,7 +114,7 @@ export function PostArticleHeader({
   return (
     <>
       <div className={header.metaRow}>
-        <div className={header.meta}>
+        <div className={header.meta} data-listen="meta">
           <span>{date}</span>
           <span className={header.dot}>&middot;</span>
           <span>{readTime} <UiLabel name="postMinRead" /></span>
@@ -150,7 +151,7 @@ export function PostArticleHeader({
             </>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className={header.metaActions}>
           {headerActionsLeft}
           {data.githubUrl && (
             <Button variant="outline" href={data.githubUrl} external>
@@ -159,13 +160,14 @@ export function PostArticleHeader({
             </Button>
           )}
           <ShareButton />
+          <ListenButton className={header.metaListen} title={data.displayTitle} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </div>
       <TranslatingRegion active={!!translating}>
-        <h1 className={header.articleTitle}>{data.displayTitle}</h1>
-        {data.displayExcerpt && <p className={header.excerpt}>{data.displayExcerpt}</p>}
+        <h1 className={header.articleTitle} data-listen="title">{data.displayTitle}</h1>
+        {data.displayExcerpt && <p className={header.excerpt} data-listen="summary">{data.displayExcerpt}</p>}
       </TranslatingRegion>
       <div className={header.tagsShareRow}>
         {data.tags.length > 0 && (
