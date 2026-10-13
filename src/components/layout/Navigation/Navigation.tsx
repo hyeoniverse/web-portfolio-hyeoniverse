@@ -751,7 +751,7 @@ export default function Navigation() {
 
       <div className={styles.navActions}>
         {/* 사이트를 다른 언어로 보기(🌐) — 사이트 설정에서 번역을 껐으면 숨긴다.
-            좁은 화면은 자리가 모자라 KO/EN 만 두고, 🌐 는 메뉴 서랍 아래(MobileMenu)로 옮긴다 */}
+            좁은 화면은 자리가 모자라 KO/EN 만 두고, 🌐 는 메뉴 서랍 좌상단(MobileMenu)으로 옮긴다 */}
         {siteConfig.translation?.enabled !== false && (
           <span className={styles.navSiteLang}><SiteLangMenu /></span>
         )}

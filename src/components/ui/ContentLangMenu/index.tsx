@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Languages, Check, Search } from "@/components/icons";
+import { Globe, Check, Search } from "@/components/icons";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
@@ -28,8 +28,6 @@ interface ContentLangMenuProps {
   labels?: { open: string; off: string };
   /** 말풍선 위치 — 내비게이션은 아래 */
   tooltipPlacement?: "top" | "bottom";
-  /** 아이콘 옆에 이름(열기 · 끄기 문구)도 보인다 — 메뉴 서랍처럼 아이콘만으로는 뜻이 안 보이는 자리 */
-  showLabel?: boolean;
 }
 
 /**
@@ -46,7 +44,6 @@ export default function ContentLangMenu({
   codeClassName,
   labels,
   tooltipPlacement = "top",
-  showLabel = false,
 }: ContentLangMenuProps) {
   const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -93,8 +90,8 @@ export default function ContentLangMenu({
             aria-pressed={value ? true : undefined}
             aria-busy={busy || undefined}
           >
-            <Languages size={14} />
-            {showLabel && <span>{label}</span>}
+            {/* 지구본 — 문자 모양(文A)은 "번역하기" 동작으로 읽혀, 언어를 고르는 자리는 지구본으로 */}
+            <Globe size={14} />
             {value && (busy
               ? <LoadingDots className={styles.triggerBusy} />
               : <span className={cn(styles.triggerCode, codeClassName)}>{value}</span>)}

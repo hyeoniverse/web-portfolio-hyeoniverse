@@ -520,7 +520,7 @@
   gap: var(--spacing-4);
 }
 
-/* 내비게이션의 🌐 자리 — 좁은 화면은 KO/EN 만 두고 감춘다(메뉴 서랍 아래로 옮긴다). 넓은 화면은 자리를 만들지 않는 껍데기 */
+/* 내비게이션의 🌐 자리 — 좁은 화면은 KO/EN 만 두고 감춘다(메뉴 서랍 좌상단으로 옮긴다). 넓은 화면은 자리를 만들지 않는 껍데기 */
 .navSiteLang {
   display: none;
 }
@@ -913,6 +913,15 @@
   padding: var(--spacing-40) var(--spacing-32);
 }
 
+/* 서랍 좌상단 🌐 — 네비의 닫기 단추와 같은 높이, 좌우는 마주 보게. 모양은 네비 단추(actionBtn).
+   오른쪽 단추 묶음(.navActions)처럼 아이콘 끝이 페이지 가장자리에 오도록 같은 만큼 바깥으로 당긴다 */
+.menuSiteLangSlot {
+  position: absolute;
+  top: var(--spacing-nav-top);
+  left: calc(var(--spacing-page-inline) + (var(--size-32) - 12px) / -2);
+  display: flex;
+}
+
 .menuLogo {
   font: var(--font-headline-lg);
   color: var(--text-white);
@@ -929,17 +938,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
-}
-
-/* 서랍 아래 "다른 언어로 보기" — 페이지 목록(큰 글씨)과 섞지 않는 작은 줄. 번역 중이면 "원문으로 보기" + 언어 코드 */
-.menuSiteLang {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  align-self: flex-start;
-  margin-bottom: var(--spacing-8);
-  font: var(--font-label-md);
-  color: var(--text-white-muted);
 }
 
 .menuFooterLabel {
