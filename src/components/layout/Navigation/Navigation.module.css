@@ -1386,42 +1386,16 @@
 
 /* ── Notification dropdown — 말풍선 모양 (외부 wrapper 는 overflow visible 로 pointer 노출,
    내부 content 가 overflow hidden 으로 둥근 모서리 처리) ── */
+/* 알림 창 — 공용 Popover(solid · 꼬리)의 내용 폭. 자리 · 테두리 · 그림자 · 꼬리 · 터치 기기 시트는 Popover 가 맡는다 */
 .notifDropdown {
-  position: fixed;
-  /* top/right 은 inline style 로 trigger getBoundingClientRect 결과 적용 */
   width: 320px;
   max-width: calc(100vw - 32px);
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-overlay);
-  /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
-  overflow: visible;
 }
 
-/* 내부 컨텐츠 — 둥근 모서리 안쪽으로 자식들이 clip 되도록 */
+/* 내부 컨텐츠 — 둥근 모서리 안쪽으로 자식들이 clip 되도록(꼬리 때문에 패널은 overflow visible) */
 .notifDropdownInner {
   border-radius: inherit;
   overflow: hidden;
-}
-
-/* 말풍선 화살표 — Bell 방향(우상단) 으로 향하는 작은 삼각형, dropdown 위로 노출 */
-/* 말풍선 화살표 — V edges 의 좌/우 tip 이 dropdown top border 와 정확히 만나도록 정렬.
-   pointer 의 body 가 두 tip 사이의 dropdown border 를 자연스럽게 가려서 연속된 윤곽 형성. */
-.notifDropdown::before {
-  content: "";
-  position: absolute;
-  /* tip 이 dropdown top edge(y=0) 에 닿도록 — 12*sqrt(2)/2 ≈ 8.5, 그래서 top: -8 + 1.5 보정 = -6 근처 */
-  top: -6px;
-  /* 종 가운데를 가리키는 자리 — useNavNotifications 가 창이 화면 안으로 당겨진 만큼 옮겨 준다 */
-  right: var(--_arrow-right);
-  width: 12px;
-  height: 12px;
-  background: var(--bg-primary);
-  border-top: var(--border-light);
-  border-left: var(--border-light);
-  transform: rotate(45deg);
-  z-index: 1;
 }
 
 .notifDropdownHeader {

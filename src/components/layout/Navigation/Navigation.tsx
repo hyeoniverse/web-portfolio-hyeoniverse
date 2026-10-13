@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { Point } from "@/types";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
@@ -35,6 +34,7 @@ import {
 // Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 import Button from "@/components/ui/Button";
+import Popover from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
@@ -57,7 +57,6 @@ import { adminEntryHref, canOpenAdminPage, visibleAdminItems } from "@/lib/admin
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
-import { usePopoverRef } from "@/hooks/useTopLayer";
 import { keepOnTop } from "@/lib/topLayer";
 import Badge from "@/components/ui/Badge";
 
@@ -246,7 +245,7 @@ export default function Navigation() {
   const {
     adminEmail, unreadCount, notifs,
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
-    notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
+    fetchNotifs,
   } = useNavNotifications(pathname, canSeeNotifications);
   /* 알림 제목 · 본문은 서버가 만든 정해진 글 — 다른 언어로 볼 때 드롭다운을 열면 번역한다 */
   const ts = useAdminTexts(useMemo(
@@ -288,7 +287,6 @@ export default function Navigation() {
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   /* 알림 드롭다운 — top layer(3.10-1) */
-  const notifDropdownPop = usePopoverRef<HTMLDivElement>(notifDropdownRef);
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   // 서브메뉴(드롭다운)에서 hover 중인 항목 — 이게 있으면 ▶ 가 그 항목으로 이동하고 메인 인디케이터는 숨는다
@@ -832,51 +830,48 @@ export default function Navigation() {
         {isAdminPage && adminEmail && (
           <span className={styles.adminEmail}>{adminEmail}</span>
         )}
+        {/* 알림 — 공용 Popover: 넓은 화면은 종 아래 말풍선(꼬리가 종을 가리킨다), 터치 기기는 아래 시트.
+            위치 · 화면 안으로 당기기 · 바깥 클릭 · Esc 닫기를 Popover 가 맡는다. 포털이라 nav 의 blend 와 격리된다 */}
         {adminEmail && canSeeNotifications && (
-          <Tooltip
-            content={unreadCount > 0
-              ? fillTemplate(t("navMenu.ui.unread"), { n: unreadCount })
-              : t("navMenu.ui.notifications")}
-            placement="bottom"
-            delay={200}
-            disabled={notifOpen}
-          >
-            <Pressable noTapScale
-              ref={notifWrapRef}
-              className={`${styles.actionBtn} ${styles.notifBtn}`}
-              aria-label={t("navMenu.ui.notifications")}
-              aria-expanded={notifOpen}
-              aria-haspopup="dialog"
-              onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifs(); }}
-            >
-              <Bell size={16} strokeWidth={1.8} />
-              {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
-            </Pressable>
-          </Tooltip>
-        )}
-
-        {/* Notification dropdown — createPortal 로 body 에 렌더 (nav 의 mix-blend-mode + z-index 격리) */}
-        {adminEmail && canSeeNotifications && typeof window !== "undefined" && createPortal(
-          <AnimatePresence>
-            {notifOpen && (
-              <motion.div
-                ref={notifDropdownPop}
-                popover="manual"
-                key="notif-dropdown"
-                className={styles.notifDropdown}
-                role="dialog"
-                aria-label={t("navMenu.ui.notifications")}
-                style={{ top: notifPos.top, right: notifPos.right, transformOrigin: "top right", "--_arrow-right": `${notifPos.arrow}px` } as React.CSSProperties}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+          <Popover
+            open={notifOpen}
+            onOpenChange={(o) => { setNotifOpen(o); if (o) fetchNotifs(); }}
+            placement="bottom-end"
+            offset={8}
+            variant="solid"
+            arrow
+            sheetTitle={t("navMenu.ui.notifications")}
+            contentClassName={styles.notifDropdown}
+            trigger={
+              <Tooltip
+                content={unreadCount > 0
+                  ? fillTemplate(t("navMenu.ui.unread"), { n: unreadCount })
+                  : t("navMenu.ui.notifications")}
+                placement="bottom"
+                delay={200}
+                disabled={notifOpen}
               >
-                <div className={styles.notifDropdownInner}>
+                <Pressable noTapScale
+                  className={`${styles.actionBtn} ${styles.notifBtn}`}
+                  aria-label={t("navMenu.ui.notifications")}
+                  aria-expanded={notifOpen}
+                  aria-haspopup="dialog"
+                >
+                  <Bell size={16} strokeWidth={1.8} />
+                  {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
+                </Pressable>
+              </Tooltip>
+            }
+          >
+            {({ close, isSheet }) => (
+              <div className={styles.notifDropdownInner}>
                   <div className={styles.notifDropdownHeader}>
-                    <span className={styles.notifDropdownTitle}>
-                      {t("navMenu.ui.notifications")}
-                    </span>
+                    {/* 시트는 제 머리에 제목을 그린다(sheetTitle) — 두 번 뜨지 않게 */}
+                    {!isSheet && (
+                      <span className={styles.notifDropdownTitle}>
+                        {t("navMenu.ui.notifications")}
+                      </span>
+                    )}
                     {unreadCount > 0 && (
                       <span className={styles.notifDropdownBadge}>
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -885,7 +880,7 @@ export default function Navigation() {
                     <Link
                       href="/admin/notifications"
                       className={styles.notifDropdownViewAll}
-                      onClick={() => setNotifOpen(false)}
+                      onClick={close}
                     >
                       <span>{t("navMenu.ui.viewAll")}</span>
                       <ArrowRight size={12} strokeWidth={2} className={styles.notifDropdownViewAllArrow} aria-hidden />
@@ -899,7 +894,7 @@ export default function Navigation() {
                     <ul className={styles.notifDropdownList} data-lenis-prevent>
                       {notifs.slice(0, 5).map((n) => (
                         <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
-                          {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
+                          {renderNotifItem(n, language, now, close, t("navMenu.ui.actionNeeded"), ts)}
                         </li>
                       ))}
                       {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
@@ -918,7 +913,7 @@ export default function Navigation() {
                             }}
                             style={{ overflow: "hidden" }}
                           >
-                            {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
+                            {renderNotifItem(n, language, now, close, t("navMenu.ui.actionNeeded"), ts)}
                           </motion.li>
                         ))}
                       </AnimatePresence>
@@ -935,10 +930,8 @@ export default function Navigation() {
                     </Pressable>
                   )}
                 </div>
-              </motion.div>
             )}
-          </AnimatePresence>,
-          document.body,
+          </Popover>
         )}
         {/* 관리 화면으로 — 로그아웃 왼쪽. 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
             이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다).

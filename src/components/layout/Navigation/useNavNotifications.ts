@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 /* 로그인 여부를 알아야 알림을 받아 온다. Supabase 클라이언트는 첫 화면에 필요하지 않아
    실제로 쓸 때 불러온다. */
 const loadSupabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
-/** 네비게이션 알림 버튼이 쓰는 값. 목록·읽지 않은 수·드롭다운 열림 상태와 그 위치. */
+/** 네비게이션 알림 버튼이 쓰는 값. 목록·읽지 않은 수·드롭다운 열림 상태. */
 export type NavNotif = {
   id: string; type: string; title: string; message: string;
   metadata: Record<string, string>; read: boolean; created_at: string;
@@ -16,9 +16,8 @@ export type NavNotif = {
 /**
  * 네비게이션의 알림 영역.
  *
- * 로그인한 사람이 있으면 60초마다 알림을 다시 받아 오고, 드롭다운의 열림·위치·바깥 클릭
- * 닫기를 함께 다룬다. Navigation 본체에 상태 여섯 개와 처리 일곱 개가 이 목적으로만
- * 들어 있었다.
+ * 로그인한 사람이 있으면 60초마다 알림을 다시 받아 오고, 드롭다운의 열림 상태를 든다.
+ * 위치 · 바깥 클릭 · Esc 닫기 · 터치 기기의 아래 시트는 공용 Popover 가 맡는다.
  *
  * @param pathname 페이지가 바뀌면 드롭다운을 닫는다.
  * @param enabled 알림을 볼 수 있는 권한인가(관리자 이상, #883). 아니면 받아 오지 않는다.
@@ -53,7 +52,6 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
   const [notifOpen, setNotifOpen] = useState(false);
   // 한 번 +5 펼치고 접을 수 있는 toggle (option B) — 5 ↔ 10
   const [notifExpanded, setNotifExpanded] = useState(false);
-  const notifWrapRef = useRef<HTMLButtonElement | null>(null);
 
   // 드롭다운 닫힐 때 expanded 리셋
   const notifOpenChanged = useDepsChanged([notifOpen]);
@@ -79,61 +77,6 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
     return () => { window.clearInterval(id); };
   }, [adminEmail, enabled, fetchNotifs]);
 
-  // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
-  const notifDropdownRef = useRef<HTMLDivElement | null>(null);
-  /* right — 창의 오른쪽 끝(화면 오른쪽에서), arrow — 화살표의 오른쪽 끝(창 오른쪽에서) */
-  const [notifPos, setNotifPos] = useState<{ top: number; right: number; arrow: number }>({ top: 0, right: 0, arrow: 32 });
-
-  const updateNotifPos = useCallback(() => {
-    const el = notifWrapRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const gap = window.innerWidth - rect.right;
-    /* 창은 종 오른쪽 끝에서 24px 더 오른쪽으로 내민다. 좁은 화면에서는 종이 가운데쯤이라 폭 320 이면 왼쪽이 화면 밖으로
-       나갔다 — 창이 화면 안(좌우 8px)에 들어오게 당기고, 화살표는 창 안에서 옮겨 계속 종 가운데를 가리킨다.
-       폭은 CSS(.notifDropdown)와 같은 값: min(320, 100vw - 32) */
-    const width = Math.min(320, window.innerWidth - 32);
-    const right = Math.min(Math.max(8, gap - 24), window.innerWidth - width - 8);
-    const bellCenter = gap + rect.width / 2;
-    setNotifPos({ top: rect.bottom + 8, right, arrow: Math.round(bellCenter - right - 6) });
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!notifOpen) return;
-    updateNotifPos();
-  }, [notifOpen, updateNotifPos]);
-
-  useEffect(() => {
-    if (!notifOpen) return;
-    const onUpdate = () => updateNotifPos();
-    window.addEventListener("scroll", onUpdate, true);
-    window.addEventListener("resize", onUpdate);
-    return () => {
-      window.removeEventListener("scroll", onUpdate, true);
-      window.removeEventListener("resize", onUpdate);
-    };
-  }, [notifOpen, updateNotifPos]);
-
-  // 드롭다운 외부 클릭 / Escape 시 닫기 — trigger + portal dropdown 둘 다 확인
-  useEffect(() => {
-    if (!notifOpen) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const trigger = notifWrapRef.current;
-      const dropdown = notifDropdownRef.current;
-      const target = e.target as Node;
-      if (trigger?.contains(target)) return;
-      if (dropdown?.contains(target)) return;
-      setNotifOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNotifOpen(false); };
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [notifOpen]);
-
   // pathname 변경 시 드롭다운 닫기 + refetch (알림 페이지에서 읽음 처리됐을 수 있음)
   const pathnameChanged = useDepsChanged([pathname]);
   if (pathnameChanged) setNotifOpen(false);
@@ -146,9 +89,6 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
     setNotifOpen,
     notifExpanded,
     setNotifExpanded,
-    notifWrapRef,
-    notifDropdownRef,
-    notifPos,
     fetchNotifs,
   };
 }
