@@ -7,6 +7,7 @@ import { MessageSquare } from "@/components/icons";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
 import { stripMarkdown } from "@/utils/stripMarkdown";
+import Badge from "@/components/ui/Badge";
 
 interface RecentComment {
   id: string;
@@ -58,7 +59,7 @@ export default function RecentComments() {
               <div className={styles.itemTop}>
                 <span className={styles.nickname}>
                   {c.nickname}
-                  {c.is_admin && <span className={styles.adminBadge}>Admin</span>}
+                  {c.is_admin && <Badge tone="accent">Admin</Badge>}
                 </span>
                 <span className={styles.time}>{timeAgo(c.created_at, t)}</span>
               </div>

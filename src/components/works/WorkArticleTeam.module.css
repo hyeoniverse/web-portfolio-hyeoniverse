@@ -198,13 +198,6 @@
   list-style: none;
 }
 
-.polaroidBackRoleChip {
-  padding: var(--spacing-2) var(--spacing-8);
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  font: var(--font-label-xs);
-  color: var(--text-secondary);
-}
 
 .polaroidBackName {
   font: var(--font-headline-xs);

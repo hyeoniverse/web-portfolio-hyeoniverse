@@ -27,6 +27,7 @@ import { commentErrorText } from "./commentErrorText";
 import { tryRequest } from "@/lib/sendAction";
 import { CodedError, errorText } from "@/lib/apiError";
 import { showToast } from "@/stores/toastStore";
+import Badge from "@/components/ui/Badge";
 
 function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
@@ -498,7 +499,7 @@ function CommentItem({
         {/* 아바타는 거터로, 체크박스는 그 앞 열로 빠졌고, 여기엔 텍스트 메타만 — baseline 정렬 */}
         <div className={styles.headerMeta}>
           {comment.is_admin ? (
-            <span className={styles.adminBadge}>Admin</span>
+            <Badge tone="accent">Admin</Badge>
           ) : (
             <span className={styles.nickname}>{identity.name}</span>
           )}

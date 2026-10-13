@@ -104,13 +104,6 @@
   margin-bottom: var(--spacing-2);
 }
 
-.deletedBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-secondary);
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-}
 
 .commentBody {
   margin: 0;

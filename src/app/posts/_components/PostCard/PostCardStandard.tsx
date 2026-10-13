@@ -14,6 +14,7 @@ import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
 import PostCardLink from "./PostCardLink";
 import { HotBadge } from "./PostCardChips";
+import Badge from "@/components/ui/Badge";
 import styles from "./PostCard.module.css";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import Pressable from "@/components/ui/Pressable";
@@ -148,10 +149,7 @@ export default function PostCardStandard({
                     <HotBadge />
                   )}
                   {post.is_pinned && (
-                    <span className={styles.pinnedOverlay}>
-                      <Pin size={10} />
-                      Pinned
-                    </span>
+                    <Badge variant="overlay" uppercase icon={<Pin size={10} />} className={styles.pinnedOverlay}>Pinned</Badge>
                   )}
                 </div>
               )}
@@ -172,16 +170,13 @@ export default function PostCardStandard({
               <HotBadge />
             )}
             {post.is_pinned && (
-              <span className={styles.pinnedOverlay}>
-                <Pin size={10} />
-                Pinned
-              </span>
+              <Badge variant="overlay" uppercase icon={<Pin size={10} />} className={styles.pinnedOverlay}>Pinned</Badge>
             )}
           </div>
         )}
         {/* lang — 커버/placeholder 무관 imageWrap 우상단 고정 (hot·pinned 유무 상관없이) */}
         {langBadge && (
-          <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
+          <Badge variant="overlay" uppercase className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></Badge>
         )}
         {/* 페이지 이모지 — 커버 좌하단에 겹쳐(Notion·디테일 페이지와 동일 감성) */}
         {showImage && icon && (
@@ -193,7 +188,7 @@ export default function PostCardStandard({
         {/* category — cover/placeholder 무관 항상 body 에 표시. lang 은 이미지 위로 이동 */}
         {category && (
           <div className={styles.badgeRow}>
-            <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
+            <Badge variant="outline" tone="accent" uppercase><CategoryLabel category={category} /></Badge>
           </div>
         )}
 

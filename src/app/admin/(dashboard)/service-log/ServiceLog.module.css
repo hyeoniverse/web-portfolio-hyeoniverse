@@ -138,19 +138,8 @@
 /* 결과 — 성공(초록)·실패(강조색). 빨강은 쓰지 않는다 */
 .status {
   justify-self: start;
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
 }
 
-.status[data-ok] {
-  background: var(--bg-success-soft);
-  color: var(--bg-success-solid);
-}
 
 /* 메시지 — 한 줄로 두고 넘치면 말줄임. 전체는 줄을 눌러 본다 */
 .detail {

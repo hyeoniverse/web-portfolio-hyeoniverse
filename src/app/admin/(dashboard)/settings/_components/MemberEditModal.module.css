@@ -205,15 +205,7 @@
 
 /* 라벨 옆 입력 언어 배지 — 칸 안에 배지를 둘 수 없는 컨트롤(combobox)용. SettingsFormFields 의 배지와 같은 모양 */
 .labelLangBadge {
-  display: inline-flex;
-  align-items: center;
   margin-left: var(--spacing-4);
-  padding: 0 var(--spacing-4);
-  height: 16px;
-  border-radius: var(--radius-control);
-  background: var(--bg-tertiary);
-  font: var(--font-label-xs);
-  color: var(--text-secondary);
 }
 
 .jobCombo {

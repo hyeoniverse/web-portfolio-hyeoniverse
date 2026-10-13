@@ -202,16 +202,6 @@
   white-space: nowrap;
 }
 
-.currentTag {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--text-accent);
-  color: var(--bg-primary);
-  font: var(--font-label-xs);
-  letter-spacing: 0.04em;
-}
 
 /* 공통 Pagination 컴포넌트 wrapper — 위쪽 여백 + 버튼 사이즈 축소 (정렬 list 컴팩트 버전).
    Pagination 의 .paginationWrap 은 components 층이라 층 밖의 이 규칙이 이긴다. */

@@ -55,6 +55,8 @@ import TrafficChannels from "./_components/TrafficChannels";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { fillTemplate, formatDwell } from "@/utils/format";
 import { localizeReportReason } from "@/lib/reportReasons";
+import Badge from "@/components/ui/Badge";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 
 
 export default function AdminDashboard() {
@@ -403,8 +405,10 @@ export default function AdminDashboard() {
                     placement="top"
                     delay={200}
                   >
-                    <span
-                      className={`${styles.trendBadge} ${styles.trendBadgeLg} ${wow.direction === "up" ? styles.trendUp : styles.trendDown}`}
+                    <Badge
+                      tone={wow.direction === "up" ? "success" : "accent"}
+                      size="md"
+                      className={styles.trendBadgeLg}
                     >
                       {wow.direction === "up" ? (
                         <TrendingUp size={13} strokeWidth={2.5} />
@@ -412,7 +416,7 @@ export default function AdminDashboard() {
                         <TrendingDown size={13} strokeWidth={2.5} />
                       )}
                       {Math.abs(wow.pct)}%
-                    </span>
+                    </Badge>
                   </Tooltip>
                 )}
               </div>
@@ -566,17 +570,13 @@ export default function AdminDashboard() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span
-                        className={
-                          p.published ? styles.statusPub : styles.statusDraft
-                        }
-                      >
+                      <StatusBadge variant={p.published ? "published" : "draft"}>
                         {p.published ? (
                           <T k="admin.dashboard.published" />
                         ) : (
                           <T k="admin.dashboard.draft" />
                         )}
-                      </span>
+                      </StatusBadge>
                       <span className={styles.itemTitle}>{p.title}</span>
                       <span className={styles.itemDate}>
                         {fmtDate(p.updated_at)}
@@ -600,17 +600,13 @@ export default function AdminDashboard() {
               <List>
                 {data.works.recent.map((w) => (
                   <ListItem key={w.id}>
-                    <span
-                      className={
-                        w.published ? styles.statusPub : styles.statusDraft
-                      }
-                    >
+                    <StatusBadge variant={w.published ? "published" : "draft"}>
                       {w.published ? (
                         <T k="admin.dashboard.published" />
                       ) : (
                         <T k="admin.dashboard.draft" />
                       )}
-                    </span>
+                    </StatusBadge>
                     <Link
                       href={`/admin/works/${w.id}`}
                       className={styles.itemTitle}

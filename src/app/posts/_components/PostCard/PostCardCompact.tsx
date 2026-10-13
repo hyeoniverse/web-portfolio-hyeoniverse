@@ -30,8 +30,6 @@ export default function PostCardCompact({
     t, cardRef, date, readTime, showImage, category, author, langBadge,
     displayTitle, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
-  const chipClass = styles.compactChip;
-  const hotClass = `${styles.compactChip} ${styles.compactHotBadge}`;
 
   return (
     <div
@@ -61,10 +59,10 @@ export default function PostCardCompact({
         </span>
         <h2 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h2>
         <span className={styles.compactHotSlot}>
-          {isHot && <HotBadge size={15} className={hotClass} />}
+          {isHot && <HotBadge size={11} />}
         </span>
         <span className={styles.compactLangSlot}>
-          {langBadge && <LangChip badge={langBadge} className={chipClass} />}
+          {langBadge && <LangChip badge={langBadge} />}
         </span>
       </div>
       <div className={styles.compactMeta}>
@@ -80,8 +78,8 @@ export default function PostCardCompact({
           데스크톱은 둘 다 display:none. */}
       <div className={styles.compactChipsMobile}>
         {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
-        {isHot && <HotBadge size={15} className={hotClass} />}
-        {langBadge && <LangChip badge={langBadge} className={chipClass} />}
+        {isHot && <HotBadge size={11} />}
+        {langBadge && <LangChip badge={langBadge} />}
       </div>
       <div className={styles.compactStatsMobile}>
         <StatItem kind="views" value={post.view_count ?? 0} />
