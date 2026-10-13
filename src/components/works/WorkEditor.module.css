@@ -1041,7 +1041,8 @@
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
 .memberList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  /* 칸 최소 360 — 화면이 그보다 좁으면 화면 폭(카드가 화면 밖으로 나갔다) */
+  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
   height: auto;
   gap: 0 var(--spacing-24);
   border-top: none;
