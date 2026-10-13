@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { SiteConfigData } from "@/config/site.config";
 import { siteConfig } from "@/config/site.config";
 import SectionActions from "@/components/admin/SectionActions";
+import { ControlSizeScope } from "@/components/ui/controlSize";
 import { deepEqual, getByPath } from "../_data/settingsConstants";
 import localStyles from "./SectionHeader.module.css";
 
@@ -91,6 +92,8 @@ export default function SectionHeader({
       <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section data-dirty={dirty || undefined}>
         {title}
       </h2>
+      {/* 섹션 단추는 sm — 설정 페이지의 md 범위 안이지만, 영어 화면 좁은 폭에서 기본값 · 되돌리기 · 섹션 저장이 두 줄로 꺾였다 */}
+      <ControlSizeScope size="sm">
       {customActions ? (
         <div className={localStyles.spacer}>
           <span className={`${localStyles.dot} ${dirty ? localStyles.dotOn : ""}`} aria-hidden />
@@ -119,6 +122,7 @@ export default function SectionHeader({
           />
         </div>
       )}
+      </ControlSizeScope>
       {extra != null && <div className={localStyles.extraRow}>{extra}</div>}
       {below}
     </>
