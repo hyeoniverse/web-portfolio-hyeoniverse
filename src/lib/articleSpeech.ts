@@ -6,14 +6,16 @@
  * 다시 읽고(일시정지 · 앞뒤로 건너뛰기 · 누른 문단부터), 블록마다 언어를 따로 정할 수 있다.
  *
  * 소리로 들어서는 소용없는 블록은 무엇인지만 알리고 넘어간다(기술 문서를 읽어 주는 도구들의 관례):
- * 코드 블록 → "코드 블록, 언어, N줄", 표 → "N행 M열 표", 수식 → "수식", 동영상 · 삽입 → 종류만.
+ * 코드 블록 → "코드 블록, 언어, N줄", 수식 → "수식", 동영상 · 삽입 → 종류만.
+ * 표는 작으면 행마다 머리글을 붙여 읽는다("1행. 항목: 값, …") — 칸을 순서대로 읽으면 값이 어느 열인지 놓친다.
+ * 크면 크기만 알리고 넘어가되, 읽는 중에 표를 누르면 그 표를 행 단위로 펼쳐 읽는다(expandTable).
  * 이미지는 대체 글(alt)과 캡션을 읽는다. 문장 안의 인라인 코드는 그대로 읽는다(이름 · 값이라 뜻이 있다).
  * 화면에 보이지 않는 것(닫힌 토글 안쪽 등)은 읽지 않는다 — 화면과 소리가 어긋나지 않게.
  */
 
 import { speechLangOf, type SpeechLang } from "@/lib/speech";
 
-export type SegmentKind = "title" | "summary" | "meta" | "heading" | "text" | "quote" | "code" | "table" | "image" | "math" | "media";
+export type SegmentKind = "title" | "summary" | "meta" | "heading" | "text" | "quote" | "code" | "table" | "tableRow" | "image" | "math" | "media";
 
 export interface SpeechSegment {
   kind: SegmentKind;
@@ -21,6 +23,8 @@ export interface SpeechSegment {
   /** 읽는 동안 강조하고, 화면 밖이면 따라 스크롤할 요소 */
   el: HTMLElement;
   lang: SpeechLang;
+  /** 크기만 알린 큰 표 — 누르면 행 단위로 펼친다 */
+  collapsedTable?: HTMLTableElement;
 }
 
 const HEADER_ORDER = ["title", "summary", "meta"] as const;
@@ -35,7 +39,9 @@ const HEADING = /^H[1-6]$/;
 const SAY = {
   "ko-KR": {
     code: (lang: string, lines: number) => `코드 블록${lang ? `, ${lang}` : ""}, ${lines}줄은 건너뜁니다.`,
-    table: (rows: number, cols: number) => `${rows}행 ${cols}열 표는 건너뜁니다.`,
+    table: (rows: number, cols: number) => `표, ${rows}행 ${cols}열.`,
+    largeTable: (rows: number, cols: number) => `${rows}행 ${cols}열 표. 표를 누르면 행마다 읽습니다.`,
+    row: (n: number) => `${n}행.`,
     image: (alt: string) => (alt ? `이미지. ${alt}` : "이미지."),
     math: "수식.",
     inlineMath: " 수식 ",
@@ -45,7 +51,9 @@ const SAY = {
   },
   "en-US": {
     code: (lang: string, lines: number) => `Code block${lang ? `, ${lang}` : ""}, ${lines} ${lines === 1 ? "line" : "lines"}, skipped.`,
-    table: (rows: number, cols: number) => `Table with ${rows} rows and ${cols} columns, skipped.`,
+    table: (rows: number, cols: number) => `Table, ${rows} ${rows === 1 ? "row" : "rows"}, ${cols} ${cols === 1 ? "column" : "columns"}.`,
+    largeTable: (rows: number, cols: number) => `Table with ${rows} rows and ${cols} columns. Tap the table to read it row by row.`,
+    row: (n: number) => `Row ${n}.`,
     image: (alt: string) => (alt ? `Image. ${alt}` : "Image."),
     math: "Equation.",
     inlineMath: " equation ",
@@ -99,10 +107,41 @@ function codeSegment(el: HTMLElement, lang: SpeechLang): string {
   return SAY[lang].code(name === "plaintext" || name === "text" ? "" : name, lines);
 }
 
-function tableSegment(el: HTMLElement, lang: SpeechLang): string {
-  const rows = el.querySelectorAll("tr");
-  const cols = Math.max(0, ...[...rows].map((r) => r.children.length));
-  return SAY[lang].table(rows.length, cols);
+/* 이만큼까지는 행마다 읽는다 — 넘으면 듣는 쪽이 따라가기 어렵고 글 흐름을 너무 오래 끊는다 */
+const READ_TABLE_MAX_ROWS = 8;
+const READ_TABLE_MAX_COLS = 4;
+
+/** 머리글 행(thead, 없으면 모두 th 인 첫 행)과 데이터 행으로 나눈다 */
+function tableParts(table: HTMLTableElement): { head: HTMLTableCellElement[]; rows: HTMLTableRowElement[]; cols: number } {
+  const all = [...table.rows];
+  const headRow = table.tHead?.rows[table.tHead.rows.length - 1]
+    ?? (all[0] && [...all[0].cells].every((c) => c.tagName === "TH") ? all[0] : undefined);
+  const rows = all.filter((r) => r !== headRow && !table.tHead?.contains(r));
+  const cols = Math.max(0, ...all.map((r) => r.cells.length));
+  return { head: headRow ? [...headRow.cells] : [], rows, cols };
+}
+
+/** 한 행 — "1행. 머리글: 값, 머리글: 값". 빈 칸은 뺀다 */
+function rowText(row: HTMLTableRowElement, n: number, head: HTMLTableCellElement[], lang: SpeechLang): string {
+  const pairs = [...row.cells].flatMap((cell, i) => {
+    const value = inlineText([...cell.childNodes], lang);
+    if (!value) return [];
+    const label = head[i] ? inlineText([...head[i].childNodes], lang) : "";
+    return [label && label !== value ? `${label}: ${value}` : value];
+  });
+  return pairs.length ? `${SAY[lang].row(n)} ${pairs.join(", ")}` : "";
+}
+
+/** 표의 행 조각들 — 읽는 행을 강조하도록 조각의 자리는 그 행(tr) */
+function rowSegments(table: HTMLTableElement, fallback: SpeechLang): SpeechSegment[] {
+  const { head, rows } = tableParts(table);
+  return rows.flatMap((row, i) => {
+    /* "1행." 같은 알리는 말도 그 행의 글 언어로 — 한 번 읽어 언어를 정한 뒤 그 언어로 다시 만든다 */
+    const draft = rowText(row, i + 1, head, fallback);
+    if (!draft) return [];
+    const lang = textLang(row, draft, fallback);
+    return [{ kind: "tableRow" as const, el: row, text: lang === fallback ? draft : rowText(row, i + 1, head, lang), lang }];
+  });
 }
 
 function imageSegment(el: HTMLElement, lang: SpeechLang): string {
@@ -142,7 +181,17 @@ function bodySegments(root: HTMLElement, fallback: SpeechLang): SpeechSegment[] 
       const el = node as HTMLElement;
       if (el.matches(SKIP) || !visible(el)) continue;
       if (el.matches(CODE)) push("code", el, (lang) => codeSegment(el, lang));
-      else if (el.matches("table") || el.querySelector(":scope > table")) push("table", el, (lang) => tableSegment(el.matches("table") ? el : el.querySelector("table")!, lang));
+      else if (el.matches("table") || el.querySelector(":scope > table")) {
+        const table = (el.matches("table") ? el : el.querySelector(":scope > table")) as HTMLTableElement;
+        const { rows, cols } = tableParts(table);
+        const lang = taggedLang(el) ?? fallback;
+        if (rows.length <= READ_TABLE_MAX_ROWS && cols <= READ_TABLE_MAX_COLS) {
+          out.push({ kind: "table", el, text: SAY[lang].table(rows.length, cols), lang });
+          out.push(...rowSegments(table, lang));
+        } else {
+          out.push({ kind: "table", el, text: SAY[lang].largeTable(rows.length, cols), lang, collapsedTable: table });
+        }
+      }
       else if (el.matches("img") || (el.matches("figure, picture") && el.querySelector("img"))) push("image", el, (lang) => imageSegment(el, lang));
       else if (el.matches("figure") && el.querySelector(MEDIA)) push("media", el, (lang) => (el.querySelector("video, audio") ? SAY[lang].video : SAY[lang].embed));
       else if (el.matches(MEDIA)) push("media", el, (lang) => (el.matches("video, audio") ? SAY[lang].video : SAY[lang].embed));
@@ -204,4 +253,13 @@ export function segmentIndexOf(segments: SpeechSegment[], node: Node | null): nu
     if (segments[i].el !== document.body && segments[i].el.contains(node)) return i;
   }
   return -1;
+}
+
+/** 크기만 알린 큰 표를 행 조각으로 펼친다 — 읽는 중에 그 표를 눌렀을 때. 펼칠 게 없으면 그대로 돌려준다 */
+export function expandTable(segments: SpeechSegment[], index: number): SpeechSegment[] {
+  const seg = segments[index];
+  if (!seg?.collapsedTable) return segments;
+  const rows = rowSegments(seg.collapsedTable, seg.lang);
+  const intro: SpeechSegment = { ...seg, text: SAY[seg.lang].table(rows.length, tableParts(seg.collapsedTable).cols), collapsedTable: undefined };
+  return [...segments.slice(0, index), intro, ...rows, ...segments.slice(index + 1)];
 }

@@ -1,45 +1,14 @@
-/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 규격은 ShareButton 의 compact 와 같다 */
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 헤더 단추는 공용 Button 이 그린다 — 여기는 떠 있는 컨트롤 */
 @layer components {
-.compact {
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-height-sm);
-  padding: 0 var(--control-padding-inline-sm);
-  border: var(--border-strong);
-  border-radius: var(--radius-control);
-  background: transparent;
-  font: var(--font-label-sm);
-  letter-spacing: 0.03em;
-  color: var(--text-secondary);
-  transition:
-    background var(--duration-base) var(--ease-standard),
-    border-color var(--duration-base) var(--ease-standard),
-    color var(--duration-base) var(--ease-standard);
-}
-
-.compact:hover {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.playing {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-
-.label {
-  margin-left: var(--spacing-8);
-  white-space: nowrap;
-}
-
 /* ── 읽는 동안 떠 있는 컨트롤 — 화면 아래 가운데 캡슐. 상태 · 몇 번째 조각 / 이전 · 일시정지 · 다음 / 빠르기 / 멈춤 ── */
 .floating {
   position: fixed;
-  /* 좁은 화면은 왼쪽에 붙인다 — 오른쪽 아래 위아래 스크롤 단추(ScrollButtons)와 겹치지 않게 */
-  left: var(--spacing-16);
+  left: 50%;
   /* 바닥선은 위아래 스크롤 단추(ScrollButtons)와 같은 높이 */
   bottom: var(--spacing-48);
+  translate: -50% 0;
+  /* 손잡이를 끌 때 화면이 같이 밀리지 않게 */
+  touch-action: none;
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
@@ -55,16 +24,46 @@
 
 .floatingStatus {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacing-8);
   margin-right: var(--spacing-8);
   font: var(--font-label-sm);
   white-space: nowrap;
 }
 
+/* 몇 번째인지 — 누르면 읽는 곳으로 스크롤. 누르는 것임을 알게 옅은 바탕 알약 + 위치 아이콘 */
 .floatingCount {
-  color: var(--text-tertiary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  /* 옆 단추(floatingBtn)와 같은 높이 — 막대 테두리까지 여백이 사방으로 같다 */
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12) 0 var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font: var(--font-label-sm);
   font-variant-numeric: tabular-nums;
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.floatingCount svg {
+  flex-shrink: 0;
+  color: var(--text-accent);
+}
+
+/* 반전은 마우스가 있는 기기에서만 — 터치는 누른 자리에 hover 가 남는다(접힌 단추를 누르면 그 자리에 접기 단추가 뜬다) */
+@media (hover: hover) {
+  .floatingCount:hover svg {
+    color: inherit;
+  }
+
+  .floatingCount:hover {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+  }
 }
 
 .floatingBtn {
@@ -83,9 +82,11 @@
     color var(--duration-base) var(--ease-standard);
 }
 
-.floatingBtn:hover:not(:disabled) {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
+@media (hover: hover) {
+  .floatingBtn:hover:not(:disabled) {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+  }
 }
 
 .floatingBtn:disabled {
@@ -101,20 +102,85 @@
   min-width: var(--control-height-lg);
 }
 
-/* 상태 글("읽는 중")은 넓은 화면에서만 — 좁은 화면은 몇 번째인지만 */
-.floatingState {
-  display: none;
+/* 옮겨 둔 자리 — ListenButton 이 왼쪽 위 모서리를 --_x · --_y 로 준다 */
+.floatingPlaced {
+  top: var(--_y);
+  left: var(--_x);
+  bottom: auto;
+  translate: none;
 }
 
-@media (width > 480px) {
-  .floating {
-    left: 50%;
-    translate: -50% 0;
-  }
+/* 옮기는 손잡이 — 상태 글도 잡을 수 있다 */
+.floatingGrip {
+  display: inline-flex;
+  margin-left: calc(var(--spacing-8) * -1);
+  color: var(--text-tertiary);
+  cursor: grab;
+}
 
-  .floatingState {
-    display: inline;
-  }
+.floating:not(.floatingDocked) .floatingStatus {
+  cursor: grab;
+}
+
+/* ── 좁은 화면 — 위아래 스크롤 단추(ScrollButtons) 위에 단추 하나로 접어 둔다.
+   바닥선은 스크롤 단추와 같고, 스크롤 단추가 보이면(html[data-scroll-buttons]) 위 단추 꼭대기에서 한 칸 위로
+   올라간다 — 위 단추 bottom(48 + 36 - 1) + 높이(xl) + 간격. 단추가 사라지면 미끄러져 내려앉는다 ── */
+.compactDock,
+.floatingDocked {
+  --_lift: calc(36px - 1px + var(--control-height-xl) + var(--spacing-8));
+
+  top: auto;
+  right: var(--spacing-24);
+  bottom: var(--spacing-48);
+  left: auto;
+  translate: none;
+  transition: translate var(--duration-base) var(--ease-standard);
+}
+
+:global(html[data-scroll-buttons]) .compactDock,
+:global(html[data-scroll-buttons]) .floatingDocked {
+  translate: 0 calc(var(--_lift) * -1);
+}
+
+.compactDock {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.compactToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
+  border: var(--border-default);
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-floating);
+  color: var(--text-accent);
+}
+
+.compactPaused {
+  color: var(--text-secondary);
+}
+
+/* 펼친 막대 — 접힌 단추 자리에서 위로. 상태 글은 빼고 몇 번째인지만.
+   첫 칸이 바탕 있는 알약(n / N)이라 왼쪽 여백을 위아래와 같게 둔다 */
+.floatingDocked {
+  max-width: calc(100vw - var(--spacing-48));
+  padding-left: var(--spacing-4);
+}
+
+.floatingState {
+  display: inline;
+}
+
+.floatingDocked .floatingState {
+  display: none;
 }
 }
 
