@@ -110,8 +110,9 @@ export default function ChipsDemos() {
             <Badge tone="warning">Draft</Badge>
             <Badge>KO</Badge>
             <Badge variant="solid" tone="accent" uppercase icon={<Star size={10} fill="currentColor" />}>HOT</Badge>
-            <span style={{ display: "inline-flex", padding: "var(--spacing-8)", borderRadius: "var(--radius-surface)", background: "var(--bg-inverse)" }}>
-              <Badge variant="overlay" uppercase icon={<Pin size={10} />}>Pinned</Badge>
+            {/* overlay 는 이미지 위에 쓰는 모양이라 사진 위에 얹어 보여 준다 */}
+            <span style={{ position: "relative", display: "inline-block", width: 160, height: 96, overflow: "hidden", background: "center / cover url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=320&h=192&fit=crop)" }}>
+              <Badge variant="overlay" uppercase icon={<Pin size={10} />} style={{ position: "absolute", top: "var(--spacing-8)", left: "var(--spacing-8)" }}>Pinned</Badge>
             </span>
           </motion.div>
         </DemoGroup>
