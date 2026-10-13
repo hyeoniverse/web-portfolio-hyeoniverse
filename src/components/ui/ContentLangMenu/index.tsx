@@ -28,6 +28,8 @@ interface ContentLangMenuProps {
   labels?: { open: string; off: string };
   /** 말풍선 위치 — 내비게이션은 아래 */
   tooltipPlacement?: "top" | "bottom";
+  /** 지구본 크기 — 기본 14. 메뉴 서랍은 옆 닫기 단추와 그려진 높이를 맞춘다 */
+  iconSize?: number;
 }
 
 /**
@@ -44,6 +46,7 @@ export default function ContentLangMenu({
   codeClassName,
   labels,
   tooltipPlacement = "top",
+  iconSize = 14,
 }: ContentLangMenuProps) {
   const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -91,7 +94,7 @@ export default function ContentLangMenu({
             aria-busy={busy || undefined}
           >
             {/* 지구본 — 문자 모양(文A)은 "번역하기" 동작으로 읽혀, 언어를 고르는 자리는 지구본으로 */}
-            <Globe size={14} />
+            <Globe size={iconSize} />
             {value && (busy
               ? <LoadingDots className={styles.triggerBusy} />
               : <span className={cn(styles.triggerCode, codeClassName)}>{value}</span>)}
