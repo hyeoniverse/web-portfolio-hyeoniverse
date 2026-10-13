@@ -20,6 +20,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
 import ThemedLogoImage from "@/components/common/ThemedLogoImage";
 import { useNavBackdropTone } from "@/hooks/useNavBackdropTone";
+import { NAV_BACKDROP_EVENT } from "@/lib/navBackdrop";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   firstGrapheme,
@@ -289,6 +290,11 @@ export default function Navigation() {
   const navOnTop = showLoadingLogo || elevatedZ;
   const { isMenuOpen, setIsMenuOpen, showMenu, menuClipOpen, menuMounted, clipWrapperRef } =
     useMobileMenu(pathname, setNotifOpen, lenisStop, lenisStart);
+  /* 서랍이 닫히면 로고 밑 배경을 다시 잰다 — 열려 있는 동안 어두운 서랍을 재 둔 값이 남아, 닫은 뒤 스크롤하기
+     전까지 로고 변형이 페이지 배경과 맞지 않았다(useNavBackdropTone 은 스크롤 · 경로 · 덮개에만 다시 잰다) */
+  useEffect(() => {
+    if (!showMenu) window.dispatchEvent(new Event(NAV_BACKDROP_EVENT));
+  }, [showMenu]);
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   /* 알림 드롭다운 — top layer(3.10-1) */
