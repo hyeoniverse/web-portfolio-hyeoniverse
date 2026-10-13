@@ -74,6 +74,13 @@
   background: var(--border-color-light);
 }
 
+.viewCount {
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .projectNumber {  font: var(--font-body-sm);
 
   font-variant-numeric: tabular-nums;

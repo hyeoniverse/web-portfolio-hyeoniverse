@@ -297,6 +297,7 @@ export function workToProject(w: Work): Project {
     size: getCardSize(w.sort_order),
     content: loc(contentKo, contentEn),
     contentType: w.content_type || "markdown",
+    viewCount: w.view_count ?? 0,
     teamMembers: teamMembers.length > 0 ? teamMembers : undefined,
     gallery: w.gallery,
     galleryNotes: w.gallery_notes ?? undefined,

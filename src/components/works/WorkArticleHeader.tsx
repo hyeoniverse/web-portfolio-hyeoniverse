@@ -9,6 +9,7 @@ import { GithubIcon } from "@/components/icons";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
+import { formatCount } from "@/utils/format";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
@@ -79,6 +80,10 @@ export function WorkArticleHeader({
               <Badge variant="outline" tone="accent" size="md" uppercase lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></Badge>
             )}
           </div>
+          {/* 조회수 — 글 상세 메타 줄과 같은 표기(n 조회). 사이트 밖 자료(저장소)는 세지 않아 없다 */}
+          {project.viewCount !== undefined && (
+            <span className={styles.viewCount}>{formatCount(project.viewCount)} <UiLabel name="postViews" /></span>
+          )}
           {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
           {isAdmin && !isPreview && project.external && onImportEdit && (
             <>
