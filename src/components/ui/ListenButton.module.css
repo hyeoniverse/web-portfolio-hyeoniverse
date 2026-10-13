@@ -32,4 +32,105 @@
   margin-left: var(--spacing-8);
   white-space: nowrap;
 }
+
+/* ── 읽는 동안 떠 있는 컨트롤 — 화면 아래 가운데 캡슐. 상태 · 몇 번째 조각 / 이전 · 일시정지 · 다음 / 빠르기 / 멈춤 ── */
+.floating {
+  position: fixed;
+  /* 좁은 화면은 왼쪽에 붙인다 — 오른쪽 아래 위아래 스크롤 단추(ScrollButtons)와 겹치지 않게 */
+  left: var(--spacing-16);
+  /* 바닥선은 위아래 스크롤 단추(ScrollButtons)와 같은 높이 */
+  bottom: var(--spacing-48);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  max-width: calc(100vw - var(--spacing-32));
+  padding: var(--spacing-4) var(--spacing-4) var(--spacing-4) var(--spacing-16);
+  border: var(--border-default);
+  border-radius: var(--radius-control);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: var(--shadow-floating);
+  color: var(--text-primary);
+}
+
+.floatingStatus {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-8);
+  margin-right: var(--spacing-8);
+  font: var(--font-label-sm);
+  white-space: nowrap;
+}
+
+.floatingCount {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.floatingBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--control-height-md);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-control);
+  color: var(--text-secondary);
+  font: var(--font-label-sm);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.floatingBtn:hover:not(:disabled) {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.floatingBtn:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: default;
+}
+
+.floatingMain {
+  color: var(--text-accent);
+}
+
+.floatingRate {
+  min-width: var(--control-height-lg);
+}
+
+/* 상태 글("읽는 중")은 넓은 화면에서만 — 좁은 화면은 몇 번째인지만 */
+.floatingState {
+  display: none;
+}
+
+@media (width > 480px) {
+  .floating {
+    left: 50%;
+    translate: -50% 0;
+  }
+
+  .floatingState {
+    display: inline;
+  }
+}
+}
+
+/* 읽는 조각 강조 — 본문 블록 · 헤더 조각 어디든(ListenButton 이 data-tts-current 를 붙인다).
+   레이아웃을 밀지 않게 같은 색 그림자로 여백을 낸 것처럼 보이게 한다 */
+:global([data-tts-current]) {
+  /* 글줄 강조라 면(surface)만큼 둥글면 덩어리처럼 보인다 — 작은 모서리. 바깥은 그림자 퍼짐만큼 더 둥글다 */
+  border-radius: var(--radius-mark);
+  background: color-mix(in oklab, var(--text-accent) 10%, transparent);
+  box-shadow: 0 0 0 var(--spacing-8) color-mix(in oklab, var(--text-accent) 10%, transparent);
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+/* 읽는 중에는 본문 문단을 눌러 거기서부터 읽을 수 있다 — 누를 수 있음을 커서로 */
+:global(body:has([data-tts-current]) .prose-content) :global(:is(p, li, h1, h2, h3, h4, h5, h6, blockquote, figure, pre)) {
+  cursor: pointer;
 }

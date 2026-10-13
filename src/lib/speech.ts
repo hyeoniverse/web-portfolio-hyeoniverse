@@ -25,11 +25,12 @@ export function pickVoice(voices: readonly SpeechSynthesisVoice[], lang: string)
   return [...same].sort((a, b) => score(b) - score(a))[0] ?? null;
 }
 
-/** 문장 단위로 나눈다 — 한 조각이 max 자를 넘지 않게. 끊을 자리가 없으면 쉼표·빈칸에서 끊는다 */
+/** 문장 단위로 나눈다 — 한 조각이 max 자를 넘지 않게. 끊을 자리가 없으면 쉼표·빈칸에서 끊는다.
+    줄바꿈은 늘 끊는 자리다 — 마침표 없는 제목 · 소제목이 다음 문장에 붙어 읽히지 않게, 빈칸을 합치기 전에 줄부터 나눈다 */
 export function splitForSpeech(text: string, max = 160): string[] {
   const sentences = text
-    .replace(/\s+/g, " ")
-    .split(/(?<=[.!?。？！…]|다\.|요\.)\s+|\n+/)
+    .split(/\n+/)
+    .flatMap((line) => line.replace(/\s+/g, " ").split(/(?<=[.!?。？！…]|다\.|요\.)\s+/))
     .map((s) => s.trim())
     .filter(Boolean);
   const out: string[] = [];
@@ -59,13 +60,15 @@ function speechTimeoutMs(text: string): number {
 /**
  * 대본을 읽는다. 다 읽으면 onEnd(읽기가 끝나지 않아도 speechTimeoutMs 뒤에는 부른다).
  * 돌려받은 함수를 부르면 멈춘다(그때는 onEnd 를 부르지 않는다).
+ * 일시정지는 따로 두지 않는다 — Android 는 speechSynthesis.pause 를 멈춤(cancel)으로 처리해 이어 읽을 수 없다.
+ * 이어 읽어야 하는 쪽은 멈췄다가 남은 부분부터 다시 부른다. rate 는 읽는 빠르기(1 = 보통).
  * 음성 합성이 없는 브라우저면 null — 부르는 쪽이 다른 방법(잠시 멈춤)으로 넘어간다.
  * 사람이 페이지를 한 번도 누르지 않아 브라우저가 막으면 onBlocked(onEnd 는 부르지 않는다) — 막힌 채로
  * 두면 읽지도 않은 장이 시간이 차서 넘어간다.
  * onChunk 는 조각(문장)을 읽기 시작할 때마다 그 조각과 순번으로 부른다 — 자막을 읽는 자리에 맞춰 띄운다.
  * lang 은 읽을 말로 바꾸기 전의 표기로 정해 넘긴다 — 없으면 text 로 정한다.
  */
-export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void, lang: SpeechLang = speechLangOf(text)): (() => void) | null {
+export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void, lang: SpeechLang = speechLangOf(text), rate = 1): (() => void) | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const synth = window.speechSynthesis;
   const voice = pickVoice(synth.getVoices(), lang);
@@ -78,11 +81,13 @@ export function speak(text: string, onEnd: () => void, onBlocked?: () => void, o
     window.clearTimeout(guard);
     onEnd();
   };
-  const guard = window.setTimeout(finish, speechTimeoutMs(text));
-  synth.cancel();
+  const guard = window.setTimeout(finish, speechTimeoutMs(text) / Math.min(1, rate));
+  /* 읽던 게 있을 때만 끊는다 — 크롬은 cancel 직후 바로 넣은 첫 조각을 가끔 건너뛴다 */
+  if (synth.speaking || synth.pending) synth.cancel();
   chunks.forEach((chunk, i) => {
     const u = new SpeechSynthesisUtterance(chunk);
     u.lang = lang;
+    u.rate = rate;
     if (voice) u.voice = voice;
     if (onChunk) u.onstart = () => { if (!stopped) onChunk(chunk, i); };
     if (i === chunks.length - 1) u.onend = finish;

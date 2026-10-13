@@ -11,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
+import ListenButton from "@/components/ui/ListenButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
 import Pressable from "@/components/ui/Pressable";
@@ -58,7 +59,7 @@ export function WorkArticleHeader({
         <div className={styles.metaLeft}>
           <span className={styles.projectNumber}>#{project.number}</span>
           {/* 팀/개인 + 성격 배지는 한 묶음 (좁은 gap) — metaLeft 의 lg gap 영향 안 받게 */}
-          <div className={styles.tagGroup}>
+          <div className={styles.tagGroup} data-listen="meta">
             {(() => {
               /* 본인(소유자)은 늘 한 명으로 센다 — 팀원 목록에 소유자 계정으로 이미 들어 있으면 두 번 세지 않는다.
                  예전에는 목록 수에 무조건 1을 더해, 본인 한 명뿐인 작업물이 "팀 · 2"로 보였다 */
@@ -127,6 +128,7 @@ export function WorkArticleHeader({
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <ListenButton title={viewLang === "en" ? project.title.en || project.title.ko : project.title.ko} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
@@ -136,6 +138,7 @@ export function WorkArticleHeader({
       <TranslatingRegion active={!!translating}>
       <motion.h1
         className={styles.title}
+        data-listen="title"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
@@ -146,6 +149,7 @@ export function WorkArticleHeader({
       {/* ── Description ── */}
       <motion.p
         className={styles.description}
+        data-listen="summary"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}

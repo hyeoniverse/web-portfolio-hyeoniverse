@@ -1032,5 +1032,19 @@
     "COMMENT_PASSWORD_WRONG": "The password is incorrect.",
     "COMMENT_ALREADY_REMOVED": "This comment has already been removed.",
     "TTS_DISABLED": "TTS is turned off. Turn it on in Settings › Services › TTS."
+  },
+  "readAloud": {
+    "listen": "Read aloud",
+    "stopListen": "Stop reading",
+    "controls": "Read aloud controls",
+    "reading": "Reading",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "prev": "Previous paragraph",
+    "next": "Next paragraph",
+    "speed": "Reading speed {{rate}}×",
+    "jumpHint": "While reading, tap a paragraph to read from there."
   }
 }

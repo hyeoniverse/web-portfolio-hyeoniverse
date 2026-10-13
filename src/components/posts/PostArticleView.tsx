@@ -114,7 +114,7 @@ export function PostArticleHeader({
   return (
     <>
       <div className={header.metaRow}>
-        <div className={header.meta}>
+        <div className={header.meta} data-listen="meta">
           <span>{date}</span>
           <span className={header.dot}>&middot;</span>
           <span>{readTime} <UiLabel name="postMinRead" /></span>
@@ -159,15 +159,15 @@ export function PostArticleHeader({
               GitHub
             </Button>
           )}
-          <ListenButton title={data.displayTitle} />
           <ShareButton />
+          <ListenButton title={data.displayTitle} />
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </div>
       <TranslatingRegion active={!!translating}>
-        <h1 className={header.articleTitle}>{data.displayTitle}</h1>
-        {data.displayExcerpt && <p className={header.excerpt}>{data.displayExcerpt}</p>}
+        <h1 className={header.articleTitle} data-listen="title">{data.displayTitle}</h1>
+        {data.displayExcerpt && <p className={header.excerpt} data-listen="summary">{data.displayExcerpt}</p>}
       </TranslatingRegion>
       <div className={header.tagsShareRow}>
         {data.tags.length > 0 && (

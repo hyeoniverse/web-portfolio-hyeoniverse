@@ -1032,5 +1032,19 @@
     "COMMENT_PASSWORD_WRONG": "비밀번호가 맞지 않습니다.",
     "COMMENT_ALREADY_REMOVED": "이미 지워진 댓글입니다.",
     "TTS_DISABLED": "TTS 가 꺼져 있습니다. 설정 › 서비스 › TTS 에서 켜 주세요."
+  },
+  "readAloud": {
+    "listen": "소리로 읽기",
+    "stopListen": "읽기 멈추기",
+    "controls": "읽어 주기 조작",
+    "reading": "읽는 중",
+    "paused": "일시정지",
+    "pause": "일시정지",
+    "resume": "이어 읽기",
+    "stop": "멈추기",
+    "prev": "이전 문단",
+    "next": "다음 문단",
+    "speed": "읽기 속도 {{rate}}배",
+    "jumpHint": "읽는 중에는 문단을 누르면 거기서부터 읽습니다."
   }
 }
