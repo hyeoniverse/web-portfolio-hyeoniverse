@@ -160,6 +160,11 @@
   }
 }
 
+/* 짧은 두 칸(공급자 · 파일 업로드 스위치 등)은 좁은 화면에서도 나란히. 같은 파일에서 .fieldPair 뒤라 이긴다 */
+.fieldPairAlways {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .fieldPair > .fieldHint,
 .fieldPair > .fallbackSection {
   grid-column: 1 / -1;

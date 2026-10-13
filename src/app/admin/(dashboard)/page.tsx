@@ -352,14 +352,15 @@ export default function AdminDashboard() {
           <Link href="/admin/service-log" className={styles.serviceBar} data-alert={service.fails24h > 0 || service.off > 0 ? "" : undefined}>
             <History size={16} strokeWidth={1.6} aria-hidden />
             <span className={styles.serviceBarTitle}>{t("admin.dashboard.serviceLog")}</span>
+            {/* 덩어리마다 한 줄(좁은 화면) · 가운뎃점으로 이어 한 줄(넓은 화면) */}
             <span className={styles.serviceBarStats}>
-              {t("admin.dashboard.serviceLogStats")
-                .replace("{{total}}", String(service.total24h))
-                .replace("{{fails}}", String(service.fails24h))}
+              <span>{t("admin.dashboard.serviceLogTotal").replace("{{total}}", String(service.total24h))}</span>
+              <span className={styles.serviceBarSep} aria-hidden> · </span>
+              <span>{t("admin.dashboard.serviceLogFails").replace("{{fails}}", String(service.fails24h))}</span>
               {service.off > 0 && (
                 <>
-                  {" · "}
-                  <span className={styles.serviceBarChunk}>{t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}</span>
+                  <span className={styles.serviceBarSep} aria-hidden> · </span>
+                  <span>{t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}</span>
                 </>
               )}
             </span>
