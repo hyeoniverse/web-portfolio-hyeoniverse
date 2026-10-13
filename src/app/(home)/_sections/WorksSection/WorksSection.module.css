@@ -43,7 +43,7 @@
 
 .titleText {
   font-family: var(--font-family-headline);
-  font-size: clamp(2.35rem, 1.857rem + 2.38vw, 3rem);
+  font-size: var(--font-size-display-xl);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
   color: var(--text-accent-alt);
@@ -237,10 +237,6 @@
     gap: var(--spacing-16);
   }
 
-  .titleText {
-    font-size: clamp(2rem, 0.77rem + 5.05vw, 4rem);
-  }
-
   .circle {
     max-width: clamp(100px, 18vw, 160px);
     max-height: clamp(100px, 18vw, 160px);
@@ -255,10 +251,6 @@
 
   .grid {
     gap: var(--spacing-12);
-  }
-
-  .titleText {
-    font-size: clamp(4.5rem, 0.25rem + 6.72vw, 8.25rem);
   }
 
   .circle {
