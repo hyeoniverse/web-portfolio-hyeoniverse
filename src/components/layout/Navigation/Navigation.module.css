@@ -104,8 +104,16 @@
 
 .adminBadge {
   /* 모양은 Badge(outline · white). 네비 글꼴과 흐린 농도만 — blend 는 부모(.logoNavBar)가 처리 */
+  /* 좁은 화면은 감춘다 — 로고 · 메뉴 단추 사이 자리가 모자라다 */
+  display: none;
   font-family: var(--font-family-nav);
   opacity: 0.6;
+}
+
+@media (width > 768px) {
+  .adminBadge {
+    display: inline-flex;
+  }
 }
 
 /* difference 를 끈 로고 — 흰색 고정은 blend 반전 전제라 라이트 배경에서 안 보인다.
@@ -512,6 +520,17 @@
   gap: var(--spacing-4);
 }
 
+/* 내비게이션의 🌐 자리 — 좁은 화면은 KO/EN 만 두고 감춘다(메뉴 서랍 아래로 옮긴다). 넓은 화면은 자리를 만들지 않는 껍데기 */
+.navSiteLang {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navSiteLang {
+    display: contents;
+  }
+}
+
 .siteLangBtn:hover {
   color: var(--text-accent-alt);
 }
@@ -910,6 +929,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
+}
+
+/* 서랍 아래 "다른 언어로 보기" — 페이지 목록(큰 글씨)과 섞지 않는 작은 줄. 번역 중이면 "원문으로 보기" + 언어 코드 */
+.menuSiteLang {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  align-self: flex-start;
+  margin-bottom: var(--spacing-8);
+  font: var(--font-label-md);
+  color: var(--text-white-muted);
 }
 
 .menuFooterLabel {
