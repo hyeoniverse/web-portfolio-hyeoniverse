@@ -55,6 +55,18 @@
   padding: var(--modal-padding-md);
 }
 
+/* 작은 화면에서는 머리줄도 시트를 끄는 자리다(useSheetDrag) — 브라우저가 그 손짓을 스크롤로 가져가지 않게.
+   넓은 화면의 가운데 판은 끌지 않으니 되돌린다 */
+.modalHeader {
+  touch-action: none;
+}
+
+@media (width > 768px) {
+  .modalHeader {
+    touch-action: auto;
+  }
+}
+
 /* 제목 없이 X 만 있는 머리줄 — 자리만 비워 두면 되므로 여백을 줄인다(제목 줄과 같은 여백을
    주면 본문이 저 아래에서 시작한다) */
 .modalHeaderBare {

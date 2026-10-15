@@ -19,6 +19,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { usePopoverRef } from "@/hooks/useTopLayer";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 type Tab = "presets" | "project" | "unsplash" | "pexels" | "ai" | "history";
 
@@ -99,11 +100,12 @@ export default function CoverImagePicker({
   /* 모바일 시트 두 조각 다 top layer(3.10-1) — 공용 Popover 의 시트와 같은 꼴 */
   const sheetBackdropPop = usePopoverRef<HTMLDivElement>();
   const sheetPop = usePopoverRef<HTMLDivElement>();
+  const sheetDrag = useSheetDrag(onClose);
 
   const pickerBody = (
     <>
       {isMobile && (
-        <div className={`ui-sheet-handle ${styles.sheetHandle}`} aria-hidden>
+        <div className={`ui-sheet-handle ${styles.sheetHandle}`} aria-hidden {...sheetDrag}>
           <span className="ui-sheet-handle-bar" />
         </div>
       )}
@@ -207,6 +209,7 @@ export default function CoverImagePicker({
               ref={sheetPop}
               popover="manual"
               className={`${styles.picker} ${styles.pickerSheet}`}
+              data-sheet
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
