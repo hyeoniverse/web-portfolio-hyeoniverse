@@ -1135,6 +1135,8 @@
       "giscusInputPosition": "Comment Box Position",
       "giscusInputTop": "Top",
       "giscusInputBottom": "Bottom",
+      "commentImageMaxMb": "Comment Image Size Limit",
+      "commentImageMaxMbHelp": "The largest image a visitor can upload with the image button in the comment box. Uploaded images are re-saved as webp, and each visitor can upload up to 20 a day. Images not used in any comment are deleted after a day.",
       "giscusReactions": "Enable main post reactions",
       "giscusStrict": "Strict title matching",
       "giscusEmitMetadata": "Emit metadata",

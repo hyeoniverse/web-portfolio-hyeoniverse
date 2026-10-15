@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 193,
-  "routeFiles": 134,
+  "total": 194,
+  "routeFiles": 135,
   "access": {
-    "public": 65,
+    "public": 66,
     "signed-in": 60,
     "author": 27,
     "admin": 16,
@@ -383,6 +383,72 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "comments",
+      "files": 6,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/comments/[id]",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/[id]/report",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/[id]/restore",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/images",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/api/comments/recent",
+          "access": "public"
+        }
+      ],
+      "tables": [
+        "admin_notifications",
+        "comment_reports",
+        "comments",
+        "posts",
+        "site_settings"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage",
+        "mail"
+      ],
+      "access": {
+        "public": 7,
+        "signed-in": 1,
+        "author": 0,
+        "admin": 0,
+        "owner": 0,
+        "cron": 0
+      }
+    },
+    {
       "key": "demo",
       "files": 4,
       "endpoints": [
@@ -493,66 +559,6 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 1,
         "signed-in": 6,
-        "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "comments",
-      "files": 5,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "PATCH",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/comments/[id]",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments/[id]/report",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments/[id]/restore",
-          "access": "signed-in"
-        },
-        {
-          "method": "GET",
-          "path": "/api/comments/recent",
-          "access": "public"
-        }
-      ],
-      "tables": [
-        "admin_notifications",
-        "comment_reports",
-        "comments",
-        "posts",
-        "site_settings"
-      ],
-      "rpcs": [],
-      "services": [
-        "mail"
-      ],
-      "access": {
-        "public": 6,
-        "signed-in": 1,
         "author": 0,
         "admin": 0,
         "owner": 0,

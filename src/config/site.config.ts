@@ -1055,6 +1055,8 @@ export const siteConfig = {
     provider: "system" as "system" | "giscus",
     // 내장(시스템) 댓글 입력란 위치 (top = 리스트 위 / bottom = 리스트 아래, 기본)
     systemInputPosition: "bottom" as "top" | "bottom",
+    // 내장 댓글에 올리는 이미지 한 장의 최대 용량(MB) — 1 · 2 · 3 · 4 중 하나(lib/commentImages)
+    imageMaxMb: 2,
     giscus: {
       repo: "", // "owner/name" 형식
       repoId: "", // giscus.app 발급
