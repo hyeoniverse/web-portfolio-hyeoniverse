@@ -464,11 +464,6 @@
   margin-top: var(--spacing-16);
 }
 
-.section .profileAddBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
 /* ── Series Manager (Content > Posts) ── */
 
 /* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로

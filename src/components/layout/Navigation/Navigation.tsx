@@ -482,7 +482,7 @@ export default function Navigation() {
   useEffect(() => {
     const nav = navRef.current;
     const logo = logoBarRef.current;
-    if (!isAdminPage || !nav || !logo) return;
+    if (!section.badge || !nav || !logo) return;
     const sync = () => nav.style.setProperty("--_logo-w", `${logo.offsetWidth}px`);
     sync();
     const ro = new ResizeObserver(sync);
@@ -491,7 +491,7 @@ export default function Navigation() {
       ro.disconnect();
       nav.style.removeProperty("--_logo-w");
     };
-  }, [isAdminPage]);
+  }, [section.badge]);
 
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
   /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
