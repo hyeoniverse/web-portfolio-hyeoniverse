@@ -13,13 +13,11 @@ import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showModal } from "@/lib/topLayer";
-import { createVelocityTracker, shouldDismissSheet } from "@/hooks/useSheetDrag";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 /** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
  *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
 export const ModalFooterContext = createContext<HTMLDivElement | null>(null);
-
-const SWIPE_THRESHOLD = 30;
 
 export default function Modal() {
   const { t } = useLanguage();
@@ -29,7 +27,6 @@ export default function Modal() {
   const { stop, start } = useLenis();
   const mounted = useHasMounted();
   const overflowRef = useRef<string>("");
-  const [sheetExpanded, setSheetExpanded] = useState(false);
   /* 모달별 footer DOM el — body 가 ModalFooterContext 로 받아 portal 로 렌더. */
   const [footerEls, setFooterEls] = useState<Record<string, HTMLDivElement | null>>({});
   /* ref callback 은 id 별로 cached — 같은 id 면 항상 같은 함수 반환.
@@ -88,19 +85,10 @@ export default function Modal() {
     }
     return setter;
   }, []);
-  const startYRef = useRef(0);
-  const swipingRef = useRef(false);
-  const draggingRef = useRef(false);
-  /* 손을 뗄 때의 속도 — 짧게 휙 쓸어내려도 닫는다(공용 시트와 같은 판정, useSheetDrag) */
-  const velocityRef = useRef(createVelocityTracker());
-  const dismissingRef = useRef(false); // 아래로 드래그 중 (dismiss 모드)
-  const modalElRef = useRef<HTMLDivElement | null>(null);
   // backdrop 을 눌러서 시작한 클릭인지 — 눌린 곳과 뗀 곳이 다르면 click 은
   // 두 타깃의 공통 조상(=backdrop)에서 발생한다. 그걸 "바깥 클릭"으로 오인하면
   // 모달 안을 누르다 레이아웃이 밀리기만 해도 모달이 닫힌다.
   const backdropDownRef = useRef(false);
-  const expandedRef = useRef(false);
-  const baseHeightRef = useRef(0); // 드래그 시작 시 실제 모달 높이
 
   const handleClose = useCallback(
     (id?: string) => {
@@ -129,15 +117,11 @@ export default function Modal() {
       document.body.style.overflow = overflowRef.current;
       start();
     }
-    setSheetExpanded(false);
   }, [modals, start]);
 
   /* 포커스 가둠 · 열기 전 자리로 되돌리기 · 초기 포커스 · Esc 는 <dialog>(showModal) 가 한다(3.10-1).
      Esc 는 아래 onCancel 로 받아 스토어를 닫는다 — 안쪽 컨트롤(CodeMirror · 완성 목록)이 keydown 을
      preventDefault 하면 브라우저가 닫기 요청을 내지 않아 전과 같이 그쪽이 먼저다. */
-
-  // expandedRef를 state와 동기화 (드래그 콜백에서 최신 값 참조)
-  useEffect(() => { expandedRef.current = sheetExpanded; }, [sheetExpanded]);
 
   // 닫힌 modal 의 cached ref setter 정리 — 메모리 누수 방지
   useEffect(() => {
@@ -150,131 +134,11 @@ export default function Modal() {
     }
   }, [modals]);
 
-  // ── Sheet 드래그: 위로 = 확장(height), 아래로 = dismiss(CSS translate) ──
-  const onHandlePointerDown = useCallback((e: React.PointerEvent) => {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    startYRef.current = e.clientY;
-    velocityRef.current.start(e.clientY);
-    draggingRef.current = true;
-    dismissingRef.current = false;
-    const el = modalElRef.current;
-    if (el) {
-      baseHeightRef.current = el.getBoundingClientRect().height;
-      el.style.setProperty('transition', 'none', 'important');
-    }
-  }, []);
-
-  const onHandlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!draggingRef.current) return;
-    const el = modalElRef.current;
-    if (!el) return;
-
-    velocityRef.current.move(e.clientY);
-    const deltaY = e.clientY - startYRef.current; // 양수 = 아래로
-
-    if (deltaY > 0 && !expandedRef.current) {
-      // 비확장 상태에서 아래로 → dismiss 모드 (CSS translate, framer-motion과 독립)
-      dismissingRef.current = true;
-      el.style.setProperty('--sheet-y', `${deltaY}px`);
-    } else {
-      // 위로 드래그 (확장) 또는 확장 상태에서 아래로 (축소)
-      dismissingRef.current = false;
-      el.style.setProperty('--sheet-y', '0px');
-
-      const dragUp = -deltaY; // 양수 = 위로
-      const vh = window.innerHeight;
-      const h = Math.min(vh, Math.max(vh * 0.3, baseHeightRef.current + dragUp));
-      const progress = Math.max(0, Math.min(1, (h - vh * 0.85) / (vh * 0.15)));
-
-      el.style.minHeight = `${h}px`;
-      el.style.maxHeight = `${h}px`;
-      el.style.borderRadius = `${(1 - progress) * 24}px ${(1 - progress) * 24}px 0 0`;
-      el.style.borderTopColor = progress > 0.8 ? 'transparent' : '';
-    }
-  }, []);
-
-  /* 끌기를 마친 자리(clientY)에서 닫기 · 펼치기 · 접기 · 제자리를 정한다 */
-  const finishDrag = useCallback((clientY: number) => {
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-
-    const el = modalElRef.current;
-    if (!el) return;
-
-    const deltaY = clientY - startYRef.current;
-    const vh = window.innerHeight;
-    const wasDismissing = dismissingRef.current;
-    dismissingRef.current = false;
-
-    // CSS transition 복원 → snap 애니메이션
-    el.style.removeProperty('transition');
-
-    if (wasDismissing) {
-      if (shouldDismissSheet(deltaY, velocityRef.current.velocity())) {
-        // threshold 초과 → 화면 밖으로 밀어내고 닫기
-        swipingRef.current = true;
-        el.style.setProperty('--sheet-y', `${vh}px`);
-        const topModal = modals[modals.length - 1];
-        setTimeout(() => {
-          if (topModal) handleClose(topModal.id);
-          swipingRef.current = false;
-          // --sheet-y 제거하지 않음 — 화면 밖 유지한 채 framer-motion exit 후 DOM 언마운트로 자동 정리
-        }, 350);
-      } else {
-        // threshold 미달 → 원위치 복귀
-        el.style.setProperty('--sheet-y', '0px');
-        setTimeout(() => { if (el) el.style.removeProperty('--sheet-y'); }, 350);
-      }
-      return;
-    }
-
-    // 확장/축소 모드
-    const dragUp = -deltaY;
-    const willExpand = dragUp > SWIPE_THRESHOLD;
-    const willCollapse = dragUp < -SWIPE_THRESHOLD;
-
-    if (willExpand) {
-      el.style.minHeight = `${vh}px`;
-      el.style.maxHeight = `${vh}px`;
-      el.style.borderRadius = '0px';
-      el.style.borderTopColor = 'transparent';
-      swipingRef.current = true;
-      setSheetExpanded(true);
-      setTimeout(() => { swipingRef.current = false; }, 400);
-    } else if (willCollapse) {
-      el.style.minHeight = '0px';
-      el.style.maxHeight = `${vh * 0.85}px`;
-      el.style.borderRadius = '';
-      el.style.borderTopColor = '';
-      swipingRef.current = true;
-      setSheetExpanded(false);
-      setTimeout(() => { swipingRef.current = false; }, 400);
-    } else {
-      if (expandedRef.current) {
-        el.style.minHeight = `${vh}px`;
-        el.style.maxHeight = `${vh}px`;
-        el.style.borderRadius = '0px';
-        el.style.borderTopColor = 'transparent';
-      } else {
-        el.style.minHeight = '0px';
-        el.style.maxHeight = `${vh * 0.85}px`;
-        el.style.borderRadius = '';
-        el.style.borderTopColor = '';
-      }
-    }
-
-    // CSS transition 완료 후 인라인 스타일 제거 → CSS 인계
-    setTimeout(() => {
-      if (!el) return;
-      el.style.minHeight = '';
-      el.style.maxHeight = '';
-      el.style.borderRadius = '';
-      el.style.borderTopColor = '';
-    }, 400);
-  }, [modals, handleClose]);
-  const onHandlePointerUp = useCallback((e: React.PointerEvent) => finishDrag(e.clientY), [finishDrag]);
-  /* 끌기가 다른 동작에 빼앗기면(브라우저 스크롤 등) 끈 거리 0 으로 마쳐 제자리로 — 내려가다 만 채 걸리지 않게 */
-  const onHandlePointerCancel = useCallback(() => finishDrag(startYRef.current), [finishDrag]);
+  /* 작은 화면의 시트 — 손잡이 · 머리줄을 끌어 펼치고 접고, 아래로 쓸어 닫는다(공용 시트와 같은 동작) */
+  const sheetDrag = useSheetDrag(useCallback(() => {
+    const topModal = useModalStore.getState().modals.at(-1);
+    if (topModal) handleClose(topModal.id);
+  }, [handleClose]));
 
   if (!mounted) return null;
 
@@ -299,7 +163,6 @@ export default function Modal() {
           transition={{ duration: 0.35 }}
           onMouseDown={(e) => { backdropDownRef.current = e.target === e.currentTarget; }}
           onClick={(e) => {
-            if (swipingRef.current) return;
             // 눌린 곳·뗀 곳 모두 backdrop 일 때만 닫는다
             if (!backdropDownRef.current || e.target !== e.currentTarget) return;
             handleClose(id);
@@ -308,12 +171,11 @@ export default function Modal() {
           onTouchMove={(e) => e.stopPropagation()}
         >
           <motion.div
-            ref={modalElRef}
             id="modal"
+            data-sheet
             /* 안에 초점 대상이 없을 때 포커스를 받는 폴백 */
             tabIndex={-1}
             data-rounded={id === "project-detail" ? "true" : undefined}
-            data-sheet-expanded={sheetExpanded ? "true" : undefined}
             initial={{ opacity: 0, y: isMobile ? "100%" : "40px" }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: isMobile ? "100%" : "40px", transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } }}
@@ -325,10 +187,7 @@ export default function Modal() {
               className={styles.sheetHandle}
               aria-hidden="true"
               data-draggable
-              onPointerDown={onHandlePointerDown}
-              onPointerMove={onHandlePointerMove}
-              onPointerUp={onHandlePointerUp}
-              onPointerCancel={onHandlePointerCancel}
+              {...sheetDrag}
             >
               <span className={styles.sheetHandleBar} />
             </div>
@@ -339,7 +198,7 @@ export default function Modal() {
                 subButtons 가 있으면 예약폭(56px)을 넘겨 액션과 겹쳤다. (모바일은 X 를 숨긴다 —
                 아래로 드래그 + grabber 로 닫는다) */}
             {(header || subButtons || (closeButton && !isMobile)) && (
-              <div className={`${styles.modalHeader}${header?.title || header?.icon || header?.actions ? "" : ` ${styles.modalHeaderBare}`}`}>
+              <div className={`${styles.modalHeader}${header?.title || header?.icon || header?.actions ? "" : ` ${styles.modalHeaderBare}`}`} {...(isMobile ? sheetDrag : {})}>
                 <div className={styles.headerContent}>
                   {header?.icon && (
                     <div className={styles.headerIcon}>{header.icon}</div>

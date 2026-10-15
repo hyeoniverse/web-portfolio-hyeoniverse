@@ -8,6 +8,7 @@ import { X, ArrowRight } from "@/components/icons";
 import styles from "./IndexSheet.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePopoverRef } from "@/hooks/useTopLayer";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 /* 터치 디바이스 바텀 시트 — 인덱스(시리즈 · 카테고리 · 태그)에서 카드를 탭했을 때 상세 + CTA.
    열림 state · ESC · body 스크롤 잠금은 부모의 useSheet 가 한다. show 가 false 로 바뀌어도 AnimatePresence 가
@@ -33,6 +34,8 @@ export default function IndexSheet({
   /* 시트 두 조각 다 top layer(3.10-1) — 공용 Popover 의 시트와 같은 꼴 */
   const backdropPop = usePopoverRef<HTMLDivElement>();
   const sheetPop = usePopoverRef<HTMLDivElement>();
+  /* 손잡이 · 제목 줄을 끌어 펼치고 접고, 아래로 쓸어 닫는다(공용 시트와 같은 동작) */
+  const sheetDrag = useSheetDrag(onClose);
   return (
     <AnimatePresence>
       {show && (
@@ -51,6 +54,7 @@ export default function IndexSheet({
             ref={sheetPop}
             popover="manual"
             className={styles.sheet}
+            data-sheet
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -58,6 +62,9 @@ export default function IndexSheet({
             role="dialog"
             aria-modal="true"
           >
+            <div className={`ui-sheet-handle ${styles.sheetHandle}`} aria-hidden {...sheetDrag}>
+              <span className="ui-sheet-handle-bar" />
+            </div>
             <Pressable
               className={styles.sheetClose}
               onClick={onClose}
@@ -65,7 +72,7 @@ export default function IndexSheet({
             >
               <X size={18} aria-hidden />
             </Pressable>
-            <div className={styles.sheetHeader}>
+            <div className={styles.sheetHeader} {...sheetDrag}>
               <h2 className={styles.sheetTitle}>{title}</h2>
               <span className={styles.sheetCount}>{count}</span>
             </div>

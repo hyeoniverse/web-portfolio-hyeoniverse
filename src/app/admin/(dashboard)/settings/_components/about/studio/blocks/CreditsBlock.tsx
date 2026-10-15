@@ -47,7 +47,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
     lineHeight: rec.creditsNoteLineHeight || undefined,
     textAlign: noteAlign,
     "--note-ff": rec.creditsNoteFontFamily || "inherit",
-    "--note-fs": rec.creditsNoteFontSize || "inherit",
+    "--note-fs": rec.creditsNoteFontSize || "1em",
     "--note-lh": rec.creditsNoteLineHeight || "inherit",
     /* 보기 모드 min-height 계산용 (단위 없는 배수) */
     "--note-lh-num": noteLh,

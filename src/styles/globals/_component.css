@@ -36,6 +36,10 @@
   --modal-padding-sm: var(--spacing-8) var(--spacing-12); /* 8 12 — 인라인 폼·작은 시트 */
   --modal-padding-md: var(--spacing-16) var(--spacing-20); /* 16 20 — 기본 */
   --modal-padding-lg: var(--spacing-24) var(--spacing-24); /* 24 24 — 확인 대화상자처럼 큰 것 */
+  /* 바텀 시트를 끝까지 끌어 올려도 위에 남는 틈 — 상태 표시줄(노치) 아래로 뒤 화면이 조금 보인다(useSheetDrag) */
+  --sheet-top-gap: calc(env(safe-area-inset-top, 0px) + var(--spacing-24));
+  /* 바텀 시트가 처음 열리는 높이의 상한 — 내용이 짧으면 내용 높이로, 길면 화면 절반으로 열고 끌어서 75% · 끝까지 펼친다 */
+  --sheet-initial-height: 50dvh;
 
   /* 카드 */
   --card-padding-sm: var(--spacing-4) var(--spacing-12); /* 4 12 — 카드 머리·꼬리 */
