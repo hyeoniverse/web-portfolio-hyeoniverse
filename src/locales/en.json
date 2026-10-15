@@ -355,6 +355,7 @@
     "editFailed": "Couldn’t edit the comment.",
     "translateFailed": "⚠ Translation failed. Please try again.",
     "reactionFailed": "Couldn’t update the reaction. Please try again.",
+    "imageUploadFailed": "Couldn’t upload the image. Please try again.",
     "reportFailed": "Couldn’t send the report. Please try again."
   },
   "postDetail": {
@@ -1022,6 +1023,7 @@
     "UPLOAD_TYPE_MISMATCH": "The file’s contents don’t match its extension (.{{ext}}).",
     "UPLOAD_CONVERT_FAILED": "Couldn’t convert the image. Save it in another format and try again.",
     "UPLOAD_ONLY_IMAGE": "Only image files can be uploaded.",
+    "COMMENT_IMAGE_DAILY_LIMIT": "You can upload up to {{limit}} comment images a day. Please try again tomorrow.",
     "UPLOAD_ONLY_AUDIO": "Only audio files can be uploaded.",
     "UPLOAD_ONLY_PDF": "Only PDF files can be uploaded.",
     "UPLOAD_ONLY_FONT": "Only font files (woff2, woff, ttf, otf) can be uploaded.",

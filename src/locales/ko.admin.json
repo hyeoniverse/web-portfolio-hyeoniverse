@@ -1135,6 +1135,8 @@
       "giscusInputPosition": "댓글 입력창 위치",
       "giscusInputTop": "상단",
       "giscusInputBottom": "하단",
+      "commentImageMaxMb": "댓글 이미지 최대 용량",
+      "commentImageMaxMbHelp": "방문자가 댓글 입력란의 이미지 단추로 올리는 이미지 한 장의 상한입니다. 올린 이미지는 webp 로 다시 저장되고, 방문자마다 하루 20장까지 올릴 수 있습니다. 댓글에 쓰이지 않은 이미지는 하루 뒤 지워집니다.",
       "giscusReactions": "메인 글 리액션 표시",
       "giscusStrict": "엄격한 제목 일치",
       "giscusEmitMetadata": "메타데이터 보내기",
