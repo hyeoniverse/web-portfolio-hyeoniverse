@@ -1272,7 +1272,7 @@ textarea.edit {
    Textarea 는 components 층이라 층 밖의 이 규칙이 이기고, 위 `.creditsNote *` 와는 파일 순서로 이긴다 */
 .creditsNoteInput {
   font-family: var(--note-ff, inherit);
-  font-size: var(--note-fs, inherit);
+  font-size: max(var(--font-size-input-min), var(--note-fs, 1em)); /* 터치 기기에서는 16 바닥(iOS 확대) */
   line-height: var(--note-lh, inherit);
   text-align: var(--note-align, inherit);
   color: var(--text-tertiary);
