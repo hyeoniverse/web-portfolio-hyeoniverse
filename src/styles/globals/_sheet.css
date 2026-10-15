@@ -24,7 +24,7 @@
   position: fixed;
   inset: auto 0 0 0;
   width: 100vw;
-  max-height: 85vh;
+  max-height: var(--sheet-initial-height);
   display: flex;
   flex-direction: column;
   background: var(--bg-dialog);

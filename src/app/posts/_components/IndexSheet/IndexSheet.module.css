@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
-  max-height: 85vh;
+  max-height: var(--sheet-initial-height);
   padding: var(--spacing-24) var(--spacing-20) calc(var(--spacing-24) + env(safe-area-inset-bottom, 0));
   border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   background: var(--bg-primary);
