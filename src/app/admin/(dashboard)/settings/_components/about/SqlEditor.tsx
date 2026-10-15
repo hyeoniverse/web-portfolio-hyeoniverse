@@ -50,7 +50,8 @@ const SP_THEME: SandpackTheme = {
   font: {
     body: "var(--font-family-code), monospace",
     mono: "var(--font-family-code), monospace",
-    size: "14px",
+    /* 터치 기기에서는 16 아래로 내려가지 않게 — iOS 는 작은 글자 칸에 초점이 가면 화면을 확대한다(--font-size-input-min) */
+    size: "max(var(--font-size-input-min), 14px)",
     lineHeight: "1.7",
   },
 };

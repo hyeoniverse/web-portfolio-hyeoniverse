@@ -323,6 +323,13 @@
   --font-size-body-md: var(--font-size-14); /* UI 본문 · 입력값 · 목록 항목 */
   --font-size-body-lg: var(--font-size-16); /* 긴 글 본문 */
   --font-size-body-xl: var(--font-size-18); /* 리드 문단 · 인용 */
+  /* 입력값 — 본문 크기와 같되 터치 기기에서는 16 아래로 내려가지 않는다. iOS 는 16px 보다 작은 칸에
+     초점이 가면 화면을 확대한다. 입력 칸은 묶음 --font-input-* 를 쓰고, 크기만 바꾸는 변형은 이 크기를 쓴다 */
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 글자 크기가 아니라 바닥 없음(max 의 한쪽)이다 */
+  --font-size-input-min: 0px;
+  --font-size-input-xs: max(var(--font-size-input-min), var(--font-size-body-xs));
+  --font-size-input-sm: max(var(--font-size-input-min), var(--font-size-body-sm));
+  --font-size-input-md: max(var(--font-size-input-min), var(--font-size-body-md));
   /* 제목 — Apple 기준 단계(34 · 28 · 22 · 20 · 18). 가장 작은 제목도 본문 16 과 구분되게 18 */
   --font-size-headline-xs: var(--font-size-18);
   --font-size-headline-sm: var(--font-size-20);
@@ -385,6 +392,17 @@
   --font-code-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-code-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-code-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  /* 입력 칸 — 본문 · 이름표 · 코드 묶음과 같되 크기가 --font-size-input-*(터치 기기에서 16 바닥).
+     컴포넌트가 직접 쓰지 않는다 — 아래 "입력 칸" 블록이 입력 요소 안에서 본문 · 이름표 · 코드 묶음을 이것으로 바꿔 읽게 한다 */
+  --font-input-md: var(--font-weight-regular) var(--font-size-input-md) / var(--line-height-160) var(--font-family-body);
+  --font-input-sm: var(--font-weight-regular) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-body);
+  --font-input-xs: var(--font-weight-regular) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-md: var(--font-weight-medium) var(--font-size-input-md) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-sm: var(--font-weight-medium) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-xs: var(--font-weight-medium) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-body);
+  --font-input-code-md: var(--font-weight-regular) var(--font-size-input-md) / var(--line-height-160) var(--font-family-code);
+  --font-input-code-sm: var(--font-weight-regular) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-code);
+  --font-input-code-xs: var(--font-weight-regular) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-code);
 
   /* Line Heights */
 
@@ -409,6 +427,12 @@
 
   /* Details */
 }
+@media (pointer: coarse) {
+  :root {
+    --font-size-input-min: var(--font-size-16);
+  }
+}
+
 @media (width > 480px) {
   :root {
     --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
@@ -435,6 +459,12 @@
   --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  --font-input-md: var(--font-weight-light) var(--font-size-input-md) / var(--line-height-160) var(--font-family-code);
+  --font-input-sm: var(--font-weight-light) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-code);
+  --font-input-xs: var(--font-weight-light) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-code);
+  --font-input-label-md: var(--font-weight-medium) var(--font-size-input-md) / var(--line-height-160) var(--font-family-code);
+  --font-input-label-sm: var(--font-weight-medium) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-code);
+  --font-input-label-xs: var(--font-weight-medium) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-code);
 }
 
 /* 고정폭 지면 안의 예외(하단 내비 · 푸터) — 다른 페이지와 같은 글꼴로 되돌린다 */
@@ -452,4 +482,29 @@
   --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
   --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+  --font-input-md: var(--font-weight-regular) var(--font-size-input-md) / var(--line-height-160) var(--font-family-body);
+  --font-input-sm: var(--font-weight-regular) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-body);
+  --font-input-xs: var(--font-weight-regular) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-md: var(--font-weight-medium) var(--font-size-input-md) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-sm: var(--font-weight-medium) var(--font-size-input-sm) / var(--line-height-160) var(--font-family-body);
+  --font-input-label-xs: var(--font-weight-medium) var(--font-size-input-xs) / var(--line-height-160) var(--font-family-body);
+}
+
+/* 입력 칸 — 컴포넌트가 어떤 글자 묶음 · 크기를 쓰든 입력 요소 자신에서는 터치 기기 16 바닥이 걸린 값으로 읽힌다.
+   iOS 는 16px 보다 작은 칸에 초점이 가면 화면을 확대한다. 묶음은 위 :root(· mono · sans)에서 이미 풀린 값이라
+   크기 토큰만 바꿔서는 안 되고 묶음 자체를 바꾼다. 서식 있는 편집기(contenteditable="true")는 본문 안 표 · 코드까지
+   커지므로 넣지 않고, 일반 텍스트 칸(plaintext-only)과 코드 편집기(CodeMirror)만 넣는다 */
+:where(input, textarea, select, [contenteditable="plaintext-only"], .cm-editor, .cm-editor *) {
+  --font-size-body-xs: var(--font-size-input-xs);
+  --font-size-body-sm: var(--font-size-input-sm);
+  --font-size-body-md: var(--font-size-input-md);
+  --font-body-xs: var(--font-input-xs);
+  --font-body-sm: var(--font-input-sm);
+  --font-body-md: var(--font-input-md);
+  --font-label-xs: var(--font-input-label-xs);
+  --font-label-sm: var(--font-input-label-sm);
+  --font-label-md: var(--font-input-label-md);
+  --font-code-xs: var(--font-input-code-xs);
+  --font-code-sm: var(--font-input-code-sm);
+  --font-code-md: var(--font-input-code-md);
 }
