@@ -98,6 +98,15 @@ select {
   font: inherit;
 }
 
+/* 물려받는 입력 칸의 글자 바닥 — 1em 이 물려받은 크기라 데스크톱은 그대로이고, 터치 기기에서만 16 아래로 내려가지 않는다
+   (iOS 는 16px 보다 작은 칸에 초점이 가면 화면을 확대한다). 묶음을 쓰는 칸은 _semantic.css 의 "입력 칸" 블록이 맡는다 */
+input,
+textarea,
+select,
+[contenteditable="plaintext-only"] {
+  font-size: max(var(--font-size-input-min), 1em);
+}
+
 /* 글로벌 a 태그 — 기본 underline / color 제거. 각 컴포넌트가 필요 시 override */
 a {
   text-decoration: none;
