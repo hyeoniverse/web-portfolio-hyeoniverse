@@ -276,14 +276,10 @@
   }
 }
 
-/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
-.revertBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 — hover 때까지 덮으면
+   outline 채움(반전 배경) 위에 글자만 원래 색으로 남으니, 쉬는 상태에만 건다 */
+.revertBtn:not(:hover:not(:disabled)) {
   color: var(--text-secondary);
-}
-
-.topBarActions .revertBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
 }
 
 /* ── Status / Error / Success Banner (inline in actions) — top bar 위쪽으로 띄움 ── */
@@ -1151,14 +1147,10 @@
 }
 
 /* ── Retranslate ── */
-/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
-.retranslateBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 — hover 때까지 덮으면
+   outline 채움(반전 배경) 위에 글자만 원래 색으로 남으니, 쉬는 상태에만 건다 */
+.retranslateBtn:not(:hover:not(:disabled)) {
   color: var(--text-secondary);
-}
-
-.topLeft .retranslateBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
 }
 
 .retranslateDropdown {
