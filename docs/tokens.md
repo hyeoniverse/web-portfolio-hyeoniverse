@@ -501,7 +501,7 @@
 
 ## `src/styles/globals/_component.css`
 
-토큰 115개
+토큰 117개
 
 | 토큰 | 값 |
 |---|---|
@@ -522,6 +522,8 @@
 | `--modal-padding-sm` | `var(--spacing-8) var(--spacing-12)` |
 | `--modal-padding-md` | `var(--spacing-16) var(--spacing-20)` |
 | `--modal-padding-lg` | `var(--spacing-24) var(--spacing-24)` |
+| `--sheet-top-gap` | `calc(env(safe-area-inset-top, 0px) + var(--spacing-24))` |
+| `--sheet-initial-height` | `50dvh` |
 | `--card-padding-sm` | `var(--spacing-4) var(--spacing-12)` |
 | `--card-padding-md` | `var(--spacing-16) var(--spacing-16)` |
 | `--card-padding-lg` | `var(--spacing-24) var(--spacing-32)` |

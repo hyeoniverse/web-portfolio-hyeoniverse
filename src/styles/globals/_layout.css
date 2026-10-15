@@ -123,7 +123,7 @@ main > .content {
   z-index: 2;
   width: 100vw;
   min-height: 0;
-  max-height: 85vh;
+  max-height: var(--sheet-initial-height);
   overflow: hidden;
   background: var(--bg-dialog);
   border: none;
