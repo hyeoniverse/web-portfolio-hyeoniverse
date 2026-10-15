@@ -45,10 +45,17 @@
   background: var(--bg-tertiary-alt);
 }
 
+/* 손잡이는 시트 맨 위에 붙인다 — 시트 안쪽 여백(위 24)을 거슬러 올라가고, 아래 간격도 조금 당긴다 */
+.sheetHandle {
+  margin: calc(var(--spacing-24) * -1) 0 calc(var(--spacing-8) * -1);
+}
+
+/* 제목 줄도 시트를 끄는 자리다(useSheetDrag) — 브라우저가 그 손짓을 스크롤로 가져가지 않게 */
 .sheetHeader {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-12);
+  touch-action: none;
 }
 
 .sheetTitle {

@@ -331,6 +331,7 @@ export default function Popover({
                   ref={topContentRef}
                   popover="manual"
                   className={cn("ui-sheet", contentClassName)}
+                  data-sheet
                   /* 시트는 언제나 화면 폭이다. contentClassName 은 드롭다운의 폭(width: 300px 등)도 함께 담아
                      오는데, 그 클래스(층 밖)가 .ui-sheet(base 층)를 이겨 시트가 좁아졌다 — 폭만 여기서 되돌린다 */
                   style={SHEET_SIZE}
