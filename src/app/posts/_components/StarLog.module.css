@@ -1,12 +1,57 @@
-/* 글 목록 페이지 바탕의 별밭 — 페이지 전체 길이를 덮고 함께 스크롤된다. 내용 뒤(.page 의 isolation 안 z -1) */
-.field {
+/* 글 목록 페이지 바탕의 별밭 — 페이지 전체 길이를 덮고 함께 스크롤된다. 내용 뒤(.page 의 isolation 안 z -1).
+   --px · --py 는 StarLog 가 포인터 위치로 넣는다 */
+.wrap {
+  --px: -999px;
+  --py: -999px;
   position: absolute;
   inset: 0;
   z-index: -1;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
   color: var(--text-accent);
   pointer-events: none;
+}
+.field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* 손전등 — 포인터 둘레 원 안에서만 밝은 별이 보인다 */
+.lamp {
+  opacity: 0;
+  mask-image: radial-gradient(circle 180px at var(--px) var(--py), black 0%, transparent 100%);
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+.wrap[data-lit] .lamp {
+  opacity: 1;
+}
+.glowDust {
+  fill: var(--text-secondary);
+  opacity: 0.55;
+}
+.glowStar {
+  fill: var(--text-accent);
+  opacity: 0.8;
+}
+/* 빈 곳을 누르면 ✦ 여섯 개가 사방으로 퍼지며 사라진다 */
+.burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.spark {
+  position: absolute;
+  left: -9px;
+  top: -9px;
+  width: 18px;
+  max-width: none; /* 전역 svg max-width: 100% — 너비 0 인 .burst 안에서 찌그러지지 않게 */
+  height: 18px;
+  fill: currentColor;
+  animation: spark-fly calc(var(--duration-slower) * 1.1) var(--ease-standard) forwards;
+}
+@keyframes spark-fly {
+  from { transform: rotate(var(--a)) translateY(-6px) scale(0.8); opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(-60px) scale(0.5) rotate(90deg); opacity: 0; }
 }
 .dust {
   fill: var(--text-tertiary);
