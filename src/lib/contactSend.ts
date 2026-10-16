@@ -1,17 +1,15 @@
 /**
- * 문의 폼 전송 — 설정 › 서비스 › 이메일 서비스에서 고른 공급자로 방문자 브라우저가 바로 보낸다.
+ * 문의 폼 공급자 전송 — 설정 › 서비스 › 이메일 서비스에서 고른 공급자로 보낸다. 서버(/api/contact)가 부른다.
  *
- * 예전에는 공급자 설정과 상관없이 Formspree(@formspree/react, 폼 ID 고정)로만 보냈다. 세 공급자 모두
- * 브라우저에서 부르는 쪽을 공식 경로로 두고 있고 키도 공개용이라(NEXT_PUBLIC_*), 서버를 거치지 않는다
- * (서버를 거치면 첨부가 Vercel 요청 크기 한도에 걸린다).
+ * 예전에는 방문자 브라우저가 공급자로 바로 보냈다. 그러면 reCAPTCHA 를 서버에서 확인할 수 없고(봇이 공급자로 바로
+ * 보내면 그만이다), 공급자 키도 브라우저에 실려야 했다. 지금은 서버가 입력 · reCAPTCHA 를 확인한 뒤 서버 키로 보낸다.
  *
- * 첨부는 폼의 attachment 칸을 그대로 싣는다 — 받아 주는지는 공급자 요금제에 달렸다.
- * - Formspree: 파일 업로드는 유료 요금제에서만 받는다(무료 요금제는 없음)
- * - Web3Forms: 파일 첨부는 유료(Pro) 요금제에서만 받는다
- * - EmailJS: 유료 요금제에서만(무료는 첨부 없음). send-form 이 폼의 파일을 템플릿의 "변수 첨부(Variable
- *   Attachment)"로 붙인다 — 템플릿에서 매개변수 이름을 attachment 로 맞춰야 한다
- * reCAPTCHA 토큰(g-recaptcha-response)은 셋 모두에 함께 보낸다 — Formspree·EmailJS 는 대시보드에 비밀 키를
- * 넣으면 검증하고, 검증을 쓰지 않는 공급자는 무시한다.
+ * 첨부 파일은 공급자에 싣지 않는다 — 방문자가 비공개 버킷에 직접 올린 파일의 내려받기 링크를 본문에 붙인다
+ * (/api/contact/upload). 공급자 요금제와 상관없이 첨부를 받고, Vercel 요청 크기 한도에도 걸리지 않는다.
+ *
+ * - EmailJS 를 서버에서 부르려면 EmailJS 계정 › Security 의 "Allow EmailJS API for non-browser applications" 를 켜고,
+ *   Private Key 를 EMAILJS_PRIVATE_KEY 로 넣어야 한다(accessToken).
+ * - Formspree 폼에 "허용 도메인"을 걸어 두었다면 서버 요청이 막힐 수 있다 — referer 로 사이트 주소를 보낸다.
  */
 
 export type ContactProvider = "formspree" | "web3forms" | "emailjs";
@@ -39,6 +37,8 @@ export async function sendContact(
   provider: ContactProvider,
   keys: Record<string, string | undefined>,
   form: FormData,
+  /** 서버에서 보낼 때 — Formspree 허용 도메인 검사용 사이트 주소 */
+  referer?: string,
 ): Promise<ContactSendResult> {
   if (provider === "web3forms") {
     const accessKey = keys.NEXT_PUBLIC_WEB3FORMS_KEY;
@@ -66,6 +66,8 @@ export async function sendContact(
     body.set("service_id", serviceId);
     body.set("template_id", templateId);
     body.set("user_id", publicKey);
+    /* 서버에서 부를 때 필요한 비공개 키(EmailJS › Security) */
+    if (keys.EMAILJS_PRIVATE_KEY) body.set("accessToken", keys.EMAILJS_PRIVATE_KEY);
     const res = await post("https://api.emailjs.com/api/v1.0/email/send-form", body);
     if (!res) return { ok: false, reason: "network" };
     /* 성공하면 본문이 "OK" 글자 하나다. 실패는 사람이 읽는 문장 */
@@ -74,7 +76,10 @@ export async function sendContact(
 
   const formId = keys.NEXT_PUBLIC_FORMSPREE_ID;
   if (!formId) return { ok: false, reason: "not_configured" };
-  const res = await post(`https://formspree.io/f/${encodeURIComponent(formId)}`, form, { Accept: "application/json" });
+  const res = await post(`https://formspree.io/f/${encodeURIComponent(formId)}`, form, {
+    Accept: "application/json",
+    ...(referer ? { Referer: referer } : {}),
+  });
   if (!res) return { ok: false, reason: "network" };
   if (res.ok) return { ok: true };
   const data = await res.json().catch(() => null);

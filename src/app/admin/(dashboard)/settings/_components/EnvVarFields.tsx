@@ -34,6 +34,8 @@ const ENV_VAR_META: Record<string, { docsUrl?: string; prefix?: string }> = {
   NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: { docsUrl: "https://dashboard.emailjs.com/admin/account" },
   // 보안
   NEXT_PUBLIC_RECAPTCHA_SITE_KEY: { docsUrl: "https://www.google.com/recaptcha/admin" },
+  RECAPTCHA_SECRET_KEY: { docsUrl: "https://www.google.com/recaptcha/admin" },
+  EMAILJS_PRIVATE_KEY: { docsUrl: "https://dashboard.emailjs.com/admin/account/security" },
   // AI / 번역
   NANOBANANA_API_KEY: { docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
   HUGGINGFACE_API_KEY: { docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
@@ -142,6 +144,7 @@ export default function EnvVarFields({
       { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID" },
       { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID" },
       { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key" },
+      { key: "EMAILJS_PRIVATE_KEY", label: "EmailJS Private Key" },
     ] : []),
   ].filter(Boolean) as FieldRow[];
 
@@ -154,7 +157,11 @@ export default function EnvVarFields({
   const groups: { id: string; rows: FieldRow[]; icon: LucideIcon }[] = [
     { id: "infra", rows: infraRows, icon: Database },
     { id: "email", rows: emailRows, icon: Mail },
-    { id: "security", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [], icon: Shield },
+    { id: "security", rows: recaptchaEnabled ? [
+      { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" },
+      /* 서버 검증(/api/contact) 비밀 키 — 없으면 reCAPTCHA 를 켠 문의 폼이 보내지지 않는다 */
+      { key: "RECAPTCHA_SECRET_KEY", label: "reCAPTCHA Secret Key" },
+    ] : [], icon: Shield },
     { id: "cover", rows: [
       ...toRows(coverProviders),
       { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" },

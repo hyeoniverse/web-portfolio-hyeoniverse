@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 196,
-  "routeFiles": 136,
+  "total": 198,
+  "routeFiles": 138,
   "access": {
-    "public": 66,
+    "public": 68,
     "signed-in": 60,
     "author": 27,
     "admin": 16,
@@ -786,6 +786,52 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "contact",
+      "files": 3,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/contact",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/api/contact/attachment",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/contact/attachment",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/contact/attachment",
+          "access": "owner"
+        },
+        {
+          "method": "POST",
+          "path": "/api/contact/upload",
+          "access": "public"
+        }
+      ],
+      "tables": [
+        "site_settings"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage"
+      ],
+      "access": {
+        "public": 4,
+        "signed-in": 0,
+        "author": 0,
+        "admin": 0,
+        "owner": 1,
+        "cron": 0
+      }
+    },
+    {
       "key": "cover",
       "files": 5,
       "endpoints": [
@@ -1320,13 +1366,12 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 27,
+      "files": 26,
       "folded": [
         "auth",
         "brand-symbol-font",
         "categories",
         "comment-reactions",
-        "contact",
         "content-translate",
         "cron",
         "custom-emojis",
@@ -1362,21 +1407,6 @@ export const apiMap: ApiMap = {
           "method": "POST",
           "path": "/api/comment-reactions",
           "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/contact/attachment",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/contact/attachment",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/contact/attachment",
-          "access": "owner"
         },
         {
           "method": "POST",
@@ -1539,11 +1569,11 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 24,
+        "public": 22,
         "signed-in": 5,
         "author": 1,
         "admin": 0,
-        "owner": 1,
+        "owner": 0,
         "cron": 2
       }
     }

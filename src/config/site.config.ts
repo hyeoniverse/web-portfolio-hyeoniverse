@@ -150,12 +150,9 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   emailService: {
     provider: "formspree" as "web3forms" | "formspree" | "emailjs",
-    // 문의 폼은 방문자 브라우저가 고른 공급자로 바로 보낸다(lib/contactSend).
-    // 파일 첨부 — 받는지는 공급자 요금제에 달렸다:
-    // - Formspree: 유료 요금제에서만(무료 요금제는 파일 업로드 없음)
-    // - Web3Forms: 유료(Pro) 요금제에서만
-    // - EmailJS: 유료 요금제에서만(Personal 500KB · Professional 2MB · Business 30MB), 템플릿에 변수 첨부(이름 attachment)도 설정
-    // 첨부를 단 메일이 3번 이어 실패하면 첨부만 저절로 꺼진다(/api/contact/attachment)
+    // 문의 폼은 서버(/api/contact)가 입력 · reCAPTCHA 를 확인한 뒤 고른 공급자로 보낸다(lib/contactSend).
+    // 파일 첨부 — 공급자에 싣지 않고 비공개 버킷(contact-attachments)에 올린 뒤 7일짜리 내려받기 링크를 본문에 붙인다.
+    // 공급자 요금제와 상관없이 쓸 수 있다. 크기 · 형식 제한은 media.limits · blockedExtensions 를 따른다
     enableFileUpload: false,
   },
 

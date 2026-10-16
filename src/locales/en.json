@@ -89,7 +89,9 @@
       "networkError": "Network error. Please check your connection.",
       "sent": "Message sent.",
       "sendFailed": "Couldn’t send the message. Please try again in a moment.",
-      "sendFailedAttachment": "Couldn’t send the message. The attachment may be the cause; please remove it and try again."
+      "captchaFailed": "The anti-spam check failed. Please refresh the page and try again.",
+      "rateLimited": "Too many messages in a short time. Please try again in a moment.",
+      "attachmentRejected": "This attachment can’t be sent. Please check its type or size."
     }
   },
   "aboutPage": {

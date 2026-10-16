@@ -1,0 +1,131 @@
+import { jsonOk } from "@/lib/api/response";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getSecret } from "@/lib/getSecret";
+import { logService } from "@/lib/serviceLog";
+import { EMAIL_RE } from "@/utils/commentValidation";
+import { sendContact, type ContactProvider } from "@/lib/contactSend";
+import { verifyRecaptcha } from "@/lib/contact/recaptcha";
+import { checkTicket } from "@/lib/contact/ticket";
+import {
+  ATTACHMENT_LINK_TTL_SEC,
+  ATTACHMENT_PATH_RE,
+  CONTACT_BUCKET,
+  FIELD_MAX,
+  clientIp,
+  createRateLimiter,
+} from "@/lib/contact/limits";
+
+/**
+ * POST /api/contact — 문의 폼 보내기. 방문자 브라우저 대신 서버가 공급자로 보낸다(lib/contactSend).
+ *
+ * 1. 입력 확인 — 이름 · 메일 · 본문 필수, 길이 제한(FIELD_MAX), 메일 모양.
+ * 2. reCAPTCHA — 설정에서 켜 두었으면 서버가 Google 에 토큰을 확인한다(lib/contact/recaptcha). 첨부를 올리며 이미
+ *    확인했으면 그때 받은 티켓으로 대신한다(lib/contact/ticket) — 토큰은 한 번만 확인할 수 있어서.
+ * 3. 첨부 — 방문자가 비공개 버킷에 올린 파일(/api/contact/upload)의 내려받기 링크(7일)를 본문 끝에 붙인다.
+ * 4. 공급자로 보낸다 — 키는 서버에서만 읽는다(설정 › 서비스 › 환경 변수).
+ *
+ * 응답은 { ok: true } 또는 { ok: false, reason } — 폼이 사유별로 안내한다.
+ * reason: invalid · captcha · rate_limited · not_configured · rejected · network
+ */
+
+/** IP 당 10분에 5번 */
+const allow = createRateLimiter(5, 10 * 60 * 1000);
+
+type Body = {
+  name?: unknown;
+  email?: unknown;
+  title?: unknown;
+  message?: unknown;
+  recaptchaToken?: unknown;
+  attachment?: { path?: unknown; name?: unknown; ticket?: unknown } | null;
+};
+
+const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+const fail = (reason: string, status = 400) => Response.json({ ok: false, reason }, { status });
+
+export async function POST(request: Request) {
+  const ip = clientIp(request);
+  if (!allow(ip)) return fail("rate_limited", 429);
+
+  const body = (await request.json().catch(() => null)) as Body | null;
+  if (!body) return fail("invalid");
+  const name = str(body.name);
+  const email = str(body.email);
+  const title = str(body.title);
+  const message = str(body.message);
+  if (!name || !email || !message) return fail("invalid");
+  if (name.length > FIELD_MAX.name || email.length > FIELD_MAX.email || title.length > FIELD_MAX.title
+    || message.length > FIELD_MAX.message || !EMAIL_RE.test(email)) return fail("invalid");
+
+  const cfg = await getSiteConfig();
+  const attachmentPath = str(body.attachment?.path);
+  const attachmentName = str(body.attachment?.name).slice(0, 120);
+  if (attachmentPath && (!cfg.emailService?.enableFileUpload || !ATTACHMENT_PATH_RE.test(attachmentPath))) return fail("invalid");
+
+  // ── reCAPTCHA ──
+  if (cfg.recaptcha?.enabled) {
+    const ticketOk = !!attachmentPath && checkTicket(str(body.attachment?.ticket), attachmentPath);
+    if (!ticketOk) {
+      const result = await verifyRecaptcha({
+        token: str(body.recaptchaToken),
+        version: cfg.recaptcha.version === "v2" ? "v2" : "v3",
+        action: "contact_form",
+        remoteIp: ip === "unknown" ? null : ip,
+      });
+      if (!result.ok) {
+        if (result.reason === "not_configured") {
+          await logService({ category: "contact", provider: "recaptcha", ok: false, kind: "not_configured", message: "RECAPTCHA_SECRET_KEY is not set" });
+          return fail("not_configured", 503);
+        }
+        if (result.reason === "network") return fail("network", 502);
+        return fail("captcha", 403);
+      }
+    }
+  }
+
+  // ── 첨부 링크 ──
+  let attachmentUrl = "";
+  if (attachmentPath) {
+    const { data, error } = await createAdminClient().storage
+      .from(CONTACT_BUCKET)
+      .createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SEC, { download: attachmentName || true });
+    if (error || !data) return fail("invalid");
+    attachmentUrl = data.signedUrl;
+  }
+
+  // ── 공급자로 보내기 ──
+  const provider = (cfg.emailService?.provider ?? "formspree") as ContactProvider;
+  const keyNames = [
+    "NEXT_PUBLIC_FORMSPREE_ID", "NEXT_PUBLIC_WEB3FORMS_KEY",
+    "NEXT_PUBLIC_EMAILJS_SERVICE_ID", "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", "EMAILJS_PRIVATE_KEY",
+  ];
+  const keys = Object.fromEntries(await Promise.all(keyNames.map(async (k) => [k, await getSecret(k)] as const)));
+
+  const form = new FormData();
+  form.set("name", name);
+  form.set("email", email);
+  form.set("title", title);
+  form.set("message", attachmentUrl
+    ? `${message}\n\n— 첨부 파일: ${attachmentName || "file"}\n${attachmentUrl}\n(링크는 7일 동안 열립니다)`
+    : message);
+  if (attachmentUrl) {
+    form.set("attachment_name", attachmentName);
+    form.set("attachment_url", attachmentUrl);
+  }
+
+  const result = await sendContact(provider, keys, form, process.env.SITE_URL || undefined);
+  if (!result.ok) {
+    await logService({
+      category: "contact",
+      provider,
+      ok: false,
+      kind: result.reason,
+      message: result.reason === "rejected" ? result.detail : undefined,
+    });
+    if (result.reason === "network") return fail("network", 502);
+    if (result.reason === "not_configured") return fail("not_configured", 503);
+    return fail("rejected", 502);
+  }
+  return jsonOk({ ok: true });
+}
