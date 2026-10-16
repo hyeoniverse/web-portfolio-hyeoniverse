@@ -72,7 +72,7 @@ export default function BlogCalendar({
             <X size={12} aria-hidden />
           </Pressable>
         ) : <span />}
-        <Checkbox label={t("postsPage.onlyMarked")} checked={onlyMarked} onChange={setOnlyMarked} />
+        <Checkbox shape="square" label={t("postsPage.onlyMarked")} checked={onlyMarked} onChange={setOnlyMarked} />
       </div>
       {onlyMarked ? (
         byMonth.length > 0 ? (
