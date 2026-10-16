@@ -240,6 +240,7 @@ export {
   Key,
   LocateFixed,
   Route,
+  Telescope,
 } from "lucide-react";
 export type { LucideIcon } from "lucide-react";
 

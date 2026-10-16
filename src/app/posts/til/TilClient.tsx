@@ -7,6 +7,7 @@ import TransitionLink from "@/components/ui/TransitionLink";
 import { PostArticleBody } from "@/components/posts/PostArticleView";
 import PageTitle from "@/components/ui/PageTitle";
 import Pressable from "@/components/ui/Pressable";
+import { Telescope } from "@/components/icons";
 import { SITE_TIME_ZONE } from "@/constants";
 import type { TilEntry } from "@/lib/posts";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -15,8 +16,8 @@ import PostsSubnav from "../_components/PostsSubnav";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
 import TilSky from "./TilSky";
-import TilStarMap from "./TilStarMap";
-import { litCount, CONSTELLATIONS } from "./constellations";
+import TilSpace from "./TilSpace";
+import { CONSTELLATIONS } from "./constellations";
 
 /** 한국 시간 기준 YYYY-MM-DD — 서버(UTC)와 브라우저가 같은 날로 묶도록 시간대를 고정한다 */
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SITE_TIME_ZONE });
@@ -125,8 +126,8 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
   // 보기 — 잔디(기본) · 별자리 지도. 지도에서 달을 고르면 피드가 그달로 좁혀진다
   const [view, setView] = useState<"grass" | "map">("grass");
+  const feedRef = useRef<HTMLElement>(null);
   const [month, setMonth] = useState<number | null>(null);
-  const doneCount = CONSTELLATIONS.filter((c, m) => litCount(byDay, year, m) >= c.stars.length).length;
   const changeYear = (y: number) => {
     setYear(y);
     setMonth(null);
@@ -247,27 +248,25 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
             {todayCount > 0 ? fillTemplate(t("tilPage.todayDone"), { n: todayCount }) : t("tilPage.todayNot")}
           </span>
         </div>
-          {/* 보기 전환 — 잔디 · 별자리 지도 */}
-          <div className={styles.viewSwitch} role="tablist" aria-label={t("tilPage.viewLabel")}>
-            {(["grass", "map"] as const).map((v) => (
-              <Pressable
-                key={v}
-                noTapScale
-                role="tab"
-                aria-selected={view === v}
-                className={`${styles.viewTab} ${view === v ? styles.viewTabOn : ""}`}
-                onClick={() => { setView(v); setMonth(null); pick(null); }}
-              >
-                {v === "grass" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
-              </Pressable>
-            ))}
-          </div>
         </div>
+        <div className={styles.toolbarEnd}>
         <dl className={styles.stats}>
           <div className={styles.stat}><dt>{t("tilPage.statYear")}</dt><dd>{yearCount}</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statStreak")}</dt><dd>{current}</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statLongest")}</dt><dd>{longest}</dd></div>
         </dl>
+        {/* 망원경 — 별자리 우주를 켜고 끈다 */}
+        <Pressable
+          noTapScale
+          aria-pressed={view === "map"}
+          aria-label={view === "map" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
+          title={view === "map" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
+          className={`${styles.scopeBtn} ${view === "map" ? styles.scopeBtnOn : ""}`}
+          onClick={() => { setView(view === "map" ? "grass" : "map"); setMonth(null); pick(null); }}
+        >
+          <Telescope size={18} strokeWidth={1.8} aria-hidden />
+        </Pressable>
+        </div>
       </div>
 
       {view === "grass" ? (
@@ -317,30 +316,26 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
       </div>
         </>
       ) : (
-        <section className={styles.mapWrap}>
-          <p className={styles.mapHead}>
-            ✦ {fillTemplate(t("tilPage.mapDone"), { n: doneCount })}
-          </p>
-          {/* 넓은 화면은 6열, 좁은 화면은 3열 판 — 보이는 것 하나만 CSS 가 고른다 */}
-          {[6, 3].map((cols) => (
-            <TilStarMap
-              key={cols}
-              cols={cols}
-              className={cols === 6 ? styles.mapWide : styles.mapNarrow}
-              year={year}
-              byDay={byDay}
-              month={month}
-              onMonth={(m) => { setMonth(m); pick(null); setShown(PAGE_DAYS); }}
-              monthName={monthName}
-              lang={lang}
-            />
-          ))}
-        </section>
+        <TilSpace
+          year={year}
+          byDay={byDay}
+          monthName={monthName}
+          lang={lang}
+          doneLabel={t("tilPage.mapDone")}
+          scrollHint={t("tilPage.scrollHint")}
+          openLabel={t("tilPage.openMonth")}
+          onMonth={(m) => {
+            setMonth(m);
+            pick(null);
+            setShown(PAGE_DAYS);
+            requestAnimationFrame(() => feedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+          }}
+        />
       )}
 
       <div className={styles.body}>
         {/* 기록 피드 — git log 처럼 날짜별로 이어지고, 짧은 TIL 은 본문까지 바로 읽힌다. 잔디 칸을 고르면 그날로 좁혀진다 */}
-        <section className={styles.feed} aria-live="polite">
+        <section ref={feedRef} className={styles.feed} aria-live="polite">
           <div className={styles.feedHead}>
             <h2 className={styles.feedTitle}><b>$</b> git log --til</h2>
             {month !== null && !selected && (
