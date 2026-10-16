@@ -4,6 +4,7 @@
    예전 뼈대는 칸 모양이 달라서(정사각 칸에 알약 모서리 막대 → 원, 달력 줄은 글자 한 줄뿐) 다 불러오면 화면이 바뀌었다.
    SkeletonLine 은 모서리가 알약이라 글자 자리에만 쓰고, 이미지 · 배지 같은 면은 Skeleton 에 모서리를 직접 준다. */
 import { Skeleton, SkeletonCircle, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
+import FormGroup from "@/components/ui/FormGroup";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import calendar from "./CalendarManager.module.css";
@@ -98,6 +99,19 @@ export function GallerySkeleton({ count = 10 }: { count?: number }) {
   );
 }
 
+/** 댓글 이미지 정리 — 묶음 제목(지울 때가 지난 · 곧 지워질) · 설명 아래 갤러리 칸. 보통 몇 장뿐이라 한 줄.
+    제목은 h3 · 설명은 p 라 막대는 span 으로 */
+export function CommentImagesSkeleton() {
+  return (
+    <FormGroup
+      title={<SkeletonLine as="span" width={180} height={14} />}
+      description={<SkeletonLine as="span" width="60%" height="var(--font-size-body-sm)" />}
+    >
+      <GallerySkeleton count={5} />
+    </FormGroup>
+  );
+}
+
 /** 업로드한 파일의 걸러 보기 — 종류 칩 묶음 · "안 쓰는 파일만" 스위치. 개수를 받기 전에도 같은 자리를 차지한다 */
 export function MediaFiltersSkeleton() {
   return (
@@ -115,6 +129,8 @@ const TOOLBAR: Record<LibrarySection, { filters?: boolean; search?: boolean; but
   emojis: { search: true, buttons: [76, 76] },
   covers: null,
   files: { filters: true, search: true, buttons: [84] },
+  /* "모두 지우기"는 지울 이미지가 있을 때만 생기므로 자리를 잡지 않는다 */
+  commentImages: null,
 };
 
 /** 구획 머리 — 제목 · 설명 · 도구 줄(LibraryHead 와 같은 줄 배치) */
@@ -143,6 +159,7 @@ const BODY: Record<LibrarySection, () => React.ReactNode> = {
   emojis: () => <EmojiGridSkeleton />,
   covers: () => <GallerySkeleton />,
   files: () => <GallerySkeleton />,
+  commentImages: () => <CommentImagesSkeleton />,
 };
 
 /** 구획 하나 — 관리자 코드를 받는 동안 */
