@@ -93,6 +93,16 @@ export default function PostCardStandard({
     return () => ro.disconnect();
   }, []);
 
+  /* 로그 스킨 — 커버에서 빼꼼 나오는 몽이. 처음 자리는 slug 로 정하고(서버 · 브라우저 같은 값),
+     카드에서 포인터가 나갈 때마다 다음에 나올 자리 · 방향 · 표정 · 기울기를 새로 뽑는다 */
+  const peekRef = useRef<HTMLDivElement>(null);
+  const peekStyle = peekVars(seedOf(post.slug || post.id));
+  const rerollPeek = () => {
+    const el = peekRef.current;
+    if (!el) return;
+    for (const [k, v] of Object.entries(peekVars(Math.random()))) el.style.setProperty(k, v);
+  };
+
   const cardClass = [
     styles.card,
     !showImage && styles.placeholderCard,
@@ -114,12 +124,13 @@ export default function PostCardStandard({
       className={cardClass}
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
+      onMouseLeave={rerollPeek}
       onFocus={handlePrefetch}
       data-more="true"
       data-clickable="true"
     >
       <PostCardLink {...cardLink} />
-      <div className={styles.imageWrap}>
+      <div ref={peekRef} className={styles.imageWrap} style={peekStyle}>
         {showImage ? (
           <ProgressiveImage
             src={post.cover_image}
@@ -242,4 +253,27 @@ export default function PostCardStandard({
       </div>
     </div>
   );
+}
+
+const PEEK_POSES = ["happy-front", "normal-front", "surprised-front", "heart-front", "wave-front", "sleep-front"];
+
+/** 0 … 1 사이 씨앗 — 같은 글이면 서버 · 브라우저가 같은 값 */
+function seedOf(text: string) {
+  let h = 2166136261;
+  for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return (h >>> 0) / 4294967296;
+}
+
+/** 빼꼼 몽이의 자리 — 위 · 아래 가장자리, 가로 위치, 표정, 기울기를 CSS 변수로 */
+function peekVars(seed: number): Record<string, string> {
+  const pick = (n: number, k: number) => Math.floor(((seed * 9301 * (k + 1) + 49297 * k) % 1) * n);
+  const fromTop = pick(3, 1) === 0; // 셋 중 하나는 위에서 거꾸로
+  return {
+    "--peek-x": `${8 + pick(70, 2)}%`,
+    "--peek-img": `url("/images/mascot/bunny-${PEEK_POSES[pick(PEEK_POSES.length, 3)]}.png")`,
+    "--peek-tilt": `${pick(25, 4) - 12}deg`,
+    "--peek-flip": fromTop ? "180deg" : "0deg",
+    "--peek-top": fromTop ? "0%" : "auto",
+    "--peek-bottom": fromTop ? "auto" : "0%",
+  };
 }

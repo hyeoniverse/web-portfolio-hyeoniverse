@@ -26,7 +26,7 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
   return (
     <section className={styles.profile}>
       {/* 소개 카드 오른쪽 위에서 손 흔드는 몽이 */}
-      <MongSticker pose="wave-left" className={styles.profileMong} />
+      <MongSticker pose="wave-left" flat className={styles.profileMong} />
       <div className={styles.profileTop}>
         <span className={styles.profileRing}>
           <AuthorAvatar value={author.avatar} name={author.name} size={72} className={styles.profileAvatar} />

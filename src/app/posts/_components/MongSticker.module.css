@@ -23,3 +23,10 @@
 @media (prefers-reduced-motion: reduce) {
   .float .img { animation: none; }
 }
+.flat .img {
+  filter:
+    drop-shadow(1.5px 0 0 var(--text-white))
+    drop-shadow(-1.5px 0 0 var(--text-white))
+    drop-shadow(0 1.5px 0 var(--text-white))
+    drop-shadow(0 -1.5px 0 var(--text-white));
+}

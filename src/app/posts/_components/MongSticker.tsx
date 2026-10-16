@@ -28,10 +28,11 @@ const SIZES: Record<MongPose, [number, number]> = {
   "sleep-left": [783, 1173],
 };
 
-export default function MongSticker({ pose, className, float = false }: { pose: MongPose; className?: string; float?: boolean }) {
+/** flat — 바닥 그림자 없이 흰 테두리만. 좁은 사이드바처럼 둘레가 잘리는 자리에서 쓴다 */
+export default function MongSticker({ pose, className, float = false, flat = false }: { pose: MongPose; className?: string; float?: boolean; flat?: boolean }) {
   const [w, h] = SIZES[pose];
   return (
-    <span className={`${styles.sticker} ${float ? styles.float : ""} ${className ?? ""}`} aria-hidden>
+    <span className={`${styles.sticker} ${float ? styles.float : ""} ${flat ? styles.flat : ""} ${className ?? ""}`} aria-hidden>
       <Image src={`/images/mascot/bunny-${pose}.png`} alt="" width={w} height={h} sizes="240px" className={styles.img} />
     </span>
   );

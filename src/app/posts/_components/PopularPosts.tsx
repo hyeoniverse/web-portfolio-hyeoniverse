@@ -42,7 +42,7 @@ export default function PopularPosts() {
         <Flame size={14} className={styles.flameIcon} fill="currentColor" />
         <T k="postsPage.popular" />
         {/* 하트 몽이 — 인기 글에 마음이 간다. 목록에 올리면 들썩인다 */}
-        <MongSticker pose="heart-left" className={styles.labelMong} />
+        <MongSticker pose="heart-left" flat className={styles.labelMong} />
       </div>
       {/* 지표 선택은 라벨 아래 줄 — 같은 줄에 두면 좁은 사이드바에서 라벨이 한 글자씩 접혔다 */}
       <SegmentedControl<Metric>
