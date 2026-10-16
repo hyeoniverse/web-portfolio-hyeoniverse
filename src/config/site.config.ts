@@ -431,6 +431,8 @@ export const siteConfig = {
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
+    // TIL 페이지(/posts/til)에 모을 글의 태그 — 이 태그가 붙은 발행 글이 잔디에 심긴다
+    tilTag: "TIL",
     bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
     bannerStyle: "editorial" as
       | "editorial"

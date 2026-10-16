@@ -31,6 +31,7 @@ export const navItems: NavItem[] = [
       { key: "posts-series", href: "/posts/series", label: "Series" },
       { key: "posts-tags", href: "/posts/tags", label: "Tags" },
       { key: "posts-history", href: "/posts/history", label: "History" },
+      { key: "posts-til", href: "/posts/til", label: "TIL" },
     ],
   },
   { key: "profile", href: "/profile", label: "Profile" },
