@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import TransitionLink from "@/components/ui/TransitionLink";
+import type { TilEntry } from "@/lib/posts";
+import type { StarRef } from "./TilSpace3D";
 import dynamic from "next/dynamic";
 import Pressable from "@/components/ui/Pressable";
 import { X } from "@/components/icons";
 import { CONSTELLATIONS, litCount } from "./constellations";
+import { ArrowLeft } from "@/components/icons";
 import { useDialogRef } from "@/hooks/useTopLayer";
 import styles from "./TilSpace.module.css";
 
@@ -23,11 +27,18 @@ function cssColorToHex(value: string) {
   return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
 }
 
-/* TIL 플라네타리움 — 망원경 단추로 여는 전체 화면 돔 하늘. 다른 요소는 모두 덮고, 위 · 아래에 해 · 완성 수와
-   닫기 단추만 남긴다. 별자리를 누르면 닫히며 피드가 그달로 좁혀진다. Esc 로도 닫는다(<dialog> top layer) */
+/* TIL 플라네타리움 — 망원경 단추로 여는 전체 화면 돔 하늘. 다른 요소는 모두 덮는다.
+   - 하늘: 끌어서 둘러보고, 은하수 · 별똥별 · 열두 별자리. 별자리를 누르면 그쪽으로 확대(초점)된다.
+   - 초점: 켜진 별 하나가 그날의 TIL — 올리면 날짜 · 제목 말풍선, 누르면 TIL 카드. 옆 패널에 그달 기록 목록과
+     "피드에서 보기"(닫히며 피드를 그달로 좁힌다), "하늘로"(초점 풀기).
+   - Esc 는 초점이면 하늘로, 아니면 닫는다(<dialog> top layer) */
 export default function TilSpace({
   year,
   byDay,
+  titleOf,
+  excerptOf,
+  formatDay,
+  texts,
   monthName,
   lang,
   doneLabel,
@@ -37,7 +48,11 @@ export default function TilSpace({
   onClose,
 }: {
   year: number;
-  byDay: Map<string, unknown[]>;
+  byDay: Map<string, TilEntry[]>;
+  titleOf: (e: TilEntry) => string;
+  excerptOf: (e: TilEntry) => string | null | undefined;
+  formatDay: (key: string) => string;
+  texts: { back: string; openFeed: string; openPost: string; empty: string };
   monthName: (m: number) => string;
   lang: "ko" | "en";
   doneLabel: string;
@@ -58,6 +73,22 @@ export default function TilSpace({
   };
 
   const lits = CONSTELLATIONS.map((_, m) => litCount(byDay, year, m));
+  // 초점 — 고른 별자리(확대), 가리킨 별, 펼친 별(TIL 카드)
+  const [focus, setFocus] = useState<number | null>(null);
+  const [hoverStar, setHoverStar] = useState<StarRef>(null);
+  const [openStar, setOpenStar] = useState<StarRef>(null);
+  const tipEl = useRef<HTMLDivElement>(null);
+  /** 그달 TIL 을 쓴 날(오름차순) — 별 i 번이 i 번째 날 */
+  const daysOf = (m: number) => {
+    const prefix = `${year}-${String(m + 1).padStart(2, "0")}-`;
+    return [...byDay.keys()].filter((k) => k.startsWith(prefix)).sort();
+  };
+  const dayOf = (s: StarRef) => (s ? daysOf(s.m)[s.i] ?? null : null);
+  const unfocus = () => {
+    setFocus(null);
+    setOpenStar(null);
+    setHoverStar(null);
+  };
   const doneCount = CONSTELLATIONS.filter((c, m) => lits[m] >= c.stars.length).length;
   const labelEls = useRef<(HTMLElement | null)[]>([]);
   const labels = CONSTELLATIONS.map((c, m) => ({
@@ -93,13 +124,29 @@ export default function TilSpace({
       aria-label={`${year} TIL`}
       data-lenis-prevent
       // Esc — 브라우저가 닫기 전에 가로채 상태로 닫는다
-      onCancel={(e) => { e.preventDefault(); leave(onClose); }}
+      onCancel={(e) => {
+        e.preventDefault();
+        if (focus !== null) unfocus();
+        else leave(onClose);
+      }}
     >
       <div className={styles.canvas}>
-        {!leaving && <TilSpace3D lits={lits} accent={accent} labels={labelEls} onPick={(m) => leave(() => onMonth(m))} />}
+        {!leaving && (
+          <TilSpace3D
+            lits={lits}
+            accent={accent}
+            labels={labelEls}
+            onPick={(m) => { setFocus(m); setOpenStar(null); }}
+            focus={focus}
+            hoverStar={hoverStar}
+            onStarHover={setHoverStar}
+            onStarPick={(st) => setOpenStar(st)}
+            tipRef={tipEl}
+          />
+        )}
       </div>
       {/* 별자리 이름표 — 3D 가 매 틀 자리를 옮긴다 */}
-      <div className={styles.labels} aria-hidden>
+      <div className={styles.labels} aria-hidden data-focus={focus !== null || undefined}>
         {labels.map((l, m) => (
           <span
             key={m}
@@ -111,6 +158,86 @@ export default function TilSpace({
           </span>
         ))}
       </div>
+      {/* 별 말풍선 — 가리킨 별의 날짜 · 제목 */}
+      <div ref={tipEl} className={styles.tip} data-show={hoverStar !== null || undefined} aria-hidden>
+        {(() => {
+          const d = dayOf(hoverStar);
+          const list = d ? byDay.get(d) ?? [] : [];
+          return d ? (
+            <>
+              <span className={styles.tipDate}>{d.replaceAll("-", ".")}</span>
+              {list.map((e) => <b key={e.id}>{titleOf(e)}</b>)}
+            </>
+          ) : null;
+        })()}
+      </div>
+
+      {/* 초점 패널 — 그달 별자리 · 진행 · 기록 목록 */}
+      {focus !== null && (
+        <aside className={styles.panel} key={focus}>
+          <Pressable noTapScale className={styles.back} onClick={unfocus}>
+            <ArrowLeft size={14} aria-hidden /> {texts.back}
+          </Pressable>
+          <p className={styles.panelMonth}>{year}.{String(focus + 1).padStart(2, "0")}</p>
+          <h2 className={styles.panelName}>
+            {lang === "en" ? CONSTELLATIONS[focus].en : CONSTELLATIONS[focus].ko}
+            {lang !== "en" && <span>{CONSTELLATIONS[focus].en}</span>}
+          </h2>
+          <p className={`${styles.panelCount} ${lits[focus] >= CONSTELLATIONS[focus].stars.length ? styles.panelDone : ""}`}>
+            {lits[focus] >= CONSTELLATIONS[focus].stars.length ? "✦ " : ""}
+            {lits[focus]} / {CONSTELLATIONS[focus].stars.length}
+          </p>
+          {daysOf(focus).length === 0 ? (
+            <p className={styles.panelEmpty}>{texts.empty}</p>
+          ) : (
+            <ol className={styles.panelList}>
+              {daysOf(focus).slice(0, CONSTELLATIONS[focus].stars.length).map((d, i) => (
+                <li key={d}>
+                  <Pressable
+                    noTapScale
+                    className={`${styles.panelItem} ${openStar?.m === focus && openStar.i === i ? styles.panelItemOn : ""}`}
+                    onClick={() => setOpenStar({ m: focus, i })}
+                    onMouseEnter={() => setHoverStar({ m: focus, i })}
+                    onMouseLeave={() => setHoverStar(null)}
+                  >
+                    <span className={styles.panelStar} aria-hidden>✦</span>
+                    <span className={styles.panelDate}>{d.slice(5).replace("-", ".")}</span>
+                    <span className={styles.panelTitle}>{(byDay.get(d) ?? []).map(titleOf).join(" · ")}</span>
+                  </Pressable>
+                </li>
+              ))}
+            </ol>
+          )}
+          <Pressable noTapScale className={styles.panelFeed} onClick={() => leave(() => onMonth(focus))}>
+            {texts.openFeed} ↓
+          </Pressable>
+        </aside>
+      )}
+
+      {/* 펼친 별 — 그날의 TIL 카드 */}
+      {(() => {
+        const d = dayOf(openStar);
+        if (!d) return null;
+        const list = byDay.get(d) ?? [];
+        return (
+          <div className={styles.card} key={d}>
+            <Pressable noTapScale className={styles.cardClose} aria-label={closeLabel} onClick={() => setOpenStar(null)}>
+              <X size={14} aria-hidden />
+            </Pressable>
+            <span className={styles.cardDate}>✦ {formatDay(d)}</span>
+            {list.map((e) => (
+              <article key={e.id} className={styles.cardEntry}>
+                <h3>{titleOf(e)}</h3>
+                {excerptOf(e) && <p>{excerptOf(e)}</p>}
+                <TransitionLink href={`/posts/${e.slug}`} className={styles.cardLink}>
+                  {texts.openPost} →
+                </TransitionLink>
+              </article>
+            ))}
+          </div>
+        );
+      })()}
+
       <p className={styles.top}>
         {year} · ✦ {doneLabel.replace("{{n}}", String(doneCount))}
       </p>

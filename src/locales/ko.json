@@ -496,8 +496,11 @@
     "random": "랜덤 TIL 뽑기",
     "viewMap": "별자리 하늘 보기",
     "mapDone": "올해 완성 {{n}} / 12",
-    "dragHint": "끌어서 하늘을 둘러보세요 · 별자리를 누르면 그달 기록으로",
-    "closeSky": "하늘 닫기"
+    "dragHint": "끌어서 하늘을 둘러보세요 · 별자리를 누르면 가까이 가요",
+    "closeSky": "하늘 닫기",
+    "skyBack": "하늘로",
+    "skyOpenFeed": "피드에서 이달 기록 보기",
+    "skyEmpty": "이 달엔 아직 켜진 별이 없어요. TIL 을 쓰면 별이 하나씩 켜져요."
   },
   "postsPage": {
     "statPosts": "글",

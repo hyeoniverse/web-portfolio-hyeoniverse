@@ -318,6 +318,10 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         <TilSpace
           year={year}
           byDay={byDay}
+          titleOf={titleOf}
+          excerptOf={excerptOf}
+          formatDay={formatDay}
+          texts={{ back: t("tilPage.skyBack"), openFeed: t("tilPage.skyOpenFeed"), openPost: t("tilPage.openPost"), empty: t("tilPage.skyEmpty") }}
           monthName={monthName}
           lang={lang}
           doneLabel={t("tilPage.mapDone")}

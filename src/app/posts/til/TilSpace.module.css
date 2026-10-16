@@ -109,6 +109,208 @@
   color: var(--text-accent);
   opacity: 1;
 }
+/* 초점 중에는 다른 별자리 이름표를 옅게 */
+.labels[data-focus] .label {
+  opacity: 0.15;
+}
+
+/* 별 말풍선 — LabelProjector 가 가리킨 별 위로 옮긴다 */
+.tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-width: 240px;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-width-1) solid var(--text-accent);
+  border-radius: var(--radius-surface);
+  background: var(--bg-scheme-dark);
+  color: var(--text-white);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.tip[data-show] {
+  opacity: 1;
+}
+.tipDate {
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.tip b {
+  font: var(--font-label-sm);
+}
+
+/* 초점 패널 — 왼쪽, 그달 별자리 · 진행 · 기록 목록 */
+.panel {
+  position: absolute;
+  top: calc(var(--spacing-80) + env(safe-area-inset-top, 0px));
+  left: calc(var(--spacing-24) + env(safe-area-inset-left, 0px));
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: min(320px, calc(100% - var(--spacing-48)));
+  color: var(--text-white);
+  animation: panel-in var(--duration-slow) var(--ease-standard);
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateX(calc(var(--spacing-16) * -1)); }
+}
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 0;
+  font: var(--font-label-sm);
+  color: var(--text-white);
+  opacity: 0.7;
+}
+.back:hover {
+  opacity: 1;
+}
+.panelMonth {
+  margin: var(--spacing-8) 0 0;
+  font: var(--font-code-sm);
+  opacity: 0.6;
+}
+.panelName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-8);
+  margin: 0;
+  font: var(--font-headline-lg);
+}
+.panelName span {
+  font: var(--font-code-sm);
+  opacity: 0.6;
+}
+.panelCount {
+  margin: 0;
+  font: var(--font-code-md);
+  opacity: 0.8;
+}
+.panelDone {
+  color: var(--text-accent);
+  opacity: 1;
+}
+.panelEmpty {
+  font: var(--font-body-sm);
+  opacity: 0.6;
+}
+.panelList {
+  list-style: none;
+  margin: var(--spacing-8) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-height: 0;
+  overflow-y: auto;
+}
+.panelItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: var(--spacing-4) 0;
+  text-align: left;
+  color: var(--text-white);
+  opacity: 0.75;
+}
+.panelItem:hover,
+.panelItemOn {
+  opacity: 1;
+}
+.panelStar {
+  color: var(--text-accent);
+}
+.panelDate {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  opacity: 0.7;
+}
+.panelTitle {
+  font: var(--font-body-sm);
+  min-width: 0;
+}
+.panelItemOn .panelTitle {
+  color: var(--text-accent);
+}
+.panelFeed {
+  align-self: flex-start;
+  margin-top: auto;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
+  border: var(--border-width-1) solid currentColor;
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-white);
+}
+.panelFeed:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+/* 펼친 별 — 오른쪽 아래 TIL 카드 */
+.card {
+  position: absolute;
+  right: calc(var(--spacing-24) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: min(360px, calc(100% - var(--spacing-48)));
+  max-height: 60%;
+  overflow-y: auto;
+  padding: var(--spacing-20);
+  border: var(--border-width-1) solid var(--text-accent);
+  border-radius: var(--radius-surface);
+  background: color-mix(in srgb, var(--bg-scheme-dark) 88%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-white);
+  animation: card-in var(--duration-slow) var(--ease-standard);
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(var(--spacing-16)) scale(0.97); }
+}
+.cardClose {
+  position: absolute;
+  top: var(--spacing-12);
+  right: var(--spacing-12);
+  display: inline-flex;
+  padding: 0;
+  color: var(--text-white);
+  opacity: 0.6;
+}
+.cardDate {
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.cardEntry h3 {
+  margin: 0 0 var(--spacing-8);
+  font: var(--font-headline-xs);
+}
+.cardEntry p {
+  margin: 0;
+  font: var(--font-body-sm);
+  opacity: 0.8;
+}
+.cardLink {
+  display: inline-block;
+  margin-top: var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .card { animation: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .root,
   .hint { animation: none; }
