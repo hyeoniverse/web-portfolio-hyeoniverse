@@ -509,7 +509,7 @@
 | `--footer-height` | `100px` |  |
 | `--action-button-width` | `48px` |  |
 | `--active-side-nav-width` | `0px` |  |
-| `--admin-page-top` | `calc(var(--spacing-nav-top) * 2 + var(--size-40) + var(--spacing-32))` | `@media (width > 768px): calc(var(--spacing-nav-top) * 2 + var(--control-height-md) + var(--spacing-32))` |
+| `--admin-page-top` | `calc(var(--spacing-nav-top) * 2 + var(--size-40) + var(--spacing-16))` | `@media (width > 768px): calc(var(--spacing-nav-top) * 2 + var(--control-height-md) + var(--spacing-32))` |
 | `--cursor-width` | `20px` |  |
 | `--cursor-big-width` | `60px` |  |
 | `--cursor-text-width` | `3px` |  |
