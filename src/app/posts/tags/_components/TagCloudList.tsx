@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import Chip from "@/components/ui/Chip";
 import Tooltip from "@/components/ui/Tooltip";
@@ -45,7 +46,7 @@ export default function TagCloudList({
             >
               <Chip
                 variant="capsule"
-                href={`/posts/tags/${encodeURIComponent(t.tag)}`}
+                href={blogHref(`/posts/tags/${encodeURIComponent(t.tag)}`)}
                 count={t.count}
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
                 onClick={isTouch && hasExtras ? (e) => {

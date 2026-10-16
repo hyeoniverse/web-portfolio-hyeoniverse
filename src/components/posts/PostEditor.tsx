@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { authoringLangOf } from "@/lib/siteLanguage";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
@@ -865,7 +866,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         const savedSlug = data.slug || form.slug;
 
         if (!isEdit && publish && savedSlug) {
-          window.open(`/posts/${savedSlug}`, "_blank");
+          window.open(blogHref(`/posts/${savedSlug}`), "_blank");
         }
 
         // 새 글이었으면 임시 draft revision 정리 + 이탈저장 세션 id 정리(다음 새 글은 fresh)
@@ -1373,7 +1374,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       onTogglePublished={isEdit ? () => handleSave(!form.published, { stay: true }) : undefined}
       hidePublish={!form.published}
       onPreview={handlePreview}
-      viewHref={form.published && form.slug ? `/posts/${form.slug}` : undefined}
+      viewHref={form.published && form.slug ? blogHref(`/posts/${form.slug}`) : undefined}
       scheduledAt={form.scheduled_at}
       onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       status={status}

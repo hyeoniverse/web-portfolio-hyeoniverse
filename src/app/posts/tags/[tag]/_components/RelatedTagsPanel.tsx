@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { useState, useMemo } from "react";
 import Link from "next/link";
@@ -117,7 +118,7 @@ export default function RelatedTagsPanel({
           return (
             <Link
               key={rt}
-              href={`/posts/tags/${encodeURIComponent(rt)}`}
+              href={blogHref(`/posts/tags/${encodeURIComponent(rt)}`)}
               className={styles.relatedPill}
             >
               {inner}
@@ -144,7 +145,7 @@ export default function RelatedTagsPanel({
                 otherTags.map((other) => (
                   <Link
                     key={other.tag}
-                    href={`/posts/tags/${encodeURIComponent(other.tag)}`}
+                    href={blogHref(`/posts/tags/${encodeURIComponent(other.tag)}`)}
                     className={styles.relatedPill}
                   >
                     <span>#<SiteText text={other.tag} /></span>

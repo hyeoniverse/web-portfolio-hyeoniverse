@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useCallback } from "react";
 import { Flag, ExternalLink, Check, X, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -139,7 +140,7 @@ export default function ReportsList({
   const commentUrl = (r: Report) => {
     if (!r.comment?.parentSlug) return null;
     const base = r.comment_type === "post" ? "/posts" : "/works";
-    return `${base}/${r.comment.parentSlug}#comment-${r.comment_id}`;
+    return blogHref(`${base}/${r.comment.parentSlug}#comment-${r.comment_id}`);
   };
 
   /** 행 클릭 → 상세. 목록에서는 본문이 잘리고 사유·처리 이력은 보이지 않는다. */

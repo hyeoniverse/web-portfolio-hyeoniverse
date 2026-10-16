@@ -2,6 +2,7 @@
 
 /* 제품 랜딩 조각 — 첫 화면 CTA, 핵심 세 가지, 신뢰, 자주 묻는 질문, 마지막 CTA. 글은 _data/landing.
    첫 화면 CTA 를 뺀 나머지는 프레지 프레임 하나씩 — 화면 하나에 맞추고, 긴 것은 프레임 안 단계(useFrameSteps)로 나눈다 */
+import { blogHref } from "@/lib/siteHosts";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import { useContactStore } from "@/stores/contactStore";
@@ -111,7 +112,7 @@ export function FinalCta() {
       <p className={styles.finalBody} style={{ "--i": 2 } as React.CSSProperties}>{L(finalCta.body)}</p>
       <div className={styles.actions} style={{ "--i": 3 } as React.CSSProperties}>
         <Button href="/works" variant="primary" size="lg">{L(finalCta.works)}</Button>
-        <Button href="/posts" variant="outline" size="lg">{L(finalCta.posts)}</Button>
+        <Button href={blogHref("/posts")} variant="outline" size="lg">{L(finalCta.posts)}</Button>
         <Button variant="ghost" size="lg" onClick={openForm}>{L(finalCta.contact)}</Button>
       </div>
     </section>

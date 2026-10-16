@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect, useState } from "react";
 import { TrendingDown, TrendingUp } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -515,7 +516,7 @@ export default function AdminTrafficPage() {
                         <span className={`${styles.referrerSource} ${styles.topContentTitle}`}>
                           <span className={styles.topContentRank}>{i + 1}</span>
                           <Link
-                            href={`/posts/${p.slug}`}
+                            href={blogHref(`/posts/${p.slug}`)}
                             className={styles.topContentLink}
                             title={p.title}
                           >

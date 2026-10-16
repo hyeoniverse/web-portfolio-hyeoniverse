@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -388,7 +389,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
                     {list.map((e) => (
                       <li key={e.id} className={styles.logEntry}>
                         {/* TIL 은 짧아 펼치지 않고 바로 읽는다 — 제목은 글로 가는 링크 */}
-                        <TransitionLink href={`/posts/${e.slug}`} className={styles.logEntryHead}>
+                        <TransitionLink href={blogHref(`/posts/${e.slug}`)} className={styles.logEntryHead}>
                           <span className={styles.logHash} aria-hidden>{shortHash(e.id)}</span>
                           <strong className={styles.entryTitle}>{titleOf(e)}</strong>
                           <span className={styles.entryMore}>{t("tilPage.openPost")} →</span>
@@ -470,7 +471,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               ✦ {t("tilPage.random")}
             </Pressable>
             {randomEntry && (
-              <TransitionLink key={randomEntry.id} href={`/posts/${randomEntry.slug}`} className={`${styles.entry} ${styles.randomCard}`}>
+              <TransitionLink key={randomEntry.id} href={blogHref(`/posts/${randomEntry.slug}`)} className={`${styles.entry} ${styles.randomCard}`}>
                 <span className={styles.entryDate}>{dayKey(new Date(randomEntry.created_at)).replaceAll("-", ".")}</span>
                 <strong className={styles.entryTitle}>{titleOf(randomEntry)}</strong>
                 {excerptOf(randomEntry) && <span className={styles.entryExcerpt}>{excerptOf(randomEntry)}</span>}
@@ -486,7 +487,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               <ul className={styles.entryList}>
                 {pinned.map((e) => (
                   <li key={e.id}>
-                    <TransitionLink href={`/posts/${e.slug}`} className={styles.entry}>
+                    <TransitionLink href={blogHref(`/posts/${e.slug}`)} className={styles.entry}>
                       <span className={styles.entryDate}>{dayKey(new Date(e.created_at)).replaceAll("-", ".")}</span>
                       <strong className={styles.entryTitle}>{titleOf(e)}</strong>
                     </TransitionLink>

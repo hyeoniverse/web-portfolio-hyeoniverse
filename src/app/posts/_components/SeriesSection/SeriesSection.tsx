@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
@@ -86,7 +87,7 @@ export default function SeriesSection({
     <div className={styles.seriesSection}>
       <div className={header.sectionHeader}>
         <div className={header.sectionHeaderMain}>
-          <Link href="/posts/series" className={`${header.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
+          <Link href={blogHref("/posts/series")} className={`${header.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
             <BookOpen size={14} />
             <span className={header.sectionHeaderText}>
               <T

@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import Link from "next/link";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import styles from "./PostsSubnav.module.css";
@@ -35,7 +36,7 @@ export default function PostsSubnav() {
         return (
           <Link
             key={it.href}
-            href={it.href}
+            href={blogHref(it.href)}
             className={`${styles.item} ${active ? styles.active : ""}`}
             aria-current={active ? "page" : undefined}
             data-clickable="true"

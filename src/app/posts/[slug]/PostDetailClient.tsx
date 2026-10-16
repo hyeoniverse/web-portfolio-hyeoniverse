@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useMemo } from "react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { AnimatePresence } from "framer-motion";
@@ -96,7 +97,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     /* 상세 화면 라벨(정보 칸 · 본문 안 단추 — lib/bodyLabels)도 번역 라벨로 — 없으면 화면 언어 */
     <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
-      backHref="/posts"
+      backHref={blogHref("/posts")}
       backLabel={t("nav.posts")}
       /* 커버는 레이아웃이 셸에서 그린다(#946) — 여기서는 alt 를 넘기고 아이콘·헤더 자리만 맞춘다 */
       heroImage={post.cover_image || undefined}
@@ -136,12 +137,12 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
       afterLike={<PostArticleAuthors authors={postAuthors} />}
       adjacentConfig={{
         prev: adjacentPosts.prev ? {
-          href: `/posts/${adjacentPosts.prev.slug}`,
+          href: blogHref(`/posts/${adjacentPosts.prev.slug}`),
           title: viewLang === "en" && adjacentPosts.prev.title_en ? adjacentPosts.prev.title_en : adjacentPosts.prev.title,
           image: adjacentPosts.prev.cover_image,
         } : null,
         next: adjacentPosts.next ? {
-          href: `/posts/${adjacentPosts.next.slug}`,
+          href: blogHref(`/posts/${adjacentPosts.next.slug}`),
           title: viewLang === "en" && adjacentPosts.next.title_en ? adjacentPosts.next.title_en : adjacentPosts.next.title,
           image: adjacentPosts.next.cover_image,
         } : null,
@@ -149,7 +150,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         nextLabelKey: "postDetail.next",
       }}
       commentsConfig={{ commentType: "post", targetId: post.id, translationEnabled }}
-      backLink={{ href: "/posts", labelKey: "postDetail.backToList" }}
+      backLink={{ href: blogHref("/posts"), labelKey: "postDetail.backToList" }}
       recommendedContent={
         recommendedPosts.length > 0 ? (
           <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />

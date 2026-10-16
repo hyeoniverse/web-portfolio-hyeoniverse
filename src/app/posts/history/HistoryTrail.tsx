@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect, useRef, useState } from "react";
 import TransitionLink from "@/components/ui/TransitionLink";
 import MongSticker, { type MongPose } from "../_components/MongSticker";
@@ -92,7 +93,7 @@ export default function HistoryTrail({
                   const til = isTil(p, tilTag);
                   return (
                     <li key={p.id}>
-                      <TransitionLink href={`/posts/${p.slug}`} className={`${styles.trailPost} ${til ? styles.isTil : ""}`}>
+                      <TransitionLink href={blogHref(`/posts/${p.slug}`)} className={`${styles.trailPost} ${til ? styles.isTil : ""}`}>
                         <span className={styles.postDate}>{dayKeyOf(p).slice(5).replace("-", ".")}</span>
                         <span className={styles.postTitle}>{titleOf(p)}</span>
                         {til ? (

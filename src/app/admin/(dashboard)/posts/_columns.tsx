@@ -1,3 +1,4 @@
+import { blogHref } from "@/lib/siteHosts";
 import { Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -49,7 +50,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       render: (post) =>
         post.published && post.slug ? (
           <a
-            href={`/posts/${post.slug}`}
+            href={blogHref(`/posts/${post.slug}`)}
             target="_blank"
             rel="noopener noreferrer"
             className={ts.viewBtn}

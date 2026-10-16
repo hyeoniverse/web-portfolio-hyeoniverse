@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useRef } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useRouter } from "next/navigation";
@@ -31,7 +32,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
     if (prefetchedRef.current.has(slug)) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current.add(slug);
-    router.prefetch(`/posts/${slug}`);
+    router.prefetch(blogHref(`/posts/${slug}`));
   };
 
   const [pos, setPos] = useState(0);
@@ -62,7 +63,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
     return (
       <div key={key} className={styles.tickerInner} inert={!shown}>
         <TransitionLink
-          href={`/posts/${post.slug}`}
+          href={blogHref(`/posts/${post.slug}`)}
           image={post.cover_image || ""}
           className={styles.tickerLink}
           onMouseEnter={() => handlePrefetch(post.slug)}

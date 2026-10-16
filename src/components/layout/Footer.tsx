@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
@@ -235,7 +236,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 <>
                   <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")} className={pathname === "/" ? styles.activeLink : ""}>Home</Link>
                   <Link href="/works" ref={setLinkRef("/works")} onMouseEnter={() => setHoveredLink("/works")} className={pathname.startsWith("/works") ? styles.activeLink : ""}>Works</Link>
-                  <Link href="/posts" ref={setLinkRef("/posts")} onMouseEnter={() => setHoveredLink("/posts")} className={pathname.startsWith("/posts") ? styles.activeLink : ""}>Posts</Link>
+                  <Link href={blogHref("/posts")} ref={setLinkRef("/posts")} onMouseEnter={() => setHoveredLink("/posts")} className={pathname.startsWith("/posts") ? styles.activeLink : ""}>Posts</Link>
                   <Link href="/profile" ref={setLinkRef("/profile")} onMouseEnter={() => setHoveredLink("/profile")} className={pathname.startsWith("/profile") ? styles.activeLink : ""}>Profile</Link>
                   <Link href="/about" ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
                   <span className={styles.divider}>✧</span>

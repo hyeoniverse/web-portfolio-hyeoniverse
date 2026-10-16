@@ -28,6 +28,8 @@ export default function TransitionLink({ href, image = "", color, getRect, navig
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(e);
     if (e.defaultPrevented || !isPlainClick(e)) return;
+    /* 다른 주소로 가는 링크(메인 → 블로그)는 페이지를 통째로 바꾸므로 연출 없이 브라우저에 맡긴다 */
+    if (/^https?:\/\//.test(href) && new URL(href).origin !== window.location.origin) return;
     e.preventDefault();
     const rect = getRect ? getRect(e.currentTarget) : e.currentTarget.getBoundingClientRect();
     if (navigate) navigate(rect);

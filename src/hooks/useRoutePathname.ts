@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { appPathOnBlogHost, isBlogHost } from "@/lib/siteHosts";
 
 /**
  * 주소 정리 — 배포(Vercel)가 다시 그린 홈의 "/index" 를 "/" 로 되돌린다.
@@ -15,7 +16,14 @@ export function normalizeRoutePath(pathname: string | null | undefined): string 
   return pathname === "/index" ? "/" : pathname;
 }
 
-/** 지금 주소 — usePathname 과 같되 "/index" 를 "/" 로 읽는다(normalizeRoutePath). 비어 있으면 "" */
+/** 브라우저 주소 경로 → 앱 경로. 블로그 주소(blog.hyeoniverse.com/x)는 proxy 가 /posts/x 를 그리지만 브라우저의
+    usePathname 은 주소창 그대로 /x 를 돌려준다(서버는 /posts/x). 둘을 앱 경로로 맞춰 하이드레이션 전후 값이 같게 한다 */
+export function toRoutePath(pathname: string): string {
+  if (!pathname || typeof window === "undefined" || !isBlogHost(window.location.host)) return pathname;
+  return appPathOnBlogHost(pathname);
+}
+
+/** 지금 주소 — usePathname 과 같되 "/index" 를 "/" 로, 블로그 주소의 짧은 경로를 앱 경로(/posts/…)로 읽는다. 비어 있으면 "" */
 export function useRoutePathname(): string {
-  return normalizeRoutePath(usePathname());
+  return toRoutePath(normalizeRoutePath(usePathname()));
 }

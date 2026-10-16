@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useCallback } from "react";
 import type { Post } from "@/types/post";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -45,7 +46,7 @@ export default function RandomPosts() {
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
+          <TransitionLink key={post.id} href={blogHref(`/posts/${post.slug}`)} className={styles.item}>
             <span className={styles.rank}>{String(idx + 1).padStart(2, "0")}</span>
             <div className={styles.info}>
               <div className={styles.titleRow}>

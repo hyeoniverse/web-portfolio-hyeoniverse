@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -49,7 +50,7 @@ export default function RecommendedToast({ post, viewLang, onDismiss }: Recommen
           </span>
         </Pressable>
       </div>
-      <TransitionLink href={`/posts/${post.slug}`} image={post.cover_image || ""} className={styles.toastItem} data-clickable="true">
+      <TransitionLink href={blogHref(`/posts/${post.slug}`)} image={post.cover_image || ""} className={styles.toastItem} data-clickable="true">
         <div className={styles.toastThumb}>
           {post.cover_image ? (
             <MediaThumb src={post.cover_image} fill sizes="48px" className={styles.toastThumbImg} />

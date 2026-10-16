@@ -25,6 +25,53 @@ export function isMainHost(host: string | null | undefined): boolean {
   return (MAIN_HOSTS as readonly string[]).includes(hostnameOf(host));
 }
 
+/** 블로그 주소에서도 앱 경로 그대로 여는 곳 — API · 관리 화면 · 로그인 콜백 */
+export function passThroughOnBlogHost(pathname: string): boolean {
+  return pathname.startsWith("/api/") || pathname.startsWith("/admin") || pathname.startsWith("/auth/");
+}
+
+function isPostsPath(path: string): boolean {
+  return path === "/posts" || path.startsWith("/posts/") || path.startsWith("/posts?") || path.startsWith("/posts#");
+}
+
+/** 앱 경로 → 블로그 주소의 짧은 경로 — /posts → /, /posts/x → /x, /posts?q → /?q. /posts 밖은 그대로 */
+export function blogPathOf(appPath: string): string {
+  if (!isPostsPath(appPath)) return appPath;
+  const rest = appPath.slice("/posts".length);
+  return rest.startsWith("/") ? rest : `/${rest}`;
+}
+
+/** 블로그 주소의 경로 → 앱 경로 — /x → /posts/x, / → /posts. API · 관리 · 로그인 콜백은 그대로(proxy rewrite 와 같은 규칙) */
+export function appPathOnBlogHost(path: string): string {
+  const cut = path.search(/[?#]/);
+  const pathname = cut === -1 ? path : path.slice(0, cut);
+  const tail = cut === -1 ? "" : path.slice(cut);
+  if (passThroughOnBlogHost(pathname) || isPostsPath(pathname)) return path;
+  return `${pathname === "/" ? "/posts" : `/posts${pathname}`}${tail}`;
+}
+
+/** 글 링크를 블로그 주소로 그리는지 — 운영 배포에서만 켜진다(next.config 의 NEXT_PUBLIC_BLOG_LINKS) */
+const BLOG_LINKS = process.env.NEXT_PUBLIC_BLOG_LINKS === "1";
+
+/**
+ * 블로그(/posts 아래) 링크 — 운영에서는 블로그 주소의 짧은 주소(https://blog.hyeoniverse.com/x), 로컬 · 프리뷰는 앱 경로 그대로.
+ * 늘 절대 주소라 서버 · 브라우저가 같은 값을 그린다. 블로그 주소 안에서는 같은 출처라 Next 가 그대로 화면 안 이동을 하고,
+ * 메인 주소에서는 블로그로 넘어간다. /posts 밖 경로는 그대로 돌려준다
+ */
+export function blogHref(appPath: string): string {
+  if (!BLOG_LINKS || !isPostsPath(appPath)) return appPath;
+  return `${BLOG_ORIGIN}${blogPathOf(appPath)}`;
+}
+
+/** 링크 주소 → 앱 경로 — 블로그 주소의 절대 주소(https://blog.hyeoniverse.com/x)는 /posts/x 로 읽고, 그 밖은 그대로 */
+export function appPathOfHref(href: string): string {
+  if (!href.startsWith(BLOG_ORIGIN)) return href;
+  const rest = href.slice(BLOG_ORIGIN.length);
+  if (rest !== "" && !/^[/?#]/.test(rest)) return href;
+  const path = rest.startsWith("/") ? rest : `/${rest}`;
+  return appPathOnBlogHost(path);
+}
+
 /** 블로그 주소에서 포트폴리오로 나가는 링크 — 블로그 주소의 `/` 는 블로그 첫 화면이라 메인 주소를 붙여야 포트폴리오로 간다 */
 export function portfolioHref(path: string, onBlogHost: boolean): string {
   return onBlogHost ? `${MAIN_ORIGIN}${path}` : path;

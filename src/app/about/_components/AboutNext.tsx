@@ -2,6 +2,7 @@
 
 /* About 개편 시안 — 큰 산세리프 제목(topology) + 화면 폭 워드마크 · 사진 타일 격자 · 아주 작은 대문자 캡션(magnetism). 스크롤은 섞는다: 첫 화면은 그대로 흐르고, "한눈에 보기" 한 장면만 화면에 고정해 숫자가 차례로 들어온다.
    내용은 _data/showcase.ts. 방향이 정해지면 관리자 About 편집과 이어 붙인다. */
+import { blogHref } from "@/lib/siteHosts";
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -68,7 +69,7 @@ export function LiveRow({ live }: { live: LiveInfo }) {
       {post && (
         <li className={styles.liveLatest}>
           {L(liveText.latest)} —{" "}
-          <Link href={`/posts/${post.slug}`} className={styles.liveLink}>
+          <Link href={blogHref(`/posts/${post.slug}`)} className={styles.liveLink}>
             {language === "en" && post.titleEn ? post.titleEn : post.title}
           </Link>
         </li>
