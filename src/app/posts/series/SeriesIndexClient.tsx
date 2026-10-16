@@ -1,5 +1,6 @@
 "use client";
 
+import MongSticker from "../_components/MongSticker";
 import { useMemo, useState } from "react";
 import { useSearchControls } from "@/hooks/useSearchControls";
 import { usePageControls } from "@/hooks/usePageControls";
@@ -118,6 +119,8 @@ export default function SeriesIndexClient({ series }: Props) {
           <PageTitle icon={<BookOpen size={40} strokeWidth={1.6} aria-hidden />}>
             Series.
           </PageTitle>
+          {/* 제목 옆 몽이 — 블로그 공통 몽이 테마 */}
+          <MongSticker pose="wave-front" float flat className={index.headerMong} />
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&sub=posts"
@@ -146,7 +149,10 @@ export default function SeriesIndexClient({ series }: Props) {
       <SeriesCategoryFilter buckets={categoryBuckets} total={series.length} active={activeCategories} onToggle={toggleCategory} onClear={clearCategories} />
 
       {filtered.length === 0 ? (
-        <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>
+        <div className={index.emptyMongWrap}>
+          <MongSticker pose="surprised-front" float className={index.emptyMong} />
+          <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>
+        </div>
       ) : (
         <SeriesCardGrid items={paged} featuredSet={featuredSet} isTouch={isTouch} onTap={setSheetSeries} />
       )}

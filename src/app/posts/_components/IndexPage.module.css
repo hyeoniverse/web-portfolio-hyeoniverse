@@ -64,3 +64,28 @@
   font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
+
+/* 제목 옆 몽이 — 관리 단추가 있으면 그 앞에 */
+.headerMong {
+  width: var(--spacing-48);
+  margin-left: auto;
+  transform: rotate(6deg);
+}
+@media (width >= 768px) {
+  .headerMong {
+    width: var(--spacing-64);
+  }
+}
+/* 결과 없음 — 놀란 몽이 아래 문구 */
+.emptyMongWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--spacing-32);
+}
+.emptyMongWrap .empty {
+  margin-top: var(--spacing-16);
+}
+.emptyMong {
+  width: var(--spacing-80);
+}
