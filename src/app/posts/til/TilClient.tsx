@@ -14,6 +14,7 @@ import { fillTemplate } from "@/utils/format";
 import PostsSubnav from "../_components/PostsSubnav";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
+import TilSky from "./TilSky";
 
 /** 한국 시간 기준 YYYY-MM-DD — 서버(UTC)와 브라우저가 같은 날로 묶도록 시간대를 고정한다 */
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SITE_TIME_ZONE });
@@ -118,6 +119,8 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     el.scrollLeft = Math.max(0, el.scrollWidth * ratio - el.clientWidth * 0.75);
   }, [year, thisYear, today, weeks]);
 
+  const monthName = (m: number) =>
+    new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
   const changeYear = (y: number) => {
     setYear(y);
     pick(null);
@@ -239,6 +242,8 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
       {/* 잔디 — 좁은 화면에선 가로로 스크롤된다 */}
       <div ref={grassRef} className={styles.grassScroll}>
         <div className={styles.grass} style={{ ["--til-weeks" as string]: weeks.length }}>
+          {/* 하늘 — 달마다 별자리. 그달 TIL 로 별이 켜진다 */}
+          <TilSky year={year} weeks={weeks} byDay={byDay} monthName={monthName} />
           <span />
           {monthLabels.map((m, i) => (
             <span key={`m${i}`} className={styles.monthLabel}>{m}</span>
