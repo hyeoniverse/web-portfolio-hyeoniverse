@@ -2738,7 +2738,8 @@
         "polls": "투표",
         "emojis": "커스텀 이모지",
         "covers": "커버 이미지 기록",
-        "files": "업로드한 파일"
+        "files": "업로드한 파일",
+        "commentImages": "댓글 이미지 정리"
       },
       "giscusHelp": {
         "setupGuide": "설정 방법",
@@ -3177,7 +3178,8 @@
         "usageWork": "프로젝트 {{n}}",
         "usageSeries": "시리즈 {{n}}",
         "deleteConfirm": "\"{{name}}\" 파일을 저장소에서 지울까요? 어디서도 쓰지 않는 파일이지만, 지우면 되돌릴 수 없습니다.",
-        "unusedOnly": "안 쓰는 파일만 · {{count}}개 {{size}}"
+        "unusedOnly": "안 쓰는 파일만 · {{count}}개 {{size}}",
+        "usageComments": "댓글 {{n}}"
       },
       "emojiKitchenModal": {
         "groupSmileys": "표정·감정",
@@ -3284,6 +3286,29 @@
         "unreadable": "무슨 구문인지 알아보지 못했습니다.",
         "unresolved": "{{name}} 테이블이 ERD 에도 이 SQL 에도 없어 적용되지 않습니다.",
         "unknownRef": "{{name}} 테이블이 없어 이 관계는 그려지지 않습니다."
+      },
+      "commentImageManager": {
+        "title": "댓글 이미지 정리",
+        "hint": "방문자가 댓글에 올렸지만 어느 댓글에도 쓰이지 않은 이미지입니다. 올린 다음다음 날 0시(UTC)부터 지울 수 있고, 새 이미지가 올라올 때 하루 한 번 자동으로 지워집니다. 댓글에서 쓰는 이미지는 업로드한 파일에서 볼 수 있습니다.",
+        "dueTitle": "지울 때가 지난 이미지 {{n}}",
+        "dueDesc": "댓글에 쓰이지 않은 채 지울 때가 지났습니다. 자동 정리는 새 업로드가 있을 때만 돌아서 아직 남아 있습니다.",
+        "scheduledTitle": "곧 지워질 이미지 {{n}}",
+        "scheduledDesc": "아직 댓글을 쓰는 중일 수 있어 그대로 둡니다. 끝까지 쓰이지 않으면 표시된 때 이후 지워집니다.",
+        "uploadedOn": "{{date}}에 올림",
+        "deletable": "지금 지울 수 있음",
+        "deletesAfter": "{{date}} 삭제",
+        "deleteAllCount": "모두 지우기 {{n}}",
+        "deleteAll": "모두 지우기",
+        "deleteAllTitle": "댓글 이미지 정리",
+        "deleteAllConfirm": "지울 때가 지난 댓글 이미지 {{n}}장을 지웁니다. 지운 이미지는 되돌릴 수 없습니다.",
+        "deletedN": "댓글 이미지 {{n}}장을 지웠습니다.",
+        "delete": "삭제",
+        "deleteTitle": "댓글 이미지 삭제",
+        "deleteConfirm": "{{name}} 을 지웁니다. 지운 이미지는 되돌릴 수 없습니다.",
+        "deleteFailed": "이미지를 지우지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+        "openNewTab": "새 탭에서 열기",
+        "loadFailed": "댓글 이미지를 불러오지 못했습니다.",
+        "empty": "정리할 댓글 이미지가 없습니다."
       }
     }
   }

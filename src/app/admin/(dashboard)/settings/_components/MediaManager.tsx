@@ -110,6 +110,7 @@ export default function MediaManager() {
       n("settings") ? t("admin.inline.mediaManager.usageSettings") : "",
       n("emoji") ? t("admin.inline.mediaManager.usageEmoji") : "",
       n("coverHistory") ? t("admin.inline.mediaManager.usageCoverHistory") : "",
+      n("comment") ? fillTemplate(t("admin.inline.mediaManager.usageComments"), { n: n("comment") }) : "",
     ].filter(Boolean).join(" · ");
   };
 

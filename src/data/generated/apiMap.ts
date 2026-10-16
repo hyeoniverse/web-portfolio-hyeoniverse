@@ -2,14 +2,14 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 194,
-  "routeFiles": 135,
+  "total": 196,
+  "routeFiles": 136,
   "access": {
     "public": 66,
     "signed-in": 60,
     "author": 27,
     "admin": 16,
-    "owner": 23,
+    "owner": 25,
     "cron": 2
   },
   "tables": [
@@ -921,6 +921,52 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "admin/media",
+      "files": 2,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/admin/media",
+          "access": "owner"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/admin/media",
+          "access": "owner"
+        },
+        {
+          "method": "GET",
+          "path": "/api/admin/media/comment-images",
+          "access": "owner"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/media/comment-images",
+          "access": "owner"
+        }
+      ],
+      "tables": [
+        "cover_image_history",
+        "custom_emojis",
+        "posts",
+        "series",
+        "site_settings",
+        "works"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage"
+      ],
+      "access": {
+        "public": 0,
+        "signed-in": 0,
+        "author": 0,
+        "admin": 0,
+        "owner": 4,
+        "cron": 0
+      }
+    },
+    {
       "key": "admin/notifications",
       "files": 2,
       "endpoints": [
@@ -1006,7 +1052,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "admin",
-      "files": 33,
+      "files": 32,
       "folded": [
         "admin/ai-health",
         "admin/ai-log",
@@ -1019,7 +1065,6 @@ export const apiMap: ApiMap = {
         "admin/emoji-kitchen",
         "admin/giscus-repo",
         "admin/me",
-        "admin/media",
         "admin/polls",
         "admin/posts",
         "admin/profile",
@@ -1119,16 +1164,6 @@ export const apiMap: ApiMap = {
           "method": "GET",
           "path": "/api/admin/me",
           "access": "signed-in"
-        },
-        {
-          "method": "GET",
-          "path": "/api/admin/media",
-          "access": "owner"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/admin/media",
-          "access": "owner"
         },
         {
           "method": "GET",
@@ -1257,7 +1292,6 @@ export const apiMap: ApiMap = {
         "poll_votes",
         "post_work_relations",
         "posts",
-        "series",
         "site_settings",
         "traffic_excluded_ips",
         "work_comments",
@@ -1280,7 +1314,7 @@ export const apiMap: ApiMap = {
         "signed-in": 16,
         "author": 2,
         "admin": 10,
-        "owner": 12,
+        "owner": 10,
         "cron": 0
       }
     },

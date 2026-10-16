@@ -6,6 +6,7 @@
  * - 하루 개수: 방문자(IP 해시)마다 하루 COMMENT_IMAGE_DAILY_LIMIT 장. 저장 경로가 `comments/<날짜>/<IP 해시>/` 라
  *   그 폴더의 파일 수가 곧 오늘 올린 수다 — 따로 세는 표가 없다.
  * - 뒷정리: 하루가 지나도 어느 댓글에도 쓰이지 않은 이미지는 지운다(api/commentImages 의 sweep).
+ *   설정 › 라이브러리의 "댓글 이미지 정리"에서 지울 때가 지난 이미지와 곧 지워질 이미지를 보고 직접 지울 수도 있다.
  *
  * 이 파일은 브라우저 · 서버가 함께 쓰는 값과 순수 함수만 둔다.
  */
@@ -31,6 +32,15 @@ export function commentImageDay(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+/** 쓰이지 않으면 지워지기 시작하는 때 — 날짜 폴더 다음다음 날 0시(UTC). 올린 지 적어도 하루는 지나야
+ *  (댓글을 아직 쓰는 중일 수 있다) 정리한다. 자동 정리 · 라이브러리 화면이 같은 규칙을 쓴다. 댓글 이미지가 아니면 null */
+export function commentImageDeleteAfter(path: string): Date | null {
+  const m = new RegExp(`^${COMMENT_IMAGE_PREFIX}/(\\d{4}-\\d{2}-\\d{2})/`).exec(path);
+  if (!m) return null;
+  const day = Date.parse(`${m[1]}T00:00:00Z`);
+  return Number.isFinite(day) ? new Date(day + 2 * 24 * 60 * 60 * 1000) : null;
+}
+
 /** 그 방문자가 그날 올린 이미지의 폴더 */
 export function commentImageFolder(day: string, ipHash: string): string {
   return `${COMMENT_IMAGE_PREFIX}/${day}/${ipHash}`;
@@ -43,10 +53,4 @@ export function commentImagePathsIn(contents: Iterable<string>): Set<string> {
   const used = new Set<string>();
   for (const text of contents) for (const m of text.matchAll(PATH_IN_TEXT)) used.add(m[1]);
   return used;
-}
-
-/** 지워도 되는 이미지 — 어느 댓글에도 쓰이지 않은 것 */
-export function orphanCommentImages(paths: string[], contents: Iterable<string>): string[] {
-  const used = commentImagePathsIn(contents);
-  return paths.filter((p) => !used.has(p));
 }
