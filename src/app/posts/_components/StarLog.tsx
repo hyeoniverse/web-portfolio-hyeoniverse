@@ -25,7 +25,7 @@ function star(x: number, y: number, r: number) {
 export default function StarLog({ seed }: { seed: string }) {
   const r = rng(seed);
   const id = "starlog-tile";
-  const items = Array.from({ length: 70 }, () => ({ x: r() * W, y: r() * H, size: r(), big: r() < 0.08, delay: r() * 5 }));
+  const items = Array.from({ length: 45 }, () => ({ x: r() * W, y: r() * H, size: r(), big: r() < 0.08, delay: r() * 5 }));
   return (
     <svg className={styles.field} aria-hidden focusable="false">
       <defs>

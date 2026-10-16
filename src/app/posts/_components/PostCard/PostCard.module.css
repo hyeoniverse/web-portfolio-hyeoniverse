@@ -655,6 +655,24 @@
 
 /* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치 · 제목 글꼴은 그대로 두고
    날짜 줄 · 태그 · 조회 줄은 모노 글꼴로 기록장처럼 ── */
+:global([data-blog-skin="log"]) .imageWrap::after {
+  content: "";
+  position: absolute;
+  right: var(--spacing-16);
+  bottom: 0;
+  z-index: 2;
+  width: var(--spacing-64);
+  aspect-ratio: 792 / 1262;
+  background: url("/images/mascot/bunny-happy-front.png") center top / contain no-repeat;
+  filter: drop-shadow(0 -2px 0 var(--text-white)) drop-shadow(2px 0 0 var(--text-white)) drop-shadow(-2px 0 0 var(--text-white));
+  transform: translateY(100%);
+  transition: transform var(--duration-base) var(--ease-standard);
+  pointer-events: none;
+}
+/* 카드에 올리면 커버 아래에서 몽이가 빼꼼 올라온다 */
+:global([data-blog-skin="log"]) .card:hover .imageWrap::after {
+  transform: translateY(45%) rotate(-4deg);
+}
 :global([data-blog-skin="log"]) .dateLine,
 :global([data-blog-skin="log"]) .dateLineDate,
 :global([data-blog-skin="log"]) .dateLineCat,

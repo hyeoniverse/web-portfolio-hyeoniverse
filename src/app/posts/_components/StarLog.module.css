@@ -10,18 +10,18 @@
 }
 .dust {
   fill: var(--text-tertiary);
-  opacity: 0.35;
+  opacity: 0.16;
 }
 .twinkle {
   fill: var(--text-tertiary);
-  opacity: 0.6;
+  opacity: 0.28;
   transform-box: fill-box;
   transform-origin: center;
   animation: star-twinkle calc(var(--duration-slower) * 5) var(--ease-standard) infinite;
 }
 .brand {
   fill: currentColor;
-  opacity: 0.8;
+  opacity: 0.45;
 }
 .shoot {
   stroke: var(--text-tertiary);
@@ -31,11 +31,11 @@
   animation: star-shoot calc(var(--duration-slower) * 12) var(--ease-standard) infinite;
 }
 @keyframes star-twinkle {
-  50% { transform: scale(0.4); opacity: 0.2; }
+  50% { transform: scale(0.4); opacity: 0.08; }
 }
 @keyframes star-shoot {
   0% { opacity: 0; transform: translate(0, 0); }
-  3% { opacity: 0.8; }
+  3% { opacity: 0.35; }
   9%, 100% { opacity: 0; transform: translate(400px, 140px); }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,44 @@
+/* --mx · --my(-1 … 1) 는 MastheadMong 이 포인터 위치로 넣는다 */
+.wrap {
+  --mx: 0;
+  --my: 0;
+}
+.grid {
+  translate: calc(var(--mx) * -10px) calc(var(--my) * -6px);
+  transition: translate var(--duration-slow) var(--ease-standard);
+}
+.mong {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  rotate: calc(var(--mx) * 6deg);
+  translate: calc(var(--mx) * 6px) calc(var(--my) * 4px);
+  transition:
+    rotate var(--duration-slow) var(--ease-standard),
+    translate var(--duration-slow) var(--ease-standard),
+    scale var(--duration-fast) var(--ease-standard);
+}
+.mong:hover {
+  scale: 1.04;
+}
+.mong > span {
+  display: block;
+}
+.hop {
+  animation: mong-hop var(--duration-slow) var(--ease-standard);
+}
+@keyframes mong-hop {
+  40% { transform: translateY(-14%) scale(1.04, 0.96); }
+  70% { transform: translateY(0) scale(0.97, 1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hop { animation: none; }
+}
+
+/* 표정마다 그림 너비가 달라(별 컷은 반짝이까지 넓다) 높이를 고정해 몽이 크기를 맞춘다 */
+.mong img {
+  width: auto;
+  height: var(--mong-height, 200px);
+}

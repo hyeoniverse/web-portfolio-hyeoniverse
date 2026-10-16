@@ -10,7 +10,10 @@ export type MongPose =
   | "sleep-front"
   | "heart-left"
   | "happy-top"
-  | "surprised-front";
+  | "surprised-front"
+  | "happy-front"
+  | "heart-front"
+  | "sleep-left";
 
 const SIZES: Record<MongPose, [number, number]> = {
   "star-front": [1544, 1085],
@@ -20,6 +23,9 @@ const SIZES: Record<MongPose, [number, number]> = {
   "heart-left": [613, 1150],
   "happy-top": [810, 1288],
   "surprised-front": [792, 1262],
+  "happy-front": [792, 1262],
+  "heart-front": [683, 1330],
+  "sleep-left": [783, 1173],
 };
 
 export default function MongSticker({ pose, className, float = false }: { pose: MongPose; className?: string; float?: boolean }) {

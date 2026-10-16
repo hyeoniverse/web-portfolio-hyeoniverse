@@ -61,10 +61,11 @@
   width: 100%;
 }
 .mastheadMong {
+  --mong-height: 120px;
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 78%;
+  width: fit-content;
   height: fit-content;
 }
 @media (width >= 768px) {
@@ -87,8 +88,8 @@
     height: 82%;
   }
   .mastheadMong {
+    --mong-height: 220px;
     inset: auto 0 calc(var(--spacing-16) * -1);
-    width: 86%;
   }
 }
 /* 로그 스킨 — 별밭(StarLog)이 페이지 전체 길이를 덮는 기준 */
