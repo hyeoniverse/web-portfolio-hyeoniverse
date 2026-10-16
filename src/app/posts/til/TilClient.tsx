@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -14,6 +14,8 @@ import { fillTemplate } from "@/utils/format";
 import PostsSubnav from "../_components/PostsSubnav";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
+import { CONSTELLATIONS } from "./constellations";
+import { ConstellationArt, ConstellationStrip, isComplete, monthDays } from "./TilConstellation";
 
 /** 한국 시간 기준 YYYY-MM-DD — 서버(UTC)와 브라우저가 같은 날로 묶도록 시간대를 고정한다 */
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SITE_TIME_ZONE });
@@ -85,36 +87,22 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     setSnap((n) => n + 1);
   };
 
-  // 잔디 격자 — 1월 1일이 든 주의 일요일부터 12월 31일이 든 주까지. 열 = 주, 행 = 요일
-  const weeks = useMemo(() => {
-    const start = shiftDay(`${year}-01-01`, -new Date(`${year}-01-01T12:00:00Z`).getUTCDay());
-    const out: (string | null)[][] = [];
-    for (let key = start; key <= `${year}-12-31`; key = shiftDay(key, 7)) {
-      out.push(Array.from({ length: 7 }, (_, i) => {
-        const k = shiftDay(key, i);
-        return k.startsWith(`${year}-`) ? k : null;
-      }));
-    }
-    return out;
-  }, [year]);
-  // 월 이름 — 그 달 1일이 든 주(열) 위에 단다
-  const monthLabels = weeks.map((week) => {
-    const first = week.find((k) => k?.endsWith("-01"));
-    return first ? new Date(`${first}T12:00:00Z`).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" }) : "";
-  });
-  const weekdayLabels = Array.from({ length: 7 }, (_, i) =>
-    i % 2 === 1 ? new Date(Date.UTC(2024, 0, 7 + i, 12)).toLocaleDateString(dateLocale, { weekday: "short", timeZone: "UTC" }) : "",
-  );
-
-  // 좁은 화면에서 잔디가 가로로 넘치면 올해는 오늘 근처를, 지난해는 연말을 보여 준다(최근 기록이 먼저 보이게)
-  const grassRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = grassRef.current;
-    if (!el || el.scrollWidth <= el.clientWidth) return;
-    const col = year === thisYear ? weeks.findIndex((w) => w.includes(today)) : weeks.length - 1;
-    const ratio = (col + 1) / weeks.length;
-    el.scrollLeft = Math.max(0, el.scrollWidth * ratio - el.clientWidth * 0.75);
-  }, [year, thisYear, today, weeks]);
+  // 보는 달 — 올해면 이번 달, 지난해면 12월부터. 고른 달의 별자리를 크게 보고 피드도 그달로 좁힌다
+  const thisMonth = Number(today.slice(5, 7)) - 1;
+  const [month, setMonth] = useState(thisMonth);
+  const changeYear = (y: number) => {
+    setYear(y);
+    setMonth(y === thisYear ? thisMonth : 11);
+    pick(null);
+    setShown(PAGE_DAYS);
+  };
+  const monthName = (m: number) =>
+    new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
+  const constellation = CONSTELLATIONS[month];
+  const litDays = monthDays(byDay, year, month);
+  const lit = Math.min(litDays.length, constellation.stars.length);
+  const complete = lit >= constellation.stars.length;
+  const doneCount = CONSTELLATIONS.filter((c, m) => isComplete(c, monthDays(byDay, year, m))).length;
 
   // 숫자 — 올해 기록 수 · 지금 이어지는 날 수 · 가장 길게 이어진 날 수
   const yearCount = [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).reduce((n, [, v]) => n + v.length, 0);
@@ -139,13 +127,15 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   }, [byDay, today]);
 
   const pinned = entries.filter((e) => e.is_pinned);
-  // 피드 — 고른 날이 있으면 그날만, 없으면 고른 해의 모든 날(최신순)
+  // 피드 — 고른 날이 있으면 그날만, 없으면 보는 달의 모든 날(최신순)
   const feedDays = useMemo(
     () =>
       selected
         ? [[selected, byDay.get(selected) ?? []] as const].filter(([, l]) => l.length > 0)
-        : [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).sort(([a], [b]) => (a < b ? 1 : -1)),
-    [byDay, selected, year],
+        : [...byDay.entries()]
+            .filter(([k]) => k.startsWith(`${year}-${String(month + 1).padStart(2, "0")}-`))
+            .sort(([a], [b]) => (a < b ? 1 : -1)),
+    [byDay, selected, year, month],
   );
   const [shown, setShown] = useState(PAGE_DAYS);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
@@ -157,7 +147,6 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
       return next;
     });
   const selectedEntries = selected ? byDay.get(selected) ?? [] : [];
-  const level = (n: number) => (n === 0 ? 0 : n === 1 ? 1 : n === 2 ? 2 : 3);
   const formatDay = (key: string) =>
     new Date(`${key}T12:00:00Z`).toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "short", timeZone: "UTC" });
 
@@ -182,7 +171,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               role="tab"
               aria-selected={y === year}
               className={`${styles.yearTab} ${y === year ? styles.yearTabActive : ""}`}
-              onClick={() => { setYear(y); pick(null); setShown(PAGE_DAYS); }}
+              onClick={() => changeYear(y)}
             >
               {y}
             </Pressable>
@@ -190,52 +179,51 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         </div>
         <dl className={styles.stats}>
           <div className={styles.stat}><dt>{t("tilPage.statYear")}</dt><dd>{yearCount}</dd></div>
+          <div className={styles.stat}><dt>{t("tilPage.statDone")}</dt><dd>{doneCount}/12</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statStreak")}</dt><dd>{current}</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statLongest")}</dt><dd>{longest}</dd></div>
         </dl>
       </div>
 
-      {/* 잔디 — 좁은 화면에선 가로로 스크롤된다 */}
-      <div ref={grassRef} className={styles.grassScroll}>
-        <div className={styles.grass} style={{ ["--til-weeks" as string]: weeks.length }}>
-          <span />
-          {monthLabels.map((m, i) => (
-            <span key={`m${i}`} className={styles.monthLabel}>{m}</span>
-          ))}
-          {Array.from({ length: 7 }, (_, row) => (
-            <div key={`r${row}`} className={styles.grassRow}>
-              <span className={styles.weekdayLabel}>{weekdayLabels[row]}</span>
-              {weeks.map((week, col) => {
-                const key = week[row];
-                if (!key) return <span key={col} className={styles.cellEmpty} />;
-                const list = byDay.get(key) ?? [];
-                const label = list.length ? `${key} - ${list.map(titleOf).join(", ")}` : key;
-                return (
-                  <Pressable
-                    key={col}
-                    noTapScale
-                    className={[
-                      styles.cell,
-                      styles[`lv${level(list.length)}`],
-                      key === today && styles.cellToday,
-                      key === selected && styles.cellSelected,
-                    ].filter(Boolean).join(" ")}
-                    title={label}
-                    aria-label={label}
-                    aria-pressed={key === selected}
-                    onClick={() => pick(key === selected ? null : key)}
-                  />
-                );
-              })}
-            </div>
-          ))}
+      {/* 이달의 별자리 — TIL 을 쓴 날마다 별이 하나씩 켜지고, 다 켜면 별자리 완성 */}
+      <section className={`${styles.sky} ${complete ? styles.skyDone : ""}`}>
+        <div className={styles.skyHead}>
+          <h2 className={styles.skyTitle}>
+            <span className={styles.skyMonth}>{year}.{String(month + 1).padStart(2, "0")}</span>
+            {lang === "en" ? constellation.en : constellation.ko}
+            {lang !== "en" && <span className={styles.skyLatin}>{constellation.en}</span>}
+          </h2>
+          <p className={styles.skyProgress}>
+            {complete ? (
+              <strong className={styles.skyComplete}>✦ {t("tilPage.complete")}</strong>
+            ) : (
+              fillTemplate(t("tilPage.starsLeft"), { n: constellation.stars.length - lit })
+            )}
+            <span className={styles.skyCount}>{lit} / {constellation.stars.length}</span>
+          </p>
         </div>
-      </div>
-      <div className={styles.legend} aria-hidden>
-        <span>{t("tilPage.less")}</span>
-        {[0, 1, 2, 3].map((lv) => <span key={lv} className={`${styles.cell} ${styles[`lv${lv}`]}`} />)}
-        <span>{t("tilPage.more")}</span>
-      </div>
+        <div className={styles.skyBar} aria-hidden>
+          <span style={{ width: `${(lit / constellation.stars.length) * 100}%` }} />
+        </div>
+        <div className={styles.skyArt}>
+          <ConstellationArt
+            c={constellation}
+            days={litDays}
+            big
+            selected={selected}
+            onPick={(d) => pick(d === selected ? null : d)}
+            labelOf={(d) => `${formatDay(d)} - ${(byDay.get(d) ?? []).map(titleOf).join(", ")}`}
+          />
+        </div>
+      </section>
+
+      <ConstellationStrip
+        year={year}
+        byDay={byDay}
+        month={month}
+        onMonth={(m) => { setMonth(m); pick(null); setShown(PAGE_DAYS); }}
+        monthLabel={monthName}
+      />
 
       <div className={styles.body}>
         {/* 기록 피드 — git log 처럼 날짜별로 이어진다. 잔디 칸을 고르면 그날로 좁혀지고, 글은 그 자리에서 펼쳐 읽는다 */}
@@ -311,13 +299,15 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         <aside className={styles.side}>
           <div className={styles.mong3d} aria-hidden>
             <TilMong3D
-              expression={!selected ? "normal" : selectedEntries.length > 0 ? "happy" : "surprised"}
+              expression={complete && !selected ? "happy" : !selected ? "normal" : selectedEntries.length > 0 ? "happy" : "surprised"}
               snapToFront={snap}
             />
           </div>
           <p className={styles.bubble}>
             {!selected ? (
-              current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")
+              complete
+                ? fillTemplate(t("tilPage.completeCheer"), { name: lang === "en" ? constellation.en : constellation.ko })
+                : current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")
             ) : (
               <>
                 <strong>{formatDay(selected)}</strong>

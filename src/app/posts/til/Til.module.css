@@ -108,86 +108,75 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 잔디 — [요일 이름 | 주 열 N개]. 칸 크기는 폭에 맞춰 늘되 최소 11px(좁으면 가로 스크롤) */
-.grassScroll {
-  overflow-x: auto;
-  padding-bottom: var(--spacing-8);
-}
-.grass {
-  --til-cell: minmax(11px, 1fr);
-  display: grid;
-  grid-template-columns: var(--spacing-32) repeat(var(--til-weeks), var(--til-cell));
-  gap: var(--spacing-2) var(--spacing-2);
-  min-width: 720px;
-}
-.grassRow {
-  display: contents;
-}
-.monthLabel,
-.weekdayLabel {
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-.monthLabel {
-  overflow: visible;
-}
-.weekdayLabel {
+/* 이달의 별자리 — 제목 · 남은 별 · 진행 막대 · 큰 별자리 판 */
+.sky {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-16);
+  padding: var(--spacing-20) var(--spacing-24) var(--spacing-24);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  transition: border-color var(--duration-slow) var(--ease-standard);
 }
-.cell,
-.cellEmpty {
-  aspect-ratio: 1;
-  border-radius: var(--radius-mark);
+.skyDone {
+  border-color: var(--text-accent);
 }
-.cell {
-  display: block;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-standard);
+.skyHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
 }
-.cell:hover {
-  transform: scale(1.25);
+.skyTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-8) var(--spacing-12);
+  margin: 0;
+  font: var(--font-headline-sm);
+  color: var(--text-primary);
 }
-.lv0 {
+.skyMonth,
+.skyLatin {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
+}
+.skyProgress {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+.skyComplete {
+  color: var(--text-accent);
+}
+.skyCount {
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.skyBar {
+  height: var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
+  overflow: hidden;
 }
-.lv1 {
-  background: color-mix(in srgb, var(--text-accent) 35%, var(--bg-tertiary));
-}
-.lv2 {
-  background: color-mix(in srgb, var(--text-accent) 65%, var(--bg-tertiary));
-}
-.lv3 {
+.skyBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
   background: var(--text-accent);
+  transition: width var(--duration-slow) var(--ease-standard);
 }
-.cellToday {
-  outline: var(--border-width-1) solid var(--text-primary);
-  outline-offset: 1px;
-}
-.cellSelected {
-  outline: var(--border-width-2) solid var(--text-primary);
-  outline-offset: 1px;
-}
-
-.legend {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-8);
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-}
-.legend .cell {
-  width: 11px;
-  cursor: default;
-}
-.legend .cell:hover {
-  transform: none;
+.skyArt {
+  width: 100%;
+  max-width: 560px;
+  margin: var(--spacing-8) auto 0;
 }
 
 /* 아래 본문 — [기록 피드 | 따라오는 몽이 · 고정 TIL]. 좁은 화면은 몽이가 위로 */
