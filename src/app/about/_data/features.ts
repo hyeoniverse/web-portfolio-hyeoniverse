@@ -32,6 +32,11 @@ export const featuresChapter = {
     ko: "스크롤만으로 끝까지 훑을 수 있습니다. 데모는 직접 눌러 볼 수도 있습니다.",
     en: "Scroll to see everything. The demos also respond to clicks.",
   } satisfies L10n,
+  /* 손가락으로 쓰는 기기 — 스크롤 대신 쓸어 넘기기(프레지는 위로 쓸면 다음 장면) */
+  noteTouch: {
+    ko: "위로 쓸어 넘기면 끝까지 훑을 수 있습니다. 데모는 직접 눌러 볼 수도 있습니다.",
+    en: "Swipe up to see everything. The demos also respond to taps.",
+  } satisfies L10n,
 };
 
 /* ── 장면 1 · 공개 화면 — 가로로 흐르는 큰 화면 카드 ── */
@@ -290,10 +295,19 @@ export const voiceScene = {
   } satisfies L10n,
   waveSteps: [
     { ko: "파형을 끌어 구간을 고릅니다", en: "Drag across the waveform to select" },
-    { ko: "잘라내기(⌘X)나 나누기(⌘B)로 클립을 만듭니다", en: "Cut (⌘X) or split (⌘B) to make clips" },
+    {
+      ko: "잘라내기(⌘X)나 나누기(⌘B)로 클립을 만듭니다",
+      en: "Cut (⌘X) or split (⌘B) to make clips",
+      /* 손가락으로 쓰는 기기 — 단축키 대신 도구 막대 */
+      touch: { ko: "도구 막대의 잘라내기나 나누기로 클립을 만듭니다", en: "Cut or split from the toolbar to make clips" },
+    },
     { ko: "클립 위 번호 띠를 길게 눌러 끌면 순서가 바뀝니다", en: "Long-press a clip's number strip and drag to reorder" },
-    { ko: "재생(Space)하면 고친 순서대로 들립니다", en: "Play (Space) to hear the edited order" },
-  ] satisfies L10n[],
+    {
+      ko: "재생(Space)하면 고친 순서대로 들립니다",
+      en: "Play (Space) to hear the edited order",
+      touch: { ko: "재생을 누르면 고친 순서대로 들립니다", en: "Press play to hear the edited order" },
+    },
+  ] satisfies (L10n & { touch?: L10n })[],
   convert: { ko: "PDF · PPTX 를 갤러리로", en: "PDF · PPTX into a gallery" } satisfies L10n,
   convertBody: {
     ko: "작업물 갤러리에 발표 파일을 끌어 놓으면 브라우저에서 장마다 JPEG 로 그려 올립니다. 파일은 바깥 변환 서비스로 나가지 않고, PPTX 는 발표자 노트가 그 장의 음성 대본이 됩니다. 여기서는 그 과정을 흉내만 냅니다.",

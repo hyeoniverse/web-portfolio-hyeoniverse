@@ -1,7 +1,7 @@
 "use client";
 
 /* 기능 장의 장면들이 함께 쓰는 것 — 언어 고르기, 스크롤 진행 단계, 캡처 · 영상, 브라우저 창 */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -20,6 +20,18 @@ export function useWide() {
     return () => mq.removeEventListener("change", sync);
   }, []);
   return wide;
+}
+
+/* 손가락으로 쓰는 기기인지 — 안내 글을 "누르세요 · 쓸어 넘기세요"로. 마우스가 없고(hover: none) 굵은 포인터(coarse)일 때.
+   서버와 첫 그림은 데스크톱 글(클릭 · 스크롤) */
+const TOUCH_QUERY = "(hover: none) and (pointer: coarse)";
+const subscribeTouch = (cb: () => void) => {
+  const mq = matchMedia(TOUCH_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+export function useTouchInput() {
+  return useSyncExternalStore(subscribeTouch, () => matchMedia(TOUCH_QUERY).matches, () => false);
 }
 
 export function useL() {
@@ -186,8 +198,9 @@ export function RowNum({ n }: { n: number }) {
 }
 
 /** 장 머리 — 눈썹 · 큰 제목 · 덧말. 오른쪽에 길잡이 별이 내려앉는 자리 */
-export function ChapterHead({ eyebrow, title, note }: { eyebrow: L10n; title: L10n; note?: L10n }) {
+export function ChapterHead({ eyebrow, title, note, noteTouch }: { eyebrow: L10n; title: L10n; note?: L10n; noteTouch?: L10n }) {
   const L = useL();
+  const touch = useTouchInput();
   return (
     <div className={styles.head}>
       <span className={styles.headAnchor}>
@@ -195,7 +208,7 @@ export function ChapterHead({ eyebrow, title, note }: { eyebrow: L10n; title: L1
       </span>
       <span className={styles.eyebrow}>{L(eyebrow)}</span>
       <h2 className={styles.title}>{L(title)}</h2>
-      {note && <p className={styles.note}>{L(note)}</p>}
+      {note && <p className={styles.note}>{L(touch && noteTouch ? noteTouch : note)}</p>}
     </div>
   );
 }

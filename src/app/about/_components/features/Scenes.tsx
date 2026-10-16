@@ -15,7 +15,7 @@ import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsCo
 import { auditTheme } from "@/lib/themeAudit";
 import { publicScene, layoutsScene, adminScene, adminItems, voiceScene, cmsScene, themeScene } from "../../_data/features";
 import type { L10n } from "../../_data/showcase";
-import { AutoBar, BrowserFrame, RowNum, SceneHead, ShotMedia, STAR_PATH, useAutoStep, useL, useShotSrc, WithCode } from "./shared";
+import { AutoBar, BrowserFrame, RowNum, SceneHead, ShotMedia, STAR_PATH, useAutoStep, useL, useShotSrc, useTouchInput, WithCode } from "./shared";
 import { useFrameSteps } from "../prezi/context";
 import FitZoom from "./FitZoom";
 import { SlidesDemo, WaveDemo, ConvertDemo } from "../demos/media";
@@ -539,8 +539,9 @@ export function SceneVoice() {
 }
 
 /** 편집 도구 프레임의 글 칸 — 머리, 무엇인지, 해 볼 차례 */
-function VoiceToolText({ title, body, steps }: { title: L10n; body: L10n; steps?: L10n[] }) {
+function VoiceToolText({ title, body, steps }: { title: L10n; body: L10n; steps?: (L10n & { touch?: L10n })[] }) {
   const L = useL();
+  const touch = useTouchInput();
   return (
     <div className={styles.voiceToolText}>
       <SceneHead label={voiceScene.label} title={title} body={body} />
@@ -549,7 +550,7 @@ function VoiceToolText({ title, body, steps }: { title: L10n; body: L10n; steps?
           {steps.map((s, i) => (
             <li key={i}>
               <span className={styles.cmsStepNum}>{i + 1}</span>
-              {L(s)}
+              {L(touch && s.touch ? s.touch : s)}
             </li>
           ))}
         </ol>

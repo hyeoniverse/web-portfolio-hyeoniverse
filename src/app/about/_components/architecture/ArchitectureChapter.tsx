@@ -21,7 +21,7 @@ import {
 import { userFlows as staticFlows } from "@/data/about/architecture";
 import { erdTables as staticTables, erdRelations as staticRelations, erdDesignNotes } from "@/data/about/erd";
 import { keyNotes, stackKey, stackScene, flowScene, erdScene, erdGroups, erdOtherGroup, erdTour } from "../../_data/architecture";
-import { RowNum, SceneHead, STAR_PATH, StarMark, useL } from "../features/shared";
+import { RowNum, SceneHead, STAR_PATH, StarMark, useL, useTouchInput } from "../features/shared";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import NoteArt from "./NoteArt";
 import fx from "../features/Features.module.css";
@@ -368,6 +368,7 @@ export function SceneFlows() {
 
 export function SceneErd() {
   const L = useL();
+  const touch = useTouchInput();
   const { language } = useLanguage();
   const about = useAboutConfig();
   const tables = about.erdTables?.length ? about.erdTables : staticTables;
@@ -486,7 +487,7 @@ export function SceneErd() {
           )}
         </aside>
       </div>
-      <p className={styles.erdHint}>{L(erdScene.hint)}</p>
+      <p className={styles.erdHint}>{L(touch ? erdScene.hintTouch : erdScene.hint)}</p>
     </section>
   );
 }
