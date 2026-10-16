@@ -178,6 +178,10 @@ export default function PostCardStandard({
         {langBadge && (
           <Badge variant="overlay" uppercase className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></Badge>
         )}
+        {/* 로그 스킨의 파일 경로 줄 — 커버 위 왼쪽 위. 스킨이 아닐 땐 CSS 가 숨긴다 */}
+        {showImage && (
+          <span className={styles.logPath} aria-hidden>posts/{post.slug || post.id}</span>
+        )}
         {/* 페이지 이모지 — 커버 좌하단에 겹쳐(Notion·디테일 페이지와 동일 감성) */}
         {showImage && icon && (
           <span className={styles.cardIcon}><EmojiIcon value={icon} size={30} /></span>

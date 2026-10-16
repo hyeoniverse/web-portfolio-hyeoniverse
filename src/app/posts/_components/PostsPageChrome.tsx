@@ -27,7 +27,8 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
   // 블로그 이름 — 설정 posts.blogTitle, 비면 "Log"
   const blogTitle = siteConf.posts.blogTitle?.trim() || "Log";
   return (
-    <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
+    /* data-blog-skin="log" — 글 목록의 개발 로그 스킨(카드 메타 · 태그 · 선을 모노 · 점선으로). 레이아웃은 그대로, History 는 빼 둔다 */
+    <div className={`${styles.page} ${history ? styles.historyMode : ""}`} data-blog-skin={history ? undefined : "log"}>
       <PostsSubnav />
       <div className={styles.header}>
         {history ? (
@@ -40,6 +41,10 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
         ) : (
           /* 블로그 머리말 — 블로그 이름(큰 제목) · 한 줄 소개. 블로그라는 표시는 로고 옆 Blog 배지가 맡아 여기선 되풀이하지 않는다 */
           <div className={styles.masthead}>
+            {/* 로그 스킨의 프롬프트 줄 — 장식이라 읽지 않는다 */}
+            <span className={styles.mastheadPrompt} aria-hidden>
+              <b>~/log</b> $ ls -t posts/
+            </span>
             <PageTitle className={styles.mastheadTitle}>{blogTitle}</PageTitle>
             <p className={styles.mastheadLead}>
               <T k="postsPage.subtitle" />

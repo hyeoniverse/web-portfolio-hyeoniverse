@@ -38,6 +38,17 @@
   padding-bottom: var(--spacing-24);
   border-bottom: var(--border-light);
 }
+.mastheadPrompt {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
+}
+.mastheadPrompt b {
+  font: inherit;
+  color: var(--text-accent);
+}
+[data-blog-skin="log"] .masthead {
+  border-bottom-style: dashed;
+}
 .header .mastheadTitle {
   --_title-size: clamp(2.5rem, 1.9rem + 2.4vw, 4rem);
 }

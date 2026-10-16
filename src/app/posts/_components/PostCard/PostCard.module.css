@@ -652,3 +652,55 @@
   font-size: clamp(1.2rem, 0.977rem + 0.91vw, 1.8rem);
   -webkit-line-clamp: 3;
 }
+
+/* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치는 건드리지 않고
+   날짜 줄 · 태그 · 선만 모노 · 점선으로 바꾸고, 커버 위에 글 경로 줄을 얹는다 ── */
+.logPath {
+  display: none;
+}
+:global([data-blog-skin="log"]) .logPath {
+  display: block;
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  padding: var(--spacing-8) var(--spacing-12);
+  font: var(--font-code-xs);
+  color: var(--text-white);
+  background: var(--bg-overlay);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+:global([data-blog-skin="log"]) .dateLine,
+:global([data-blog-skin="log"]) .dateLineDate,
+:global([data-blog-skin="log"]) .dateLineCat {
+  font: var(--font-code-xs);
+  letter-spacing: 0;
+  text-transform: none;
+}
+:global([data-blog-skin="log"]) .dateLineDate {
+  color: var(--text-primary);
+}
+:global([data-blog-skin="log"]) .dateLineCat::before {
+  content: "[";
+}
+:global([data-blog-skin="log"]) .dateLineCat::after {
+  content: "]";
+}
+:global([data-blog-skin="log"]) .body {
+  border-top: var(--border-width-1) dashed var(--border-color-light);
+  margin-top: var(--spacing-8);
+}
+:global([data-blog-skin="log"]) .card {
+  border-bottom-style: dashed;
+}
+:global([data-blog-skin="log"]) .tagPill {
+  padding: 0;
+  background: none;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+:global([data-blog-skin="log"]) .tagPill:hover {
+  color: var(--text-accent);
+}
