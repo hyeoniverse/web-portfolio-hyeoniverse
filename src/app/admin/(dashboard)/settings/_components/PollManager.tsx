@@ -13,7 +13,6 @@ import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
 import TransitionLink from "@/components/ui/TransitionLink";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { tryRequest } from "@/lib/sendAction";
 import type { PollBlock, PollWhere } from "@/lib/pollUsage";
@@ -21,6 +20,7 @@ import settings from "../Settings.module.css";
 import LibraryHead from "./LibraryHead";
 import lib from "./Library.module.css";
 import styles from "./PollManager.module.css";
+import { PollListSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
 
 const PAGE_SIZE = 10;
@@ -94,7 +94,7 @@ export default function PollManager() {
         />
 
         {filtered === null ? (
-          <div className={styles.list}>{[0, 1].map((i) => <div key={i} className={styles.item}><SkeletonLine width="50%" height={14} /></div>)}</div>
+          <PollListSkeleton />
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.pollManager.noResults") : t("admin.inline.pollManager.noPolls")}</EmptyState>
         ) : (
