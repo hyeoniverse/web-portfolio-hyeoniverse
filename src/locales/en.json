@@ -470,13 +470,13 @@
   },
   "tilPage": {
     "openPost": "Open post",
-    "subtitle": "Today I Learned — every day of learning lights a star, and each month completes a constellation.",
-    "tagHint": "Posts tagged #{{tag}} become stars.",
+    "subtitle": "Today I Learned — plant a square each day of learning and complete a constellation each month.",
+    "tagHint": "Posts tagged #{{tag}} grow into squares and stars.",
     "yearTabs": "Year",
     "statYear": "This year",
     "statStreak": "Streak",
     "statLongest": "Longest",
-    "pickDay": "Tap a star! I'll show you what was learned that day.",
+    "pickDay": "Tap a square or a star! I'll show you what was learned that day.",
     "streakCheer": "{{n}} days in a row! Shall we light one more star today?",
     "restDay": "A rest day. Zzz…",
     "dayCount": "{{n}} learned that day",
@@ -486,7 +486,9 @@
     "statDone": "Constellations",
     "complete": "Constellation complete!",
     "starsLeft": "{{n}} more stars to complete",
-    "completeCheer": "You completed {{name}} this month! ✦"
+    "completeCheer": "You completed {{name}} this month! ✦",
+    "less": "Less",
+    "more": "More"
   },
   "postsPage": {
     "statPosts": "Posts",

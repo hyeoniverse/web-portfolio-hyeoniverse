@@ -470,13 +470,13 @@
   },
   "tilPage": {
     "openPost": "글로 보기",
-    "subtitle": "Today I Learned — 배운 날마다 별을 하나씩 켜서, 달마다 별자리를 완성해요.",
-    "tagHint": "#{{tag}} 태그를 단 글이 별이 돼요.",
+    "subtitle": "Today I Learned — 매일 배운 걸 한 칸씩 심고, 달마다 별자리를 완성해요.",
+    "tagHint": "#{{tag}} 태그를 단 글이 잔디와 별로 자라요.",
     "yearTabs": "연도",
     "statYear": "올해 기록",
     "statStreak": "연속",
     "statLongest": "최장 연속",
-    "pickDay": "별을 눌러 보세요! 그날 배운 걸 보여 줄게요.",
+    "pickDay": "잔디나 별을 눌러 보세요! 그날 배운 걸 보여 줄게요.",
     "streakCheer": "{{n}}일째 이어서 기록 중이에요! 오늘도 별 하나 켜 볼까요?",
     "restDay": "이 날은 쉬어 갔어요. 쿨쿨…",
     "dayCount": "이 날 배운 것 {{n}}개",
@@ -486,7 +486,9 @@
     "statDone": "완성 별자리",
     "complete": "별자리 완성!",
     "starsLeft": "별 {{n}}개만 더 켜면 완성",
-    "completeCheer": "이번 달 {{name}}를 완성했어요! 반짝반짝 ✦"
+    "completeCheer": "이번 달 {{name}}를 완성했어요! 반짝반짝 ✦",
+    "less": "적음",
+    "more": "많음"
   },
   "postsPage": {
     "statPosts": "글",
