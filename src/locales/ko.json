@@ -473,6 +473,8 @@
     "statTags": "태그",
     "statSeries": "시리즈",
     "calendar": "날짜별 기록",
+    "onlyMarked": "기록된 날만",
+    "calendarEmpty": "이 날은 쓴 글이 없어요.",
     "subtitle": "기억은 흐려지지만, 기록은 남고, 나눌수록 깊어진다.",
     "searchPlaceholder": "검색...",
     "searchAll": "제목+내용",

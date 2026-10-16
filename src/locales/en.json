@@ -473,6 +473,8 @@
     "statTags": "Tags",
     "statSeries": "Series",
     "calendar": "Archive calendar",
+    "onlyMarked": "Posted days only",
+    "calendarEmpty": "No posts on this day.",
     "subtitle": "Memory fades, but writing remains — and grows by sharing.",
     "searchPlaceholder": "Search...",
     "searchAll": "Title+Content",

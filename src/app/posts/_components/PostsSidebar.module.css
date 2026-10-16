@@ -11,7 +11,31 @@
   transition: top var(--duration-base) var(--ease-standard), max-height var(--duration-base) var(--ease-standard);
 }
 
-/* 1024 이하는 본문 아래로 내려와 평범하게 흐른다. 넓은 화면만 sticky + 자체 스크롤 */
+/* 1024 이하는 본문 아래로 내려와 평범하게 흐른다 — 글 목록과 섞여 보이지 않게 굵은 선과 여백으로 나누고,
+   위젯 묶음을 옅은 면에 담는다. 넓은 화면만 sticky + 자체 스크롤 */
+.sidebarWrap {
+  margin-top: var(--spacing-24);
+  padding: var(--spacing-24) var(--spacing-16) 0;
+  border-top: var(--border-width-2) solid var(--text-primary);
+  border-radius: 0 0 var(--radius-surface) var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+@media (width > 480px) {
+  .sidebarWrap {
+    padding-inline: var(--spacing-24);
+  }
+}
+
+@media (width > 1024px) {
+  .sidebarWrap {
+    margin-top: 0;
+    padding: 0;
+    border-top: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+}
 @media (width > 1024px) {
   .sidebarWrap {
     position: sticky;

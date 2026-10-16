@@ -20,6 +20,8 @@
   margin-bottom: var(--spacing-32);
   padding-bottom: var(--spacing-24);
   border-bottom: var(--border-light);
+  /* 사이드바가 본문 아래에서 2열로 흐를 때(768~1024) 소개 카드는 두 열을 가로질러 머리처럼 선다 */
+  column-span: all;
 }
 .profileTop {
   display: flex;
@@ -108,78 +110,26 @@
   height: 16px;
 }
 
-/* 날짜별 달력 */
-.calHead {
+/* 날짜별 기록 — 라벨 줄 · 옵션 줄(기록된 날만 스위치) + 공용 DatePicker + 고른 날의 글 */
+.calLabel {
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+.calOptions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-12) 0 var(--spacing-8);
+  justify-content: flex-end;
+  padding-top: var(--spacing-8);
 }
-.calMonth {
-  font: var(--font-label-md);
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-.calMonthCount {
-  color: var(--text-accent);
-}
-.calNav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
-  border: 0;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-.calNav:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-.calGrid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--spacing-2);
-  text-align: center;
-}
-.calWeekday {
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-  padding-bottom: var(--spacing-4);
-}
-.calDay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-mark);
-  background: transparent;
-  font: var(--font-body-xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-tertiary);
-}
-.calDayToday {
-  outline: var(--border-light);
-  outline-offset: -1px;
-}
-.calDayHas {
-  background: color-mix(in srgb, var(--text-accent) 16%, transparent);
-  color: var(--text-accent);
-  cursor: pointer;
-}
-.calDayHas:hover,
-.calDaySelected {
-  background: var(--text-accent);
-  color: var(--bg-primary);
+.calPicker {
+  padding-top: var(--spacing-4);
 }
 .calPosts {
   list-style: none;
-  margin: var(--spacing-12) 0 0;
+  margin: var(--spacing-8) 0 0;
   padding: var(--spacing-8) 0 0;
   border-top: var(--border-light);
   display: flex;
@@ -193,4 +143,11 @@
 }
 .calPostLink:hover {
   color: var(--text-accent);
+}
+.calEmpty {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
+  border-top: var(--border-light);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
 }
