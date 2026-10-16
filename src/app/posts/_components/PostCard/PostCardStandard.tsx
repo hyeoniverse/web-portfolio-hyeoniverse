@@ -119,11 +119,6 @@ export default function PostCardStandard({
       data-clickable="true"
     >
       <PostCardLink {...cardLink} />
-      {/* 로그 스킨의 창 제목 줄 — [● ● ●  posts/slug.md]. 스킨이 아닐 땐 CSS 가 숨긴다 */}
-      <div className={styles.logBar} aria-hidden>
-        <span className={styles.logDots}><i /><i /><i /></span>
-        <span className={styles.logPath}>posts/{post.slug || post.id}.md</span>
-      </div>
       <div className={styles.imageWrap}>
         {showImage ? (
           <ProgressiveImage

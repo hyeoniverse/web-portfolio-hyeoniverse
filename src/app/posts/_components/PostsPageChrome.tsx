@@ -2,6 +2,7 @@
 
 import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
+import StarLog, { type StarLogVariant } from "./StarLog";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
 import { History as HistoryIcon } from "@/components/icons";
@@ -9,6 +10,9 @@ import type { Post } from "@/types/post";
 import styles from "../Posts.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+
+/** 머리말 별 그림 — 시안 비교 중(constellation · field · chart) */
+const STAR_LOG_VARIANT: StarLogVariant = "constellation";
 
 interface PostsPageChromeProps {
   /** history 모드 — 제목/부제가 History 로 바뀌고 배너를 렌더하지 않는다. */
@@ -41,6 +45,7 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
         ) : (
           /* 블로그 머리말 — 블로그 이름(큰 제목) · 한 줄 소개. 블로그라는 표시는 로고 옆 Blog 배지가 맡아 여기선 되풀이하지 않는다 */
           <div className={styles.masthead}>
+            <StarLog seed={blogTitle} variant={STAR_LOG_VARIANT} />
             {/* 로그 스킨의 프롬프트 줄 — 장식이라 읽지 않는다 */}
             <span className={styles.mastheadPrompt} aria-hidden>
               <b>~/log</b> $ ls -t posts/
