@@ -1096,11 +1096,7 @@
     "drag": "Drag to move"
   },
   "historyPage": {
-    "viewLabel": "View",
-    "viewTrail": "Mong's trail",
-    "viewRiver": "River of time",
     "tilLegend": "marks a TIL post",
-    "count": "{{n}} posts",
-    "riverHint": "Scroll to drift down the river to now →"
+    "count": "{{n}} posts"
   }
 }
