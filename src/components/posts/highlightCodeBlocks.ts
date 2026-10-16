@@ -163,6 +163,9 @@ export function attachCodeWrapToggle(
       pre.parentNode?.insertBefore(wrap, pre);
       wrap.appendChild(pre);
     }
+    /* 예전 마크업(마크다운 렌더 · 예전에 저장한 HTML)은 pre 아래에 줄바꿈 단추를 직접 달고 있다 — 위 바에
+       같은 단추를 새로 다므로 그대로 두면 블록 아래에 '↔ 스크롤' 이 하나 더 보인다. 바 밖의 것은 떼어 낸다 */
+    wrap.querySelectorAll(":scope > button[data-wrap-btn]").forEach((b) => b.remove());
 
     // 바깥 컨테이너 — resize 오버레이가 wrap 의 형제가 되도록 wrap 을 감싼다(댓글창 Textarea 구조).
     // 오버레이가 wrap 의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다.
