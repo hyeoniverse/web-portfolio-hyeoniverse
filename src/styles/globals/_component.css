@@ -11,10 +11,11 @@
   --footer-height: 100px;
   --action-button-width: 48px;
   --active-side-nav-width: 0px;
-  /* 관리 화면 본문이 시작하는 높이 — 고정 내비게이션 아래 32px. 내비게이션 높이는 위아래 여백(--spacing-nav-top)과
+  /* 관리 화면 본문이 시작하는 높이 — 고정 내비게이션 아래. 내비게이션 높이는 위아래 여백(--spacing-nav-top)과
      안의 컨트롤로 정해지는데, 좁은 화면은 메뉴 단추(40px)라 높이가 다르다. 예전에는 화면마다 128px 을 적어
-     좁은 화면에서 제목이 내비게이션과 57px 떨어졌다 */
-  --admin-page-top: calc(var(--spacing-nav-top) * 2 + var(--size-40) + var(--spacing-32));
+     좁은 화면에서 제목이 내비게이션과 57px 떨어졌다. 내비게이션 상자 아래에는 이미 여백(--spacing-nav-top)이 있어,
+     좁은 화면은 그 아래 16px 만 더 띄운다(넓은 화면은 32px) */
+  --admin-page-top: calc(var(--spacing-nav-top) * 2 + var(--size-40) + var(--spacing-16));
 
   /* 커스텀 커서 */
   --cursor-width: 20px;
