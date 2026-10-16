@@ -22,7 +22,14 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--spacing-16);
-  height: 100%;
+  /* 좁은 화면은 내용만큼 자란다(설명을 다 보이고 장면 안에서 스크롤) — .decisions 와 같은 까닭 */
+  min-height: 100%;
+}
+
+@media (width > 768px) {
+  .process {
+    height: 100%;
+  }
 }
 
 .processHead {
@@ -359,7 +366,8 @@
   left: auto;
 }
 
-/* 지금 단계 — 설명은 세 줄까지. 아래쪽 하늘(노을 · 해 빛)에서 흐린 글자가 묻혀 본문 색으로 */
+/* 지금 단계 — 설명은 넓은 화면에서 세 줄까지(좁은 화면은 다 보인다 — 세 줄로 자르면 단계 설명 대부분을 읽을 수 없었다).
+   아래쪽 하늘(노을 · 해 빛)에서 흐린 글자가 묻혀 본문 색으로 */
 .ganttWrap .now {
   gap: var(--spacing-8);
 }
@@ -369,13 +377,15 @@
   color: var(--text-primary);
 }
 
-.ganttWrap .now .phaseBody {
-  display: -webkit-box;
-  flex: none;
-  min-height: 2lh;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+@media (width > 768px) {
+  .ganttWrap .now .phaseBody {
+    display: -webkit-box;
+    flex: none;
+    min-height: 2lh;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
 }
 
 .ganttWrap .now .metricValue {
@@ -464,7 +474,14 @@
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: var(--spacing-16);
-  height: 100%;
+  /* 좁은 화면은 내용만큼 자란다 — 높이를 화면에 묶으면 넘친 글(트레이드오프)이 장면 스크롤에 잡히지 않고 아래 막대 뒤로 숨었다 */
+  min-height: 100%;
+}
+
+@media (width > 768px) {
+  .decisions {
+    height: 100%;
+  }
 }
 
 .decisionsHead {
