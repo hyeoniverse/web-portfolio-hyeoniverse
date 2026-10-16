@@ -6,45 +6,6 @@
   color: var(--text-primary);
 }
 
-/* 다단 열 구분선 — 직렬화 HTML 에 에디터(.colElement::after)와 동일한 pseudo 로 그림.
-   그룹이 --_col-divider 를 지정했을 때만 보이고, gap(--spacing-8) 중앙에 1px 선. */
-.prose [data-column-group] > [data-column] {
-  position: relative;
-}
-.prose [data-column-group] > [data-column]::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(-1 * var(--spacing-8) / 2);
-  width: 1px;
-  background: var(--_col-divider, transparent);
-  pointer-events: none;
-}
-.prose [data-column-group] > [data-column]:last-child::after {
-  display: none;
-}
-
-/* 모바일 — 열을 세로로 쌓는다. 너비가 인라인 style(flex %/px)로 박혀 있어 좁은 화면에선
-   열마다 수십 px 로 짜부라지므로 !important 로 덮고, 구분선은 열 사이 가로선으로 바꾼다. */
-@media (width <= 768px) {
-  .prose [data-column-group] {
-    flex-direction: column;
-    overflow-x: visible !important;
-  }
-  .prose [data-column-group] > [data-column] {
-    flex: 0 0 auto !important;
-  }
-  .prose [data-column-group] > [data-column]::after {
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: calc(-1 * var(--spacing-8) / 2);
-    width: auto;
-    height: 1px;
-  }
-}
-
 /* 크기·여백·줄간격·굵기는 전역 base + .prose-content 공통 — 여기선 문맥 고유 속성만 */
 .prose h1,
 .prose h2,

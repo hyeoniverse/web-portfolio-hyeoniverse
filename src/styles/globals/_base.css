@@ -145,6 +145,47 @@ h6 { font-size: var(--font-size-body-sm); }
 }
 .prose-content > :last-child { margin-bottom: 0; }
 
+/* 열 블록(글 · 작업물 본문의 직렬화 HTML) — 작은 화면은 세로로 쌓고, 넓은 화면에서 가로로 나란히 놓는다.
+   너비 · 스크롤은 직렬화기가 변수(--_col-flex · --_col-overflow)로만 넘기고 언제 쓸지는 여기서 정한다(3.11-1).
+   구분선은 열 pseudo — 좁은 화면은 열 사이 가로선, 넓은 화면은 gap(--spacing-8) 중앙 세로선. */
+.prose-content [data-column-group] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.prose-content [data-column-group] > [data-column] {
+  position: relative;
+}
+.prose-content [data-column-group] > [data-column]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: calc(-1 * var(--spacing-8) / 2);
+  left: 0;
+  height: 1px;
+  background: var(--_col-divider, transparent);
+  pointer-events: none;
+}
+.prose-content [data-column-group] > [data-column]:last-child::after {
+  display: none;
+}
+@media (width >= 768px) {
+  .prose-content [data-column-group] {
+    flex-direction: row;
+    overflow-x: var(--_col-overflow, auto);
+  }
+  .prose-content [data-column-group] > [data-column] {
+    flex: var(--_col-flex, 1 1 0);
+  }
+  .prose-content [data-column-group] > [data-column]::after {
+    top: 0;
+    right: calc(-1 * var(--spacing-8) / 2);
+    left: auto;
+    width: 1px;
+    height: auto;
+  }
+}
+
 /* 본문 제목 크기 — 편집기·글·작업물 본문에서만. 전역 h1~h6(위)는 화면 UI 제목이 함께 쓰므로 건드리지 않는다.
    본문이 16px 이라 예전 값(h1 24 · h2 20 · h3 18 · h4 16)은 본문과 거의 같아 단계가 보이지 않았다.
    h5·h6 는 편집기에서 만들 수 없고(마크다운 변환도 뺐다) 예전 글·붙여넣은 HTML 에만 남아 있어 본문 크기 언저리로 둔다. */
