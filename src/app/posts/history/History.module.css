@@ -1,0 +1,384 @@
+/* ── History — 머리(보기 전환 · TIL 표시) · 몽이 길(trail) · 시간의 강(river) ── */
+
+.subtitle {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-16);
+}
+.viewSwitch {
+  display: inline-flex;
+  padding: var(--spacing-2);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+}
+.viewTab {
+  height: calc(var(--control-height-sm) - var(--spacing-4));
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+.viewTabOn {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+.legend {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+/* 글 한 줄의 공통 조각 */
+.postDate {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.postTitle {
+  min-width: 0;
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.postCat {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.tilTag {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-4);
+  border: var(--border-width-1) solid currentColor;
+  border-radius: var(--radius-mark);
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+/* TIL 글 — 한 단계 옅게, 제목도 한 단계 작게 */
+.isTil .postTitle {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+/* ── 몽이 길 ── 왼쪽 세로 길, 화면 같은 높이에 붙은 몽이, 달 표지판, 글 줄 */
+.trail {
+  position: relative;
+  margin-top: var(--spacing-40);
+  padding-left: var(--spacing-64);
+}
+@media (width >= 768px) {
+  .trail {
+    padding-left: calc(var(--spacing-128) + var(--spacing-32));
+  }
+}
+/* 길 — 점선 한 줄 */
+.trail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--spacing-24);
+  border-left: var(--border-width-2) dashed var(--border-color-strong);
+}
+@media (width >= 768px) {
+  .trail::before {
+    left: var(--spacing-80);
+  }
+}
+/* 몽이 — 길 위, 화면 40% 높이에 붙어 있다 */
+.walker {
+  position: sticky;
+  top: 40vh;
+  z-index: 1;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--spacing-48);
+  height: 0;
+  margin-left: calc(var(--spacing-64) * -1);
+  overflow: visible;
+  pointer-events: none;
+}
+@media (width >= 768px) {
+  .walker {
+    width: var(--spacing-64);
+    margin-left: calc((var(--spacing-128) + var(--spacing-32)) * -1 + var(--spacing-48));
+  }
+}
+.walkerBody {
+  display: block;
+  width: 100%;
+  transform: translateY(-60%);
+  animation: walk-bob var(--duration-base) var(--ease-standard);
+}
+@keyframes walk-bob {
+  50% { transform: translateY(-70%) rotate(-6deg); }
+}
+.walkerSign {
+  position: absolute;
+  top: var(--spacing-40);
+  left: 0;
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font: var(--font-code-xs);
+  white-space: nowrap;
+}
+@media (width >= 768px) {
+  .walkerSign {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.trailList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-40);
+}
+.trailYear {
+  margin: 0 0 var(--spacing-16);
+  font: var(--font-headline-lg);
+  color: var(--text-primary);
+}
+/* 달 표지판 — 길 위의 강조색 별과 달 이름 */
+.trailSign {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
+}
+.trailSignDot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--spacing-64) * -1 + var(--spacing-24) - var(--spacing-8) + 1px);
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transform: translateY(-50%);
+}
+@media (width >= 768px) {
+  .trailSignDot {
+    left: calc((var(--spacing-128) + var(--spacing-32)) * -1 + var(--spacing-80) - var(--spacing-8) + 1px);
+  }
+}
+.trailSignName {
+  margin: 0;
+  font: var(--font-headline-xs);
+  color: var(--text-primary);
+}
+.trailSignCount {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+.trailPosts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.trailPost {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-light);
+  text-decoration: none;
+  transition: padding var(--duration-fast) var(--ease-standard);
+}
+.trailPost:hover {
+  padding-left: var(--spacing-8);
+}
+.trailPost:hover .postTitle {
+  color: var(--text-accent);
+}
+.trailPost .tilTag,
+.trailPost .postCat {
+  margin-left: auto;
+}
+
+/* ── 시간의 강 ── 높은 스크롤 구간 안에 붙은 판, 판 안의 강 띠가 스크롤만큼 왼쪽으로 흐른다 */
+.river {
+  position: relative;
+  margin-top: var(--spacing-24);
+}
+.riverSticky {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+.riverTrack {
+  position: absolute;
+  inset: 0 auto 0 0;
+  will-change: transform;
+}
+.riverSvg {
+  position: absolute;
+  top: calc(55% - 80px);
+  left: 0;
+  overflow: visible;
+}
+.riverWater {
+  fill: none;
+  stroke: var(--text-accent);
+  stroke-width: 2;
+  stroke-dasharray: 2 10;
+  stroke-linecap: round;
+  opacity: 0.7;
+  animation: river-flow calc(var(--duration-slower) * 3) linear infinite;
+}
+@keyframes river-flow {
+  to { stroke-dashoffset: -24; }
+}
+.riverBank {
+  fill: none;
+  stroke: var(--border-color-strong);
+  stroke-width: 1;
+}
+.riverMonth {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.riverYear {
+  position: absolute;
+  top: var(--spacing-128);
+  left: 0;
+  font: var(--font-headline-lg);
+  color: var(--text-primary);
+}
+.riverMonthName {
+  position: absolute;
+  left: var(--spacing-16);
+  font: var(--font-code-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+/* 강 위아래에 뜬 글 — 강까지 내려오는 가는 줄기 끝에 별 */
+.riverPost {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  max-width: 180px;
+  text-decoration: none;
+  transform: translate(-6px, -50%);
+}
+.riverPost::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  width: var(--border-width-1);
+  height: var(--stem);
+  background: var(--border-color-light);
+}
+.riverUp::before {
+  top: 50%;
+}
+.riverDown::before {
+  bottom: 50%;
+}
+/* 별 — 일반 글은 크게, TIL 은 작고 옅게 */
+.riverStar {
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.isTil .riverStar {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  opacity: 0.7;
+}
+.riverText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-2) var(--spacing-8);
+}
+.riverPost:hover .riverStar {
+  transform: scale(1.6) rotate(45deg);
+}
+.riverPost:hover .postTitle {
+  color: var(--text-accent);
+}
+/* 배 탄 몽이 — 판 가운데 강 위 */
+.boat {
+  position: absolute;
+  top: calc(55% - var(--spacing-80));
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.boatSign {
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font: var(--font-code-xs);
+  white-space: nowrap;
+}
+.boatMong {
+  width: var(--spacing-48);
+  margin-top: var(--spacing-8);
+}
+.boatHull {
+  width: var(--spacing-80);
+  height: var(--spacing-16);
+  margin-top: calc(var(--spacing-8) * -1);
+  border: var(--border-width-2) solid var(--text-primary);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-full) var(--radius-full);
+  background: var(--bg-primary);
+}
+.riverHint {
+  position: absolute;
+  bottom: var(--spacing-48);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+.riverHint[data-hidden] {
+  opacity: 0;
+}
+.riverProgress {
+  position: absolute;
+  left: var(--spacing-16);
+  right: var(--spacing-16);
+  bottom: var(--spacing-24);
+  height: var(--spacing-2);
+  background: var(--border-color-light);
+}
+.riverProgress span {
+  display: block;
+  height: 100%;
+  background: var(--text-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .walkerBody,
+  .riverWater { animation: none; }
+}

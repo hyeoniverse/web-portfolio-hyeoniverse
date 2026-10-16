@@ -565,3 +565,23 @@ export async function getTilData(): Promise<{ tag: string; entries: TilEntry[] }
   ));
   return { tag, entries };
 }
+
+/** History 페이지의 글 요약 — 제목 · 날짜 · 태그만 가볍게(본문 없음) */
+export type HistoryEntry = Pick<
+  Post,
+  "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "scheduled_at" | "tags" | "category" | "view_count"
+>;
+
+/** History 페이지 데이터 — 발행 글 전부(최신순)와 TIL 태그(설정 posts.tilTag, 기본 "TIL"). TIL 글을 따로 표시하는 데 쓴다 */
+export async function getHistoryData(): Promise<{ tilTag: string; posts: HistoryEntry[] }> {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const { data } = await admin
+    .from("posts")
+    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, scheduled_at, tags, category, view_count")
+    .eq("published", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(5000);
+  return { tilTag: cfg.posts?.tilTag || "TIL", posts: (data ?? []) as HistoryEntry[] };
+}

@@ -13,7 +13,8 @@ export type MongPose =
   | "surprised-front"
   | "happy-front"
   | "heart-front"
-  | "sleep-left";
+  | "sleep-left"
+  | "normal-front";
 
 const SIZES: Record<MongPose, [number, number]> = {
   "star-front": [1544, 1085],
@@ -26,6 +27,7 @@ const SIZES: Record<MongPose, [number, number]> = {
   "happy-front": [792, 1262],
   "heart-front": [683, 1330],
   "sleep-left": [783, 1173],
+  "normal-front": [792, 1262],
 };
 
 /** flat — 바닥 그림자 없이 흰 테두리만. 좁은 사이드바처럼 둘레가 잘리는 자리에서 쓴다 */

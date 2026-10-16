@@ -1094,5 +1094,13 @@
     "collapse": "접기",
     "goToCurrent": "읽는 곳으로 이동",
     "drag": "끌어서 옮기기"
+  },
+  "historyPage": {
+    "viewLabel": "보기",
+    "viewTrail": "몽이 길",
+    "viewRiver": "시간의 강",
+    "tilLegend": "표시는 TIL 글이에요",
+    "count": "글 {{n}}개",
+    "riverHint": "스크롤하면 강을 따라 지금으로 흘러가요 →"
   }
 }
