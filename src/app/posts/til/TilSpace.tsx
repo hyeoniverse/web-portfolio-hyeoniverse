@@ -151,7 +151,7 @@ export default function TilSpace({
           <span
             key={m}
             ref={(el) => { labelEls.current[m] = el; }}
-            className={`${styles.label} ${lits[m] >= CONSTELLATIONS[m].stars.length ? styles.labelDone : ""}`}
+            className={`${styles.label} ${lits[m] >= CONSTELLATIONS[m].stars.length ? styles.labelDone : ""} ${focus === m ? styles.labelFocused : ""}`}
           >
             <b>{l.name}</b>
             <i>{l.count}</i>
@@ -209,7 +209,8 @@ export default function TilSpace({
             </ol>
           )}
           <Pressable noTapScale className={styles.panelFeed} onClick={() => leave(() => onMonth(focus))}>
-            {texts.openFeed} ↓
+            {texts.openFeed}
+            <span aria-hidden>→</span>
           </Pressable>
         </aside>
       )}
