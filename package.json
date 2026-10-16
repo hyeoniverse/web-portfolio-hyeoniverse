@@ -18,6 +18,7 @@
     "knip": "knip",
     "knip:deps": "knip --include unlisted,unresolved",
     "audit:full": "npm run typecheck && npm run lint && npm run lint:css && npm run knip",
+    "seed:blog-dummy": "tsx scripts/seed-blog-dummy.ts",
     "sync-posts": "tsx scripts/sync-posts.ts",
     "sync-posts:dry": "tsx scripts/sync-posts.ts --dry",
     "sync-works": "tsx scripts/sync-works.ts",
