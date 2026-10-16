@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Pressable from "@/components/ui/Pressable";
 import { X } from "@/components/icons";
 import { CONSTELLATIONS, litCount } from "./constellations";
+import { useDialogRef } from "@/hooks/useTopLayer";
 import styles from "./TilSpace.module.css";
 
 /** 3D 플라네타리움 — three 묶음이 커서 브라우저에서만 따로 싣는다 */
@@ -46,6 +47,8 @@ export default function TilSpace({
   onClose: () => void;
 }) {
   const rootRef = useRef<HTMLDialogElement>(null);
+  // 사이트 공용 top layer 도우미로 띄운다 — 커스텀 커서 등 늘 위에 있어야 할 것이 다시 이 창 위로 올라온다
+  const dialogRef = useDialogRef(rootRef);
   const [accent, setAccent] = useState("#ff4f9a");
   // 닫을 때 3D(이름표 DOM 포함)를 먼저 내리고 다음 틀에 창을 닫는다 — 창이 먼저 사라지면 이름표 정리가 엇갈린다
   const [leaving, setLeaving] = useState(false);
@@ -73,10 +76,8 @@ export default function TilSpace({
     probe.remove();
   }, []);
 
-  // 브라우저 top layer 에 띄운다(모달은 z-index 가 아니라 top layer — 3.10-1). 열려 있는 동안 뒤 페이지 스크롤을 막는다
+  // 열려 있는 동안 뒤 페이지 스크롤을 막는다(창은 useDialogRef 가 top layer 에 띄운다 — 3.10-1)
   useEffect(() => {
-    const dlg = rootRef.current;
-    if (dlg && !dlg.open) dlg.showModal();
     const prev = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     return () => {
@@ -87,7 +88,7 @@ export default function TilSpace({
 
   return (
     <dialog
-      ref={rootRef}
+      ref={dialogRef}
       className={styles.root}
       aria-label={`${year} TIL`}
       data-lenis-prevent
