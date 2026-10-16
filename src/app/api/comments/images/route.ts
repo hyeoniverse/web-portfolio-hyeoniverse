@@ -64,7 +64,8 @@ export async function POST(request: Request) {
     if (!image) return jsonError("Unreadable image", 400, { code: "UPLOAD_UNREADABLE" });
 
     const url = await storeCommentImage(folder, image.buffer);
-    after(() => sweepCommentImages());
+    /* 정리 실패는 이 업로드와 상관없다 — 서비스 호출 기록에 남고 다음 업로드가 다시 해 본다 */
+    after(() => sweepCommentImages().catch(() => {}));
     return jsonOk({ url, width: image.width, height: image.height });
   } catch (err) {
     return jsonServerError(err, "POST /api/comments/images");

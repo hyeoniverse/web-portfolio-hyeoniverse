@@ -6,11 +6,11 @@ import {
   COMMENT_IMAGE_MAX_SIDE,
   commentImageDay,
   commentImageFolder,
+  commentImageDeleteAfter,
   commentImagePathsIn,
-  orphanCommentImages,
   resolveCommentImageMaxMb,
 } from "@/lib/commentImages";
-import { reencodeCommentImage } from "@/lib/api/commentImages";
+import { dueCommentImages, reencodeCommentImage } from "@/lib/api/commentImages";
 
 /* 댓글 이미지(#1455) — 용량 설정 값, 저장 경로, 뒷정리가 고르는 이미지, 다시 저장 */
 
@@ -43,12 +43,24 @@ describe("뒷정리", () => {
     expect([...used].sort()).toEqual([a, c]);
   });
 
-  it("어느 댓글에도 쓰이지 않은 이미지만 지운다", () => {
-    expect(orphanCommentImages([a, b, c], [`![x](${URL_BASE}/${a})`, `![y](${URL_BASE}/${c})`])).toEqual([b]);
+  it("지울 때 — 날짜 폴더 다음다음 날 0시(UTC), 댓글 이미지가 아니면 없다", () => {
+    expect(commentImageDeleteAfter(a)?.toISOString()).toBe("2026-10-16T00:00:00.000Z");
+    expect(commentImageDeleteAfter("logos/1700000000.png")).toBeNull();
   });
 
-  it("다른 버킷 · 다른 폴더의 같은 이름은 쓰인 것으로 치지 않는다", () => {
-    expect(orphanCommentImages([a], [`![x](${URL_BASE.replace("uploads", "posts")}/${a})`])).toEqual([a]);
+  it("쓰이지 않고 지울 때가 지난 이미지만 정리한다", () => {
+    const later = "comments/2026-10-15/ab12/44444444-4444-4444-4444-444444444444.webp";
+    const files = [a, b, c, later].map((path) => ({ path }));
+    const used = commentImagePathsIn([`![x](${URL_BASE}/${a})`, `![y](${URL_BASE}/${c})`]);
+    const now = new Date("2026-10-16T09:00:00Z");
+    // b — 안 쓰이고 10-16 0시가 지났다 / later — 안 쓰이지만 10-17 0시 전이라 아직
+    expect(dueCommentImages(files, used, now).map((f) => f.path)).toEqual([b]);
+    expect(dueCommentImages(files, used, new Date("2026-10-17T00:00:00Z")).map((f) => f.path)).toEqual([b, later]);
+  });
+
+  it("다른 버킷의 같은 경로는 쓰인 것으로 치지 않는다", () => {
+    const used = commentImagePathsIn([`![x](${URL_BASE.replace("uploads", "posts")}/${a})`]);
+    expect(used.has(a)).toBe(false);
   });
 });
 

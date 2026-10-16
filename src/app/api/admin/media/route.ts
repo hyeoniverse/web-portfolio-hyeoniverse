@@ -6,7 +6,7 @@ import { findMediaUsage, indexMediaUsage, pageMedia, type MediaRef, type MediaSo
 
 /* 라이브러리 › 업로드한 파일 — 두 저장소의 파일과 쓰는 곳.
    posts: 글·프로젝트 본문 이미지·커버·낭독 음성 (posts/ 아래)
-   uploads: 사이트 설정 자산 — 로고·아이콘·이모지·배경음·폰트·이력서 (폴더별) */
+   uploads: 사이트 설정 자산 — 로고·아이콘·이모지·배경음·폰트·이력서 (폴더별) · 댓글 이미지(comments/날짜/IP 해시) */
 const BUCKETS = ["posts", "uploads"] as const;
 type Bucket = (typeof BUCKETS)[number];
 const PAGE = 1000;
@@ -15,7 +15,7 @@ type Admin = ReturnType<typeof createAdminClient>;
 
 interface FileRow { bucket: Bucket; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string }
 
-/** 폴더를 한 단계씩 내려가며 파일을 모은다(깊이 2까지 — 지금 쓰는 경로는 모두 폴더/파일 한 단계다).
+/** 폴더를 한 단계씩 내려가며 파일을 모은다(깊이 3까지 — 댓글 이미지가 comments/날짜/IP 해시/파일 로 가장 깊다).
     하위 폴더는 한꺼번에 연다 — 하나씩 차례로 열던 때는 폴더 수만큼 왕복이 쌓였다. */
 async function listBucket(admin: Admin, bucket: Bucket, prefix = "", depth = 0): Promise<FileRow[]> {
   const out: FileRow[] = [];
@@ -26,7 +26,7 @@ async function listBucket(admin: Admin, bucket: Bucket, prefix = "", depth = 0):
     for (const e of data ?? []) {
       const path = prefix ? `${prefix}/${e.name}` : e.name;
       if (e.id === null) {
-        if (depth < 2) folders.push(path);
+        if (depth < 3) folders.push(path);
         continue;
       }
       if (e.name === ".emptyFolderPlaceholder") continue;
@@ -47,15 +47,20 @@ async function listBucket(admin: Admin, bucket: Bucket, prefix = "", depth = 0):
 
 /** 파일 주소가 나올 수 있는 곳을 글자로 모은다 — 휴지통 글도 넣는다(복구하면 다시 쓰므로 지우면 안 된다) */
 async function usageSources(admin: Admin): Promise<MediaSource[]> {
-  const [posts, works, series, settings, emojis, covers] = await Promise.all([
+  /* 댓글은 저장소 주소가 든 것만 — 댓글 이미지(그리고 댓글에 붙인 다른 파일 주소)가 지워지지 않게 */
+  const commentRows = (table: "comments" | "work_comments") =>
+    admin.from(table).select("id, content").ilike("content", "%/storage/v1/object/public/%");
+  const [posts, works, series, settings, emojis, covers, comments, workComments] = await Promise.all([
     admin.from("posts").select("*"),
     admin.from("works").select("*"),
     admin.from("series").select("id, title, cover_image"),
     admin.from("site_settings").select("*"),
     admin.from("custom_emojis").select("src"),
     admin.from("cover_image_history").select("url"),
+    commentRows("comments"),
+    commentRows("work_comments"),
   ]);
-  for (const r of [posts, works, series, settings, emojis, covers]) if (r.error) throw r.error;
+  for (const r of [posts, works, series, settings, emojis, covers, comments, workComments]) if (r.error) throw r.error;
   type Row = Record<string, unknown>;
   const rows = (r: { data: unknown }) => (r.data ?? []) as Row[];
   return [
@@ -65,6 +70,7 @@ async function usageSources(admin: Admin): Promise<MediaSource[]> {
     { kind: "settings" as const, text: JSON.stringify(rows(settings)) },
     { kind: "emoji" as const, text: JSON.stringify(rows(emojis)) },
     { kind: "coverHistory" as const, text: JSON.stringify(rows(covers)) },
+    ...[...rows(comments), ...rows(workComments)].map((r) => ({ kind: "comment" as const, id: String(r.id), text: String(r.content ?? "") })),
   ];
 }
 

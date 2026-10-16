@@ -7,9 +7,8 @@ import {
   COMMENT_IMAGE_BUCKET,
   COMMENT_IMAGE_MAX_SIDE,
   COMMENT_IMAGE_PREFIX,
-  commentImageDay,
-  commentImageFolder,
-  orphanCommentImages,
+  commentImageDeleteAfter,
+  commentImagePathsIn,
 } from "@/lib/commentImages";
 
 /* 댓글 이미지의 서버 쪽 — 다시 저장 · 하루 개수 · 뒷정리. 값과 순수 함수는 lib/commentImages */
@@ -68,14 +67,33 @@ export async function storeCommentImage(folder: string, buffer: Buffer): Promise
   return storage.getPublicUrl(path).data.publicUrl;
 }
 
-async function listNames(folder: string): Promise<string[]> {
-  const { data, error } = await createAdminClient().storage.from(COMMENT_IMAGE_BUCKET).list(folder, { limit: 1000 });
-  if (error) throw error;
-  return (data ?? []).map((f) => f.name);
+/** 댓글 이미지 파일 하나 — 라이브러리 화면이 쓰는 꼴 */
+export interface CommentImageFile { path: string; name: string; size: number; createdAt: string | null; url: string }
+
+/** 댓글 이미지 전부 — comments/<날짜>/<IP 해시>/<파일>. 폴더는 단계마다 한꺼번에 연다 */
+export async function listCommentImages(): Promise<CommentImageFile[]> {
+  const storage = createAdminClient().storage.from(COMMENT_IMAGE_BUCKET);
+  const list = async (folder: string) => {
+    const { data, error } = await storage.list(folder, { limit: 1000 });
+    if (error) throw error;
+    return data ?? [];
+  };
+  const days = (await list(COMMENT_IMAGE_PREFIX)).filter((e) => e.id === null && /^\d{4}-\d{2}-\d{2}$/.test(e.name));
+  const folders = (await Promise.all(days.map(async (d) =>
+    (await list(`${COMMENT_IMAGE_PREFIX}/${d.name}`)).filter((e) => e.id === null).map((h) => `${COMMENT_IMAGE_PREFIX}/${d.name}/${h.name}`),
+  ))).flat();
+  const files = await Promise.all(folders.map(async (folder) =>
+    (await list(folder)).filter((e) => e.id !== null).map((e) => {
+      const path = `${folder}/${e.name}`;
+      const meta = (e.metadata ?? {}) as { size?: number };
+      return { path, name: e.name, size: typeof meta.size === "number" ? meta.size : 0, createdAt: e.created_at ?? null, url: storage.getPublicUrl(path).data.publicUrl };
+    }),
+  ));
+  return files.flat();
 }
 
-/** 댓글 본문 중 댓글 이미지를 쓰는 것 */
-async function contentsUsingImages(): Promise<string[]> {
+/** 댓글 이미지를 쓰는 댓글 본문(게시물 · 작업물) — 지우기 전 확인과 라이브러리의 쓰는 곳이 함께 쓴다 */
+export async function commentContentsUsingImages(): Promise<string[]> {
   const admin = createAdminClient();
   const results = await Promise.all(
     COMMENT_TABLES.map((table) => admin.from(table).select("content").ilike("content", `%/${COMMENT_IMAGE_BUCKET}/${COMMENT_IMAGE_PREFIX}/%`)),
@@ -86,37 +104,42 @@ async function contentsUsingImages(): Promise<string[]> {
   });
 }
 
+/** 정리할 수 있는 이미지 — 쓰이지 않고 지울 때(commentImageDeleteAfter)가 지난 것 */
+export function dueCommentImages<T extends { path: string }>(files: T[], used: Set<string>, now: Date): T[] {
+  return files.filter((f) => {
+    const after = commentImageDeleteAfter(f.path);
+    return !used.has(f.path) && after !== null && after.getTime() <= now.getTime();
+  });
+}
+
 /**
- * 올리고 댓글에 쓰지 않은 이미지를 지운다 — 업로드가 응답을 보낸 뒤 하루에 한 번 겸한다.
- * 어제보다 이른 날짜 폴더만 본다(올린 지 하루가 안 된 이미지는 아직 댓글을 쓰는 중일 수 있다).
- * Storage 파일은 SQL 로 지울 수 없어 pg_cron 이 아니라 여기서 한다.
+ * 올리고 댓글에 쓰지 않은 이미지를 지운다 — 업로드가 응답을 보낸 뒤 하루에 한 번 겸하고, 라이브러리의
+ * "지금 정리"는 force 로 간격을 건너뛴다. 지울 때가 지난 이미지만 본다(commentImageDeleteAfter — 올린 지
+ * 하루가 안 된 이미지는 아직 댓글을 쓰는 중일 수 있다). Storage 파일은 SQL 로 지울 수 없어 pg_cron 이 아니라 여기서 한다.
+ * 지운 개수를 돌려준다(간격 안이라 건너뛰었으면 null).
  */
-export async function sweepCommentImages(now = new Date()): Promise<void> {
+export async function sweepCommentImages(now = new Date(), { force = false } = {}): Promise<number | null> {
   const admin = createAdminClient();
-  const { data: row } = await admin.from("site_settings").select("config").eq("id", SWEEP_ROW).maybeSingle();
-  const last = Date.parse(String((row?.config as { at?: string } | null)?.at ?? ""));
-  if (Number.isFinite(last) && now.getTime() - last < SWEEP_INTERVAL_MS) return;
+  if (!force) {
+    const { data: row } = await admin.from("site_settings").select("config").eq("id", SWEEP_ROW).maybeSingle();
+    const last = Date.parse(String((row?.config as { at?: string } | null)?.at ?? ""));
+    if (Number.isFinite(last) && now.getTime() - last < SWEEP_INTERVAL_MS) return null;
+  }
   /* 먼저 시각을 적어 둔다 — 동시에 들어온 업로드가 같은 정리를 겹쳐 하지 않게 */
   await admin.from("site_settings").upsert({ id: SWEEP_ROW, config: { at: now.toISOString() }, updated_at: now.toISOString() });
 
-  const yesterday = commentImageDay(new Date(now.getTime() - SWEEP_INTERVAL_MS));
   try {
-    const days = (await listNames(COMMENT_IMAGE_PREFIX)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < yesterday);
-    const paths: string[] = [];
-    for (const day of days) {
-      for (const hash of await listNames(`${COMMENT_IMAGE_PREFIX}/${day}`)) {
-        const folder = commentImageFolder(day, hash);
-        for (const name of await listNames(folder)) paths.push(`${folder}/${name}`);
-      }
-    }
-    if (paths.length === 0) return;
-    const orphans = orphanCommentImages(paths, await contentsUsingImages());
-    for (let i = 0; i < orphans.length; i += 100) {
-      const { error } = await admin.storage.from(COMMENT_IMAGE_BUCKET).remove(orphans.slice(i, i + 100));
+    const files = await listCommentImages();
+    if (files.length === 0) return 0;
+    const due = dueCommentImages(files, commentImagePathsIn(await commentContentsUsingImages()), now).map((f) => f.path);
+    for (let i = 0; i < due.length; i += 100) {
+      const { error } = await admin.storage.from(COMMENT_IMAGE_BUCKET).remove(due.slice(i, i + 100));
       if (error) throw error;
     }
-    await logService({ category: "cron", provider: "comment-images", ok: true, units: orphans.length });
+    await logService({ category: "cron", provider: "comment-images", ok: true, units: due.length });
+    return due.length;
   } catch (err) {
     await logService({ category: "cron", provider: "comment-images", ok: false, kind: "unknown", message: err instanceof Error ? err.message : String(err) });
+    throw err;
   }
 }
