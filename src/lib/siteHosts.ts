@@ -4,6 +4,7 @@
  * 블로그는 같은 앱의 /posts 아래를 blog.hyeoniverse.com 으로도 보여 준다(proxy 가 처리):
  * - 블로그 주소의 `/` 는 `/posts` 를 그린다(주소는 그대로). `/posts/*` 는 그대로 그린다.
  * - 블로그 주소로 포트폴리오 화면(/works · /profile …)에 오면 메인 주소로 보낸다.
+ * - 로그인 쿠키는 .hyeoniverse.com 에 둬 두 주소가 같은 세션을 본다(sharedCookieDomain).
  * - BLOG_SUBDOMAIN_REDIRECT=1 이면 메인 주소의 /posts/* 를 블로그 주소로 보낸다(DNS · Vercel 도메인 연결 뒤에 켠다).
  */
 const MAIN_HOSTS = ["hyeoniverse.com", "www.hyeoniverse.com"] as const;
@@ -27,4 +28,11 @@ export function isMainHost(host: string | null | undefined): boolean {
 /** 블로그 주소에서 포트폴리오로 나가는 링크 — 블로그 주소의 `/` 는 블로그 첫 화면이라 메인 주소를 붙여야 포트폴리오로 간다 */
 export function portfolioHref(path: string, onBlogHost: boolean): string {
   return onBlogHost ? `${MAIN_ORIGIN}${path}` : path;
+}
+
+/** 로그인 쿠키를 함께 쓸 도메인 — 메인 · 블로그 주소에서 같은 세션을 보게 `.hyeoniverse.com` 에 둔다.
+ *  그 밖의 주소(로컬 · Vercel 프리뷰)는 undefined — 지금처럼 그 주소에만 둔다 */
+export function sharedCookieDomain(host: string | null | undefined): string | undefined {
+  const name = hostnameOf(host);
+  return name === "hyeoniverse.com" || name.endsWith(".hyeoniverse.com") ? ".hyeoniverse.com" : undefined;
 }
