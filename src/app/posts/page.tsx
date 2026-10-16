@@ -13,10 +13,7 @@ export default async function PostsPage() {
      PostsClient 가 마운트 직후 옮겨 다시 받는다(usePostsQuery). 예전에는 PostsClient 가 useSearchParams() 로 주소를 읽어
      Suspense 경계 안이 통째로 브라우저 렌더로 빠졌고, 미리 그린 HTML 에는 빈 자리만 있었다(#925). */
   return (
-    <PostsPageChrome
-      pinnedPosts={initialData.pinnedPosts}
-      counts={{ posts: initialData.calendarPosts.length, tags: initialData.allTags.length, series: initialData.seriesTotal }}
-    >
+    <PostsPageChrome pinnedPosts={initialData.pinnedPosts}>
       <PostsClient initialData={initialData} />
     </PostsPageChrome>
   );

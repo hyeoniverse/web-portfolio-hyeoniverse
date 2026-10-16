@@ -152,3 +152,9 @@
     display: none;
   }
 }
+
+/* 좁은 화면에서 검색 줄([검색 방식 | 입력] + 도움말)이 화면보다 넓어져 왼쪽이 잘리던 것 — 캡슐이 줄 너비 안에서 줄어든다 */
+.filterBarSearchRow > .postsSearchCapsule {
+  flex: 0 1 auto;
+  min-width: 0;
+}
