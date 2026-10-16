@@ -1,96 +1,44 @@
-/* 머리말 오른쪽을 채우는 별 그림 — 왼쪽으로 갈수록 옅어진다 */
-.art {
-  position: absolute;
-  inset: 0 0 var(--spacing-16) auto;
-  z-index: 0;
+/* 글 목록 페이지 바탕의 별밭 — 화면에 고정, 내용 뒤(.page 의 isolation 안 z -1) */
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   width: 100%;
-  height: calc(100% - var(--spacing-16));
-  overflow: visible;
+  height: 100%;
   color: var(--text-accent);
-  opacity: 0.45;
-  mask-image: linear-gradient(to right, transparent, black 35%);
   pointer-events: none;
 }
 .dust {
   fill: var(--text-tertiary);
-  opacity: 0.5;
-}
-.link {
-  fill: none;
-  stroke: var(--border-color-strong);
-  stroke-width: 1;
-  stroke-dasharray: 3 4;
-}
-.node {
-  fill: var(--text-primary);
-  animation: star-in var(--duration-slow) var(--ease-standard) both;
-}
-.latest {
-  fill: currentColor;
-}
-.halo {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1;
-  opacity: 0.4;
-  animation: star-pulse calc(var(--duration-slower) * 3) var(--ease-standard) infinite;
-  transform-box: fill-box;
-  transform-origin: center;
+  opacity: 0.35;
 }
 .twinkle {
-  fill: var(--text-primary);
-  animation: star-twinkle calc(var(--duration-slower) * 4) var(--ease-standard) infinite;
+  fill: var(--text-tertiary);
+  opacity: 0.6;
   transform-box: fill-box;
   transform-origin: center;
+  animation: star-twinkle calc(var(--duration-slower) * 5) var(--ease-standard) infinite;
 }
-.shoot line {
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: round;
+.brand {
+  fill: currentColor;
+  opacity: 0.8;
 }
 .shoot {
+  stroke: var(--text-tertiary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
   opacity: 0;
-  animation: star-shoot calc(var(--duration-slower) * 8) var(--ease-standard) infinite;
-}
-.axis {
-  stroke: var(--border-color-light);
-  stroke-width: 1;
-}
-.orbit {
-  fill: none;
-  stroke: var(--border-color-strong);
-  stroke-width: 1;
-  stroke-dasharray: 2 5;
-}
-.coord {
-  font: var(--font-code-xs);
-  fill: var(--text-tertiary);
-}
-@keyframes star-in {
-  from { opacity: 0; }
-}
-@keyframes star-pulse {
-  from { transform: scale(0.6); opacity: 0.6; }
-  to { transform: scale(1.6); opacity: 0; }
+  animation: star-shoot calc(var(--duration-slower) * 12) var(--ease-standard) infinite;
 }
 @keyframes star-twinkle {
-  50% { transform: scale(0.5); opacity: 0.4; }
+  50% { transform: scale(0.4); opacity: 0.2; }
 }
 @keyframes star-shoot {
-  0% { opacity: 0; transform: translate(80px, 20px); }
-  5% { opacity: 1; }
-  15%, 100% { opacity: 0; transform: translate(380px, 130px); }
-}
-/* 넓은 화면 — 오른쪽 60% 만 차지하고 또렷하게. 좁은 화면은 글 뒤에 옅게 깔린다 */
-@media (width >= 768px) {
-  .art {
-    width: 60%;
-    opacity: 1;
-  }
+  0% { opacity: 0; transform: translate(900px, 80px); }
+  3% { opacity: 0.8; }
+  9%, 100% { opacity: 0; transform: translate(1300px, 220px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .node,
-  .halo,
   .twinkle,
   .shoot { animation: none; }
 }

@@ -46,16 +46,11 @@
   font: inherit;
   color: var(--text-accent);
 }
-/* 로그 스킨 — 머리말 오른쪽에 별 그림(StarLog), 아래에 자 눈금, 블로그 이름은 모노 + 깜빡이는 커서 */
+/* 로그 스킨 — 페이지 바탕에 별밭(StarLog), 머리말 아래에 자 눈금, 블로그 이름은 모노 + 깜빡이는 커서 */
 [data-blog-skin="log"] .masthead {
   position: relative;
-  isolation: isolate;
   border-bottom: 0;
   padding-bottom: var(--spacing-32);
-}
-[data-blog-skin="log"] .masthead > :not(svg) {
-  position: relative;
-  z-index: 1;
 }
 /* 자 눈금 — 8px 마다 짧은 눈금, 64px 마다 긴 눈금 */
 [data-blog-skin="log"] .masthead::after {
