@@ -468,6 +468,20 @@
       "activityTitle": "{{count}} repos in {{year}}"
     }
   },
+  "tilPage": {
+    "subtitle": "Today I Learned — a garden where each day of learning grows a square.",
+    "tagHint": "Posts tagged #{{tag}} grow here.",
+    "yearTabs": "Year",
+    "statYear": "This year",
+    "statStreak": "Streak",
+    "statLongest": "Longest",
+    "less": "Less",
+    "more": "More",
+    "pickDay": "Tap a square! I'll show you what was learned that day.",
+    "streakCheer": "{{n}} days in a row! Shall we plant one more today?",
+    "restDay": "A rest day. Zzz…",
+    "dayCount": "{{n}} learned that day"
+  },
   "postsPage": {
     "statPosts": "Posts",
     "statTags": "Tags",

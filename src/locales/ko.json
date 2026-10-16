@@ -468,6 +468,20 @@
       "activityTitle": "{{year}}년 {{count}}개 저장소"
     }
   },
+  "tilPage": {
+    "subtitle": "Today I Learned — 매일 배운 걸 한 칸씩 심는 잔디밭이에요.",
+    "tagHint": "#{{tag}} 태그를 단 글이 잔디로 자라요.",
+    "yearTabs": "연도",
+    "statYear": "올해 기록",
+    "statStreak": "연속",
+    "statLongest": "최장 연속",
+    "less": "적음",
+    "more": "많음",
+    "pickDay": "잔디를 눌러 보세요! 그날 배운 걸 보여 줄게요.",
+    "streakCheer": "{{n}}일째 이어서 기록 중이에요! 오늘도 한 칸 심어 볼까요?",
+    "restDay": "이 날은 쉬어 갔어요. 쿨쿨…",
+    "dayCount": "이 날 배운 것 {{n}}개"
+  },
   "postsPage": {
     "statPosts": "글",
     "statTags": "태그",

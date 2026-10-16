@@ -522,3 +522,25 @@ export async function getPostArchiveMonths(): Promise<string[]> {
     .map((r) => r.scheduled_at ?? r.created_at)
     .filter((d): d is string => !!d);
 }
+
+/** TIL 페이지의 글 요약 — 잔디 칸 · 그날의 기록 카드 · 고정 TIL 목록이 같이 쓴다 */
+export type TilEntry = Pick<
+  Post,
+  "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "is_pinned" | "tags"
+>;
+
+/** TIL 페이지 데이터 — 설정 posts.tilTag(기본 "TIL") 태그가 붙은 발행 글, 최신순 */
+export async function getTilData(): Promise<{ tag: string; entries: TilEntry[] }> {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const tag = cfg.posts?.tilTag || "TIL";
+  const { data } = await admin
+    .from("posts")
+    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, is_pinned, tags")
+    .eq("published", true)
+    .is("deleted_at", null)
+    .contains("tags", [tag])
+    .order("created_at", { ascending: false })
+    .limit(3000);
+  return { tag, entries: (data ?? []) as TilEntry[] };
+}
