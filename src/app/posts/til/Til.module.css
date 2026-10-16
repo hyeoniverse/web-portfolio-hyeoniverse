@@ -153,14 +153,15 @@
 .cell:hover {
   transform: scale(1.25);
 }
+/* 빈 칸 — 글자색을 옅게 깔아 라이트 · 다크 어디서나 바탕과 구분된다(예전 --bg-tertiary 는 다크에서 거의 투명했다) */
 .lv0 {
-  background: var(--bg-tertiary);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
 }
 .lv1 {
-  background: color-mix(in srgb, var(--text-accent) 35%, var(--bg-tertiary));
+  background: color-mix(in srgb, var(--text-accent) 35%, color-mix(in srgb, var(--text-primary) 8%, transparent));
 }
 .lv2 {
-  background: color-mix(in srgb, var(--text-accent) 65%, var(--bg-tertiary));
+  background: color-mix(in srgb, var(--text-accent) 65%, color-mix(in srgb, var(--text-primary) 8%, transparent));
 }
 .lv3 {
   background: var(--text-accent);
