@@ -302,12 +302,6 @@ function Constellation3D({
           </group>
         );
       })}
-      {done && (
-        <mesh>
-          <circleGeometry args={[6.5, 48]} />
-          <meshBasicMaterial color={accent} transparent opacity={0.07} depthWrite={false} side={THREE.DoubleSide} />
-        </mesh>
-      )}
       {/* 누를 자리 — 보이지 않는 판(초점 중엔 별을 눌러야 해서 뺀다) */}
       <mesh visible={false} raycast={focused ? () => null : undefined}>
         <planeGeometry args={[14, 9]} />
