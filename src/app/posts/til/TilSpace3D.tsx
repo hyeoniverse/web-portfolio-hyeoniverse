@@ -345,7 +345,11 @@ function LabelProjector({
     const t = tipRef.current;
     if (t && tipPosRef.current) {
       v.copy(tipPosRef.current).project(camera);
-      t.style.transform = `translate(-50%, -130%) translate(${((v.x * 0.5 + 0.5) * size.width).toFixed(1)}px, ${((-v.y * 0.5 + 0.5) * size.height).toFixed(1)}px)`;
+      // 화면 왼쪽 별은 왼쪽 위로, 오른쪽 별은 오른쪽 위로 — 주석이 별자리 바깥으로 빠진다
+      const left = v.x < 0;
+      t.dataset.side = left ? "left" : "right";
+      const dx = left ? "calc(-100% - 18px)" : "18px";
+      t.style.transform = `translate(${dx}, calc(-100% - 18px)) translate(${((v.x * 0.5 + 0.5) * size.width).toFixed(1)}px, ${((-v.y * 0.5 + 0.5) * size.height).toFixed(1)}px)`;
     }
   });
   return null;

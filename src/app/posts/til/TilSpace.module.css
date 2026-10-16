@@ -118,7 +118,8 @@
   opacity: 0;
 }
 
-/* 별 말풍선 — LabelProjector 가 가리킨 별 위로 옮긴다 */
+/* 별 주석 — 상자 없이, 가리킨 별에서 위로 비스듬히 뻗는 옅은 흰 사선 끝에 날짜 · 제목이 붙는다.
+   LabelProjector 가 별이 화면 오른쪽이면 오른쪽 위로, 왼쪽이면 왼쪽 위로(data-side) 18px 떨어뜨려 놓는다 */
 .tip {
   position: absolute;
   top: 0;
@@ -126,15 +127,37 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  max-width: 240px;
-  padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-width-1) solid var(--text-accent);
-  border-radius: var(--radius-surface);
-  background: var(--bg-scheme-dark);
+  max-width: 260px;
+  padding: 0 var(--spacing-4) var(--spacing-4);
+  border-bottom: var(--border-width-1) solid color-mix(in srgb, var(--text-white) 55%, transparent);
   color: var(--text-white);
+  text-shadow: 0 0 6px var(--bg-scheme-dark), 0 0 2px var(--bg-scheme-dark);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-fast) var(--ease-standard);
+}
+/* 별에서 주석 밑줄 왼쪽 끝까지의 사선 */
+.tip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 25px;
+  height: var(--border-width-1);
+  background: color-mix(in srgb, var(--text-white) 55%, transparent);
+  transform: rotate(135deg);
+  transform-origin: left center;
+}
+/* 왼쪽으로 뻗을 때 — 사선은 밑줄 오른쪽 끝에서 별(오른쪽 아래)로, 글은 오른쪽 정렬 */
+.tip[data-side="left"] {
+  align-items: flex-end;
+  text-align: right;
+}
+.tip[data-side="left"]::before {
+  left: auto;
+  right: 0;
+  transform: rotate(45deg);
+  transform-origin: right center;
 }
 .tip[data-show] {
   opacity: 1;
@@ -144,7 +167,7 @@
   color: var(--text-accent);
 }
 .tip b {
-  font: var(--font-label-sm);
+  font: var(--font-label-md);
 }
 
 /* 초점 패널 — 그달 별자리 · 진행 · 기록 목록. 좁은 화면은 위쪽에 낮게, 넓은 화면은 왼쪽에 세로로 */
