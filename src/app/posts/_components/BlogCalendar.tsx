@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import DatePicker from "@/components/ui/DatePicker/DatePicker";
 import Pressable from "@/components/ui/Pressable";
-import { Switch } from "@/components/ui/Switch";
+import Checkbox from "@/components/ui/Checkbox";
 import T from "@/components/ui/T";
 import { CalendarDays, X } from "@/components/icons";
 import { SITE_TIME_ZONE } from "@/constants";
@@ -72,7 +72,7 @@ export default function BlogCalendar({
             <X size={12} aria-hidden />
           </Pressable>
         ) : <span />}
-        <Switch label={t("postsPage.onlyMarked")} checked={onlyMarked} onCheckedChange={setOnlyMarked} />
+        <Checkbox label={t("postsPage.onlyMarked")} checked={onlyMarked} onChange={setOnlyMarked} />
       </div>
       {onlyMarked ? (
         byMonth.length > 0 ? (
