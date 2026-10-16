@@ -61,13 +61,9 @@ export async function getPublicKeys(): Promise<Record<string, string>> {
   const secrets = await loadSecrets();
   const result: Record<string, string> = {};
 
-  /* 문의 폼 공급자 키는 브라우저가 공급자로 바로 보내는 데 쓰는 공개용이다(lib/contactSend) */
+  /* 브라우저가 실제로 쓰는 키만 — reCAPTCHA site key. 문의 폼 공급자 키는 이제 서버(/api/contact)만 읽어서
+     브라우저로 보내지 않는다(이름의 NEXT_PUBLIC_ 은 예전 설정과 맞추려고 그대로 둔다) */
   const PUBLIC_KEYS = [
-    "NEXT_PUBLIC_FORMSPREE_ID",
-    "NEXT_PUBLIC_WEB3FORMS_KEY",
-    "NEXT_PUBLIC_EMAILJS_SERVICE_ID",
-    "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID",
-    "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY",
     "NEXT_PUBLIC_RECAPTCHA_SITE_KEY",
   ];
 

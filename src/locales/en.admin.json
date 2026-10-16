@@ -897,6 +897,8 @@
         "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID": "The EmailJS template ID. Sets the format of the email that is sent.",
         "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY": "The EmailJS public key. Used when the browser calls EmailJS.",
         "NEXT_PUBLIC_RECAPTCHA_SITE_KEY": "The Google reCAPTCHA site key. It is safe to expose in the browser and is used to block spam.",
+        "RECAPTCHA_SECRET_KEY": "The Google reCAPTCHA secret key. Used only by the server to verify the contact form; never expose it in the browser (no NEXT_PUBLIC_ prefix).",
+        "EMAILJS_PRIVATE_KEY": "The EmailJS Private Key (Account › Security). Used by the server to send through EmailJS. Also turn on \"Allow EmailJS API for non-browser applications\" on the same page.",
         "NANOBANANA_API_KEY": "The NanoBanana (Gemini image generation) API key. Used to generate AI cover images.",
         "HUGGINGFACE_API_KEY": "The Hugging Face inference token. Used to call image generation models such as FLUX.",
         "GEMINI_API_KEY": "The Google Gemini API key. Used for summaries, translation, image generation, and more.",
