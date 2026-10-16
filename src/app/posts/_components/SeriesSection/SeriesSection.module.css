@@ -230,9 +230,7 @@
   z-index: 1;
 }
 
-/* 시리즈 관리 단추 — 섹션 머리(대문자 · 자간)를 물려받지 않고 Series 페이지의 같은 단추와 같은 글자로 */
+/* 시리즈 관리 아이콘 단추 — 좁은 화면에선 시리즈 줄 머리 오른쪽 끝 */
 .seriesManageBtn {
   margin-left: auto;
-  text-transform: none;
-  letter-spacing: normal;
 }

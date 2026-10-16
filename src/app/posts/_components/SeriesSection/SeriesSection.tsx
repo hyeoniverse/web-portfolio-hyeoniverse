@@ -97,16 +97,18 @@ export default function SeriesSection({
             <ChevronRight size={12} className={styles.sectionHeaderChevron} aria-hidden />
           </Link>
           {isAdmin && (
+            /* 시리즈 관리 — 시리즈 줄 머리를 가볍게 두려고 아이콘만(이름은 aria-label · title) */
             <Button
               href="/admin/settings?tab=content&sub=posts"
               external
               variant="ghost"
               size="sm"
+              shape="circle"
               className={styles.seriesManageBtn}
               icon={<Settings size={14} strokeWidth={1.8} aria-hidden />}
-            >
-              {t("postsPage.seriesManage")}
-            </Button>
+              aria-label={t("postsPage.seriesManage")}
+              title={t("postsPage.seriesManage")}
+            />
           )}
         </div>
         <div className={header.sortWrap}>
