@@ -15,7 +15,8 @@ import type { LibrarySection } from "../_data/settingsConstants";
 /** 글자 한 줄의 자리 — 막대는 글자 크기, 자리는 줄간격(1.6)까지. 막대만 두면 줄마다 몇 px 씩 낮아져 목록이 짧아진다 */
 function TextLine({ size, width }: { size: "xs" | "sm" | "md"; width: number | string }) {
   return (
-    <span style={{ display: "flex", alignItems: "center", height: `calc(var(--font-size-body-${size}) * 1.6)` }}>
+    /* 폭은 부모를 채운다 — 가로 줄(투표 머리) 안에서 내용 폭으로 줄면 % 막대가 0 이 된다 */
+    <span style={{ display: "flex", alignItems: "center", width: "100%", minWidth: 0, height: `calc(var(--font-size-body-${size}) * 1.6)` }}>
       <SkeletonLine width={width} height={`var(--font-size-body-${size})`} />
     </span>
   );
