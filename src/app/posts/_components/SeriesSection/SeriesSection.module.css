@@ -230,8 +230,9 @@
   z-index: 1;
 }
 
-/* 시리즈 관리 버튼(outline) — 기본 border-strong 대신 주변 정렬 컨트롤과 같은 light 로.
-   hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
-.seriesManageBtn:not(:hover) {
-  border-color: var(--border-color-light);
+/* 시리즈 관리 단추 — 섹션 머리(대문자 · 자간)를 물려받지 않고 Series 페이지의 같은 단추와 같은 글자로 */
+.seriesManageBtn {
+  margin-left: auto;
+  text-transform: none;
+  letter-spacing: normal;
 }

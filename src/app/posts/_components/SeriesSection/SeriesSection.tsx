@@ -100,10 +100,10 @@ export default function SeriesSection({
             <Button
               href="/admin/settings?tab=content&sub=posts"
               external
-              variant="outline"
+              variant="ghost"
+              size="sm"
               className={styles.seriesManageBtn}
-              icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
-              title={t("postsPage.seriesManage")}
+              icon={<Settings size={14} strokeWidth={1.8} aria-hidden />}
             >
               {t("postsPage.seriesManage")}
             </Button>
