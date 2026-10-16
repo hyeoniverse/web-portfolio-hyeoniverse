@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
   Heading,
   Bold,
@@ -25,6 +25,10 @@ import {
   Palette,
 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { showToast } from "@/stores/toastStore";
+import { errorText } from "@/lib/apiError";
+import { COMMENT_IMAGE_TYPES, resolveCommentImageMaxMb } from "@/lib/commentImages";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import EmojiPicker from "@/components/ui/EmojiPicker";
@@ -41,8 +45,8 @@ import styles from "./CommentEditor.module.css";
 type MdAction =
   /** 선택(없으면 placeholder)을 before/after 로 감쌈. block: 코드펜스처럼 자기 줄에서 시작해야 하는 것 */
   | { kind: "wrap"; before: string; after: string; placeholder: string; block?: boolean }
-  /** [텍스트](url) — image 면 앞에 ! 를 붙여 이미지 문법 */
-  | { kind: "link"; placeholder: string; image?: boolean }
+  /** [텍스트](url) */
+  | { kind: "link"; placeholder: string }
   /** 줄머리에 prefix. placeholder — 빈 줄에서 눌렀을 때 채울 예시 텍스트 */
   | { kind: "prefix"; prefix: string; placeholder: string }
   /** 표·구분선처럼 선택과 무관하게 통째로 넣는 블록. select 가 있으면 삽입 후 그 부분을 선택 */
@@ -104,8 +108,9 @@ interface Props {
 }
 
 export default function CommentMarkdownToolbar({ containerRef, content, onChange }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const ko = language === "ko";
+  const imageMaxMb = resolveCommentImageMaxMb(useSiteConfig().comments?.imageMaxMb);
 
   // 이모지 픽커(사이트 공통) / 색상 픽커(사이트 공통) — 둘 다 커서 자리에 삽입
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -143,9 +148,8 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
       } else if (action.kind === "link") {
         const text = selected || action.placeholder;
         const url = "url";
-        const mark = action.image ? "!" : "";
-        next = content.slice(0, start) + `${mark}[${text}](${url})` + content.slice(end);
-        selStart = start + mark.length + 1 + text.length + 2; // ("!") + "[" + text + "]("
+        next = content.slice(0, start) + `[${text}](${url})` + content.slice(end);
+        selStart = start + 1 + text.length + 2; // "[" + text + "]("
         selEnd = selStart + url.length; // url 자리 선택
       } else if (action.kind === "block") {
         const head = content.slice(0, start);
@@ -196,13 +200,51 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
     [containerRef, content, onChange],
   );
 
+  /* 업로드가 끝났을 때의 본문에 넣어야 한다 — 올리는 동안 이어 쓴 글이 사라지지 않게 최신 apply 를 쥔다 */
+  const applyRef = useRef(apply);
+  useEffect(() => { applyRef.current = apply; }, [apply]);
+
+  /* 이미지 올리기 — 고른 파일을 /api/comments/images 에 올리고, 돌아온 주소로 ![이름](주소) 를 커서 자리에 넣는다.
+     용량은 서버도 다시 보지만, 큰 파일을 보내 놓고 거절당하지 않게 여기서 먼저 막는다 */
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const uploadImage = useCallback(async (file: File) => {
+    const fail = (body: unknown) => showToast(errorText(body, t, t("comments.imageUploadFailed")), "error");
+    if (!(COMMENT_IMAGE_TYPES as readonly string[]).includes(file.type)) return fail({ code: "UPLOAD_ONLY_IMAGE" });
+    if (file.size > imageMaxMb * 1024 * 1024) {
+      return fail({ code: "UPLOAD_TOO_LARGE", params: { size: (file.size / (1024 * 1024)).toFixed(1), max: imageMaxMb } });
+    }
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/comments/images", { method: "POST", body: form });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || typeof body?.url !== "string") return fail(body);
+      /* 이미지 설명 — 파일 이름에서 확장자와 마크다운을 깨는 글자를 뺀다 */
+      const alt = file.name.replace(/\.[^.]+$/, "").replace(/[[\]()\s]+/g, " ").trim().slice(0, 80) || "image";
+      applyRef.current({ kind: "insert", text: `![${alt}](${body.url})` });
+    } catch {
+      fail(null);
+    } finally {
+      setUploading(false);
+    }
+  }, [imageMaxMb, t]);
+
   // 픽커 버튼을 누르는 순간(포커스가 검색·색상 input 으로 옮겨가기 전) 에디터 선택 저장
   const saveSelection = useCallback(() => {
     const root = containerRef.current?.querySelector<HTMLElement>("[contenteditable]");
     savedSelRef.current = root ? getSelectionOffsets(root) : null;
   }, [containerRef]);
 
-  type Item = { key: string; icon: ReactNode; label: string; action: MdAction };
+  /* 파일을 고르는 동안 에디터 선택이 풀리므로 먼저 저장한다(이모지 · 색상 픽커와 같다) */
+  const pickImage = useCallback(() => {
+    saveSelection();
+    fileRef.current?.click();
+  }, [saveSelection]);
+
+  /** action 대신 onPress 가 있으면 서식이 아니라 그 동작(이미지 올리기)을 한다 */
+  type Item = { key: string; icon: ReactNode; label: string; action?: MdAction; onPress?: () => void; busy?: boolean };
 
   /* 하는 일 기준 4묶음 — 14개가 균일하게 늘어서면 뭘 찾는지 모른다.
      경계는 "선택한 글에 무슨 일이 일어나는가":
@@ -245,8 +287,13 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
       label: ko ? "삽입" : "Insert",
       items: [
         { key: "link", icon: <LinkIcon size={14} />, label: ko ? "링크" : "Link", action: { kind: "link", placeholder: ko ? "텍스트" : "text" } },
-        // 업로드는 없고 외부 호스팅 url 만 — 렌더러가 http(s) 만 통과시킨다
-        { key: "image", icon: <ImageIcon size={14} />, label: ko ? "이미지 (외부 링크)" : "Image (external URL)", action: { kind: "link", placeholder: ko ? "설명" : "alt", image: true } },
+        {
+          key: "image",
+          icon: <ImageIcon size={14} />,
+          label: ko ? `이미지 올리기 (${imageMaxMb}MB까지)` : `Upload image (up to ${imageMaxMb}MB)`,
+          onPress: pickImage,
+          busy: uploading,
+        },
         {
           key: "table",
           icon: <Table size={14} />,
@@ -285,7 +332,9 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
                 icon={it.icon}
                 // 에디터 포커스/선택 유지 — 클릭 전에 blur 되지 않게
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => apply(it.action)}
+                onClick={() => (it.onPress ? it.onPress() : it.action && apply(it.action))}
+                loading={it.busy}
+                disabled={it.busy}
                 aria-label={it.label}
               />
             </Tooltip>
@@ -346,6 +395,18 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
           onArm={saveSelection}
         />
       </div>
+      {/* 이미지 올리기의 파일 고르기 — 보이지 않는 자리라 공통 컴포넌트가 없다(이모지 업로드 탭과 같은 꼴) */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept={COMMENT_IMAGE_TYPES.join(",")}
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) void uploadImage(file);
+        }}
+      />
       <EmojiPicker
         open={emojiOpen}
         onClose={() => setEmojiOpen(false)}
