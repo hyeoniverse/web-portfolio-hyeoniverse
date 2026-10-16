@@ -14,8 +14,6 @@ import { fillTemplate } from "@/utils/format";
 import PostsSubnav from "../_components/PostsSubnav";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
-import { CONSTELLATIONS } from "./constellations";
-import { ConstellationArt, ConstellationStrip, isComplete, monthDays } from "./TilConstellation";
 
 /** 한국 시간 기준 YYYY-MM-DD — 서버(UTC)와 브라우저가 같은 날로 묶도록 시간대를 고정한다 */
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SITE_TIME_ZONE });
@@ -53,7 +51,8 @@ function Mong({ pose, size, className }: { pose: string; size: number; className
   );
 }
 
-/* TIL 페이지 — [연도 탭] · 1년 잔디(주 단위 열 × 요일 7행) · 아래에 [기록 피드 | 따라오는 몽이 · 고정 TIL].
+/* TIL 페이지 — [연도 탭 · 오늘의 기록 · 숫자] · 1년 잔디(주 단위 열 × 요일 7행) ·
+   아래에 [배운 주제 + 바로 읽히는 기록 피드 | 따라오는 몽이 · 다시 보기(1주 · 1달 · 1년 전, 랜덤) · 고정 TIL].
    글 수에 따라 칸이 진해지고, 칸을 누르면 피드가 그날로 좁혀진다. 몽이가 상황마다 표정을 바꿔 맞이한다. */
 export default function TilClient({ tag, entries }: { tag: string; entries: TilEntry[] }) {
   const { t, language, dateLocale } = useLanguage();
@@ -104,8 +103,9 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     const first = week.find((k) => k?.endsWith("-01"));
     return first ? new Date(`${first}T12:00:00Z`).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" }) : "";
   });
+  // 요일 이름 — 일요일부터 일곱 줄 모두
   const weekdayLabels = Array.from({ length: 7 }, (_, i) =>
-    i % 2 === 1 ? new Date(Date.UTC(2024, 0, 7 + i, 12)).toLocaleDateString(dateLocale, { weekday: "short", timeZone: "UTC" }) : "",
+    new Date(Date.UTC(2024, 0, 7 + i, 12)).toLocaleDateString(dateLocale, { weekday: "short", timeZone: "UTC" }),
   );
 
   // 좁은 화면에서 잔디가 가로로 넘치면 올해는 오늘 근처를, 지난해는 연말을 보여 준다(최근 기록이 먼저 보이게)
@@ -118,27 +118,44 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     el.scrollLeft = Math.max(0, el.scrollWidth * ratio - el.clientWidth * 0.75);
   }, [year, thisYear, today, weeks]);
 
-  // 보는 달 — 올해면 이번 달, 지난해면 12월부터. 고른 달의 별자리를 크게 보고 피드도 그달로 좁힌다
-  const thisMonth = Number(today.slice(5, 7)) - 1;
-  const [month, setMonth] = useState(thisMonth);
-  // 잔디 칸을 고르면 그날로 좁히고, 별자리도 그달로 바꾼다
-  const pickDay = (key: string | null) => {
-    if (key) setMonth(Number(key.slice(5, 7)) - 1);
-    pick(key);
-  };
   const changeYear = (y: number) => {
     setYear(y);
-    setMonth(y === thisYear ? thisMonth : 11);
     pick(null);
     setShown(PAGE_DAYS);
   };
-  const monthName = (m: number) =>
-    new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
-  const constellation = CONSTELLATIONS[month];
-  const litDays = monthDays(byDay, year, month);
-  const lit = Math.min(litDays.length, constellation.stars.length);
-  const complete = lit >= constellation.stars.length;
-  const doneCount = CONSTELLATIONS.filter((c, m) => isComplete(c, monthDays(byDay, year, m))).length;
+
+  // 배운 주제 — TIL 에 함께 단 태그(TIL 태그 자체는 뺀다)를 많은 순으로. 고르면 피드가 그 주제로 좁혀진다
+  const topics = useMemo(() => {
+    const count = new Map<string, number>();
+    for (const e of entries) for (const tg of e.tags ?? []) if (tg.toLowerCase() !== tag.toLowerCase()) count.set(tg, (count.get(tg) ?? 0) + 1);
+    return [...count.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [entries, tag]);
+  const [topic, setTopic] = useState<string | null>(null);
+
+  // 다시 보기 — 1주 · 1달 · 1년 전 오늘 무렵(앞뒤 3일 안에서 가장 가까운 날)에 배운 것
+  const lookBack = useMemo(() => {
+    const near = (center: string) => {
+      for (let d = 0; d <= 3; d++) {
+        for (const k of d ? [shiftDay(center, -d), shiftDay(center, d)] : [center]) {
+          if (k < today && byDay.has(k)) return k;
+        }
+      }
+      return null;
+    };
+    return [
+      { label: t("tilPage.weekAgo"), day: near(shiftDay(today, -7)) },
+      { label: t("tilPage.monthAgo"), day: near(shiftDay(today, -30)) },
+      { label: t("tilPage.yearAgo"), day: near(shiftDay(today, -365)) },
+    ];
+  }, [byDay, today, t]);
+  // 랜덤 TIL — 누를 때마다 하나 뽑는다(서버 그림과 어긋나지 않게 처음엔 비워 둔다)
+  const [randomId, setRandomId] = useState<string | null>(null);
+  const randomEntry = entries.find((e) => e.id === randomId) ?? null;
+  const drawRandom = () => {
+    if (entries.length === 0) return;
+    const pool = entries.length > 1 ? entries.filter((e) => e.id !== randomId) : entries;
+    setRandomId(pool[Math.floor(Math.random() * pool.length)].id);
+  };
 
   // 숫자 — 올해 기록 수 · 지금 이어지는 날 수 · 가장 길게 이어진 날 수
   const yearCount = [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).reduce((n, [, v]) => n + v.length, 0);
@@ -163,25 +180,16 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   }, [byDay, today]);
 
   const pinned = entries.filter((e) => e.is_pinned);
-  // 피드 — 고른 날이 있으면 그날만, 없으면 보는 달의 모든 날(최신순)
-  const feedDays = useMemo(
-    () =>
-      selected
-        ? [[selected, byDay.get(selected) ?? []] as const].filter(([, l]) => l.length > 0)
-        : [...byDay.entries()]
-            .filter(([k]) => k.startsWith(`${year}-${String(month + 1).padStart(2, "0")}-`))
-            .sort(([a], [b]) => (a < b ? 1 : -1)),
-    [byDay, selected, year, month],
-  );
+  // 피드 — 고른 날이 있으면 그날만, 없으면 고른 해의 모든 날(최신순). 주제를 고르면 그 주제 TIL 만
+  const feedDays = useMemo(() => {
+    const keep = (e: TilEntry) => !topic || (e.tags ?? []).includes(topic);
+    const days: [string, TilEntry[]][] = selected
+      ? [[selected, byDay.get(selected) ?? []]]
+      : [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).sort(([a], [b]) => (a < b ? 1 : -1));
+    return days.map(([k, l]) => [k, l.filter(keep)] as [string, TilEntry[]]).filter(([, l]) => l.length > 0);
+  }, [byDay, selected, year, topic]);
   const [shown, setShown] = useState(PAGE_DAYS);
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-  const toggle = (id: string) =>
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const todayCount = byDay.get(today)?.length ?? 0;
   const selectedEntries = selected ? byDay.get(selected) ?? [] : [];
   const level = (n: number) => (n === 0 ? 0 : n === 1 ? 1 : n === 2 ? 2 : 3);
   const formatDay = (key: string) =>
@@ -200,6 +208,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
       </header>
 
       <div className={styles.toolbar}>
+        <div className={styles.toolbarStart}>
         <div className={styles.years} role="tablist" aria-label={t("tilPage.yearTabs")}>
           {years.map((y) => (
             <Pressable
@@ -214,9 +223,14 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
             </Pressable>
           ))}
         </div>
+        {/* 오늘의 기록 — 오늘 심었는지 한눈에 */}
+        <p className={`${styles.today} ${todayCount > 0 ? styles.todayDone : ""}`}>
+          <span className={styles.todayDot} aria-hidden />
+          {todayCount > 0 ? fillTemplate(t("tilPage.todayDone"), { n: todayCount }) : t("tilPage.todayNot")}
+        </p>
+        </div>
         <dl className={styles.stats}>
           <div className={styles.stat}><dt>{t("tilPage.statYear")}</dt><dd>{yearCount}</dd></div>
-          <div className={styles.stat}><dt>{t("tilPage.statDone")}</dt><dd>{doneCount}/12</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statStreak")}</dt><dd>{current}</dd></div>
           <div className={styles.stat}><dt>{t("tilPage.statLongest")}</dt><dd>{longest}</dd></div>
         </dl>
@@ -250,7 +264,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
                     title={label}
                     aria-label={label}
                     aria-pressed={key === selected}
-                    onClick={() => pickDay(key === selected ? null : key)}
+                    onClick={() => pick(key === selected ? null : key)}
                   />
                 );
               })}
@@ -264,51 +278,9 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         <span>{t("tilPage.more")}</span>
       </div>
 
-      {/* 이달의 별자리 — TIL 을 쓴 날마다 별이 하나씩 켜지고, 다 켜면 별자리 완성 */}
-      <section className={`${styles.sky} ${complete ? styles.skyDone : ""}`}>
-        <div className={styles.skyInfo}>
-        <div className={styles.skyHead}>
-          <h2 className={styles.skyTitle}>
-            <span className={styles.skyMonth}>{year}.{String(month + 1).padStart(2, "0")}</span>
-            {lang === "en" ? constellation.en : constellation.ko}
-            {lang !== "en" && <span className={styles.skyLatin}>{constellation.en}</span>}
-          </h2>
-          <p className={styles.skyProgress}>
-            {complete ? (
-              <strong className={styles.skyComplete}>✦ {t("tilPage.complete")}</strong>
-            ) : (
-              fillTemplate(t("tilPage.starsLeft"), { n: constellation.stars.length - lit })
-            )}
-            <span className={styles.skyCount}>{lit} / {constellation.stars.length}</span>
-          </p>
-        </div>
-        <div className={styles.skyBar} aria-hidden>
-          <span style={{ width: `${(lit / constellation.stars.length) * 100}%` }} />
-        </div>
-        {/* 열두 달 별자리 모음 — 완성한 달이 빛난다. 누르면 그달을 크게 */}
-        <ConstellationStrip
-          year={year}
-          byDay={byDay}
-          month={month}
-          onMonth={(m) => { setMonth(m); pick(null); setShown(PAGE_DAYS); }}
-          monthLabel={monthName}
-        />
-        </div>
-        <div className={styles.skyArt}>
-          <ConstellationArt
-            c={constellation}
-            days={litDays}
-            big
-            selected={selected}
-            onPick={(d) => pickDay(d === selected ? null : d)}
-            labelOf={(d) => `${formatDay(d)} - ${(byDay.get(d) ?? []).map(titleOf).join(", ")}`}
-          />
-        </div>
-      </section>
-
 
       <div className={styles.body}>
-        {/* 기록 피드 — git log 처럼 날짜별로 이어진다. 잔디 칸을 고르면 그날로 좁혀지고, 글은 그 자리에서 펼쳐 읽는다 */}
+        {/* 기록 피드 — git log 처럼 날짜별로 이어지고, 짧은 TIL 은 본문까지 바로 읽힌다. 잔디 칸을 고르면 그날로 좁혀진다 */}
         <section className={styles.feed} aria-live="polite">
           <div className={styles.feedHead}>
             <h2 className={styles.feedTitle}><b>$</b> git log --til</h2>
@@ -318,6 +290,25 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               </Pressable>
             )}
           </div>
+          {/* 배운 주제 지도 — 무엇을 많이 배웠는지. 누르면 그 주제로 좁힌다 */}
+          {topics.length > 0 && (
+            <div className={styles.topics} role="group" aria-label={t("tilPage.topics")}>
+              <span className={styles.topicsLabel}>{t("tilPage.topics")}</span>
+              {topics.map(([name, n]) => (
+                <Pressable
+                  key={name}
+                  noTapScale
+                  aria-pressed={topic === name}
+                  className={`${styles.topic} ${topic === name ? styles.topicOn : ""}`}
+                  style={{ ["--w" as string]: Math.min(1, 0.35 + n / (topics[0][1] || 1)) }}
+                  onClick={() => { setTopic(topic === name ? null : name); setShown(PAGE_DAYS); }}
+                >
+                  #{name}
+                  <span className={styles.topicCount}>{n}</span>
+                </Pressable>
+              ))}
+            </div>
+          )}
           {feedDays.length === 0 ? (
             <p className={styles.feedEmpty}>{selected ? t("tilPage.restDay") : t("tilPage.emptyYear")}</p>
           ) : (
@@ -330,41 +321,33 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
                     <span className={styles.logCount}>{fillTemplate(t("tilPage.dayCount"), { n: list.length })}</span>
                   </Pressable>
                   <ul className={styles.logEntries}>
-                    {list.map((e) => {
-                      const open = expanded.has(e.id) || !!selected;
-                      return (
-                        <li key={e.id} className={styles.logEntry}>
-                          <Pressable noTapScale className={styles.logEntryHead} aria-expanded={open} onClick={() => toggle(e.id)}>
-                            <span className={styles.logHash} aria-hidden>{shortHash(e.id)}</span>
-                            <strong className={styles.entryTitle}>{titleOf(e)}</strong>
-                            <span className={styles.logChevron} aria-hidden>{open ? "−" : "+"}</span>
-                          </Pressable>
-                          {!open && excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>}
-                          {open && (
-                            <div className={styles.entryBody}>
-                              {contentOf(e) ? (
-                                <PostArticleBody
-                                  data={{
-                                    displayTitle: titleOf(e),
-                                    displayContent: contentOf(e),
-                                    displayExcerpt: excerptOf(e),
-                                    contentType: e.content_type,
-                                    tags: e.tags,
-                                    viewCount: 0,
-                                    createdAt: e.created_at,
-                                  }}
-                                />
-                              ) : (
-                                excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>
-                              )}
-                              <TransitionLink href={`/posts/${e.slug}`} className={styles.entryMore}>
-                                {t("tilPage.openPost")} →
-                              </TransitionLink>
-                            </div>
+                    {list.map((e) => (
+                      <li key={e.id} className={styles.logEntry}>
+                        {/* TIL 은 짧아 펼치지 않고 바로 읽는다 — 제목은 글로 가는 링크 */}
+                        <TransitionLink href={`/posts/${e.slug}`} className={styles.logEntryHead}>
+                          <span className={styles.logHash} aria-hidden>{shortHash(e.id)}</span>
+                          <strong className={styles.entryTitle}>{titleOf(e)}</strong>
+                          <span className={styles.entryMore}>{t("tilPage.openPost")} →</span>
+                        </TransitionLink>
+                        <div className={styles.entryBody}>
+                          {contentOf(e) ? (
+                            <PostArticleBody
+                              data={{
+                                displayTitle: titleOf(e),
+                                displayContent: contentOf(e),
+                                displayExcerpt: excerptOf(e),
+                                contentType: e.content_type,
+                                tags: e.tags,
+                                viewCount: 0,
+                                createdAt: e.created_at,
+                              }}
+                            />
+                          ) : (
+                            excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>
                           )}
-                        </li>
-                      );
-                    })}
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </li>
               ))}
@@ -377,19 +360,17 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
           )}
         </section>
 
-        {/* 오른쪽 — 화면을 따라오는 3D 몽이와 말풍선, 고정 TIL */}
+        {/* 오른쪽 — 화면을 따라오는 3D 몽이와 말풍선, 다시 보기, 고정 TIL */}
         <aside className={styles.side}>
           <div className={styles.mong3d} aria-hidden>
             <TilMong3D
-              expression={complete && !selected ? "happy" : !selected ? "normal" : selectedEntries.length > 0 ? "happy" : "surprised"}
+              expression={!selected ? (todayCount > 0 ? "happy" : "normal") : selectedEntries.length > 0 ? "happy" : "surprised"}
               snapToFront={snap}
             />
           </div>
           <p className={styles.bubble}>
             {!selected ? (
-              complete
-                ? fillTemplate(t("tilPage.completeCheer"), { name: lang === "en" ? constellation.en : constellation.ko })
-                : current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")
+              current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")
             ) : (
               <>
                 <strong>{formatDay(selected)}</strong>
@@ -398,6 +379,40 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               </>
             )}
           </p>
+          {/* 다시 보기 — 잊기 전에 꺼내 보는 지난 TIL */}
+          <section className={styles.revisit}>
+            <h2 className={styles.pinnedTitle}>
+              <Mong pose="happy-top" size={28} />
+              {t("tilPage.revisit")}
+            </h2>
+            <ul className={styles.revisitList}>
+              {lookBack.map(({ label, day }) => {
+                const first = day ? byDay.get(day)?.[0] : null;
+                return (
+                  <li key={label}>
+                    {day && first ? (
+                      <Pressable noTapScale className={styles.revisitItem} onClick={() => { setYear(Number(day.slice(0, 4))); setTopic(null); pick(day); }}>
+                        <span className={styles.entryDate}>{label} · {day.replaceAll("-", ".")}</span>
+                        <strong className={styles.revisitTitle}>{titleOf(first)}</strong>
+                      </Pressable>
+                    ) : (
+                      <span className={styles.revisitEmpty}>{label} · {t("tilPage.revisitEmpty")}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <Pressable noTapScale className={styles.randomBtn} onClick={drawRandom}>
+              ✦ {t("tilPage.random")}
+            </Pressable>
+            {randomEntry && (
+              <TransitionLink key={randomEntry.id} href={`/posts/${randomEntry.slug}`} className={`${styles.entry} ${styles.randomCard}`}>
+                <span className={styles.entryDate}>{dayKey(new Date(randomEntry.created_at)).replaceAll("-", ".")}</span>
+                <strong className={styles.entryTitle}>{titleOf(randomEntry)}</strong>
+                {excerptOf(randomEntry) && <span className={styles.entryExcerpt}>{excerptOf(randomEntry)}</span>}
+              </TransitionLink>
+            )}
+          </section>
           {pinned.length > 0 && (
             <section className={styles.pinned}>
               <h2 className={styles.pinnedTitle}>
