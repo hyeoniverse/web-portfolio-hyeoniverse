@@ -27,4 +27,5 @@ export const SERVICE_PROVIDER_LABEL: Record<string, { ko: string; en: string }> 
   "purge-trash-scheduled": { ko: "휴지통 비우기", en: "Trash purge" },
   "anonymize-site-visits": { ko: "방문 IP 익명화", en: "Visit IP anonymization" },
   "contact-attachment": { ko: "문의 폼 첨부", en: "Contact attachment" },
+  "comment-images": { ko: "댓글 이미지 정리", en: "Comment image cleanup" },
 };

@@ -1135,6 +1135,8 @@
       "giscusInputPosition": "Comment Box Position",
       "giscusInputTop": "Top",
       "giscusInputBottom": "Bottom",
+      "commentImageMaxMb": "Comment Image Size Limit",
+      "commentImageMaxMbHelp": "The largest image a visitor can upload with the image button in the comment box. Uploaded images are re-saved as webp, and each visitor can upload up to 20 a day. Images not used in any comment are deleted after a day.",
       "giscusReactions": "Enable main post reactions",
       "giscusStrict": "Strict title matching",
       "giscusEmitMetadata": "Emit metadata",
@@ -2736,7 +2738,8 @@
         "polls": "Polls",
         "emojis": "Custom emojis",
         "covers": "Cover image history",
-        "files": "Uploaded files"
+        "files": "Uploaded files",
+        "commentImages": "Comment Image Cleanup"
       },
       "giscusHelp": {
         "setupGuide": "Setup guide",
@@ -3175,7 +3178,8 @@
         "usageWork": "{{n}} project",
         "usageSeries": "{{n}} series",
         "deleteConfirm": "Delete \"{{name}}\" from storage? It isn't used anywhere, but this can't be undone.",
-        "unusedOnly": "Unused only · {{count}} · {{size}}"
+        "unusedOnly": "Unused only · {{count}} · {{size}}",
+        "usageComments": "{{n}} comments"
       },
       "emojiKitchenModal": {
         "groupSmileys": "Smileys & emotion",
@@ -3282,6 +3286,29 @@
         "unreadable": "Could not recognise this statement.",
         "unresolved": "{{name}} is neither in the ERD nor created here, so this is skipped.",
         "unknownRef": "{{name}} does not exist, so this relation won't be drawn."
+      },
+      "commentImageManager": {
+        "title": "Comment Image Cleanup",
+        "hint": "Images visitors uploaded in the comment box that no comment uses. They become deletable at 00:00 UTC two days after upload and are deleted automatically once a day when a new image is uploaded. Images used in comments are listed under Uploaded Files.",
+        "dueTitle": "Ready to delete {{n}}",
+        "dueDesc": "Unused and past their deletion time. Automatic cleanup only runs when a new image is uploaded, so these are still here.",
+        "scheduledTitle": "Deleting soon {{n}}",
+        "scheduledDesc": "Kept for now because the visitor may still be writing the comment. If they stay unused, they are deleted after the time shown.",
+        "uploadedOn": "Uploaded {{date}}",
+        "deletable": "Can delete now",
+        "deletesAfter": "Deletes {{date}}",
+        "deleteAllCount": "Delete all {{n}}",
+        "deleteAll": "Delete all",
+        "deleteAllTitle": "Comment image cleanup",
+        "deleteAllConfirm": "Delete {{n}} comment images past their deletion time. This can’t be undone.",
+        "deletedN": "Deleted {{n}} comment images.",
+        "delete": "Delete",
+        "deleteTitle": "Delete comment image",
+        "deleteConfirm": "Delete {{name}}? This can’t be undone.",
+        "deleteFailed": "Couldn’t delete the image. Please try again.",
+        "openNewTab": "Open in new tab",
+        "loadFailed": "Couldn’t load comment images.",
+        "empty": "No comment images to clean up."
       }
     }
   }

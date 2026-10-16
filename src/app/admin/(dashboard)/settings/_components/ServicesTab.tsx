@@ -45,6 +45,7 @@ import shared from "../Settings.module.css";
 import { errorText } from "@/lib/apiError";
 import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
+import { COMMENT_IMAGE_MB_CHOICES, resolveCommentImageMaxMb } from "@/lib/commentImages";
 
 
 /* 공급자별 모델 목록 — 한 번 받아 둔다(요약 · 번역 두 줄이 같은 목록을 쓴다) */
@@ -662,6 +663,16 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 ]}
                 value={config.comments?.systemInputPosition === "top" ? "top" : "bottom"}
                 onChange={(v) => update("comments", "systemInputPosition", v as SiteConfigData["comments"]["systemInputPosition"])}
+              />
+            </FieldRow>
+          )}
+
+          {config.comments?.provider !== "giscus" && (
+            <FieldRow label={t("admin.settings.commentImageMaxMb")} help={t("admin.settings.commentImageMaxMbHelp")}>
+              <SegmentedControl<string>
+                items={COMMENT_IMAGE_MB_CHOICES.map((mb) => ({ value: String(mb), label: `${mb}MB` }))}
+                value={String(resolveCommentImageMaxMb(config.comments?.imageMaxMb))}
+                onChange={(v) => update("comments", "imageMaxMb", Number(v))}
               />
             </FieldRow>
           )}
