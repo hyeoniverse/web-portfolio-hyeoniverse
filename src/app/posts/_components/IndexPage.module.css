@@ -66,6 +66,13 @@
 }
 
 /* 제목 옆 몽이 — 관리 단추가 있으면 그 앞에 */
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
+}
 .headerMong {
   width: var(--spacing-48);
   margin-left: auto;
