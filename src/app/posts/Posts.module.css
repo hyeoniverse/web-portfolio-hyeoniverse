@@ -75,6 +75,18 @@
   min-width: 0;
 }
 
+/* blog 레이아웃 — 개발 블로그처럼 사이드바(소개 · 카테고리)를 왼쪽에. 1024 이하는 지금처럼 본문 아래로 흐른다 */
+@media (width > 1024px) {
+  .contentAreaBlog {
+    grid-template-columns: 280px 1fr;
+  }
+
+  .contentAreaBlog > :last-child {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
+
 /* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
 
 /* 상단 indeterminate progress bar — fetch 시 시각적 신호 (NProgress 패턴) */

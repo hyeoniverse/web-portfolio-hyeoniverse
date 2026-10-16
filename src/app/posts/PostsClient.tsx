@@ -174,11 +174,12 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           extraCategories={extraCategories}
           allTags={allTags}
           query={query}
+          sidebarCategories={postsLayout === "blog"}
         />
       )}
 
       {/* ── Content Area (2-column) ── */}
-      <div ref={contentRef} className={styles.contentArea}>
+      <div ref={contentRef} className={`${styles.contentArea} ${postsLayout === "blog" ? styles.contentAreaBlog : ""}`}>
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시. history 모드는 렌더하지 않음 (사이드바와 같은 방식.
               예전엔 CSS 로 숨겨 안 보이는 row 가 마운트 직후 다음 페이지 fetch 를 했다) */}

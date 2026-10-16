@@ -40,14 +40,14 @@ export default function PopularPosts() {
       <div className={styles.label}>
         <Flame size={14} className={styles.flameIcon} fill="currentColor" />
         <T k="postsPage.popular" />
-        <SegmentedControl<Metric>
-
-          items={METRICS}
-          value={metric}
-          onChange={setMetric}
-          className={styles.metricControl}
-        />
       </div>
+      {/* 지표 선택은 라벨 아래 줄 — 같은 줄에 두면 좁은 사이드바에서 라벨이 한 글자씩 접혔다 */}
+      <SegmentedControl<Metric>
+        items={METRICS}
+        value={metric}
+        onChange={setMetric}
+        className={styles.metricControl}
+      />
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
           <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>

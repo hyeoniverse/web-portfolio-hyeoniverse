@@ -140,3 +140,15 @@
 .postsSearchCapsule:not(:focus-within) {
   border-color: var(--border-color-light);
 }
+
+/* 카테고리 줄 감싸개 — 상자 없이(contents) 원래 배치를 그대로 둔다. blog 레이아웃은 사이드바가 옆에 서는
+   넓은 화면에서 사이드바 카테고리 목록과 겹치므로 숨기고, 사이드바가 본문 아래로 가는 1024 이하에선 남긴다 */
+.catNavSlot,
+.catNavSidebarDup {
+  display: contents;
+}
+@media (width > 1024px) {
+  .catNavSidebarDup {
+    display: none;
+  }
+}

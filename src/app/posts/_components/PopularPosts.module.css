@@ -40,9 +40,9 @@
   transform: rotate(180deg);
 }
 
-/* metric selector — label 우측에 inline. slim capsule (위아래 padding 작게, font 적당) */
+/* metric selector — label 아래 줄. slim capsule (위아래 padding 작게, font 적당) */
 .metricControl {
-  margin-left: auto;
+  margin-top: var(--spacing-12);
 }
 
 /* SegmentedControl .group 기본 border-default → light 로 통일 (0,2,0 로 base .group 이김) */
