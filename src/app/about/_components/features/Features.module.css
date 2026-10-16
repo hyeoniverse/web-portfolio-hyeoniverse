@@ -421,7 +421,7 @@
   grid-row: 4;
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .pub {
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
@@ -506,7 +506,7 @@
   animation: shotIn var(--_capIn-duration) var(--ease-enter) both;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .pubCard {
     width: min(62cqw, 100cqh * 1.6);
     translate: calc(-50% + var(--o) * 92%) -50%;
@@ -541,7 +541,7 @@
   width: min(100cqw, (100cqh - 3rem) * 1.6);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .layouts {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
@@ -729,7 +729,24 @@
   color: var(--text-accent);
 }
 
-@media (width > 1024px) {
+/* 키 낮은 가로 화면 — 위아래로 쌓으면 몽이가 손톱만 해지고 목록이 독 밑으로 내려간다. 무대와 글을 나란히 두고,
+   글이 넘치면 프레임이 스크롤한다(높이를 100% 로 묶으면 넘친 부분이 프레임 아래 여백을 못 받는다) */
+@media (width > 480px) and (height <= 500px) {
+  .mascotGrid {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-24);
+    height: auto;
+    min-height: 100%;
+    padding-bottom: 0;
+  }
+
+  .mascotDock {
+    height: min(56svh, 34rem);
+  }
+}
+
+@media (width > 1024px) and (height > 500px) {
   .mascotGrid {
     padding-bottom: 0;
     grid-template-rows: none;
@@ -889,7 +906,7 @@
   background: linear-gradient(to right, var(--text-accent) calc(var(--auto, 0) * 100%), var(--border-color-light) 0);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .admin {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
@@ -954,7 +971,7 @@
   min-height: 100%;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .cms[data-open] {
     height: 100%;
     min-height: 0;
@@ -1363,7 +1380,7 @@
   min-height: 0;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .cmsIntro {
     gap: var(--spacing-40);
   }
@@ -1494,7 +1511,7 @@
   }
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .voiceSlides > * {
     width: min(100cqw, (100cqh - 11rem) * 16 / 9);
   }
@@ -1537,7 +1554,7 @@
   min-height: 0;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .voice {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
@@ -1561,6 +1578,33 @@
   }
 }
 
+/* 키 낮은 가로 화면 — 글 · 그림을 위아래로 쌓으면 남는 높이(200px 남짓)에 그림 자리가 0 이 되었다(1fr 줄이 크기를 잃는다).
+   넓은 화면처럼 글 왼쪽 · 그림 오른쪽으로 두고 넘치면 프레임이 스크롤한다. 관리자 · 레이아웃의 그림 상자(fitBox)는
+   줄 높이로 늘어나 크기를 받고, 갤러리는 칸 폭에 맞춘 제 높이로 그린다 */
+@media (width > 480px) and (height <= 500px) {
+  .layouts,
+  .admin,
+  .voice,
+  .voiceTool {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--spacing-32);
+  }
+
+  .voice,
+  .voiceTool {
+    align-items: start;
+  }
+
+  .voiceSlides {
+    container-type: inline-size;
+  }
+
+  .voiceSlides > * {
+    width: 100%;
+  }
+}
+
 /* ── 6 · 테마 — 프리셋이 저절로 바뀐다. 다음 단계에서 미니 홈이 위로 물러나고 대비 점검표가 올라온다 ── */
 
 .theme {
@@ -1574,7 +1618,7 @@
   min-height: 100%;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .pz.theme {
     height: 100%;
     min-height: 0;
@@ -1649,7 +1693,7 @@
   height: calc(var(--pair-h, 0px) * var(--_k) + var(--_between) + var(--tbl-h, 0px));
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .theme .themeStage {
     height: auto;
   }
@@ -1762,7 +1806,7 @@
   color: var(--text-tertiary);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .theme {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);

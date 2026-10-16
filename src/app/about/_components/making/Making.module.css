@@ -26,7 +26,7 @@
   min-height: 100%;
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .process {
     height: 100%;
   }
@@ -377,7 +377,7 @@
   color: var(--text-primary);
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .ganttWrap .now .phaseBody {
     display: -webkit-box;
     flex: none;
@@ -478,7 +478,7 @@
   min-height: 100%;
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .decisions {
     height: 100%;
   }
@@ -833,7 +833,7 @@
   pointer-events: none;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   /* 작업 과정 — 머리: 장 이름 아래 제목, 오른쪽 끝에 누적 커밋. 지금 단계: 위 줄 왼쪽 번호 · 제목, 오른쪽 큰 수치, 아래 설명 · 커밋 */
   .processHead {
     display: grid;
@@ -906,7 +906,7 @@
   }
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .ganttName {
     font: var(--font-body-md);
   }
@@ -990,13 +990,13 @@
   }
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .ganttMetric {
     display: inline;
   }
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .gantt {
     margin-left: var(--spacing-96);
   }
@@ -1008,7 +1008,7 @@
 
 /* 넓은 화면 — 갈림길을 세 칸에: 질문(0 ~ 22%) · 갈래(28 ~ 64%) · 결론(70 ~ 100%). MakingChapter 의 BR_* 와 같게.
    갈래는 판 높이를 n 줄로 나눈 자리(top %)에 세로 가운데로 놓이고, 선의 꺾이는 자리와 맞는다 */
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .recordTitle {
     font: var(--font-grotesk-headline-xl);
   }
@@ -1110,7 +1110,7 @@
 }
 
 /* 낮은 넓은 화면 — 결론 글자를 한 단계 줄인다 */
-@media (width > 1024px) and (height <= 820px) {
+@media (width > 1024px) and (height <= 820px) and (height > 500px) {
   .recordTitle {
     font: var(--font-grotesk-headline-sm);
   }

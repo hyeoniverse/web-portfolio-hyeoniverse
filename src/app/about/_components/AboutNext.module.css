@@ -167,7 +167,7 @@
 }
 
 /* 넓은 화면 — 세 칸 두 줄. 앞 줄은 남아 한발 물러서고(흐리게), 새 줄이 아래에 들어온다 */
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .facts {
     gap: var(--spacing-40);
   }
