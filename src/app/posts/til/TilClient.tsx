@@ -226,11 +226,19 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
             </Pressable>
           ))}
         </div>
-        {/* 오늘의 기록 — 오늘 심었는지 한눈에 */}
-        <p className={`${styles.today} ${todayCount > 0 ? styles.todayDone : ""}`}>
-          <span className={styles.todayDot} aria-hidden />
-          {todayCount > 0 ? fillTemplate(t("tilPage.todayDone"), { n: todayCount }) : t("tilPage.todayNot")}
-        </p>
+        {/* 오늘의 기록 — 최근 이레를 작은 잔디로, 오늘 칸에 점. 옆에 오늘 심었는지 한마디 */}
+        <div className={styles.today}>
+          <span className={styles.todayWeek} aria-hidden>
+            {Array.from({ length: 7 }, (_, i) => {
+              const k = shiftDay(today, i - 6);
+              const n = byDay.get(k)?.length ?? 0;
+              return <span key={k} className={`${styles.todayCell} ${styles[`lv${level(n)}`]} ${k === today ? styles.cellToday : ""}`} />;
+            })}
+          </span>
+          <span className={todayCount > 0 ? styles.todayTextDone : styles.todayText}>
+            {todayCount > 0 ? fillTemplate(t("tilPage.todayDone"), { n: todayCount }) : t("tilPage.todayNot")}
+          </span>
+        </div>
         </div>
         <dl className={styles.stats}>
           <div className={styles.stat}><dt>{t("tilPage.statYear")}</dt><dd>{yearCount}</dd></div>
@@ -428,7 +436,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
                 {pinned.map((e) => (
                   <li key={e.id}>
                     <TransitionLink href={`/posts/${e.slug}`} className={styles.entry}>
-                      <span className={styles.entryDate}>{dayKey(new Date(e.created_at))}</span>
+                      <span className={styles.entryDate}>{dayKey(new Date(e.created_at)).replaceAll("-", ".")}</span>
                       <strong className={styles.entryTitle}>{titleOf(e)}</strong>
                     </TransitionLink>
                   </li>

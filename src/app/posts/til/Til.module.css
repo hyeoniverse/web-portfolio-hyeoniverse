@@ -275,27 +275,28 @@
   align-items: center;
   gap: var(--spacing-16);
 }
-/* 오늘의 기록 — 오늘 심었으면 강조색 점, 아니면 빈 점 */
+/* 오늘의 기록 — 최근 이레 작은 잔디 + 한마디 */
 .today {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8);
-  margin: 0;
+  gap: var(--spacing-12);
+}
+.todayWeek {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}
+.todayCell {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border-radius: var(--radius-mark);
+}
+.todayText,
+.todayTextDone {
   font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
-.todayDot {
-  width: var(--spacing-12);
-  height: var(--spacing-12);
-  border: var(--border-width-2) solid var(--text-tertiary);
-  border-radius: var(--radius-mark);
-}
-.todayDone {
+.todayTextDone {
   color: var(--text-primary);
-}
-.todayDone .todayDot {
-  border-color: var(--text-accent);
-  background: var(--text-accent);
 }
 
 /* 아래 본문 — [기록 피드 | 따라오는 몽이 · 다시 보기 · 고정 TIL]. 좁은 화면은 피드 다음에 */
@@ -539,19 +540,18 @@
   flex-direction: column;
   gap: var(--spacing-8);
 }
+/* 고정 · 랜덤 TIL 한 줄 — 카드 없이 날짜 · 제목만, 올리면 제목이 강조색 */
 .entry {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
-  padding: var(--spacing-12) var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-primary);
+  gap: var(--spacing-2);
   text-decoration: none;
-  transition: border-color var(--duration-fast) var(--ease-standard);
 }
-.entry:hover {
-  border-color: var(--text-accent);
+.entry:hover .entryTitle {
+  color: var(--text-accent);
+}
+.entry .entryTitle {
+  font: var(--font-label-md);
 }
 .entryMore {
   display: inline-block;
