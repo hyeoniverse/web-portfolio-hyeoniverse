@@ -427,13 +427,20 @@ export default function ContentTab({
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader
               title={t("admin.settings.banner")}
-              paths={["posts.showBanner", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
+              paths={["posts.showBanner", "posts.showSeriesRow", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
               extra={
-                <Switch
-                  label={t("admin.settings.showBanner")}
-                  checked={config.posts.showBanner !== false}
-                  onCheckedChange={(v) => update("posts", "showBanner", v)}
-                />
+                <>
+                  <Switch
+                    label={t("admin.settings.showBanner")}
+                    checked={config.posts.showBanner === true}
+                    onCheckedChange={(v) => update("posts", "showBanner", v)}
+                  />
+                  <Switch
+                    label={t("admin.settings.showSeriesRow")}
+                    checked={config.posts.showSeriesRow === true}
+                    onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
+                  />
+                </>
               }
               {...sh}
             />
@@ -481,8 +488,9 @@ export default function ContentTab({
             <div className={styles.fields}>
               <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
                 <Select
-                  value={config.posts.layout ?? "magazine"}
+                  value={config.posts.layout ?? "journal"}
                   options={[
+                    { value: "journal", label: t("admin.inline.contentTab.journalCards") },
                     { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
                     { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },

@@ -1,0 +1,141 @@
+/* ── 저널 카드 (PostCardJournal) — 고른 2열 카드. 낮은 2:1 커버 + [날짜 줄 · 제목 · 요약 · 태그/숫자] ── */
+.journalCard {
+  height: 100%;
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-20);
+  cursor: pointer;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+.coverImg {
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-standard);
+}
+.journalCard:hover .coverImg {
+  transform: scale(1.04);
+}
+.coverFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.badges {
+  position: absolute;
+  top: var(--spacing-8);
+  left: var(--spacing-8);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+.pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  color: var(--text-accent);
+}
+/* 이미지 위 언어 칩 — 사진에 묻히지 않게 바탕을 깐다 */
+.chipBg {
+  display: inline-flex;
+  border-radius: var(--radius-control);
+  background: var(--bg-primary);
+}
+.pin > svg {
+  transform: rotate(45deg);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+/* 날짜 줄 — 블로그처럼 언제 쓴 글인지가 먼저 보이게 */
+.dateLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.date {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.cat {
+  margin-left: auto;
+  font: var(--font-label-xs);
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.title {
+  font: var(--font-headline-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.journalCard:hover .title {
+  color: var(--text-accent);
+}
+.icon {
+  display: inline-flex;
+  margin-right: var(--spacing-4);
+  vertical-align: middle;
+}
+.excerpt {
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: auto;
+  padding-top: var(--spacing-4);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-8);
+  min-width: 0;
+}
+.stats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}

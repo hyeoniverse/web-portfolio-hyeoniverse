@@ -5,7 +5,7 @@ import { QUERY_PARAM } from "@/constants";
 
 /** 목록을 거르는 쿼리 */
 const LIST_FILTER_PARAMS: readonly string[] = [
-  QUERY_PARAM.category, QUERY_PARAM.tag, QUERY_PARAM.author, QUERY_PARAM.series, QUERY_PARAM.q,
+  QUERY_PARAM.category, QUERY_PARAM.tag, QUERY_PARAM.author, QUERY_PARAM.series, QUERY_PARAM.q, QUERY_PARAM.date,
 ];
 
 /** 주소가 기본 목록과 다른 목록을 가리키는가. 인라인 스크립트로도 문자열화해 쓰므로 인자 밖의 값을 참조하지 않는다 */

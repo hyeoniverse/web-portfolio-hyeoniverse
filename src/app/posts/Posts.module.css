@@ -29,6 +29,11 @@
 }
 
 
+/* 글 목록 제목 — 블로그 머리처럼 작게. 기본 PageTitle(대형)은 시리즈 · 태그 인덱스가 그대로 쓴다 */
+.header .compactTitle {
+  --_title-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+}
+
 .subtitle {
   font: var(--font-body-md);
   color: var(--text-tertiary);

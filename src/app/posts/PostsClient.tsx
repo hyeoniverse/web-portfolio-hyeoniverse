@@ -41,16 +41,16 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const { setInfinite, lenis, stop, start } = useLenis();
   const { t } = useLanguage();
   const siteConf = useSiteConfig();
-  // 목록 카드 레이아웃 (설정) — magazine(기본)/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
-  const configLayout = (["magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
+  // 목록 카드 레이아웃 (설정) — journal(기본)/magazine/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
+  const configLayout = (["journal", "magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
     ? siteConf.posts.layout
-    : "magazine");
+    : "journal");
   const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
   // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
   const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const {
     posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
-    activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
+    activeCategoryKey, activeTagsKey, activeTags, activeDate, setActiveDate, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
   } = query;
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
@@ -184,7 +184,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시. history 모드는 렌더하지 않음 (사이드바와 같은 방식.
               예전엔 CSS 로 숨겨 안 보이는 row 가 마운트 직후 다음 페이지 fetch 를 했다) */}
-          {!history && (
+          {!history && siteConf.posts.showSeriesRow === true && (
             <SeriesSection
               initialList={initialData.seriesList}
               initialTotal={initialData.seriesTotal}
@@ -256,7 +256,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
               asChips={hasActiveFilter}
             />
-            <BlogCalendar posts={initialData.calendarPosts} />
+            <BlogCalendar posts={initialData.calendarPosts} activeDate={activeDate} onDateChange={setActiveDate} />
             <PopularPosts />
             <RandomPosts />
             <RecentComments />

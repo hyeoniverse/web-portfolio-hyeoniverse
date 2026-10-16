@@ -431,8 +431,10 @@ export const siteConfig = {
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
-    // 글 목록 위 고정글 배너 on/off — 끄면 제목 아래로 바로 목록이 온다
-    showBanner: true,
+    // 글 목록 위 고정글 배너 on/off — 끄면 제목 아래로 바로 목록이 온다(기본 끔 — 첫 글이 바로 보이게)
+    showBanner: false,
+    // 글 목록 위 시리즈 줄 on/off — 시리즈는 Series 탭에도 있어 기본은 끈다
+    showSeriesRow: false,
     bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
     bannerStyle: "editorial" as
       | "editorial"
@@ -440,8 +442,8 @@ export const siteConfig = {
       | "cinematic"
       | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
-    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형) / blog(텍스트 우선 글 행)
-    layout: "magazine" as "blog" | "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
+    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형) / blog(텍스트 우선 글 행) / journal(날짜가 먼저 보이는 고른 2열 카드·기본)
+    layout: "journal" as "journal" | "blog" | "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
     perPage: 10,
     adminPerPage: 20,
     // 기본 카테고리 — 성격/의도 기준 플랫 6개(배포용 기본값). 2단계 기능은 유지되며 '학습'만 소분류 사용.

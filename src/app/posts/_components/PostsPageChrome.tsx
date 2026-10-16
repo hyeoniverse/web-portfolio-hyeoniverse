@@ -21,8 +21,8 @@ interface PostsPageChromeProps {
    본문(PostsClient)은 children 으로 받는다. */
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
   const { t } = useLanguage();
-  // 설정 posts.showBanner — 끄면 고정글 배너를 그리지 않는다(값이 없으면 켜짐)
-  const showBanner = useSiteConfig().posts.showBanner !== false;
+  // 설정 posts.showBanner — 켤 때만 고정글 배너를 그린다
+  const showBanner = useSiteConfig().posts.showBanner === true;
   return (
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
@@ -36,7 +36,7 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
           </>
         ) : (
           <>
-            <PageTitle icon={<LayoutGrid size={40} strokeWidth={1.6} aria-hidden />}>
+            <PageTitle className={styles.compactTitle} icon={<LayoutGrid size={28} strokeWidth={1.6} aria-hidden />}>
               Posts.
             </PageTitle>
             <p className={styles.subtitle}>
