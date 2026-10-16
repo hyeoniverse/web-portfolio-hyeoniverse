@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./VisitHeatmap.module.css";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -32,6 +32,16 @@ type HourFormat = "24" | "12";
 
 /** 12시간제 숫자 — 0→12, 13→1 */
 const to12 = (hour: number) => (hour % 12 === 0 ? 12 : hour % 12);
+
+/** 행 순서는 월~일 — 데이터 행렬은 0=일 인덱스라 표시 순서만 바꾼다 */
+const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+/* 격자 한 칸의 자리 — 좁은 화면은 행=시각 · 열=요일(세로), 넓은 화면은 행=요일 · 열=시각(가로).
+   마크업은 한 벌이고 CSS 가 화면 폭에 맞는 쪽 변수를 grid-row · grid-column 으로 쓴다.
+   wide 의 열은 끝이 있을 수 있다(오전/오후 캡션이 12칸에 걸친다) */
+type Place = { narrow: [row: number, col: number]; wide: [row: number, col: string | number] };
+const place = ({ narrow, wide }: Place) =>
+  ({ "--hm-nr": narrow[0], "--hm-nc": narrow[1], "--hm-wr": wide[0], "--hm-wc": wide[1] }) as CSSProperties;
 
 function VisitHeatmap({
   matrix,
@@ -68,44 +78,52 @@ function VisitHeatmap({
         />
       </div>
       <div className={styles.heatmap}>
-        {/* 행 순서는 월~일 — 데이터 행렬은 0=일 인덱스라 표시 순서만 바꾼다 */}
-        {[1, 2, 3, 4, 5, 6, 0].map((dow) => (
-          <div key={dow} className={styles.heatmapRow}>
-            <span className={styles.heatmapDow}>{dowLabels[dow]}</span>
-            {matrix[dow].map((count, hour) => (
-              /* title 속성은 1초쯤 지나야 떠서 없는 것처럼 느껴진다 — 공용 Tooltip 로 즉시 표시 */
-              <Tooltip
-                key={hour}
-                content={`${dowLabels[dow]} ${tooltipHour(hour)} · ${count.toLocaleString()}`}
-                placement="top"
-              >
-                <span
-                  className={styles.heatmapCell}
-                  style={{ background: LEVEL_COLORS[levelFor(count, max)] }}
-                />
-              </Tooltip>
-            ))}
-          </div>
+        {DOW_ORDER.map((dow, i) => (
+          <span key={`dow-${dow}`} className={styles.heatmapDow} style={place({ narrow: [1, i + 2], wide: [i + 1, 1] })}>
+            {dowLabels[dow]}
+          </span>
         ))}
-        <div className={styles.heatmapRow} aria-hidden>
-          <span className={styles.heatmapDow} />
-          {Array.from({ length: 24 }, (_, hour) => (
-            <span key={hour} className={styles.heatmapHourLabel}>
-              {hourFormat === "24" ? hour : to12(hour)}
-            </span>
-          ))}
-        </div>
+        {DOW_ORDER.map((dow, i) =>
+          matrix[dow].map((count, hour) => (
+            /* title 속성은 1초쯤 지나야 떠서 없는 것처럼 느껴진다 — 공용 Tooltip 로 즉시 표시.
+               Tooltip 이 칸을 span 으로 감싸므로 자리는 그 감싼 span(격자의 자식)에 준다 */
+            <Tooltip
+              key={`${dow}-${hour}`}
+              content={`${dowLabels[dow]} ${tooltipHour(hour)} · ${count.toLocaleString()}`}
+              placement="top"
+              wrapperStyle={place({ narrow: [hour + 2, i + 2], wide: [i + 1, hour + 2] })}
+            >
+              <span
+                className={styles.heatmapCell}
+                style={{ background: LEVEL_COLORS[levelFor(count, max)] }}
+              />
+            </Tooltip>
+          )),
+        )}
+        {Array.from({ length: 24 }, (_, hour) => (
+          <span
+            key={`hour-${hour}`}
+            className={styles.heatmapHourLabel}
+            style={place({ narrow: [hour + 2, 1], wide: [8, hour + 2] })}
+            aria-hidden
+          >
+            {/* 세로 격자에는 오전/오후 캡션 줄이 없어 0시 · 12시 라벨 앞에 붙인다 */}
+            {hourFormat === "12" && hour % 12 === 0 && (
+              <span className={styles.heatmapMeridiemInline}>{meridiem(hour)} </span>
+            )}
+            {hourFormat === "24" ? hour : to12(hour)}
+          </span>
+        ))}
         {hourFormat === "12" && (
-          <div className={styles.heatmapRow} aria-hidden>
-            <span className={styles.heatmapDow} />
-            {/* 오전/오후 캡션 — 각각 앞·뒤 12칸에 걸친다 */}
-            <span className={styles.heatmapMeridiem} style={{ gridColumn: "2 / 14" }}>
+          <>
+            {/* 오전/오후 캡션 — 가로 격자에서 각각 앞·뒤 12칸 아래 */}
+            <span className={styles.heatmapMeridiem} style={place({ narrow: [1, 1], wide: [9, "2 / 14"] })} aria-hidden>
               {meridiem(0)}
             </span>
-            <span className={styles.heatmapMeridiem} style={{ gridColumn: "14 / 26" }}>
+            <span className={styles.heatmapMeridiem} style={place({ narrow: [1, 1], wide: [9, "14 / 26"] })} aria-hidden>
               {meridiem(12)}
             </span>
-          </div>
+          </>
         )}
       </div>
       <div className={styles.heatmapLegend} aria-hidden>
