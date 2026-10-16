@@ -295,14 +295,16 @@ function serializeNode(node: SlateNode): string {
       // 에디터(elements.tsx)와 동일: 미지정=기본 subtle 선(--border-color-light), transparent=선 없음, 그 외=지정색. 항상 출력.
       const dividerColor = colDiv === "transparent" ? "transparent" : (colDiv || "var(--border-color-light)");
       const divVar = `;--_col-divider:${dividerColor}`;
-      const colBox = `flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-12);border-radius:var(--radius-surface)`;
+      const colBox = `--_col-flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-12);border-radius:var(--radius-surface)`;
       // text leaf 방어
       const groupChildren = (el.children || []).map((child) => {
         if (isText(child)) return `<div data-column style="${colBox}"><p>${serializeLeaf(child as SlateText)}</p></div>`;
         return serializeNode(child);
       }).join("");
       // 스크롤 ON: px 열 고정 → 넘치면 가로 스크롤. OFF: px 열 shrink(--_col-shrink:1) → 화면 폭에 맞춤.
-      return `<div ${attrs} style="display:flex;gap:var(--spacing-8);margin:16px 0;overflow-x:${colScroll ? "auto" : "hidden"};--_col-shrink:${colScroll ? 0 : 1};--_col-bg:${colBgVal}${divVar}">${groupChildren}</div>`;
+      // 배치(세로 쌓기 ↔ 가로 나열)는 화면 폭에 따라 CSS(_base.css .prose-content [data-column-group])가 정한다 —
+      // 여기선 값만 변수로 넘긴다(디자인 시스템 3.11-1). 넓은 화면의 가로 스크롤 여부도 --_col-overflow 로.
+      return `<div ${attrs} style="margin:16px 0;--_col-overflow:${colScroll ? "auto" : "hidden"};--_col-shrink:${colScroll ? 0 : 1};--_col-bg:${colBgVal}${divVar}">${groupChildren}</div>`;
     }
     case "column": {
       const colW = el.width as string | undefined;
@@ -315,13 +317,14 @@ function serializeNode(node: SlateNode): string {
       // 배경/패딩/라디우스는 열 개별(에디터 ColumnElement 와 동일 → 콘텐츠 폭·줄바꿈 일치). --_col-bg 는 그룹이 지정.
       const colBox = `background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-12);border-radius:var(--radius-surface);min-width:40px`;
       // px 지정: 정확한 px 고정(grow/shrink 0) → 합 초과 시 가로 스크롤. 없으면 유동 % fill.
+      // flex 값은 변수로만 넘긴다 — 넓은 화면에서만 CSS 가 쓰고, 좁은 화면에선 열이 전체 폭으로 쌓인다.
       // data-width(%) 도 함께 실어 재편집 시 @platejs/layout normalizer 가 합 100 을 보게 함(무한 normalize 루프 방지).
       if (typeof colPx === "number" && colPx > 0) {
         const cw = Math.round(colPx);
-        return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} data-width-px="${cw}" style="flex:0 var(--_col-shrink,0) ${cw}px;${colBox}">${colChildren}</div>`;
+        return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} data-width-px="${cw}" style="--_col-flex:0 var(--_col-shrink,0) ${cw}px;${colBox}">${colChildren}</div>`;
       }
       const w = colW ? Math.max(0.001, parseFloat(colW)) : 1;
-      return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} style="flex:${w} 1 0;${colBox}">${colChildren}</div>`;
+      return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} style="--_col-flex:${w} 1 0;${colBox}">${colChildren}</div>`;
     }
 
     // ── Code block ──

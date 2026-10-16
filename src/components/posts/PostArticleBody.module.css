@@ -6,25 +6,6 @@
   color: var(--text-primary);
 }
 
-/* 다단 열 구분선 — 직렬화 HTML 에 에디터(.colElement::after)와 동일한 pseudo 로 그림.
-   그룹이 --_col-divider 를 지정했을 때만 보이고, gap(--spacing-8) 중앙에 1px 선. */
-.prose [data-column-group] > [data-column] {
-  position: relative;
-}
-.prose [data-column-group] > [data-column]::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(-1 * var(--spacing-8) / 2);
-  width: 1px;
-  background: var(--_col-divider, transparent);
-  pointer-events: none;
-}
-.prose [data-column-group] > [data-column]:last-child::after {
-  display: none;
-}
-
 /* 크기·여백·줄간격·굵기는 전역 base + .prose-content 공통 — 여기선 문맥 고유 속성만 */
 .prose h1,
 .prose h2,
