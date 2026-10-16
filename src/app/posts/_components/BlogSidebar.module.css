@@ -24,6 +24,26 @@
   padding-bottom: var(--spacing-24);
   border-bottom: var(--border-light);
 }
+.profileInMasthead {
+  margin: var(--spacing-8) 0 0;
+  padding: 0;
+  border-bottom: 0;
+}
+@media (width >= 768px) {
+  /* 오른쪽 몽이 그림(34%)과 겹치지 않게 */
+  .profileInMasthead {
+    max-width: 62%;
+  }
+}
+/* 머리말 안에선 역할 칸이 좁아 줄바꿈되므로 아주 넓은 화면에서만 */
+.profileInMasthead .profileAbout {
+  display: none;
+}
+@media (width >= 1280px) {
+  .profileInMasthead .profileAbout {
+    display: flex;
+  }
+}
 .profileTop {
   display: flex;
   align-items: center;

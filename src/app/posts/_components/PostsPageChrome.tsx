@@ -34,16 +34,6 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], cou
     /* 별밭 · 로그 스킨은 posts/layout.tsx 가 블로그 전체에 깐다 */
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
-      {/* 블로그 주인 — 머리말보다 위, 페이지 맨 위에 가로 띠로 선다 */}
-      {!history && counts && (
-        <BlogProfile
-          stats={[
-            { label: t("postsPage.statPosts"), value: counts.posts },
-            { label: t("postsPage.statTags"), value: counts.tags },
-            { label: t("postsPage.statSeries"), value: counts.series },
-          ]}
-        />
-      )}
       <div className={styles.header}>
         {history ? (
           <>
@@ -65,6 +55,17 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], cou
             <p className={styles.mastheadLead}>
               <T k="postsPage.subtitle" />
             </p>
+            {/* 블로그 주인 — 머리말 소개 아래 한 줄(넓은 화면은 오른쪽 몽이 그림 왼쪽까지) */}
+            {counts && (
+              <BlogProfile
+                inMasthead
+                stats={[
+                  { label: t("postsPage.statPosts"), value: counts.posts },
+                  { label: t("postsPage.statTags"), value: counts.tags },
+                  { label: t("postsPage.statSeries"), value: counts.series },
+                ]}
+              />
+            )}
           </div>
         )}
       </div>

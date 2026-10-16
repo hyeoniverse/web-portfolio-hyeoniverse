@@ -17,9 +17,9 @@ import styles from "./BlogSidebar.module.css";
 
 /* 글 목록 사이드바의 소개 카드 — 인스타그램 프로필처럼 [아바타 | 이름 · 글 · 태그 · 시리즈 수] 다음 역할 · 소개 ·
    소셜 아이콘 버튼. 소유자 작성자(site.config authors) 기준이고, 소개가 비면 Profile 페이지의 한 줄 소개를 쓴다.
-   글 목록 페이지 맨 위(머리말 위)에 가로 띠로 선다 — 넓은 화면은 [아바타 · 이름 · 숫자 | 역할 · 소개 | 링크] 한 줄,
+   inMasthead 면 글 목록 머리말(Log) 안 소개 아래에 선다 — 소개 글은 머리말 한 줄 소개와 겹쳐 빼고 역할만 — 넓은 화면은 [아바타 · 이름 · 숫자 | 역할 · 소개 | 링크] 한 줄,
    좁은 화면은 소개를 빼고 [아바타 · 이름 · 숫자 | 링크] */
-export default function BlogProfile({ stats }: { stats: { label: string; value: number }[] }) {
+export default function BlogProfile({ stats, inMasthead = false }: { stats: { label: string; value: number }[]; inMasthead?: boolean }) {
   const { language } = useLanguage();
   const siteConf = useSiteConfig();
   const { openForm } = useContactStore();
@@ -31,7 +31,7 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
   const links = (author.links ?? []).filter((l) => l.url);
 
   return (
-    <section className={styles.profile}>
+    <section className={`${styles.profile} ${inMasthead ? styles.profileInMasthead : ""}`}>
       <div className={styles.profileTop}>
         <span className={styles.profileRing}>
           <AuthorAvatar value={author.avatar} name={author.name} size={56} className={styles.profileAvatar} />
@@ -51,7 +51,7 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
       {(author.role || intro) && (
         <div className={styles.profileAbout}>
           {author.role && <span className={styles.profileRole}>{author.role}</span>}
-          {intro && <p className={styles.profileIntro}>{intro}</p>}
+          {!inMasthead && intro && <p className={styles.profileIntro}>{intro}</p>}
         </div>
       )}
       {(links.length > 0 || author.email) && (
