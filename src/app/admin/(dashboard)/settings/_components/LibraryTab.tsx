@@ -11,13 +11,14 @@ import { useEffect, useRef, useState, type ComponentType } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { LibrarySection } from "../_data/settingsConstants";
 import lib from "./Library.module.css";
+import { LibrarySectionSkeleton } from "./LibrarySkeletons";
 
 const SECTIONS: { id: LibrarySection; labelKey: string; Manager: ComponentType }[] = [
-  { id: "calendars", labelKey: "admin.inline.libraryTab.calendars", Manager: dynamic(() => import("./CalendarManager")) },
-  { id: "polls", labelKey: "admin.inline.libraryTab.polls", Manager: dynamic(() => import("./PollManager")) },
-  { id: "emojis", labelKey: "admin.inline.libraryTab.emojis", Manager: dynamic(() => import("./CustomEmojiManager")) },
-  { id: "covers", labelKey: "admin.inline.libraryTab.covers", Manager: dynamic(() => import("./CoverHistoryManager")) },
-  { id: "files", labelKey: "admin.inline.libraryTab.files", Manager: dynamic(() => import("./MediaManager")) },
+  { id: "calendars", labelKey: "admin.inline.libraryTab.calendars", Manager: dynamic(() => import("./CalendarManager"), { loading: () => <LibrarySectionSkeleton id="calendars" /> }) },
+  { id: "polls", labelKey: "admin.inline.libraryTab.polls", Manager: dynamic(() => import("./PollManager"), { loading: () => <LibrarySectionSkeleton id="polls" /> }) },
+  { id: "emojis", labelKey: "admin.inline.libraryTab.emojis", Manager: dynamic(() => import("./CustomEmojiManager"), { loading: () => <LibrarySectionSkeleton id="emojis" /> }) },
+  { id: "covers", labelKey: "admin.inline.libraryTab.covers", Manager: dynamic(() => import("./CoverHistoryManager"), { loading: () => <LibrarySectionSkeleton id="covers" /> }) },
+  { id: "files", labelKey: "admin.inline.libraryTab.files", Manager: dynamic(() => import("./MediaManager"), { loading: () => <LibrarySectionSkeleton id="files" /> }) },
 ];
 
 /** 화면 가까이(위아래 600px) 오면 한 번 그린다. 그 전엔 자리만 잡아 둔다(섹션 바로가기가 라벨을 읽는다) */

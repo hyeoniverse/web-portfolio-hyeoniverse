@@ -13,7 +13,6 @@ import CloseButton from "@/components/ui/CloseButton";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
 import Tooltip from "@/components/ui/Tooltip";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { tryRequest } from "@/lib/sendAction";
 import { uploadFile } from "@/lib/adminUpload";
@@ -25,6 +24,7 @@ import LibraryHead from "./LibraryHead";
 import EmojiKitchenModal from "./EmojiKitchenModal";
 import lib from "./Library.module.css";
 import styles from "./CustomEmojiManager.module.css";
+import { EmojiGridSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
 
 /* 격자 한 쪽 — 넓은 화면 12열 × 10줄 */
@@ -124,9 +124,7 @@ export default function CustomEmojiManager() {
         />
 
         {filtered === null ? (
-          <div className={styles.grid}>
-            {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className={styles.tile}><SkeletonLine width={32} height={32} /></div>)}
-          </div>
+          <EmojiGridSkeleton />
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.customEmojiManager.noResults") : t("admin.inline.customEmojiManager.empty")}</EmptyState>
         ) : (
