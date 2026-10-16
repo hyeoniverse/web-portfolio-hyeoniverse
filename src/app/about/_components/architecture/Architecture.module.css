@@ -503,6 +503,11 @@
 }
 
 .prezi {
+  /* 좁은 화면 지도가 보이는 띠(.world 마스크) — SceneApi 가 잰 값으로 덮어쓴다. 재기 전에는 예전 비율 */
+  --_map-top: 14%;
+  --_map-bottom: 75%;
+  --_text-top: 30%;
+
   position: relative;
   height: 100%;
   overflow: hidden;
@@ -528,8 +533,16 @@
   inset: 0;
   display: block;
   /* 위아래 가장자리를 지운다 — 궤도 · 빛줄기가 상자 끝에서 잘린 곧은 선이 다음 장면(DB 설계)과의 경계로 보였다.
-     마스크는 그림(svg)에만 건다 — 위에 뜬 단추들의 유리 흐림을 죽이지 않게 */
-  mask-image: linear-gradient(to bottom, transparent 0, currentcolor 14%, currentcolor 55%, color-mix(in oklab, currentcolor 30%, transparent) 75%, transparent 100%);
+     마스크는 그림(svg)에만 건다 — 위에 뜬 단추들의 유리 흐림을 죽이지 않게.
+     좁은 화면은 위 글과 아래 글 사이 빈칸(SceneApi 가 재서 --_map-top · --_map-bottom 으로 넘긴다)에만 지도를 보인다 —
+     글이 화면 높이의 절반 넘게 차지해 고정 비율로는 단계 이름 · 경로 선이 글 위에 겹쳤다 */
+  mask-image: linear-gradient(to bottom, transparent var(--_map-top), currentcolor calc(var(--_map-top) + var(--spacing-24)), currentcolor calc(var(--_map-bottom) - var(--spacing-24)), transparent var(--_map-bottom));
+}
+
+@media (width > 768px) {
+  .world {
+    mask-image: linear-gradient(to bottom, transparent 0, currentcolor 14%, currentcolor 55%, color-mix(in oklab, currentcolor 30%, transparent) 75%, transparent 100%);
+  }
 }
 
 /* 카메라 — 확대 · 이동이 부드럽게 이어진다 */
@@ -798,7 +811,9 @@
   gap: var(--spacing-8);
 }
 
-/* 지금 장면의 글 — 왼쪽 아래, 바탕에서 읽히도록 아래쪽만 어둡게 */
+/* 지금 장면의 글 — 왼쪽 아래, 바탕에서 읽히도록 아래쪽만 어둡게.
+   좁은 화면은 위 글(pzTop) 아래까지만 차지하고 넘치면 안에서 스크롤한다 — 글이 길면 위로 자라 조작 단추 · 안내를
+   덮었다(360px 화면의 전체 보기 · 목록). --_text-top 은 SceneApi 가 잰 위 글의 아래 끝 */
 .pzText {
   position: absolute;
   right: var(--spacing-page-inline);
@@ -807,6 +822,17 @@
   display: grid;
   gap: var(--spacing-12);
   max-width: 34rem;
+  max-height: calc(100% - var(--_text-top) - var(--_above-dock));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+@media (width > 768px) {
+  .pzText {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 /* 아래 글 자리 — 예전엔 밤색 그라데이션을 깔아 지도를 가렸지만, 하늘이 시각마다 달라져 그 판이 다음 장면과의
@@ -816,7 +842,8 @@
 .pzTop,
 .pzBody {
   display: grid;
-  align-content: end;
+  /* safe — 넘쳐서 안에서 스크롤될 때 윗부분이 위로 잘려 닿을 수 없게 되지 않게 */
+  align-content: safe end;
   gap: var(--spacing-8);
   min-height: 13rem;
   --_pzIn-duration: 600ms; /* 장면 글 바뀜 — 한 자리(3.9-1) */
@@ -1114,7 +1141,8 @@
 
 .pzText[data-view="group"] .apiFolded,
 .pzText[data-view="group"] .pzText2[data-clamp] {
-  -webkit-line-clamp: 1;
+  /* 좁은 화면은 자르지 않는다 — 아래 글이 안에서 스크롤되므로(.pzText) 한 줄로 자르면 설명 · 접은 리소스 이름만 잃었다 */
+  -webkit-line-clamp: unset;
 }
 
 .pzText[data-view="group"],
@@ -1555,12 +1583,19 @@
   word-break: keep-all;
 }
 
-/* 좁은 화면 — 메모 설명은 세 줄까지(넓은 화면은 다 보인다) */
+/* 좁은 화면 — 메모 설명은 다섯 줄 높이에서 안쪽 스크롤(넓은 화면은 다 보인다). 세 줄로 자르면 뒷부분을 읽을 수 없었고,
+   다 펼치면 다이어그램이 0 으로 줄고 아래 안내 · 페이지 번호를 덮었다 */
 .erdNotes .erdNoteDesc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  max-height: 5lh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (width > 1024px) {
+  .erdNotes .erdNoteDesc {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 .erdNotePager {
@@ -1613,9 +1648,6 @@
     height: 100%;
   }
 
-  .erdNotes .erdNoteDesc {
-    display: block;
-  }
 }
 
 /* ── 5 · 설계 메모 — 필름 띠. 여섯 장이 옆으로 늘어서 있고 띠가 단계만큼 옆으로 간다(--step).
@@ -1625,8 +1657,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
-  height: 100%;
+  /* 휴대폰 폭은 카드만큼 자라 프레임 안에서 스크롤한다 — 화면 높이에 묶으면 긴 카드(영어)의 끝 문단이 잘렸다 */
+  min-height: 100%;
   padding-bottom: var(--spacing-16);
+}
+
+@media (width > 768px) {
+  .notes {
+    height: 100%;
+  }
 }
 
 .notesHead {
@@ -1646,14 +1685,23 @@
   --_peek: 0cqi;
 
   display: grid;
-  flex: 1;
+  flex: none;
   align-items: center;
   min-height: 0;
   margin-inline: calc(var(--spacing-page-inline) * -1);
   padding-inline: var(--spacing-page-inline);
-  overflow: hidden;
-  /* 폭(cqi)으로 띠를 옮기고, 높이로 판을 줄인다(아래 @container) */
-  container-type: size;
+  /* 휴대폰 폭 — 가로(옆 장)만 자르고 세로는 카드 높이만큼. 높이 질의는 넓은 화면만 쓰니 inline-size 로 */
+  overflow: clip visible;
+  container-type: inline-size;
+}
+
+@media (width > 768px) {
+  .spotView {
+    flex: 1;
+    overflow: hidden;
+    /* 폭(cqi)으로 띠를 옮기고, 높이로 판을 줄인다(아래 @container) */
+    container-type: size;
+  }
 }
 
 .spotTrack {

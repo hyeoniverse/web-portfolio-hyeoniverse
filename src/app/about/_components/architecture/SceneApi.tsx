@@ -10,7 +10,7 @@
    묶음 · 엔드포인트 · 접근 등급 · 테이블 · 외부 서비스는 라우트 파일에서 구운 지도(data/generated/apiMap, npm run gen-api-map)가
    원본이다. 관리자 설정(DB)의 backend 는 읽지 않는다 — 패널이 코드와 어긋나지 않게. 손으로 쓴 설명(data/about/backend)은
    이름이 맞는 묶음에만 붙인다 */
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import Pressable from "@/components/ui/Pressable";
 import { Pause, Play, ZoomIn, ZoomOut } from "@/components/icons";
 import { backendItems } from "@/data/about/backend";
@@ -69,6 +69,15 @@ const STATION_MS = 3800;
 const ZOOM_TAIL_MS = 600;
 /** 마지막 정거장에 닿은 직후 이 시간 동안의 걸음은 삼킨다(ms) */
 const FAST_GRACE_MS = 700;
+/** 좁은 화면 — 묶음에 들어와 엔드포인트 목록을 보여 주는 시간(ms). 그 뒤 대표 요청이 저절로 걷는다 */
+const NARROW_LIST_MS = 2600;
+/** 손가락으로 쓰는 기기 — 마우스가 없고 굵은 포인터 */
+const COARSE = "(hover: none) and (pointer: coarse)";
+const subscribeCoarse = (cb: () => void) => {
+  const mq = matchMedia(COARSE);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
 /** 조작 안내 — 휠은 프레지 넘기기라 확대는 Ctrl + 휠 · 두 손가락 · 단추로 */
 
 type Box = { x: number; y: number; w: number; h: number };
@@ -122,7 +131,7 @@ export default function SceneApi() {
     return () => window.clearTimeout(t);
   }, [walking, si, step, last]);
   const { setIntercept } = useFrame();
-  const walkRef = useRef({ step, si, last, doneAt: 0 });
+  const walkRef = useRef({ step, si, last, doneAt: 0, narrow: false });
   useEffect(() => {
     const w = walkRef.current;
     if (si >= last && (w.si !== si || w.step !== step)) w.doneAt = performance.now();
@@ -134,7 +143,9 @@ export default function SceneApi() {
     if (!live) return;
     setIntercept((dir) => {
       const w = walkRef.current;
-      if (dir < 0 || w.step < 1 || w.last < 0) return false;
+      /* 좁은 화면(휴대폰)은 넘기기가 늘 다음 묶음 — 정거장마다 한 번씩 넘기면 이 장면만 백 번이 넘는다.
+         정거장은 저절로 걷는다(아래 NARROW_LIST_MS 뒤 시작) */
+      if (dir < 0 || w.step < 1 || w.last < 0 || w.narrow) return false;
       /* 끝에 닿은 직후의 걸음은 삼킨다 — 넘겨 온 휠의 관성 꼬리가 다음 요청까지 넘기지 않게 */
       if (w.si >= w.last) return performance.now() - w.doneAt < FAST_GRACE_MS;
       setWalk({ at: w.step, si: w.si + 1 });
@@ -163,6 +174,55 @@ export default function SceneApi() {
     return () => ro.disconnect();
   }, []);
   const narrow = size.w < 768;
+  /* 손가락으로 넘기는 기기(태블릿 포함)도 넘기기마다 다음 묶음 — 폭만 보면 768px 이상 태블릿이 정거장마다 넘겨야 했다 */
+  const coarse = useSyncExternalStore(subscribeCoarse, () => matchMedia(COARSE).matches, () => false);
+  const swipeByGroup = narrow || coarse;
+  useEffect(() => { walkRef.current.narrow = swipeByGroup; }, [swipeByGroup]);
+  /* 좁은 화면 — 묶음에 들어오면 목록을 잠깐 보여 준 뒤 대표 요청이 저절로 걷기 시작한다(넘기기를 가로채지 않으니) */
+  useEffect(() => {
+    if (!swipeByGroup || !live || groupStep === null || si >= 0 || picked !== null || freeCam !== null) return;
+    const t = window.setTimeout(() => setWalk({ at: step, si: 0 }), NARROW_LIST_MS);
+    return () => window.clearTimeout(t);
+  }, [swipeByGroup, live, groupStep, si, picked, freeCam, step]);
+
+  /* 좁은 화면 — 글이 비켜 준 가장 큰 빈칸. 지도는 이 칸에만 보이고(마스크) 카메라도 이 칸에 맞춘다.
+     고정 비율로 두면 글이 차지하는 높이가 화면 · 단계마다 달라 지도가 글을 덮었다. 위 글(pzTop) · 아래 글의 내용 ·
+     아래 막대 자리(아래 글 상자의 바닥 아래)를 뺀 구간 가운데 가장 긴 것 — 목록 단계는 목록이 위로 올라가 빈칸이 그 아래다 */
+  const topRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [band, setBand] = useState<{ top: number; bottom: number; textTop: number } | null>(null);
+  useEffect(() => {
+    const stage = stageRef.current, top = topRef.current, text = textRef.current;
+    if (!stage || !top || !text) return;
+    const measure = () => {
+      /* 레이아웃 값(offset*)으로 잰다 — 글이 떠오르는 애니메이션(transform) 도중에 재도 흔들리지 않게 */
+      const H = stage.clientHeight;
+      const topEdge = top.offsetTop + top.offsetHeight;
+      /* 아래 글은 내용만(자식 전부) — 상자는 아래에 붙은 채 min-height 를 가져 비어 있는 윗부분까지 잡힌다.
+         넘쳐서 안에서 스크롤되면 상자 위 끝까지가 글 자리 */
+      const kids = [...text.children].filter((c): c is HTMLElement => c instanceof HTMLElement && c.offsetHeight > 0);
+      const dock = text.offsetTop + text.offsetHeight;
+      const contentTop = kids.length ? text.offsetTop + Math.max(0, Math.min(...kids.map((c) => c.offsetTop))) : dock;
+      const taken = [[0, topEdge], [contentTop, dock], [dock, H]].sort((x, y) => x[0] - y[0]);
+      let best = { top: 0, bottom: 0 }, end = 0;
+      for (const [a, b] of taken) {
+        if (a - end > best.bottom - best.top) best = { top: end, bottom: a };
+        end = Math.max(end, b);
+      }
+      setBand({ top: Math.round(best.top), bottom: Math.round(best.bottom), textTop: Math.round(topEdge + 12) });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(stage);
+    ro.observe(top);
+    ro.observe(text);
+    const mo = new MutationObserver(measure);
+    mo.observe(text, { childList: true, subtree: true });
+    return () => { ro.disconnect(); mo.disconnect(); };
+  }, []);
+  const gap = narrow && band && band.bottom - band.top > 80 ? band : null;
+  /* 좁은 화면인데 빈칸이 모자라면 지도를 감춘다 — 글 위에 겹쳐 보이는 것보다 낫다 */
+  const mapBand = gap ?? (narrow && band ? { top: -100, bottom: -100 } : null);
 
   /* 카메라가 볼 상자 */
   const rayBox = (i: number): Box => {
@@ -185,9 +245,9 @@ export default function SceneApi() {
   /* 전체 보기 — 글(왼쪽 아래)을 비켜 오른쪽에. 묶음 — 오른쪽 아래에 엔드포인트 목록이 서니 그 위 오른쪽 띠에 */
   const view = explore === -1 ? "all" : explore !== null ? "group" : "story";
   const fxRatio = narrow ? 0.5 : view === "all" ? 0.66 : view === "group" ? 0.72 : 0.62;
-  const fyRatio = narrow ? (view === "all" ? 0.42 : 0.36) : view === "all" ? 0.56 : view === "group" ? 0.3 : 0.46;
+  const fyRatio = gap ? (gap.top + gap.bottom) / 2 / size.h : narrow ? (view === "all" ? 0.42 : 0.36) : view === "all" ? 0.56 : view === "group" ? 0.3 : 0.46;
   const availW = narrow ? size.w : view === "all" ? size.w * 0.6 : view === "group" ? size.w * 0.42 : size.w * 0.7;
-  const availH = narrow ? size.h * (view === "all" ? 0.5 : 0.6) : view === "all" ? size.h * 0.86 : view === "group" ? size.h * 0.34 : size.h * 0.86;
+  const availH = gap ? (gap.bottom - gap.top) * 0.86 : narrow ? size.h * (view === "all" ? 0.5 : 0.6) : view === "all" ? size.h * 0.86 : view === "group" ? size.h * 0.34 : size.h * 0.86;
   /* 빛줄기는 너무 가까이 가지 않는다 — 짧은 묶음은 상자가 작아 이름표가 화면을 덮었다 */
   const rayView = explore !== -1 && (explore !== null || !stepNow);
   const k = Math.min(availW / box.w, availH / box.h, rayView ? 0.8 : Infinity);
@@ -397,6 +457,7 @@ export default function SceneApi() {
         data-explore={explore !== null || undefined}
         data-view={view}
         data-dragging={dragging || undefined}
+        style={narrow && band ? ({ "--_map-top": `${mapBand!.top}px`, "--_map-bottom": `${mapBand!.bottom}px`, "--_text-top": `${band.textTop}px` } as React.CSSProperties) : undefined}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endPointer}
@@ -507,7 +568,7 @@ export default function SceneApi() {
         </svg>
 
         {/* ── 화면 위 글 — 카드 없이 ── */}
-        <div className={styles.pzTop}>
+        <div ref={topRef} className={styles.pzTop}>
           <span className={fx.sceneLabel}>{L(apiScene.label)}</span>
           <p className={styles.apiTotal}>
             <span className={styles.apiNumber}>{total}</span>
@@ -544,7 +605,7 @@ export default function SceneApi() {
           <p className={styles.pzHint}>{L(HINT)}</p>
         </div>
 
-        <div className={styles.pzText} data-view={view}>
+        <div ref={textRef} className={styles.pzText} data-view={view}>
           {explore === -1 ? (
             /* 전체 보기 — 숫자는 모두 생성 지도에서: 접근 등급 분포(별 색의 범례를 겸한다) · 테이블 · 외부 서비스 */
             <div key="x-all" className={styles.pzBody}>
