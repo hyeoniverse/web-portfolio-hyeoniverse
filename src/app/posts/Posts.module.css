@@ -46,6 +46,51 @@
   font: inherit;
   color: var(--text-accent);
 }
+/* 머리말 그림 — 좁은 화면은 위에 작게, 넓은 화면은 오른쪽에 크게 */
+.masthead {
+  position: relative;
+}
+.mastheadArt {
+  position: relative;
+  order: -1;
+  align-self: flex-end;
+  width: 60%;
+  max-width: 280px;
+}
+.mastheadGrid {
+  width: 100%;
+}
+.mastheadMong {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 78%;
+  height: fit-content;
+}
+@media (width >= 768px) {
+  .masthead:has(.mastheadArt) {
+    justify-content: flex-end;
+    min-height: calc(var(--spacing-128) * 2);
+  }
+  .mastheadArt {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34%;
+    height: calc(100% - var(--spacing-16));
+    max-width: 400px;
+  }
+  .mastheadGrid {
+    position: absolute;
+    inset: 18% 10% 0;
+    width: 80%;
+    height: 82%;
+  }
+  .mastheadMong {
+    inset: auto 0 calc(var(--spacing-16) * -1);
+    width: 86%;
+  }
+}
 /* 로그 스킨 — 별밭(StarLog)이 페이지 전체 길이를 덮는 기준 */
 .page[data-blog-skin="log"] {
   position: relative;
@@ -175,4 +220,20 @@
 }
 .historyMode .contentArea > .mainColumn {
   grid-column: 1;
+}
+
+/* 글 목록 끝 — 잠든 몽이 스티커와 EOF_ */
+.listEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-32) var(--spacing-16);
+}
+.listEndMong {
+  width: var(--spacing-80);
+}
+.listEndText {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
 }

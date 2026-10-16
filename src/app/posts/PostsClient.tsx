@@ -15,6 +15,7 @@ import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import BlogProfile from "./_components/BlogProfile";
+import MongSticker from "./_components/MongSticker";
 import BlogCalendar from "./_components/BlogCalendar";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
@@ -224,6 +225,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               {/* 타임라인 무한 스크롤 sentinel — 다음 page 자동 로드 */}
               {postsLayout === "timeline" && page < totalPages && (
                 <div ref={timelineSentinelRef} className={styles.timelineSentinel} aria-hidden="true" />
+              )}
+
+              {/* 목록 끝 — 잠든 몽이와 EOF_ (History 제외) */}
+              {!history && (
+                <div className={styles.listEnd} aria-hidden>
+                  <MongSticker pose="sleep-front" className={styles.listEndMong} />
+                  <span className={styles.listEndText}>EOF_</span>
+                </div>
               )}
 
               {/* Pagination — 타임라인(무한스크롤) 제외 */}

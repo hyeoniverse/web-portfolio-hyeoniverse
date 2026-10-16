@@ -1,0 +1,25 @@
+/* 몽이 스티커 — 흰 테두리(겹친 그림자) + 옅은 바닥 그림자. 둥실 뜨는 움직임은 float 일 때만 */
+.sticker {
+  display: inline-block;
+  pointer-events: none;
+}
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter:
+    drop-shadow(2px 0 0 var(--text-white))
+    drop-shadow(-2px 0 0 var(--text-white))
+    drop-shadow(0 2px 0 var(--text-white))
+    drop-shadow(0 -2px 0 var(--text-white))
+    drop-shadow(0 6px 8px var(--border-color-strong));
+}
+.float .img {
+  animation: mong-float calc(var(--duration-slower) * 5) var(--ease-standard) infinite alternate;
+}
+@keyframes mong-float {
+  to { transform: translateY(calc(var(--spacing-8) * -1)) rotate(-2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .float .img { animation: none; }
+}

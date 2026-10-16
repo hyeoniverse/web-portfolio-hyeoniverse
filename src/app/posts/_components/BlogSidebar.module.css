@@ -16,6 +16,7 @@
 
 /* 소개 카드 — 인스타그램 프로필식: [아바타 | 이름 · 숫자 줄] 다음 역할 · 소개 · 아이콘 링크 */
 .profile {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -194,4 +195,13 @@
   padding-top: var(--spacing-12);
   font: var(--font-body-sm);
   color: var(--text-tertiary);
+}
+
+/* 손 흔드는 몽이 — 소개 카드 오른쪽 위 */
+.profileMong {
+  position: absolute;
+  top: var(--spacing-8);
+  right: var(--spacing-16);
+  width: var(--spacing-40);
+  transform: rotate(6deg);
 }

@@ -3,6 +3,8 @@
 import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
 import StarLog from "./StarLog";
+import MongSticker from "./MongSticker";
+import WavyGrid from "./WavyGrid";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
 import { History as HistoryIcon } from "@/components/icons";
@@ -43,6 +45,11 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
         ) : (
           /* 블로그 머리말 — 블로그 이름(큰 제목) · 한 줄 소개. 블로그라는 표시는 로고 옆 Blog 배지가 맡아 여기선 되풀이하지 않는다 */
           <div className={styles.masthead}>
+            {/* 머리말 오른쪽 — 출렁이는 격자 위에 별 든 몽이 스티커 */}
+            <div className={styles.mastheadArt} aria-hidden>
+              <WavyGrid className={styles.mastheadGrid} />
+              <MongSticker pose="star-front" float className={styles.mastheadMong} />
+            </div>
             {/* 로그 스킨의 프롬프트 줄 — 장식이라 읽지 않는다 */}
             <span className={styles.mastheadPrompt} aria-hidden>
               <b>~/log</b> $ ls -t posts/
