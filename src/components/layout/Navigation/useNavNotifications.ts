@@ -24,6 +24,9 @@ export type NavNotif = {
  */
 export function useNavNotifications(pathname: string, enabled: boolean) {
   const [adminEmail, setAdminEmail] = useState("");
+  /* 로그인 흔적(쿠키)이 있을 때 실제 세션을 확인했는가 — 확인 전에는 adminEmail 이 비어 있어도 로그아웃이라고
+     단정할 수 없다(서랍의 Login 이 로그인한 사람에게 잠깐 보이지 않게). 쿠키가 없으면 확인할 것도 없다 */
+  const [authChecked, setAuthChecked] = useState(false);
   useEffect(() => {
     // 로그인 흔적이 없으면 Supabase 클라이언트(313 KiB)를 받지 않는다 — 알림도 관리자 것이다.
     if (!hasAuthCookie()) return;
@@ -31,7 +34,9 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
     let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then((supabase) => {
       supabase.auth.getUser().then(({ data }) => {
-        if (!cancelled) setAdminEmail(data.user?.email ?? "");
+        if (cancelled) return;
+        setAdminEmail(data.user?.email ?? "");
+        setAuthChecked(true);
       });
       const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
         if (!cancelled) setAdminEmail(session?.user?.email ?? "");
@@ -83,6 +88,7 @@ export function useNavNotifications(pathname: string, enabled: boolean) {
 
   return {
     adminEmail,
+    authChecked,
     unreadCount,
     notifs,
     notifOpen,

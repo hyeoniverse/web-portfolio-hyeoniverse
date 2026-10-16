@@ -44,6 +44,7 @@ import { useSiteLang } from "@/providers/SiteTranslationProvider";
 import { selectSiteLang } from "@/lib/siteLang";
 import { navDescs, NAV_SECTIONS, SKIP_LOADING_PAGES } from "./navigationData";
 import { navSectionOf } from "../navSection";
+import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 import { fillTemplate } from "@/utils/format";
@@ -249,7 +250,7 @@ export default function Navigation() {
   }, [siteConfig.brand.logoFont]);
 
   const {
-    adminEmail, unreadCount, notifs,
+    adminEmail, authChecked, unreadCount, notifs,
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
     fetchNotifs,
   } = useNavNotifications(pathname, canSeeNotifications);
@@ -1028,6 +1029,9 @@ export default function Navigation() {
         onClose={() => setIsMenuOpen(false)}
         onContactOpen={section.contact ? openForm : undefined}
         onLogout={adminEmail ? handleLogout : undefined}
+        /* 로그인 — 공개 화면에서 로그아웃 상태가 확실할 때만(쿠키가 없거나, 있어도 세션이 없다고 확인됐을 때).
+           푸터의 Login 과 같은 곳으로 간다 */
+        loginHref={section.crossLink === "admin" && !adminEmail && (authChecked || !hasAuthCookie()) ? "/admin/login?next=/admin" : undefined}
       />
 
       {/* nav 하위 드롭다운 — children 있는 항목(사용자 Posts / admin Settings) hover 시.
