@@ -17,8 +17,10 @@ import { formatCount } from "@/utils/format";
 import styles from "./BlogSidebar.module.css";
 
 /* 글 목록 사이드바의 소개 카드 — 인스타그램 프로필처럼 [아바타 | 이름 · 글 · 태그 · 시리즈 수] 다음 역할 · 소개 ·
-   소셜 아이콘 버튼. 소유자 작성자(site.config authors) 기준이고, 소개가 비면 Profile 페이지의 한 줄 소개를 쓴다. */
-export default function BlogProfile({ stats }: { stats: { label: string; value: number }[] }) {
+   소셜 아이콘 버튼. 소유자 작성자(site.config authors) 기준이고, 소개가 비면 Profile 페이지의 한 줄 소개를 쓴다.
+   compact — 좁은 화면(1024 이하)에서 글 목록 위에 서는 한 줄 프로필. 사이드바가 본문 아래로 내려가는 크기라,
+   사이드바의 소개 카드는 그때 숨기고 이 한 줄이 대신 맨 위에서 블로그 주인을 알린다 */
+export default function BlogProfile({ stats, compact = false }: { stats: { label: string; value: number }[]; compact?: boolean }) {
   const { language } = useLanguage();
   const siteConf = useSiteConfig();
   const { openForm } = useContactStore();
@@ -30,12 +32,12 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
   const links = (author.links ?? []).filter((l) => l.url);
 
   return (
-    <section className={styles.profile}>
+    <section className={compact ? styles.profileCompact : styles.profile}>
       {/* 소개 카드 오른쪽 위에서 손 흔드는 몽이 */}
-      <MongSticker pose="wave-left" flat className={styles.profileMong} />
+      {!compact && <MongSticker pose="wave-left" flat className={styles.profileMong} />}
       <div className={styles.profileTop}>
         <span className={styles.profileRing}>
-          <AuthorAvatar value={author.avatar} name={author.name} size={72} className={styles.profileAvatar} />
+          <AuthorAvatar value={author.avatar} name={author.name} size={compact ? 48 : 72} className={styles.profileAvatar} />
         </span>
         <div className={styles.profileHead}>
           <strong className={styles.profileName}>{author.name}</strong>
@@ -49,8 +51,8 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
           </dl>
         </div>
       </div>
-      {author.role && <span className={styles.profileRole}>{author.role}</span>}
-      {intro && <p className={styles.profileIntro}>{intro}</p>}
+      {!compact && author.role && <span className={styles.profileRole}>{author.role}</span>}
+      {!compact && intro && <p className={styles.profileIntro}>{intro}</p>}
       {(links.length > 0 || author.email) && (
         <div className={styles.profileLinks}>
           {links.map((l) => {

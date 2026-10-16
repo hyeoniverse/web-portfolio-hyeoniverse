@@ -134,6 +134,12 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
 
+  const profileStats = [
+    { label: t("postsPage.statPosts"), value: initialData.calendarPosts.length },
+    { label: t("postsPage.statTags"), value: allTags.length },
+    { label: t("postsPage.statSeries"), value: initialData.seriesTotal },
+  ];
+
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <>
@@ -199,6 +205,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
 
           {/* Posts — sectionHeader 는 빈 상태에서도 항상 노출 (sort / perPage 등 컨트롤 접근 유지) */}
           <>
+            {/* 좁은 화면 — 사이드바가 본문 아래로 내려가므로 블로그 주인 한 줄을 목록 위에 */}
+            {!history && <BlogProfile compact stats={profileStats} />}
             <PostsToolbar query={query} timeline={postsLayout === "timeline"} />
               {!loading && posts.length === 0 ? (
                 <PostsEmptyState query={query} />
@@ -249,13 +257,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         {!history && (
           <PostsSidebar barHidden={barHidden}>
             {/* 개발 블로그식 — 소개 카드를 맨 위에, 태그 아래에 날짜별 달력을 둔다 */}
-            <BlogProfile
-              stats={[
-                { label: t("postsPage.statPosts"), value: initialData.calendarPosts.length },
-                { label: t("postsPage.statTags"), value: allTags.length },
-                { label: t("postsPage.statSeries"), value: initialData.seriesTotal },
-              ]}
-            />
+            <BlogProfile stats={profileStats} />
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D

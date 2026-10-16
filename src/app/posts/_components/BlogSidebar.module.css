@@ -26,6 +26,53 @@
   /* 사이드바가 본문 아래에서 2열로 흐를 때(768~1024) 소개 카드는 두 열을 가로질러 머리처럼 선다 */
   column-span: all;
 }
+/* 1024 이하는 글 목록 위의 한 줄 프로필(compact)이 대신 서고, 사이드바 카드는 넓은 화면에서만 */
+.profile {
+  display: none;
+}
+@media (width > 1024px) {
+  .profile {
+    display: flex;
+  }
+}
+/* 한 줄 프로필 — [아바타 | 이름 · 숫자] … 아이콘 링크. 넓은 화면에선 사이드바 카드가 있어 숨긴다 */
+.profileCompact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12) var(--spacing-16);
+  margin-bottom: var(--spacing-24);
+  padding-bottom: var(--spacing-16);
+  border-bottom: var(--border-light);
+}
+@media (width > 1024px) {
+  .profileCompact {
+    display: none;
+  }
+}
+.profileCompact .profileTop {
+  gap: var(--spacing-12);
+}
+.profileCompact .profileAvatar {
+  width: 48px;
+  height: 48px;
+  font: var(--font-label-md);
+}
+.profileCompact .profileHead {
+  gap: var(--spacing-4);
+}
+.profileCompact .profileName {
+  font: var(--font-label-md);
+}
+.profileCompact .profileStats {
+  gap: var(--spacing-12);
+}
+.profileCompact .profileStat {
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: var(--spacing-4);
+}
 .profileTop {
   display: flex;
   align-items: center;
