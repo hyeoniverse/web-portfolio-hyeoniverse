@@ -482,6 +482,19 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 블로그 이름 — /posts 머리말의 큰 제목 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
+            <SectionHeader title={t("admin.settings.blogTitle")} paths={["posts.blogTitle"]} {...sh} />
+            <div className={styles.fields}>
+              <Field
+                label={t("admin.settings.blogTitle")}
+                value={config.posts.blogTitle ?? ""}
+                onChange={(v) => update("posts", "blogTitle", v)}
+                placeholder={`${config.metadata.title} Log`}
+              />
+            </div>
+          </section>
+
           {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />

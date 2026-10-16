@@ -847,6 +847,7 @@
       "banner": "Banner",
       "showBanner": "Show pinned banner",
       "showSeriesRow": "Show series row",
+      "blogTitle": "Blog name",
       "bannerLayout": "Banner Layout",
       "bannerStyle": "Banner Style",
       "bannerTransition": "Banner Transition",

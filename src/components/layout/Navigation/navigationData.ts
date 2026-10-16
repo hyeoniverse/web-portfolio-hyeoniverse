@@ -74,13 +74,15 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
-/* 블로그(/posts 아래) 메뉴 — 포트폴리오 메뉴 대신 글을 둘러보는 축만 둔다. 포트폴리오로 돌아가는 길은 로고 옆 배지 · 서랍의 Home */
+/* 블로그(/posts 아래) 메뉴 — 포트폴리오 메뉴 대신 글을 둘러보는 축과, 끝에 포트폴리오(메인)로 나가는 링크 하나 */
 export const blogNavItems: NavItem[] = [
   { key: "blog-all", href: "/posts", label: "Posts" },
   { key: "blog-series", href: "/posts/series", label: "Series" },
   { key: "blog-tags", href: "/posts/tags", label: "Tags" },
   { key: "blog-history", href: "/posts/history", label: "History" },
   { key: "blog-til", href: "/posts/til", label: "TIL" },
+  /* 포트폴리오(메인)로 나가는 진입점 — 블로그 메뉴 끝에 둔다 */
+  { key: "blog-portfolio", href: "/", label: "Portfolio ↗" },
 ];
 
 /** 화면(공개 사이트 · 블로그 · 관리 화면)마다 네비게이션이 다른 점 — Navigation · MobileMenu 는 라우트를 보지 않고 이 값만 따른다.
@@ -125,7 +127,11 @@ export const NAV_SECTIONS: Record<NavSection, NavSectionConfig> = {
   blog: {
     homeHref: "/posts",
     items: blogNavItems,
-    drawerItems: [{ key: "home", href: "/", label: "Home" }, ...blogNavItems, ...navItems.filter((i) => i.key !== "posts")],
+    drawerItems: [
+      { key: "home", href: "/", label: "Home" },
+      ...blogNavItems.filter((i) => i.key !== "blog-portfolio"),
+      ...navItems.filter((i) => i.key !== "posts"),
+    ],
     restricted: false,
     badge: "Blog",
     soundTip: false,

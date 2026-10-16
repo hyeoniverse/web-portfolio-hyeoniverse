@@ -847,6 +847,7 @@
       "banner": "배너",
       "showBanner": "고정글 배너 보이기",
       "showSeriesRow": "시리즈 줄 보이기",
+      "blogTitle": "블로그 이름",
       "bannerLayout": "배너 레이아웃",
       "bannerStyle": "배너 스타일",
       "bannerTransition": "배너 전환 효과",

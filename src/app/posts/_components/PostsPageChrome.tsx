@@ -22,7 +22,12 @@ interface PostsPageChromeProps {
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
   const { t } = useLanguage();
   // 설정 posts.showBanner — 켤 때만 고정글 배너를 그린다
-  const showBanner = useSiteConfig().posts.showBanner === true;
+  const siteConf = useSiteConfig();
+  const showBanner = siteConf.posts.showBanner === true;
+  // 블로그 이름 — 설정 posts.blogTitle, 비면 "<사이트 제목> Log"(HYEONIVERSE → Hyeoniverse Log)
+  const siteTitle = siteConf.metadata?.title ?? "";
+  const blogTitle = siteConf.posts.blogTitle?.trim()
+    || `${siteTitle.charAt(0).toUpperCase()}${siteTitle.slice(1).toLowerCase()} Log`;
   return (
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
@@ -35,14 +40,18 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
             <p className={styles.subtitle}>{t("postsPage.historySubtitle")}</p>
           </>
         ) : (
-          <>
-            <PageTitle className={styles.compactTitle} icon={<LayoutGrid size={28} strokeWidth={1.6} aria-hidden />}>
-              Posts.
-            </PageTitle>
-            <p className={styles.subtitle}>
+          /* 블로그 머리말 — [BLOG 눈썹] 블로그 이름(큰 제목) · 한 줄 소개. 포트폴리오의 "Posts." 페이지 제목 대신
+             여기가 누구의 블로그인지 먼저 알린다 */
+          <div className={styles.masthead}>
+            <span className={styles.mastheadEyebrow}>
+              <LayoutGrid size={14} strokeWidth={1.8} aria-hidden />
+              Blog
+            </span>
+            <PageTitle className={styles.mastheadTitle}>{blogTitle}</PageTitle>
+            <p className={styles.mastheadLead}>
               <T k="postsPage.subtitle" />
             </p>
-          </>
+          </div>
         )}
       </div>
       {!history && showBanner && <PostsBannerSection posts={pinnedPosts} />}
