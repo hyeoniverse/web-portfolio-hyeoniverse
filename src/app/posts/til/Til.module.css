@@ -190,62 +190,212 @@
   transform: none;
 }
 
-/* 그날의 기록 — 몽이 + 말풍선, 그 아래 글 카드 */
-.dayPanel {
-  margin-top: var(--spacing-32);
-  padding: var(--spacing-24);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-secondary);
+/* 별밭(StarLog)이 페이지 전체를 덮는 기준 */
+.page {
+  position: relative;
+  isolation: isolate;
 }
-.dayPanel {
+
+/* 아래 본문 — [기록 피드 | 따라오는 몽이 · 고정 TIL]. 좁은 화면은 몽이가 위로 */
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-32);
+  margin-top: var(--spacing-40);
+}
+@media (width > 1024px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: var(--spacing-48);
+  }
+}
+.side {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-16);
+  order: -1;
+}
+@media (width > 1024px) {
+  .side {
+    position: sticky;
+    top: var(--spacing-96);
+    align-self: start;
+    order: 0;
+  }
 }
 .mong3d {
-  flex-shrink: 0;
   width: 96px;
   aspect-ratio: 1;
 }
-@media (width > 768px) {
+@media (width > 1024px) {
   .mong3d {
-    width: 140px;
+    width: 200px;
   }
-}
-.dayBody {
-  flex: 1;
-  min-width: 0;
-  align-self: center;
-}
-.mongSay {
-  display: flex;
-  align-items: center;
 }
 .bubble {
   position: relative;
+  width: 100%;
   padding: var(--spacing-12) var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
+  text-align: center;
 }
 .bubble strong {
   color: var(--text-primary);
 }
-/* 말풍선 꼬리 — 몽이 쪽(왼쪽)으로 */
+/* 말풍선 꼬리 — 위(몽이 쪽)로 */
 .bubble::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: calc(-1 * var(--spacing-8));
+  top: calc(-1 * var(--spacing-8));
+  left: 50%;
   width: var(--spacing-16);
   height: var(--spacing-16);
   border-left: var(--border-light);
-  border-bottom: var(--border-light);
+  border-top: var(--border-light);
   background: var(--bg-primary);
-  transform: translateY(-50%) rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* 기록 피드 */
+.feedHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+.feedTitle {
+  margin: 0;
+  font: var(--font-code-md);
+  color: var(--text-secondary);
+}
+.feedTitle b {
+  font: inherit;
+  color: var(--text-accent);
+}
+.feedFilter {
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-primary);
+}
+.feedEmpty {
+  padding-block: var(--spacing-48);
+  font: var(--font-body-md);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+/* git log 그래프 — 왼쪽 세로선에 날짜마다 점 */
+.log {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-16) 0 0;
+}
+.logDay {
+  position: relative;
+  padding: 0 0 var(--spacing-24) var(--spacing-32);
+}
+.logDay::before {
+  content: "";
+  position: absolute;
+  top: var(--spacing-12);
+  bottom: 0;
+  left: 7px;
+  width: var(--border-width-2);
+  background: var(--border-color-light);
+}
+.logDay:last-child::before {
+  display: none;
+}
+.logDate {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  margin-left: calc(-1 * var(--spacing-32));
+  padding: 0;
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.logDot {
+  flex-shrink: 0;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  align-self: center;
+  margin-right: var(--spacing-4);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.logDate:hover .logDot {
+  transform: rotate(90deg) scale(1.2);
+}
+.logCount {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+.logEntries {
+  list-style: none;
+  margin: var(--spacing-12) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.logEntry {
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.logEntry:hover {
+  border-color: var(--text-accent);
+}
+.logEntryHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}
+.logHash {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.logEntryHead .entryTitle {
+  flex: 1;
+  min-width: 0;
+}
+.logChevron {
+  flex-shrink: 0;
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
+}
+.logEntry > .entryExcerpt {
+  margin-top: var(--spacing-4);
+}
+.loadMore {
+  display: block;
+  margin: 0 auto;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
 }
 
 .entryList {
@@ -270,30 +420,13 @@
 .entry:hover {
   border-color: var(--text-accent);
 }
-/* 그날의 기록 — 본문을 펼친 글 하나. 머리(제목 · 글 보기)와 본문 */
-.entryArticle {
-  padding: var(--spacing-16) var(--spacing-20);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-primary);
-}
-.entryHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  padding-bottom: var(--spacing-12);
-  border-bottom: var(--border-light);
-  text-decoration: none;
-}
-.entryHead:hover .entryTitle {
-  color: var(--text-accent);
-}
 .entryMore {
+  display: inline-block;
+  margin-top: var(--spacing-12);
   font: var(--font-label-sm);
   color: var(--text-accent);
   white-space: nowrap;
+  text-decoration: none;
 }
 .entryBody {
   padding-top: var(--spacing-12);
@@ -314,7 +447,8 @@
 }
 
 .pinned {
-  margin-top: var(--spacing-48);
+  width: 100%;
+  margin-top: var(--spacing-16);
 }
 .pinnedTitle {
   display: flex;

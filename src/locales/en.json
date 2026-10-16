@@ -481,7 +481,12 @@
     "pickDay": "Tap a square! I'll show you what was learned that day.",
     "streakCheer": "{{n}} days in a row! Shall we plant one more today?",
     "restDay": "A rest day. Zzz…",
-    "dayCount": "{{n}} learned that day"
+    "dayCount": "{{n}} learned that day",
+    "showAll": "Show all",
+    "loadMore": "Load more",
+    "emptyYear": "Nothing planted this year yet.",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "postsPage": {
     "statPosts": "Posts",

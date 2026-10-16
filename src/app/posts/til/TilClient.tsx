@@ -12,6 +12,7 @@ import type { TilEntry } from "@/lib/posts";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import PostsSubnav from "../_components/PostsSubnav";
+import StarLog from "../_components/StarLog";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
 
@@ -25,6 +26,14 @@ const shiftDay = (key: string, delta: number) => {
 };
 
 const MASCOT = "/images/mascot/bunny-";
+/** 커밋 해시처럼 보이는 7자리 — 글 id 로 정해져 늘 같다 */
+const shortHash = (id: string) => {
+  let h = 2166136261;
+  for (const c of id) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return (h >>> 0).toString(16).padStart(8, "0").slice(0, 7);
+};
+/** 피드에 한 번에 보이는 날 수 — 더 보기로 늘린다 */
+const PAGE_DAYS = 14;
 
 /** 3D 몽이 — three 묶음이 커서 브라우저에서만 따로 싣는다 */
 const TilMong3D = dynamic(() => import("./TilMong3D"), { ssr: false });
@@ -43,8 +52,8 @@ function Mong({ pose, size, className }: { pose: string; size: number; className
   );
 }
 
-/* TIL 페이지 — [연도 탭] · 1년 잔디(주 단위 열 × 요일 7행) · 그날의 기록 · 고정 TIL.
-   글 수에 따라 칸이 진해지고, 칸을 누르면 그날 글이 아래에 펼쳐진다. 몽이가 상황마다 표정을 바꿔 맞이한다. */
+/* TIL 페이지 — [연도 탭] · 1년 잔디(주 단위 열 × 요일 7행) · 아래에 [기록 피드 | 따라오는 몽이 · 고정 TIL].
+   글 수에 따라 칸이 진해지고, 칸을 누르면 피드가 그날로 좁혀진다. 몽이가 상황마다 표정을 바꿔 맞이한다. */
 export default function TilClient({ tag, entries }: { tag: string; entries: TilEntry[] }) {
   const { t, language, dateLocale } = useLanguage();
   const lang = language === "en" ? "en" : "ko";
@@ -131,13 +140,32 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   }, [byDay, today]);
 
   const pinned = entries.filter((e) => e.is_pinned);
+  // 피드 — 고른 날이 있으면 그날만, 없으면 고른 해의 모든 날(최신순)
+  const feedDays = useMemo(
+    () =>
+      selected
+        ? [[selected, byDay.get(selected) ?? []] as const].filter(([, l]) => l.length > 0)
+        : [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).sort(([a], [b]) => (a < b ? 1 : -1)),
+    [byDay, selected, year],
+  );
+  const [shown, setShown] = useState(PAGE_DAYS);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const toggle = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const selectedEntries = selected ? byDay.get(selected) ?? [] : [];
   const level = (n: number) => (n === 0 ? 0 : n === 1 ? 1 : n === 2 ? 2 : 3);
   const formatDay = (key: string) =>
     new Date(`${key}T12:00:00Z`).toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "short", timeZone: "UTC" });
 
   return (
-    <div className={index.container}>
+    <div className={`${index.container} ${styles.page}`}>
+      {/* 블로그 글 목록과 같은 별밭 바탕 */}
+      <StarLog seed="til" />
       <PostsSubnav />
       <header className={styles.hero}>
         <div className={styles.heroText}>
@@ -157,7 +185,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
               role="tab"
               aria-selected={y === year}
               className={`${styles.yearTab} ${y === year ? styles.yearTabActive : ""}`}
-              onClick={() => { setYear(y); pick(null); }}
+              onClick={() => { setYear(y); pick(null); setShown(PAGE_DAYS); }}
             >
               {y}
             </Pressable>
@@ -212,91 +240,115 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         <span>{t("tilPage.more")}</span>
       </div>
 
-      {/* 그날의 기록 — 3D 몽이가 글 있는 날엔 웃고, 쉰 날엔 놀란다 */}
-      <section className={styles.dayPanel} aria-live="polite">
-        <div className={styles.mong3d} aria-hidden>
-          <TilMong3D
-            expression={!selected ? "normal" : selectedEntries.length > 0 ? "happy" : "surprised"}
-            snapToFront={snap}
-          />
-        </div>
-        <div className={styles.dayBody}>
-        {!selected ? (
-          <div className={styles.mongSay}>
-            <p className={styles.bubble}>
-              {current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")}
-            </p>
+      <div className={styles.body}>
+        {/* 기록 피드 — git log 처럼 날짜별로 이어진다. 잔디 칸을 고르면 그날로 좁혀지고, 글은 그 자리에서 펼쳐 읽는다 */}
+        <section className={styles.feed} aria-live="polite">
+          <div className={styles.feedHead}>
+            <h2 className={styles.feedTitle}><b>$</b> git log --til</h2>
+            {selected && (
+              <Pressable noTapScale className={styles.feedFilter} onClick={() => pick(null)}>
+                {formatDay(selected)} · {t("tilPage.showAll")} ×
+              </Pressable>
+            )}
           </div>
-        ) : selectedEntries.length === 0 ? (
-          <div className={styles.mongSay}>
-            <p className={styles.bubble}>
-              <strong>{formatDay(selected)}</strong>
-              <br />
-              {t("tilPage.restDay")}
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className={styles.mongSay}>
-                <p className={styles.bubble}>
-                <strong>{formatDay(selected)}</strong>
-                <br />
-                {fillTemplate(t("tilPage.dayCount"), { n: selectedEntries.length })}
-              </p>
-            </div>
-            <ul className={styles.entryList}>
-              {selectedEntries.map((e) => (
-                <li key={e.id}>
-                  {/* 그날의 기록 — 제목(글 상세로 가는 링크) 아래에 본문을 그 자리에서 펼쳐 읽는다 */}
-                  <article className={styles.entryArticle}>
-                    <TransitionLink href={`/posts/${e.slug}`} className={styles.entryHead}>
-                      <strong className={styles.entryTitle}>{titleOf(e)}</strong>
-                      <span className={styles.entryMore}>{t("tilPage.openPost")} →</span>
-                    </TransitionLink>
-                    {contentOf(e) ? (
-                      <div className={styles.entryBody}>
-                        <PostArticleBody
-                          data={{
-                            displayTitle: titleOf(e),
-                            displayContent: contentOf(e),
-                            displayExcerpt: excerptOf(e),
-                            contentType: e.content_type,
-                            tags: e.tags,
-                            viewCount: 0,
-                            createdAt: e.created_at,
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>
-                    )}
-                  </article>
+          {feedDays.length === 0 ? (
+            <p className={styles.feedEmpty}>{selected ? t("tilPage.restDay") : t("tilPage.emptyYear")}</p>
+          ) : (
+            <ol className={styles.log}>
+              {feedDays.slice(0, shown).map(([key, list]) => (
+                <li key={key} className={styles.logDay}>
+                  <Pressable noTapScale className={styles.logDate} onClick={() => pick(key === selected ? null : key)}>
+                    <span className={styles.logDot} aria-hidden />
+                    <time dateTime={key}>{key.replaceAll("-", ".")}</time>
+                    <span className={styles.logCount}>{fillTemplate(t("tilPage.dayCount"), { n: list.length })}</span>
+                  </Pressable>
+                  <ul className={styles.logEntries}>
+                    {list.map((e) => {
+                      const open = expanded.has(e.id) || !!selected;
+                      return (
+                        <li key={e.id} className={styles.logEntry}>
+                          <Pressable noTapScale className={styles.logEntryHead} aria-expanded={open} onClick={() => toggle(e.id)}>
+                            <span className={styles.logHash} aria-hidden>{shortHash(e.id)}</span>
+                            <strong className={styles.entryTitle}>{titleOf(e)}</strong>
+                            <span className={styles.logChevron} aria-hidden>{open ? "−" : "+"}</span>
+                          </Pressable>
+                          {!open && excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>}
+                          {open && (
+                            <div className={styles.entryBody}>
+                              {contentOf(e) ? (
+                                <PostArticleBody
+                                  data={{
+                                    displayTitle: titleOf(e),
+                                    displayContent: contentOf(e),
+                                    displayExcerpt: excerptOf(e),
+                                    contentType: e.content_type,
+                                    tags: e.tags,
+                                    viewCount: 0,
+                                    createdAt: e.created_at,
+                                  }}
+                                />
+                              ) : (
+                                excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>
+                              )}
+                              <TransitionLink href={`/posts/${e.slug}`} className={styles.entryMore}>
+                                {t("tilPage.openPost")} →
+                              </TransitionLink>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </li>
               ))}
-            </ul>
-          </>
-        )}
-        </div>
-      </section>
-
-      {pinned.length > 0 && (
-        <section className={styles.pinned}>
-          <h2 className={styles.pinnedTitle}>
-            <Mong pose="heart-left" size={28} />
-            Pinned
-          </h2>
-          <ul className={styles.entryList}>
-            {pinned.map((e) => (
-              <li key={e.id}>
-                <TransitionLink href={`/posts/${e.slug}`} className={styles.entry}>
-                  <span className={styles.entryDate}>{dayKey(new Date(e.created_at))}</span>
-                  <strong className={styles.entryTitle}>{titleOf(e)}</strong>
-                </TransitionLink>
-              </li>
-            ))}
-          </ul>
+            </ol>
+          )}
+          {feedDays.length > shown && (
+            <Pressable noTapScale className={styles.loadMore} onClick={() => setShown((n) => n + PAGE_DAYS)}>
+              {t("tilPage.loadMore")}
+            </Pressable>
+          )}
         </section>
-      )}
+
+        {/* 오른쪽 — 화면을 따라오는 3D 몽이와 말풍선, 고정 TIL */}
+        <aside className={styles.side}>
+          <div className={styles.mong3d} aria-hidden>
+            <TilMong3D
+              expression={!selected ? "normal" : selectedEntries.length > 0 ? "happy" : "surprised"}
+              snapToFront={snap}
+            />
+          </div>
+          <p className={styles.bubble}>
+            {!selected ? (
+              current >= 3 ? fillTemplate(t("tilPage.streakCheer"), { n: current }) : t("tilPage.pickDay")
+            ) : (
+              <>
+                <strong>{formatDay(selected)}</strong>
+                <br />
+                {selectedEntries.length === 0 ? t("tilPage.restDay") : fillTemplate(t("tilPage.dayCount"), { n: selectedEntries.length })}
+              </>
+            )}
+          </p>
+          {pinned.length > 0 && (
+            <section className={styles.pinned}>
+              <h2 className={styles.pinnedTitle}>
+                <Mong pose="heart-left" size={28} />
+                Pinned
+              </h2>
+              <ul className={styles.entryList}>
+                {pinned.map((e) => (
+                  <li key={e.id}>
+                    <TransitionLink href={`/posts/${e.slug}`} className={styles.entry}>
+                      <span className={styles.entryDate}>{dayKey(new Date(e.created_at))}</span>
+                      <strong className={styles.entryTitle}>{titleOf(e)}</strong>
+                    </TransitionLink>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }
