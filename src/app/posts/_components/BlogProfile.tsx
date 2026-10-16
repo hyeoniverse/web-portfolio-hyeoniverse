@@ -2,7 +2,12 @@
 
 import MongSticker from "./MongSticker";
 import AuthorAvatar from "@/components/ui/AuthorAvatar/AuthorAvatar";
-import { Mail, SocialBrandIcon } from "@/components/icons";
+import { useState } from "react";
+import { Check, Link2, Mail, SocialBrandIcon } from "@/components/icons";
+import Pressable from "@/components/ui/Pressable";
+import { COPY_FEEDBACK_MS } from "@/constants";
+import { showToast } from "@/stores/toastStore";
+import { useContactStore } from "@/stores/contactStore";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -16,6 +21,7 @@ import styles from "./BlogSidebar.module.css";
 export default function BlogProfile({ stats }: { stats: { label: string; value: number }[] }) {
   const { language } = useLanguage();
   const siteConf = useSiteConfig();
+  const { openForm } = useContactStore();
   const owner = findOwnerAuthor(siteConf.authors ?? []);
   if (!owner) return null;
   const lang = language === "en" ? "en" : "ko";
@@ -48,6 +54,8 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
       {(links.length > 0 || author.email) && (
         <div className={styles.profileLinks}>
           {links.map((l) => {
+            /* 블로그 링크는 여기가 그 블로그라 이동 대신 주소 복사 */
+            if (l.platform === "blog") return <BlogLinkCopy key={l.url} url={l.url} lang={lang} />;
             const label = SOCIAL_ICONS[l.platform]?.label ?? l.platform;
             return (
               <a key={l.url} href={l.url} target="_blank" rel="noreferrer" className={styles.profileLink} aria-label={label} title={label}>
@@ -58,12 +66,38 @@ export default function BlogProfile({ stats }: { stats: { label: string; value: 
             );
           })}
           {author.email && (
-            <a href={`mailto:${author.email}`} className={styles.profileLink} aria-label="Email" title={author.email}>
+            /* 이메일 — mailto 대신 사이트의 문의 창(ContactDrawer)을 연다 */
+            <Pressable className={styles.profileLink} aria-label={lang === "en" ? "Contact" : "문의하기"} title={author.email} onClick={openForm}>
               <Mail size={16} />
-            </a>
+            </Pressable>
           )}
         </div>
       )}
     </section>
+  );
+}
+
+/** 블로그 주소 복사 — 소개 카드의 블로그 링크 자리. 누르면 주소를 복사하고 잠깐 체크 표시 */
+function BlogLinkCopy({ url, lang }: { url: string; lang: "ko" | "en" }) {
+  const [copied, setCopied] = useState(false);
+  const label = lang === "en" ? "Copy blog link" : "블로그 주소 복사";
+  return (
+    <Pressable
+      className={styles.profileLink}
+      aria-label={label}
+      title={label}
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          showToast(lang === "en" ? "Blog link copied" : "블로그 주소를 복사했어요", "success");
+          setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
+        } catch {
+          /* 클립보드를 쓸 수 없는 환경 */
+        }
+      }}
+    >
+      {copied ? <Check size={16} /> : <Link2 size={16} />}
+    </Pressable>
   );
 }
