@@ -52,6 +52,9 @@ export function mapBoxFor(vw: number, vh: number, introBottom = 0): MapBox {
   return { x: (vw - w) / 2, y: top + (availH - h) / 2, w, h, geo };
 }
 
+/** 좁은 화면에서 장 머리 제목 띠가 화면에 차지할 최소 높이(px) — 내비게이션 자리 + 네 줄 제목 + 안내 한두 줄 */
+const HEAD_MIN_PX = 340;
+
 export function layoutWorld(clusters: ClusterDef[], vw: number, vh: number, introBottom = 0): Layout {
   const map = mapBoxFor(vw, vh, introBottom);
   const { w: MAP_W, h: MAP_H, stars: MAP_STARS } = map.geo;
@@ -67,11 +70,20 @@ export function layoutWorld(clusters: ClusterDef[], vw: number, vh: number, intr
     const gridH = rows * vh + (rows - 1) * gap;
     let gx = 0, gy = 0, cw = gridW, ch = gridH;
     if (c.head) {
-      const band = gridH * 0.55;
       const pad = gap;
-      const needW = gridW + pad * 2, needH = band + gridH + pad * 2;
-      const s = Math.max(needW / vw, needH / vh);
-      const hw = vw * s, hh = vh * s;
+      /* 좁은 화면 — 제목 띠가 화면에서 최소 HEAD_MIN_PX(화면 높이의 절반까지)는 되게 띠를 늘린다. 세로로 긴 화면은 판이 폭에
+         맞춰 정해져 띠 몫이 30% 남짓이었고, 네 줄짜리 장 제목이 넘쳐 내비게이션 위로 올라갔다 */
+      const want = vw < 768 ? Math.min(0.5, HEAD_MIN_PX / vh) : 0;
+      let band = gridH * 0.55, s = 1, hh = vh, needH = 0;
+      for (let k = 0; k < 40; k++) {
+        const needW = gridW + pad * 2;
+        needH = band + gridH + pad * 2;
+        s = Math.max(needW / vw, needH / vh);
+        hh = vh * s;
+        if ((hh - pad - gridH - (hh - needH) / 2) / hh >= want) break;
+        band *= 1.1;
+      }
+      const hw = vw * s;
       gx = (hw - gridW) / 2;
       gy = hh - pad - gridH - (hh - needH) / 2;
       local.push({ id: `${c.id}-head`, cluster: c.id, kind: "head", x: 0, y: 0, s, headBand: gy / hh });
