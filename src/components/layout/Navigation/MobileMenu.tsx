@@ -42,6 +42,8 @@ interface MobileMenuProps {
   onContactOpen?: () => void;
   /** 로그아웃 — 로그인했으면 준다. 꼬리 맨 위에 늘 보인다(화면과 상관없이) */
   onLogout?: () => void;
+  /** 로그인 — 공개 화면에서 로그아웃 상태가 확실하면 그 주소를 준다. 로그아웃 자리에 둔다 */
+  loginHref?: string;
 }
 
 export default function MobileMenu({
@@ -57,6 +59,7 @@ export default function MobileMenu({
   onClose,
   onContactOpen,
   onLogout,
+  loginHref,
 }: MobileMenuProps) {
   const { t } = useLanguage();
   /* 메뉴 이름 — 사전(navMenu.label)에 있으면 그것(사이트 번역이 덮는다), 없으면 적힌 이름 */
@@ -163,9 +166,9 @@ export default function MobileMenu({
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
-          {/* 페이지가 아닌 자리 — 문의(공개 화면) · 건너가는 링크(관리 화면으로 / 사이트 홈으로) · 로그아웃(로그인했으면).
+          {/* 페이지가 아닌 자리 — 문의(공개 화면) · 건너가는 링크(관리 화면으로 / 사이트 홈으로) · 로그아웃(로그인했으면) · 로그인(공개 화면, 로그아웃 상태).
               목록 끝에 두면 메뉴가 길 때 아래 고정된 이 꼬리에 가려져, 꼬리 맨 위 한 줄에 나란히 둔다 */}
-          {(onContactOpen || crossLink || onLogout) && (
+          {(onContactOpen || crossLink || onLogout || loginHref) && (
             <div className={styles.menuFooterActions}>
               {onContactOpen && (
                 <Pressable noTapScale
@@ -193,6 +196,12 @@ export default function MobileMenu({
                 >
                   Logout
                 </Pressable>
+              )}
+              {loginHref && (
+                /* 방문자가 거의 누르지 않아 미리 받지 않는다(푸터의 Login 과 같다) */
+                <Link href={loginHref} prefetch={false} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
+                  Login
+                </Link>
               )}
             </div>
           )}
