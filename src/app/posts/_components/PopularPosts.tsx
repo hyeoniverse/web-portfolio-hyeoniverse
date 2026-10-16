@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import MongSticker from "./MongSticker";
 import { useState, useEffect } from "react";
 import type { Post } from "@/types/post";
@@ -53,7 +54,7 @@ export default function PopularPosts() {
       />
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
+          <TransitionLink key={post.id} href={blogHref(`/posts/${post.slug}`)} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
               {String(idx + 1).padStart(2, "0")}
             </span>

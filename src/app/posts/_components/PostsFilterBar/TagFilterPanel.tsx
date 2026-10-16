@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
@@ -113,7 +114,7 @@ export default function TagFilterPanel({
               className={styles.tagLetterRow}
             />
             <Link
-              href="/posts/tags"
+              href={blogHref("/posts/tags")}
               className={styles.tagAllLink}
               data-clickable="true"
             >

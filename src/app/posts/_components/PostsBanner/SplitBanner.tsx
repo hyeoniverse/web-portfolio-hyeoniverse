@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -42,10 +43,10 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
     if (process.env.NODE_ENV !== "production") return;
     if (prefetchedRef.current.has(post.slug)) return;
     prefetchedRef.current.add(post.slug);
-    router.prefetch(`/posts/${post.slug}`);
+    router.prefetch(blogHref(`/posts/${post.slug}`));
   }, [post.slug, router]);
 
-  const href = `/posts/${post.slug}`;
+  const href = blogHref(`/posts/${post.slug}`);
   const image = post.cover_image || "";
 
   return (

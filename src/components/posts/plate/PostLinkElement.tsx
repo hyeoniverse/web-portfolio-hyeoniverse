@@ -4,6 +4,7 @@
 // 노션식 인라인 pill. 클릭하면 popover 로 "열기 / 삭제".
 // 저장: { type:"post_link", slug, postId?, title, id }
 
+import { blogHref } from "@/lib/siteHosts";
 import React, { useRef, useState } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
@@ -42,7 +43,7 @@ export function PostLinkElement(props: PlateElementProps) {
   const slug = (el.slug as string) || "";
   const icon = (el.icon as string) || "";
   const title = (el.title as string) || slug || t("(제목 없음)", "(Untitled)");
-  const href = slug ? `/posts/${slug}` : "#";
+  const href = slug ? blogHref(`/posts/${slug}`) : "#";
 
   const [open, setOpen] = useState(false);
 

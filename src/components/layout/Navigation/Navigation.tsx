@@ -45,7 +45,7 @@ import { selectSiteLang } from "@/lib/siteLang";
 import { navDescs, NAV_SECTIONS, SKIP_LOADING_PAGES } from "./navigationData";
 import { navSectionOf } from "../navSection";
 import { useIsBlogHost } from "@/hooks/useIsBlogHost";
-import { portfolioHref } from "@/lib/siteHosts";
+import { blogHref, portfolioHref } from "@/lib/siteHosts";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
@@ -577,7 +577,7 @@ export default function Navigation() {
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
       ref={logoBarRef}
-      href={section.homeHref}
+      href={blogHref(section.homeHref)}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
       className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
@@ -725,7 +725,7 @@ export default function Navigation() {
           const link = (
             <Link
               key={item.key}
-              href={item.href}
+              href={blogHref(item.href)}
               ref={(el) => { navLinkRefs.current[item.key] = el; }}
               className={`${styles.navLink} glith-on-hover`}
               onMouseEnter={() => {
@@ -1083,7 +1083,7 @@ export default function Navigation() {
                     exit={{ opacity: 0, x: -12, transition: { duration: 0.22, delay: itemExitDelay(index), ease: SUB_EASE } }}
                   >
                     <MotionLink
-                      href={child.href}
+                      href={blogHref(child.href)}
                       role="menuitem"
                       className={`${styles.subNavDropdownItem} ${active ? styles.subNavDropdownItemActive : ""}`}
                       onMouseEnter={() => setHoveredSubKey(child.key)}

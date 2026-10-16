@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useMemo, useRef, type ReactNode } from "react";
@@ -173,7 +174,7 @@ export function PostArticleHeader({
         {data.tags.length > 0 && (
           <div className={header.tags}>
             {data.tags.map((tag) => (
-              <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={header.tag}>
+              <Link key={tag} href={blogHref(`/posts/tags/${encodeURIComponent(tag)}`)} className={header.tag}>
                 <span className={header.tagHash} aria-hidden>#</span><SiteText text={tag} />
               </Link>
             ))}

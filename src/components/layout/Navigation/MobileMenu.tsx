@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { Fragment, useCallback, useState, type RefObject } from "react";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import { createPortal } from "react-dom";
@@ -125,7 +126,7 @@ export default function MobileMenu({
               return (
                 <Fragment key={item.key}>
                   <Link
-                    href={item.href}
+                    href={blogHref(item.href)}
                     className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                     onClick={onClose}
                   >
@@ -138,7 +139,7 @@ export default function MobileMenu({
                       return (
                         <Link
                           key={child.key}
-                          href={child.href}
+                          href={blogHref(child.href)}
                           className={`${styles.menuSubLink} glith-on-hover ${childActive ? styles.menuSubLinkActive : ""}`}
                           onClick={onClose}
                         >
@@ -153,7 +154,7 @@ export default function MobileMenu({
             return (
               <Link
                 key={item.key}
-                href={item.href}
+                href={blogHref(item.href)}
                 className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                 onClick={onClose}
               >
@@ -182,7 +183,7 @@ export default function MobileMenu({
                 </Pressable>
               )}
               {crossLink && (
-                <Link href={crossLink.href} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
+                <Link href={blogHref(crossLink.href)} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
                   {crossLink.label}
                 </Link>
               )}

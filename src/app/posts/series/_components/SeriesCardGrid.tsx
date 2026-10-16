@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -35,7 +36,7 @@ export default function SeriesCardGrid({
         return (
           <li key={s.id}>
             <Link
-              href={`/posts/series/${s.slug}`}
+              href={blogHref(`/posts/series/${s.slug}`)}
               className={`${card.card} ${isFeatured ? card.cardFeatured : ""}`}
               onClick={isTouch ? (e) => {
                 e.preventDefault();

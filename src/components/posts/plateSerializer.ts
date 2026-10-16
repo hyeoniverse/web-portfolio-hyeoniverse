@@ -3,6 +3,7 @@
  * 클라이언트에서 onChange마다 호출되므로 의존성 없이 경량으로 구현
  */
 
+import { blogHref } from "@/lib/siteHosts";
 import { formatDateValue } from "./plate/dateUtils";
 import { officeViewerUrl } from "@/lib/officeViewer";
 import { ALIGN_TO_JUSTIFY } from "./plate/constants";
@@ -677,7 +678,7 @@ function serializeNode(node: SlateNode): string {
       const title = String(el.title ?? slug);
       const idAttr = el.postId ? ` data-post-id="${esc(String(el.postId))}"` : "";
       const iconAttr = el.icon ? ` data-post-icon="${esc(String(el.icon))}"` : "";
-      return `<a data-post-link="${esc(slug)}"${idAttr}${iconAttr} href="/posts/${esc(slug)}" class="post-link">${esc(title)}</a>`;
+      return `<a data-post-link="${esc(slug)}"${idAttr}${iconAttr} href="${esc(blogHref(`/posts/${slug}`))}" class="post-link">${esc(title)}</a>`;
     }
 
     // ── Footnote ──

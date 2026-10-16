@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect } from "react";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -55,7 +56,7 @@ export default function RecentComments() {
       ) : (
         <div className={styles.list}>
           {comments.map((c) => (
-            <TransitionLink key={c.id} href={`/posts/${c.post_slug}`} className={styles.item}>
+            <TransitionLink key={c.id} href={blogHref(`/posts/${c.post_slug}`)} className={styles.item}>
               <div className={styles.itemTop}>
                 <span className={styles.nickname}>
                   {c.nickname}

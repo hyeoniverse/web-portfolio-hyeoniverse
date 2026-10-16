@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
@@ -217,7 +218,7 @@ export default function PostCardStandard({
             {post.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/posts/tags/${encodeURIComponent(tag)}`}
+                href={blogHref(`/posts/tags/${encodeURIComponent(tag)}`)}
                 className={styles.tagPill}
                 onClick={(e) => e.stopPropagation()}
               >

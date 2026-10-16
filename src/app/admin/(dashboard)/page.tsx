@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import {
   useEffect,
   useMemo,
@@ -570,7 +571,7 @@ export default function AdminDashboard() {
                     <Link
                       href={
                         p.published
-                          ? `/posts/${p.slug}`
+                          ? blogHref(`/posts/${p.slug}`)
                           : `/admin/posts/${p.id}/edit`
                       }
                       className={styles.listItemLink}
@@ -656,7 +657,7 @@ export default function AdminDashboard() {
                   <p className={styles.commentBody}>{c.content}</p>
                   {c.post_slug ? (
                     <Link
-                      href={`/posts/${c.post_slug}`}
+                      href={blogHref(`/posts/${c.post_slug}`)}
                       className={styles.commentSource}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -779,7 +780,7 @@ export default function AdminDashboard() {
                     </div>
                     {/* L2: 제목 */}
                     <Link
-                      href={`/posts/${p.slug}`}
+                      href={blogHref(`/posts/${p.slug}`)}
                       className={styles.popularTitle}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -806,7 +807,7 @@ export default function AdminDashboard() {
           </Panel>
 
           <Panel className={styles.panelCell}>
-            <PanelTitle href="/posts/tags" external>
+            <PanelTitle href={blogHref("/posts/tags")} external>
               <T k="admin.dashboard.topTags" />
             </PanelTitle>
             {data.stats.tags.length === 0 ? (
@@ -818,7 +819,7 @@ export default function AdminDashboard() {
                 {data.stats.tags.slice(0, 10).map(({ tag, count }) => (
                   <Link
                     key={tag}
-                    href={`/posts/tags/${encodeURIComponent(tag)}`}
+                    href={blogHref(`/posts/tags/${encodeURIComponent(tag)}`)}
                     className={styles.tagPill}
                     title={`${count}`}
                     target="_blank"

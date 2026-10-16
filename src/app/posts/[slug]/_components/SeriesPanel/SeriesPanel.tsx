@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { UiLabel } from "@/components/posts/BodyLabelsContext";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -68,7 +69,7 @@ export default function SeriesPanel({
                 {sp.id === postId ? (
                   <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
                 ) : (
-                  <Link href={`/posts/${sp.slug}`}>
+                  <Link href={blogHref(`/posts/${sp.slug}`)}>
                     {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
                   </Link>
                 )}
@@ -80,7 +81,7 @@ export default function SeriesPanel({
 
       <div className={styles.seriesNav}>
         {prev ? (
-          <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(`/posts/${prev.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
+          <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(blogHref(`/posts/${prev.slug}`), "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
             <span className={styles.seriesNavBadge}><ArrowLeft className={styles.seriesNavArrow} size={14} /> <UiLabel name="postPrevious" /></span>
             <span className={styles.seriesNavSep}>|</span>
             <span className={styles.seriesNavTitle}>{viewLang === "en" && prev.title_en ? prev.title_en : prev.title}</span>
@@ -90,7 +91,7 @@ export default function SeriesPanel({
         )}
         {prev && next && <span className={styles.seriesNavDivider} />}
         {next ? (
-          <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(`/posts/${next.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
+          <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(blogHref(`/posts/${next.slug}`), "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
             <span className={styles.seriesNavTitle}>{viewLang === "en" && next.title_en ? next.title_en : next.title}</span>
             <span className={styles.seriesNavSep}>|</span>
             <span className={styles.seriesNavBadge}><UiLabel name="postNext" /> <ArrowRight className={styles.seriesNavArrow} size={14} /></span>

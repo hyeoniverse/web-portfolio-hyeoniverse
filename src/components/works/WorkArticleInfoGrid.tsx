@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { UiLabel, useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { bodyLabelPair } from "@/lib/bodyLabels";
 import { motion } from "framer-motion";
@@ -162,7 +163,7 @@ export default function WorkArticleInfoGrid({
               items={relatedPosts.map((p) => ({
                 id: p.id,
                 title: viewLang === "en" && p.title_en ? p.title_en : p.title,
-                href: `/posts/${p.slug}`,
+                href: blogHref(`/posts/${p.slug}`),
                 image: p.cover_image || undefined,
                 category: p.category || undefined,
                 desc: p.excerpt || undefined,
@@ -181,7 +182,7 @@ export default function WorkArticleInfoGrid({
               items={relatedSeries.map((s) => ({
                 id: s.id,
                 title: viewLang === "en" && s.title_en ? s.title_en : s.title,
-                href: `/posts?series=${s.id}`,
+                href: blogHref(`/posts?series=${s.id}`),
                 image: s.cover_image || undefined,
                 category: s.category || undefined,
                 desc: (viewLang === "en" ? (s.description_en || s.description) : s.description) || undefined,

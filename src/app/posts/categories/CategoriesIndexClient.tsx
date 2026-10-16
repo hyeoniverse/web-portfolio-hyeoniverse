@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useMemo, useState } from "react";
 import { useSheet } from "@/hooks/useSheet";
 import Link from "next/link";
@@ -111,7 +112,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
             return (
               <li key={c.name}>
                 <Link
-                  href={`/posts?category=${encodeURIComponent(c.name)}`}
+                  href={blogHref(`/posts?category=${encodeURIComponent(c.name)}`)}
                   className={`${card.card} ${isFeatured ? card.cardFeatured : ""}`}
                   onClick={isTouch ? (e) => {
                     e.preventDefault();
@@ -158,7 +159,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
         onClose={() => setSheetCat(null)}
         title={sheetCat ? labelOf(sheetCat.name) : undefined}
         count={sheetCat ? fillCount(t, "postsPage.countPosts", sheetCat.count) : null}
-        cta={{ href: `/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`, label: t("postsPage.viewCategoryPosts") }}
+        cta={{ href: blogHref(`/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`), label: t("postsPage.viewCategoryPosts") }}
       />
     </div>
   );

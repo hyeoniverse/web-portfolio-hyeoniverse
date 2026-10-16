@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Trash2, RotateCcw, MessageSquare } from "@/components/icons";
@@ -286,7 +287,7 @@ export default function CommentsModerationPage() {
               </span>
               <span className={styles.target}>
                 {c.target_slug ? (
-                  <Link href={c.source === "posts" ? `/posts/${c.target_slug}` : `/works/${c.target_slug}`} className={styles.targetLink}>
+                  <Link href={c.source === "posts" ? blogHref(`/posts/${c.target_slug}`) : `/works/${c.target_slug}`} className={styles.targetLink}>
                     {c.target_title || "—"}
                   </Link>
                 ) : "—"}

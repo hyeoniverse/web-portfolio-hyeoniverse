@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import MongSticker from "../_components/MongSticker";
 import SiteText from "@/components/ui/SiteText";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -213,7 +214,7 @@ export default function TagsIndexClient({ tags }: Props) {
         title={sheetTag ? `#${sheetTag.tag}` : null}
         count={sheetTag ? fillCount(t, "postsPage.countPosts", sheetTag.count) : null}
         description={sheetTag?.description}
-        cta={{ href: `/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`, label: t("postsPage.viewTagPosts") }}
+        cta={{ href: blogHref(`/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`), label: t("postsPage.viewTagPosts") }}
       >
         {sheetTag && sheetTag.related.length > 0 && (
           <div className={styles.sheetRelated}>
@@ -223,7 +224,7 @@ export default function TagsIndexClient({ tags }: Props) {
                 <Chip
                   key={r}
                   variant="capsule"
-                  href={`/posts/tags/${encodeURIComponent(r)}`}
+                  href={blogHref(`/posts/tags/${encodeURIComponent(r)}`)}
                   onClick={() => setSheetTag(null)}
                 >
                   <span>#<SiteText text={r} /></span>

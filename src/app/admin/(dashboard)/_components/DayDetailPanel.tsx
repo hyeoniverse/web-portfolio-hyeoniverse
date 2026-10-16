@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import shared from "../Dashboard.module.css";
 import local from "./DayDetailPanel.module.css";
 
@@ -251,7 +252,7 @@ function DayDetailPanel({
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <Link
-                    href={`/posts/${p.slug}`}
+                    href={blogHref(`/posts/${p.slug}`)}
                     className={styles.itemTitle}
                     target="_blank"
                     rel="noopener noreferrer"

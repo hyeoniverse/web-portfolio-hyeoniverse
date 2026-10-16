@@ -4,7 +4,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUserRole } from "@/lib/api/roles";
 import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
 import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
-import { BLOG_ORIGIN, MAIN_ORIGIN, isBlogHost, isMainHost, sharedCookieDomain } from "@/lib/siteHosts";
+import {
+  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain,
+} from "@/lib/siteHosts";
 
 /**
  * 보안 layer 2개:
@@ -55,20 +57,10 @@ const SITE_ORIGIN = toOrigin(process.env.SITE_URL);
 const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, BLOG_ORIGIN].filter(Boolean));
 const BLOG_SUBDOMAIN_REDIRECT = process.env.BLOG_SUBDOMAIN_REDIRECT === "1";
 
-/** 블로그 주소에서도 앱 경로 그대로 여는 곳 — API · 관리 화면 · 로그인 콜백 */
-function passThroughOnBlogHost(pathname: string): boolean {
-  return pathname.startsWith("/api/") || isAdminPath(pathname) || pathname.startsWith("/auth/");
-}
-
 /** 포트폴리오 화면 — 블로그 주소로 오면 메인 주소로 보낸다(블로그 글 주소와 겹치지 않게 여기 이름은 글 slug 로 쓰지 않는다) */
 const PORTFOLIO_PREFIXES = ["/works", "/profile", "/about", "/privacy", "/design-system"];
 function isPortfolioPath(pathname: string): boolean {
   return PORTFOLIO_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
-
-/** /posts 를 뗀 블로그 주소 — /posts → /, /posts/x → /x */
-function stripPosts(pathname: string): string {
-  return pathname === "/posts" ? "/" : pathname.slice("/posts".length);
 }
 
 /**
@@ -83,14 +75,14 @@ function routeBlogHost(request: NextRequest): NextResponse | null {
     if (passThroughOnBlogHost(pathname)) return null;
     if (isPortfolioPath(pathname)) return NextResponse.redirect(`${MAIN_ORIGIN}${pathname}${search}`, 308);
     if (pathname === "/posts" || pathname.startsWith("/posts/")) {
-      return NextResponse.redirect(new URL(`${stripPosts(pathname)}${search}`, request.url), 308);
+      return NextResponse.redirect(new URL(`${blogPathOf(pathname)}${search}`, request.url), 308);
     }
     const to = request.nextUrl.clone();
-    to.pathname = pathname === "/" ? "/posts" : `/posts${pathname}`;
+    to.pathname = appPathOnBlogHost(pathname);
     return NextResponse.rewrite(to);
   }
   if (BLOG_SUBDOMAIN_REDIRECT && isMainHost(host) && (pathname === "/posts" || pathname.startsWith("/posts/"))) {
-    return NextResponse.redirect(`${BLOG_ORIGIN}${stripPosts(pathname)}${search}`, 308);
+    return NextResponse.redirect(`${BLOG_ORIGIN}${blogPathOf(pathname)}${search}`, 308);
   }
   return null;
 }

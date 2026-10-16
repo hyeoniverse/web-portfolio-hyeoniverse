@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -42,11 +43,11 @@ export default function BannerSlide({
     if (prefetchedRef.current) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current = true;
-    router.prefetch(`/posts/${post.slug}`);
+    router.prefetch(blogHref(`/posts/${post.slug}`));
   };
   // 슬라이드 전체가 글 링크다 — 그냥 누르면 커버가 커지는 연출로, 새 탭 클릭은 브라우저가 연다(#933)
   const linkProps = {
-    href: `/posts/${post.slug}`,
+    href: blogHref(`/posts/${post.slug}`),
     image: post.cover_image || "",
     onMouseEnter: handlePrefetch,
     onFocus: handlePrefetch,

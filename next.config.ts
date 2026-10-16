@@ -8,6 +8,12 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
+  /* 글 링크를 블로그 주소(blog.hyeoniverse.com)로 그릴지 — 운영 배포에서 메인의 /posts 를 블로그로 보낼 때만(lib/siteHosts blogHref).
+     로컬 · 프리뷰는 앱 경로 /posts 그대로 둔다. 빌드 때 값이 굳어 서버 · 브라우저가 같은 링크를 그린다 */
+  env: {
+    NEXT_PUBLIC_BLOG_LINKS:
+      process.env.VERCEL_ENV === "production" && process.env.BLOG_SUBDOMAIN_REDIRECT === "1" ? "1" : "",
+  },
   productionBrowserSourceMaps: true,
   experimental: {
     inlineCss: false,

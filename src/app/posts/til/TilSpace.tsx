@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect, useRef, useState } from "react";
 import TransitionLink from "@/components/ui/TransitionLink";
 import type { TilEntry } from "@/lib/posts";
@@ -188,7 +189,7 @@ export default function TilSpace({
               <article key={e.id} className={styles.cardEntry}>
                 <h3>{titleOf(e)}</h3>
                 {excerptOf(e) && <p>{excerptOf(e)}</p>}
-                <TransitionLink href={`/posts/${e.slug}`} className={styles.cardLink}>
+                <TransitionLink href={blogHref(`/posts/${e.slug}`)} className={styles.cardLink}>
                   {texts.openPost} →
                 </TransitionLink>
               </article>
