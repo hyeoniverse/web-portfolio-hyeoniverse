@@ -169,6 +169,9 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         )}
       </AnimatePresence>
 
+      {/* 블로그 주인 — 머리말 아래, 필터 위에 가로 띠로 선다(사이드바 대신) */}
+      {!history && <BlogProfile stats={profileStats} />}
+
       {/* ── Filter Bar (검색 + 전체태그 토글 + 카테고리 + 태그 패널) — history 모드에선 렌더하지 않음.
           sticky 판정·백드롭·본문 blur 는 여기(부모)에 남는다: barHidden 은 사이드바도 쓰고 blur 는 contentArea 에 건다. ── */}
       {!history && (
@@ -205,8 +208,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
 
           {/* Posts — sectionHeader 는 빈 상태에서도 항상 노출 (sort / perPage 등 컨트롤 접근 유지) */}
           <>
-            {/* 좁은 화면 — 사이드바가 본문 아래로 내려가므로 블로그 주인 한 줄을 목록 위에 */}
-            {!history && <BlogProfile compact stats={profileStats} />}
             <PostsToolbar query={query} timeline={postsLayout === "timeline"} />
               {!loading && posts.length === 0 ? (
                 <PostsEmptyState query={query} />
@@ -256,8 +257,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
-            {/* 개발 블로그식 — 소개 카드를 맨 위에, 태그 아래에 날짜별 달력을 둔다 */}
-            <BlogProfile stats={profileStats} />
+            {/* 태그 아래에 날짜별 달력을 둔다 — 소개는 머리말 아래 띠로 옮겼다 */}
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D
