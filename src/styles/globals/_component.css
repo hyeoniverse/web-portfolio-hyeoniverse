@@ -11,6 +11,10 @@
   --footer-height: 100px;
   --action-button-width: 48px;
   --active-side-nav-width: 0px;
+  /* 관리 화면 본문이 시작하는 높이 — 고정 내비게이션 아래 32px. 내비게이션 높이는 위아래 여백(--spacing-nav-top)과
+     안의 컨트롤로 정해지는데, 좁은 화면은 메뉴 단추(40px)라 높이가 다르다. 예전에는 화면마다 128px 을 적어
+     좁은 화면에서 제목이 내비게이션과 57px 떨어졌다 */
+  --admin-page-top: calc(var(--spacing-nav-top) * 2 + var(--size-40) + var(--spacing-32));
 
   /* 커스텀 커서 */
   --cursor-width: 20px;
@@ -183,4 +187,11 @@
     oklch(62.8% 0.2577 29.23) 0%, oklch(96.8% 0.211 109.77) 17%, oklch(86.64% 0.2948 142.5) 33%,
     oklch(90.54% 0.1546 194.77) 50%, oklch(45.2% 0.3132 264.05) 67%, oklch(70.17% 0.3225 328.36) 83%,
     oklch(62.8% 0.2577 29.23) 100%;
+}
+
+@media (width > 768px) {
+  :root {
+    /* 넓은 화면의 내비게이션 컨트롤은 32px(로그아웃 · 동작 단추) */
+    --admin-page-top: calc(var(--spacing-nav-top) * 2 + var(--control-height-md) + var(--spacing-32));
+  }
 }
