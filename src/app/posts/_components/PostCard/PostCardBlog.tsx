@@ -34,7 +34,7 @@ export default function PostCardBlog({
   return (
     <article
       ref={cardRef}
-      className={`${base.card} ${styles.blogCard}`}
+      className={`${base.card} ${styles.blogCard} ${showImage ? "" : styles.blogNoThumb}`}
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
@@ -49,8 +49,7 @@ export default function PostCardBlog({
           )}
           {category && <span className={styles.blogCat}><CategoryLabel category={category} /></span>}
           <time dateTime={post.created_at}>{date}</time>
-          <span aria-hidden>·</span>
-          <span>{readTime} {t("postDetail.minRead")}</span>
+          <span className={styles.blogRead}><span aria-hidden>·</span> {readTime} {t("postDetail.minRead")}</span>
           {isHot && <HotBadge size={11} />}
           {langBadge && <LangChip badge={langBadge} />}
         </div>

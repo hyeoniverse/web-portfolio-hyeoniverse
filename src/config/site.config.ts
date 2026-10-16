@@ -431,6 +431,8 @@ export const siteConfig = {
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
+    // 글 목록 위 고정글 배너 on/off — 끄면 제목 아래로 바로 목록이 온다
+    showBanner: true,
     bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
     bannerStyle: "editorial" as
       | "editorial"

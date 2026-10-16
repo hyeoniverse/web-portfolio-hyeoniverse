@@ -8,6 +8,10 @@
   padding: var(--spacing-24) 0;
   cursor: pointer;
 }
+/* 썸네일이 없으면 본문이 행 전체를 쓴다(빈 열 · 간격이 남지 않게) */
+.blogNoThumb {
+  grid-template-columns: minmax(0, 1fr);
+}
 
 .blogBody {
   display: flex;
@@ -31,6 +35,15 @@
 }
 .blogPin > svg {
   transform: rotate(45deg);
+}
+/* 읽기 시간 — 좁은 화면에선 메타 줄이 세 줄로 접히지 않게 뺀다 */
+.blogRead {
+  display: none;
+}
+@media (width > 480px) {
+  .blogRead {
+    display: inline;
+  }
 }
 .blogCat {
   font: var(--font-label-xs);

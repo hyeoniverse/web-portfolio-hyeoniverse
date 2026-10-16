@@ -425,7 +425,18 @@ export default function ContentTab({
         <>
           {/* Banner Settings — 전폭 얇은 바(셀렉트 3개 한 줄) */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
+            <SectionHeader
+              title={t("admin.settings.banner")}
+              paths={["posts.showBanner", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
+              extra={
+                <Switch
+                  label={t("admin.settings.showBanner")}
+                  checked={config.posts.showBanner !== false}
+                  onCheckedChange={(v) => update("posts", "showBanner", v)}
+                />
+              }
+              {...sh}
+            />
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <FieldRow label={<T k="admin.settings.bannerLayout" />}>
                 <Select
@@ -446,7 +457,6 @@ export default function ContentTab({
                     { value: "editorial", label: "Editorial" },
                     { value: "minimal", label: "Minimal" },
                     { value: "cinematic", label: "Cinematic" },
-                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: "Magazine" },
                   ]}
                   onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
@@ -473,6 +483,7 @@ export default function ContentTab({
                 <Select
                   value={config.posts.layout ?? "blog"}
                   options={[
+                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
                     { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
                     { value: "list", label: t("admin.inline.contentTab.listRows") },

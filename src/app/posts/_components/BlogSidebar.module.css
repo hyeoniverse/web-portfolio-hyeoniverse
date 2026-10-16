@@ -1,0 +1,104 @@
+/* ── blog 레이아웃 사이드바 위젯 (BlogProfile · BlogCategories) — 섹션 간격 · 라벨은 PopularPosts 와 맞춘다 ── */
+.section {
+  margin-bottom: var(--spacing-32);
+}
+
+.label {
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+
+/* 소개 카드 */
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: var(--border-light);
+}
+.profileAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  font: var(--font-headline-sm);
+}
+.profileText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.profileName {
+  font: var(--font-headline-xs);
+  color: var(--text-primary);
+}
+.profileRole {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.profileIntro {
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+.profileLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+.profileLink {
+  font: var(--font-label-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  padding: var(--spacing-4) var(--spacing-8);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.profileLink:hover {
+  color: var(--text-accent);
+}
+
+/* 카테고리 목록 */
+.catList,
+.catChildren {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.catList {
+  padding-top: var(--spacing-8);
+}
+.catChildren {
+  padding-left: var(--spacing-12);
+}
+.catItem {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-4) 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.catChild {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.catItem:hover,
+.catActive {
+  color: var(--text-accent);
+}

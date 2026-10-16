@@ -845,6 +845,7 @@
       "confirm": "Confirm",
       "confirmPasswordDesc": "Enter your current password to confirm changes.",
       "banner": "Banner",
+      "showBanner": "Show pinned banner",
       "bannerLayout": "Banner Layout",
       "bannerStyle": "Banner Style",
       "bannerTransition": "Banner Transition",

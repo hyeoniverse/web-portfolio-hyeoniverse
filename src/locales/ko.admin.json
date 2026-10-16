@@ -845,6 +845,7 @@
       "confirm": "확인",
       "confirmPasswordDesc": "변경 사항을 적용하려면 현재 비밀번호를 입력하세요.",
       "banner": "배너",
+      "showBanner": "고정글 배너 보이기",
       "bannerLayout": "배너 레이아웃",
       "bannerStyle": "배너 스타일",
       "bannerTransition": "배너 전환 효과",

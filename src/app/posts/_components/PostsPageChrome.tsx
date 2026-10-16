@@ -8,6 +8,7 @@ import { LayoutGrid, History as HistoryIcon } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "../Posts.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 interface PostsPageChromeProps {
   /** history 모드 — 제목/부제가 History 로 바뀌고 배너를 렌더하지 않는다. */
@@ -20,6 +21,8 @@ interface PostsPageChromeProps {
    본문(PostsClient)은 children 으로 받는다. */
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
   const { t } = useLanguage();
+  // 설정 posts.showBanner — 끄면 고정글 배너를 그리지 않는다(값이 없으면 켜짐)
+  const showBanner = useSiteConfig().posts.showBanner !== false;
   return (
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
@@ -42,7 +45,7 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
           </>
         )}
       </div>
-      {!history && <PostsBannerSection posts={pinnedPosts} />}
+      {!history && showBanner && <PostsBannerSection posts={pinnedPosts} />}
       {children}
     </div>
   );

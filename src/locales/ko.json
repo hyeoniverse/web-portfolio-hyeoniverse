@@ -469,6 +469,8 @@
     }
   },
   "postsPage": {
+    "categories": "카테고리",
+    "allCategories": "전체 글",
     "subtitle": "기억은 흐려지지만, 기록은 남고, 나눌수록 깊어진다.",
     "searchPlaceholder": "검색...",
     "searchAll": "제목+내용",

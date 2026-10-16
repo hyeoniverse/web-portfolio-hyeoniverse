@@ -14,6 +14,8 @@ import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
+import BlogProfile from "./_components/BlogProfile";
+import BlogCategories from "./_components/BlogCategories";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
 import PostsToolbar from "./_components/PostsToolbar/PostsToolbar";
@@ -46,7 +48,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const {
     posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
-    activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
+    activeCategories, setActiveCategories, activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
   } = query;
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
@@ -235,6 +237,13 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
+            {/* blog 레이아웃 — 개발 블로그식으로 소개 카드 · 카테고리 목록을 맨 위에 둔다 */}
+            {postsLayout === "blog" && (
+              <>
+                <BlogProfile />
+                <BlogCategories activeCategories={activeCategories} onCategoriesChange={setActiveCategories} />
+              </>
+            )}
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D
