@@ -41,6 +41,38 @@ function raisePersistent() {
   }
 }
 
+/**
+ * 이 도우미를 거치지 않고 뜬 것(dialog.showModal() · el.showPopover() 를 바로 부른 곳)도 놓치지 않게,
+ * 문서 전체에서 무엇이 열릴 때마다 등록된 것을 다시 올린다. 등록이 처음 생길 때 한 번만 건다.
+ * - popover: `toggle` 이벤트(버블되지 않아 capture 로 받는다)
+ * - dialog: `open` 속성 변화(MutationObserver) — dialog 의 toggle 이벤트를 아직 모르는 브라우저가 있다
+ */
+let watching = false;
+function watchTopLayer() {
+  if (watching || typeof document === "undefined") return;
+  watching = true;
+  const isPersistent = (t: EventTarget | null) => persistent.some((p) => p.el === t);
+  let queued = false;
+  const raiseSoon = () => {
+    if (queued) return;
+    queued = true;
+    queueMicrotask(() => {
+      queued = false;
+      raisePersistent();
+    });
+  };
+  document.addEventListener(
+    "toggle",
+    (e) => {
+      if ((e as ToggleEvent).newState === "open" && !isPersistent(e.target)) raiseSoon();
+    },
+    true,
+  );
+  new MutationObserver((records) => {
+    if (records.some((r) => r.target instanceof HTMLDialogElement && (r.target as HTMLDialogElement).open)) raiseSoon();
+  }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["open"] });
+}
+
 /** 떠 있는 것을 띄운다. 요소에 `popover="manual"` 이 있어야 한다 */
 export function showPopover(el: HTMLElement) {
   rawShow(el);
@@ -71,6 +103,7 @@ export function keepOnTop(el: HTMLElement, priority: number): () => void {
   const added = !el.hasAttribute("popover");
   if (added) el.setAttribute("popover", "manual");
   persistent.push({ el, priority });
+  watchTopLayer();
   raisePersistent();
   return () => {
     const i = persistent.findIndex((p) => p.el === el);
