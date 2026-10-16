@@ -1,7 +1,7 @@
 /* 라이브러리 › 업로드한 파일 — 저장소 파일이 어디서 쓰이는지. 파일 주소는 저장 경로(예: posts/uuid.jpg,
    logos/1700000000.png)를 그대로 품으므로, 글·프로젝트·사이트 설정 등을 글자로 이어 붙인 뒤 경로가 들어 있는지 본다. */
 
-type MediaUseKind = "post" | "work" | "series" | "settings" | "emoji" | "coverHistory";
+type MediaUseKind = "post" | "work" | "series" | "settings" | "emoji" | "coverHistory" | "comment";
 
 export interface MediaRef { kind: MediaUseKind; id?: string; title?: string }
 
