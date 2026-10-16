@@ -36,20 +36,20 @@
 }
 
 /* [출처 │ 경로] 캡슐 — Input 의 grouped wrapper 와 같은 문법: 캡슐이 border 담당,
-   안쪽 컨트롤은 민짜, 사이는 세로 hairline */
+   안쪽 컨트롤은 민짜, 사이는 세로 hairline. 높이 · 테두리는 옆의 매체 · 캠페인(공통 Input 기본 md)과 같게 —
+   공통 컨트롤 기본 크기를 md 로 올린 뒤에도 이 캡슐만 sm(28px) · 옅은 테두리로 남아 한 줄에서 높이가 달랐다 */
 .comboCapsule {
   display: flex;
   align-items: stretch;
-  height: var(--control-height-sm);
-  border: var(--border-light);
+  height: var(--control-height-md);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   overflow: hidden;
   transition: border-color var(--duration-base) var(--ease-standard);
 }
 
-.comboCapsule:focus-within,
-.comboCapsule:hover {
-  border-color: var(--text-tertiary);
+.comboCapsule:focus-within {
+  border-color: var(--text-primary);
 }
 
 /* Select 트리거 — 자체 보더·radius 제거, 캡슐 높이에 맞춤. Select 는 components 층이라 이 규칙이 이긴다 */
