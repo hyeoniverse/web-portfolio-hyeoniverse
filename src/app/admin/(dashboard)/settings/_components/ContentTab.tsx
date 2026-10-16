@@ -490,7 +490,7 @@ export default function ContentTab({
                 label={t("admin.settings.blogTitle")}
                 value={config.posts.blogTitle ?? ""}
                 onChange={(v) => update("posts", "blogTitle", v)}
-                placeholder={`${config.metadata.title} Log`}
+                placeholder="Log"
               />
             </div>
           </section>

@@ -24,10 +24,8 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
   // 설정 posts.showBanner — 켤 때만 고정글 배너를 그린다
   const siteConf = useSiteConfig();
   const showBanner = siteConf.posts.showBanner === true;
-  // 블로그 이름 — 설정 posts.blogTitle, 비면 "<사이트 제목> Log"(HYEONIVERSE → Hyeoniverse Log)
-  const siteTitle = siteConf.metadata?.title ?? "";
-  const blogTitle = siteConf.posts.blogTitle?.trim()
-    || `${siteTitle.charAt(0).toUpperCase()}${siteTitle.slice(1).toLowerCase()} Log`;
+  // 블로그 이름 — 설정 posts.blogTitle, 비면 "Log"
+  const blogTitle = siteConf.posts.blogTitle?.trim() || "Log";
   return (
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />

@@ -435,7 +435,7 @@ export const siteConfig = {
     showBanner: false,
     // 글 목록 위 시리즈 줄 on/off — 시리즈는 Series 탭에도 있어 기본은 끈다
     showSeriesRow: false,
-    // 블로그 이름 — /posts 머리말의 큰 제목. 비우면 "<사이트 제목> Log"
+    // 블로그 이름 — /posts 머리말의 큰 제목. 비우면 "Log"
     blogTitle: "",
     // TIL 페이지(/posts/til)에 모을 글의 태그 — 이 태그가 붙은 발행 글이 잔디에 심긴다
     tilTag: "TIL",

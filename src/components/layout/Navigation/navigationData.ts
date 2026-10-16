@@ -74,14 +74,20 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
-/* 블로그(/posts 아래) 메뉴 — 포트폴리오 메뉴 대신 글을 둘러보는 축과, 끝에 포트폴리오(메인)로 나가는 링크 하나 */
+/* 블로그(/posts 아래) 메뉴 — 핵심 셋만: Posts(펼치면 Series · Tags · History) · TIL, 끝에 포트폴리오(메인)로 나가는 링크.
+   블로그 주소(blog.hyeoniverse.com)에선 Portfolio 링크에 메인 주소가 붙는다(Navigation · lib/siteHosts) */
 export const blogNavItems: NavItem[] = [
-  { key: "blog-all", href: "/posts", label: "Posts" },
-  { key: "blog-series", href: "/posts/series", label: "Series" },
-  { key: "blog-tags", href: "/posts/tags", label: "Tags" },
-  { key: "blog-history", href: "/posts/history", label: "History" },
+  {
+    key: "blog-all",
+    href: "/posts",
+    label: "Posts",
+    children: [
+      { key: "blog-series", href: "/posts/series", label: "Series" },
+      { key: "blog-tags", href: "/posts/tags", label: "Tags" },
+      { key: "blog-history", href: "/posts/history", label: "History" },
+    ],
+  },
   { key: "blog-til", href: "/posts/til", label: "TIL" },
-  /* 포트폴리오(메인)로 나가는 진입점 — 블로그 메뉴 끝에 둔다 */
   { key: "blog-portfolio", href: "/", label: "Portfolio ↗" },
 ];
 
