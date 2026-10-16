@@ -60,12 +60,15 @@ import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
 import { keepOnTop } from "@/lib/topLayer";
+import { BREAKPOINT } from "@/constants";
 import Badge from "@/components/ui/Badge";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
 // 서브메뉴 열림/접힘 공통 ease
 const SUB_EASE = [0.22, 1, 0.36, 1] as const;
+/** 좁은 화면에서 BGM 말풍선을 이번 세션에 이미 띄웠는지(sessionStorage) */
+const SOUND_TIP_SEEN = "sound-tip-seen";
 
 /* 로딩 스크린 로고 등장 연출 — 설정(brand.loadingAnimation)으로 선택한다. 퇴장(전환)은
    프리셋과 무관하게 공통 블러 페이드. wipe 는 서버 HTML 부터 clip 으로 가려져 첫 페인트에
@@ -532,8 +535,19 @@ export default function Navigation() {
 
   useEffect(() => {
     if (!section.soundTip || isLoading || isTransitioning) return;
+    /* 좁은 화면은 한 세션에 한 번만 — 말풍선이 본문 윗부분(About 첫 화면의 메타 줄 · 장 제목)을 페이지마다 5초씩 가렸다.
+       넓은 화면은 지금처럼 매번(본문과 떨어진 오른쪽 위라 가리지 않는다) */
+    const narrow = window.matchMedia(`(width <= ${BREAKPOINT.mobile}px)`).matches;
+    if (narrow) {
+      try {
+        if (sessionStorage.getItem(SOUND_TIP_SEEN)) return;
+      } catch { /* 저장소를 못 쓰면 매번 */ }
+    }
     soundTipTimer.current = setTimeout(() => {
       setShowSoundTip(true);
+      if (narrow) {
+        try { sessionStorage.setItem(SOUND_TIP_SEEN, "1"); } catch { /* 무시 */ }
+      }
       soundTipTimer.current = setTimeout(() => setShowSoundTip(false), 5000);
     }, 2000);
     return () => { if (soundTipTimer.current) clearTimeout(soundTipTimer.current); };

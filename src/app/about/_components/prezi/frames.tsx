@@ -34,7 +34,7 @@ export const CLUSTERS: ClusterDef[] = [
     anchor: "#features",
     head: {
       label: k("기능", "Features"),
-      render: () => <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} />,
+      render: () => <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} noteTouch={featuresChapter.noteTouch} />,
     },
     scenes: featuresScenes,
   },
