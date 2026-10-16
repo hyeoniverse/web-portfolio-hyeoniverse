@@ -654,35 +654,7 @@
 }
 
 /* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치 · 제목 글꼴은 그대로 두고
-   커버에 뷰파인더 모서리, 날짜 줄 · 태그 · 조회 줄은 모노 글꼴과 점선으로 기록장처럼 ── */
-:global([data-blog-skin="log"]) .imageWrap::before,
-:global([data-blog-skin="log"]) .imageWrap::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  width: var(--spacing-16);
-  height: var(--spacing-16);
-  border: 0 solid var(--text-white);
-  opacity: 0.85;
-  pointer-events: none;
-  transition: inset var(--duration-base) var(--ease-standard);
-}
-:global([data-blog-skin="log"]) .imageWrap::before {
-  inset: auto auto var(--spacing-12) var(--spacing-12);
-  border-bottom-width: var(--border-width-2);
-  border-left-width: var(--border-width-2);
-}
-:global([data-blog-skin="log"]) .imageWrap::after {
-  inset: auto var(--spacing-12) var(--spacing-12) auto;
-  border-right-width: var(--border-width-2);
-  border-bottom-width: var(--border-width-2);
-}
-:global([data-blog-skin="log"]) .card:hover .imageWrap::before {
-  inset: auto auto var(--spacing-8) var(--spacing-8);
-}
-:global([data-blog-skin="log"]) .card:hover .imageWrap::after {
-  inset: auto var(--spacing-8) var(--spacing-8) auto;
-}
+   날짜 줄 · 태그 · 조회 줄은 모노 글꼴로 기록장처럼 ── */
 :global([data-blog-skin="log"]) .dateLine,
 :global([data-blog-skin="log"]) .dateLineDate,
 :global([data-blog-skin="log"]) .dateLineCat,
@@ -710,12 +682,6 @@
 }
 :global([data-blog-skin="log"]) .dateLineCat::after {
   content: "]";
-}
-:global([data-blog-skin="log"]) .meta {
-  border-top: var(--border-width-1) dashed var(--border-color-light);
-}
-:global([data-blog-skin="log"]) .card {
-  border-bottom-style: dashed;
 }
 :global([data-blog-skin="log"]) .tagPill {
   padding: 0;

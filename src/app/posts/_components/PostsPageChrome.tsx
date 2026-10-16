@@ -28,7 +28,7 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
   // 블로그 이름 — 설정 posts.blogTitle, 비면 "Log"
   const blogTitle = siteConf.posts.blogTitle?.trim() || "Log";
   return (
-    /* data-blog-skin="log" — 글 목록의 개발 로그 스킨(카드 메타 · 태그 · 선을 모노 · 점선으로). 레이아웃은 그대로, History 는 빼 둔다 */
+    /* data-blog-skin="log" — 글 목록의 개발 로그 스킨(바탕 별밭, 카드 날짜 줄 · 태그를 모노 글꼴로). 레이아웃은 그대로, History 는 빼 둔다 */
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`} data-blog-skin={history ? undefined : "log"}>
       {!history && <StarLog seed={blogTitle} />}
       <PostsSubnav />
