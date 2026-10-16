@@ -18,16 +18,17 @@ export function Skeleton({ className, width, height, borderRadius }: SkeletonPro
   );
 }
 
-/** 텍스트 라인 — radius-sm */
+/** 텍스트 라인 — radius-sm. 제목(h*) · 문단(p)처럼 div 를 품을 수 없는 자리에는 as="span"(인라인 블록) */
 export function SkeletonLine({
   width = "100%",
   height = "var(--skeleton-height-line)",
   className,
-}: SkeletonProps) {
+  as: Tag = "div",
+}: SkeletonProps & { as?: "div" | "span" }) {
   return (
-    <div
+    <Tag
       className={cn(styles.skeleton, styles.line, className)}
-      style={{ width, height }}
+      style={{ width, height, ...(Tag === "span" ? { display: "inline-block", verticalAlign: "middle" } : null) }}
     />
   );
 }
