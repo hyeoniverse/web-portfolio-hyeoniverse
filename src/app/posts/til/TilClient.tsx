@@ -15,6 +15,8 @@ import PostsSubnav from "../_components/PostsSubnav";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
 import TilSky from "./TilSky";
+import TilStarMap from "./TilStarMap";
+import { litCount, CONSTELLATIONS } from "./constellations";
 
 /** 한국 시간 기준 YYYY-MM-DD — 서버(UTC)와 브라우저가 같은 날로 묶도록 시간대를 고정한다 */
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SITE_TIME_ZONE });
@@ -121,8 +123,13 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
 
   const monthName = (m: number) =>
     new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
+  // 보기 — 잔디(기본) · 별자리 지도. 지도에서 달을 고르면 피드가 그달로 좁혀진다
+  const [view, setView] = useState<"grass" | "map">("grass");
+  const [month, setMonth] = useState<number | null>(null);
+  const doneCount = CONSTELLATIONS.filter((c, m) => litCount(byDay, year, m) >= c.stars.length).length;
   const changeYear = (y: number) => {
     setYear(y);
+    setMonth(null);
     pick(null);
     setShown(PAGE_DAYS);
   };
@@ -186,11 +193,12 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   // 피드 — 고른 날이 있으면 그날만, 없으면 고른 해의 모든 날(최신순). 주제를 고르면 그 주제 TIL 만
   const feedDays = useMemo(() => {
     const keep = (e: TilEntry) => !topic || (e.tags ?? []).includes(topic);
+    const scope = month === null ? `${year}-` : `${year}-${String(month + 1).padStart(2, "0")}-`;
     const days: [string, TilEntry[]][] = selected
       ? [[selected, byDay.get(selected) ?? []]]
-      : [...byDay.entries()].filter(([k]) => k.startsWith(`${year}-`)).sort(([a], [b]) => (a < b ? 1 : -1));
+      : [...byDay.entries()].filter(([k]) => k.startsWith(scope)).sort(([a], [b]) => (a < b ? 1 : -1));
     return days.map(([k, l]) => [k, l.filter(keep)] as [string, TilEntry[]]).filter(([, l]) => l.length > 0);
-  }, [byDay, selected, year, topic]);
+  }, [byDay, selected, year, topic, month]);
   const [shown, setShown] = useState(PAGE_DAYS);
   const todayCount = byDay.get(today)?.length ?? 0;
   const selectedEntries = selected ? byDay.get(selected) ?? [] : [];
@@ -239,6 +247,21 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
             {todayCount > 0 ? fillTemplate(t("tilPage.todayDone"), { n: todayCount }) : t("tilPage.todayNot")}
           </span>
         </div>
+          {/* 보기 전환 — 잔디 · 별자리 지도 */}
+          <div className={styles.viewSwitch} role="tablist" aria-label={t("tilPage.viewLabel")}>
+            {(["grass", "map"] as const).map((v) => (
+              <Pressable
+                key={v}
+                noTapScale
+                role="tab"
+                aria-selected={view === v}
+                className={`${styles.viewTab} ${view === v ? styles.viewTabOn : ""}`}
+                onClick={() => { setView(v); setMonth(null); pick(null); }}
+              >
+                {v === "grass" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
+              </Pressable>
+            ))}
+          </div>
         </div>
         <dl className={styles.stats}>
           <div className={styles.stat}><dt>{t("tilPage.statYear")}</dt><dd>{yearCount}</dd></div>
@@ -247,6 +270,8 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         </dl>
       </div>
 
+      {view === "grass" ? (
+        <>
       {/* 잔디 — 좁은 화면에선 가로로 스크롤된다 */}
       <div ref={grassRef} className={styles.grassScroll}>
         <div className={styles.grass} style={{ ["--til-weeks" as string]: weeks.length }}>
@@ -290,13 +315,39 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         {[0, 1, 2, 3].map((lv) => <span key={lv} className={`${styles.cell} ${styles[`lv${lv}`]}`} />)}
         <span>{t("tilPage.more")}</span>
       </div>
-
+        </>
+      ) : (
+        <section className={styles.mapWrap}>
+          <p className={styles.mapHead}>
+            ✦ {fillTemplate(t("tilPage.mapDone"), { n: doneCount })}
+          </p>
+          {/* 넓은 화면은 6열, 좁은 화면은 3열 판 — 보이는 것 하나만 CSS 가 고른다 */}
+          {[6, 3].map((cols) => (
+            <TilStarMap
+              key={cols}
+              cols={cols}
+              className={cols === 6 ? styles.mapWide : styles.mapNarrow}
+              year={year}
+              byDay={byDay}
+              month={month}
+              onMonth={(m) => { setMonth(m); pick(null); setShown(PAGE_DAYS); }}
+              monthName={monthName}
+              lang={lang}
+            />
+          ))}
+        </section>
+      )}
 
       <div className={styles.body}>
         {/* 기록 피드 — git log 처럼 날짜별로 이어지고, 짧은 TIL 은 본문까지 바로 읽힌다. 잔디 칸을 고르면 그날로 좁혀진다 */}
         <section className={styles.feed} aria-live="polite">
           <div className={styles.feedHead}>
             <h2 className={styles.feedTitle}><b>$</b> git log --til</h2>
+            {month !== null && !selected && (
+              <Pressable noTapScale className={styles.feedFilter} onClick={() => setMonth(null)}>
+                {year}.{String(month + 1).padStart(2, "0")} · {lang === "en" ? CONSTELLATIONS[month].en : CONSTELLATIONS[month].ko} · {t("tilPage.showAll")} ×
+              </Pressable>
+            )}
             {selected && (
               <Pressable noTapScale className={styles.feedFilter} onClick={() => pick(null)}>
                 {formatDay(selected)} · {t("tilPage.showAll")} ×

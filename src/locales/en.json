@@ -493,7 +493,11 @@
     "monthAgo": "A month ago",
     "yearAgo": "A year ago",
     "revisitEmpty": "nothing from around then",
-    "random": "Draw a random TIL"
+    "random": "Draw a random TIL",
+    "viewLabel": "View",
+    "viewGrass": "Garden",
+    "viewMap": "Constellations",
+    "mapDone": "{{n}} / 12 constellations complete this year"
   },
   "postsPage": {
     "statPosts": "Posts",

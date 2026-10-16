@@ -23,3 +23,17 @@ export const CONSTELLATIONS: Constellation[] = [
   { ko: "전갈자리", en: "Scorpius", stars: [[24, 7], [12, 11], [18, 23], [28, 31], [40, 33], [52, 31], [62, 37], [70, 47], [66, 56], [54, 58], [46, 51]], lines: [[1, 0], ...chain(11).slice(1)] },
   { ko: "궁수자리", en: "Sagittarius", stars: [[20, 31], [35, 22], [50, 26], [62, 17], [75, 26], [70, 41], [55, 45], [40, 47], [28, 42], [86, 12]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 0], [2, 6], [3, 9]] },
 ];
+
+/** 네 갈래 별(로고 모양) — 중심 (x, y), 반지름 r */
+export function starPath(x: number, y: number, r: number) {
+  const k = r * 0.18;
+  return `M${x} ${y - r}C${x + k} ${y - k} ${x + k} ${y - k} ${x + r} ${y}C${x + k} ${y + k} ${x + k} ${y + k} ${x} ${y + r}C${x - k} ${y + k} ${x - k} ${y + k} ${x - r} ${y}C${x - k} ${y - k} ${x - k} ${y - k} ${x} ${y - r}Z`;
+}
+
+/** 그달 켜진 별 수 — TIL 을 쓴 날 수(별자리 별 수를 넘지 않는다) */
+export function litCount(byDay: Map<string, unknown[]>, year: number, month: number) {
+  const prefix = `${year}-${String(month + 1).padStart(2, "0")}-`;
+  let n = 0;
+  for (const k of byDay.keys()) if (k.startsWith(prefix)) n++;
+  return Math.min(n, CONSTELLATIONS[month].stars.length);
+}

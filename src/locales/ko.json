@@ -493,7 +493,11 @@
     "monthAgo": "1달 전",
     "yearAgo": "1년 전",
     "revisitEmpty": "이맘때 기록이 없어요",
-    "random": "랜덤 TIL 뽑기"
+    "random": "랜덤 TIL 뽑기",
+    "viewLabel": "보기",
+    "viewGrass": "잔디",
+    "viewMap": "별자리",
+    "mapDone": "올해 완성한 별자리 {{n}} / 12"
   },
   "postsPage": {
     "statPosts": "글",

@@ -646,3 +646,91 @@
 .pinnedTitle .mong {
   width: 24px;
 }
+
+/* 보기 전환 — 잔디 · 별자리 */
+.viewSwitch {
+  display: inline-flex;
+  padding: var(--spacing-2);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+}
+.viewTab {
+  height: calc(var(--control-height-sm) - var(--spacing-4));
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+.viewTabOn {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* 별자리 지도 */
+.mapWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+.mapHead {
+  margin: 0;
+  font: var(--font-code-sm);
+  color: var(--text-accent);
+}
+.map {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.mapWide {
+  display: none;
+}
+@media (width >= 768px) {
+  .mapWide {
+    display: block;
+  }
+  .mapNarrow {
+    display: none;
+  }
+}
+.mapPath {
+  fill: none;
+  stroke: var(--border-color-light);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  vector-effect: non-scaling-stroke;
+}
+.mapItem {
+  cursor: pointer;
+}
+.mapHit {
+  fill: transparent;
+  stroke: transparent;
+  transition: fill var(--duration-fast) var(--ease-standard);
+}
+.mapItem:hover .mapHit,
+.mapItem:focus-visible .mapHit {
+  fill: color-mix(in srgb, var(--text-primary) 4%, transparent);
+}
+.mapItemOn .mapHit {
+  stroke: var(--text-accent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.mapName {
+  font: var(--font-label-sm);
+  fill: var(--text-secondary);
+}
+.mapItemOn .mapName,
+.skyDone .mapName {
+  fill: var(--text-primary);
+}
+.mapCount {
+  font: var(--font-code-xs);
+  fill: var(--text-tertiary);
+}
+.skyDone .mapCount {
+  fill: var(--text-accent);
+}

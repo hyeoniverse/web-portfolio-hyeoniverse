@@ -1,11 +1,5 @@
-import { CONSTELLATIONS } from "./constellations";
+import { CONSTELLATIONS, litCount, starPath as star } from "./constellations";
 import styles from "./Til.module.css";
-
-/** 네 갈래 별(로고 모양) — 중심 (x, y), 반지름 r */
-function star(x: number, y: number, r: number) {
-  const k = r * 0.18;
-  return `M${x} ${y - r}C${x + k} ${y - k} ${x + k} ${y - k} ${x + r} ${y}C${x + k} ${y + k} ${x + k} ${y + k} ${x} ${y + r}C${x - k} ${y + k} ${x - k} ${y + k} ${x - r} ${y}C${x - k} ${y - k} ${x - k} ${y - k} ${x} ${y - r}Z`;
-}
 
 /* 잔디 위 하늘 — 달마다 그달 칸 위에 별자리 하나(1월 염소자리 … 12월 궁수자리).
    그달 TIL 을 쓴 날마다 별이 순서대로 켜지고 양끝이 켜진 선이 이어진다. 별을 다 켜면 별자리가 빛나며 완성.
@@ -30,8 +24,7 @@ export default function TilSky({
     <>
       <span className={styles.skyCorner} aria-hidden />
       {CONSTELLATIONS.map((c, m) => {
-        const prefix = `${year}-${String(m + 1).padStart(2, "0")}-`;
-        const lit = Math.min([...byDay.keys()].filter((k) => k.startsWith(prefix)).length, c.stars.length);
+        const lit = litCount(byDay, year, m);
         const done = lit >= c.stars.length;
         const end = m === 11 ? weeks.length : starts[m + 1];
         const label = `${monthName(m)} · ${c.ko} ${c.en} · ${lit}/${c.stars.length}`;
