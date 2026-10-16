@@ -47,6 +47,12 @@
   container-type: size;
 }
 
+/* 좁은 화면(세로로 쌓는 구간) — 견본은 내용만큼 자란다. size 컨테이너는 높이를 내용에서 받지 않아(0) 견본이 남은 높이에
+   끼어 140~200px 폭으로 줄었다. 폭 기준 질의(@container)만 쓰니 inline-size 로 */
+.stage {
+  container-type: inline-size;
+}
+
 /* 선과 별은 위아래 여백을 둔 같은 판에 — 맨 위 · 맨 아래 별의 글이 판 밖으로 넘치지 않게 */
 
 /* 별 하나 — 크기 없는 점(별의 가운데). 글은 왼쪽 별이면 왼쪽으로, 오른쪽 별이면 오른쪽으로 */
@@ -63,7 +69,8 @@
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--spacing-20);
   box-sizing: border-box;
-  height: 100%;
+  /* 좁은 화면은 내용만큼 자라 장면 안에서 스크롤한다(견본을 화면 폭 3:2 로 크게 두므로). 넓은 화면은 아래에서 화면 높이에 맞춘다 */
+  min-height: 100%;
   padding: calc(var(--header-height) + var(--spacing-24)) var(--spacing-page-inline) var(--spacing-96);
 
   /* 기다리는 장은 커진 채 화면 밖까지 걸쳐 있다 — 그 변환이 프레임에 스크롤을 만들지 않게 */
@@ -264,6 +271,14 @@
   .cover,
   .frame {
     padding-top: calc(var(--header-height) + var(--spacing-64));
+  }
+
+  .frame {
+    height: 100%;
+  }
+
+  .stage {
+    container-type: size;
   }
 }
 

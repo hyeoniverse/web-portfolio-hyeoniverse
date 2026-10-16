@@ -12,12 +12,24 @@
   grid-template-rows: minmax(0, 1fr) auto;
   gap: var(--spacing-16);
   width: 100%;
-  height: 100%;
   min-height: 0;
+}
+
+/* 넓은 화면은 칸을 채우고 그 안에서 3:2 를 가장 크게. 좁은 화면은 아래 .cell 이 폭으로 3:2 높이를 정한다 */
+@media (width > 1024px) {
+  .wrap {
+    height: 100%;
+  }
 }
 
 .wrap[data-mode="cover"] {
   grid-template-rows: minmax(0, 1fr);
+  /* 표지는 화면 높이에 맞춘 칸(.sky) 안에서 맞춘다 — 폭 3:2 로 두면 좁은 화면에서 칸을 넘어 위 글 · 링크를 덮었다 */
+  height: 100%;
+}
+
+.wrap[data-mode="cover"] .cell {
+  aspect-ratio: auto;
 }
 
 .cell {
@@ -26,6 +38,14 @@
   min-width: 0;
   min-height: 0;
   container-type: size;
+  /* 좁은 화면 — 화면 폭 그대로 3:2(남은 높이에 끼우면 별자리 이름표가 겹칠 만큼 작아졌다) */
+  aspect-ratio: 3 / 2;
+}
+
+@media (width > 1024px) {
+  .cell {
+    aspect-ratio: auto;
+  }
 }
 
 /* 판 — 3:2. 별의 자리는 이 판의 cq 단위로 준다(별 하나하나가 자리를 옮기며 날아간다) */

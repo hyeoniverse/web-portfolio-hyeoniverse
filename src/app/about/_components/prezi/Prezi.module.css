@@ -127,7 +127,8 @@
   --_gutter: var(--spacing-page-inline);
 
   display: grid;
-  align-content: end;
+  /* safe — 그래도 넘치면 위(내비게이션 쪽)가 아니라 아래로 넘친다 */
+  align-content: safe end;
   padding: calc(var(--header-height) + var(--spacing-24)) var(--_gutter) var(--spacing-24);
   pointer-events: auto;
   cursor: zoom-in;
@@ -166,6 +167,8 @@
   left: var(--spacing-page-inline);
   z-index: 1;
   display: grid;
+  /* 열을 상자 폭 안에 묶는다 — 줄바꿈 없는 "최근 글" 줄이 열을 화면 밖까지(360px 화면에서 +16px) 늘려 소개 · 안내도 넘쳤다 */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-8);
   max-width: min(34rem, 80vw);
 }
