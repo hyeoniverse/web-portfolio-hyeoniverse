@@ -4,7 +4,7 @@ import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
-import { LayoutGrid, History as HistoryIcon } from "@/components/icons";
+import { History as HistoryIcon } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "../Posts.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -38,13 +38,8 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
             <p className={styles.subtitle}>{t("postsPage.historySubtitle")}</p>
           </>
         ) : (
-          /* 블로그 머리말 — [BLOG 눈썹] 블로그 이름(큰 제목) · 한 줄 소개. 포트폴리오의 "Posts." 페이지 제목 대신
-             여기가 누구의 블로그인지 먼저 알린다 */
+          /* 블로그 머리말 — 블로그 이름(큰 제목) · 한 줄 소개. 블로그라는 표시는 로고 옆 Blog 배지가 맡아 여기선 되풀이하지 않는다 */
           <div className={styles.masthead}>
-            <span className={styles.mastheadEyebrow}>
-              <LayoutGrid size={14} strokeWidth={1.8} aria-hidden />
-              Blog
-            </span>
             <PageTitle className={styles.mastheadTitle}>{blogTitle}</PageTitle>
             <p className={styles.mastheadLead}>
               <T k="postsPage.subtitle" />
