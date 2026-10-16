@@ -175,6 +175,7 @@ function ShootingStars() {
 function FocusRig({ focus, controlsRef }: { focus: number | null; controlsRef: MutableRefObject<OrbitControlsImpl | null> }) {
   const eye = useMemo(() => new THREE.Vector3(0, 1.6, 0), []);
   const want = useMemo(() => new THREE.Vector3(), []);
+  const lift = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     const cam = state.camera as THREE.PerspectiveCamera;
     const ctl = controlsRef.current;
@@ -183,10 +184,12 @@ function FocusRig({ focus, controlsRef }: { focus: number | null; controlsRef: M
       ctl.autoRotate = focus === null;
     }
     if (focus !== null) {
-      const dir = domePosition(focus).sub(eye).normalize();
+      // 좁은 화면은 위쪽 패널에 가리지 않게 별자리 위쪽을 바라봐 별자리가 화면 아래로 내려오게 한다
+      const look = domePosition(focus).add(lift.set(0, state.size.width < 768 ? 4.5 : 0, 0));
+      const dir = look.clone().sub(eye).normalize();
       want.copy(eye).addScaledVector(dir, -0.01);
       cam.position.lerp(want, 0.08);
-      cam.lookAt(domePosition(focus));
+      cam.lookAt(look);
     }
     const fov = focus === null ? 70 : 30;
     if (Math.abs(cam.fov - fov) > 0.05) {

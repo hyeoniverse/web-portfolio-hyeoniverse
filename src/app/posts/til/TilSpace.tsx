@@ -121,6 +121,7 @@ export default function TilSpace({
     <dialog
       ref={dialogRef}
       className={styles.root}
+      data-card={openStar !== null || undefined}
       aria-label={`${year} TIL`}
       data-lenis-prevent
       // Esc — 브라우저가 닫기 전에 가로채 상태로 닫는다
@@ -172,6 +173,30 @@ export default function TilSpace({
         })()}
       </div>
 
+      {/* 펼친 별 — 그날의 TIL 자막(패널보다 먼저 그려 패널이 그늘 위에 오게) */}
+      {(() => {
+        const d = dayOf(openStar);
+        if (!d) return null;
+        const list = byDay.get(d) ?? [];
+        return (
+          <div className={styles.card} key={d}>
+            <Pressable noTapScale className={styles.cardClose} aria-label={closeLabel} onClick={() => setOpenStar(null)}>
+              <X size={14} aria-hidden />
+            </Pressable>
+            <span className={styles.cardDate}>✦ {formatDay(d)}</span>
+            {list.map((e) => (
+              <article key={e.id} className={styles.cardEntry}>
+                <h3>{titleOf(e)}</h3>
+                {excerptOf(e) && <p>{excerptOf(e)}</p>}
+                <TransitionLink href={`/posts/${e.slug}`} className={styles.cardLink}>
+                  {texts.openPost} →
+                </TransitionLink>
+              </article>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* 초점 패널 — 그달 별자리 · 진행 · 기록 목록 */}
       {focus !== null && (
         <aside className={styles.panel} key={focus}>
@@ -214,30 +239,6 @@ export default function TilSpace({
           </Pressable>
         </aside>
       )}
-
-      {/* 펼친 별 — 그날의 TIL 카드 */}
-      {(() => {
-        const d = dayOf(openStar);
-        if (!d) return null;
-        const list = byDay.get(d) ?? [];
-        return (
-          <div className={styles.card} key={d}>
-            <Pressable noTapScale className={styles.cardClose} aria-label={closeLabel} onClick={() => setOpenStar(null)}>
-              <X size={14} aria-hidden />
-            </Pressable>
-            <span className={styles.cardDate}>✦ {formatDay(d)}</span>
-            {list.map((e) => (
-              <article key={e.id} className={styles.cardEntry}>
-                <h3>{titleOf(e)}</h3>
-                {excerptOf(e) && <p>{excerptOf(e)}</p>}
-                <TransitionLink href={`/posts/${e.slug}`} className={styles.cardLink}>
-                  {texts.openPost} →
-                </TransitionLink>
-              </article>
-            ))}
-          </div>
-        );
-      })()}
 
       <p className={styles.top}>
         {year} · ✦ {doneLabel.replace("{{n}}", String(doneCount))}

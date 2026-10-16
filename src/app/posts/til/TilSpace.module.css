@@ -64,8 +64,9 @@
   margin: 0;
   font: var(--font-code-xs);
   color: var(--text-white);
+  width: calc(100% - var(--spacing-32));
   opacity: 0.55;
-  white-space: nowrap;
+  text-align: center;
   pointer-events: none;
   animation: hint-out var(--duration-slower) var(--ease-standard) calc(var(--duration-slower) * 6) forwards;
 }
@@ -146,18 +147,29 @@
   font: var(--font-label-sm);
 }
 
-/* 초점 패널 — 왼쪽, 그달 별자리 · 진행 · 기록 목록 */
+/* 초점 패널 — 그달 별자리 · 진행 · 기록 목록. 좁은 화면은 위쪽에 낮게, 넓은 화면은 왼쪽에 세로로 */
 .panel {
   position: absolute;
-  top: calc(var(--spacing-80) + env(safe-area-inset-top, 0px));
-  left: calc(var(--spacing-24) + env(safe-area-inset-left, 0px));
-  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  top: calc(var(--spacing-64) + env(safe-area-inset-top, 0px));
+  left: calc(var(--spacing-16) + env(safe-area-inset-left, 0px));
+  right: calc(var(--spacing-16) + env(safe-area-inset-right, 0px));
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
-  width: min(320px, calc(100% - var(--spacing-48)));
+  gap: var(--spacing-4);
+  max-height: 42%;
   color: var(--text-white);
   animation: panel-in var(--duration-slow) var(--ease-standard);
+}
+@media (width >= 768px) {
+  .panel {
+    top: calc(var(--spacing-80) + env(safe-area-inset-top, 0px));
+    left: calc(var(--spacing-24) + env(safe-area-inset-left, 0px));
+    right: auto;
+    bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+    gap: var(--spacing-8);
+    width: 320px;
+    max-height: none;
+  }
 }
 @keyframes panel-in {
   from { opacity: 0; transform: translateX(calc(var(--spacing-16) * -1)); }
@@ -265,49 +277,66 @@
   transform: translateX(var(--spacing-4));
 }
 
-/* 펼친 별 — 오른쪽 아래 TIL 카드 */
+/* 펼친 별 — 상자 없이 플라네타리움 자막처럼 화면 아래에서 떠오른다. 바탕은 아래로 짙어지는 그늘뿐 */
 .card {
   position: absolute;
-  right: calc(var(--spacing-24) + env(safe-area-inset-right, 0px));
-  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  inset: auto 0 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-  width: min(360px, calc(100% - var(--spacing-48)));
-  max-height: 60%;
+  align-items: center;
+  gap: var(--spacing-8);
+  max-height: 55%;
   overflow-y: auto;
-  padding: var(--spacing-20);
-  border: var(--border-width-1) solid var(--text-accent);
-  border-radius: var(--radius-surface);
-  background: color-mix(in srgb, var(--bg-scheme-dark) 88%, transparent);
-  backdrop-filter: blur(6px);
+  padding: var(--spacing-64) var(--spacing-24) calc(var(--spacing-32) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg-scheme-dark) 45%, transparent);
   color: var(--text-white);
+  text-align: center;
   animation: card-in var(--duration-slow) var(--ease-standard);
 }
+/* 넓은 화면 — 왼쪽 패널 오른쪽 자리에서만 */
+/* 넓은 화면 — 그늘은 화면 전체, 글은 왼쪽 패널 오른쪽 자리에 */
+@media (width >= 768px) {
+  .card {
+    padding-left: calc(320px + var(--spacing-48) + var(--spacing-24));
+  }
+}
+/* 좁은 화면 — 자막이 떠 있는 동안 패널은 머리(이름 · 진행 · 피드 링크)만 남긴다 */
+.root[data-card] .panelList {
+  display: none;
+}
+@media (width >= 768px) {
+  .root[data-card] .panelList {
+    display: flex;
+  }
+}
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(var(--spacing-16)) scale(0.97); }
+  from { opacity: 0; transform: translateY(var(--spacing-16)); }
 }
 .cardClose {
-  position: absolute;
-  top: var(--spacing-12);
-  right: var(--spacing-12);
   display: inline-flex;
   padding: 0;
   color: var(--text-white);
-  opacity: 0.6;
+  opacity: 0.5;
+}
+.cardClose:hover {
+  opacity: 1;
 }
 .cardDate {
   font: var(--font-code-xs);
   color: var(--text-accent);
 }
+.cardEntry {
+  max-width: 560px;
+}
 .cardEntry h3 {
   margin: 0 0 var(--spacing-8);
-  font: var(--font-headline-xs);
+  font: var(--font-headline-sm);
+  text-wrap: balance;
 }
 .cardEntry p {
   margin: 0;
   font: var(--font-body-sm);
-  opacity: 0.8;
+  opacity: 0.75;
 }
 .cardLink {
   display: inline-block;
@@ -315,6 +344,9 @@
   font: var(--font-label-sm);
   color: var(--text-accent);
   text-decoration: none;
+}
+.cardLink:hover {
+  text-decoration: underline;
 }
 @media (prefers-reduced-motion: reduce) {
   .panel,
