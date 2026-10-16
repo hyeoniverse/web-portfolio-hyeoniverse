@@ -15,7 +15,6 @@ import EmptyState from "@/components/ui/EmptyState";
 import FormGroup from "@/components/ui/FormGroup";
 import MediaThumb from "@/components/ui/MediaThumb";
 import Pressable from "@/components/ui/Pressable";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { tryRequest } from "@/lib/sendAction";
 import { errorFromResponse, errorText } from "@/lib/apiError";
@@ -23,6 +22,7 @@ import { COMMENT_IMAGE_BUCKET } from "@/lib/commentImages";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import LibraryHead from "./LibraryHead";
+import { CommentImagesSkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass } from "./LibraryGallery";
 
 type Item = { path: string; name: string; size: number; createdAt: string | null; url: string; deleteAfter: string | null };
@@ -143,7 +143,7 @@ export default function CommentImageManager() {
         {failed && !data ? (
           <EmptyState pad="sm">{t("admin.inline.commentImageManager.loadFailed")}</EmptyState>
         ) : data === null ? (
-          <LibraryGallery>{[0, 1, 2].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
+          <CommentImagesSkeleton />
         ) : total === 0 ? (
           <EmptyState pad="sm">{t("admin.inline.commentImageManager.empty")}</EmptyState>
         ) : (

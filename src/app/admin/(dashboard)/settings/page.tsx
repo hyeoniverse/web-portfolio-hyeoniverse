@@ -16,6 +16,7 @@ import { SkeletonLine } from "@/components/ui/Skeleton";
 import { FAVICON_REFRESH_EVENT } from "@/components/layout/FaviconSync";
 import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
+import { LibraryTabSkeleton } from "./_components/LibrarySkeletons";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
@@ -49,7 +50,8 @@ const tabLoading = () => <SettingsSkeleton />;
 const ContentTab = dynamic(() => import("./_components/ContentTab"), { loading: tabLoading });
 const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loading: tabLoading });
 const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
-const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: tabLoading });
+/* 라이브러리는 설정 폼이 아니라 목록이라 폼 뼈대 대신 목록 뼈대를 쓴다 */
+const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: () => <LibraryTabSkeleton /> });
 const AccountTab = dynamic(() => import("./_components/AccountTab"));
 const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
 /* 받는 시점을 앞당기는 것은 settingsTabLoaders — 연 탭은 설정값과 함께, 다른 탭은 단추에 올렸을 때 */

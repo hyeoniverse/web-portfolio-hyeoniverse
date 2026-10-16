@@ -21,6 +21,7 @@ import settings from "../Settings.module.css";
 import LibraryHead from "./LibraryHead";
 import lib from "./Library.module.css";
 import styles from "./CalendarManager.module.css";
+import { CalendarListSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
@@ -218,11 +219,7 @@ export default function CalendarManager() {
         />
 
         {filtered === null ? (
-          <div className={styles.list}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} className={styles.row}><SkeletonLine width="55%" height={14} /></div>
-            ))}
-          </div>
+          <CalendarListSkeleton />
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.calendarManager.noResults") : t("admin.inline.calendarManager.noCalendarsYet")}</EmptyState>
         ) : (
