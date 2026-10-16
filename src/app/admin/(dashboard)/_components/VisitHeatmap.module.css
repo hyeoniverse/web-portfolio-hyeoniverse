@@ -1,75 +1,131 @@
 /* VisitHeatmap 전용 스타일 — 요일×시각 잔디 매트릭스(#1161).
-   GitHub 잔디처럼 고정 크기 정사각 셀(24px)을 4px 거터로 촘촘하게 좌측 정렬 —
-   패널 폭에 늘리면 표처럼 보인다. 셀 색은 컴포넌트가 인라인로 준다(단계 램프). */
+   넓은 화면은 GitHub 잔디처럼 고정 크기 정사각 셀(24px)을 4px 거터로 촘촘하게 좌측 정렬 —
+   패널 폭에 늘리면 표처럼 보인다. 좁은 화면은 격자를 세로로 돌려(행=시각 · 열=요일) 폭을 채운다 —
+   가로 그대로는 ≈700px 이라 옆으로 밀어 봐야 했다. 셀 색은 컴포넌트가 인라인로 준다(단계 램프).
+   칸마다 두 방향의 자리를 변수(--hm-nr/nc 좁은 · --hm-wr/wc 넓은)로 받는다. */
 
 .heatmapWrap {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
   padding: var(--spacing-12) 0 var(--spacing-4);
-  /* 범례(align-self: flex-end)가 패널 끝이 아니라 잔디 블록 오른쪽에 붙도록 */
-  width: max-content;
-  /* 좁은 화면 — 요일 × 24시간 격자(≈700px)는 줄이면 못 읽어서, 패널 폭 안에서 옆으로 밀어 본다 */
-  max-width: 100%;
-  overflow-x: auto;
 }
 
 .heatmap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  width: max-content;
-}
-
-.heatmapRow {
   display: grid;
-  grid-template-columns: 32px repeat(24, 24px);
-  gap: var(--spacing-4);
-  align-items: center;
+  grid-template-columns: max-content repeat(7, 1fr);
+  grid-auto-rows: 16px;
+  gap: var(--spacing-2) var(--spacing-4);
 }
 
+.heatmap > * {
+  grid-row: var(--hm-nr);
+  grid-column: var(--hm-nc);
+}
+
+/* 칸(Tooltip 이 감싼 span)은 격자 칸을 꽉 채우고(stretch), 라벨만 가운데에 둔다 */
 .heatmapDow {
+  align-self: center;
   font: var(--font-code-xs);
-  line-height: calc(24 / 12);
   color: var(--text-tertiary);
+  text-align: center;
 }
 
+/* 범례 칸 — 좁은 화면은 16px, 격자 안의 칸은 그 칸을 꽉 채운다 */
 .heatmapCell {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
+}
+
+.heatmap .heatmapCell {
+  width: 100%;
+  height: 100%;
 }
 
 /* hover — 어둡게 덮지 않고 accent 링으로 짚는다 (brightness 는 빈 칸에서 회색 얼룩처럼 보였다).
-   링이 이웃 칸에 안 가리게 z 올림. 범례 칸(행 밖)엔 적용 안 됨 */
-.heatmapRow .heatmapCell:hover {
+   링이 이웃 칸에 안 가리게 z 올림. 범례 칸(격자 밖)엔 적용 안 됨 */
+.heatmap .heatmapCell:hover {
   outline: var(--border-width-2) solid color-mix(in srgb, var(--border-color-accent-strong) 55%, transparent);
   outline-offset: 0;
   position: relative;
   z-index: 1;
 }
 
-/* 12/24시간제 토글 — 잔디 블록 오른쪽 위 */
+/* 12/24시간제 토글 — 잔디 블록 왼쪽 위(제목 · 잔디와 같은 시작선) */
 .heatmapToolbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
-/* 시각 라벨 — 24개 전부. 두 자리 숫자가 칸보다 넓어도 flex 가운데 정렬로
-   양옆 거터에 대칭으로 흘린다 (칸 pitch 28px > "23" 14px 라 이웃과 안 겹침) */
+/* 시각 라벨 — 24개 전부. 좁은 화면은 행 머리(오른쪽 맞춤), 넓은 화면은 칸 아래 */
 .heatmapHourLabel {
+  align-self: center;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   white-space: nowrap;
-  padding-top: var(--spacing-2);
 }
 
-/* 오전/오후 캡션 — 12시간제일 때 앞·뒤 12칸 아래 */
+/* 오전/오후 — 좁은 화면은 0시 · 12시 라벨 앞에 붙고, 넓은 화면은 앞·뒤 12칸 아래 캡션 줄이 맡는다 */
+.heatmapMeridiemInline {
+  margin-right: var(--spacing-4);
+  color: var(--text-tertiary);
+}
+
 .heatmapMeridiem {
+  align-self: center;
+  display: none;
   font: var(--font-code-xs);
   color: var(--text-tertiary);
+}
+
+@media (width > 768px) {
+  .heatmapWrap {
+    /* 범례(align-self: flex-end)가 패널 끝이 아니라 잔디 블록 오른쪽에 붙도록 */
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .heatmap {
+    grid-template-columns: 32px repeat(24, 24px);
+    grid-auto-rows: auto;
+    gap: var(--spacing-4);
+    width: max-content;
+  }
+
+  .heatmap > * {
+    grid-row: var(--hm-wr);
+    grid-column: var(--hm-wc);
+  }
+
+  .heatmapDow {
+    line-height: calc(24 / 12);
+    text-align: start;
+  }
+
+  .heatmapCell,
+  .heatmap .heatmapCell {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* 두 자리 숫자가 칸보다 넓어도 가운데 정렬로 양옆 거터에 대칭으로 흘린다
+     (칸 pitch 28px > "23" 14px 라 이웃과 안 겹침) */
+  .heatmapHourLabel {
+    justify-content: center;
+    padding-top: var(--spacing-2);
+  }
+
+  .heatmapMeridiemInline {
+    display: none;
+  }
+
+  .heatmapMeridiem {
+    display: block;
+  }
 }
 
 .heatmapLegend {
