@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -125,8 +125,10 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   const monthName = (m: number) =>
     new Date(Date.UTC(2024, m, 1, 12)).toLocaleDateString(dateLocale, { month: "short", timeZone: "UTC" });
   // 보기 — 잔디(기본) · 별자리 지도. 지도에서 달을 고르면 피드가 그달로 좁혀진다
-  const [view, setView] = useState<"grass" | "map">("grass");
+  // 망원경 — 전체 화면 플라네타리움을 연다
+  const [skyOpen, setSkyOpen] = useState(false);
   const feedRef = useRef<HTMLElement>(null);
+  const closeSky = useCallback(() => setSkyOpen(false), []);
   const [month, setMonth] = useState<number | null>(null);
   const changeYear = (y: number) => {
     setYear(y);
@@ -258,19 +260,17 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         {/* 망원경 — 별자리 우주를 켜고 끈다 */}
         <Pressable
           noTapScale
-          aria-pressed={view === "map"}
-          aria-label={view === "map" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
-          title={view === "map" ? t("tilPage.viewGrass") : t("tilPage.viewMap")}
-          className={`${styles.scopeBtn} ${view === "map" ? styles.scopeBtnOn : ""}`}
-          onClick={() => { setView(view === "map" ? "grass" : "map"); setMonth(null); pick(null); }}
+          aria-haspopup="dialog"
+          aria-label={t("tilPage.viewMap")}
+          title={t("tilPage.viewMap")}
+          className={styles.scopeBtn}
+          onClick={() => setSkyOpen(true)}
         >
           <Telescope size={18} strokeWidth={1.8} aria-hidden />
         </Pressable>
         </div>
       </div>
 
-      {view === "grass" ? (
-        <>
       {/* 잔디 — 좁은 화면에선 가로로 스크롤된다 */}
       <div ref={grassRef} className={styles.grassScroll}>
         <div className={styles.grass} style={{ ["--til-weeks" as string]: weeks.length }}>
@@ -314,17 +314,18 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
         {[0, 1, 2, 3].map((lv) => <span key={lv} className={`${styles.cell} ${styles[`lv${lv}`]}`} />)}
         <span>{t("tilPage.more")}</span>
       </div>
-        </>
-      ) : (
+      {skyOpen && (
         <TilSpace
           year={year}
           byDay={byDay}
           monthName={monthName}
           lang={lang}
           doneLabel={t("tilPage.mapDone")}
-          scrollHint={t("tilPage.scrollHint")}
-          openLabel={t("tilPage.openMonth")}
+          dragHint={t("tilPage.dragHint")}
+          closeLabel={t("tilPage.closeSky")}
+          onClose={closeSky}
           onMonth={(m) => {
+            setSkyOpen(false);
             setMonth(m);
             pick(null);
             setShown(PAGE_DAYS);

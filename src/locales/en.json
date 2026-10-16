@@ -494,11 +494,10 @@
     "yearAgo": "A year ago",
     "revisitEmpty": "nothing from around then",
     "random": "Draw a random TIL",
-    "viewGrass": "Back to the garden",
     "viewMap": "Open the constellation sky",
     "mapDone": "{{n}} / 12 complete",
-    "scrollHint": "Scroll to fly between the constellations ↓",
-    "openMonth": "See this month"
+    "dragHint": "Drag to look around · tap a constellation to see that month",
+    "closeSky": "Close the sky"
   },
   "postsPage": {
     "statPosts": "Posts",

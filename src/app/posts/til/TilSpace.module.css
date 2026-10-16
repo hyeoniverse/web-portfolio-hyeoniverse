@@ -1,130 +1,115 @@
-/* 별자리 우주 — 높은 스크롤 구간 안에 화면 크기 3D 가 붙어 있다(sticky). 우주라 테마와 상관없이 어둡다 */
-.section {
-  position: relative;
-  height: 600dvh;
-  margin-top: var(--spacing-16);
-}
-.sticky {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  overflow: hidden;
-  border-radius: var(--radius-surface);
+/* TIL 플라네타리움 — 화면 전체를 덮는 어두운 돔. 우주라 테마와 상관없이 어둡다 */
+.root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
   color-scheme: dark;
   background: var(--bg-scheme-dark);
+  animation: dome-in var(--duration-slower) var(--ease-standard);
+}
+.root::backdrop {
+  background: var(--bg-scheme-dark);
+}
+@keyframes dome-in {
+  from { opacity: 0; }
 }
 .canvas {
   position: absolute;
   inset: 0;
+  cursor: grab;
 }
-
-/* 지금 별자리 — 왼쪽 아래 */
-.hud {
+.canvas:active {
+  cursor: grabbing;
+}
+.top {
   position: absolute;
-  left: var(--spacing-24);
-  bottom: var(--spacing-32);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-8);
-  max-width: 80%;
+  top: calc(var(--spacing-24) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font: var(--font-code-sm);
   color: var(--text-white);
+  opacity: 0.75;
   pointer-events: none;
 }
-.hudYear {
-  font: var(--font-code-xs);
-  opacity: 0.7;
-}
-.hudName {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--spacing-8) var(--spacing-12);
-  margin: 0;
-  font: var(--font-headline-lg);
-  animation: hud-in var(--duration-slow) var(--ease-standard);
-}
-.hudMonth,
-.hudLatin {
-  font: var(--font-code-sm);
-  opacity: 0.6;
-}
-.hudCount {
-  margin: 0;
-  font: var(--font-code-md);
-  opacity: 0.8;
-}
-.hudDone {
-  color: var(--text-accent);
-  opacity: 1;
-}
-.hudOpen {
-  height: var(--control-height-sm);
-  padding: 0 var(--spacing-16);
-  border: var(--border-width-1) solid currentColor;
-  border-radius: var(--radius-control);
-  font: var(--font-label-sm);
-  color: var(--text-white);
-  pointer-events: auto;
-}
-.hudOpen:hover {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-@keyframes hud-in {
-  from { opacity: 0; transform: translateY(var(--spacing-8)); }
-}
-
-/* 열두 달 점 — 오른쪽 가운데 세로 줄 */
-.rail {
+.close {
   position: absolute;
-  top: 50%;
-  right: var(--spacing-16);
-  transform: translateY(-50%);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-}
-.railDot {
-  display: block;
-  width: var(--spacing-12);
-  height: var(--spacing-12);
-  padding: 0;
-  border: var(--border-width-1) solid var(--text-white);
+  top: calc(var(--spacing-16) + env(safe-area-inset-top, 0px));
+  right: calc(var(--spacing-16) + env(safe-area-inset-right, 0px));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border: var(--border-width-1) solid currentColor;
   border-radius: var(--radius-full);
-  opacity: 0.5;
-  transition:
-    opacity var(--duration-fast) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard);
-}
-.railDone {
-  border-color: var(--text-accent);
-  background: var(--text-accent);
+  color: var(--text-white);
   opacity: 0.8;
 }
-.railOn {
+.close:hover {
+  color: var(--text-accent);
   opacity: 1;
-  transform: scale(1.4);
 }
-
 .hint {
   position: absolute;
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  bottom: var(--spacing-16);
   transform: translateX(-50%);
   margin: 0;
   font: var(--font-code-xs);
   color: var(--text-white);
-  opacity: 0.6;
-  transition: opacity var(--duration-slow) var(--ease-standard);
+  opacity: 0.55;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hint-out var(--duration-slower) var(--ease-standard) calc(var(--duration-slower) * 6) forwards;
+}
+@keyframes hint-out {
+  to { opacity: 0; }
+}
+
+/* 별자리 이름표 — TilSpace3D 의 LabelProjector 가 매 틀 transform 으로 자리를 옮긴다 */
+.labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
-.hint[data-hidden] {
-  opacity: 0;
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+  color: var(--text-white);
+  opacity: 0.7;
+  visibility: hidden;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.label b {
+  font: var(--font-label-sm);
+}
+.label i {
+  font: var(--font-code-xs);
+  font-style: normal;
+  opacity: 0.7;
+}
+.label:global(.is-hover) {
+  opacity: 1;
+}
+.labelDone {
+  color: var(--text-accent);
+  opacity: 1;
 }
 @media (prefers-reduced-motion: reduce) {
-  .hudName { animation: none; }
+  .root,
+  .hint { animation: none; }
 }

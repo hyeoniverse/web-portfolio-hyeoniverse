@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Pressable from "@/components/ui/Pressable";
+import { X } from "@/components/icons";
 import { CONSTELLATIONS, litCount } from "./constellations";
 import styles from "./TilSpace.module.css";
 
-/** 3D 우주 — three 묶음이 커서 브라우저에서만 따로 싣는다 */
+/** 3D 플라네타리움 — three 묶음이 커서 브라우저에서만 따로 싣는다 */
 const TilSpace3D = dynamic(() => import("./TilSpace3D"), { ssr: false });
 
 /** CSS 색(oklch 등)을 three 가 읽는 #rrggbb 로 — 1px 캔버스에 칠해 읽는다 */
@@ -21,38 +22,49 @@ function cssColorToHex(value: string) {
   return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
 }
 
-/* 별자리 우주 — 스크롤 구간(화면 높이 여러 배) 안에 3D 화면이 붙어 있고, 스크롤할수록 카메라가
-   1월 → 12월 별자리로 날아간다. 위에 지금 별자리 이름 · 진행도, 옆에 열두 달 점. 별자리를 누르거나
-   "이달 기록 보기" 를 누르면 아래 피드가 그달로 좁혀진다 */
+/* TIL 플라네타리움 — 망원경 단추로 여는 전체 화면 돔 하늘. 다른 요소는 모두 덮고, 위 · 아래에 해 · 완성 수와
+   닫기 단추만 남긴다. 별자리를 누르면 닫히며 피드가 그달로 좁혀진다. Esc 로도 닫는다(<dialog> top layer) */
 export default function TilSpace({
   year,
   byDay,
   monthName,
   lang,
   doneLabel,
-  scrollHint,
-  openLabel,
+  dragHint,
+  closeLabel,
   onMonth,
+  onClose,
 }: {
   year: number;
   byDay: Map<string, unknown[]>;
   monthName: (m: number) => string;
   lang: "ko" | "en";
   doneLabel: string;
-  scrollHint: string;
-  openLabel: string;
+  dragHint: string;
+  closeLabel: string;
   onMonth: (m: number) => void;
+  onClose: () => void;
 }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const progress = useRef(0);
-  const [active, setActive] = useState(0);
+  const rootRef = useRef<HTMLDialogElement>(null);
   const [accent, setAccent] = useState("#ff4f9a");
-  const lits = CONSTELLATIONS.map((_, m) => litCount(byDay, year, m));
+  // 닫을 때 3D(이름표 DOM 포함)를 먼저 내리고 다음 틀에 창을 닫는다 — 창이 먼저 사라지면 이름표 정리가 엇갈린다
+  const [leaving, setLeaving] = useState(false);
+  const leave = (then: () => void) => {
+    setLeaving(true);
+    requestAnimationFrame(() => then());
+  };
 
-  // 강조색 — 테마 토큰(--text-accent)을 읽어 3D 에도 같은 분홍을 쓴다
+  const lits = CONSTELLATIONS.map((_, m) => litCount(byDay, year, m));
+  const doneCount = CONSTELLATIONS.filter((c, m) => lits[m] >= c.stars.length).length;
+  const labelEls = useRef<(HTMLElement | null)[]>([]);
+  const labels = CONSTELLATIONS.map((c, m) => ({
+    name: `${monthName(m)} · ${lang === "en" ? c.en : c.ko}`,
+    count: `${lits[m] >= c.stars.length ? "✦ " : ""}${lits[m]}/${c.stars.length}`,
+  }));
+
+  // 강조색 — 토큰 값은 light-dark(var(..)) 식이라 그대로는 못 읽는다. 그 색을 입힌 요소의 계산된 색을 읽는다
   useEffect(() => {
-    // 토큰 값은 light-dark(var(..)) 식이라 그대로는 못 읽는다 — 그 색을 입힌 요소의 계산된 색을 읽는다
-    const el = sectionRef.current;
+    const el = rootRef.current;
     if (!el) return;
     const probe = document.createElement("span");
     probe.style.color = "var(--text-accent)";
@@ -61,90 +73,50 @@ export default function TilSpace({
     probe.remove();
   }, []);
 
-  // 스크롤 진행도 — 구간 맨 위가 화면 위에 닿을 때 0, 구간 끝이 화면 아래에 닿을 때 1
+  // 브라우저 top layer 에 띄운다(모달은 z-index 가 아니라 top layer — 3.10-1). 열려 있는 동안 뒤 페이지 스크롤을 막는다
   useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      const el = sectionRef.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const span = Math.max(1, r.height - window.innerHeight);
-      const p = Math.min(1, Math.max(0, -r.top / span));
-      progress.current = p;
-      setActive(Math.round(p * 11));
-    };
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const dlg = rootRef.current;
+    if (dlg && !dlg.open) dlg.showModal();
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      document.documentElement.style.overflow = prev;
+      document.body.style.cursor = "";
     };
   }, []);
 
-  // 달 점을 누르면 그달 별자리 자리로 스크롤한다
-  const flyTo = (m: number) => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const span = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + (span * m) / 11, behavior: "smooth" });
-  };
-
-  const c = CONSTELLATIONS[active];
-  const lit = lits[active];
-  const done = lit >= c.stars.length;
-  const doneCount = CONSTELLATIONS.filter((cc, m) => lits[m] >= cc.stars.length).length;
-
   return (
-    <section ref={sectionRef} className={styles.section}>
-      <div className={styles.sticky}>
-        <div className={styles.canvas}>
-          <TilSpace3D progress={progress} lits={lits} accent={accent} active={active} onPick={onMonth} />
-        </div>
-
-        {/* 지금 별자리 */}
-        <div className={styles.hud}>
-          <span className={styles.hudYear}>
-            {year} · ✦ {doneLabel.replace("{{n}}", String(doneCount))}
-          </span>
-          <h2 key={active} className={styles.hudName}>
-            <span className={styles.hudMonth}>{monthName(active)}</span>
-            {lang === "en" ? c.en : c.ko}
-            {lang !== "en" && <span className={styles.hudLatin}>{c.en}</span>}
-          </h2>
-          <p className={`${styles.hudCount} ${done ? styles.hudDone : ""}`}>
-            {done ? "✦ " : ""}
-            {lit} / {c.stars.length}
-          </p>
-          <Pressable noTapScale className={styles.hudOpen} onClick={() => onMonth(active)}>
-            {openLabel} ↓
-          </Pressable>
-        </div>
-
-        {/* 열두 달 점 — 지금 자리 · 완성한 달 표시, 누르면 그달로 날아간다 */}
-        <ol className={styles.rail}>
-          {CONSTELLATIONS.map((cc, m) => (
-            <li key={m}>
-              <Pressable
-                noTapScale
-                className={`${styles.railDot} ${m === active ? styles.railOn : ""} ${lits[m] >= cc.stars.length ? styles.railDone : ""}`}
-                aria-label={`${monthName(m)} ${lang === "en" ? cc.en : cc.ko} ${lits[m]}/${cc.stars.length}`}
-                onClick={() => flyTo(m)}
-              />
-            </li>
-          ))}
-        </ol>
-
-        <p className={styles.hint} data-hidden={active > 0 || undefined}>
-          {scrollHint}
-        </p>
+    <dialog
+      ref={rootRef}
+      className={styles.root}
+      aria-label={`${year} TIL`}
+      data-lenis-prevent
+      // Esc — 브라우저가 닫기 전에 가로채 상태로 닫는다
+      onCancel={(e) => { e.preventDefault(); leave(onClose); }}
+    >
+      <div className={styles.canvas}>
+        {!leaving && <TilSpace3D lits={lits} accent={accent} labels={labelEls} onPick={(m) => leave(() => onMonth(m))} />}
       </div>
-    </section>
+      {/* 별자리 이름표 — 3D 가 매 틀 자리를 옮긴다 */}
+      <div className={styles.labels} aria-hidden>
+        {labels.map((l, m) => (
+          <span
+            key={m}
+            ref={(el) => { labelEls.current[m] = el; }}
+            className={`${styles.label} ${lits[m] >= CONSTELLATIONS[m].stars.length ? styles.labelDone : ""}`}
+          >
+            <b>{l.name}</b>
+            <i>{l.count}</i>
+          </span>
+        ))}
+      </div>
+      <p className={styles.top}>
+        {year} · ✦ {doneLabel.replace("{{n}}", String(doneCount))}
+      </p>
+      <Pressable noTapScale className={styles.close} aria-label={closeLabel} title={closeLabel} onClick={() => leave(onClose)}>
+        <X size={20} strokeWidth={1.8} aria-hidden />
+      </Pressable>
+      <p className={styles.hint}>{dragHint}</p>
+    </dialog>
   );
 }
