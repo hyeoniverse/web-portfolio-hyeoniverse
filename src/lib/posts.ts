@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import { getPopularPostIds } from "@/lib/popularity";
 import { topPostCategory } from "@/lib/seriesCategory";
 
@@ -526,21 +527,41 @@ export async function getPostArchiveMonths(): Promise<string[]> {
 /** TIL 페이지의 글 요약 — 잔디 칸 · 그날의 기록 카드 · 고정 TIL 목록이 같이 쓴다 */
 export type TilEntry = Pick<
   Post,
-  "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "is_pinned" | "tags"
+  | "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "is_pinned" | "tags"
+  | "content" | "content_en" | "content_type"
 >;
 
-/** TIL 페이지 데이터 — 설정 posts.tilTag(기본 "TIL") 태그가 붙은 발행 글, 최신순 */
+/** TIL 페이지 데이터 — 설정 posts.tilTag(기본 "TIL") 태그가 붙은 발행 글, 최신순. 잔디를 눌러 그 자리에서 읽도록 본문까지 싣는다.
+ *  태그는 대소문자를 가리지 않는다("TIL" · "til" · "Til" 모두) — 배열 포함 검사(contains)는 정확히 같은 글자만 찾아서,
+ *  태그만 가볍게 훑어 해당 글 id 를 고른 뒤 본문을 받는다. richtext 본문은 글 상세와 같이 코드 블록을 미리 칠한다 */
 export async function getTilData(): Promise<{ tag: string; entries: TilEntry[] }> {
   const admin = createAdminClient();
   const cfg = await getSiteConfig();
   const tag = cfg.posts?.tilTag || "TIL";
-  const { data } = await admin
+  const wanted = tag.trim().toLowerCase();
+  const { data: tagRows } = await admin
     .from("posts")
-    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, is_pinned, tags")
+    .select("id, tags")
     .eq("published", true)
     .is("deleted_at", null)
-    .contains("tags", [tag])
-    .order("created_at", { ascending: false })
-    .limit(3000);
-  return { tag, entries: (data ?? []) as TilEntry[] };
+    .limit(5000);
+  const ids = ((tagRows ?? []) as { id: string; tags: string[] | null }[])
+    .filter((r) => (r.tags ?? []).some((t) => t.trim().toLowerCase() === wanted))
+    .map((r) => r.id);
+  if (ids.length === 0) return { tag, entries: [] };
+  const { data } = await admin
+    .from("posts")
+    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, is_pinned, tags, content, content_en, content_type")
+    .in("id", ids)
+    .order("created_at", { ascending: false });
+  const entries = await Promise.all(((data ?? []) as TilEntry[]).map(async (e) =>
+    e.content_type === "markdown"
+      ? e
+      : {
+          ...e,
+          content: e.content ? await highlightRichtextCode(e.content) : e.content,
+          content_en: e.content_en ? await highlightRichtextCode(e.content_en) : e.content_en,
+        },
+  ));
+  return { tag, entries };
 }

@@ -698,9 +698,9 @@ export default function Navigation() {
             </motion.span>
           );
         })()}
-      {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
+      {/* 섹션 배지(Admin · Blog) — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
       {section.badge && (
-        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</Badge>
+        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>{section.badge}</Badge>
       )}
     </Link>
 

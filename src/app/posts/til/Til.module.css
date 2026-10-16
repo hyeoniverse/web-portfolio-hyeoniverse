@@ -270,6 +270,35 @@
 .entry:hover {
   border-color: var(--text-accent);
 }
+/* 그날의 기록 — 본문을 펼친 글 하나. 머리(제목 · 글 보기)와 본문 */
+.entryArticle {
+  padding: var(--spacing-16) var(--spacing-20);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+}
+.entryHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+  text-decoration: none;
+}
+.entryHead:hover .entryTitle {
+  color: var(--text-accent);
+}
+.entryMore {
+  font: var(--font-label-sm);
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+.entryBody {
+  padding-top: var(--spacing-12);
+  min-width: 0;
+}
 .entryTitle {
   font: var(--font-headline-xs);
   color: var(--text-primary);

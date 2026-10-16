@@ -469,6 +469,7 @@
     }
   },
   "tilPage": {
+    "openPost": "Open post",
     "subtitle": "Today I Learned — a garden where each day of learning grows a square.",
     "tagHint": "Posts tagged #{{tag}} grow here.",
     "yearTabs": "Year",

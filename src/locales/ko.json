@@ -469,6 +469,7 @@
     }
   },
   "tilPage": {
+    "openPost": "글로 보기",
     "subtitle": "Today I Learned — 매일 배운 걸 한 칸씩 심는 잔디밭이에요.",
     "tagHint": "#{{tag}} 태그를 단 글이 잔디로 자라요.",
     "yearTabs": "연도",

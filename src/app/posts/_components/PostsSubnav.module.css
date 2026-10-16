@@ -26,3 +26,11 @@
   color: var(--text-inverse);
   background: var(--text-primary);
 }
+
+/* 넓은 화면은 상단 내비게이션이 블로그 메뉴(Posts · Series · Tags · History · TIL)를 이미 보여 준다 — 겹치지 않게 숨긴다.
+   메뉴가 서랍으로 들어가는 768 이하에서만 이 줄이 둘러보기 축 노릇을 한다 */
+@media (width > 768px) {
+  .subnav {
+    display: none;
+  }
+}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import TransitionLink from "@/components/ui/TransitionLink";
+import { PostArticleBody } from "@/components/posts/PostArticleView";
 import PageTitle from "@/components/ui/PageTitle";
 import Pressable from "@/components/ui/Pressable";
 import { SITE_TIME_ZONE } from "@/constants";
@@ -49,6 +50,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
   const lang = language === "en" ? "en" : "ko";
   const titleOf = (e: TilEntry) => (lang === "en" && e.title_en) || e.title;
   const excerptOf = (e: TilEntry) => (lang === "en" && e.excerpt_en) || e.excerpt;
+  const contentOf = (e: TilEntry) => (lang === "en" && e.content_en) || e.content;
 
   const byDay = useMemo(() => {
     const map = new Map<string, TilEntry[]>();
@@ -245,10 +247,30 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
             <ul className={styles.entryList}>
               {selectedEntries.map((e) => (
                 <li key={e.id}>
-                  <TransitionLink href={`/posts/${e.slug}`} className={styles.entry}>
-                    <strong className={styles.entryTitle}>{titleOf(e)}</strong>
-                    {excerptOf(e) && <span className={styles.entryExcerpt}>{excerptOf(e)}</span>}
-                  </TransitionLink>
+                  {/* 그날의 기록 — 제목(글 상세로 가는 링크) 아래에 본문을 그 자리에서 펼쳐 읽는다 */}
+                  <article className={styles.entryArticle}>
+                    <TransitionLink href={`/posts/${e.slug}`} className={styles.entryHead}>
+                      <strong className={styles.entryTitle}>{titleOf(e)}</strong>
+                      <span className={styles.entryMore}>{t("tilPage.openPost")} →</span>
+                    </TransitionLink>
+                    {contentOf(e) ? (
+                      <div className={styles.entryBody}>
+                        <PostArticleBody
+                          data={{
+                            displayTitle: titleOf(e),
+                            displayContent: contentOf(e),
+                            displayExcerpt: excerptOf(e),
+                            contentType: e.content_type,
+                            tags: e.tags,
+                            viewCount: 0,
+                            createdAt: e.created_at,
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      excerptOf(e) && <p className={styles.entryExcerpt}>{excerptOf(e)}</p>
+                    )}
+                  </article>
                 </li>
               ))}
             </ul>
