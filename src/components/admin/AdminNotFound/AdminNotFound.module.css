@@ -10,7 +10,7 @@
   gap: var(--spacing-20);
   box-sizing: border-box;
   min-height: calc(100dvh - var(--footer-height));
-  padding: var(--spacing-128) var(--spacing-page-inline);
+  padding: var(--admin-page-top) var(--spacing-page-inline);
   text-align: center;
   color: var(--text-tertiary);
 }
