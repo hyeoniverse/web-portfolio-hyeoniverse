@@ -15,7 +15,7 @@ import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import BlogProfile from "./_components/BlogProfile";
-import BlogCategories from "./_components/BlogCategories";
+import BlogCalendar from "./_components/BlogCalendar";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
 import PostsToolbar from "./_components/PostsToolbar/PostsToolbar";
@@ -26,6 +26,7 @@ import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
 import { LIST_PENDING_SCRIPT } from "./_hooks/postsListUrl";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Posts.module.css";
 
 interface PostsClientProps {
@@ -38,17 +39,18 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
+  const { t } = useLanguage();
   const siteConf = useSiteConfig();
-  // 목록 카드 레이아웃 (설정) — blog(기본)/magazine/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
+  // 목록 카드 레이아웃 (설정) — magazine(기본)/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
   const configLayout = (["magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
     ? siteConf.posts.layout
-    : "blog");
+    : "magazine");
   const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
   // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
   const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const {
     posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
-    activeCategories, setActiveCategories, activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
+    activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
   } = query;
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
@@ -174,12 +176,11 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           extraCategories={extraCategories}
           allTags={allTags}
           query={query}
-          sidebarCategories={postsLayout === "blog"}
         />
       )}
 
       {/* ── Content Area (2-column) ── */}
-      <div ref={contentRef} className={`${styles.contentArea} ${postsLayout === "blog" ? styles.contentAreaBlog : ""}`}>
+      <div ref={contentRef} className={styles.contentArea}>
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시. history 모드는 렌더하지 않음 (사이드바와 같은 방식.
               예전엔 CSS 로 숨겨 안 보이는 row 가 마운트 직후 다음 페이지 fetch 를 했다) */}
@@ -238,8 +239,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
-            {/* blog 레이아웃 — 개발 블로그식으로 소개 카드를 맨 위에, 태그 바로 아래에 카테고리 목록을 둔다 */}
-            {postsLayout === "blog" && <BlogProfile />}
+            {/* 개발 블로그식 — 소개 카드를 맨 위에, 태그 아래에 날짜별 달력을 둔다 */}
+            <BlogProfile
+              stats={[
+                { label: t("postsPage.statPosts"), value: initialData.calendarPosts.length },
+                { label: t("postsPage.statTags"), value: allTags.length },
+                { label: t("postsPage.statSeries"), value: initialData.seriesTotal },
+              ]}
+            />
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D
@@ -249,9 +256,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
               asChips={hasActiveFilter}
             />
-            {postsLayout === "blog" && (
-              <BlogCategories activeCategories={activeCategories} onCategoriesChange={setActiveCategories} />
-            )}
+            <BlogCalendar posts={initialData.calendarPosts} />
             <PopularPosts />
             <RandomPosts />
             <RecentComments />

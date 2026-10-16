@@ -469,8 +469,10 @@
     }
   },
   "postsPage": {
-    "categories": "Categories",
-    "allCategories": "All posts",
+    "statPosts": "Posts",
+    "statTags": "Tags",
+    "statSeries": "Series",
+    "calendar": "Archive calendar",
     "subtitle": "Memory fades, but writing remains — and grows by sharing.",
     "searchPlaceholder": "Search...",
     "searchAll": "Title+Content",

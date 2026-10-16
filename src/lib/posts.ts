@@ -23,7 +23,7 @@ export async function getInitialPostsData() {
   const admin = createAdminClient();
   const perPage = await getPostsPerPage();
 
-  const [postsResult, pinnedResult, seriesResult, allPostsResult] = await Promise.all([
+  const [postsResult, pinnedResult, seriesResult, allPostsResult, calendarResult] = await Promise.all([
     // 1. First page of posts (newest)
     admin
       .from("posts")
@@ -57,6 +57,15 @@ export async function getInitialPostsData() {
       .select("id, tags, category, view_count")
       .eq("published", true)
       .limit(100),
+
+    // 5. 날짜별 달력(blog 사이드바) — 발행된 글의 제목 · 주소 · 날짜만
+    admin
+      .from("posts")
+      .select("slug, title, title_en, created_at")
+      .eq("published", true)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(2000),
   ]);
 
   const posts = (postsResult.data ?? []) as Post[];
@@ -204,8 +213,12 @@ export async function getInitialPostsData() {
     allTags,
     extraCategories,
     popularIds,
+    calendarPosts: (calendarResult.data ?? []) as CalendarPost[],
   };
 }
+
+/** 날짜별 달력에 쓰는 글 요약 — 주소 · 제목 · 작성 시각 */
+export type CalendarPost = Pick<Post, "slug" | "title" | "title_en" | "created_at">;
 
 export type InitialPostsData = Awaited<ReturnType<typeof getInitialPostsData>>;
 
