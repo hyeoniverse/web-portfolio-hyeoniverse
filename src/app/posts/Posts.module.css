@@ -46,6 +46,10 @@
   font: inherit;
   color: var(--text-accent);
 }
+/* 로그 스킨 — 별밭(StarLog)이 페이지 전체 길이를 덮는 기준 */
+.page[data-blog-skin="log"] {
+  position: relative;
+}
 /* 로그 스킨 — 페이지 바탕에 별밭(StarLog), 블로그 이름은 모노 + 깜빡이는 커서 */
 [data-blog-skin="log"] .mastheadTitle::after {
   content: "_";
