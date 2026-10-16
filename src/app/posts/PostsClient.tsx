@@ -238,13 +238,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
-            {/* blog 레이아웃 — 개발 블로그식으로 소개 카드 · 카테고리 목록을 맨 위에 둔다 */}
-            {postsLayout === "blog" && (
-              <>
-                <BlogProfile />
-                <BlogCategories activeCategories={activeCategories} onCategoriesChange={setActiveCategories} />
-              </>
-            )}
+            {/* blog 레이아웃 — 개발 블로그식으로 소개 카드를 맨 위에, 태그 바로 아래에 카테고리 목록을 둔다 */}
+            {postsLayout === "blog" && <BlogProfile />}
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D
@@ -254,6 +249,9 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
               asChips={hasActiveFilter}
             />
+            {postsLayout === "blog" && (
+              <BlogCategories activeCategories={activeCategories} onCategoriesChange={setActiveCategories} />
+            )}
             <PopularPosts />
             <RandomPosts />
             <RecentComments />
