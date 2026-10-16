@@ -14,7 +14,6 @@ import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
-import BlogProfile from "./_components/BlogProfile";
 import MongSticker from "./_components/MongSticker";
 import BlogCalendar from "./_components/BlogCalendar";
 import PostsSidebar from "./_components/PostsSidebar";
@@ -27,7 +26,6 @@ import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
 import { LIST_PENDING_SCRIPT } from "./_hooks/postsListUrl";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Posts.module.css";
 
 interface PostsClientProps {
@@ -40,7 +38,6 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
-  const { t } = useLanguage();
   const siteConf = useSiteConfig();
   // 목록 카드 레이아웃 (설정) — magazine(기본)/journal/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
   const configLayout = (["journal", "magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
@@ -134,12 +131,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
 
-  const profileStats = [
-    { label: t("postsPage.statPosts"), value: initialData.calendarPosts.length },
-    { label: t("postsPage.statTags"), value: allTags.length },
-    { label: t("postsPage.statSeries"), value: initialData.seriesTotal },
-  ];
-
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <>
@@ -168,9 +159,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           />
         )}
       </AnimatePresence>
-
-      {/* 블로그 주인 — 머리말 아래, 필터 위에 가로 띠로 선다(사이드바 대신) */}
-      {!history && <BlogProfile stats={profileStats} />}
 
       {/* ── Filter Bar (검색 + 전체태그 토글 + 카테고리 + 태그 패널) — history 모드에선 렌더하지 않음.
           sticky 판정·백드롭·본문 blur 는 여기(부모)에 남는다: barHidden 은 사이드바도 쓰고 blur 는 contentArea 에 건다. ── */}
@@ -257,7 +245,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
-            {/* 태그 아래에 날짜별 달력을 둔다 — 소개는 머리말 아래 띠로 옮겼다 */}
+            {/* 태그 아래에 날짜별 달력을 둔다 — 소개는 머리말 위 띠(PostsPageChrome)로 옮겼다 */}
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D

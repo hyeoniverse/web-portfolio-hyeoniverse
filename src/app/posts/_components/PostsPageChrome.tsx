@@ -3,6 +3,7 @@
 import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
 import MastheadMong from "./MastheadMong";
+import BlogProfile from "./BlogProfile";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
 import { History as HistoryIcon } from "@/components/icons";
@@ -15,12 +16,14 @@ interface PostsPageChromeProps {
   /** history 모드 — 제목/부제가 History 로 바뀌고 배너를 렌더하지 않는다. */
   history?: boolean;
   pinnedPosts?: Post[];
+  /** 블로그 주인 띠의 글 · 태그 · 시리즈 수 — 있으면 머리말 위에 프로필 띠를 그린다 */
+  counts?: { posts: number; tags: number; series: number };
   children: React.ReactNode;
 }
 
 /* 글 목록 페이지의 고정 골격 — 페이지 래퍼 · 서브네비 · 제목 · 배너. 필터나 URL 쿼리에 의존하지 않는다.
    본문(PostsClient)은 children 으로 받는다. */
-export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
+export default function PostsPageChrome({ history = false, pinnedPosts = [], counts, children }: PostsPageChromeProps) {
   const { t } = useLanguage();
   // 설정 posts.showBanner — 켤 때만 고정글 배너를 그린다
   const siteConf = useSiteConfig();
@@ -31,6 +34,16 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
     /* 별밭 · 로그 스킨은 posts/layout.tsx 가 블로그 전체에 깐다 */
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
+      {/* 블로그 주인 — 머리말보다 위, 페이지 맨 위에 가로 띠로 선다 */}
+      {!history && counts && (
+        <BlogProfile
+          stats={[
+            { label: t("postsPage.statPosts"), value: counts.posts },
+            { label: t("postsPage.statTags"), value: counts.tags },
+            { label: t("postsPage.statSeries"), value: counts.series },
+          ]}
+        />
+      )}
       <div className={styles.header}>
         {history ? (
           <>

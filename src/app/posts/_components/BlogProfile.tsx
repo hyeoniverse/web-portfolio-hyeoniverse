@@ -17,7 +17,7 @@ import styles from "./BlogSidebar.module.css";
 
 /* 글 목록 사이드바의 소개 카드 — 인스타그램 프로필처럼 [아바타 | 이름 · 글 · 태그 · 시리즈 수] 다음 역할 · 소개 ·
    소셜 아이콘 버튼. 소유자 작성자(site.config authors) 기준이고, 소개가 비면 Profile 페이지의 한 줄 소개를 쓴다.
-   글 목록 머리말 아래, 필터 위에 가로 띠로 선다 — 넓은 화면은 [아바타 · 이름 · 숫자 | 역할 · 소개 | 링크] 한 줄,
+   글 목록 페이지 맨 위(머리말 위)에 가로 띠로 선다 — 넓은 화면은 [아바타 · 이름 · 숫자 | 역할 · 소개 | 링크] 한 줄,
    좁은 화면은 소개를 빼고 [아바타 · 이름 · 숫자 | 링크] */
 export default function BlogProfile({ stats }: { stats: { label: string; value: number }[] }) {
   const { language } = useLanguage();
