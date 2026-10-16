@@ -26,7 +26,26 @@ function star(x: number, y: number, r: number) {
   return `M${x} ${y - r}C${x + k} ${y - k} ${x + k} ${y - k} ${x + r} ${y}C${x + k} ${y + k} ${x + k} ${y + k} ${x} ${y + r}C${x - k} ${y + k} ${x - k} ${y + k} ${x - r} ${y}C${x - k} ${y - k} ${x - k} ${y - k} ${x} ${y - r}Z`;
 }
 
-type Burst = { id: number; x: number; y: number };
+type Spark = { a: number; d: number; size: number; spin: number; dur: number; delay: number; dust: boolean; soft: boolean };
+type Burst = { id: number; x: number; y: number; sparks: Spark[] };
+
+/** 별 조각 — 개수 · 방향 · 거리 · 크기 · 회전 · 속도를 매번 제각각으로 뽑아 불규칙하게 흩어진다 */
+function makeSparks(): Spark[] {
+  const n = 5 + Math.floor(Math.random() * 6);
+  return Array.from({ length: n }, () => {
+    const dust = Math.random() < 0.35;
+    return {
+      a: Math.random() * 360,
+      d: 24 + Math.random() * 56,
+      size: dust ? 3 + Math.random() * 3 : 8 + Math.random() * 14,
+      spin: (Math.random() - 0.5) * 240,
+      dur: 0.5 + Math.random() * 0.6,
+      delay: Math.random() * 0.12,
+      dust,
+      soft: Math.random() < 0.4,
+    };
+  });
+}
 
 function Tile({ id, items, glow }: { id: string; items: ReturnType<typeof makeItems>; glow?: boolean }) {
   return (
@@ -76,9 +95,9 @@ export default function StarLog({ seed }: { seed: string }) {
       // 링크 · 버튼 · 입력 위에서는 터뜨리지 않는다 — 빈 바탕을 눌렀을 때만
       if ((e.target as Element).closest("a, button, input, textarea, select, label, [role='button'], [data-clickable]")) return;
       const r = el.getBoundingClientRect();
-      const b = { id: ++id, x: e.clientX - r.left, y: e.clientY - r.top };
+      const b = { id: ++id, x: e.clientX - r.left, y: e.clientY - r.top, sparks: makeSparks() };
       setBursts((list) => [...list.slice(-6), b]);
-      setTimeout(() => setBursts((list) => list.filter((x) => x.id !== b.id)), 900);
+      setTimeout(() => setBursts((list) => list.filter((x) => x.id !== b.id)), 1300);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
@@ -118,11 +137,24 @@ export default function StarLog({ seed }: { seed: string }) {
       </svg>
       {bursts.map((b) => (
         <span key={b.id} className={styles.burst} style={{ left: b.x, top: b.y }}>
-          {Array.from({ length: 6 }, (_, i) => (
-            <svg key={i} className={styles.spark} viewBox="-10 -10 20 20" style={{ ["--a" as string]: `${i * 60 + 15}deg` }}>
-              <path d={star(0, 0, 9)} />
-            </svg>
-          ))}
+          {b.sparks.map((sp, i) =>
+            sp.dust ? (
+              <span
+                key={i}
+                className={styles.sparkDust}
+                style={{ ["--a" as string]: `${sp.a}deg`, ["--d" as string]: `${sp.d}px`, ["--s" as string]: `${sp.size}px`, animationDuration: `${sp.dur}s`, animationDelay: `${sp.delay}s` }}
+              />
+            ) : (
+              <svg
+                key={i}
+                className={`${styles.spark} ${sp.soft ? styles.sparkSoft : ""}`}
+                viewBox="-10 -10 20 20"
+                style={{ ["--a" as string]: `${sp.a}deg`, ["--d" as string]: `${sp.d}px`, ["--s" as string]: `${sp.size}px`, ["--spin" as string]: `${sp.spin}deg`, animationDuration: `${sp.dur}s`, animationDelay: `${sp.delay}s` }}
+              >
+                <path d={star(0, 0, 9)} />
+              </svg>
+            ),
+          )}
         </span>
       ))}
     </div>

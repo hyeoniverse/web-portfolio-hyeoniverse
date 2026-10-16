@@ -39,19 +39,33 @@
   width: 0;
   height: 0;
 }
-.spark {
+.spark,
+.sparkDust {
   position: absolute;
-  left: -9px;
-  top: -9px;
-  width: 18px;
+  left: calc(var(--s) / -2);
+  top: calc(var(--s) / -2);
+  width: var(--s);
   max-width: none; /* 전역 svg max-width: 100% — 너비 0 인 .burst 안에서 찌그러지지 않게 */
-  height: 18px;
+  height: var(--s);
+  opacity: 0;
+  animation-name: spark-fly;
+  animation-timing-function: var(--ease-exit);
+  animation-fill-mode: forwards;
+}
+.spark {
   fill: currentColor;
-  animation: spark-fly calc(var(--duration-slower) * 1.1) var(--ease-standard) forwards;
+}
+.sparkSoft {
+  fill: var(--text-tertiary);
+}
+.sparkDust {
+  border-radius: var(--radius-full);
+  background: currentColor;
 }
 @keyframes spark-fly {
-  from { transform: rotate(var(--a)) translateY(-6px) scale(0.8); opacity: 1; }
-  to { transform: rotate(var(--a)) translateY(-60px) scale(0.5) rotate(90deg); opacity: 0; }
+  from { transform: rotate(var(--a)) translateY(0) scale(0.3) rotate(0deg); opacity: 1; }
+  40% { opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1) rotate(var(--spin, 0deg)); opacity: 0; }
 }
 .dust {
   fill: var(--text-tertiary);
