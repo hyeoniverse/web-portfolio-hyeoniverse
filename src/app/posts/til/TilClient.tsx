@@ -12,7 +12,6 @@ import type { TilEntry } from "@/lib/posts";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import PostsSubnav from "../_components/PostsSubnav";
-import StarLog from "../_components/StarLog";
 import index from "../_components/IndexPage.module.css";
 import styles from "./Til.module.css";
 
@@ -163,9 +162,7 @@ export default function TilClient({ tag, entries }: { tag: string; entries: TilE
     new Date(`${key}T12:00:00Z`).toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "short", timeZone: "UTC" });
 
   return (
-    <div className={`${index.container} ${styles.page}`}>
-      {/* 블로그 글 목록과 같은 별밭 바탕 */}
-      <StarLog seed="til" />
+    <div className={index.container}>
       <PostsSubnav />
       <header className={styles.hero}>
         <div className={styles.heroText}>

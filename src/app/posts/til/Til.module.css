@@ -190,12 +190,6 @@
   transform: none;
 }
 
-/* 별밭(StarLog)이 페이지 전체를 덮는 기준 */
-.page {
-  position: relative;
-  isolation: isolate;
-}
-
 /* 아래 본문 — [기록 피드 | 따라오는 몽이 · 고정 TIL]. 좁은 화면은 몽이가 위로 */
 .body {
   display: grid;

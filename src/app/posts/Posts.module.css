@@ -92,9 +92,11 @@
     inset: auto 0 calc(var(--spacing-16) * -1);
   }
 }
-/* 로그 스킨 — 별밭(StarLog)이 페이지 전체 길이를 덮는 기준 */
-.page[data-blog-skin="log"] {
-  position: relative;
+/* 블로그 공통 바탕(posts/layout) 안에서는 바탕을 비워 별밭이 보이게 한다. 필터바 · 카드의 difference 는
+   바깥 .skin 의 바탕과 섞인다 */
+[data-blog-skin="log"] .page {
+  isolation: auto;
+  background: transparent;
 }
 /* 로그 스킨 — 페이지 바탕에 별밭(StarLog), 블로그 이름은 모노 + 깜빡이는 커서 */
 [data-blog-skin="log"] .mastheadTitle::after {

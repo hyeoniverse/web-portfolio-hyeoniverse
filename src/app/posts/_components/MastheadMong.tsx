@@ -38,6 +38,9 @@ export default function MastheadMong({ className, gridClassName, mongClassName }
   }, []);
 
   const pose = hover && idx === 0 ? "happy-front" : POSES[idx];
+  // 표정 컷을 모두 미리 겹쳐 두고 보이는 것만 바꾼다 — 그림을 새로 불러오며 깜빡이거나,
+  // 컷마다 너비가 달라 영역이 바뀌어 hover 가 들락날락하지 않게. 영역은 가장 넓은 컷(별) 기준으로 고정
+  const layers: MongPose[] = [...new Set<MongPose>([...POSES, "happy-front"])];
   return (
     <div ref={ref} className={`${styles.wrap} ${className ?? ""}`} aria-hidden>
       <WavyGrid className={`${styles.grid} ${gridClassName ?? ""}`} />
@@ -52,8 +55,10 @@ export default function MastheadMong({ className, gridClassName, mongClassName }
           setHop((h) => h + 1);
         }}
       >
-        <span key={hop} className={hop ? styles.hop : undefined}>
-          <MongSticker pose={pose} float />
+        <span key={hop} className={`${styles.stack} ${hop ? styles.hop : ""}`}>
+          {layers.map((p) => (
+            <MongSticker key={p} pose={p} float className={`${styles.layer} ${p === pose ? styles.layerOn : ""}`} />
+          ))}
         </span>
       </Pressable>
     </div>

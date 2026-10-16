@@ -23,8 +23,23 @@
 .mong:hover {
   scale: 1.04;
 }
-.mong > span {
+/* 표정 컷을 겹쳐 두는 틀 — 크기는 가장 넓은 별 컷(1544 × 1085) 기준으로 고정 */
+.stack {
+  position: relative;
   display: block;
+  height: var(--mong-height, 200px);
+  aspect-ratio: 1544 / 1085;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.layerOn {
+  opacity: 1;
 }
 .hop {
   animation: mong-hop var(--duration-slow) var(--ease-standard);

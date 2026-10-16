@@ -1,0 +1,7 @@
+/* 블로그 공통 바탕 — 별밭(z -1)이 내용 뒤에 깔리도록 여기서 쌓임 맥락과 바탕색을 만든다.
+   안쪽 화면(.page 등)은 바탕을 비워 별이 보이게 한다(Posts.module.css) */
+.skin {
+  position: relative;
+  isolation: isolate;
+  background: var(--bg-primary);
+}

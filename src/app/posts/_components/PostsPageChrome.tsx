@@ -2,7 +2,6 @@
 
 import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
-import StarLog from "./StarLog";
 import MastheadMong from "./MastheadMong";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
@@ -29,9 +28,8 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
   // 블로그 이름 — 설정 posts.blogTitle, 비면 "Log"
   const blogTitle = siteConf.posts.blogTitle?.trim() || "Log";
   return (
-    /* data-blog-skin="log" — 글 목록의 개발 로그 스킨(바탕 별밭, 카드 날짜 줄 · 태그를 모노 글꼴로). 레이아웃은 그대로, History 는 빼 둔다 */
-    <div className={`${styles.page} ${history ? styles.historyMode : ""}`} data-blog-skin={history ? undefined : "log"}>
-      {!history && <StarLog seed={blogTitle} />}
+    /* 별밭 · 로그 스킨은 posts/layout.tsx 가 블로그 전체에 깐다 */
+    <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
       <div className={styles.header}>
         {history ? (
