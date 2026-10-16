@@ -3027,6 +3027,7 @@
         "gridImageFirst": "Grid (균일·이미지 우선)",
         "listRows": "List (수평 목록)",
         "compactTextOnly": "Compact (텍스트형)",
+        "blogTextFirst": "Blog (텍스트 우선 글 목록)",
         "masonryVariableHeight": "Masonry (가변 높이)",
         "featuredHeroGrid": "Featured (대형 1 + 그리드)",
         "emptyState": "빈 화면",

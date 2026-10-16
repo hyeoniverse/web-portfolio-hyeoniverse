@@ -3027,6 +3027,7 @@
         "gridImageFirst": "Grid (image-first)",
         "listRows": "List (rows)",
         "compactTextOnly": "Compact (text-only)",
+        "blogTextFirst": "Blog (text-first list)",
         "masonryVariableHeight": "Masonry (variable height)",
         "featuredHeroGrid": "Featured (hero + grid)",
         "emptyState": "Empty state",

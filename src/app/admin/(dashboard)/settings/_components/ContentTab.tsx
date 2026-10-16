@@ -446,6 +446,7 @@ export default function ContentTab({
                     { value: "editorial", label: "Editorial" },
                     { value: "minimal", label: "Minimal" },
                     { value: "cinematic", label: "Cinematic" },
+                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: "Magazine" },
                   ]}
                   onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
@@ -470,7 +471,7 @@ export default function ContentTab({
             <div className={styles.fields}>
               <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
                 <Select
-                  value={config.posts.layout ?? "magazine"}
+                  value={config.posts.layout ?? "blog"}
                   options={[
                     { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
                     { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },

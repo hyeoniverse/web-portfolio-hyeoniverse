@@ -1,0 +1,114 @@
+/* ── 블로그 카드 (PostCardBlog) — 텍스트 우선 글 행. [본문 | 썸네일] 2열, 썸네일은 있을 때만 ── */
+.blogCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-24);
+  height: auto;
+  padding: var(--spacing-24) 0;
+  cursor: pointer;
+}
+
+.blogBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.blogMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+.blogPin {
+  display: inline-flex;
+  color: var(--text-accent);
+}
+.blogPin > svg {
+  transform: rotate(45deg);
+}
+.blogCat {
+  font: var(--font-label-xs);
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.blogTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font: var(--font-headline-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.blogIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.blogCard:hover .blogTitle {
+  color: var(--text-accent);
+}
+
+.blogExcerpt {
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.blogFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-4);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.blogTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-8);
+  min-width: 0;
+}
+.blogStats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.blogThumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 96px;
+  aspect-ratio: 1;
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+@media (width > 480px) {
+  .blogThumb {
+    width: 160px;
+    aspect-ratio: 4 / 3;
+  }
+}
+.blogThumbImg {
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-standard);
+}
+.blogCard:hover .blogThumbImg {
+  transform: scale(1.05);
+}

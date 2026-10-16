@@ -167,6 +167,18 @@
   /* main column 을 꽉 채움 (좌우 여백 최소화) */
 }
 
+/* blog — 텍스트 우선 글 행 1열(개발 블로그식). 카드 스타일은 PostCardBlog.module.css. 마지막 행만 선을 뗀다 */
+.gridBlog {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  grid-template-columns: none;
+  grid-auto-rows: auto;
+}
+.gridBlog .gridItem:last-child > div > * {
+  border-bottom: none;
+}
+
 /* ══ masonry — CSS multi-column. 가변 높이 카드가 열에 촘촘히 packing (row-span JS 미사용). ══ */
 .gridMasonry {
   display: block;
