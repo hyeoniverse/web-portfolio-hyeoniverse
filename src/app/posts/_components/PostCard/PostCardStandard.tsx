@@ -119,6 +119,11 @@ export default function PostCardStandard({
       data-clickable="true"
     >
       <PostCardLink {...cardLink} />
+      {/* 로그 스킨의 창 제목 줄 — [● ● ●  posts/slug.md]. 스킨이 아닐 땐 CSS 가 숨긴다 */}
+      <div className={styles.logBar} aria-hidden>
+        <span className={styles.logDots}><i /><i /><i /></span>
+        <span className={styles.logPath}>posts/{post.slug || post.id}.md</span>
+      </div>
       <div className={styles.imageWrap}>
         {showImage ? (
           <ProgressiveImage
@@ -177,10 +182,6 @@ export default function PostCardStandard({
         {/* lang — 커버/placeholder 무관 imageWrap 우상단 고정 (hot·pinned 유무 상관없이) */}
         {langBadge && (
           <Badge variant="overlay" uppercase className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></Badge>
-        )}
-        {/* 로그 스킨의 파일 경로 줄 — 커버 위 왼쪽 위. 스킨이 아닐 땐 CSS 가 숨긴다 */}
-        {showImage && (
-          <span className={styles.logPath} aria-hidden>posts/{post.slug || post.id}</span>
         )}
         {/* 페이지 이모지 — 커버 좌하단에 겹쳐(Notion·디테일 페이지와 동일 감성) */}
         {showImage && icon && (

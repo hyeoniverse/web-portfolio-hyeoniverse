@@ -653,28 +653,73 @@
   -webkit-line-clamp: 3;
 }
 
-/* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치는 건드리지 않고
-   날짜 줄 · 태그 · 선만 모노 · 점선으로 바꾸고, 커버 위에 글 경로 줄을 얹는다 ── */
-.logPath {
+/* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치는 그대로 두고
+   카드를 터미널 창처럼 [제목 줄 · 커버 · 본문] 틀로 감싸고, 제목 · 메타 · 태그를 모노 글꼴로 바꾼다 ── */
+.logBar {
   display: none;
 }
-:global([data-blog-skin="log"]) .logPath {
-  display: block;
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 1;
+:global([data-blog-skin="log"]) .card {
+  border: var(--border-width-1) solid var(--border-color-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-surface);
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+:global([data-blog-skin="log"]) .card:hover {
+  border-color: var(--text-accent);
+}
+:global([data-blog-skin="log"]) .logBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-12);
+  border-bottom: var(--border-width-1) solid var(--border-color-light);
+  background: var(--bg-secondary);
+}
+.logDots {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: var(--spacing-4);
+}
+.logDots i {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--border-color-strong);
+}
+:global([data-blog-skin="log"]) .card:hover .logDots i:first-child {
+  background: var(--text-accent);
+}
+.logPath {
+  min-width: 0;
   font: var(--font-code-xs);
-  color: var(--text-white);
-  background: var(--bg-overlay);
+  color: var(--text-tertiary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  pointer-events: none;
+}
+:global([data-blog-skin="log"]) .body {
+  padding: var(--spacing-16);
+  border-top: var(--border-width-1) dashed var(--border-color-light);
+}
+:global([data-blog-skin="log"]) .title {
+  font: var(--font-code-lg);
+  color: var(--text-primary);
+}
+:global([data-blog-skin="log"]) .card:hover .title {
+  color: var(--text-accent);
+}
+:global([data-blog-skin="log"]) .title::before {
+  content: "> ";
+  color: var(--text-accent);
+}
+:global([data-blog-skin="log"]) .placeholderTitle {
+  font: var(--font-code-lg);
 }
 :global([data-blog-skin="log"]) .dateLine,
 :global([data-blog-skin="log"]) .dateLineDate,
-:global([data-blog-skin="log"]) .dateLineCat {
+:global([data-blog-skin="log"]) .dateLineCat,
+:global([data-blog-skin="log"]) .meta {
   font: var(--font-code-xs);
   letter-spacing: 0;
   text-transform: none;
@@ -688,12 +733,8 @@
 :global([data-blog-skin="log"]) .dateLineCat::after {
   content: "]";
 }
-:global([data-blog-skin="log"]) .body {
+:global([data-blog-skin="log"]) .meta {
   border-top: var(--border-width-1) dashed var(--border-color-light);
-  margin-top: var(--spacing-8);
-}
-:global([data-blog-skin="log"]) .card {
-  border-bottom-style: dashed;
 }
 :global([data-blog-skin="log"]) .tagPill {
   padding: 0;

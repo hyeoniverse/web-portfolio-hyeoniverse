@@ -46,8 +46,28 @@
   font: inherit;
   color: var(--text-accent);
 }
+/* 로그 스킨 — 페이지 바탕에 점 격자, 블로그 이름은 모노 글꼴 + 깜빡이는 커서 */
+.page[data-blog-skin="log"] {
+  background-image: radial-gradient(var(--border-color-light) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
 [data-blog-skin="log"] .masthead {
   border-bottom-style: dashed;
+}
+[data-blog-skin="log"] .header .mastheadTitle {
+  font: var(--font-weight-regular) var(--_title-size) / var(--line-height-100) var(--font-family-code);
+  letter-spacing: -0.03em;
+}
+[data-blog-skin="log"] .mastheadTitle::after {
+  content: "_";
+  color: var(--text-accent);
+  animation: log-cursor calc(var(--duration-slower) * 1.4) steps(1) infinite;
+}
+@keyframes log-cursor {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-blog-skin="log"] .mastheadTitle::after { animation: none; }
 }
 .header .mastheadTitle {
   --_title-size: clamp(2.5rem, 1.9rem + 2.4vw, 4rem);
