@@ -10,17 +10,23 @@ import { HeroCta } from "../landing/Landing";
 import ChapterMap from "../map/ChapterMap";
 import { usePrezi } from "./context";
 import type { MapBox } from "./layout";
-import { useL } from "../features/shared";
+import { useL, useTouchInput } from "../features/shared";
 import styles from "./Prezi.module.css";
 
 const HINT: L10n = {
   ko: "별을 누르면 그 장으로, 아래로 굴리면 처음부터 차례로 날아갑니다.",
   en: "Click a star to jump to its chapter, or scroll to go through them in order.",
 };
+/* 손가락으로 쓰는 기기 — 누르기 · 쓸어 넘기기 */
+const HINT_TOUCH: L10n = {
+  ko: "별을 누르면 그 장으로, 위로 쓸어 넘기면 처음부터 차례로 날아갑니다.",
+  en: "Tap a star to jump to its chapter, or swipe up to go through them in order.",
+};
 
 export default function Hub({ live, map, onIntro }: { live: LiveInfo; map: MapBox; onIntro?: (bottom: number) => void }) {
   const { language, tx } = useLanguage();
   const L = useL();
+  const touch = useTouchInput();
   const prezi = usePrezi();
   /* 다른 언어로 볼 때는 영어 조각을 About 글 번역(tx)으로 */
   const lead = language === "ko" ? hero.lead.ko : { before: tx(hero.lead.en.before), accent: tx(hero.lead.en.accent), after: tx(hero.lead.en.after) };
@@ -44,7 +50,7 @@ export default function Hub({ live, map, onIntro }: { live: LiveInfo; map: MapBo
           <em>{lead.accent}</em>
           {lead.after}
         </h1>
-        <p className={styles.hubHint}>{L(HINT)}</p>
+        <p className={styles.hubHint}>{L(touch ? HINT_TOUCH : HINT)}</p>
         <HeroCta />
       </div>
       <ChapterMap

@@ -20,7 +20,7 @@ import { apiScene, journeyLayers, journeyScene, type Journey } from "../../_data
 import { groupJourneys } from "../../_data/groupJourneys";
 import { k as l10n } from "../prezi/types";
 import type { L10n } from "../../_data/showcase";
-import { STAR_PATH, useL } from "../features/shared";
+import { STAR_PATH, useL, useTouchInput } from "../features/shared";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import fx from "../features/Features.module.css";
 import styles from "./Architecture.module.css";
@@ -29,6 +29,8 @@ import styles from "./Architecture.module.css";
 
 /** 조작 안내 — 확대 · 축소 단추 없이 Ctrl + 휠 · 두 손가락 */
 const HINT = l10n("끌어서 이동 · 돋보기 단추나 ⌘(Ctrl) + 휠로 확대 · 축소합니다.", "Drag to pan · zoom with the magnifier buttons or ⌘ (Ctrl) + wheel.");
+/* 손가락 — 세로로 쓸면 프레지 넘기기라(touch-action: pan-y) 지도는 옆으로 끌어 옮기고, 확대는 두 손가락 · 단추 */
+const HINT_TOUCH = l10n("옆으로 끌어서 이동 · 두 손가락이나 돋보기 단추로 확대 · 축소합니다.", "Drag sideways to pan · pinch or use the magnifier buttons to zoom.");
 const r2 = (v: number) => Math.round(v * 100) / 100;
 const methodKind = (m: string) => (m === "GET" ? "read" : m === "DELETE" ? "delete" : "write");
 
@@ -84,6 +86,7 @@ type Box = { x: number; y: number; w: number; h: number };
 
 export default function SceneApi() {
   const L = useL();
+  const touch = useTouchInput();
   const groups = GROUPS;
   const n = groups.length;
   const total = apiMap.total;
@@ -602,7 +605,7 @@ export default function SceneApi() {
             </Pressable>
           </div>
           {/* 조작 안내 — 확대 · 축소 단추가 없으니 방법을 적어 둔다 */}
-          <p className={styles.pzHint}>{L(HINT)}</p>
+          <p className={styles.pzHint}>{L(touch ? HINT_TOUCH : HINT)}</p>
         </div>
 
         <div ref={textRef} className={styles.pzText} data-view={view}>
