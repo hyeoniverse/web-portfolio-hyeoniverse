@@ -31,6 +31,7 @@ export const navItems: NavItem[] = [
       { key: "posts-series", href: "/posts/series", label: "Series" },
       { key: "posts-tags", href: "/posts/tags", label: "Tags" },
       { key: "posts-history", href: "/posts/history", label: "History" },
+      { key: "posts-til", href: "/posts/til", label: "TIL" },
     ],
   },
   { key: "profile", href: "/profile", label: "Profile" },
@@ -73,7 +74,24 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
-/** 화면(공개 사이트 · 관리 화면)마다 네비게이션이 다른 점 — Navigation · MobileMenu 는 라우트를 보지 않고 이 값만 따른다.
+/* 블로그(/posts 아래) 메뉴 — 핵심 셋만: Posts(펼치면 Series · Tags · History) · TIL, 끝에 포트폴리오(메인)로 나가는 링크.
+   블로그 주소(blog.hyeoniverse.com)에선 Portfolio 링크에 메인 주소가 붙는다(Navigation · lib/siteHosts) */
+export const blogNavItems: NavItem[] = [
+  {
+    key: "blog-all",
+    href: "/posts",
+    label: "Posts",
+    children: [
+      { key: "blog-series", href: "/posts/series", label: "Series" },
+      { key: "blog-tags", href: "/posts/tags", label: "Tags" },
+      { key: "blog-history", href: "/posts/history", label: "History" },
+    ],
+  },
+  { key: "blog-til", href: "/posts/til", label: "TIL" },
+  { key: "blog-portfolio", href: "/", label: "Portfolio ↗" },
+];
+
+/** 화면(공개 사이트 · 블로그 · 관리 화면)마다 네비게이션이 다른 점 — Navigation · MobileMenu 는 라우트를 보지 않고 이 값만 따른다.
  *  로그아웃 · 알림처럼 로그인 여부로 갈리는 것은 여기 두지 않는다(화면과 상관없이 같다) */
 export interface NavSectionConfig {
   /** 로고가 가는 곳 */
@@ -84,8 +102,8 @@ export interface NavSectionConfig {
   drawerItems: NavItem[];
   /** 권한으로 거르는 메뉴인가 — 열 수 없는 관리 화면은 뺀다(#883) */
   restricted: boolean;
-  /** 로고 옆 ADMIN 배지 */
-  badge: boolean;
+  /** 로고 옆 배지 글자(관리 화면 "Admin" · 블로그 "Blog"). 없으면 false */
+  badge: string | false;
   /** 처음 들어왔을 때의 BGM 안내 말풍선 */
   soundTip: boolean;
   /** 문의 — 로그아웃 상태의 Get in Touch 단추와 서랍의 Contacts */
@@ -110,13 +128,30 @@ export const NAV_SECTIONS: Record<NavSection, NavSectionConfig> = {
     crossLink: "admin",
     showEmail: false,
   },
+  /* 블로그 — 로고는 블로그 첫 화면으로, 로고 옆 BLOG 배지로 포트폴리오와 다른 공간임을 알린다.
+     BGM 안내 말풍선은 띄우지 않는다(읽는 화면). 문의 · 관리 화면 링크는 사이트와 같다 */
+  blog: {
+    homeHref: "/posts",
+    items: blogNavItems,
+    drawerItems: [
+      { key: "home", href: "/", label: "Home" },
+      ...blogNavItems.filter((i) => i.key !== "blog-portfolio"),
+      ...navItems.filter((i) => i.key !== "posts"),
+    ],
+    restricted: false,
+    badge: "Blog",
+    soundTip: false,
+    contact: true,
+    crossLink: "admin",
+    showEmail: false,
+  },
   admin: {
     homeHref: "/admin",
     /* 알림·신고는 Dashboard 하위 메뉴로 옮겨져 최상위 중복 항목을 두지 않는다 */
     items: adminNavItems,
     drawerItems: adminNavItems,
     restricted: true,
-    badge: true,
+    badge: "Admin",
     soundTip: false,
     contact: false,
     crossLink: "home",

@@ -425,7 +425,25 @@ export default function ContentTab({
         <>
           {/* Banner Settings — 전폭 얇은 바(셀렉트 3개 한 줄) */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
+            <SectionHeader
+              title={t("admin.settings.banner")}
+              paths={["posts.showBanner", "posts.showSeriesRow", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
+              extra={
+                <>
+                  <Switch
+                    label={t("admin.settings.showBanner")}
+                    checked={config.posts.showBanner === true}
+                    onCheckedChange={(v) => update("posts", "showBanner", v)}
+                  />
+                  <Switch
+                    label={t("admin.settings.showSeriesRow")}
+                    checked={config.posts.showSeriesRow === true}
+                    onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
+                  />
+                </>
+              }
+              {...sh}
+            />
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <FieldRow label={<T k="admin.settings.bannerLayout" />}>
                 <Select
@@ -464,6 +482,19 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 블로그 이름 — /posts 머리말의 큰 제목 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
+            <SectionHeader title={t("admin.settings.blogTitle")} paths={["posts.blogTitle"]} {...sh} />
+            <div className={styles.fields}>
+              <Field
+                label={t("admin.settings.blogTitle")}
+                value={config.posts.blogTitle ?? ""}
+                onChange={(v) => update("posts", "blogTitle", v)}
+                placeholder="Log"
+              />
+            </div>
+          </section>
+
           {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />
@@ -472,6 +503,8 @@ export default function ContentTab({
                 <Select
                   value={config.posts.layout ?? "magazine"}
                   options={[
+                    { value: "journal", label: t("admin.inline.contentTab.journalCards") },
+                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
                     { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
                     { value: "list", label: t("admin.inline.contentTab.listRows") },

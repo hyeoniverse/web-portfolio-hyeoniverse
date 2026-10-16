@@ -1,0 +1,381 @@
+/* TIL 플라네타리움 — 화면 전체를 덮는 어두운 돔. 우주라 테마와 상관없이 어둡다 */
+.root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color-scheme: dark;
+  background: var(--bg-scheme-dark);
+  animation: dome-in var(--duration-slower) var(--ease-standard);
+}
+.root::backdrop {
+  background: var(--bg-scheme-dark);
+}
+@keyframes dome-in {
+  from { opacity: 0; }
+}
+.canvas {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+.canvas:active {
+  cursor: grabbing;
+}
+.top {
+  position: absolute;
+  top: calc(var(--spacing-24) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font: var(--font-code-sm);
+  color: var(--text-white);
+  opacity: 0.75;
+  pointer-events: none;
+}
+.close {
+  position: absolute;
+  top: calc(var(--spacing-16) + env(safe-area-inset-top, 0px));
+  right: calc(var(--spacing-16) + env(safe-area-inset-right, 0px));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border: var(--border-width-1) solid currentColor;
+  border-radius: var(--radius-full);
+  color: var(--text-white);
+  opacity: 0.8;
+}
+.close:hover {
+  color: var(--text-accent);
+  opacity: 1;
+}
+.hint {
+  position: absolute;
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font: var(--font-code-xs);
+  color: var(--text-white);
+  width: calc(100% - var(--spacing-32));
+  opacity: 0.55;
+  text-align: center;
+  pointer-events: none;
+  animation: hint-out var(--duration-slower) var(--ease-standard) calc(var(--duration-slower) * 6) forwards;
+}
+@keyframes hint-out {
+  to { opacity: 0; }
+}
+
+/* 별자리 이름표 — TilSpace3D 의 LabelProjector 가 매 틀 transform 으로 자리를 옮긴다 */
+.labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+  color: var(--text-white);
+  opacity: 0.7;
+  visibility: hidden;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.label b {
+  font: var(--font-label-sm);
+}
+.label i {
+  font: var(--font-code-xs);
+  font-style: normal;
+  opacity: 0.7;
+}
+.label:global(.is-hover) {
+  opacity: 1;
+}
+.labelDone {
+  color: var(--text-accent);
+  opacity: 1;
+}
+/* 초점 중에는 다른 별자리 이름표를 옅게, 고른 별자리 것은 숨긴다(이름 · 진행은 왼쪽 패널이 크게 보여 준다) */
+.labels[data-focus] .label {
+  opacity: 0.15;
+}
+.labels[data-focus] .labelFocused {
+  opacity: 0;
+}
+
+/* 별 주석 — 상자 없이, 가리킨 별에서 위로 비스듬히 뻗는 옅은 흰 사선 끝에 날짜 · 제목이 붙는다.
+   LabelProjector 가 별이 화면 오른쪽이면 오른쪽 위로, 왼쪽이면 왼쪽 위로(data-side) 18px 떨어뜨려 놓는다 */
+.tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-width: 260px;
+  padding: 0 var(--spacing-4) var(--spacing-4);
+  border-bottom: var(--border-width-1) solid color-mix(in srgb, var(--text-white) 55%, transparent);
+  color: var(--text-white);
+  text-shadow: 0 0 6px var(--bg-scheme-dark), 0 0 2px var(--bg-scheme-dark);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+/* 별에서 주석 밑줄 왼쪽 끝까지의 사선 */
+.tip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 25px;
+  height: var(--border-width-1);
+  background: color-mix(in srgb, var(--text-white) 55%, transparent);
+  transform: rotate(135deg);
+  transform-origin: left center;
+}
+/* 왼쪽으로 뻗을 때 — 사선은 밑줄 오른쪽 끝에서 별(오른쪽 아래)로, 글은 오른쪽 정렬 */
+.tip[data-side="left"] {
+  align-items: flex-end;
+  text-align: right;
+}
+.tip[data-side="left"]::before {
+  left: auto;
+  right: 0;
+  transform: rotate(45deg);
+  transform-origin: right center;
+}
+.tip[data-show] {
+  opacity: 1;
+}
+.tipDate {
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.tip b {
+  font: var(--font-label-md);
+}
+
+/* 초점 패널 — 그달 별자리 · 진행 · 기록 목록. 좁은 화면은 위쪽에 낮게, 넓은 화면은 왼쪽에 세로로 */
+.panel {
+  position: absolute;
+  top: calc(var(--spacing-64) + env(safe-area-inset-top, 0px));
+  left: calc(var(--spacing-16) + env(safe-area-inset-left, 0px));
+  right: calc(var(--spacing-16) + env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  max-height: 42%;
+  color: var(--text-white);
+  animation: panel-in var(--duration-slow) var(--ease-standard);
+}
+@media (width >= 768px) {
+  .panel {
+    top: calc(var(--spacing-80) + env(safe-area-inset-top, 0px));
+    left: calc(var(--spacing-24) + env(safe-area-inset-left, 0px));
+    right: auto;
+    bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+    gap: var(--spacing-8);
+    width: 320px;
+    max-height: none;
+  }
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateX(calc(var(--spacing-16) * -1)); }
+}
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 0;
+  font: var(--font-label-sm);
+  color: var(--text-white);
+  opacity: 0.7;
+}
+.back:hover {
+  opacity: 1;
+}
+.panelMonth {
+  margin: var(--spacing-8) 0 0;
+  font: var(--font-code-sm);
+  opacity: 0.6;
+}
+.panelName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-8);
+  margin: 0;
+  font: var(--font-headline-lg);
+}
+.panelName span {
+  font: var(--font-code-sm);
+  opacity: 0.6;
+}
+.panelCount {
+  margin: 0;
+  font: var(--font-code-md);
+  opacity: 0.8;
+}
+.panelDone {
+  color: var(--text-accent);
+  opacity: 1;
+}
+.panelEmpty {
+  font: var(--font-body-sm);
+  opacity: 0.6;
+}
+.panelList {
+  list-style: none;
+  margin: var(--spacing-8) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-height: 0;
+  overflow-y: auto;
+}
+.panelItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: var(--spacing-4) 0;
+  text-align: left;
+  color: var(--text-white);
+  opacity: 0.75;
+}
+.panelItem:hover,
+.panelItemOn {
+  opacity: 1;
+}
+.panelStar {
+  color: var(--text-accent);
+}
+.panelDate {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  opacity: 0.7;
+}
+.panelTitle {
+  font: var(--font-body-sm);
+  min-width: 0;
+}
+.panelItemOn .panelTitle {
+  color: var(--text-accent);
+}
+/* 피드로 — 테두리 단추 대신 패널 맨 아래의 강조색 글 링크. 위에 옅은 선으로 목록과 나눈다 */
+.panelFeed {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: auto;
+  padding: var(--spacing-12) 0 0;
+  border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-white) 15%, transparent);
+  font: var(--font-label-md);
+  color: var(--text-accent);
+  text-align: left;
+}
+.panelFeed span {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.panelFeed:hover span {
+  transform: translateX(var(--spacing-4));
+}
+
+/* 펼친 별 — 상자 없이 플라네타리움 자막처럼 화면 아래에서 떠오른다. 바탕은 아래로 짙어지는 그늘뿐 */
+.card {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+  max-height: 55%;
+  overflow-y: auto;
+  padding: var(--spacing-64) var(--spacing-24) calc(var(--spacing-32) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg-scheme-dark) 45%, transparent);
+  color: var(--text-white);
+  text-align: center;
+  animation: card-in var(--duration-slow) var(--ease-standard);
+}
+/* 넓은 화면 — 왼쪽 패널 오른쪽 자리에서만 */
+/* 넓은 화면 — 그늘은 화면 전체, 글은 왼쪽 패널 오른쪽 자리에 */
+@media (width >= 768px) {
+  .card {
+    padding-left: calc(320px + var(--spacing-48) + var(--spacing-24));
+  }
+}
+/* 좁은 화면 — 자막이 떠 있는 동안 패널은 머리(이름 · 진행 · 피드 링크)만 남긴다 */
+.root[data-card] .panelList {
+  display: none;
+}
+@media (width >= 768px) {
+  .root[data-card] .panelList {
+    display: flex;
+  }
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(var(--spacing-16)); }
+}
+.cardClose {
+  display: inline-flex;
+  padding: 0;
+  color: var(--text-white);
+  opacity: 0.5;
+}
+.cardClose:hover {
+  opacity: 1;
+}
+.cardDate {
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.cardEntry {
+  max-width: 560px;
+}
+.cardEntry h3 {
+  margin: 0 0 var(--spacing-8);
+  font: var(--font-headline-sm);
+  text-wrap: balance;
+}
+.cardEntry p {
+  margin: 0;
+  font: var(--font-body-sm);
+  opacity: 0.75;
+}
+.cardLink {
+  display: inline-block;
+  margin-top: var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+.cardLink:hover {
+  text-decoration: underline;
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .card { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .hint { animation: none; }
+}

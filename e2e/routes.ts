@@ -90,6 +90,7 @@ export const PUBLIC_ROUTES: Route[] = [
   { path: "/posts/series", name: "posts-series" },
   { path: "/posts/tags", name: "posts-tags" },
   { path: "/posts/history", name: "posts-history" },
+  { path: "/posts/til", name: "posts-til" },
   // 글 상세는 DB 에 있는 slug 여야 한다. 없으면 notFound 인데 loading.tsx 스트리밍 때문에 HTTP 는 200 이라
   // 스모크가 404 화면을 보고도 통과한다 (accessibility-checklist 가 그랬다 — 시드 재작성 9678cf42 때 사라진 글).
   // nar-1 은 scripts/seed-series-posts.ts 로 다시 만들 수 있고 시리즈에 속해 시리즈 패널이 렌더된다.

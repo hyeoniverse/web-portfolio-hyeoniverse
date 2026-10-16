@@ -9,4 +9,6 @@ export const QUERY_PARAM = {
   tag: "tag",
   series: "series",
   author: "author",
+  /** 글 목록 날짜 필터 — YYYY-MM-DD(한국 시간 하루) */
+  date: "date",
 } as const;

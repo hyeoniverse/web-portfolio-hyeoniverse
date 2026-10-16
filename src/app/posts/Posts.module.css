@@ -29,6 +29,100 @@
 }
 
 
+/* 블로그 머리말 — 눈썹(BLOG) · 블로그 이름 · 한 줄 소개. 아래 선으로 글 목록과 나눈다 */
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding-bottom: var(--spacing-24);
+  border-bottom: var(--border-light);
+}
+.mastheadPrompt {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
+}
+.mastheadPrompt b {
+  font: inherit;
+  color: var(--text-accent);
+}
+/* 머리말 그림 — 좁은 화면은 위에 작게, 넓은 화면은 오른쪽에 크게 */
+.masthead {
+  position: relative;
+}
+.mastheadArt {
+  position: relative;
+  order: -1;
+  align-self: flex-end;
+  width: 60%;
+  max-width: 280px;
+}
+.mastheadGrid {
+  width: 100%;
+}
+.mastheadMong {
+  --mong-height: 120px;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+}
+@media (width >= 768px) {
+  .masthead:has(.mastheadArt) {
+    justify-content: flex-end;
+    min-height: calc(var(--spacing-128) * 2);
+  }
+  .mastheadArt {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34%;
+    height: calc(100% - var(--spacing-16));
+    max-width: 400px;
+  }
+  .mastheadGrid {
+    position: absolute;
+    inset: 18% 10% 0;
+    width: 80%;
+    height: 82%;
+  }
+  .mastheadMong {
+    --mong-height: 220px;
+    inset: auto 0 calc(var(--spacing-16) * -1);
+  }
+}
+/* 블로그 공통 바탕(posts/layout) 안에서는 바탕을 비워 별밭이 보이게 한다. 필터바 · 카드의 difference 는
+   바깥 .skin 의 바탕과 섞인다 */
+[data-blog-skin="log"] .page {
+  isolation: auto;
+  background: transparent;
+}
+/* 로그 스킨 — 페이지 바탕에 별밭(StarLog), 블로그 이름은 모노 + 깜빡이는 커서 */
+[data-blog-skin="log"] .mastheadTitle::after {
+  content: "_";
+  color: var(--text-accent);
+  animation: log-cursor calc(var(--duration-slower) * 1.4) steps(1) infinite;
+}
+@keyframes log-cursor {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-blog-skin="log"] .mastheadTitle::after { animation: none; }
+}
+[data-blog-skin="log"] .header .mastheadTitle {
+  font: var(--font-weight-regular) var(--_title-size) / var(--line-height-100) var(--font-family-code);
+  letter-spacing: -0.03em;
+}
+.header .mastheadTitle {
+  --_title-size: clamp(2.5rem, 1.9rem + 2.4vw, 4rem);
+}
+.mastheadLead {
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  max-width: 560px;
+}
+
 .subtitle {
   font: var(--font-body-md);
   color: var(--text-tertiary);
@@ -63,17 +157,24 @@
   align-items: start;
 }
 
-/* 1024 초과에서만 사이드바 열 */
+/* 1024 초과에서만 사이드바 열 — 개발 블로그처럼 사이드바(소개 · 태그 · 달력)를 본문 왼쪽에 둔다.
+   DOM 은 본문 → 사이드바 순서 그대로(1024 이하에선 본문 아래로 흐른다) */
 @media (width > 1024px) {
   .contentArea {
-    grid-template-columns: 1fr 280px;
+    grid-template-columns: 280px 1fr;
     gap: var(--spacing-48);
+  }
+
+  .contentArea > .mainColumn {
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 
 .mainColumn {
   min-width: 0;
 }
+
 
 /* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
 
@@ -119,4 +220,23 @@
    시리즈(SeriesSection)·사이드바(PostsSidebar)는 history 에선 PostsClient 가 렌더하지 않는다. */
 .historyMode .contentArea {
   grid-template-columns: 1fr;
+}
+.historyMode .contentArea > .mainColumn {
+  grid-column: 1;
+}
+
+/* 글 목록 끝 — 잠든 몽이 스티커와 EOF_ */
+.listEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-32) var(--spacing-16);
+}
+.listEndMong {
+  width: var(--spacing-80);
+}
+.listEndText {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
 }

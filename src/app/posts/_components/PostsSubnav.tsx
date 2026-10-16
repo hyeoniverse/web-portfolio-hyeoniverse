@@ -5,16 +5,17 @@ import { useRoutePathname } from "@/hooks/useRoutePathname";
 import styles from "./PostsSubnav.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 
-/* /posts 계열 브라우즈 축 — All(전체) / Series / Tags / History.
+/* /posts 계열 브라우즈 축 — All(전체) / Series / Tags / History / TIL.
    개별 글(/posts/[slug]) 에선 렌더하지 않음(브라우즈 페이지에서만). */
 const ITEMS = [
   { href: "/posts", label: "All" },
   { href: "/posts/series", label: "Series" },
   { href: "/posts/tags", label: "Tags" },
   { href: "/posts/history", label: "History" },
+  { href: "/posts/til", label: "TIL" },
 ];
 
-const BROWSE_PREFIXES = ["/posts/series", "/posts/tags", "/posts/history", "/posts/categories"];
+const BROWSE_PREFIXES = ["/posts/series", "/posts/tags", "/posts/history", "/posts/categories", "/posts/til"];
 
 export default function PostsSubnav() {
   const { t } = useLanguage();

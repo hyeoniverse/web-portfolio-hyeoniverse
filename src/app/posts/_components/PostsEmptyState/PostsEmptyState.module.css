@@ -93,3 +93,7 @@
   text-align: center;
   max-width: 36ch;
 }
+
+.emptyMong {
+  width: var(--spacing-96);
+}

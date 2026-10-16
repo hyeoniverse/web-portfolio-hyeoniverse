@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import { getPopularPostIds } from "@/lib/popularity";
 import { topPostCategory } from "@/lib/seriesCategory";
 
@@ -23,7 +24,7 @@ export async function getInitialPostsData() {
   const admin = createAdminClient();
   const perPage = await getPostsPerPage();
 
-  const [postsResult, pinnedResult, seriesResult, allPostsResult] = await Promise.all([
+  const [postsResult, pinnedResult, seriesResult, allPostsResult, calendarResult] = await Promise.all([
     // 1. First page of posts (newest)
     admin
       .from("posts")
@@ -57,6 +58,15 @@ export async function getInitialPostsData() {
       .select("id, tags, category, view_count")
       .eq("published", true)
       .limit(100),
+
+    // 5. 날짜별 달력(blog 사이드바) — 발행된 글의 제목 · 주소 · 날짜만
+    admin
+      .from("posts")
+      .select("slug, title, title_en, created_at")
+      .eq("published", true)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(2000),
   ]);
 
   const posts = (postsResult.data ?? []) as Post[];
@@ -204,8 +214,12 @@ export async function getInitialPostsData() {
     allTags,
     extraCategories,
     popularIds,
+    calendarPosts: (calendarResult.data ?? []) as CalendarPost[],
   };
 }
+
+/** 날짜별 달력에 쓰는 글 요약 — 주소 · 제목 · 작성 시각 */
+export type CalendarPost = Pick<Post, "slug" | "title" | "title_en" | "created_at">;
 
 export type InitialPostsData = Awaited<ReturnType<typeof getInitialPostsData>>;
 
@@ -508,4 +522,66 @@ export async function getPostArchiveMonths(): Promise<string[]> {
   return ((data ?? []) as { scheduled_at: string | null; created_at: string | null }[])
     .map((r) => r.scheduled_at ?? r.created_at)
     .filter((d): d is string => !!d);
+}
+
+/** TIL 페이지의 글 요약 — 잔디 칸 · 그날의 기록 카드 · 고정 TIL 목록이 같이 쓴다 */
+export type TilEntry = Pick<
+  Post,
+  | "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "is_pinned" | "tags"
+  | "content" | "content_en" | "content_type"
+>;
+
+/** TIL 페이지 데이터 — 설정 posts.tilTag(기본 "TIL") 태그가 붙은 발행 글, 최신순. 잔디를 눌러 그 자리에서 읽도록 본문까지 싣는다.
+ *  태그는 대소문자를 가리지 않는다("TIL" · "til" · "Til" 모두) — 배열 포함 검사(contains)는 정확히 같은 글자만 찾아서,
+ *  태그만 가볍게 훑어 해당 글 id 를 고른 뒤 본문을 받는다. richtext 본문은 글 상세와 같이 코드 블록을 미리 칠한다 */
+export async function getTilData(): Promise<{ tag: string; entries: TilEntry[] }> {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const tag = cfg.posts?.tilTag || "TIL";
+  const wanted = tag.trim().toLowerCase();
+  const { data: tagRows } = await admin
+    .from("posts")
+    .select("id, tags")
+    .eq("published", true)
+    .is("deleted_at", null)
+    .limit(5000);
+  const ids = ((tagRows ?? []) as { id: string; tags: string[] | null }[])
+    .filter((r) => (r.tags ?? []).some((t) => t.trim().toLowerCase() === wanted))
+    .map((r) => r.id);
+  if (ids.length === 0) return { tag, entries: [] };
+  const { data } = await admin
+    .from("posts")
+    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, is_pinned, tags, content, content_en, content_type")
+    .in("id", ids)
+    .order("created_at", { ascending: false });
+  const entries = await Promise.all(((data ?? []) as TilEntry[]).map(async (e) =>
+    e.content_type === "markdown"
+      ? e
+      : {
+          ...e,
+          content: e.content ? await highlightRichtextCode(e.content) : e.content,
+          content_en: e.content_en ? await highlightRichtextCode(e.content_en) : e.content_en,
+        },
+  ));
+  return { tag, entries };
+}
+
+/** History 페이지의 글 요약 — 제목 · 날짜 · 태그만 가볍게(본문 없음) */
+export type HistoryEntry = Pick<
+  Post,
+  "id" | "slug" | "title" | "title_en" | "excerpt" | "excerpt_en" | "created_at" | "scheduled_at" | "tags" | "category" | "view_count"
+>;
+
+/** History 페이지 데이터 — 발행 글 전부(최신순)와 TIL 태그(설정 posts.tilTag, 기본 "TIL"). TIL 글을 따로 표시하는 데 쓴다 */
+export async function getHistoryData(): Promise<{ tilTag: string; posts: HistoryEntry[] }> {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const { data } = await admin
+    .from("posts")
+    .select("id, slug, title, title_en, excerpt, excerpt_en, created_at, scheduled_at, tags, category, view_count")
+    .eq("published", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(5000);
+  return { tilTag: cfg.posts?.tilTag || "TIL", posts: (data ?? []) as HistoryEntry[] };
 }

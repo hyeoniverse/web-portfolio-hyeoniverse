@@ -1,5 +1,6 @@
 "use client";
 
+import MongSticker from "../_components/MongSticker";
 import { useMemo, useState } from "react";
 import { useSearchControls } from "@/hooks/useSearchControls";
 import { usePageControls } from "@/hooks/usePageControls";
@@ -118,21 +119,27 @@ export default function SeriesIndexClient({ series }: Props) {
           <PageTitle icon={<BookOpen size={40} strokeWidth={1.6} aria-hidden />}>
             Series.
           </PageTitle>
+          {/* 제목 옆 몽이 — 블로그 공통 몽이 테마 */}
+          <MongSticker pose="wave-front" float flat className={index.headerMong} />
+        </div>
+        {/* 개수 줄 — 관리자면 오른쪽 끝에 작은 '시리즈 관리' 바로가기(제목 줄은 몽이 자리로 비워 둔다) */}
+        <div className={index.metaRow}>
+          <p className={index.meta}>
+            <BoldMarks text={fillCount(t, "postsPage.countSeries", filtered.length)} />
+            {" · "}
+            <BoldMarks text={fillCount(t, "postsPage.countTotalPosts", totalPosts)} />
+          </p>
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&sub=posts"
-              icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
-              title={t("postsPage.seriesManage")}
+              variant="ghost"
+              size="sm"
+              icon={<Settings size={14} strokeWidth={1.8} aria-hidden />}
             >
               {t("postsPage.seriesManage")}
             </Button>
           )}
         </div>
-        <p className={index.meta}>
-          <BoldMarks text={fillCount(t, "postsPage.countSeries", filtered.length)} />
-          {" · "}
-          <BoldMarks text={fillCount(t, "postsPage.countTotalPosts", totalPosts)} />
-        </p>
         <SeriesIndexControls
           sortBy={sortBy}
           onSortChange={setSortBy}
@@ -146,7 +153,10 @@ export default function SeriesIndexClient({ series }: Props) {
       <SeriesCategoryFilter buckets={categoryBuckets} total={series.length} active={activeCategories} onToggle={toggleCategory} onClear={clearCategories} />
 
       {filtered.length === 0 ? (
-        <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>
+        <div className={index.emptyMongWrap}>
+          <MongSticker pose="surprised-front" float className={index.emptyMong} />
+          <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>
+        </div>
       ) : (
         <SeriesCardGrid items={paged} featuredSet={featuredSet} isTouch={isTouch} onTap={setSheetSeries} />
       )}

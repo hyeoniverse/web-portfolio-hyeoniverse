@@ -44,6 +44,8 @@ import { useSiteLang } from "@/providers/SiteTranslationProvider";
 import { selectSiteLang } from "@/lib/siteLang";
 import { navDescs, NAV_SECTIONS, SKIP_LOADING_PAGES } from "./navigationData";
 import { navSectionOf } from "../navSection";
+import { useIsBlogHost } from "@/hooks/useIsBlogHost";
+import { portfolioHref } from "@/lib/siteHosts";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
@@ -230,13 +232,19 @@ export default function Navigation() {
      대부분인 소유자의 메뉴가 늦게 나타나 흔들리지 않게. 주소로 들어온 작성자는 proxy 가 돌려보낸다.
      알림 종과 알림 받아 오기는 확인한 뒤에만 한다. 오른쪽 끝이라 늦게 나타나도 흔들리지 않고, 작성자에게 403 이 날 요청을 보내지 않는다 */
   const adminAccess = useAdminAccess(pathname);
+  /* 블로그 주소(blog.hyeoniverse.com)에선 `/` 가 블로그 첫 화면이라, 포트폴리오로 가는 `/` 링크(Portfolio · 서랍 Home)에 메인 주소를 붙인다 */
+  const onBlogHost = useIsBlogHost();
+  const toSiteHref = useCallback(
+    <T extends { href: string }>(item: T): T => (item.href === "/" ? { ...item, href: portfolioHref("/", onBlogHost) } : item),
+    [onBlogHost],
+  );
   const centerItems = useMemo(
-    () => (section.restricted ? visibleAdminItems(section.items, adminAccess) : section.items),
-    [section, adminAccess],
+    () => (section.restricted ? visibleAdminItems(section.items, adminAccess) : section.items).map(toSiteHref),
+    [section, adminAccess, toSiteHref],
   );
   const drawerItems = useMemo(
-    () => (section.restricted ? visibleAdminItems(section.drawerItems, adminAccess) : section.drawerItems),
-    [section, adminAccess],
+    () => (section.restricted ? visibleAdminItems(section.drawerItems, adminAccess) : section.drawerItems).map(toSiteHref),
+    [section, adminAccess, toSiteHref],
   );
   const canSeeNotifications = !!adminAccess && canOpenAdminPage("/admin/notifications", adminAccess);
 
@@ -698,9 +706,9 @@ export default function Navigation() {
             </motion.span>
           );
         })()}
-      {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
+      {/* 섹션 배지(Admin · Blog) — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
       {section.badge && (
-        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</Badge>
+        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>{section.badge}</Badge>
       )}
     </Link>
 

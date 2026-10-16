@@ -1,0 +1,679 @@
+/* ── TIL 페이지 (TilClient) — 머리(제목 · 몽이) · 연도 탭 · 숫자 · 1년 잔디 · 그날의 기록 · 고정 TIL ── */
+
+/* 몽이 — 비율(약 1:1.6)을 지키고 살짝 떠 있게 */
+.mong {
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding-bottom: var(--spacing-16);
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-24);
+}
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+.subtitle {
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+.hint {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+/* 손 흔드는 몽이 — 둥실 떠오르는 반복 */
+.heroMong {
+  --_mongFloat-duration: 3s; /* 반복 장식(3.9-1) */
+  flex-shrink: 0;
+  width: 72px;
+  animation: mongFloat var(--_mongFloat-duration) var(--ease-standard) infinite alternate;
+}
+@media (width > 768px) {
+  .heroMong {
+    width: 96px;
+  }
+}
+@keyframes mongFloat {
+  from { transform: translateY(0) rotate(-3deg); }
+  to { transform: translateY(-8px) rotate(3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heroMong {
+    animation: none;
+  }
+}
+
+/* 연도 탭 + 숫자 */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+}
+.years {
+  display: flex;
+  gap: var(--spacing-4);
+}
+.yearTab {
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  background: transparent;
+  font: var(--font-label-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.yearTab:hover {
+  color: var(--text-primary);
+}
+.yearTabActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+.yearTabActive:hover {
+  color: var(--bg-primary);
+}
+.stats {
+  display: flex;
+  gap: var(--spacing-24);
+  margin: 0;
+}
+.stat {
+  display: flex;
+  flex-direction: column-reverse; /* dt(이름)·dd(숫자) 순서를 지키되 숫자를 위에 */
+  margin: 0;
+}
+.stat dt {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+.stat dd {
+  margin: 0;
+  font: var(--font-headline-xs);
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 잔디 */
+/* 잔디 — [요일 이름 | 주 열 N개]. 칸 크기는 폭에 맞춰 늘되 최소 11px(좁으면 가로 스크롤) */
+.grassScroll {
+  overflow-x: auto;
+  padding-bottom: var(--spacing-8);
+}
+.grass {
+  --til-cell: minmax(11px, 1fr);
+  display: grid;
+  grid-template-columns: var(--spacing-32) repeat(var(--til-weeks), var(--til-cell));
+  gap: var(--spacing-2) var(--spacing-2);
+  min-width: 720px;
+}
+.grassRow {
+  display: contents;
+}
+.monthLabel,
+.weekdayLabel {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.monthLabel {
+  overflow: visible;
+}
+.weekdayLabel {
+  display: flex;
+  align-items: center;
+}
+.cell,
+.cellEmpty {
+  aspect-ratio: 1;
+  border-radius: var(--radius-mark);
+}
+.cell {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.cell:hover {
+  transform: scale(1.25);
+}
+/* 빈 칸 — 바탕에 글자색을 옅게 섞어(불투명 — 뒤 별밭이 비치지 않게) 라이트 · 다크 어디서나 바탕과 구분된다(예전 --bg-tertiary 는 다크에서 거의 투명했다) */
+.lv0 {
+  background: color-mix(in srgb, var(--text-primary) 8%, var(--bg-primary));
+}
+.lv1 {
+  background: color-mix(in srgb, var(--text-accent) 35%, color-mix(in srgb, var(--text-primary) 8%, var(--bg-primary)));
+}
+.lv2 {
+  background: color-mix(in srgb, var(--text-accent) 65%, color-mix(in srgb, var(--text-primary) 8%, var(--bg-primary)));
+}
+.lv3 {
+  background: var(--text-accent);
+}
+/* 오늘 — 칸 가운데 작은 점 */
+.cellToday {
+  position: relative;
+}
+.cellToday::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 34%;
+  height: 34%;
+  border-radius: var(--radius-full);
+  background: var(--text-primary);
+}
+/* 고른 날 — 살짝 커지고 바탕색 틈을 둔 둥근 링이 감싼다 */
+.cellSelected {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 0 0 var(--border-width-2) var(--bg-primary),
+    0 0 0 calc(var(--border-width-2) * 2) var(--text-accent);
+  transform: scale(1.15);
+}
+.cellSelected:hover {
+  transform: scale(1.3);
+}
+
+/* 잔디 위 하늘 — 달마다 별자리(TilSky) */
+.skyCorner {
+  grid-column: 1;
+}
+.skyBand {
+  min-width: 0;
+  padding: 0 var(--spacing-2) var(--spacing-4);
+}
+.skyArt {
+  display: block;
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+.skyLineOff {
+  stroke: var(--border-color-strong);
+  stroke-width: 0.75;
+  stroke-dasharray: 1.5 2.5;
+  vector-effect: non-scaling-stroke;
+}
+.skyLineOn {
+  stroke: var(--text-accent);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.skyStarOff {
+  fill: var(--border-color-strong);
+}
+.skyStarOn {
+  fill: var(--text-accent);
+}
+.skyStarNext {
+  fill: var(--text-tertiary);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sky-next calc(var(--duration-slower) * 2) var(--ease-standard) infinite;
+}
+@keyframes sky-next {
+  50% { opacity: 0.25; transform: scale(1.6); }
+}
+/* 다 켜진 달 — 선과 별이 빛난다 */
+.skyDone .skyLineOn,
+.skyDone .skyStarOn {
+  filter: drop-shadow(0 0 2px var(--text-accent));
+}
+@media (prefers-reduced-motion: reduce) {
+  .skyStarNext { animation: none; }
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-8);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+.legend .cell {
+  width: 11px;
+  cursor: default;
+}
+.legend .cell:hover {
+  transform: none;
+}
+
+/* 별밭(StarLog)이 페이지 전체를 덮는 기준 */
+.page {
+  position: relative;
+  isolation: isolate;
+}
+
+/* 연도 탭 옆에 오늘의 기록 */
+.toolbarStart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+/* 오늘의 기록 — 최근 이레 작은 잔디 + 한마디 */
+.today {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+.todayWeek {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}
+.todayCell {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border-radius: var(--radius-mark);
+}
+.todayText,
+.todayTextDone {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.todayTextDone {
+  color: var(--text-primary);
+}
+
+/* 아래 본문 — [기록 피드 | 따라오는 몽이 · 다시 보기 · 고정 TIL]. 좁은 화면은 피드 다음에 */
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-32);
+  margin-top: var(--spacing-40);
+}
+@media (width > 1024px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: var(--spacing-48);
+  }
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+@media (width > 1024px) {
+  .side {
+    position: sticky;
+    top: var(--spacing-96);
+    align-self: start;
+  }
+}
+.mong3d {
+  width: 96px;
+  aspect-ratio: 1;
+}
+@media (width > 1024px) {
+  .mong3d {
+    width: 200px;
+  }
+}
+.bubble {
+  position: relative;
+  width: 100%;
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  text-align: center;
+}
+.bubble strong {
+  color: var(--text-primary);
+}
+/* 말풍선 꼬리 — 위(몽이 쪽)로 */
+.bubble::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--spacing-8));
+  left: 50%;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  border-left: var(--border-light);
+  border-top: var(--border-light);
+  background: var(--bg-primary);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* 기록 피드 */
+.feedHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+.feedTitle {
+  margin: 0;
+  font: var(--font-code-md);
+  color: var(--text-secondary);
+}
+.feedTitle b {
+  font: inherit;
+  color: var(--text-accent);
+}
+.feedFilter {
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-primary);
+}
+/* 배운 주제 지도 — 많이 배운 주제일수록 진하게(--w) */
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+.topicsLabel {
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+  margin-right: var(--spacing-4);
+}
+.topic {
+  display: inline-flex;
+  gap: var(--spacing-4);
+  height: var(--control-height-sm);
+  align-items: center;
+  padding: 0 var(--spacing-12);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-code-sm);
+  color: color-mix(in srgb, var(--text-primary) calc(var(--w, 1) * 100%), var(--text-tertiary));
+}
+.topic:hover {
+  border-color: var(--text-accent);
+}
+.topicOn {
+  border-color: var(--text-accent);
+  background: var(--text-accent);
+  color: var(--text-on-accent);
+}
+.topicCount {
+  font: var(--font-code-xs);
+  opacity: 0.7;
+}
+.feedEmpty {
+  padding-block: var(--spacing-48);
+  font: var(--font-body-md);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+/* git log 그래프 — 왼쪽 세로선에 날짜마다 점 */
+.log {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-16) 0 0;
+}
+.logDay {
+  position: relative;
+  padding: 0 0 var(--spacing-24) var(--spacing-32);
+}
+.logDay::before {
+  content: "";
+  position: absolute;
+  top: var(--spacing-12);
+  bottom: 0;
+  left: 7px;
+  width: var(--border-width-2);
+  background: var(--border-color-light);
+}
+.logDay:last-child::before {
+  display: none;
+}
+.logDate {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  margin-left: calc(-1 * var(--spacing-32));
+  padding: 0;
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.logDot {
+  flex-shrink: 0;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  align-self: center;
+  margin-right: var(--spacing-4);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.logDate:hover .logDot {
+  transform: rotate(90deg) scale(1.2);
+}
+.logCount {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+.logEntries {
+  list-style: none;
+  margin: var(--spacing-12) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+/* 글 하나 — 카드 테두리 없이, 제목 줄 아래 본문이 바로 이어진다 */
+.logEntry {
+  padding-bottom: var(--spacing-8);
+}
+.logEntryHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-8);
+  border-bottom: var(--border-light);
+  text-decoration: none;
+}
+.logEntryHead:hover .entryTitle {
+  color: var(--text-accent);
+}
+.logEntryHead .entryMore {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+.logHash {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.logEntryHead .entryTitle {
+  flex: 1;
+  min-width: 0;
+}
+.logEntry > .entryExcerpt {
+  margin-top: var(--spacing-4);
+}
+.loadMore {
+  display: block;
+  margin: 0 auto;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+
+.entryList {
+  list-style: none;
+  margin: var(--spacing-16) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+/* 고정 · 랜덤 TIL 한 줄 — 카드 없이 날짜 · 제목만, 올리면 제목이 강조색 */
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  text-decoration: none;
+}
+.entry:hover .entryTitle {
+  color: var(--text-accent);
+}
+.entry .entryTitle {
+  font: var(--font-label-md);
+}
+.entryMore {
+  display: inline-block;
+  margin-top: var(--spacing-12);
+  font: var(--font-label-sm);
+  color: var(--text-accent);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.entryBody {
+  padding-top: var(--spacing-12);
+  min-width: 0;
+}
+.entryTitle {
+  font: var(--font-headline-xs);
+  color: var(--text-primary);
+}
+.entryExcerpt {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+.entryDate {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pinned,
+.revisit {
+  width: 100%;
+  margin-top: var(--spacing-16);
+}
+/* 다시 보기 — 1주 · 1달 · 1년 전 오늘 무렵의 TIL, 랜덤 뽑기 */
+.revisitList {
+  list-style: none;
+  margin: var(--spacing-12) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.revisitItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}
+.revisitItem:hover .revisitTitle {
+  color: var(--text-accent);
+}
+.revisitTitle {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.revisitEmpty {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+.randomBtn {
+  width: 100%;
+  height: var(--control-height-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+.randomBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+.randomCard {
+  margin-top: var(--spacing-8);
+  animation: random-in var(--duration-base) var(--ease-standard);
+}
+@keyframes random-in {
+  from { opacity: 0; transform: translateY(var(--spacing-4)); }
+}
+.pinnedTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-light);
+}
+.pinnedTitle .mong {
+  width: 24px;
+}
+
+/* 오른쪽 — 숫자 + 망원경(별자리 우주) 단추 */
+.toolbarEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-20);
+}
+.scopeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border: var(--border-light);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+.scopeBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+  transform: rotate(-12deg);
+}
+.scopeBtnOn {
+  border-color: var(--text-accent);
+  background: var(--text-accent);
+  color: var(--text-on-accent);
+}

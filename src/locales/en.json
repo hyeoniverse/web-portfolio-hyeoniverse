@@ -468,7 +468,48 @@
       "activityTitle": "{{count}} repos in {{year}}"
     }
   },
+  "tilPage": {
+    "openPost": "Open post",
+    "subtitle": "Today I Learned — a garden where each day of learning grows a square.",
+    "tagHint": "Posts tagged #{{tag}} grow here.",
+    "yearTabs": "Year",
+    "statYear": "This year",
+    "statStreak": "Streak",
+    "statLongest": "Longest",
+    "pickDay": "Tap a square! I'll show you what was learned that day.",
+    "streakCheer": "{{n}} days in a row! Shall we plant one more today?",
+    "restDay": "A rest day. Zzz…",
+    "dayCount": "{{n}} learned that day",
+    "showAll": "Show all",
+    "loadMore": "Load more",
+    "emptyYear": "Nothing planted this year yet.",
+    "less": "Less",
+    "more": "More",
+    "todayDone": "Planted {{n}} today",
+    "todayNot": "Nothing planted today yet",
+    "topics": "Topics",
+    "revisit": "Look back",
+    "weekAgo": "A week ago",
+    "monthAgo": "A month ago",
+    "yearAgo": "A year ago",
+    "revisitEmpty": "nothing from around then",
+    "random": "Draw a random TIL",
+    "viewMap": "Open the constellation sky",
+    "mapDone": "{{n}} / 12 complete",
+    "dragHint": "Drag to look around · tap a constellation to get closer",
+    "closeSky": "Close the sky",
+    "skyBack": "Back to the sky",
+    "skyOpenFeed": "See this month in the feed",
+    "skyEmpty": "No stars lit this month yet. Each TIL lights one."
+  },
   "postsPage": {
+    "statPosts": "Posts",
+    "statTags": "Tags",
+    "statSeries": "Series",
+    "calendar": "Archive calendar",
+    "onlyMarked": "Posted days only",
+    "calendarEmpty": "No posted days yet.",
+    "clearDate": "Clear date filter",
     "subtitle": "Memory fades, but writing remains — and grows by sharing.",
     "searchPlaceholder": "Search...",
     "searchAll": "Title+Content",
@@ -1053,5 +1094,9 @@
     "collapse": "Collapse",
     "goToCurrent": "Go to what's being read",
     "drag": "Drag to move"
+  },
+  "historyPage": {
+    "tilLegend": "marks a TIL post",
+    "count": "{{n}} posts"
   }
 }

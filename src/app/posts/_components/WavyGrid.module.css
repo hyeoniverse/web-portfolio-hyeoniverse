@@ -1,0 +1,9 @@
+.grid {
+  overflow: visible;
+  display: block;
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.55;
+}

@@ -468,7 +468,48 @@
       "activityTitle": "{{year}}년 {{count}}개 저장소"
     }
   },
+  "tilPage": {
+    "openPost": "글로 보기",
+    "subtitle": "Today I Learned — 매일 배운 걸 한 칸씩 심는 잔디밭이에요.",
+    "tagHint": "#{{tag}} 태그를 단 글이 잔디로 자라요.",
+    "yearTabs": "연도",
+    "statYear": "올해 기록",
+    "statStreak": "연속",
+    "statLongest": "최장 연속",
+    "pickDay": "잔디를 눌러 보세요! 그날 배운 걸 보여 줄게요.",
+    "streakCheer": "{{n}}일째 이어서 기록 중이에요! 오늘도 한 칸 심어 볼까요?",
+    "restDay": "이 날은 쉬어 갔어요. 쿨쿨…",
+    "dayCount": "이 날 배운 것 {{n}}개",
+    "showAll": "전체 보기",
+    "loadMore": "더 보기",
+    "emptyYear": "이 해에는 아직 심은 칸이 없어요.",
+    "less": "적음",
+    "more": "많음",
+    "todayDone": "오늘 {{n}}칸 심었어요",
+    "todayNot": "오늘은 아직 안 심었어요",
+    "topics": "배운 주제",
+    "revisit": "다시 보기",
+    "weekAgo": "1주 전",
+    "monthAgo": "1달 전",
+    "yearAgo": "1년 전",
+    "revisitEmpty": "이맘때 기록이 없어요",
+    "random": "랜덤 TIL 뽑기",
+    "viewMap": "별자리 하늘 보기",
+    "mapDone": "올해 완성 {{n}} / 12",
+    "dragHint": "끌어서 하늘을 둘러보세요 · 별자리를 누르면 가까이 가요",
+    "closeSky": "하늘 닫기",
+    "skyBack": "하늘로",
+    "skyOpenFeed": "피드에서 이달 기록 보기",
+    "skyEmpty": "이 달엔 아직 켜진 별이 없어요. TIL 을 쓰면 별이 하나씩 켜져요."
+  },
   "postsPage": {
+    "statPosts": "글",
+    "statTags": "태그",
+    "statSeries": "시리즈",
+    "calendar": "날짜별 기록",
+    "onlyMarked": "기록된 날만",
+    "calendarEmpty": "아직 기록된 날이 없어요.",
+    "clearDate": "날짜 필터 해제",
     "subtitle": "기억은 흐려지지만, 기록은 남고, 나눌수록 깊어진다.",
     "searchPlaceholder": "검색...",
     "searchAll": "제목+내용",
@@ -1053,5 +1094,9 @@
     "collapse": "접기",
     "goToCurrent": "읽는 곳으로 이동",
     "drag": "끌어서 옮기기"
+  },
+  "historyPage": {
+    "tilLegend": "표시는 TIL 글이에요",
+    "count": "글 {{n}}개"
   }
 }
