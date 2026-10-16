@@ -17,7 +17,6 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { Switch } from "@/components/ui/Switch";
 import Tooltip from "@/components/ui/Tooltip";
 import TransitionLink from "@/components/ui/TransitionLink";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { tryRequest } from "@/lib/sendAction";
 import { errorFromResponse, errorText } from "@/lib/apiError";
@@ -26,6 +25,7 @@ import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./MediaManager.module.css";
 import LibraryHead from "./LibraryHead";
+import { GallerySkeleton, MediaFiltersSkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryFileIconClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
@@ -191,7 +191,8 @@ export default function MediaManager() {
           title={t("admin.inline.mediaManager.title")}
           count={summary ? `${allCount} · ${fmtSize(summary.totalSize)}` : undefined}
           hint={t("admin.inline.mediaManager.hint")}
-          filters={summary && allCount > 0 ? <>
+          /* 개수를 받기 전에도 걸러 보기 자리를 잡아 둔다 — 없다가 생기면 아래 목록이 밀렸다 */
+          filters={!summary ? <MediaFiltersSkeleton /> : allCount > 0 ? <>
             <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setPage(1); }} variant="subtle" />
             <Switch
               checked={unusedOnly}
@@ -216,7 +217,7 @@ export default function MediaManager() {
         {failed && !data ? (
           <EmptyState pad="sm">{t("admin.inline.mediaManager.loadFailed")}</EmptyState>
         ) : items === null ? (
-          <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
+          <GallerySkeleton />
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("admin.inline.mediaManager.noMatch") : t("admin.inline.mediaManager.empty")}</EmptyState>
         ) : (
