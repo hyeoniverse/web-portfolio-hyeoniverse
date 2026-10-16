@@ -154,7 +154,7 @@ export default function PostCardStandard({
                 </div>
               )}
               <div className={styles.placeholderText}>
-                {/* 카테고리는 placeholder 썸네일에 넣지 않음 — 아래 body 의 badgeRow 에 항상 표시 */}
+                {/* 카테고리는 placeholder 썸네일에 넣지 않음 — 아래 body 의 날짜 줄(dateLine)에 항상 표시 */}
                 <h2 className={styles.placeholderTitle}><HighlightedText text={displayTitle} /></h2>
                 {displayExcerpt && (
                   <p className={styles.placeholderExcerpt}><HighlightedText text={displayExcerpt} /></p>
@@ -185,12 +185,13 @@ export default function PostCardStandard({
       </div>
 
       <div className={styles.body}>
-        {/* category — cover/placeholder 무관 항상 body 에 표시. lang 은 이미지 위로 이동 */}
-        {category && (
-          <div className={styles.badgeRow}>
-            <Badge variant="outline" tone="accent" uppercase><CategoryLabel category={category} /></Badge>
-          </div>
-        )}
+        {/* 날짜 줄 — 블로그처럼 언제 쓴 글인지를 제목보다 먼저. 카테고리는 같은 줄 오른쪽(cover/placeholder 무관) */}
+        <div className={styles.dateLine}>
+          <time dateTime={post.created_at} className={styles.dateLineDate}>{date}</time>
+          <span aria-hidden>&middot;</span>
+          <span>{readTime} {t("postDetail.minRead")}</span>
+          {category && <span className={styles.dateLineCat}><CategoryLabel category={category} /></span>}
+        </div>
 
         {/* 제목 — 커버 카드는 항상 body. list 레이아웃 placeholder 도 body 로(작은 썸네일에 제목/칩 겹침 방지) */}
         {(showImage || layout === "list") && (
@@ -226,11 +227,6 @@ export default function PostCardStandard({
 
         <div ref={metaRef} className={styles.meta} data-meta-wrapped={metaWrapped || undefined}>
           {author && <span className={styles.metaGroup}><PostCardAuthor author={author} /></span>}
-          <span className={styles.metaGroup}>
-            <span>{date}</span>
-            <span className={styles.dot}>&middot;</span>
-            <span>{readTime} {t("postDetail.minRead")}</span>
-          </span>
           <span className={styles.metaGroup}>
             <span className={styles.metaItem}>
               <Eye size={11} strokeWidth={1.75} />

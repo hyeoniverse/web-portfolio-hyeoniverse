@@ -442,8 +442,8 @@ export const siteConfig = {
       | "cinematic"
       | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
-    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형) / blog(텍스트 우선 글 행) / journal(날짜가 먼저 보이는 고른 2열 카드·기본)
-    layout: "journal" as "journal" | "blog" | "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
+    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형) / blog(텍스트 우선 글 행) / journal(날짜가 먼저 보이는 고른 2열 카드)
+    layout: "magazine" as "journal" | "blog" | "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
     perPage: 10,
     adminPerPage: 20,
     // 기본 카테고리 — 성격/의도 기준 플랫 6개(배포용 기본값). 2단계 기능은 유지되며 '학습'만 소분류 사용.

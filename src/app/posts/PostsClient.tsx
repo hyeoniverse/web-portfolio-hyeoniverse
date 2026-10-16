@@ -41,10 +41,10 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const { setInfinite, lenis, stop, start } = useLenis();
   const { t } = useLanguage();
   const siteConf = useSiteConfig();
-  // 목록 카드 레이아웃 (설정) — journal(기본)/magazine/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
+  // 목록 카드 레이아웃 (설정) — magazine(기본)/journal/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
   const configLayout = (["journal", "magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
     ? siteConf.posts.layout
-    : "journal");
+    : "magazine");
   const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
   // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
   const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });

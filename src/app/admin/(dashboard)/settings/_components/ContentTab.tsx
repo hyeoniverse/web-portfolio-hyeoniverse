@@ -488,7 +488,7 @@ export default function ContentTab({
             <div className={styles.fields}>
               <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
                 <Select
-                  value={config.posts.layout ?? "journal"}
+                  value={config.posts.layout ?? "magazine"}
                   options={[
                     { value: "journal", label: t("admin.inline.contentTab.journalCards") },
                     { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },

@@ -213,12 +213,26 @@
   flex: 1;
 }
 
-/* ── Badge row ── */
-.badgeRow {
+/* ── 날짜 줄 — [날짜 · 읽기 시간 … 카테고리]. 날짜를 먼저 보이게 제목 위에 둔다 ── */
+.dateLine {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
   flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.dateLineDate {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.dateLineCat {
+  margin-left: auto;
+  font: var(--font-label-xs);
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* ── Title ── */
