@@ -176,7 +176,8 @@ export default function SceneApi() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const narrow = size.w < 768;
+  /* 높이 500px 이하(가로로 든 휴대폰)도 좁은 화면 — CSS 의 넓은 화면 규칙이 높이 500px 초과에서만 걸린다 */
+  const narrow = size.w < 768 || size.h <= 500;
   /* 손가락으로 넘기는 기기(태블릿 포함)도 넘기기마다 다음 묶음 — 폭만 보면 768px 이상 태블릿이 정거장마다 넘겨야 했다 */
   const coarse = useSyncExternalStore(subscribeCoarse, () => matchMedia(COARSE).matches, () => false);
   const swipeByGroup = narrow || coarse;

@@ -78,15 +78,25 @@
 /* 장면 하나짜리 컴포넌트가 아니면 프레임이 좌우 여백과 네비게이션 자리를 준다 */
 .frameScroll[data-pad] {
   /* 아래는 독 자리 — 좁은 화면의 독은 키가 커서 더 비운다 */
-  padding: calc(var(--header-height) + var(--spacing-24)) var(--_gutter) calc(var(--spacing-64) + var(--spacing-24));
+  padding: calc(var(--header-height) + var(--spacing-nav-top) + var(--spacing-8)) var(--_gutter) calc(var(--spacing-64) + var(--spacing-24));
 }
 
 /* 넓은 화면 — 오른쪽 위 네비 단추 아래에 실제 하늘 표시 줄(TimeSky .caption)이 있다. 장면 머리 오른쪽의 인덱스 · 수치가
    그 줄에 붙지 않게 위를 더 비운다 */
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .frameScroll[data-pad] {
     padding-top: calc(var(--header-height) + var(--spacing-64));
     padding-bottom: var(--spacing-64);
+  }
+}
+
+/* 키 낮은 가로 화면 — 장면 대부분이 프레임 높이(100%)에 맞춰 짜여 있는데, 남는 높이가 200px 남짓이라 내용이 넘친다.
+   넘친 부분은 스크롤 상자의 아래 여백을 못 받아 독 밑에 깔렸다 — 장면이 내용만큼 자라고 프레임이 스크롤한다.
+   min-height 를 주면 격자의 1fr 줄은 남는 자리가 있을 때만 늘어난다 */
+@media (height <= 500px) {
+  .frameScroll[data-pad] > * {
+    height: auto;
+    min-height: 100%;
   }
 }
 
@@ -129,7 +139,7 @@
   display: grid;
   /* safe — 그래도 넘치면 위(내비게이션 쪽)가 아니라 아래로 넘친다 */
   align-content: safe end;
-  padding: calc(var(--header-height) + var(--spacing-24)) var(--_gutter) var(--spacing-24);
+  padding: calc(var(--header-height) + var(--spacing-nav-top) + var(--spacing-8)) var(--_gutter) var(--spacing-24);
   pointer-events: auto;
   cursor: zoom-in;
 }
@@ -193,6 +203,25 @@
 /* 지도 위 별 이름 — 허브에선 더 크게 */
 .hubMap :global(a) > span {
   font: var(--font-body-md);
+}
+
+/* 키 낮은 가로 화면 — 지도가 오른쪽 절반에 앉는다(layout.ts mapBoxFor). 글은 왼쪽 절반 */
+@media (width > 480px) and (height <= 500px) {
+  .hubIntro {
+    max-width: 46vw;
+  }
+
+  /* 남는 높이(200px 남짓)에 단추까지 들어가게 — 메타 줄은 첫 줄(동네 · 시각 · 날씨)만, 한 줄 소개 아래 설명 문단은 접는다.
+     최근 글 · 글 수는 장 안(한눈에 보기 · 글 목록)에서 다시 보인다 */
+  .hubIntro > ul > li:not(:first-child),
+  .hubIntro > div > p {
+    display: none;
+  }
+
+  /* 지도가 납작한 절반 칸에 들어가 줄 간격이 좁다 — 이름은 지도 기본 크기로 */
+  .hubMap :global(a) > span {
+    font: var(--font-body-sm);
+  }
 }
 
 /* ── 아래 — 별자리 지도로 돌아가는 단추. 판 없이 하늘에 글자만 떠 있다(배경에 녹아들게) ── */

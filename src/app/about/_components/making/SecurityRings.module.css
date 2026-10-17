@@ -486,7 +486,7 @@
 
 /* ── 넓은 화면: 그림 왼쪽, 칩 · 설명 오른쪽(가운데 높이) ── */
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .stage {
     grid-template-rows: minmax(0, 1fr);
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -509,6 +509,25 @@
 
   .rowCount {
     display: inline;
+  }
+}
+
+/* ── 키 낮은 가로 화면: 넓은 화면처럼 그림 왼쪽 · 설명 오른쪽. 위아래로 쌓으면 그림 칸이 0 이 되어 고리가 안 보였다.
+   그림 칸은 설명 높이로 늘어나고, 설명이 짧아도 고리가 읽힐 만큼은 둔다 ── */
+
+@media (width > 480px) and (height <= 500px) {
+  .security {
+    grid-template-rows: auto;
+  }
+
+  .stage {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--spacing-24);
+  }
+
+  .diagramBox {
+    min-height: 20rem;
   }
 }
 

@@ -13,7 +13,8 @@ import styles from "./Features.module.css";
 export function useWide() {
   const [wide, setWide] = useState(true);
   useEffect(() => {
-    const mq = matchMedia("(width > 1024px)");
+    /* 높이 500px 이하(가로로 든 휴대폰)는 넓은 화면으로 치지 않는다 — CSS 의 넓은 화면 규칙과 같은 기준 */
+    const mq = matchMedia("(width > 1024px) and (height > 500px)");
     const sync = () => setWide(mq.matches);
     sync();
     mq.addEventListener("change", sync);

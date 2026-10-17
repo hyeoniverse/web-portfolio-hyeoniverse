@@ -18,7 +18,7 @@ export default function FitZoom({ className, children }: { className?: string; c
     let z = 1;
     /* 좁은 화면(세로로 쌓는 구간)은 줄이지 않는다 — 0.78배면 13px 글자가 10px, 28px 단추가 22px 로 줄어 손가락으로
        누르기 어려웠다. 장면이 안에서 스크롤되니 넘치는 데모는 내려서 본다 */
-    const narrow = matchMedia("(width <= 1024px)");
+    const narrow = matchMedia("(width <= 1024px), (height <= 500px)");
     const fit = () => {
       if (narrow.matches) {
         if (z !== 1) {
