@@ -1,6 +1,6 @@
 {
   "name": "web-portfolio-hyeoniverse",
-  "version": "1.44.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && tsx scripts/gen-erd.ts && tsx scripts/gen-api-map.ts && tsx scripts/gen-token-sky.ts && tsx scripts/gen-about-dict.ts && next dev --turbopack",
