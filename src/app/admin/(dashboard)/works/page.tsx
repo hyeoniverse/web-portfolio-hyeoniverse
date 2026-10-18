@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import BusyOverlay from "@/components/admin/BusyOverlay/BusyOverlay";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { QUERY_PARAM } from "@/constants";
 import type { GithubImportResponse } from "@/types";
@@ -220,6 +221,8 @@ export default function AdminWorksPage() {
   const [trashSortDir, setTrashSortDir] = useState<"asc" | "desc">("desc");
   const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
   const [trashBusy, setTrashBusy] = useState(false);
+  /* 일괄 작업(지우기 · 공개 전환 · 카테고리) 중 — 끝날 때까지 화면 전체를 덮는다(BusyOverlay) */
+  const [busy, setBusy] = useState(false);
   const [trashPage, setTrashPage] = useState(1);
   const [trashPerPage, setTrashPerPage] = useState(10);
 
@@ -848,6 +851,7 @@ export default function AdminWorksPage() {
 
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
+    <BusyOverlay show={busy} />
     <AdminListShell
       icon={<Folder size={26} strokeWidth={1.6} />}
       /* 제목 옆 숫자는 거른 결과가 아니라 전체 개수다 — 목록이 몇 쪽이든 같은 값이다 */
@@ -982,12 +986,14 @@ export default function AdminWorksPage() {
         }}
         onBulkDelete={async (ids) => {
           if (!guardWritable(worksByIds(ids))) return;
+          setBusy(true);
           await sendActions(
             ids.map((id) => ({ input: `/api/works/${id}`, init: { method: "DELETE" } })),
             t, t("admin.common.deleteFailed"),
           );
-          fetchWorks();
-          if (trashOpen) fetchTrash();
+          await fetchWorks();
+          if (trashOpen) await fetchTrash();
+          setBusy(false);
         }}
         onBulkExport={async (ids) => {
           if (!guardWritable(worksByIds(ids))) return;
@@ -1009,11 +1015,13 @@ export default function AdminWorksPage() {
         }}
         onBulkPublish={async (ids, published) => {
           if (!guardWritable(worksByIds(ids))) return;
+          setBusy(true);
           await sendActions(
             ids.map((id) => ({ input: `/api/works/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ published }) } })),
             t, t("admin.common.publishFailed"),
           );
-          fetchWorks();
+          await fetchWorks();
+          setBusy(false);
         }}
         extraBulkActions={[
           {
@@ -1025,6 +1033,7 @@ export default function AdminWorksPage() {
                   count={ids.length}
                   categories={worksCategories}
                   onConfirm={async (cat) => {
+                    setBusy(true);
                     await sendActions(
                       ids.map((id) => ({
                         input: `/api/works/${id}`,
@@ -1040,7 +1049,8 @@ export default function AdminWorksPage() {
                       })),
                       t, t("admin.common.categoryFailed"),
                     );
-                    fetchWorks();
+                    await fetchWorks();
+                    setBusy(false);
                   }}
                 />,
                 { id: "bulk-category-works", header: { title: t("admin.common.changeCategory") }, closeButton: true, width: "400px" },

@@ -1,0 +1,25 @@
+/* 화면 고정 — 스크롤과 상관없이 늘 화면 전체. 고정 내비게이션(nav)보다 위(float) — 작업 중에 다른 화면으로 가지 못하게 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-float);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-overlay);
+  pointer-events: all;
+}
+
+.spinner {
+  --_busySpin-duration: 0.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  width: 24px;
+  height: 24px;
+  border: var(--border-light-2);
+  border-top-color: var(--text-primary);
+  border-radius: var(--radius-full);
+  animation: busySpin var(--_busySpin-duration) linear infinite;
+}
+
+@keyframes busySpin {
+  to { transform: rotate(360deg); }
+}

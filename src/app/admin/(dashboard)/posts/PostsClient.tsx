@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import BusyOverlay from "@/components/admin/BusyOverlay/BusyOverlay";
 import dynamic from "next/dynamic";
 import type { LocalizedText } from "@/types/common";
 import type { GithubImportResponse } from "@/types";
@@ -39,7 +40,6 @@ import TrashPanel from "./_components/TrashPanel";
 import { searchTypeOptions, pageSizeOptions } from "./_components/subTableControls";
 import PreviewTooltip from "./_components/PreviewTooltip";
 import { createPostColumns } from "./_columns";
-import styles from "./AdminPosts.module.css";
 
 /* 클릭 시에만 뜨는 모달들 — 초기 번들에서 빼고 열릴 때 받는다 */
 const AccessRequestModal = dynamic(() => import("@/components/admin/AccessRequestModal"));
@@ -448,7 +448,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div style={{ position: "relative" }}>
-    {busy && <div className={styles.busyOverlay}><span className={styles.busySpinner} /></div>}
+    <BusyOverlay show={busy} />
     <AdminListShell
       icon={<FileText size={26} strokeWidth={1.6} />}
       title={`${t("admin.posts.title")} (${totalCount})`}
