@@ -24,7 +24,7 @@ import lib from "./Library.module.css";
 import LibraryHead from "./LibraryHead";
 import { CommentImagesSkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass } from "./LibraryGallery";
-import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, runBulk, useBulkResultText, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 
 type Item = { path: string; name: string; size: number; createdAt: string | null; url: string; deleteAfter: string | null };
 type Data = { due: Item[]; scheduled: Item[]; usedCount: number };
@@ -109,6 +109,7 @@ export default function CommentImageManager() {
 
   /* 여러 개 고르기 — 지울 때가 지난 것만(하나씩 지울 때와 같은 조건) */
   const sel = useLibrarySelection(data?.due ?? null, commentImageKey);
+  const pick = useDragSelect(sel);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkResult = useBulkResultText();
   const removeSelected = () => {
@@ -156,7 +157,7 @@ export default function CommentImageManager() {
           <Pressable className={galleryActionClass} onClick={() => remove(m)} aria-label={t("admin.inline.commentImageManager.delete")} title={t("admin.inline.commentImageManager.delete")}><Trash2 size={13} /></Pressable>
         )}
       </>}
-      select={due ? { checked: sel.isSelected(m), onChange: (v) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }) } : undefined}
+      select={{ checked: sel.isSelected(m), onChange: (v) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }), pick: pick(m), disabled: !due, disabledReason: t("admin.inline.libraryBulk.imageNotDue") }}
     />
   );
 

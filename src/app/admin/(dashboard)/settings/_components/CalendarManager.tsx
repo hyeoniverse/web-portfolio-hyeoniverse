@@ -9,7 +9,7 @@ import { CalendarDays, Pencil, Trash2, Check, X, RotateCcw, ChevronDown } from "
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
-import { LibraryBulkBar, isInnerControl, runBulk, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, isInnerControl, runBulk, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -176,6 +176,12 @@ export default function CalendarManager() {
 
   /* 여러 개 고르기 — 찾은 달력 전체가 대상(쪽을 넘겨도 고른 것은 남는다). 지우기 = 휴지통으로 */
   const sel = useLibrarySelection(filtered, calendarKey);
+  const pick = useDragSelect(sel);
+  /* 이름 칸은 평소 미리보기 — 하나라도 고른 뒤(고르는 중)에만 고르기. 그 밖의 칸 안 단추 · 링크는 제 일 */
+  /* 이름 칸을 누른 순간 고르는 중이었는지 — 그때는 고르기만, 미리보기는 열지 않는다(마지막 하나를 풀면 바로 0개가 돼 열렸다) */
+  const pressedWhileSelecting = useRef(false);
+  const calendarBlocked = (target: EventTarget | null) =>
+    target instanceof Element && target.closest(`.${styles.rowMain}`) ? !sel.count : isInnerControl(target);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const trashSelected = () => {
     const targets = sel.selected;
@@ -283,13 +289,8 @@ export default function CalendarManager() {
                   ref={(el) => { if (el) rowRefs.current.set(it.id, el); else rowRefs.current.delete(it.id); }}
                   className={`${styles.row}${focusId === it.id ? ` ${styles.rowFocus}` : ""}`}
                   data-selected={sel.isSelected(it) ? "" : undefined}
-                  /* 줄을 눌러 고른다 — 이름 칸은 평소 미리보기라, 하나라도 고른 뒤(고르는 중)에만 이름 칸도 고르기로 */
-                  onClick={(e) => {
-                    if (isEditing) return;
-                    const inMain = !!(e.target as Element).closest(`.${styles.rowMain}`);
-                    if (inMain ? !sel.count : isInnerControl(e.target)) return;
-                    sel.toggle(it, !sel.isSelected(it));
-                  }}
+                  /* 줄을 눌러 · 끌어서 고른다 */
+                  {...pick(it, { enabled: !isEditing, blocked: calendarBlocked })}
                 >
                   <span className={styles.lead}>
                     <Checkbox
@@ -322,7 +323,8 @@ export default function CalendarManager() {
                         role="button"
                         tabIndex={0}
                         title={t("admin.inline.calendarManager.clickToPreview")}
-                        onClick={() => { if (!sel.count) openPreview(it); }}
+                        onPointerDown={() => { pressedWhileSelecting.current = sel.count > 0; }}
+                        onClick={() => { if (!pressedWhileSelecting.current && !sel.count) openPreview(it); }}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (sel.count) sel.toggle(it, !sel.isSelected(it)); else openPreview(it); } }}
                       >
                         <span className={styles.rowLine}>

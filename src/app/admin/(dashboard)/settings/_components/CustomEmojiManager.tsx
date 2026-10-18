@@ -28,7 +28,7 @@ import { EmojiGridSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
 import Checkbox from "@/components/ui/Checkbox";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import { LibraryBulkBar, isInnerControl, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, runBulk, useBulkResultText, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 
 /* 격자 한 쪽 — 넓은 화면 12열 × 10줄 */
 const PAGE_SIZE = 120;
@@ -110,6 +110,7 @@ export default function CustomEmojiManager() {
 
   /* 여러 개 고르기 — 찾은 것 전체가 대상(쪽을 넘겨도 고른 것은 남는다) */
   const sel = useLibrarySelection(filtered, emojiKey);
+  const pick = useDragSelect(sel);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkResult = useBulkResultText();
   const removeSelected = () => {
@@ -180,8 +181,8 @@ export default function CustomEmojiManager() {
                   className={styles.tile}
                   tabIndex={0}
                   data-selected={sel.isSelected(e) ? "" : undefined}
-                  /* 칸을 눌러 고른다 — 지우기 단추 · 고르기 상자는 제 일 */
-                  onClick={(ev) => { if (!isInnerControl(ev.target)) sel.toggle(e, !sel.isSelected(e)); }}
+                  /* 칸을 눌러 · 끌어서 고른다 — 지우기 단추 · 고르기 상자는 제 일 */
+                  {...pick(e)}
                 >
                   <span className={styles.select}>
                     <Checkbox

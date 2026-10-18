@@ -36,7 +36,9 @@ export default function Checkbox({
   return (
     <label
       className={`${styles.wrapper} ${inScope ? styles.scopeBox : ""} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
-      data-clickable="true"
+      /* disabled 면 커스텀 커서(CursorTrail)가 금지 모양 — 누를 수 없는데 누르는 모양이면 헷갈린다 */
+      data-clickable={disabled ? undefined : "true"}
+      data-disabled={disabled ? "" : undefined}
     >
       <input
         type="checkbox"

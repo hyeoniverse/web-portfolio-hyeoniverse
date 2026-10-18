@@ -27,7 +27,7 @@ import styles from "./MediaManager.module.css";
 import LibraryHead from "./LibraryHead";
 import { GallerySkeleton, MediaFiltersSkeleton } from "./LibrarySkeletons";
 import Checkbox from "@/components/ui/Checkbox";
-import { LibraryBulkBar, isInnerControl, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, notifyUnselectable, runBulk, useBulkResultText, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryFileIconClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
@@ -95,6 +95,7 @@ export default function MediaManager() {
   const items = data?.items ?? null;
   /* 여러 개 고르기 — 쓰는 곳이 없는 파일만(하나씩 지울 때와 같은 조건) */
   const sel = useLibrarySelection(items, mediaKey, isUnused);
+  const pick = useDragSelect(sel);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkResult = useBulkResultText();
   const summary = data?.summary;
@@ -179,9 +180,8 @@ export default function MediaManager() {
       { id: "media-bulk-delete", header: { title: t("admin.inline.mediaManager.deleteTitle") }, closeButton: true, width: "min(460px, 92vw)" },
     );
   };
-  const selectOf = (m: MediaItem) => (isUnused(m)
-    ? { checked: sel.isSelected(m), onChange: (v: boolean) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }) }
-    : undefined);
+  /* 쓰는 곳이 있는 파일은 지울 수 없다 — 상자는 보이되 disabled */
+  const selectOf = (m: MediaItem) => ({ checked: sel.isSelected(m), onChange: (v: boolean) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }), pick: pick(m), disabled: !isUnused(m), disabledReason: t("admin.inline.libraryBulk.fileInUse") });
 
   /* 쓰는 곳 — 글·프로젝트가 있으면 올렸을 때 제목 목록(누르면 편집 화면) */
   const usageNode = (m: MediaItem, usedClass: string, mutedClass?: string) => {
@@ -303,10 +303,14 @@ export default function MediaManager() {
                     role="row"
                     data-selected={sel.isSelected(m) ? "" : undefined}
                     data-selectable={isUnused(m) ? "" : undefined}
-                    onClick={(e) => { if (isUnused(m) && !isInnerControl(e.target)) sel.toggle(m, !sel.isSelected(m)); }}
+                    data-unselectable={isUnused(m) ? undefined : ""}
+                    data-cursor={isUnused(m) ? undefined : "disabled"}
+                    data-clickable={isUnused(m) ? "true" : undefined}
+                    {...pick(m, { enabled: isUnused(m) })}
+                    onClick={isUnused(m) ? pick(m).onClick : (e) => notifyUnselectable(e, t("admin.inline.libraryBulk.fileInUse"))}
                   >
                     <span role="cell">
-                      {(() => { const s = selectOf(m); return s ? <Checkbox checked={s.checked} onChange={s.onChange} ariaLabel={s.label} /> : null; })()}
+                      <Checkbox checked={sel.isSelected(m)} onChange={(v) => sel.toggle(m, v)} ariaLabel={fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name })} disabled={!isUnused(m)} />
                     </span>
                     <span className={styles.thumb} role="cell">{thumbOf(m, "44px", styles.thumbIcon, false)}</span>
                     <span className={styles.nameCell} role="cell">

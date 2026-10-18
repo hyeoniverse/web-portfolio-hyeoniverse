@@ -6,7 +6,9 @@
    (동영상은 올렸을 때만 받는다 — 목록에서 HD 동영상을 통째로 받지 않게). */
 import type { CSSProperties, ReactNode } from "react";
 import Checkbox from "@/components/ui/Checkbox";
-import { isInnerControl } from "./LibrarySelection";
+import { notifyUnselectable, type useDragSelect } from "./LibrarySelection";
+
+type PickHandlers = ReturnType<ReturnType<typeof useDragSelect>>;
 import styles from "./LibraryGallery.module.css";
 
 /* 칸 크기·비율은 업로드한 파일과 커버 기록이 같게 기본값(정사각, 최소 160px)을 쓴다 */
@@ -26,26 +28,30 @@ export function LibraryGallery({ aspect = "1 / 1", min = 160, selecting = false,
   );
 }
 
-/** select — 여러 개 고르기(LibrarySelection). 없으면 고를 수 없는 칸(쓰는 곳이 있는 파일 등) */
+/** select — 여러 개 고르기(LibrarySelection). disabled 면 상자는 흐리게 보이고 눌러도 · 끌어도 안 골라진다(쓰는 곳이 있는 파일 등) */
 export function GalleryItem({ media, title, meta, actions, select }: {
   media: ReactNode;
   title?: ReactNode;
   meta?: ReactNode;
   actions?: ReactNode;
-  select?: { checked: boolean; onChange: (checked: boolean) => void; label: string };
+  select?: { checked: boolean; onChange: (checked: boolean) => void; label: string; pick: PickHandlers; disabled?: boolean; disabledReason?: string };
 }) {
   return (
-    /* 고를 수 있는 칸은 칸 어디를 눌러도 고른다(칸 안의 단추 · 링크는 제 일) — 고르기 상자는 키보드 · 화면 읽기용 */
+    /* 고를 수 있는 칸은 칸 어디를 눌러도 · 끌어도 고른다(칸 안의 단추 · 링크는 제 일) — 고르기 상자는 키보드 · 화면 읽기용 */
     <figure
       className={styles.item}
       data-selected={select?.checked ? "" : undefined}
-      data-selectable={select ? "" : undefined}
-      onClick={select ? (e) => { if (!isInnerControl(e.target)) select.onChange(!select.checked); } : undefined}
+      data-selectable={select && !select.disabled ? "" : undefined}
+      data-unselectable={select?.disabled ? "" : undefined}
+      data-cursor={select?.disabled ? "disabled" : undefined}
+      data-clickable={select && !select.disabled ? "true" : undefined}
+      {...(select && !select.disabled ? select.pick : undefined)}
+      onClick={select?.disabled && select.disabledReason ? (e) => notifyUnselectable(e, select.disabledReason!) : select?.pick.onClick}
     >
       <div className={styles.media}>{media}</div>
       {select && (
         <span className={styles.select}>
-          <Checkbox checked={select.checked} onChange={select.onChange} ariaLabel={select.label} />
+          <Checkbox checked={select.checked} onChange={select.onChange} ariaLabel={select.label} disabled={select.disabled} />
         </span>
       )}
       {actions && <span className={styles.actions}>{actions}</span>}

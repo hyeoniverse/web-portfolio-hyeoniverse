@@ -214,9 +214,14 @@ export default function CursorTrail() {
          장면 안의 3D 손이 커서 노릇을 한다). 이걸 가장 먼저 본다 — activeDateCursor 는
          mouseover 캡처 때 잡아 둔 값이라 한 박자 늦고, 그동안 손과 트레일이 같이 보인다. */
       // data-cursor: mouseover 이벤트 결과 + elementsFromPoint 폴백 둘 다 체크
+      const dataCursorEl = target?.closest("[data-cursor]");
+      const elementCursor = activeDateCursor
+        || dataCursorEl?.getAttribute("data-cursor") as CursorType | null;
+      /* 고를 수 없는 칸(data-cursor="disabled") 안의 단추 · 링크는 제 커서 — 안쪽 단추가 이긴다 */
+      const clickableInsideDisabled = elementCursor === "disabled" && isClickable && !!dataCursorEl
+        && dataCursorEl !== clickableEl && dataCursorEl.contains(clickableEl as Element);
       const dataCursor = (document.body.dataset.cursor as CursorType | undefined)
-        || activeDateCursor
-        || target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
+        || (clickableInsideDisabled ? null : elementCursor);
 
       // 네이티브 resize 그립 감지 — resize CSS 가 걸린 요소(코드블록 등)의 우하단 grip 코너 영역이면
       // 리사이즈 커서로. (data-cursor 오버레이 없이 native resize + 커스텀 커서를 양립시킴)

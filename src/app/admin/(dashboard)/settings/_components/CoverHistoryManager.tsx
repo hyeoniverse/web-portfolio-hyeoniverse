@@ -20,7 +20,7 @@ import MediaThumb from "@/components/ui/MediaThumb";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, runBulk, useBulkResultText, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 import LibraryHead from "./LibraryHead";
 import { GallerySkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
@@ -79,6 +79,7 @@ export default function CoverHistoryManager() {
 
   /* 여러 개 고르기 — 기록에서 빼기(글 · 프로젝트에 쓴 커버는 그대로 남는다) */
   const sel = useLibrarySelection(items, coverKey);
+  const pick = useDragSelect(sel);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkResult = useBulkResultText();
   const openModal = useModalStore((s) => s.openModal);
@@ -153,7 +154,7 @@ export default function CoverHistoryManager() {
                     <a className={galleryActionClass} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("admin.inline.coverHistoryManager.openNewTab")} title={t("admin.inline.coverHistoryManager.openNewTab")}><ExternalLink size={13} /></a>
                     <Pressable className={galleryActionClass} onClick={() => void remove(c)} aria-label={t("admin.inline.coverHistoryManager.removeFromHistory")} title={t("admin.inline.coverHistoryManager.removeFromHistory")}><Trash2 size={13} /></Pressable>
                   </>}
-                  select={{ checked: sel.isSelected(c), onChange: (v) => sel.toggle(c, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: `${sourceLabel(c)} · ${date(c.created_at)}` }) }}
+                  select={{ checked: sel.isSelected(c), onChange: (v) => sel.toggle(c, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: `${sourceLabel(c)} · ${date(c.created_at)}` }), pick: pick(c) }}
                 />
               );
             })}
