@@ -248,12 +248,19 @@ ${JSON.stringify(inputObj, null, 2)}`;
 
   const data = await res.json();
   const rawText = data?.content?.[0]?.text ?? "{}";
-  const parsed = JSON.parse(rawText) as Record<string, string>;
+  const parsed = JSON.parse(unfence(rawText)) as Record<string, string>;
 
   return splitByPresence(items, parsed);
 }
 
 /* ── 공통 헬퍼 ── */
+
+/** 응답 전체를 감싼 코드 울타리(```json … ```)만 벗긴다 — Claude 는 JSON 만 달라고 해도 울타리를 두르곤 한다.
+ *  값 안의 울타리(번역한 글의 코드 블록)는 건드리지 않는다 */
+export function unfence(text: string): string {
+  const m = /^\s*```[a-z]*\s*\n([\s\S]*?)\n\s*```\s*$/i.exec(text);
+  return m ? m[1] : text;
+}
 
 /** ID-keyed 응답 (Gemini/Claude) — parsed[id] 가 있으면 성공, 없으면 실패 */
 function splitByPresence(
