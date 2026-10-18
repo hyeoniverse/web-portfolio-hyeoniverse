@@ -1098,5 +1098,12 @@
   "historyPage": {
     "tilLegend": "표시는 TIL 글이에요",
     "count": "글 {{n}}개"
+  },
+  "pageMeta": {
+    "seriesIndex": "모든 시리즈 목록",
+    "tagsIndex": "모든 태그 목록",
+    "categoriesIndex": "모든 카테고리 목록",
+    "til": "Today I Learned — 매일 배운 것을 잔디로 쌓는 기록",
+    "tag": "\"{{tag}}\" 태그가 달린 게시물 모음"
   }
 }
