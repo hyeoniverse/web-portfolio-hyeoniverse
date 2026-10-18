@@ -1,5 +1,120 @@
 # DB 설계 결정
 
+### 핵심 테이블 관계
+
+아래 그림은 [`supabase/setup.sql`](../supabase/setup.sql) 의 26개 테이블 중 글 · 작업물 · 시리즈를 중심으로 한 테이블만 그린 것이다. 칼럼은 관계와 이 문서가 설명하는 것만 적었다. 실선은 외래 키(FK)이고, 점선은 FK 없이 값으로만 이어지는 논리 관계다.
+
+```mermaid
+erDiagram
+  series ||--o{ posts : "series_id (ON DELETE SET NULL)"
+  posts ||--o{ comments : "post_id"
+  comments ||--o{ comments : "parent_id"
+  works ||--o{ work_comments : "work_id"
+  work_comments ||--o{ work_comments : "parent_id"
+  posts ||--o{ post_work_relations : "post_id"
+  works ||--o{ post_work_relations : "work_id"
+  series ||--o{ series_work_relations : "series_id"
+  works ||--o{ series_work_relations : "work_id"
+  posts ||..o{ revisions : "entity_id (FK 없음)"
+  works ||..o{ revisions : "entity_id (FK 없음)"
+  posts ||..o{ content_translations : "source_id (FK 없음)"
+  works ||..o{ content_translations : "source_id (FK 없음)"
+  posts ||..o{ page_views : "path 의 slug (FK 없음)"
+  works ||..o{ page_views : "path 의 slug (FK 없음)"
+  site_settings ||..o{ author_invites : "author_id = profile 행의 저자 id"
+
+  series {
+    uuid id PK
+    text title
+    text slug
+    int sort_order
+    boolean published
+  }
+  posts {
+    uuid id PK
+    text slug
+    text title
+    uuid series_id FK
+    int series_order
+    text_array author_ids
+    boolean published
+    int view_count
+    int like_count
+    int version
+    timestamptz scheduled_at
+    timestamptz deleted_at
+  }
+  works {
+    uuid id PK
+    text slug
+    text title
+    jsonb team_members
+    int sort_order
+    boolean published
+    int view_count
+    int like_count
+    timestamptz deleted_at
+  }
+  comments {
+    uuid id PK
+    uuid post_id FK
+    uuid parent_id FK
+    text commenter_hash
+    text password_hash
+  }
+  work_comments {
+    uuid id PK
+    uuid work_id FK
+    uuid parent_id FK
+  }
+  post_work_relations {
+    uuid post_id PK
+    uuid work_id PK
+  }
+  series_work_relations {
+    uuid series_id PK
+    uuid work_id PK
+  }
+  revisions {
+    uuid id PK
+    text entity_type
+    text entity_id
+    jsonb snapshot
+    boolean dismissed
+  }
+  page_views {
+    uuid id PK
+    text path
+    text session_id
+    text visitor_id
+    boolean is_landing
+    date viewed_date
+    int duration_ms
+  }
+  content_translations {
+    uuid id PK
+    text source_type
+    uuid source_id
+    text lang
+    jsonb fields
+    text source_hash
+  }
+  site_settings {
+    text id PK
+    jsonb config
+  }
+  author_invites {
+    text email PK
+    text author_id
+    int permission_level
+    timestamptz consumed_at
+  }
+```
+
+- 저자는 별도 테이블이 없다. 역할은 `auth.users.app_metadata` 에, 저자 프로필은 `site_settings` 의 `profile` 행에 있고, `posts.author_ids` 가 그 프로필 id 를 담는다. 작업물은 `team_members` 안의 `author_id` 로 저자를 가리킨다.
+- `revisions` · `content_translations` 는 posts 와 works 를 함께 가리켜 FK 를 하나로 둘 수 없다. `page_views` 는 경로(`/posts/<slug>`, `/works/<slug>`)를 문자열로 남긴다.
+- `likes` · `comment_reactions` · `comment_reports` 도 대상 종류를 칼럼 값(`target_type` · `comment_type`)으로 나누는 다형 참조라 FK 가 없다. `likes` 와 `comment_reactions` 는 아래 각 절에서 설명한다.
+
 ### 통합 좋아요 테이블: `likes`
 
 모든 좋아요(포스트, 작업물, 포스트 댓글, 작업물 댓글)를 단일 `likes` 테이블에서 `target_type`으로 구분합니다.
@@ -223,68 +338,28 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 | 제약 | 대상 | 상한 | 비고 |
 |------|------|------|------|
 | `series_title_maxlen` / `series_title_en_maxlen` | `series.title` / `title_en` | 80자 | `NOT VALID` — 기존 행은 검사 안 함 |
-| `posts_title_len` / `posts_title_en_len` | `posts.title` / `title_en` | 120자 | 즉시 검증 (기존 행이 길면 마이그레이션 실패) |
+| `posts_title_len` / `posts_title_en_len` | `posts.title` / `title_en` | 120자 | 마이그레이션은 즉시 검증(기존 행이 길면 실패), `setup.sql` 은 `NOT VALID` |
 
 **선택 근거:** 서버 코드에도 검증이 있지만(`SERIES_TITLE_MAX = 80`), API 가 여러 경로(에디터·`.md` 싱크·수동 SQL)로 열려 있어 DB 제약을 최종 방어선으로 둡니다. 시리즈 쪽은 이미 배포된 데이터가 있어 `NOT VALID` 로 신규·수정 행만 검사하게 했습니다.
 
-> **주의:** `posts_title_len` / `posts_title_en_len` 은 마이그레이션 파일에만 있고 `setup.sql` 에는 없습니다. `setup.sql` 로만 세팅한 DB 에는 제목 길이 제약이 걸리지 않습니다.
+> **주의:** `posts_title_len` / `posts_title_en_len` 은 `2026_07_13_posts_title_len.sql` 과 `setup.sql` 양쪽에 있다. 마이그레이션은 기존 행까지 바로 검사하고, `setup.sql` 은 `NOT VALID` 로 걸어 새로 쓰거나 고치는 행만 검사한다.
 
-### About Studio ERD 설정 검증: about_erd_valid
+### 예전 About ERD 설정 검증: about_erd_valid
 
-> 관리자 About Studio 는 없어졌고 About 페이지는 `about.erdTables` 를 읽지 않습니다(ERD 는 빌드 때 `supabase/setup.sql` 에서 만든 생성본만 그립니다). 아래 검증은 남아 있는 저장값을 지키려고 그대로 둡니다.
+관리자 About Studio 와 그 ERD 편집기는 없어졌다. About 페이지의 ERD 는 빌드 전에 `scripts/gen-erd.ts` 가 `supabase/setup.sql` 에서 만든 `src/data/generated/erdSchema.ts` 를 그린다. `site_settings.config` 의 `about.erdTables` / `about.erdRelations` 는 읽지 않는다.
 
-About 페이지의 ERD 는 관리자 설정의 **About Studio** 에서 편집하며, 그 결과는 `site_settings.config` JSONB 안에 `about.erdTables` / `about.erdRelations` 로 저장됩니다. JSONB 라 스키마가 자유롭지만, 공개 About 패널이 `col.type` 을 그대로 SVG 에 그리기 때문에 값이 비면 배포된 다이어그램에 빈 칸이 남습니다. 그래서 **UI · API · DB 3중 검증**을 둡니다 ([제목 길이 CHECK 제약](#제목-길이-check-제약)과 같은 관례).
+검증 두 겹은 남아 있다. 예전에 저장된 값이 남아 있거나 누가 그 경로에 다시 쓰는 경우를 막기 위해서다.
 
 | 계층 | 위치 | 역할 |
 |------|------|------|
-| UI | `ErdTableModal` | 편집 중 즉시 막고 사유 표시 |
-| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | `/api/admin/settings` PATCH 에서 검사 — 클라이언트 우회 방어 |
-| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | 수동 SQL 등 API 도 우회한 경우의 최종 방어선 |
+| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | `/api/admin/settings` PATCH 에서 검사. 위반 시 400 |
+| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | API 를 거치지 않은 쓰기의 마지막 방어선 |
 
-**검사 규칙** (세 계층 동일):
-- 테이블 이름 필수 · 테이블 간 중복 금지 (대소문자 무시)
-- 테이블당 컬럼 1개 이상
-- 컬럼 이름 · **타입** 필수 · 테이블 내 컬럼 이름 중복 금지
-- (API 추가) 관계(`erdRelations`)의 `from`/`to` 는 실재하는 테이블만 가리킬 것
-
-**구현 노트:**
-- `config` 는 `{ delta, savedDefaults }` wrapper 구조라, DB 함수도 읽기 경로(`getSiteConfig.ts` 의 `config.delta ?? config`)와 똑같이 `cfg #> '{delta,about,erdTables}'` → `cfg #> '{about,erdTables}'` 순으로 언랩합니다.
-- ERD 를 건드리지 않는 대부분의 설정 저장은 `erdTables` 가 없으므로 `RETURN true` 로 그냥 통과합니다 — ERD 를 실제로 바꾼 저장에만 규칙이 걸립니다.
-- 함수는 `IMMUTABLE`, 제약은 `NOT VALID` 로 추가합니다. 이미 저장된 config 에 빈 타입이 있으면 `ADD CONSTRAINT` 가 즉시 실패해 배포가 막히기 때문입니다. 기존 행까지 확정하려면 먼저 위반 행을 확인한 뒤 `VALIDATE` 합니다:
-  ```sql
-  SELECT id FROM site_settings WHERE NOT public.about_erd_valid(config);
-  ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
-  ```
-
-**컬럼이 담는 것** — SQL 가져오기가 채우는 선택 필드입니다. 전부 optional 이라 기존에 저장된 ERD 는 그대로 유효하고 마이그레이션이 필요 없습니다.
-
-| 필드 | 출처 SQL | 표시 |
-|------|----------|------|
-| `required` | `NOT NULL` (PK 는 정의상 참) | 컬럼 이름 뒤 `*` |
-| `unique` | 컬럼/테이블 `UNIQUE`, `CREATE UNIQUE INDEX` | `U` 배지 |
-| `indexed` | `CREATE INDEX` | `IX` 배지 |
-| `defaultValue` | `DEFAULT …`, `serial`, `GENERATED … IDENTITY/STORED` | 타입 뒤 `=값` |
-| `comment` | `COMMENT ON COLUMN` | 호버 |
-| `enumValues` | `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE` | 호버 |
-| (테이블) `kind` | `CREATE [MATERIALIZED] VIEW` | 머리글 `VIEW` 배지 |
-| (테이블) `comment` | `COMMENT ON TABLE` | 호버 |
-
-DB 함수도 같은 규칙을 검사합니다 — 있으면 타입이 맞아야 하고(`required`/`unique`/`indexed` 는 boolean, `defaultValue`/`comment` 는 문자열, `enumValues` 는 문자열 배열), 테이블 `kind` 는 `'view'` 외의 값을 받지 않습니다. 없으면 그냥 통과합니다.
-
-**병합의 의미론** — 가져오기는 **병합(기본)** 과 **교체** 두 모드가 있고, 되돌리기가 없어 규칙을 코드가 아니라 테스트로 고정해 둡니다(`src/__tests__/mergeErd.test.ts`).
-
-1. 같은 이름 테이블은 **컬럼 병합** — ERD 에만 있던 컬럼은 지우지 않는다
-2. 같은 컬럼이 양쪽에 있으면 **SQL 값으로 갱신** — 타입·PK·FK 는 SQL 이 정답
-3. 컬럼 순서는 **SQL 정의 순서**, SQL 에 없는 기존 전용 컬럼은 그 뒤에
-4. SQL 에 없는 테이블은 손대지 않는다
-
-단 `DROP TABLE` · `DROP COLUMN` · `RENAME` 은 예외입니다. **"SQL 에 없음"과 "SQL 이 지웠음"은 다르므로** 파서가 삭제를 따로 보고하고(`removedTables` / `removedColumns`), 병합이 그것만 실제로 지웁니다. 구별하지 않으면 규칙 1·4 가 삭제를 조용히 되살립니다.
-
-> 이 함수·제약은 `setup.sql` 에도 포함되어, 처음부터 `setup.sql` 로 세팅한 DB 에서도 동일하게 적용됩니다.
+검사 규칙은 테이블 이름 필수 · 중복 금지, 테이블당 칼럼 1개 이상, 칼럼 이름과 타입 필수다. `erdTables` 가 없는 저장은 그대로 통과한다. 함수는 `IMMUTABLE`, 제약은 `NOT VALID` 로 추가돼 기존 행은 검사하지 않는다. 마이그레이션 파일은 `2026_07_21_about_erd_valid.sql` 이고 `setup.sql` 에도 들어 있다.
 
 ### 사이트 설정 필수값 검증: settings_required_valid
 
-관리자 설정(General·Appearance·Services 탭)에는 비워두면 사이트 렌더나 기능이 깨지는 필수 값이 있습니다. 예전엔 전역 "저장" 버튼에만 부분 검증이 있었고 **섹션별 저장 버튼이 그 검증을 우회**해서, 사이트 제목·테마 색상 등을 빈 값으로 저장할 수 있었습니다. 그래서 ERD 검증과 같은 **UI · API · DB 3중 검증**으로 막습니다.
+관리자 설정(General·Appearance·Services 탭)에는 비워두면 사이트 렌더나 기능이 깨지는 필수 값이 있습니다. 예전엔 전역 "저장" 버튼에만 부분 검증이 있었고 **섹션별 저장 버튼이 그 검증을 우회**해서, 사이트 제목·테마 색상 등을 빈 값으로 저장할 수 있었습니다. 그래서 **UI · API · DB 3중 검증**으로 막습니다.
 
 | 계층 | 위치 | 역할 |
 |------|------|------|
@@ -304,9 +379,38 @@ DB 함수도 같은 규칙을 검사합니다 — 있으면 타입이 맞아야 
 
 
 
-### 작업물 인기 신호: `works.is_pinned` / `view_count` / `like_count` + `work_views`
+### 작업물 인기 신호: `works.is_pinned` / `view_count` / `like_count`
 
-홈 Selected Works 를 "핀 → 인기순 → 최신순" 으로 정렬하기 위해 posts 에만 있던 신호를 works 에도 동형으로 추가했습니다(`2026_09_15_works_pinned_views_likes.sql`). 인기 점수 계산은 posts 와 같은 `lib/popularity.ts` 를 씁니다(`view_count + like_count*3 + comments*5`). 조회 시계열은 `work_views` 테이블이 담고, 기록은 `record_work_view` RPC 로 합니다.
+홈 Selected Works 를 "핀 → 인기순 → 최신순" 으로 정렬하기 위해 posts 에만 있던 신호를 works 에도 같은 모양으로 더했다(`2026_09_15_works_pinned_views_likes.sql`). 인기 점수 계산은 posts 와 같은 `lib/popularity.ts` 를 쓴다(`view_count + like_count*3 + comments*5`). 조회수는 아래 `page_views` 의 기록 함수가 올린다.
+
+### 조회 기록 하나로: `page_views`
+
+예전에는 방문(`site_visits`) · 글 조회(`post_views`) · 작업물 조회(`work_views`)가 테이블 셋에 따로 쌓였다. 2026-10-14 ~ 10-17 마이그레이션이 이를 `page_views` 하나로 옮기고 옛 테이블과 옛 조회 함수를 지웠다(`2026_10_17_drop_legacy_views.sql`). 옮긴 행은 `migrated_from` 에 출처가 남는다.
+
+페이지가 보일 때마다 `record_page_view(path, ip, session, visitor, meta)` RPC 가 한 행을 쓴다.
+
+- 같은 IP · 같은 경로는 30분 안에 한 번만 센다. 동시 요청이 둘 다 새 행을 만들지 않게 `pg_advisory_xact_lock` 으로 줄을 세운다.
+- 방문(세션)은 `session_id`, 방문자는 `visitor_id` 로 구분한다. 세션의 첫 조회는 `is_landing = true` 이고, 유입 경로 · 기기 · 국가 · UTM 은 그 행에만 적는다.
+- 경로가 `/posts/<slug>` · `/works/<slug>` 이고 봇이 아니면 그 글 · 작업물의 `view_count` 를 1 올린다.
+- 머문 시간은 `record_page_duration` 이 더한다. 같은 IP 가 하루 안에 보낸 값만 받는다.
+- 봇은 `device_kind = 'bot'` 으로 남기고 집계 함수(`daily_page_views` · `page_view_totals` · `page_view_stats`)에서 뺀다.
+- IP 는 90일 뒤 비운다(`anonymize_old_site_visits`, pg_cron). 운영자가 지정한 IP(`traffic_excluded_ips`)는 기록하지 않는다.
+
+RLS 는 켜고 정책은 두지 않았다. anon · authenticated 의 권한도 회수했다. 읽기와 쓰기는 모두 service_role 로 서버가 한다.
+
+### 다른 언어 번역 캐시: `content_translations`
+
+글 · 작업물의 ko · en 은 각 테이블의 칼럼(`title_en`, `content_en` 등)에 있다. 그 밖의 언어로 읽을 때 만든 번역은 이 테이블에 한 행씩 쌓는다.
+
+| 칼럼 | 설명 |
+|------|------|
+| `source_type` | 무엇의 번역인가. `post` · `work` 본문, 목록 카드의 짧은 칸(`post_meta` · `work_meta` · `series_meta`), 본문 안 라벨(`ui`), 방문자 화면 글(`site_ui`) 등 |
+| `source_id` | 원본의 id. posts · works 를 함께 가리켜 FK 를 두지 않는다. `ui` · `site_ui` 처럼 원본이 하나뿐인 것은 고정값을 쓴다 |
+| `lang` | 번역 언어 |
+| `fields` | 번역된 칸들(JSONB) |
+| `source_hash` | 번역에 쓴 원문의 해시 |
+
+`UNIQUE (source_type, source_id, lang)` 로 원본 · 언어마다 한 행만 둔다. 요청이 오면 지금 원문의 해시를 `source_hash` 와 비교해, 다르면 다시 번역해 덮어쓴다. 원문을 고쳐도 따로 지울 필요가 없다. RLS 는 켜고 정책은 두지 않았으며, 공개 API(`/api/content-translate` 등)가 서버에서 읽고 쓴다.
 
 ### 갤러리 장별 음성: `works.gallery_notes`
 

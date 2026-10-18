@@ -34,10 +34,6 @@ A component that splits text into individual characters and applies sequential o
 
 **Path**: `src/components/effects/StaggerText`
 
-<p align="center">
-  <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
-</p>
-
 **Features**:
 
 - On hover, characters sequentially change to outline (stroke) starting from the first character
@@ -80,72 +76,44 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ### BreakpointGuard
 
-A component that automatically unmounts/remounts page content when the viewport crosses breakpoint boundaries (768px, 1024px) to reinitialize GSAP ScrollTrigger, RAF-based animations, etc.
+A component that remounts all of its children when the viewport crosses a breakpoint boundary. It reinitializes things that read their size on mount, such as GSAP ScrollTrigger, RAF animations, and R3F canvases, at the new size.
 
 **Path**: `src/components/common/BreakpointGuard.tsx`
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
-
 **Features**:
 
-- Detects viewport width changes and classifies as `desktop` (>1024px) / `tablet` (768-1024px) / `mobile` (<768px)
-- Remounts children via `key` prop on breakpoint change
-- Providers (Theme, Language, Lenis) are placed above to maintain state
+- Width splits into `desktop` / `mobile` at 1024px (`BREAKPOINT.tablet`), and height splits into `tall` / `short` at 640px. A change in the combined key counts as crossing a boundary.
+- Each crossing bumps the children's `key` by 1 to remount them. The first mount already happened inside the current viewport, so the first effect does not change the key.
+- While remounting it shows an opaque cover and lifts it after things settle. The cover and the key change happen in the same render, so libraries built on `useLayoutEffect` such as R3F do not clash with it.
+- Providers above this component are not remounted and keep their state.
 
-**Applied at**: `src/app/layout.tsx`
+**Applied in**: `src/app/profile/page.tsx`
 
 ```tsx
-// root layout.tsx
-<ThemeProvider>
-  <LanguageProvider>
-    <LenisProvider>
-      <Navigation /> {/* maintained */}
-      <main>
-        <BreakpointGuard>
-          {" "}
-          {/* remount on breakpoint change */}
-          {children}
-        </BreakpointGuard>
-      </main>
-    </LenisProvider>
-  </LanguageProvider>
-</ThemeProvider>
+<BreakpointGuard>
+  <div className="content" data-type="mono">
+    <ProfileMeSection profileData={profileData} showcase={showcase} />
+    <FloatingObject />
+  </div>
+</BreakpointGuard>
 ```
 
-**Breakpoints**:
-
-| Breakpoint | Range          | Description              |
-| ---------- | -------------- | ------------------------ |
-| `desktop`  | > 1024px       | Horizontal scroll layout |
-| `tablet`   | 768px - 1024px | Vertical scroll, tablet spacing |
-| `mobile`   | < 768px        | Vertical scroll, mobile spacing |
+The code above is how the profile page wraps its children. No other page uses this component.
 
 ---
 
 ### Modal (Bottom Sheet)
 
-A modal component that behaves as a bottom sheet pattern on mobile. Center dialog on desktop.
-
-| PC (Desktop Dialog) | Tablet | Mobile (Bottom Sheet) |
-|:---:|:---:|:---:|
-| <img src="../../public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="../../public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="../../public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
+A modal that opens as a centered dialog on desktop and as a bottom sheet sliding up from below on mobile.
 
 **Path**: `src/components/ui/Modal.tsx`
 
-**Mobile behavior**:
+**Behavior**:
 
-- Slides up from bottom (85vh height limit)
-- **Handle drag down**: CSS `translate`-based dismiss (closes when threshold exceeds 100px)
-- **Handle drag up**: Height-based fullscreen expansion
-- Close button hidden — close via handle drag or overlay tap
-
-**Technical decisions**:
-
-- Uses CSS `translate` property for drag dismiss (independent from framer-motion's `transform`)
-- framer-motion handles only enter/exit animations; drag is controlled via `--sheet-y` CSS variable
-- Global single render in `ClientOverlays` (portal to body)
+- Each modal gets its own `<dialog>`, raised to the top layer with `showModal()` as soon as it mounts. Focus trapping, returning focus to where it was, and closing on Esc are handled by `<dialog>`.
+- On mobile it slides up from the bottom. The close button is hidden, and the sheet closes by dragging the handle down or tapping outside.
+- Dragging is handled by `useSheetDrag` (`src/hooks/useSheetDrag.ts`). Dragging down more than 80px, or flicking down fast, closes it. Dragging up stops at the nearest of: the initial height, 50% and 75% of the screen height, and the full content height.
+- Rendered once globally from `ClientOverlays`.
 
 ---
 
@@ -157,12 +125,12 @@ A set of **presentational components** that render a post's article. The public 
 
 **Exports**:
 
-- `PostArticleHeader` — DetailLayout `header` slot. metaRow (date · read time · views · edit / GitHub · Share · language toggle) · title · excerpt · tags · divider
-- `PostArticleBody` — DetailLayout `children` slot body. Renders richtext / markdown plus interactions (code wrap toggle, image viewer, etc.)
+- `PostArticleHeader`: DetailLayout `header` slot. metaRow (date · read time · views · edit / GitHub · Share · language toggle) · title · excerpt · tags · divider
+- `PostArticleBody`: DetailLayout `children` slot body. Renders richtext / markdown plus interactions (code wrap toggle, image viewer, etc.)
 
 **Features**:
 
-- ko/en fallback is resolved by the caller and passed as `displayTitle / displayContent / displayExcerpt` — the component only receives display values
+- ko/en fallback is resolved by the caller and passed as `displayTitle / displayContent / displayExcerpt`: the component only receives display values
 - richtext is pre-processed via `processRichtextHtml`; markdown uses `MarkdownRenderer`
 - `isPreview` lets the caller exclude elements that need a saved DB record (likes/comments, etc.)
 - `headerActionsLeft` injects preview-only actions (trash restore/purge, etc.) into the header
@@ -172,25 +140,28 @@ A set of **presentational components** that render a post's article. The public 
 
 ---
 
-### WorkArticleView
+### WorkArticleHeader · WorkArticleInfoGrid · WorkArticleBody · WorkArticleGallery · WorkArticleTeam
 
-A set of **presentational components** that render a work (project) detail article. Like PostArticleView, the public detail (`works/[slug]`) and admin preview share the same components.
+Presentational components that draw the work detail page. They split the former single `WorkArticleView.tsx` file by role. Like PostArticleView, the public detail page (`works/[slug]`) and the admin preview share them. There is no barrel; each call site imports the files directly.
 
-**Path**: `src/components/works/WorkArticleView.tsx`
+**Path**: `src/components/works/`
 
-**Exports**:
+| Component | Slot | What it draws |
+| --- | --- | --- |
+| `WorkArticleHeader` | DetailLayout `header` | Meta (number, team/solo badge, edit, language toggle), title, description, actions (Visit, GitHub, share, listen), and the info grid below |
+| `WorkArticleInfoGrid` | inside `WorkArticleHeader` | Year, category, role, own contribution, tech notes, related posts/series, AI summary. A block with no data is not rendered |
+| `WorkArticleBody` | DetailLayout `children` | Body (richtext/markdown) + ImageViewer. Richtext post-processing uses the same `processRichtextHtml` · `useRichtextEnhance` as post details |
+| `WorkArticleGallery` | DetailLayout `afterContent` | Slide gallery. It often holds slide decks split into pages, so it uses the page width rather than the body column |
+| `WorkArticleTeam` | DetailLayout `afterContent` | Team member polaroid flip carousel. Used only on the public detail page |
 
-- `WorkArticleHeader` — DetailLayout `header` slot. meta (#number · team/solo badge · edit · language toggle) · title · description · actions (Visit/GitHub/Share) · info grid (Year/Category/Tech/Role) · AISummary
-- `WorkArticleBody` — DetailLayout `children` slot. Body (richtext/markdown) · gallery + ImageViewer
-- `WorkArticleTeam` — DetailLayout `afterContent` slot. Renders the team-member polaroid flip carousel at **full page width** (not the narrow content column)
+Shared props and related-post types live in `workArticleTypes.ts`.
 
 **Features**:
 
-- Takes a single `Project` shape — the preview reuses the same components by converting the editor form via `workFormToProject(form)` (`src/types/work.ts`)
-- Holds richtext enhance / gallery & prose ImageViewer interactions internally
-- `isPreview` excludes DB-dependent elements such as the edit link
+- Renders from a single `Project` shape. The preview converts the editor form with `workFormToProject(form)` (`src/types/work.ts`) and reuses the same components.
+- `isPreview` drops elements that need a stored DB record, such as the edit link.
 
-**Used by**: `src/app/works/[slug]/WorkDetailClient.tsx` (public detail) + `src/app/admin/(preview)/works/preview/page.tsx` (preview)
+**Used in**: `src/app/works/[slug]/WorkDetailClient.tsx` (public detail) + `src/app/admin/(preview)/works/preview/page.tsx` (preview)
 
 ---
 
@@ -255,10 +226,11 @@ A **shared utility** for post-processing richtext HTML. All processing is centra
 **Processing order**:
 
 1. Inject heading ids (TOC anchors)
-2. Convert iframe embed URLs
-3. Inject the label span into the code block's wrap-toggle button (syntax highlighting is **not done here** — Shiki handles it separately)
-4. Insert code wrap-toggle button labels
-5. Inject `data-cursor="zoom"` hint on imgs (CursorTrail image viewer)
+2. Convert iframe embed URLs. Old Google document viewer URLs left in older posts are also rewritten to the current viewer (`lib/officeViewer`)
+3. Inject the label span into the code block's wrap-toggle button
+4. Inject `data-cursor="zoom"` hint on imgs (CursorTrail image viewer)
+
+Syntax highlighting is not done here. Shiki colors code separately with `highlightRichtextCode`.
 
 ```ts
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
@@ -269,7 +241,7 @@ const html = processRichtextHtml(rawHtml, {
 });
 ```
 
-> Highlighting & button labels are applied at the **HTML string stage**, not via DOM mutation — so they don't disappear on re-render.
+The code above calls it with two translated labels. Button labels are inserted at the HTML string stage, not by DOM mutation, so they survive re-renders.
 
 ---
 
@@ -354,9 +326,9 @@ A shared wrapper that clamps long content and attaches a **show more / collapse*
 
 **Features**:
 
-- Clamps **only when** content exceeds `maxHeight` — if it doesn't, neither the toggle button nor the bottom fade renders
+- Clamps **only when** content exceeds `maxHeight`: if it doesn't, neither the toggle button nor the bottom fade renders
 - Overflow is measured by a `ResizeObserver` on an inner, un-clamped div — late-loading images that grow the height are picked up
-- **No animation on the first clamp** — animation stays suppressed until the user actually clicks the toggle, so it never looks like the block is collapsing by itself on load
+- **No animation on the first clamp**: animation stays suppressed until the user actually clicks the toggle, so it never looks like the block is collapsing by itself on load
 - Expanded height animates via framer-motion `height: "auto"`; the toggle is a `Button variant="ghost" size="sm" shape="capsule"`
 
 **Props**:
@@ -378,16 +350,16 @@ A unifying wrapper for the circular `?` help button. Used as a Popover / Tooltip
 
 **Features**:
 
-- Hardcodes `Button variant="subtle" shape="circle"` + `?` — `variant` / `shape` / `children` are deliberately not overridable; **`size` is the only visual knob**
+- Hardcodes `Button variant="subtle" shape="circle"` + `?`: `variant` / `shape` / `children` are deliberately not overridable; **`size` is the only visual knob**
 - All other props spread through to Button (so handlers injected by Popover/Tooltip on the trigger pass through)
-- `forwardRef` — the trigger anchor can be measured
+- `forwardRef`: the trigger anchor can be measured
 
 **Props**:
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `size` | `"2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"sm"` | Default 28px. Use `2xs` (20px) / `xs` (24px) in tight spots like next to a form label |
-| `className` | `string` | - | **Layout only** — do not override color/border/radius/padding (use a parent wrapper instead) |
+| `className` | `string` | - | **Layout only**: do not override color/border/radius/padding (use a parent wrapper instead) |
 | `soundDisabled` | `boolean` | - | Disable the click sound |
 
 ---
@@ -419,9 +391,9 @@ A button with **long-press accelerating repeat**. Used by NumberInput's stepper.
 **Features**:
 
 - Fires **once immediately** on pointerDown, then starts repeating after a 380ms hold, with the interval decreasing from 130ms by 12ms per tick down to a **28ms floor**
-- `setPointerCapture` — releasing outside the button still stops it. It stops on pointerUp / pointerCancel / lostPointerCapture / unmount
+- `setPointerCapture`: releasing outside the button still stops it. It stops on pointerUp / pointerCancel / lostPointerCapture / unmount
 - Mouse input responds only to `e.button === 0`; the latest action is held in a ref so repeat ticks never go stale
-- `type="button"` + `tabIndex={-1}` — the stepper doesn't pollute tab order
+- `type="button"` + `tabIndex={-1}`: the stepper doesn't pollute tab order
 
 **Props**:
 
@@ -448,33 +420,102 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 **Behavior**:
 
 - `Modal` renders a `.portalLayer` div and provides that element to the subtree via the Provider
-- Consumers pick their portal target with `usePortalContainer() ?? document.body` — outside an overlay it's `body` as before
+- Consumers pick their portal target with `usePortalContainer() ?? document.body`: outside an overlay it's `body` as before
 - Consumers: `Popover` · `Select` · `Tooltip` · `DatePickerPopover` · `TimePickerPopover`
 
 **Technical decisions**:
 
-- `.portalLayer` is a **sibling of the modal panel, not a child** — if the panel's `transform` became the containing block, fixed coordinates would drift, so it is attached on the `inset: 0` backdrop side
+- `.portalLayer` is a **sibling of the modal panel, not a child**: if the panel's `transform` became the containing block, fixed coordinates would drift, so it is attached on the `inset: 0` backdrop side
 - The ref setter is cached in a `Map` per modal id — a fresh arrow function each render causes an infinite cleanup/mount loop ("Maximum update depth")
 
 ---
 
-### Shared components — props added this cycle
+### Optional props of shared components
 
-| Component | Addition | Details |
+| Component | Prop | Details |
 | --------- | -------- | ------- |
 | `Popover` | `variant` | `"glass"` (default) / `"solid"` / `"difference"`. `solid` applies no modifier class — the base `.dropdown` is the solid look |
 | `Popover` | `openOnHover` | Default `false`, desktop only (ignored in sheet mode). Opens immediately, closes on a 500ms delay (bridging the trigger↔content travel). A module-level flag keeps **only one hover popover open at a time** |
 | `Button` | `tone="accent"` | `tone: "default" \| "danger" \| "success" \| "accent"` |
 | `Modal` | `header.actions` | Action area on the right of the header (`ReactNode`, left of the close button) |
 | `Modal` | `subButtons` | Sub buttons immediately left of the close (X) button (back/forward, etc.) |
-| `Toast` | `pauseAllToasts` / `resumeAllToasts` | Hovering one toast pauses **the whole stack** — prevents re-layout from sliding the cursor off and dismissing it |
+| `Toast` | `pauseAllToasts` / `resumeAllToasts` | Hovering one toast pauses **the whole stack**: prevents re-layout from sliding the cursor off and dismissing it |
 | `NumberInput` | `unit` | `ReactNode`. Shows the unit (`px`, `%`) on the right. Tooltip activates **only when the text is actually ellipsis-truncated** |
 | `NumberInput` | `gauge` | Default `false`. Active only when both `min` and `max` are set; tints the number by where the value sits (low/mid/high). No bar is drawn |
 | `Textarea` | `tabIndent` | Opt-in. Tab inserts a 2-space indent — via `execCommand("insertText")` to preserve the native undo stack, skipped during IME composition, and Shift+Tab keeps native focus traversal. Works **only in EditableTextarea mode**, which requires `maxHint` |
 | `Select` | (viewport clamp) | Aligns the selected item's center to the trigger's center, then clamps into the viewport with an 8px margin, setting `max-height` only when the natural height exceeds the available height. On outside scroll it **closes** rather than repositioning |
 | `Select` | `editable` + `editableInputProps` | **Direct entry** of values outside the presets. Double-clicking the trigger (two clicks within 250ms) swaps it for an input; type then commit on `Enter`/blur, cancel on `Escape`. `editableInputProps.sanitize` normalizes just before commit (e.g. digits only), plus `maxLength`/`placeholder`. An empty `value` starts in input mode on mount. Used by the editor toolbar's font size, line height, and letter spacing; a current value not in the presets is surfaced as the top option. (For a searchable dropdown with a top input row, use the separate `combobox` mode) |
-| `ModalConfirm` | `children` | Optional, rendered after `desc`. For listing **what is about to change** before confirming — About ERD import uses it to name every table/column being removed or overwritten, with before/after values |
-| `ModalConfirm` | `onCancel` | Optional (backward-compatible). Gives the **cancel button an action** — falls back to plain close when omitted. X/esc/backdrop always stay plain close. The editor's "Publish?" modal uses the cancel button as "Save draft" |
+| `ModalConfirm` | `children` | Optional, rendered after `desc`. Used to show **what is about to change** as a list before confirming |
+| `ModalConfirm` | `onCancel` | Optional (backward-compatible). Gives the **cancel button an action**: falls back to plain close when omitted. X/esc/backdrop always stay plain close. The editor's "Publish?" modal uses the cancel button as "Save draft" |
 | `TagNotesEditor` | `renderEditPopover` | Optional `(item, close) => ReactNode`. When provided, wraps each chip's edit trigger in the shared `Popover` so the edit UI appears as a popover next to the chip (open state driven by `activeItem`). Backward-compatible — falls back to the old inline drawer when omitted. The Settings > Content tag / category / work-category editors use this popover edit instead of a fixed bottom edit box |
+
+---
+
+## Shared UI components (moved from design-system.md)
+
+> These are usage notes for components rather than style rules (tokens, naming), so they live in this document.
+
+### SearchCapsule (`src/components/ui/SearchCapsule/`)
+
+A capsule-shaped search input. Its height matches the sort and tag capsules so they can sit on one line. It carries its own search history dropdown and search syntax help.
+
+- **Height**: `size` is `md` (default, `--control-height-md` 32px) or `sm` (`--control-height-sm` 28px). It uses the same tokens as Select and plain inputs.
+- **`typeSelector`**: Passing `{ value, options, onChange }` adds a search scope Select on the left (e.g. title / body). Taking all three as one object enforces "all three or none" in the type.
+- **History**: Recent queries are stored per `historyKey` (default: the current path, `null` turns it off). When `hasResults` is `true` and the query stays unchanged for one second, it is saved to history.
+- **`routeParam`**: Given a name (e.g. `"q"`), the query is kept in sync with `?q=`.
+- **`collapsible`**: Starts folded into a circle, expands to `expandedWidth` (default 280px) on click, and folds again when it loses focus while empty.
+
+```tsx
+<SearchCapsule
+  search={query}
+  onSearchChange={setQuery}
+  placeholder={t("posts.searchPlaceholder")}
+  typeSelector={{ value: searchType, options: searchTypeOptions, onChange: setSearchType }}
+  routeParam="q"
+/>
+```
+
+The code above turns on the search scope Select and URL sync together.
+
+### `<T>`: translation bubble + description
+
+`<T>` shows the text in the current language and, after a long hover (default `delay` 600ms), shows the other language in a bubble. With the `tooltip` prop, a short description is added as another line in the same bubble.
+
+```tsx
+import T from "@/components/ui/T";
+
+<T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} />
+<T ko="최신순" en="Latest" />
+```
+
+The first line uses a translation key. The second passes both languages directly.
+
+- It takes either `k` or `ko`/`en`. Mixing them or passing neither is a type error.
+- When both languages are the same and there is no `tooltip`, it renders plain text with no bubble. Use `noTooltip` when an outer Tooltip already exists.
+- Use it where the meaning is not obvious at a glance: capsule buttons, icon-only triggers, shortened labels.
+
+### Sort control (`/posts`)
+
+Sorting on `/posts` is a single `SegmentedControl` (`src/app/posts/_components/PostsToolbar/PostsToolbar.tsx`).
+
+- It has Latest, Popular, and Title items (plus Author when there are two or more authors). Pressing the same item again flips the direction (asc / desc), and the `sortDir` prop draws the direction arrow.
+- Popular has `subItems` (overall, views, comments, likes). With `subVariant="nested"`, choosing Popular folds the other items and expands the sub items.
+- Random has no direction, so it is not one of the sort items. The circular Shuffle button next to it handles it and reshuffles with a new seed on every press. The server (`/api/posts?sort=random&seed=`) shuffles with mulberry32, so the same seed returns the same order and paging does not reshuffle.
+
+### MenuDots (`src/components/ui/MenuDots/`)
+
+A **menu icon** made of 3×3 = 9 dots. When opened, the dots gather into an X. It was built so the Navigation menu button and the settings tab bar toggle could share one shape. Today the only place using it is the `/design-system` demo.
+
+- A presentational component that only takes state: `open` (dots gather into an X), `closing` (gathering, then spreading back), and `size` (px, 12px when omitted).
+- The CSS Module handles color and transitions, and the size goes in through the `--_size` local variable.
+- It is `aria-hidden`. The wrapping button's `aria-label` carries the meaning.
+
+```tsx
+<Pressable aria-label={t("nav.menu")} aria-expanded={open}>
+  <MenuDots open={open} size={16} />
+</Pressable>
+```
+
+The code above puts only the icon inside a button and passes the state down.
 
 ---

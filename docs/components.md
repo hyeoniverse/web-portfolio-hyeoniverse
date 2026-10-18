@@ -34,10 +34,6 @@ React Aria 의 `useButton` 과 같은 이유로 담당을 나눴습니다.
 
 **경로**: `src/components/effects/StaggerText`
 
-<p align="center">
-  <img src="../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
-</p>
-
 **기능**:
 
 - 호버 시 첫 글자부터 순차적으로 외곽선(stroke)으로 변경
@@ -80,72 +76,44 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ### BreakpointGuard
 
-뷰포트가 breakpoint 경계(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동으로 unmount/remount하여 GSAP ScrollTrigger, RAF 기반 애니메이션 등을 재초기화하는 컴포넌트입니다.
+뷰포트가 브레이크포인트 경계를 넘을 때 자식을 통째로 다시 마운트하는 컴포넌트다. GSAP ScrollTrigger, RAF 애니메이션, R3F 캔버스처럼 마운트 때 크기를 읽어 두는 것들을 새 크기로 다시 초기화한다.
 
 **경로**: `src/components/common/BreakpointGuard.tsx`
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
-
 **기능**:
 
-- 뷰포트 너비 변화를 감지하여 `desktop` (>1024px) / `tablet` (768-1024px) / `mobile` (<768px) 분류
-- breakpoint 변경 시 `key` prop을 통해 children을 remount
-- Provider(Theme, Language, Lenis)는 상위에 위치하여 상태 유지
+- 너비 1024px(`BREAKPOINT.tablet`)를 기준으로 `desktop` / `mobile`, 높이 640px 를 기준으로 `tall` / `short` 를 나눈다. 두 값을 합친 키가 바뀌면 경계를 넘은 것으로 본다.
+- 경계를 넘을 때마다 자식의 `key` 를 1씩 올려 다시 마운트한다. 첫 마운트는 이미 그 뷰포트 안에서 일어났으므로 첫 effect 에서는 key 를 바꾸지 않는다.
+- 다시 마운트하는 동안 불투명한 덮개를 띄우고, 정착을 기다린 뒤 걷는다. 덮개와 key 변경을 같은 렌더에서 처리해 R3F 처럼 `useLayoutEffect` 를 쓰는 라이브러리와 충돌하지 않게 한다.
+- 이 컴포넌트 위의 Provider 는 다시 마운트되지 않아 상태가 유지된다.
 
-**적용 위치**: `src/app/layout.tsx`
+**적용 위치**: `src/app/profile/page.tsx`
 
 ```tsx
-// root layout.tsx
-<ThemeProvider>
-  <LanguageProvider>
-    <LenisProvider>
-      <Navigation /> {/* 유지 */}
-      <main>
-        <BreakpointGuard>
-          {" "}
-          {/* breakpoint 변경 시 remount */}
-          {children}
-        </BreakpointGuard>
-      </main>
-    </LenisProvider>
-  </LanguageProvider>
-</ThemeProvider>
+<BreakpointGuard>
+  <div className="content" data-type="mono">
+    <ProfileMeSection profileData={profileData} showcase={showcase} />
+    <FloatingObject />
+  </div>
+</BreakpointGuard>
 ```
 
-**Breakpoints**:
-
-| Breakpoint | 범위           | 설명                     |
-| ---------- | -------------- | ------------------------ |
-| `desktop`  | > 1024px       | 가로 스크롤 레이아웃     |
-| `tablet`   | 768px - 1024px | 세로 스크롤, 태블릿 간격 |
-| `mobile`   | < 768px        | 세로 스크롤, 모바일 간격 |
+위 코드는 프로필 페이지가 자식을 감싸는 모양이다. 다른 페이지는 이 컴포넌트를 쓰지 않는다.
 
 ---
 
 ### Modal (Bottom Sheet)
 
-모바일에서 bottom sheet 패턴으로 동작하는 모달 컴포넌트. 데스크탑에서는 중앙 다이얼로그.
-
-| PC (Desktop Dialog) | Tablet | Mobile (Bottom Sheet) |
-|:---:|:---:|:---:|
-| <img src="../public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="../public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="../public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
+데스크탑에서는 가운데 대화상자, 모바일에서는 아래에서 올라오는 바텀 시트로 열리는 모달 컴포넌트다.
 
 **경로**: `src/components/ui/Modal.tsx`
 
-**모바일 동작**:
+**동작**:
 
-- 하단에서 슬라이드업으로 진입 (85vh 높이 제한)
-- **핸들 아래로 드래그**: CSS `translate` 기반 dismiss (threshold 100px 초과 시 닫힘)
-- **핸들 위로 드래그**: height 기반 전체화면 확장
-- 닫기 버튼 숨김 — 핸들 드래그 또는 overlay 탭으로 닫기
-
-**기술 결정**:
-
-- 드래그 dismiss에 CSS `translate` 속성 사용 (framer-motion의 `transform`과 독립)
-- framer-motion은 enter/exit 애니메이션만 담당, 드래그는 `--sheet-y` CSS 변수로 제어
-- `ClientOverlays`에서 글로벌 1회 렌더링 (portal to body)
+- 모달마다 `<dialog>` 를 두고 붙는 순간 `showModal()` 로 top layer 에 올린다. 포커스 가둠, 열기 전 자리로 포커스 되돌리기, Esc 닫기는 `<dialog>` 가 맡는다.
+- 모바일에서는 아래에서 슬라이드업으로 들어온다. 닫기 버튼은 숨기고, 핸들을 끌어내리거나 바깥을 눌러 닫는다.
+- 끌기는 `useSheetDrag`(`src/hooks/useSheetDrag.ts`)가 맡는다. 80px 넘게 끌어내리거나 빠르게 쓸어내리면 닫힌다. 위로 끌면 처음 높이 · 화면 높이의 50% · 75% · 내용 전체 높이 중 가까운 단계에 멈춘다.
+- `ClientOverlays` 에서 전역으로 한 번 렌더한다.
 
 ---
 
@@ -157,8 +125,8 @@ import StaggerText from "@/components/effects/StaggerText";
 
 **Exports**:
 
-- `PostArticleHeader` — DetailLayout 의 `header` slot. metaRow(날짜·읽기시간·조회수·편집 / GitHub·Share·언어토글) · 제목 · 요약 · 태그 · divider
-- `PostArticleBody` — DetailLayout 의 `children` slot 본문. richtext / markdown 렌더 + 코드 wrap 토글·이미지 뷰어 등 인터랙션
+- `PostArticleHeader`: DetailLayout 의 `header` slot. metaRow(날짜·읽기시간·조회수·편집 / GitHub·Share·언어토글) · 제목 · 요약 · 태그 · divider
+- `PostArticleBody`: DetailLayout 의 `children` slot 본문. richtext / markdown 렌더 + 코드 wrap 토글·이미지 뷰어 등 인터랙션
 
 **기능**:
 
@@ -172,23 +140,26 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ---
 
-### WorkArticleView
+### WorkArticleHeader · WorkArticleInfoGrid · WorkArticleBody · WorkArticleGallery · WorkArticleTeam
 
-작업물(프로젝트) 상세 본문을 그리는 **presentational 컴포넌트 집합**. PostArticleView 와 동일하게 공개 상세(`works/[slug]`)와 어드민 미리보기가 같은 컴포넌트를 공유한다.
+작업물 상세를 그리는 presentational 컴포넌트들이다. 예전 `WorkArticleView.tsx` 한 파일을 역할마다 나눴다. PostArticleView 와 같이 공개 상세(`works/[slug]`)와 어드민 미리보기가 같은 컴포넌트를 쓴다. barrel 없이 사용처가 각 파일을 직접 import 한다.
 
-**경로**: `src/components/works/WorkArticleView.tsx`
+**경로**: `src/components/works/`
 
-**Exports**:
+| 컴포넌트 | 들어가는 자리 | 그리는 것 |
+| --- | --- | --- |
+| `WorkArticleHeader` | DetailLayout 의 `header` | 메타(번호 · 팀/개인 배지 · 편집 · 언어 토글) · 제목 · 설명 · 액션(Visit · GitHub · 공유 · 듣기) · 아래의 정보 그리드 |
+| `WorkArticleInfoGrid` | `WorkArticleHeader` 안 | 연도 · 카테고리 · 역할 · 본인 기여 · 기술 노트 · 관련 글/시리즈 · AI 요약. 항목이 없으면 그 블록을 그리지 않는다 |
+| `WorkArticleBody` | DetailLayout 의 `children` | 본문(richtext/markdown) + ImageViewer. richtext 후처리는 글 상세와 같은 `processRichtextHtml` · `useRichtextEnhance` 를 쓴다 |
+| `WorkArticleGallery` | DetailLayout 의 `afterContent` | 슬라이드 갤러리. 발표 자료를 장으로 쪼갠 경우가 많아 본문 칼럼이 아니라 페이지 폭을 쓴다 |
+| `WorkArticleTeam` | DetailLayout 의 `afterContent` | 팀 멤버 폴라로이드 flip 캐러셀. 공개 상세에서만 쓴다 |
 
-- `WorkArticleHeader` — DetailLayout 의 `header` slot. meta(#번호·팀/개인 배지·편집·언어토글) · 제목 · 설명 · 액션(Visit/GitHub/Share) · info grid(Year/Category/Tech/Role) · AISummary
-- `WorkArticleBody` — DetailLayout 의 `children` slot. 본문(richtext/markdown) · 갤러리 + ImageViewer
-- `WorkArticleTeam` — DetailLayout 의 `afterContent` slot. 팀 멤버 폴라로이드 flip carousel을 **본문 컬럼이 아닌 전체 페이지 폭**으로 렌더
+공유 props · 관련 글 타입은 `workArticleTypes.ts` 에 있다.
 
 **기능**:
 
-- `Project` shape 하나만 받아 렌더 — 미리보기는 `workFormToProject(form)`(`src/types/work.ts`)로 에디터 폼을 `Project` 로 변환해 동일 컴포넌트 재사용
-- richtext enhance / 갤러리·prose ImageViewer 등 인터랙션 내부 보유
-- `isPreview` 로 편집 링크 등 DB 의존 요소 제외
+- `Project` shape 하나만 받아 렌더한다. 미리보기는 `workFormToProject(form)`(`src/types/work.ts`)로 에디터 폼을 `Project` 로 바꿔 같은 컴포넌트를 쓴다.
+- `isPreview` 로 편집 링크 등 DB 에 저장된 레코드가 있어야 하는 요소를 뺀다.
 
 **사용처**: `src/app/works/[slug]/WorkDetailClient.tsx` (공개 상세) + `src/app/admin/(preview)/works/preview/page.tsx` (미리보기)
 
@@ -255,10 +226,11 @@ richtext HTML을 후처리하는 **공용 유틸**. 상세 페이지와 미리�
 **처리 순서**:
 
 1. heading id 주입 (TOC 앵커)
-2. iframe embed URL 변환
-3. 코드블록 wrap 토글 버튼에 라벨 span 삽입 (신택스 하이라이팅은 **여기서 안 한다** — Shiki 가 별도 처리)
-4. 코드 wrap 토글 버튼 라벨 삽입
-5. img 에 `data-cursor="zoom"` 힌트 주입 (CursorTrail 이미지 뷰어)
+2. iframe embed URL 변환. 예전 글에 남은 구글 문서 뷰어 주소도 지금 뷰어 주소로 바꾼다(`lib/officeViewer`)
+3. 코드블록 wrap 토글 버튼에 라벨 span 삽입
+4. img 에 `data-cursor="zoom"` 힌트 주입 (CursorTrail 이미지 뷰어)
+
+신택스 하이라이팅은 여기서 하지 않는다. Shiki 가 `highlightRichtextCode` 로 따로 칠한다.
 
 ```ts
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
@@ -269,7 +241,7 @@ const html = processRichtextHtml(rawHtml, {
 });
 ```
 
-> 코드 하이라이트·버튼 라벨을 DOM 조작이 아닌 **HTML 문자열 단계**에서 적용 — 리렌더로 사라지지 않게.
+위 코드는 번역된 라벨 두 개를 넘겨 호출하는 예다. 버튼 라벨은 DOM 조작이 아니라 HTML 문자열 단계에서 넣는다. 리렌더가 일어나도 라벨이 사라지지 않는다.
 
 ---
 
@@ -356,7 +328,7 @@ PlateEditor 에서 **블록 선택 시 뜨는 플로팅 툴바**. 다른 블록�
 
 - `maxHeight` 를 **넘을 때만** 접는다 — 넘지 않으면 토글 버튼도 하단 페이드도 렌더하지 않음
 - 오버플로 판정은 클램프 안 된 내부 div 를 `ResizeObserver` 로 관찰 — 이미지가 늦게 로드돼 높이가 커져도 다시 잡힘
-- **첫 클램프는 애니메이션 없음** — 사용자가 토글을 실제로 누르기 전까지 애니메이션을 억제해, 로드 시점에 저절로 접히는 연출을 방지
+- **첫 클램프는 애니메이션 없음**: 사용자가 토글을 실제로 누르기 전까지 애니메이션을 억제해, 로드 시점에 저절로 접히는 연출을 방지
 - 펼침 높이는 framer-motion `height: "auto"` 로 애니메이션, 토글은 `Button variant="ghost" size="sm" shape="capsule"`
 
 **Props**:
@@ -380,14 +352,14 @@ PlateEditor 에서 **블록 선택 시 뜨는 플로팅 툴바**. 다른 블록�
 
 - `Button variant="subtle" shape="circle"` + `?` 를 고정 — `variant` / `shape` / `children` 은 의도적으로 override 불가, **`size` 만 시각 조절 knob**
 - 나머지 props 는 Button 으로 그대로 spread (Popover/Tooltip 이 트리거에 주입하는 핸들러 통과)
-- `forwardRef` — 트리거 anchor 측정 가능
+- `forwardRef`: 트리거 anchor 측정 가능
 
 **Props**:
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `size` | `"2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"sm"` | 기본 28px. 폼 라벨 옆처럼 좁은 자리는 `2xs`(20px) / `xs`(24px) |
-| `className` | `string` | - | **배치용만** — 색·보더·radius·padding override 금지 (필요하면 부모 래퍼로) |
+| `className` | `string` | - | **배치용만**: 색·보더·radius·padding override 금지 (필요하면 부모 래퍼로) |
 | `soundDisabled` | `boolean` | - | 클릭 사운드 비활성 |
 
 ---
@@ -419,9 +391,9 @@ posts 계열 페이지의 공용 대형 타이틀(`<h1>`).
 **기능**:
 
 - pointerDown 시 **즉시 1회** 발화 → 380ms 홀드 후 반복 시작, 간격이 130ms 에서 tick 마다 12ms 씩 줄어 **최소 28ms** 까지 가속
-- `setPointerCapture` — 버튼 밖에서 손을 떼도 정지. pointerUp / pointerCancel / lostPointerCapture / unmount 에서 모두 stop
+- `setPointerCapture`: 버튼 밖에서 손을 떼도 정지. pointerUp / pointerCancel / lostPointerCapture / unmount 에서 모두 stop
 - 마우스는 `e.button === 0` 만 반응, 최신 action 을 ref 로 들고 있어 반복 tick 이 stale 되지 않음
-- `type="button"` + `tabIndex={-1}` — 스테퍼가 탭 순서를 오염시키지 않음
+- `type="button"` + `tabIndex={-1}`: 스테퍼가 탭 순서를 오염시키지 않음
 
 **Props**:
 
@@ -453,27 +425,27 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 
 **기술 결정**:
 
-- `.portalLayer` 는 모달 패널의 **자식이 아니라 형제** — 패널의 `transform` 이 containing block 이 되면 fixed 좌표가 어긋나므로, `inset: 0` backdrop 쪽에 붙인다
+- `.portalLayer` 는 모달 패널의 **자식이 아니라 형제**: 패널의 `transform` 이 containing block 이 되면 fixed 좌표가 어긋나므로, `inset: 0` backdrop 쪽에 붙인다
 - ref setter 는 modal id 별로 `Map` 에 캐시 — 렌더마다 새 화살표 함수를 주면 cleanup/mount 무한 루프("Maximum update depth")
 
 ---
 
-### 공통 컴포넌트 — 이번 사이클 prop 추가
+### 공통 컴포넌트의 선택 prop
 
-| 컴포넌트 | 추가 | 내용 |
+| 컴포넌트 | prop | 내용 |
 | -------- | ---- | ---- |
 | `Popover` | `variant` | `"glass"`(기본) / `"solid"` / `"difference"`. `solid` 는 modifier 클래스 없이 base `.dropdown` 자체 |
 | `Popover` | `openOnHover` | 기본 `false`, 데스크탑 전용(sheet 모드에선 무시). 열림은 즉시, 닫힘은 500ms 지연(트리거↔콘텐츠 이동 구간 유지). 모듈 레벨 플래그로 **hover popover 는 동시에 1개만** |
 | `Button` | `tone="accent"` | `tone: "default" \| "danger" \| "success" \| "accent"` |
 | `Modal` | `header.actions` | 헤더 우측 액션 영역 (`ReactNode`, 닫기 버튼 왼쪽) |
 | `Modal` | `subButtons` | 닫기(X) 버튼 바로 왼쪽 서브 버튼 (뒤로/앞으로 등) |
-| `Toast` | `pauseAllToasts` / `resumeAllToasts` | 토스트 하나에 hover 하면 **스택 전체 정지** — 재배치로 커서가 벗어나 사라지는 것 방지 |
+| `Toast` | `pauseAllToasts` / `resumeAllToasts` | 토스트 하나에 hover 하면 **스택 전체 정지**: 재배치로 커서가 벗어나 사라지는 것 방지 |
 | `NumberInput` | `unit` | `ReactNode`. 우측 단위(`px`, `%`) 표시. 텍스트가 **실제로 말줄임될 때만** Tooltip 활성 |
 | `NumberInput` | `gauge` | 기본 `false`. `min`·`max` 가 둘 다 있을 때만 동작, 값 위치를 숫자 색(낮음/중간/높음)으로 표시 (바는 그리지 않음) |
 | `Textarea` | `tabIndent` | opt-in. Tab 으로 2칸 공백 들여쓰기 — `execCommand("insertText")` 로 native undo 스택 보존, IME 조합 중 skip, Shift+Tab 은 native 포커스 이동 유지. **`maxHint` 가 설정된 EditableTextarea 모드에서만** 동작 |
 | `Select` | (viewport clamp) | 선택 항목 중앙을 트리거 중앙에 맞춘 뒤 여백 8px 로 뷰포트 안에 clamp, 자연 높이가 가용 높이를 넘을 때만 `max-height` 부여. 외부 스크롤 시 재배치가 아니라 **닫음** |
 | `Select` | `editable` + `editableInputProps` | 프리셋 밖 값을 **직접 입력**. 트리거를 더블클릭하면(250ms 안 두 번 클릭) input 으로 바뀌어 타이핑 후 `Enter`/blur 로 commit, `Escape` 로 취소. `editableInputProps.sanitize` 로 commit 직전 정규화(예: 숫자만), `maxLength`/`placeholder` 지정. `value` 가 비어 있으면 mount 시 입력 모드부터 시작. 에디터 툴바의 글꼴 크기·줄간격·자간이 사용하며, 프리셋에 없는 현재 값은 목록 맨 위 옵션으로 노출한다. (드롭다운 상단 입력행이 필요한 검색형은 별도 `combobox` 모드) |
-| `ModalConfirm` | `children` | 선택. `desc` 뒤에 렌더. 확인 전에 **무엇이 바뀌는지 목록으로** 보여줄 때 — About ERD 가져오기가 삭제/덮어쓰기 대상을 이름과 전/후 값으로 나열하는 데 쓴다 |
+| `ModalConfirm` | `children` | 선택. `desc` 뒤에 렌더한다. 확인 전에 **무엇이 바뀌는지 목록으로** 보여 줄 때 쓴다 |
 | `ModalConfirm` | `onCancel` | 선택(하위호환). **취소 버튼에 동작**을 부여 — 미지정이면 단순 close. X/esc/backdrop 은 항상 단순 close 로 유지. 에디터의 "발행 여부" 모달이 취소 버튼을 '임시저장' 으로 쓴다 |
 | `TagNotesEditor` | `renderEditPopover` | 선택 `(item, close) => ReactNode`. 제공 시 각 chip 의 편집 트리거를 공용 `Popover` 로 감싸 편집 UI 를 chip 옆 팝오버로 띄운다(열림은 `activeItem` 로 제어). 하위호환 — 미제공 시 기존 인라인 drawer 동작. 설정 > Content 의 태그·카테고리·작품 카테고리 에디터가 하단 고정 편집 박스 대신 이 팝오버 편집을 쓴다 |
 
@@ -485,73 +457,65 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 
 ### SearchCapsule (`src/components/ui/SearchCapsule/`)
 
-캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / 높이를 통일해 한 줄에 같이 놓을 수 있음.
+캡슐형 검색 입력. 정렬 · 태그 캡슐과 높이를 맞춰 한 줄에 같이 놓는다. 검색 이력 드롭다운과 검색 문법 도움말을 함께 갖고 있다.
 
-- **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
-- **높이 `var(--control-height-md)`** (Layer 3 Component 토큰, 32px) — Select / 일반 input 과 동일 높이
-- 내부 Select 컴포넌트가 동일 토큰을 쓰므로 별도 override 없이 자연스럽게 정렬됨
+- **높이**: `size` 가 `md`(기본, `--control-height-md` 32px) 또는 `sm`(`--control-height-sm` 28px)이다. Select · 일반 입력칸과 같은 토큰을 쓴다.
+- **`typeSelector`**: `{ value, options, onChange }` 를 넘기면 왼쪽에 검색 범위 Select(예: 제목 / 본문)가 붙는다. 셋을 한 객체로 받아 "셋 다 있거나 하나도 없거나"를 타입으로 강제한다.
+- **이력**: `historyKey` 마다 최근 검색어를 저장한다(기본은 지금 경로, `null` 이면 끈다). `hasResults` 가 `true` 이고 검색어가 1초 동안 그대로면 이력에 넣는다.
+- **`routeParam`**: 이름을 주면(예: `"q"`) 검색어를 `?q=` 에 맞춘다.
+- **`collapsible`**: 원형으로 접혀 있다가 누르면 `expandedWidth`(기본 280px)로 펼쳐지고, 비운 채 포커스를 잃으면 다시 접힌다.
 
 ```tsx
 <SearchCapsule
-  value={query}
-  onChange={setQuery}
+  search={query}
+  onSearchChange={setQuery}
   placeholder={t("posts.searchPlaceholder")}
-  // 옵션 — 검색 타입 셀렉트 동시 노출
-  searchType={searchType}
-  onSearchTypeChange={setSearchType}
-  searchTypes={[{ value: "all", label: t("posts.searchAll") }, { value: "title", label: t("posts.searchTitle") }]}
+  typeSelector={{ value: searchType, options: searchTypeOptions, onChange: setSearchType }}
+  routeParam="q"
 />
 ```
 
-> **이전 위치**: `src/components/admin/SearchCapsule/` (admin 전용으로 시작) → 일반 UI 로 승격하면서 `components/ui/` 로 이동. PostsClient · `/admin/comments` 등 모든 인라인 검색 input 이 이 컴포넌트로 통일됨.
+위 코드는 검색 범위 Select 와 주소 동기화를 함께 켠 예다.
 
-### Tooltip + `<T>` 합성
+### `<T>`: 번역 말풍선 + 설명
 
-번역 가능한 텍스트 + 짧은 설명을 같은 hover 에 노출하기 위해 두 컴포넌트를 합성하는 표준 패턴:
+`<T>` 는 지금 언어의 글을 보여 주고, 오래 올려 두면(기본 `delay` 600ms) 반대 언어 글을 말풍선으로 띄운다. `tooltip` prop 을 주면 짧은 설명이 같은 말풍선에 한 줄 더 붙는다.
 
 ```tsx
 import T from "@/components/ui/T";
-import Tooltip from "@/components/ui/Tooltip";
 
-<Tooltip content={t("posts.sortDateTooltip")}>
-  <T ko="최신순" en="Latest" />
-</Tooltip>
+<T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} />
+<T ko="최신순" en="Latest" />
 ```
 
-- `<T>` — short hover(< 600ms) 시 현재 언어, long hover(>= 600ms) 시 반대 언어 노출
-- `<Tooltip>` — 같은 hover 에 짧은 설명(rule of thumb: 한 문장) 노출
-- 두 트리거가 같은 hover 영역을 공유하므로 사용자에게는 "한 번 hover → 번역 + 설명 동시 표시" 로 보임. 모바일은 터치 토글로 동일 결과
-- **언제 쓰나** — capsule 버튼·아이콘 only 트리거·축약된 라벨 등 시각만으로 의미가 즉시 전달되지 않는 자리에 의무화
+위 코드의 첫 줄은 번역 키로, 둘째 줄은 두 언어 글을 직접 넘겨 쓰는 예다.
 
-### 캡슐형 정렬 버튼 패턴 (sortBtn)
+- `k` 와 `ko`/`en` 중 하나만 받는다. 섞거나 둘 다 빼면 타입 오류다.
+- 두 언어 글이 같고 `tooltip` 도 없으면 말풍선 없이 글만 그린다. 바깥에 Tooltip 이 따로 있으면 `noTooltip` 으로 끈다.
+- 캡슐 버튼 · 아이콘만 있는 트리거 · 줄인 라벨처럼 보기만으로 뜻이 바로 오지 않는 자리에 쓴다.
 
-`/posts` 의 정렬 컨트롤 — 같은 정렬 키를 다시 누르면 방향(asc / desc) toggle.
+### 정렬 컨트롤 (`/posts`)
 
-- 활성 상태에서만 `sortDirIcon` 화살표(▲ / ▼) 노출, `transform: rotate(180deg)` + transition 으로 부드러운 회전
-- `display: inline-flex; white-space: nowrap` 으로 화살표가 줄바꿈으로 떨어지는 사고 방지
-- hover indicator 는 Framer Motion `layoutId` 로 캡슐 사이를 슬라이드
-- "랜덤" 처럼 방향 개념이 없는 정렬은 **별도 Shuffle 아이콘 버튼** 으로 분리(같은 컨트롤 row 의 마지막에 배치)
+`/posts` 의 정렬은 `SegmentedControl` 한 줄이다(`src/app/posts/_components/PostsToolbar/PostsToolbar.tsx`).
 
-### Shuffle 버튼 패턴
-
-랜덤 정렬은 누를 때마다 새 시드로 셔플되는 동작이 본질이므로 `sortBtn` 의 toggle 의미와 충돌. 별도 캡슐 아이콘 버튼으로 분리:
-
-- `<Shuffle />` 아이콘 + 활성 시 accent border + 가벼운 회전 hint
-- `Tooltip` 로 "임의 순서로 섞기, 누를 때마다 새로 셔플" 설명 명시
-- 시드는 `Date.now()` 또는 페이지 키로 — mulberry32 셔플로 같은 시드 / 같은 페이지 = 같은 결과(페이지 이동 시 안정성)
+- 최신순 · 인기순 · 제목순(저자가 둘 이상이면 저자순) 항목을 둔다. 같은 항목을 다시 누르면 방향(asc / desc)이 바뀌고, `sortDir` prop 이 방향 화살표를 그린다.
+- 인기순에는 `subItems`(종합 · 조회 · 댓글 · 좋아요)가 있다. `subVariant="nested"` 라 인기순을 고르면 다른 항목이 접히고 하위 항목이 펼쳐진다.
+- 랜덤은 방향이 없어 정렬 항목에 넣지 않는다. 옆의 원형 Shuffle 버튼이 맡고, 누를 때마다 새 시드로 다시 섞는다. 서버(`/api/posts?sort=random&seed=`)는 mulberry32 로 섞어 같은 시드면 같은 순서를 돌려준다. 그래서 페이지를 넘겨도 순서가 흔들리지 않는다.
 
 ### MenuDots (`src/components/ui/MenuDots/`)
 
-사이트 공용 **메뉴 아이콘** — 3×3 = 9개의 점(dot) grid. 열리면 X 로 모이는 morph 애니메이션. Navigation 의 메뉴 버튼과 admin/settings 탭바 토글이 **같은 모양**을 쓰도록 공용화한 SVG 컴포넌트.
+3×3 = 9개의 점으로 된 **메뉴 아이콘**. 열리면 점이 X 로 모인다. 처음에는 Navigation 메뉴 버튼과 설정 탭바 토글이 같은 모양을 쓰도록 만들었다. 지금 이 컴포넌트를 쓰는 곳은 `/design-system` 데모뿐이다.
 
-- 상태만 받는 순수 프레젠테이션 — `open`(열림, dot 이 X 로 모임) · `closing`(닫히는 중, 모였다 다시 펼쳐지는 트랜지션) · `size`(px, 생략 시 12px)
-- 색·트랜지션은 CSS Module 이 담당, 크기는 `--_size` 컨텍스트 토큰으로 주입 → 어디에 놓아도 톤 유지
-- `aria-hidden` — 아이콘 자체는 의미 전달 안 함, 감싸는 버튼이 `aria-label` 을 갖는다
+- 상태만 받는 프레젠테이션 컴포넌트다. `open`(점이 X 로 모임) · `closing`(모였다가 다시 펼쳐지는 중) · `size`(px, 생략하면 12px)를 받는다.
+- 색과 트랜지션은 CSS Module 이 맡고, 크기는 `--_size` 지역 변수로 넣는다.
+- `aria-hidden` 이다. 뜻은 감싸는 버튼의 `aria-label` 이 전한다.
 
 ```tsx
-<button aria-label={t("nav.menu")} aria-expanded={open}>
+<Pressable aria-label={t("nav.menu")} aria-expanded={open}>
   <MenuDots open={open} size={16} />
-</button>
+</Pressable>
 ```
+
+위 코드는 버튼 안에 아이콘만 넣고 상태를 내려주는 예다.
 
 ---

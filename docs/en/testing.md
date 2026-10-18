@@ -2,67 +2,99 @@
 
 [← README](../../README.en.md)
 
-Unit tests (Vitest) plus smoke e2e (Playwright). The suite does not pin pixels; it only catches breakage.
+Unit tests (Vitest) and e2e tests (Playwright) are used together. The e2e tests do not compare screens pixel by pixel. They only check whether a page is broken, whether something that should be there is missing, and whether an API returns the expected status code.
 
+## Commands
 
-**Stack**: Vitest + React Testing Library + jsdom
-
-```bash
-# Run all tests
-npm test
-
-# Watch mode (auto-rerun on file changes)
-npm run test:watch
-```
-
-**Test targets**:
-
-**Utils & rendering** (`src/__tests__/`)
-
-| File | Tests | Description |
-| --- | --- | --- |
-| `cn.test.ts` | 6 | Class name merge utility (`cn`) |
-| `mobileCheck.test.ts` | 6 | Mobile layout detection (`checkMobileLayout`) |
-| `renderHighlight.test.tsx` | 4 | Highlight markup transformation (`renderHighlight`) |
-| `koSearch.test.ts` | 10 | Korean initial/jamo search matching |
-| `codeBlockBar.test.tsx` | 3 | Code block top bar (language label, copy, wrap toggle) |
-| `cssTokens.test.ts` | 1 | **Guard for undefined CSS tokens** — without a `var()` fallback the whole declaration is invalid, and CSS fails silently. 13 tokens across 57 sites were actually dead |
-
-**Editor (Plate)** (`src/components/posts/plate/__tests__/`)
-
-| File | Tests | Description |
-| --- | --- | --- |
-| `browserSafeGrammar.test.ts` | 15 | Browser safety of hljs grammars — whether registered regexes survive hljs's flag-less re-parse (troubleshooting #1). Node uses the original source, so the tests **synthesize the bundled shape** |
-| `fitColumnsForInsert.test.ts` | 10 | Column width distribution — block cap, minimum width, remainder allocation |
-| `columnHasContent.test.ts` | 9 | Content check before deleting a column — images and dividers count even with no text |
-| `codePaste.test.ts` | 7 | Pasting code **outside** a code block — the markdown parser must not shred it on indentation |
-| `codeBlockClear.test.ts` | 5 | Caret stays inside the block after "clear content" (if it escapes, pastes leak out) |
-| `codeBlockStructure.test.ts` | 4 | `code_block` children are always `code_line` (a raw text child creates a state nothing can repair) |
-| `tableRowHeight.test.ts` | 4 | Table row height HTML round-trip |
-
-Config: `vitest.config.ts` (jsdom, `@platejs/*` inlined so the full EditorKit loads)
-
----
-
-**Smoke e2e (Playwright)**
-
-Verifies a refactor did not **break** the page (not a pixel comparison — UI changes are allowed). Each route is checked for page load (status < 400), runtime errors, error-boundary render, and empty screens.
-
-```bash
-npm run build              # production output required (a dev server is unstable due to overlays)
-npm run test:smoke         # public routes
-npm run test:smoke:admin   # admin routes (requires a login session — see below)
-```
-
-| Item | Value |
+| Command | Runs |
 | --- | --- |
-| Scope | 12 public routes × desktop (1440×900) / mobile (Pixel 7) = **24 shots** |
-| | 16 admin routes (6 lists + 10 settings tabs) = **16 shots** |
-| Checks | Screenshot diff + page runtime errors |
-| Stability | public 24/24 across 3 runs · admin 16/16 across 2 runs (zero flakes) |
+| `npm test` | `vitest run`: all unit tests |
+| `npm run test:watch` | `vitest`: reruns on file changes |
+| `npm run test:smoke` | Playwright `desktop` · `mobile` projects — public screens |
+| `npm run test:smoke:admin` | Playwright `admin` project — admin screens (needs a signed-in session) |
+| `npm run test:api` | Playwright `api` · `api-auth` projects — API routes |
 
-Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](../perf-baseline.md#시각-회귀-baseline)**.
+Playwright starts `npm run start` through `webServer`, so `npm run build` must finish before the e2e tests. The dev server is not used because the HMR overlay makes it unstable. If a server is already on port 3000, local runs reuse it (`reuseExistingServer`).
 
-**Admin routes** need a login session. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local` (use the owner account — a freshly created one has no role and gets rejected), then run `npm run test:smoke:admin`. The new-device gate makes the first run fail; flip `approved` to `true` on the new `admin_known_devices` row to clear it (**no real inbox needed** — that is all the approval link does). After that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
+```bash
+npm run build
+npm run test:smoke
+```
 
-> **Refactoring docs**: [Refactoring guide](../refactoring-guide.md) · [Performance baseline](../perf-baseline.md) · [Dead code inventory](../dead-code-inventory.md)
+The two lines above are the minimum order to run the public-screen e2e tests.
+
+## Unit tests (Vitest)
+
+**Stack**: Vitest + React Testing Library + jsdom. The config is [`vitest.config.ts`](../../vitest.config.ts).
+
+- It picks up `src/**/*.test.{ts,tsx}`. There are 169 files today: 156 in `src/__tests__/` and 13 in the editor's `src/components/posts/plate/__tests__/`.
+- Shared setup lives in `src/__tests__/setup.ts`.
+- `@platejs/*` is inlined so vite transforms it. This lets tests load the full EditorKit. The katex CSS is swapped for an empty file.
+- The timeout is 5 seconds locally and 20 seconds on CI. CI runners have few cores, and even short tests occasionally went past 5 seconds.
+
+This document does not list every file. A few tests guard the repository state rather than code, so they are listed here.
+
+| File | Guards |
+| --- | --- |
+| `styleRatchet.test.ts` | The "target" counts in [design-system.md](../design-system.md) do not grow, and when they shrink the baseline (`scripts/style-ratchet.baseline.json`) shrinks with them |
+| `cssTokens.test.ts` | No CSS uses an undefined token. A `var()` without a fallback silently invalidates the whole declaration |
+| `tokenDoc.test.ts` | [tokens.md](../tokens.md) matches the token CSS (regenerate with `npm run tokens:doc`) |
+| `apiMap.test.ts` · `erdSchema.test.ts` | The pre-build generated files (`apiMap.ts` · `erdSchema.ts`) match their sources |
+
+## e2e (Playwright)
+
+The config is [`playwright.config.ts`](../../playwright.config.ts), and the specs are the 16 files under `e2e/`. Every project sets `reducedMotion: "reduce"` and a dark color scheme to calm animations. Marquees, GSAP, and three.js keep running and make load timing jittery, so `retries: 2` absorbs that.
+
+| Project | Specs | Environment |
+| --- | --- | --- |
+| `desktop` | `smoke` · `nav` · `designsystem` · `about` · `postsindex` · `profile` · `dates` · `detail` · `home` | Desktop Chrome 1440×900 |
+| `mobile` | `smoke` · `about` | Pixel 7 |
+| `setup` | `auth.setup.ts`: signs in as admin once and saves the session | |
+| `api` | `api.spec.ts`: calls APIs without signing in | no browser |
+| `api-auth` | `api-auth.spec.ts`: calls APIs with the saved session | after `setup` |
+| `admin` | `admin` · `dashboard` · `editor` · `workeditor` · `settings` · `adminposts` | after `setup`, Desktop Chrome 1440×900 |
+
+**Smoke tests** (`smoke.spec.ts` · `admin.spec.ts`) open each route in [`e2e/routes.ts`](../../e2e/routes.ts): 20 public routes and 16 admin routes (6 lists + 10 settings tabs). For each route they check:
+
+- the response status is below 400
+- the error boundary (`app/error.tsx`) did not show
+- the screen is not empty and not the 404 page
+- the sections named in `expectVisible` are visible. This catches sections that silently drop out when data fails to load
+- there are no new runtime errors. Known errors are filtered by the route's `knownPageErrors`
+
+`/design-system` is left out of the smoke list. The page is very long and full of interactive demos, so it never settles. `designsystem.spec.ts` in the `desktop` project covers it separately.
+
+### Preparing the admin session
+
+The `admin` · `api-auth` projects need a signed-in session.
+
+1. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local`. Use the owner (`OWNER_EMAIL`) account. A newly created account has no role in `app_metadata` and cannot enter the admin screens.
+2. Run `npm run test:smoke:admin`. The first run fails while waiting for new-device approval.
+3. In Supabase Table Editor → `admin_known_devices`, set `approved` to `true` on the row just created. That is all the approval mail link does, so receiving the mail is not needed.
+4. Run it again. It passes and the session is saved to `e2e/.auth/admin.json`. The file holds auth tokens and is in `.gitignore`.
+
+## Pre-commit checks
+
+`.husky/pre-commit` first checks that the commit author and committer are not the tool account (`anthropic.com`), then runs `npx lint-staged`. The rules are in [`.lintstagedrc.mjs`](../../.lintstagedrc.mjs).
+
+| Staged files | Runs |
+| --- | --- |
+| `*.{ts,tsx}` | `eslint` |
+| `*.{css,module.css}` | `stylelint --allow-empty-input` |
+| `*.{ts,tsx,css}` | `vitest run src/__tests__/styleRatchet.test.ts` (once, without a file list) |
+
+Commit messages are checked by commitlint from `.husky/commit-msg` ([commit-convention.md](../commit-convention.md), Korean).
+
+## CI
+
+`.github/workflows/ci.yml` runs the following on every push and PR to master. e2e tests do not run on CI.
+
+1. `npm run typecheck`
+2. `npm run lint`: fails above the warning cap (`--max-warnings`)
+3. `npm run lint:css`
+4. `npm test`
+5. `npm run knip -- --no-exit-code`: unused export and file report (does not fail)
+6. `npm run knip:deps`: fails on unregistered dependencies
+7. `npm run type-coverage`: fails below 97.93%
+
+> **Refactoring docs**: [Refactoring guide](../refactoring-guide.md) · [Performance baseline](../perf-baseline.md)

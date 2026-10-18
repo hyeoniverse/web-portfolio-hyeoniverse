@@ -9,14 +9,45 @@ Written for Vercel, in the order the steps actually bite.
 ### 1. Create the Vercel project
 
 1. Import the GitHub repo on [Vercel](https://vercel.com).
-2. Leave the build settings alone. Next.js and npm are detected automatically, and `prebuild` (font scan, content asset copy, about fallback) runs ahead of `npm run build`.
+2. Leave the build settings alone. Next.js and npm are detected automatically, and `prebuild` runs ahead of `npm run build` (table below).
 3. Add the environment variables below, then deploy.
 
 Production deploys come from pushes to the repo's default branch (`master`); pull requests get Preview deployments.
 
+`build` runs only `next build`. The `prebuild` before it runs the eight steps below in order, and any failure stops the build. A deployed server cannot read repository files at runtime, so the values it needs are frozen into files at build time.
+
+| Order | Script | What it does |
+|---|---|---|
+| 1 | `scripts/scan-fonts.mjs` | Writes the font files in `public/fonts/` to `src/config/localFonts.generated.ts` |
+| 2 | `scripts/copy-ffmpeg.mjs` | Copies the ESM files of `@ffmpeg/ffmpeg` to `public/vendor/ffmpeg`. Turbopack cannot resolve this package's worker URL, so it is served as static files |
+| 3 | `scripts/sync-content-assets.ts` | Copies images, videos, and PDFs under `content/**` to `public/content/**` and removes files whose source is gone |
+| 4 | `scripts/gen-about-fallback.ts` | Bakes `content/about/**.md` into `src/data/generated/aboutContent.ts` |
+| 5 | `scripts/gen-erd.ts` | Builds the About ERD (`src/data/generated/erdSchema.ts`) from `supabase/setup.sql` |
+| 6 | `scripts/gen-api-map.ts` | Builds the API map (`src/data/generated/apiMap.ts`) from the `route.ts` files under `src/app/api` · `src/app/auth` |
+| 7 | `scripts/gen-token-sky.ts` | Builds the token list for the About design chapter (`src/data/generated/tokenSky.ts`) from the token CSS |
+| 8 | `scripts/gen-about-dict.ts` | Collects the English side of the `{ ko, en }` strings in the About code into a translation source list (`src/data/generated/aboutDict.ts`) |
+
+`npm run dev` runs the same steps except step 1 first. Post and work sync (`sync-posts` · `sync-works`) is not part of the build (see [md-content-guide.md](../md-content-guide.md#2-2-폴더-동기화), Korean only).
+
+The pieces involved in a deployment connect like this.
+
+```mermaid
+flowchart LR
+  push["push<br/>master → Production<br/>PR → Preview"] --> vercel["Vercel build<br/>8 prebuild steps → next build"]
+  env["Vercel environment variables<br/>SITE_URL · Supabase keys · optional keys"] --> vercel
+  vercel --> app["Deployed app"]
+  dns["Cloudflare DNS<br/>@ · www CNAME (DNS only)"] --> app
+  app -->|"compares write-request Origin<br/>with SITE_URL (src/proxy.ts)"| app
+  app --> supa["Supabase<br/>DB · Auth · Storage"]
+  app -->|"From: noreply@(SITE_URL host)<br/>(src/constants/mail.ts)"| resend["Resend<br/>alerts · device approval · invites"]
+  supa -->|"pg_cron · pg_net<br/>scheduled publish · trash notices"| resend
+```
+
 ### 2. Environment variables
 
 Paste the contents of `.env.local` straight into the Key field and Vercel splits it into one row per key. macOS hides dotfiles in the file picker, so press `⌘⇧.` there if you want to import the file itself.
+
+The block below splits the keys in [`.env.example`](../../.env.example) into required and optional. Leaving an optional key empty turns off only that feature. API keys can also be stored in admin Settings › Services › Environment variables, and a stored value wins over the environment variable.
 
 ```
 Required:
@@ -29,6 +60,16 @@ Required:
                                # Missing in production → every /api/* mutation is 403 (fail-closed)
 
 Optional:
+  BLOG_SUBDOMAIN_REDIRECT      # 1 sends /posts/* on the main host to the blog subdomain (turn on after DNS · Vercel domain setup)
+  ADMIN_EMAIL                  # Where contact and alert mail goes. The contact email in site settings wins if set
+  NEXT_PUBLIC_WEB3FORMS_KEY    # Contact form — Web3Forms
+  NEXT_PUBLIC_FORMSPREE_ID     # Contact form — Formspree
+  NEXT_PUBLIC_EMAILJS_SERVICE_ID   # Contact form — EmailJS (one set with the three below)
+  NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
+  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+  EMAILJS_PRIVATE_KEY          # Private key for calling EmailJS from the server (/api/contact)
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY   # Contact form reCAPTCHA — public site key
+  RECAPTCHA_SECRET_KEY         # Contact form reCAPTCHA — server-side secret. With reCAPTCHA on and this empty, the form will not send
   RESEND_API_KEY               # Admin alerts, new-device approval, comment replies, author invites
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
   PEXELS_API_KEY               # Cover Image — Pexels (Unsplash fallback)
@@ -38,11 +79,18 @@ Optional:
   GOOGLE_TRANSLATE_API_KEY     # Translation — Google
   GEMINI_API_KEY               # Translation + AI Summary — Gemini
   OPENAI_API_KEY               # AI Summary — OpenAI
+  GROQ_API_KEY                 # AI Summary — Groq (free tier, OpenAI compatible)
   ANTHROPIC_API_KEY            # Translation + AI Summary — Claude
+  FISH_AUDIO_API_KEY           # Slide speech (TTS) — Fish Audio. On failure it falls back to Google → Edge (no key)
+  GOOGLE_TTS_API_KEY           # Slide speech (TTS) — Google Cloud TTS
   GITHUB_TOKEN                 # Profile/home GitHub integration (repos, org repos; the contribution
                                # graph is GraphQL and needs auth) + giscus repo lookup. Public-repo read
                                # PAT; the admin Services tab secret takes priority. Orgs may reject
                                # fine-grained tokens with a lifetime over 366 days — issue under 1 year
+  CRON_SECRET                  # Secret for calling the scheduled publish · trash purge routes (/api/cron/*) from outside.
+                               # Supabase pg_cron runs them normally, so it can stay empty
+  E2E_ADMIN_EMAIL              # Sign-in account for the e2e admin tests (test:smoke:admin · test:api). Local .env.local only
+  E2E_ADMIN_PASSWORD
 ```
 
 **Four rules for `SITE_URL`.**

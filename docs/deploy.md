@@ -9,14 +9,45 @@ Vercel 기준입니다. 실제 배포에서 막혔던 지점을 순서대로 담
 ### 1. Vercel 프로젝트 만들기
 
 1. [Vercel](https://vercel.com) 에서 GitHub 저장소를 Import 합니다.
-2. 빌드 설정은 건드리지 않습니다. Next.js 와 npm 은 자동으로 인식되고, `npm run build` 앞에 `prebuild`(폰트 스캔 · content 에셋 복사 · about fallback 생성)가 함께 실행됩니다.
+2. 빌드 설정은 건드리지 않습니다. Next.js 와 npm 은 자동으로 인식되고, `npm run build` 앞에 `prebuild` 가 함께 실행됩니다(아래 표).
 3. 아래 환경변수를 넣고 Deploy 합니다.
 
 Production 배포는 저장소 기본 브랜치(`master`) push 로, Preview 배포는 PR 로 만들어집니다.
 
+`build` 는 `next build` 만 실행한다. 그 앞의 `prebuild` 는 아래 여덟 단계를 차례로 돌린다. 하나라도 실패하면 빌드가 멈춘다. 배포된 서버는 저장소 파일을 런타임에 읽지 못하므로, 필요한 값을 빌드 시점에 파일로 굳힌다.
+
+| 순서 | 스크립트 | 하는 일 |
+|---|---|---|
+| 1 | `scripts/scan-fonts.mjs` | `public/fonts/` 의 폰트 파일 목록을 `src/config/localFonts.generated.ts` 로 만든다 |
+| 2 | `scripts/copy-ffmpeg.mjs` | `@ffmpeg/ffmpeg` 의 ESM 파일을 `public/vendor/ffmpeg` 로 복사한다. Turbopack 이 이 패키지의 워커 주소를 해석하지 못해 정적 파일로 둔다 |
+| 3 | `scripts/sync-content-assets.ts` | `content/**` 의 이미지 · 영상 · PDF 를 `public/content/**` 로 복사하고, 원본이 사라진 파일을 지운다 |
+| 4 | `scripts/gen-about-fallback.ts` | `content/about/**.md` 를 `src/data/generated/aboutContent.ts` 로 굽는다 |
+| 5 | `scripts/gen-erd.ts` | `supabase/setup.sql` 에서 About 의 ERD(`src/data/generated/erdSchema.ts`)를 만든다 |
+| 6 | `scripts/gen-api-map.ts` | `src/app/api` · `src/app/auth` 의 `route.ts` 에서 API 지도(`src/data/generated/apiMap.ts`)를 만든다 |
+| 7 | `scripts/gen-token-sky.ts` | 토큰 CSS 에서 About 디자인 장의 토큰 목록(`src/data/generated/tokenSky.ts`)을 만든다 |
+| 8 | `scripts/gen-about-dict.ts` | About 코드의 `{ ko, en }` 글 중 영어 쪽을 모아 번역 원문 목록(`src/data/generated/aboutDict.ts`)을 만든다 |
+
+`npm run dev` 도 1번을 뺀 같은 단계를 먼저 돌린다. 글 · 작업물 동기화(`sync-posts` · `sync-works`)는 빌드에 들어 있지 않다([md-content-guide.md](./md-content-guide.md#2-2-폴더-동기화)).
+
+배포에 관련된 요소는 다음과 같이 이어진다.
+
+```mermaid
+flowchart LR
+  push["push<br/>master → Production<br/>PR → Preview"] --> vercel["Vercel 빌드<br/>prebuild 8단계 → next build"]
+  env["Vercel 환경변수<br/>SITE_URL · Supabase 키 · 선택 키"] --> vercel
+  vercel --> app["배포된 앱"]
+  dns["Cloudflare DNS<br/>@ · www CNAME (DNS only)"] --> app
+  app -->|"쓰기 요청의 Origin 을<br/>SITE_URL 과 대조 (src/proxy.ts)"| app
+  app --> supa["Supabase<br/>DB · Auth · Storage"]
+  app -->|"From: noreply@(SITE_URL 의 도메인)<br/>(src/constants/mail.ts)"| resend["Resend<br/>알림 · 기기 승인 · 초대 메일"]
+  supa -->|"pg_cron · pg_net<br/>예약 발행 · 휴지통 알림"| resend
+```
+
 ### 2. 환경변수
 
 `.env.local` 의 내용을 Environment Variables 의 Key 칸에 그대로 붙여넣으면 키마다 나뉘어 들어갑니다. macOS 파일 선택창은 `.env.local` 같은 숨김 파일을 감추므로, 파일로 불러오려면 선택창에서 `⌘⇧.` 를 눌러 표시합니다.
+
+아래 블록은 [`.env.example`](../.env.example) 의 키를 필수와 선택으로 나눈 것이다. 선택 키는 비워 두면 그 기능만 꺼진다. API 키는 관리자 설정 › 서비스 › 환경 변수에도 저장할 수 있고, 저장된 값이 환경변수보다 먼저 쓰인다.
 
 ```
 필수 환경변수:
@@ -29,6 +60,16 @@ Production 배포는 저장소 기본 브랜치(`master`) push 로, Preview 배�
                                # production 에 미설정 시 /api/* 의 mutation 이 모두 403 (fail-closed)
 
 선택 환경변수:
+  BLOG_SUBDOMAIN_REDIRECT      # 1 이면 메인 주소의 /posts/* 를 블로그 서브도메인으로 보낸다(DNS · Vercel 도메인 연결 뒤에 켠다)
+  ADMIN_EMAIL                  # 문의 · 알림 메일을 받을 주소. 사이트 설정의 연락처 이메일이 있으면 그쪽이 먼저
+  NEXT_PUBLIC_WEB3FORMS_KEY    # 문의 폼 — Web3Forms
+  NEXT_PUBLIC_FORMSPREE_ID     # 문의 폼 — Formspree
+  NEXT_PUBLIC_EMAILJS_SERVICE_ID   # 문의 폼 — EmailJS (아래 셋과 한 벌)
+  NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
+  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+  EMAILJS_PRIVATE_KEY          # EmailJS 를 서버(/api/contact)에서 부를 때의 비공개 키
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY   # 문의 폼 reCAPTCHA — 공개 site key
+  RECAPTCHA_SECRET_KEY         # 문의 폼 reCAPTCHA — 서버 검증용 비밀 키. reCAPTCHA 를 켰는데 비어 있으면 폼이 보내지지 않는다
   RESEND_API_KEY               # 관리자 알림 · 새 기기 승인 · 댓글 답글 · 작성자 초대 메일
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
   PEXELS_API_KEY               # Cover Image — Pexels (Unsplash 대안)
@@ -40,9 +81,15 @@ Production 배포는 저장소 기본 브랜치(`master`) push 로, Preview 배�
   OPENAI_API_KEY               # AI 요약 — OpenAI
   GROQ_API_KEY                 # AI 요약 — Groq(무료 등급, OpenAI 호환)
   ANTHROPIC_API_KEY            # 번역 + AI 요약 — Claude
+  FISH_AUDIO_API_KEY           # 슬라이드 음성(TTS) — Fish Audio. 실패하면 Google → Edge(키 없음) 순으로 넘어간다
+  GOOGLE_TTS_API_KEY           # 슬라이드 음성(TTS) — Google Cloud TTS
   GITHUB_TOKEN                 # 프로필·홈 GitHub 연동(저장소·조직 저장소·잔디는 GraphQL 이라 인증 필수)
                                # + giscus 저장소 조회. 공개 저장소 읽기 PAT. admin Services 탭 시크릿이 우선.
                                # 조직은 만료 366일 초과 fine-grained 토큰을 거부할 수 있음 — 1년 이하로 발급
+  CRON_SECRET                  # 예약 발행 · 휴지통 정리 라우트(/api/cron/*)를 외부에서 부를 때의 비밀 값.
+                               # 평소엔 Supabase pg_cron 이 돌아서 비워 둬도 된다
+  E2E_ADMIN_EMAIL              # e2e 관리자 테스트(test:smoke:admin · test:api)의 로그인 계정. 로컬 .env.local 에만
+  E2E_ADMIN_PASSWORD
 ```
 
 **`SITE_URL` 은 네 가지를 지킵니다.**
