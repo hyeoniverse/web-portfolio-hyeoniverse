@@ -2,7 +2,7 @@
 
 /* 라이브러리 여러 개 고르기 — 다섯 목록(업로드한 파일 · 커버 기록 · 댓글 이미지 · 이모지 · 달력)이 같이 쓴다.
    고르기 상태(useLibrarySelection), 고르기 줄(LibraryBulkBar), 여러 개 지우기(runBulk). */
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast, useToastStore } from "@/stores/toastStore";
@@ -122,7 +122,7 @@ export function useBulkResultText() {
 }
 
 /** 고르면 목록 위에 뜨는 줄 — 몇 개 골랐는지 · 모두 선택 · 선택 해제 · 지우기 */
-export function LibraryBulkBar({ count, selectableCount, onSelectAll, onClear, onDelete, deleting = false, deleteLabel }: {
+export function LibraryBulkBar({ count, selectableCount, onSelectAll, onClear, onDelete, deleting = false, deleteLabel, extra }: {
   count: number;
   selectableCount: number;
   onSelectAll: () => void;
@@ -131,6 +131,8 @@ export function LibraryBulkBar({ count, selectableCount, onSelectAll, onClear, o
   deleting?: boolean;
   /** 지우기 단추 글 — 기록에서 빼기 · 휴지통으로 처럼 목록마다 다르다 */
   deleteLabel: string;
+  /** 지우기 앞에 둘 다른 일(휴지통의 복구 등) */
+  extra?: ReactNode;
 }) {
   const { t } = useLanguage();
   /* 고르기 전에도 늘 보인다 — 단추는 자리를 지키고 할 일이 없을 때만 disabled(줄이 나타났다 사라지며 목록이 밀리지 않게) */
@@ -141,9 +143,12 @@ export function LibraryBulkBar({ count, selectableCount, onSelectAll, onClear, o
         {fillTemplate(t("admin.inline.libraryBulk.selectAll"), { n: selectableCount })}
       </Button>
       <Button variant="ghost" shape="capsule" onClick={onClear} disabled={count === 0} soundDisabled>{t("admin.inline.libraryBulk.clear")}</Button>
-      <Button variant="outline" tone="danger" className={lib.bulkDelete} loading={deleting} disabled={count === 0} onClick={onDelete}>
-        {fillTemplate(deleteLabel, { n: count })}
-      </Button>
+      <span className={lib.bulkActions}>
+        {extra}
+        <Button variant="outline" tone="danger" loading={deleting} disabled={count === 0} onClick={onDelete}>
+          {fillTemplate(deleteLabel, { n: count })}
+        </Button>
+      </span>
     </div>
   );
 }

@@ -2554,7 +2554,14 @@
         "trashN": "Move {{n}} to trash",
         "trashConfirm": "Move the {{n}} selected calendars to the trash? They are permanently deleted after 30 days and can be restored from the trash until then.",
         "trashDone": "Moved {{n}} to the trash.",
-        "trashPartial": "Moved {{ok}} to the trash; {{failed}} could not be moved."
+        "trashPartial": "Moved {{ok}} to the trash; {{failed}} could not be moved.",
+        "purgeN": "Delete {{n}} forever",
+        "purgeConfirm": "Permanently delete the {{n}} selected calendars? This can't be undone, and blocks that embed them will show as \"deleted\" for good.",
+        "purgeDone": "Permanently deleted {{n}}.",
+        "purgePartial": "Permanently deleted {{ok}}; {{failed}} could not be deleted.",
+        "restoreN": "Restore {{n}}",
+        "restoreDone": "Restored {{n}}.",
+        "restorePartial": "Restored {{ok}}; {{failed}} could not be restored."
       },
       "libraryTab": {
         "calendars": "Calendars",

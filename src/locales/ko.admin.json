@@ -2554,7 +2554,14 @@
         "trashN": "{{n}}개 휴지통으로",
         "trashConfirm": "고른 달력 {{n}}개를 휴지통으로 옮길까요? 30일 뒤 영구 삭제되며, 그 전에는 휴지통에서 되살릴 수 있습니다.",
         "trashDone": "{{n}}개를 휴지통으로 옮겼습니다.",
-        "trashPartial": "{{ok}}개를 휴지통으로 옮겼고 {{failed}}개는 옮기지 못했습니다."
+        "trashPartial": "{{ok}}개를 휴지통으로 옮겼고 {{failed}}개는 옮기지 못했습니다.",
+        "purgeN": "{{n}}개 영구 삭제",
+        "purgeConfirm": "고른 달력 {{n}}개를 영구 삭제할까요? 되돌릴 수 없고, 이 달력들을 불러온 블록은 영구히 \"삭제됨\" 상태가 됩니다.",
+        "purgeDone": "{{n}}개를 영구 삭제했습니다.",
+        "purgePartial": "{{ok}}개를 영구 삭제했고 {{failed}}개는 지우지 못했습니다.",
+        "restoreN": "{{n}}개 복구",
+        "restoreDone": "{{n}}개를 복구했습니다.",
+        "restorePartial": "{{ok}}개를 복구했고 {{failed}}개는 복구하지 못했습니다."
       },
       "libraryTab": {
         "calendars": "달력",

@@ -124,7 +124,11 @@
   font-variant-numeric: tabular-nums;
 }
 
-.bulkDelete {
+/* 지우기(와 복구 같은 다른 일)는 줄 오른쪽 끝 */
+.bulkActions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
   margin-left: auto;
 }
 
