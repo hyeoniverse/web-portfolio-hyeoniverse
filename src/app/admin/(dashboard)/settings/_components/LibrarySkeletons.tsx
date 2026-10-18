@@ -123,11 +123,12 @@ export function MediaFiltersSkeleton() {
 }
 
 /** 구획마다 머리줄의 도구 — 실제 LibraryHead 에 넘기는 것과 같게 */
-const TOOLBAR: Record<LibrarySection, { filters?: boolean; search?: boolean; buttons?: number[] } | null> = {
+const TOOLBAR: Record<LibrarySection, { filters?: boolean | number; search?: boolean; buttons?: number[] } | null> = {
   calendars: { search: true },
   polls: { search: true },
   emojis: { search: true, buttons: [76, 76] },
-  covers: null,
+  /* 전체 · 사용 중 · 미사용 */
+  covers: { filters: 240 },
   files: { filters: true, search: true, buttons: [84] },
   /* "모두 지우기"는 지울 이미지가 있을 때만 생기므로 자리를 잡지 않는다 */
   commentImages: null,
@@ -142,7 +143,7 @@ function HeadSkeleton({ id }: { id: LibrarySection }) {
       <div className={lib.hint}><SkeletonLine width="70%" height={12} /></div>
       {tools && (
         <div className={lib.toolbar}>
-          {tools.filters && <div className={lib.toolbarFilters}><MediaFiltersSkeleton /></div>}
+          {tools.filters && <div className={lib.toolbarFilters}>{typeof tools.filters === "number" ? <SkeletonPill width={tools.filters} height={32} /> : <MediaFiltersSkeleton />}</div>}
           <div className={lib.toolbarEnd}>
             {tools.search && <SkeletonPill width={240} height={32} />}
             {tools.buttons?.map((w, i) => <SkeletonPill key={i} width={w} height={32} />)}
