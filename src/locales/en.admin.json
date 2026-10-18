@@ -2876,6 +2876,14 @@
         "project": "Project",
         "hint": "Results of poll blocks in posts and projects. Resetting deletes the votes only; the poll block stays."
       },
+      "filePreview": {
+        "preview": "Preview",
+        "loading": "Loading…",
+        "loadFailed": "Couldn't load the file.",
+        "unsupported": "This format can't be previewed in the browser. Open it in a new tab to download it.",
+        "openNewTab": "Open in new tab",
+        "sampleHangul": "다람쥐 헌 쳇바퀴에 타고파"
+      },
       "coverHistoryManager": {
         "usedAsCover": "Used as cover ×{{n}}",
         "presetVideo": "Preset video",
