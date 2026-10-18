@@ -458,22 +458,6 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 
 ---
 
-### SqlEditor (About Studio only)
-
-`src/app/admin/(dashboard)/settings/_components/about/SqlEditor.tsx` — the ERD import input. It does not overlay a transparent `textarea` on a `<pre>`: the two render through different paths, so caret, scroll, and wrapping drift apart (the same reason noted in `CodeBlockEditor`). Editing is left to CodeMirror.
-
-| Feature | How |
-| ------- | --- |
-| SQL highlighting | `sqlLanguage.ts` — a hand-written `StreamLanguage`. `@codemirror/lang-sql` wasn't added because all that's needed is "colour so it reads" (dollar quoting `$fn$ … $fn$` included) |
-| Autocomplete | Table and column names from the current ERD, plus SQL keywords. Typing `posts.` narrows to that table's columns. The keyword list is **shared with the highlighter** |
-| Diagnostics | No second SQL parser — it surfaces **wherever `parseSqlErd` failed to read**, so the squiggles can't disagree with the result. Errors (syntax, parens, column defs) / warnings (missing ALTER target, a dropped `REFERENCES`) |
-| Find & replace | `⌘F` (`@codemirror/search`) |
-| Tab indent | Tab accepts the completion first when the popup is open. `Escape` is bound at **low precedence** so it only releases focus when there's no panel to close — keyboard users never get trapped |
-
-To keep diagnostic positions aligned with the source, the parser **blanks comments with spaces of the same length instead of removing them**. Deleting characters would shift every later offset and draw squiggles on the wrong lines.
-
----
-
 ### Shared components — props added this cycle
 
 | Component | Addition | Details |

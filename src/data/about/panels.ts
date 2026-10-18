@@ -18,26 +18,24 @@ export interface AboutPanelDef {
   key: string;
   /** 화면에 찍히는 기본 제목. 마침표까지가 이 사이트의 제목 표기다. */
   title: string;
-  /** 관리자 About Studio 에서 편집할 수 있는가. */
-  editable?: boolean;
 }
 
 export const ABOUT_PANELS: AboutPanelDef[] = [
-  { key: "hero", title: "Intro", editable: true },
-  { key: "overview", title: "Overview.", editable: true },
-  { key: "architecture", title: "Architecture.", editable: true },
-  { key: "userflow", title: "User Flow.", editable: true },
-  { key: "features", title: "Key Features.", editable: true },
-  { key: "designSystem", title: "Design System.", editable: true },
-  { key: "process", title: "Build Process.", editable: true },
-  { key: "visualBreak", title: "Break Image", editable: true },
-  { key: "techStack", title: "Tech Stack.", editable: true },
-  { key: "backend", title: "API.", editable: true },
-  { key: "erd", title: "Database Design.", editable: true },
-  { key: "codeHighlights", title: "Code Highlights.", editable: true },
-  { key: "troubleshooting", title: "Engineering Decisions.", editable: true },
-  { key: "security", title: "Security.", editable: true },
-  { key: "credits", title: "Credits", editable: true },
+  { key: "hero", title: "Intro" },
+  { key: "overview", title: "Overview." },
+  { key: "architecture", title: "Architecture." },
+  { key: "userflow", title: "User Flow." },
+  { key: "features", title: "Key Features." },
+  { key: "designSystem", title: "Design System." },
+  { key: "process", title: "Build Process." },
+  { key: "visualBreak", title: "Break Image" },
+  { key: "techStack", title: "Tech Stack." },
+  { key: "backend", title: "API." },
+  { key: "erd", title: "Database Design." },
+  { key: "codeHighlights", title: "Code Highlights." },
+  { key: "troubleshooting", title: "Engineering Decisions." },
+  { key: "security", title: "Security." },
+  { key: "credits", title: "Credits" },
 ];
 
 const BY_KEY = new Map(ABOUT_PANELS.map((p) => [p.key, p]));

@@ -64,7 +64,7 @@ type SqlIssueKind =
   | "unresolved"   // ALTER 대상 테이블이 어디에도 없음
   | "unknown-ref"; // REFERENCES 대상 테이블이 없어 관계가 버려짐
 
-export interface SqlIssue {
+interface SqlIssue {
   kind: SqlIssueKind;
   /** 원본 SQL 기준 문자 위치 */
   from: number;
