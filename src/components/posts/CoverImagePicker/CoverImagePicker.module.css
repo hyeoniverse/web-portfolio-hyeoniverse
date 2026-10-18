@@ -52,7 +52,7 @@
   left: 0;
   right: 0;
   width: 100vw;
-  max-height: 90vh;
+  max-height: var(--sheet-initial-height);
   margin: 0;
   background: var(--bg-dialog);
   border: none;

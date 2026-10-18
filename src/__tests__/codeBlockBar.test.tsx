@@ -94,4 +94,16 @@ describe("code block copy bar", () => {
     expect(bars[0].querySelector(".code-lang-label")?.textContent).toBe("js");
     expect(bars[1].querySelector(".code-lang-label")).toBeNull();
   });
+
+  // 회귀: 예전 마크업(pre 아래 줄바꿈 단추가 박힌 HTML)도 위 바의 단추 하나만 남는다 — 아래 '↔ 스크롤' 중복 제거
+  it("legacy wrap button under pre is removed, leaving only the bar's", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      '<div class="code-block-wrap"><pre><code class="language-ts">const a = 1;</code></pre>' +
+      '<button class="code-wrap-toggle" data-wrap-btn>↔ Scroll</button></div>';
+    attachCodeWrapToggle(root, labels);
+    const btns = root.querySelectorAll("[data-wrap-btn]");
+    expect(btns.length).toBe(1);
+    expect(btns[0].closest(".code-block-bar")).not.toBeNull();
+  });
 });

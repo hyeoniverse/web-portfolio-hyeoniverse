@@ -160,6 +160,11 @@
   }
 }
 
+/* 짧은 두 칸(공급자 · 파일 업로드 스위치 등)은 좁은 화면에서도 나란히. 같은 파일에서 .fieldPair 뒤라 이긴다 */
+.fieldPairAlways {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .fieldPair > .fieldHint,
 .fieldPair > .fallbackSection {
   grid-column: 1 / -1;
@@ -230,10 +235,10 @@
   min-width: 0;
 }
 
-/* 설정 페이지 컨트롤 높이(sm) — 옆 색상 입력과 같은 높이 */
+/* 설정 페이지 컨트롤 높이(md) — 옆 색상 입력과 같은 높이 */
 .colorPicker {
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-full);
@@ -457,11 +462,6 @@
 
 .profileAddBtn {
   margin-top: var(--spacing-16);
-}
-
-.section .profileAddBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
 }
 
 /* ── Series Manager (Content > Posts) ── */
@@ -954,15 +954,6 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
 }
 
-.tagRelatedMetaDraft {
-  padding: var(--badge-padding-sm);
-  border-radius: var(--radius-control);
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-  font: var(--font-body-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 {

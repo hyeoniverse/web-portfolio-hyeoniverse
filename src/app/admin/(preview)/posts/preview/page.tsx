@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -65,7 +66,7 @@ export default function PostPreviewPage() {
               /* 휴지통에 있는 글이면 위에 복구·영구 삭제 막대를 띄운다(작업물 미리보기와 같다) */
               _trashId: post.deleted_at ? post.id : undefined,
             } as PostFormData & { _trashId?: string });
-            if (post.published && post.slug) setPublishedHref(`/posts/${post.slug}`);
+            if (post.published && post.slug) setPublishedHref(blogHref(`/posts/${post.slug}`));
           }
         })
         .catch(() => {})
@@ -78,7 +79,7 @@ export default function PostPreviewPage() {
         const parsed = JSON.parse(raw);
         setForm(parsed);
         // 이미 발행된 글을 편집 중 미리보기(세션 프리뷰)해도 공개 글은 존재 → '글 보기' href 세팅
-        if (parsed?.published && parsed?.slug) setPublishedHref(`/posts/${parsed.slug}`);
+        if (parsed?.published && parsed?.slug) setPublishedHref(blogHref(`/posts/${parsed.slug}`));
       }
     } catch { /* ignore */ }
     setReady(true);

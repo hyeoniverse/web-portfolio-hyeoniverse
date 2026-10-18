@@ -4,15 +4,15 @@ import { ShieldCheck, Crown, PenLine, UserRound } from "@/components/icons";
 import { RiVerifiedBadgeFill, RiVerifiedBadgeLine } from "react-icons/ri";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { MemberRole } from "@/types/member";
-import styles from "./MembersList.module.css";
+import Badge, { type BadgeTone, type BadgeVariant } from "@/components/ui/Badge";
 
 /** 멤버 역할/로그인수단 배지 — MembersList 와 AuthorsEditor 공용. */
 
-const ROLE_META: Record<MemberRole, { labelKey: string; icon: typeof Crown; cls: string }> = {
-  owner: { labelKey: "admin.inline.memberBadges.roleOwner", icon: Crown, cls: "roleOwner" },
-  admin: { labelKey: "admin.inline.memberBadges.roleAdmin", icon: ShieldCheck, cls: "roleAdmin" },
-  author: { labelKey: "admin.inline.memberBadges.roleAuthor", icon: PenLine, cls: "roleAuthor" },
-  member: { labelKey: "admin.inline.memberBadges.roleMember", icon: UserRound, cls: "roleMember" },
+const ROLE_META: Record<MemberRole, { labelKey: string; icon: typeof Crown; variant: BadgeVariant; tone: BadgeTone }> = {
+  owner: { labelKey: "admin.inline.memberBadges.roleOwner", icon: Crown, variant: "soft", tone: "accent" },
+  admin: { labelKey: "admin.inline.memberBadges.roleAdmin", icon: ShieldCheck, variant: "soft", tone: "neutral" },
+  author: { labelKey: "admin.inline.memberBadges.roleAuthor", icon: PenLine, variant: "outline", tone: "neutral" },
+  member: { labelKey: "admin.inline.memberBadges.roleMember", icon: UserRound, variant: "outline", tone: "neutral" },
 };
 
 export function RoleBadge({ role }: { role: MemberRole }) {
@@ -20,10 +20,9 @@ export function RoleBadge({ role }: { role: MemberRole }) {
   const rm = ROLE_META[role];
   const Icon = rm.icon;
   return (
-    <span className={`${styles.role} ${styles[rm.cls]}`}>
-      <Icon size={11} strokeWidth={2} />
+    <Badge variant={rm.variant} tone={rm.tone} uppercase icon={<Icon size={11} strokeWidth={2} />}>
       {t(rm.labelKey)}
-    </span>
+    </Badge>
   );
 }
 
@@ -34,25 +33,15 @@ export function ProviderChips({ providers }: { providers: string[] }) {
     <>
       {providers.map((p) =>
         p === "github" ? (
-          <span
-            key={p}
-            className={styles.provider}
-            title={t("admin.inline.memberBadges.githubLoginTip")}
-          >
+          <Badge key={p} tone="success" uppercase icon={<RiVerifiedBadgeFill size={12} />} title={t("admin.inline.memberBadges.githubLoginTip")}>
             {/* 수단 아이콘 대신 체크 배지 — "연결돼 사용 가능" 상태임을 모양으로 말한다.
                라벨도 수단 이름만이 아니라 상태까지 — "OAuth 미연결" 배지와 짝이 되는 문구 */}
-            <RiVerifiedBadgeFill size={12} aria-hidden />
             {t("admin.inline.memberBadges.githubLinked")}
-          </span>
+          </Badge>
         ) : (
-          <span
-            key={p}
-            className={styles.provider}
-            title={t("admin.inline.memberBadges.emailLoginTip")}
-          >
-            <RiVerifiedBadgeFill size={12} aria-hidden />
+          <Badge key={p} tone="success" uppercase icon={<RiVerifiedBadgeFill size={12} />} title={t("admin.inline.memberBadges.emailLoginTip")}>
             {t("admin.inline.memberBadges.emailLoginEnabled")}
-          </span>
+          </Badge>
         ),
       )}
     </>
@@ -64,12 +53,8 @@ export function ProviderChips({ providers }: { providers: string[] }) {
 export function ProviderUnlinkedBadge() {
   const { t } = useLanguage();
   return (
-    <span
-      className={`${styles.role} ${styles.rolePendingBadge}`}
-      title={t("admin.inline.memberBadges.githubNeverSignedInTip")}
-    >
-      <RiVerifiedBadgeLine size={12} aria-hidden />
+    <Badge icon={<RiVerifiedBadgeLine size={12} />} title={t("admin.inline.memberBadges.githubNeverSignedInTip")}>
       {t("admin.inline.memberBadges.oauthNotLinked")}
-    </span>
+    </Badge>
   );
 }

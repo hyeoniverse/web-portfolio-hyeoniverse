@@ -4,6 +4,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUserRole } from "@/lib/api/roles";
 import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
 import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
+import {
+  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain,
+} from "@/lib/siteHosts";
 
 /**
  * 보안 layer 2개:
@@ -25,6 +28,12 @@ import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
  *    (vercel/next.js#82117) 헤더를 합치는 곳을 거치면 "/works/a, /works/a" 로 이동한다. 그래서 그리기 전에 여기서 보낸다.
  *    matcher 가 id(UUID)·번호 모양의 주소만 보내므로 slug 주소에는 끼지 않는다.
  *
+ * 4. 블로그 서브도메인(blog.hyeoniverse.com, lib/siteHosts)
+ *    블로그 주소는 /posts 를 뗀 짧은 주소다 — `/` 는 `/posts`, `/<글 주소>` 는 `/posts/<글 주소>` 를 그린다(주소는 그대로).
+ *    `/posts/...` 로 오면 짧은 주소로 보내고, API · 관리 화면은 그대로, 포트폴리오 화면(/works · /profile …)은 메인 주소로 보낸다.
+ *    BLOG_SUBDOMAIN_REDIRECT=1 이면 메인 주소의 /posts/* 를 블로그 주소로 보낸다 — DNS 와 Vercel 도메인을 연결한 뒤에 켠다
+ *    (켜기 전엔 메인 주소의 /posts 가 지금처럼 그대로 열린다).
+ *
  * 비-admin 경로에서도 admin 이 로그인 중이면 Supabase 토큰 refresh 가 필요해 supabase 클라이언트는
  * 만들지만, 토큰 쿠키가 없을 땐 getUser() 호출도 skip — 익명 트래픽 hot path 의 불필요한
  * Supabase 왕복 제거.
@@ -44,6 +53,39 @@ function toOrigin(url: string | undefined): string {
 /* 서버(proxy)에서만 읽는 값이라 NEXT_PUBLIC_ 을 붙이지 않는다 — 붙이면 브라우저 번들에 인라인되고,
    Vercel 은 그런 변수를 Sensitive 로 저장하지 못하게 막는다. */
 const SITE_ORIGIN = toOrigin(process.env.SITE_URL);
+/** 같은 앱으로 보는 주소 — 사이트 주소와 블로그 서브도메인. 블로그 화면에서 보내는 댓글 · 좋아요도 같은 사이트 요청이다 */
+const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, BLOG_ORIGIN].filter(Boolean));
+const BLOG_SUBDOMAIN_REDIRECT = process.env.BLOG_SUBDOMAIN_REDIRECT === "1";
+
+/** 포트폴리오 화면 — 블로그 주소로 오면 메인 주소로 보낸다(블로그 글 주소와 겹치지 않게 여기 이름은 글 slug 로 쓰지 않는다) */
+const PORTFOLIO_PREFIXES = ["/works", "/profile", "/about", "/privacy", "/design-system"];
+function isPortfolioPath(pathname: string): boolean {
+  return PORTFOLIO_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+/**
+ * 블로그 서브도메인 · 메인 주소 사이의 이동. 할 일이 없으면 null.
+ * 블로그 주소는 /posts 를 뗀 짧은 주소를 쓴다 — blog.hyeoniverse.com/<글 주소> 는 앱의 /posts/<글 주소> 를 그린다(rewrite).
+ * 앱 안 링크는 /posts/... 라서 블로그 주소에서 누르면 한 번 짧은 주소로 보낸다(308)
+ */
+function routeBlogHost(request: NextRequest): NextResponse | null {
+  const host = request.headers.get("host");
+  const { pathname, search } = request.nextUrl;
+  if (isBlogHost(host)) {
+    if (passThroughOnBlogHost(pathname)) return null;
+    if (isPortfolioPath(pathname)) return NextResponse.redirect(`${MAIN_ORIGIN}${pathname}${search}`, 308);
+    if (pathname === "/posts" || pathname.startsWith("/posts/")) {
+      return NextResponse.redirect(new URL(`${blogPathOf(pathname)}${search}`, request.url), 308);
+    }
+    const to = request.nextUrl.clone();
+    to.pathname = appPathOnBlogHost(pathname);
+    return NextResponse.rewrite(to);
+  }
+  if (BLOG_SUBDOMAIN_REDIRECT && isMainHost(host) && (pathname === "/posts" || pathname.startsWith("/posts/"))) {
+    return NextResponse.redirect(`${BLOG_ORIGIN}${blogPathOf(pathname)}${search}`, 308);
+  }
+  return null;
+}
 const MUTATION_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
 
 function isAdminPath(pathname: string): boolean {
@@ -115,7 +157,7 @@ function isSameOrigin(request: NextRequest): boolean {
   }
   if (!source) return false;
   try {
-    return new URL(source).origin === SITE_ORIGIN;
+    return ALLOWED_ORIGINS.has(new URL(source).origin);
   } catch {
     return false;
   }
@@ -144,12 +186,42 @@ async function redirectLegacyWork(request: NextRequest, param: string): Promise<
   return NextResponse.next({ request });
 }
 
+/** 로그인 쿠키를 공유 도메인으로 옮겼다는 표시 — 있으면 다시 옮기지 않는다 */
+const COOKIE_DOMAIN_MARK = "sb-domain-shared";
+
+/**
+ * 예전 로그인 쿠키(그 주소에만 둔 것)를 공유 도메인(.hyeoniverse.com) 쿠키로 옮긴다 — 다시 로그인하지 않아도 블로그 주소에서
+ * 세션이 이어지게. 같은 값을 도메인 쿠키로 다시 쓰고, 주소 전용 쿠키는 지운다(이름이 같아 둘 다 남으면 어느 쪽이 읽힐지 모른다).
+ * 한 번 옮기면 표시 쿠키를 남겨 다음부터는 하지 않는다
+ */
+function shareSessionCookies(request: NextRequest, response: NextResponse, domain: string): void {
+  if (request.cookies.has(COOKIE_DOMAIN_MARK)) return;
+  const options = { path: "/", sameSite: "lax" as const, secure: true, maxAge: 400 * 24 * 60 * 60 };
+  const names = request.cookies.getAll().map((c) => c.name).filter((n) => n.startsWith("sb-") && n !== COOKIE_DOMAIN_MARK);
+  for (const name of names) {
+    // 응답에 이미 새 값(토큰 갱신)이 실렸으면 그 값을 쓴다
+    if (!response.cookies.get(name)) response.cookies.set(name, request.cookies.get(name)!.value, { ...options, domain });
+  }
+  response.cookies.set(COOKIE_DOMAIN_MARK, "1", { ...options, domain });
+  /* 주소 전용 쿠키 지우기 — 이름이 같은 쿠키는 cookies API 가 하나로 합쳐 버려서, 그 API 로 쓰기를 마친 뒤 헤더에 직접 덧붙인다.
+     Domain 없이 보내야 그 주소 전용 쿠키만 지워지고 방금 쓴 공유 도메인 쿠키는 남는다 */
+  for (const name of names) response.headers.append("set-cookie", `${name}=; Path=/; Max-Age=0; SameSite=Lax; Secure`);
+}
+
 function hasSupabaseCookie(request: NextRequest): boolean {
-  return request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+  return request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name !== COOKIE_DOMAIN_MARK);
 }
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ── 블로그 서브도메인 ──
+  const blogRoute = routeBlogHost(request);
+  if (blogRoute) return blogRoute;
+  // 블로그 화면 등 matcher 가 블로그 이동 때문에만 들여보낸 경로 — 세션 확인 없이 그대로 넘긴다(전에는 proxy 를 거치지 않던 길)
+  if (!isAdminPath(pathname) && !isApi(pathname) && !pathname.startsWith("/works/")) {
+    return NextResponse.next({ request });
+  }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next({ request });
@@ -173,10 +245,13 @@ export async function proxy(request: NextRequest) {
   }
 
   let supabaseResponse = NextResponse.next({ request });
+  // 메인 · 블로그 주소가 같은 로그인을 보게 쿠키를 .hyeoniverse.com 에 둔다(로컬 · 프리뷰는 그 주소에만)
+  const cookieDomain = sharedCookieDomain(request.headers.get("host"));
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -219,6 +294,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (cookieDomain && hasSupabaseCookie(request)) shareSessionCookies(request, supabaseResponse, cookieDomain);
   return supabaseResponse;
 }
 
@@ -229,5 +305,10 @@ export const config = {
     // 작업물 옛 주소 — id(UUID)·표시 번호 모양만. slug 주소는 proxy 를 거치지 않는다
     "/works/:id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
     "/works/:num(\\d{1,3})",
+    // 블로그 서브도메인 — 정적 파일(_next · 확장자 있는 경로)을 뺀 모든 화면
+    { source: "/((?!_next/|.*\\.[a-zA-Z0-9]+$).*)", has: [{ type: "host", value: "blog.hyeoniverse.com" }] },
+    // 메인 주소의 /posts → 블로그 주소(BLOG_SUBDOMAIN_REDIRECT=1 일 때만 실제로 보낸다)
+    "/posts",
+    "/posts/:path*",
   ],
 };

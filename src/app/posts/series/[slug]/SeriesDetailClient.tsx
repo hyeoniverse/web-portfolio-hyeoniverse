@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "@/components/icons";
@@ -25,7 +26,7 @@ function SeriesEpisodeRow({ post, index }: { post: Post; index: number }) {
     <li className={styles.episode}>
       <span className={styles.epNum} aria-hidden>{String(index).padStart(2, "0")}</span>
       <Link
-        href={`/posts/${post.slug}`}
+        href={blogHref(`/posts/${post.slug}`)}
         className={styles.epLink}
         data-clickable="true"
         onMouseEnter={handlePrefetch}
@@ -76,7 +77,7 @@ export default function SeriesDetailClient({ data }: { data: SeriesPageData }) {
 
   return (
     <div className={styles.container}>
-      <Link href="/posts/series" className={styles.back} data-clickable="true">
+      <Link href={blogHref("/posts/series")} className={styles.back} data-clickable="true">
         <ArrowLeft size={16} strokeWidth={1.8} aria-hidden />
         <span>{language === "ko" ? "시리즈 목록" : "Series"}</span>
       </Link>

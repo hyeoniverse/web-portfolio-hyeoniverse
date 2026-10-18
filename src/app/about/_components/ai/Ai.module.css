@@ -14,7 +14,7 @@
   grid-template-areas: "s";
   box-sizing: border-box;
   height: 100%;
-  padding: calc(var(--header-height) + var(--spacing-16)) var(--spacing-page-inline) var(--spacing-80);
+  padding: calc(var(--header-height) + var(--spacing-nav-top) + var(--spacing-8)) var(--spacing-page-inline) var(--spacing-80);
 
   /* 크게 확대된 표지가 프레임을 넘쳐 스크롤 상자를 만들지 않게 잘라 둔다(clip 은 스크롤 상자를 만들지 않는다) */
   overflow: clip;
@@ -743,8 +743,32 @@
   }
 }
 
+/* ── 키 낮은 가로 화면 — 표지는 장 머리 왼쪽 · 별자리 오른쪽. 기능 화면은 한 화면(200px 남짓)에 안 들어가므로
+   장면이 내용만큼 자라고 프레임이 스크롤한다. 닫힌 기능 화면은 높이를 접어 표지 아래에 빈 스크롤을 만들지 않는다 ── */
+@media (width > 480px) and (height <= 500px) {
+  .scene {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .scene:not([data-open]) .stage {
+    height: 0;
+    overflow: hidden;
+  }
+
+  .intro {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--spacing-32);
+  }
+
+  .sky {
+    min-height: 12rem;
+  }
+}
+
 /* ── 넓은 화면 — 표지는 장 머리 왼쪽 · 별자리 오른쪽, 기능은 설명 왼쪽 · 데모 오른쪽 ── */
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .scene {
     padding-top: calc(var(--header-height) + var(--spacing-32));
   }

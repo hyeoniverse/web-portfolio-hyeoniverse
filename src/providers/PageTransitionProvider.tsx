@@ -9,7 +9,8 @@ import {
   useEffect,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useRoutePathname } from "@/hooks/useRoutePathname";
+import { toRoutePath, useRoutePathname } from "@/hooks/useRoutePathname";
+import { appPathOfHref } from "@/lib/siteHosts";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 
@@ -69,9 +70,10 @@ const FADE_MS = 170;
 const SAFETY_MS = 5000;
 const COVER_MAX_MS = 4000;
 
-/** 주소에서 경로만 — 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
+/** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
-function pathOf(href: string): string {
+function pathOf(rawHref: string): string {
+  const href = appPathOfHref(rawHref);
   const cut = href.search(/[?#]/);
   const path = cut === -1 ? href : href.slice(0, cut);
   try {
@@ -110,7 +112,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const startTransition = useCallback((image: string, rect: DOMRect, targetId: string, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image, color, rect, targetId, href: null, fromPath: pathOf(window.location.pathname), phase: "init" });
+    setState({ image, color, rect, targetId, href: null, fromPath: pathOf(toRoutePath(window.location.pathname)), phase: "init" });
     const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
   }, [endTransition]);
@@ -118,7 +120,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image, color, rect, targetId: href, href, fromPath: pathOf(window.location.pathname), phase: "init" });
+    setState({ image, color, rect, targetId: href, href, fromPath: pathOf(toRoutePath(window.location.pathname)), phase: "init" });
     /* 누르는 즉시 넘어간다. 예전에는 확대가 끝나는 380ms 까지 미뤘는데, 페이로드를 받아오는 건
        그때부터라 대기가 고스란히 뒤에 붙었다. 연출은 화면에 고정된 덮개가 하는 것이라 새 페이지가
        언제 들어오든 흔들리지 않으므로, 받아오는 시간을 확대 연출과 겹치게 한다 */

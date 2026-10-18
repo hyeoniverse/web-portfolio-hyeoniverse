@@ -23,6 +23,7 @@ import { formatTime, formatStatusTime, lineDiff, wordDiff, isImageUrl, isUrl } f
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
+import Badge from "@/components/ui/Badge";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -733,10 +734,9 @@ export default function AdminEditorShell({
                               const sameMeta = JSON.stringify(revisionDetail.meta ?? {}) === JSON.stringify(currentSnapshot.meta ?? {});
                               if (!(sameTitle && sameSubtitle && sameExcerpt && sameContent && sameMeta)) return <span />;
                               return (
-                                <div className={styles.revisionCurrentBadge}>
-                                  <span className={styles.revisionCurrentDot} />
+                                <Badge tone="success" uppercase dot>
                                   {t("admin.common.sameAsCurrent")}
-                                </div>
+                                </Badge>
                               );
                             })()}
                             <LanguageToggle lang={revisionLang} onLangChange={setRevisionLang} size="sm" />

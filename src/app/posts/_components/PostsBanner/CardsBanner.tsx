@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -31,7 +32,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
     if (prefetchedRef.current.has(slug)) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current.add(slug);
-    router.prefetch(`/posts/${slug}`);
+    router.prefetch(blogHref(`/posts/${slug}`));
   };
 
   const getOffset = (i: number) => {
@@ -71,7 +72,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
             >
               {/* 가운데 카드만 글로 넘어간다. 옆 카드는 누르면 가운데로 오도록 이동을 막고 바깥(motion.div)이 받는다 */}
               <TransitionLink
-                href={`/posts/${post.slug}`}
+                href={blogHref(`/posts/${post.slug}`)}
                 image={post.cover_image || ""}
                 className={styles.cardLink}
                 style={{ cursor: isCenter ? "pointer" : "default" }}

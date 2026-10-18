@@ -44,8 +44,9 @@ const TALL_STARS: MapGeo["stars"] = {
   "#faq": { x: 350, y: 60, r: 10 },
 };
 
-export function mapTall(aspect: number): MapGeo {
-  const h = Math.round(600 * Math.min(1.2, Math.max(0.5, aspect)));
+/** floor — 가장 납작한 비율. 키 낮은 가로 화면은 지도 칸이 납작해서(높이 / 폭 0.35 남짓) 더 눌러 폭을 다 쓴다 */
+export function mapTall(aspect: number, floor = 0.5): MapGeo {
+  const h = Math.round(600 * Math.min(1.2, Math.max(floor, aspect)));
   const k = h / 500;
   const stars = Object.fromEntries(Object.entries(TALL_STARS).map(([href, st]) => [href, { ...st, y: st.y * k }]));
   return { w: 600, h, stars, tall: true };

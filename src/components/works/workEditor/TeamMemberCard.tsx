@@ -12,6 +12,7 @@ import { type TeamMember } from "@/types/work";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { errorFromResponse, errorText } from "@/lib/apiError";
+import Badge from "@/components/ui/Badge";
 /* ──────────────────────────────────────────────────────────────────────────
  * TeamMemberCard — 팀원 1명. 상단 chip-row (avatar + 이름/역할 + remove) + 하단 contributions ul.
  * contributions 는 editorLang 기준 단일 배열만 보여줌 — 다른 lang 은 그대로 유지. */
@@ -248,14 +249,10 @@ export function TeamMemberCard({
                 </span>
                 {/* 연결된 계정이 있으면 드러낸다 — 이 목록이 곧 이 작업물의 편집자 명단이다 */}
                 {linkedAuthorName && (
-                  <span
-                    className={styles.memberLinkedBadge}
-                    title={fillTemplate(tw("memberLinkedTitle"), { name: linkedAuthorName })}
-                  >
+                  <Badge tone="accent" icon={<BadgeCheck size={12} strokeWidth={2} />} title={fillTemplate(tw("memberLinkedTitle"), { name: linkedAuthorName })}>
                     {/* 누구와 이어졌는지는 이름 칸이 이미 말한다 — 배지는 "사이트 멤버 계정"이라는 사실만. 이름은 title 로 */}
-                    <BadgeCheck size={12} strokeWidth={2} />
                     {tw("memberLinkedBadge")}
-                  </span>
+                  </Badge>
                 )}
               </span>
             )}

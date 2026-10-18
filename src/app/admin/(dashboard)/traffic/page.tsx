@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useEffect, useState } from "react";
 import { TrendingDown, TrendingUp } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -22,6 +23,7 @@ import IpVisitors from "./IpVisitors";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import Link from "next/link";
 import { formatDwell } from "@/utils/format";
+import Badge from "@/components/ui/Badge";
 
 const styles = { ...dashStyles, ...local };
 
@@ -32,17 +34,14 @@ function ChangeBadge({ pct }: { pct: number | null }) {
   if (pct === null || pct === 0) return null;
   const up = pct > 0;
   return (
-    <span
-      className={`${styles.trendBadge} ${up ? styles.trendUp : styles.trendDown}`}
-      title={undefined}
-    >
+    <Badge tone={up ? "success" : "accent"} className={styles.trendBadge}>
       {up ? (
         <TrendingUp size={11} strokeWidth={2.5} />
       ) : (
         <TrendingDown size={11} strokeWidth={2.5} />
       )}
       {Math.abs(pct)}%
-    </span>
+    </Badge>
   );
 }
 
@@ -517,7 +516,7 @@ export default function AdminTrafficPage() {
                         <span className={`${styles.referrerSource} ${styles.topContentTitle}`}>
                           <span className={styles.topContentRank}>{i + 1}</span>
                           <Link
-                            href={`/posts/${p.slug}`}
+                            href={blogHref(`/posts/${p.slug}`)}
                             className={styles.topContentLink}
                             title={p.title}
                           >

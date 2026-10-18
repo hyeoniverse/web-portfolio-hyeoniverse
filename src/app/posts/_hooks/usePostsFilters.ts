@@ -7,9 +7,9 @@ import { useSearchControls } from "@/hooks/useSearchControls";
 /** "a, b,,c" → ["a", "b", "c"] */
 const splitCsv = (raw: string | null) => (raw ?? "").split(",").map((v) => v.trim()).filter(Boolean);
 
-/* 글 목록 필터 — 검색(어·범위·문법) · 카테고리(다중) · 태그(다중 OR) · 저자 · 시리즈.
+/* 글 목록 필터 — 검색(어·범위·문법) · 카테고리(다중) · 태그(다중 OR) · 저자 · 시리즈 · 날짜.
    필터 없이 시작한다. 미리 그린 HTML 이 필터 없는 목록이라 첫 렌더도 같아야 하고, 주소 쿼리(?category=a,b · ?tag=x,y ·
-   ?author= · ?series= · ?q=)는 마운트 직후 usePostsQuery 가 applyUrlParams 로 옮긴다.
+   ?author= · ?series= · ?q= · ?date=)는 마운트 직후 usePostsQuery 가 applyUrlParams 로 옮긴다.
    *Key 는 정렬된 CSV — fetch 파라미터이자 effect 의존성(순서 무관 동일성). */
 export function usePostsFilters({ allTags }: { allTags: { tag: string; count: number }[] }) {
   const { search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode } =
@@ -42,7 +42,9 @@ export function usePostsFilters({ allTags }: { allTags: { tag: string; count: nu
   const toggleActiveSeries = useCallback((seriesId: string) => {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
   }, []);
-  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || activeCategories.length > 0;
+  // 날짜 — YYYY-MM-DD 하루(사이드바 날짜별 기록에서 고른다)
+  const [activeDate, setActiveDate] = useState<string | null>(null);
+  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || activeCategories.length > 0 || !!activeDate;
 
   /** 주소 쿼리를 필터로 옮긴다. 주소에 없는 필터는 건드리지 않는다 */
   const applyUrlParams = useCallback((params: URLSearchParams) => {
@@ -56,6 +58,8 @@ export function usePostsFilters({ allTags }: { allTags: { tag: string; count: nu
     if (series) setActiveSeries(series);
     const q = params.get(QUERY_PARAM.q);
     if (q) setSearch(q);
+    const date = params.get(QUERY_PARAM.date);
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) setActiveDate(date);
   }, [setSearch]);
 
   return {
@@ -64,6 +68,7 @@ export function usePostsFilters({ allTags }: { allTags: { tag: string; count: nu
     activeTags, activeTagsKey, toggleActiveTag, clearActiveTags,
     activeAuthor, setActiveAuthor,
     activeSeries, setActiveSeries, toggleActiveSeries,
+    activeDate, setActiveDate,
     hasActiveFilter, applyUrlParams,
   };
 }

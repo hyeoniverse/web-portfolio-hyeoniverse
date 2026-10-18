@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { authoringLangOf } from "@/lib/siteLanguage";
 import { useState, useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
@@ -773,7 +774,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                     onDragStart={(e) => e.preventDefault()}
                   >
                     <a
-                      href={`/posts/${post.slug}`}
+                      href={blogHref(`/posts/${post.slug}`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`${styles.seriesPostOrderBtn} ${styles.seriesPostViewBtn}`}

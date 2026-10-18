@@ -89,7 +89,9 @@
       "networkError": "Network error. Please check your connection.",
       "sent": "Message sent.",
       "sendFailed": "Couldn’t send the message. Please try again in a moment.",
-      "sendFailedAttachment": "Couldn’t send the message. The attachment may be the cause; please remove it and try again."
+      "captchaFailed": "The anti-spam check failed. Please refresh the page and try again.",
+      "rateLimited": "Too many messages in a short time. Please try again in a moment.",
+      "attachmentRejected": "This attachment can’t be sent. Please check its type or size."
     }
   },
   "aboutPage": {
@@ -160,6 +162,7 @@
   "common": {
     "toastConfirm": "OK",
     "toastShowAll": "Show all",
+    "toastCopy": "Copy",
     "toastFullTitle": "Full message",
     "partialFailed": "Couldn’t process {{failed}} of {{total}}.",
     "loading": "Loading...",
@@ -354,6 +357,7 @@
     "editFailed": "Couldn’t edit the comment.",
     "translateFailed": "⚠ Translation failed. Please try again.",
     "reactionFailed": "Couldn’t update the reaction. Please try again.",
+    "imageUploadFailed": "Couldn’t upload the image. Please try again.",
     "reportFailed": "Couldn’t send the report. Please try again."
   },
   "postDetail": {
@@ -466,7 +470,48 @@
       "activityTitle": "{{count}} repos in {{year}}"
     }
   },
+  "tilPage": {
+    "openPost": "Open post",
+    "subtitle": "Today I Learned — a garden where each day of learning grows a square.",
+    "tagHint": "Posts tagged #{{tag}} grow here.",
+    "yearTabs": "Year",
+    "statYear": "This year",
+    "statStreak": "Streak",
+    "statLongest": "Longest",
+    "pickDay": "Tap a square! I'll show you what was learned that day.",
+    "streakCheer": "{{n}} days in a row! Shall we plant one more today?",
+    "restDay": "A rest day. Zzz…",
+    "dayCount": "{{n}} learned that day",
+    "showAll": "Show all",
+    "loadMore": "Load more",
+    "emptyYear": "Nothing planted this year yet.",
+    "less": "Less",
+    "more": "More",
+    "todayDone": "Planted {{n}} today",
+    "todayNot": "Nothing planted today yet",
+    "topics": "Topics",
+    "revisit": "Look back",
+    "weekAgo": "A week ago",
+    "monthAgo": "A month ago",
+    "yearAgo": "A year ago",
+    "revisitEmpty": "nothing from around then",
+    "random": "Draw a random TIL",
+    "viewMap": "Open the constellation sky",
+    "mapDone": "{{n}} / 12 complete",
+    "dragHint": "Drag to look around · tap a constellation to get closer",
+    "closeSky": "Close the sky",
+    "skyBack": "Back to the sky",
+    "skyOpenFeed": "See this month in the feed",
+    "skyEmpty": "No stars lit this month yet. Each TIL lights one."
+  },
   "postsPage": {
+    "statPosts": "Posts",
+    "statTags": "Tags",
+    "statSeries": "Series",
+    "calendar": "Archive calendar",
+    "onlyMarked": "Posted days only",
+    "calendarEmpty": "No posted days yet.",
+    "clearDate": "Clear date filter",
     "subtitle": "Memory fades, but writing remains — and grows by sharing.",
     "searchPlaceholder": "Search...",
     "searchAll": "Title+Content",
@@ -1021,6 +1066,7 @@
     "UPLOAD_TYPE_MISMATCH": "The file’s contents don’t match its extension (.{{ext}}).",
     "UPLOAD_CONVERT_FAILED": "Couldn’t convert the image. Save it in another format and try again.",
     "UPLOAD_ONLY_IMAGE": "Only image files can be uploaded.",
+    "COMMENT_IMAGE_DAILY_LIMIT": "You can upload up to {{limit}} comment images a day. Please try again tomorrow.",
     "UPLOAD_ONLY_AUDIO": "Only audio files can be uploaded.",
     "UPLOAD_ONLY_PDF": "Only PDF files can be uploaded.",
     "UPLOAD_ONLY_FONT": "Only font files (woff2, woff, ttf, otf) can be uploaded.",
@@ -1032,5 +1078,27 @@
     "COMMENT_PASSWORD_WRONG": "The password is incorrect.",
     "COMMENT_ALREADY_REMOVED": "This comment has already been removed.",
     "TTS_DISABLED": "TTS is turned off. Turn it on in Settings › Services › TTS."
+  },
+  "readAloud": {
+    "listen": "Read aloud",
+    "stopListen": "Stop reading",
+    "controls": "Read aloud controls",
+    "reading": "Reading",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "prev": "Previous paragraph",
+    "next": "Next paragraph",
+    "speed": "Reading speed {{rate}}×",
+    "jumpHint": "While reading, tap a paragraph to read from there.",
+    "expand": "Show read aloud controls",
+    "collapse": "Collapse",
+    "goToCurrent": "Go to what's being read",
+    "drag": "Drag to move"
+  },
+  "historyPage": {
+    "tilLegend": "marks a TIL post",
+    "count": "{{n}} posts"
   }
 }

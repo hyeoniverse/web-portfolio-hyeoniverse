@@ -111,13 +111,13 @@ export default function Select({
   onInputChange,
   onAdd,
   filterByInput = true,
-  size: sizeProp = "sm",
+  size: sizeProp = "md",
   editable,
   editableInputProps,
   width,
   preserveFocus = false,
 }: SelectProps) {
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
   const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const clearLabel = t("common.clear");

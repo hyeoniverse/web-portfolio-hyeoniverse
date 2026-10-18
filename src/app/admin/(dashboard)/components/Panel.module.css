@@ -63,12 +63,16 @@
 }
 
 /* divided — Panel 의 child 들 사이 hairline divider.
-   3-col grid 기준: n+2 border-top (2번째 child 부터), n+3 border-left (3번째 부터) */
+   첫 child 는 한 줄 전체(대시보드 통계의 방문자 칸). 좁은 화면은 한 줄에 하나로 쌓여 위 선만,
+   넓은 화면은 3칸이라 3번째 child 부터 왼쪽 선도 — 좁은 화면에 왼쪽 선을 두면 일부 칸에만 세로선이 생겼다 */
 .divided > *:nth-child(n + 2) {
   border-top: var(--border-light);
 }
-.divided > *:nth-child(n + 3) {
-  border-left: var(--border-light);
+
+@media (width > 768px) {
+  .divided > *:nth-child(n + 3) {
+    border-left: var(--border-light);
+  }
 }
 
 /* ── gridHairlines — 셀 사이 hairline 을 "gap trick" 으로 그리는 재사용 유틸 ──

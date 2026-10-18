@@ -14,6 +14,9 @@ import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
+import BlogProfile from "./_components/BlogProfile";
+import MongSticker from "./_components/MongSticker";
+import BlogCalendar from "./_components/BlogCalendar";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
 import PostsToolbar from "./_components/PostsToolbar/PostsToolbar";
@@ -24,6 +27,7 @@ import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
 import { LIST_PENDING_SCRIPT } from "./_hooks/postsListUrl";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Posts.module.css";
 
 interface PostsClientProps {
@@ -36,9 +40,10 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
+  const { t } = useLanguage();
   const siteConf = useSiteConfig();
-  // 목록 카드 레이아웃 (설정) — magazine(기본)/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
-  const configLayout = (["magazine", "grid", "list", "compact", "masonry", "featured"].includes(siteConf.posts.layout)
+  // 목록 카드 레이아웃 (설정) — magazine(기본)/journal/blog/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
+  const configLayout = (["journal", "magazine", "grid", "list", "compact", "blog", "masonry", "featured"].includes(siteConf.posts.layout)
     ? siteConf.posts.layout
     : "magazine");
   const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
@@ -46,7 +51,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const {
     posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
-    activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
+    activeCategoryKey, activeTagsKey, activeTags, activeDate, setActiveDate, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
   } = query;
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
@@ -180,7 +185,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시. history 모드는 렌더하지 않음 (사이드바와 같은 방식.
               예전엔 CSS 로 숨겨 안 보이는 row 가 마운트 직후 다음 페이지 fetch 를 했다) */}
-          {!history && (
+          {!history && siteConf.posts.showSeriesRow === true && (
             <SeriesSection
               initialList={initialData.seriesList}
               initialTotal={initialData.seriesTotal}
@@ -222,6 +227,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                 <div ref={timelineSentinelRef} className={styles.timelineSentinel} aria-hidden="true" />
               )}
 
+              {/* 목록 끝 — 잠든 몽이와 EOF_ (History 제외) */}
+              {!history && (
+                <div className={styles.listEnd} aria-hidden>
+                  <MongSticker pose="sleep-front" className={styles.listEndMong} />
+                  <span className={styles.listEndText}>EOF_</span>
+                </div>
+              )}
+
               {/* Pagination — 타임라인(무한스크롤) 제외 */}
               {postsLayout !== "timeline" && totalPages > 1 && (
                 <PostsPagination page={page} totalPages={totalPages} onPageChange={setPage} />
@@ -235,6 +248,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
         {!history && (
           <PostsSidebar barHidden={barHidden}>
+            {/* 개발 블로그식 — 소개 카드를 맨 위에, 태그 아래에 날짜별 달력을 둔다 */}
+            <BlogProfile
+              stats={[
+                { label: t("postsPage.statPosts"), value: initialData.calendarPosts.length },
+                { label: t("postsPage.statTags"), value: allTags.length },
+                { label: t("postsPage.statSeries"), value: initialData.seriesTotal },
+              ]}
+            />
             {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
                 tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
             <TagCloud3D
@@ -244,6 +265,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
               asChips={hasActiveFilter}
             />
+            <BlogCalendar posts={initialData.calendarPosts} activeDate={activeDate} onDateChange={setActiveDate} />
             <PopularPosts />
             <RandomPosts />
             <RecentComments />

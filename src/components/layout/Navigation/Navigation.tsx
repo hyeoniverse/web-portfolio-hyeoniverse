@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { Point } from "@/types";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
@@ -21,6 +20,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
 import ThemedLogoImage from "@/components/common/ThemedLogoImage";
 import { useNavBackdropTone } from "@/hooks/useNavBackdropTone";
+import { NAV_BACKDROP_EVENT } from "@/lib/navBackdrop";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   firstGrapheme,
@@ -35,16 +35,18 @@ import {
 // Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 import Button from "@/components/ui/Button";
+import Popover from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
 import SiteLangMenu from "./SiteLangMenu";
 import { useSiteLang } from "@/providers/SiteTranslationProvider";
 import { selectSiteLang } from "@/lib/siteLang";
-import {
-  navDescs, navItems, menuItems,
-  adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
-} from "./navigationData";
+import { navDescs, NAV_SECTIONS, SKIP_LOADING_PAGES } from "./navigationData";
+import { navSectionOf } from "../navSection";
+import { useIsBlogHost } from "@/hooks/useIsBlogHost";
+import { blogHref, portfolioHref } from "@/lib/siteHosts";
+import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 import { fillTemplate } from "@/utils/format";
@@ -57,13 +59,16 @@ import { adminEntryHref, canOpenAdminPage, visibleAdminItems } from "@/lib/admin
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
-import { usePopoverRef } from "@/hooks/useTopLayer";
 import { keepOnTop } from "@/lib/topLayer";
+import { BREAKPOINT } from "@/constants";
+import Badge from "@/components/ui/Badge";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
 // 서브메뉴 열림/접힘 공통 ease
 const SUB_EASE = [0.22, 1, 0.36, 1] as const;
+/** 좁은 화면에서 BGM 말풍선을 이번 세션에 이미 띄웠는지(sessionStorage) */
+const SOUND_TIP_SEEN = "sound-tip-seen";
 
 /* 로딩 스크린 로고 등장 연출 — 설정(brand.loadingAnimation)으로 선택한다. 퇴장(전환)은
    프리셋과 무관하게 공통 블러 페이드. wipe 는 서버 HTML 부터 clip 으로 가려져 첫 페인트에
@@ -223,14 +228,27 @@ export default function Navigation() {
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
-  const isAdminPage = pathname.startsWith("/admin");
+  /* 공개 사이트 · 관리 화면 — 화면마다 다른 점은 NAV_SECTIONS 한 곳에서 온다. 여기서는 라우트를 직접 보지 않는다 */
+  const section = NAV_SECTIONS[navSectionOf(pathname)];
 
   /* 권한으로 열 수 없는 관리자 메뉴 항목과 알림 종은 뺀다(#883). 메뉴는 권한을 확인하기 전에는 지금처럼 모두 보여 준다 —
      대부분인 소유자의 메뉴가 늦게 나타나 흔들리지 않게. 주소로 들어온 작성자는 proxy 가 돌려보낸다.
      알림 종과 알림 받아 오기는 확인한 뒤에만 한다. 오른쪽 끝이라 늦게 나타나도 흔들리지 않고, 작성자에게 403 이 날 요청을 보내지 않는다 */
   const adminAccess = useAdminAccess(pathname);
-  const adminNav = useMemo(() => visibleAdminItems(adminNavItems, adminAccess), [adminAccess]);
-  const adminMenu = useMemo(() => visibleAdminItems(adminMenuItems, adminAccess), [adminAccess]);
+  /* 블로그 주소(blog.hyeoniverse.com)에선 `/` 가 블로그 첫 화면이라, 포트폴리오로 가는 `/` 링크(Portfolio · 서랍 Home)에 메인 주소를 붙인다 */
+  const onBlogHost = useIsBlogHost();
+  const toSiteHref = useCallback(
+    <T extends { href: string }>(item: T): T => (item.href === "/" ? { ...item, href: portfolioHref("/", onBlogHost) } : item),
+    [onBlogHost],
+  );
+  const centerItems = useMemo(
+    () => (section.restricted ? visibleAdminItems(section.items, adminAccess) : section.items).map(toSiteHref),
+    [section, adminAccess, toSiteHref],
+  );
+  const drawerItems = useMemo(
+    () => (section.restricted ? visibleAdminItems(section.drawerItems, adminAccess) : section.drawerItems).map(toSiteHref),
+    [section, adminAccess, toSiteHref],
+  );
   const canSeeNotifications = !!adminAccess && canOpenAdminPage("/admin/notifications", adminAccess);
 
   // 로고 폰트가 Google Fonts 면 동적 로드 — CSS font-family string 에서 첫 family 이름 추출.
@@ -243,9 +261,9 @@ export default function Navigation() {
   }, [siteConfig.brand.logoFont]);
 
   const {
-    adminEmail, unreadCount, notifs,
+    adminEmail, authChecked, unreadCount, notifs,
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
-    notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
+    fetchNotifs,
   } = useNavNotifications(pathname, canSeeNotifications);
   /* 알림 제목 · 본문은 서버가 만든 정해진 글 — 다른 언어로 볼 때 드롭다운을 열면 번역한다 */
   const ts = useAdminTexts(useMemo(
@@ -284,10 +302,14 @@ export default function Navigation() {
   const navOnTop = showLoadingLogo || elevatedZ;
   const { isMenuOpen, setIsMenuOpen, showMenu, menuClipOpen, menuMounted, clipWrapperRef } =
     useMobileMenu(pathname, setNotifOpen, lenisStop, lenisStart);
+  /* 서랍이 닫히면 로고 밑 배경을 다시 잰다 — 열려 있는 동안 어두운 서랍을 재 둔 값이 남아, 닫은 뒤 스크롤하기
+     전까지 로고 변형이 페이지 배경과 맞지 않았다(useNavBackdropTone 은 스크롤 · 경로 · 덮개에만 다시 잰다) */
+  useEffect(() => {
+    if (!showMenu) window.dispatchEvent(new Event(NAV_BACKDROP_EVENT));
+  }, [showMenu]);
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   /* 알림 드롭다운 — top layer(3.10-1) */
-  const notifDropdownPop = usePopoverRef<HTMLDivElement>(notifDropdownRef);
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   // 서브메뉴(드롭다운)에서 hover 중인 항목 — 이게 있으면 ▶ 가 그 항목으로 이동하고 메인 인디케이터는 숨는다
@@ -351,7 +373,7 @@ export default function Navigation() {
   const [indicatorInstant, setIndicatorInstant] = useState(false);
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
-  const currentNavItems = isAdminPage ? adminNav : navItems;
+  const currentNavItems = centerItems;
   // 현재 열린 하위 메뉴의 children (없으면 빈 배열 → 드롭다운 미표시)
   const subMenuChildren = (subMenuKey ? currentNavItems.find((i) => i.key === subMenuKey)?.children : undefined) ?? [];
   // 서브메뉴가 열려 선택된 자식이 있으면 메인 인디케이터를 감추고, ▶ 가 부모 항목에서 그 자식으로 타고 내려온다.
@@ -467,6 +489,22 @@ export default function Navigation() {
     };
   }, [navOnTop, showMenu]);
 
+  /* admin 은 로고 옆에 배지가 붙어 폭이 로고 설정마다 다르다 — 고정값으로 예약하면 링크가 로고에 붙거나
+     겹친다. 실제 폭을 재서 nav 에 넘기고, CSS(.navAdmin)가 여기에 간격을 더해 시작 여백으로 쓴다. */
+  useEffect(() => {
+    const nav = navRef.current;
+    const logo = logoBarRef.current;
+    if (!section.badge || !nav || !logo) return;
+    const sync = () => nav.style.setProperty("--_logo-w", `${logo.offsetWidth}px`);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(logo);
+    return () => {
+      ro.disconnect();
+      nav.style.removeProperty("--_logo-w");
+    };
+  }, [section.badge]);
+
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
   /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
      그 뒤 다시 그릴 때 framer 가 옛 값(0)으로 한 프레임 네비게이션 자리를 그리지 않는다. */
@@ -496,13 +534,24 @@ export default function Navigation() {
   const soundTipTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    if (isAdminPage || isLoading || isTransitioning) return;
+    if (!section.soundTip || isLoading || isTransitioning) return;
+    /* 좁은 화면은 한 세션에 한 번만 — 말풍선이 본문 윗부분(About 첫 화면의 메타 줄 · 장 제목)을 페이지마다 5초씩 가렸다.
+       넓은 화면은 지금처럼 매번(본문과 떨어진 오른쪽 위라 가리지 않는다) */
+    const narrow = window.matchMedia(`(width <= ${BREAKPOINT.mobile}px)`).matches;
+    if (narrow) {
+      try {
+        if (sessionStorage.getItem(SOUND_TIP_SEEN)) return;
+      } catch { /* 저장소를 못 쓰면 매번 */ }
+    }
     soundTipTimer.current = setTimeout(() => {
       setShowSoundTip(true);
+      if (narrow) {
+        try { sessionStorage.setItem(SOUND_TIP_SEEN, "1"); } catch { /* 무시 */ }
+      }
       soundTipTimer.current = setTimeout(() => setShowSoundTip(false), 5000);
     }, 2000);
     return () => { if (soundTipTimer.current) clearTimeout(soundTipTimer.current); };
-  }, [isAdminPage, isLoading, isTransitioning]);
+  }, [section.soundTip, isLoading, isTransitioning]);
 
   const handleSoundToggle = () => {
     if (isSoundClicking) return;
@@ -527,11 +576,9 @@ export default function Navigation() {
   const handleLogout = useCallback(async () => {
     const supabase = await loadSupabaseClient();
     await supabase.auth.signOut();
-    if (pathname.startsWith("/admin")) {
-      router.push("/admin/login");
-    }
+    if (section.afterLogout) router.push(section.afterLogout);
     router.refresh();
-  }, [router, pathname]);
+  }, [router, section.afterLogout]);
 
   return (
     /* header 로 감싸 로고까지 랜드마크 안에 넣는다. display:contents 는 필수다 —
@@ -544,7 +591,7 @@ export default function Navigation() {
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
       ref={logoBarRef}
-      href={isAdminPage ? "/admin" : "/"}
+      href={blogHref(section.homeHref)}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
       className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
@@ -673,68 +720,50 @@ export default function Navigation() {
             </motion.span>
           );
         })()}
-      {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
-      {isAdminPage && (
-        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</span>
+      {/* 섹션 배지(Admin · Blog) — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
+      {section.badge && (
+        <Badge variant="outline" tone="white" uppercase className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>{section.badge}</Badge>
       )}
     </Link>
 
-    <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${section.badge ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
         onMouseLeave={() => setHoveredNav(null)}
       >
-        {isAdminPage
-          ? adminNav.map((item) => {
-              const hasChildren = !!item.children?.length;
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  ref={(el) => { navLinkRefs.current[item.key] = el; }}
-                  className={`${styles.navLink} glith-on-hover`}
-                  onMouseEnter={() => {
-                    setHoveredNav(item.key);
-                    if (hasChildren) openSubMenu(item.key);
-                  }}
-                  onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
-                >
-                  {navLabel(item)}
-                </Link>
-              );
-            })
-          : navItems.map((item) => {
-              const hasChildren = !!item.children?.length;
-              const link = (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  ref={(el) => { navLinkRefs.current[item.key] = el; }}
-                  className={`${styles.navLink} glith-on-hover`}
-                  onMouseEnter={() => {
-                    setHoveredNav(item.key);
-                    if (hasChildren) openSubMenu(item.key);
-                  }}
-                  onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
-                >
-                  {navLabel(item)}
-                </Link>
-              );
-              // children 있는 항목(Posts)은 hover 드롭다운이 대신하므로 Tooltip 생략
-              return hasChildren ? (
-                link
-              ) : (
-                <Tooltip
-                  key={item.key}
-                  content={navDescs[item.key] ? t(`navMenu.desc.${item.key}`) : ""}
-                  delay={600}
-                  placement="bottom"
-                >
-                  {link}
-                </Tooltip>
-              );
-            })}
+        {/* 공개 · 관리 화면 같은 목록 — 설명(navDescs)이 있는 항목만 말풍선을 단다. 하위 메뉴가 있는 항목은
+            hover 드롭다운이 대신하므로 말풍선을 생략한다 */}
+        {centerItems.map((item) => {
+          const hasChildren = !!item.children?.length;
+          const link = (
+            <Link
+              key={item.key}
+              href={blogHref(item.href)}
+              ref={(el) => { navLinkRefs.current[item.key] = el; }}
+              className={`${styles.navLink} glith-on-hover`}
+              onMouseEnter={() => {
+                setHoveredNav(item.key);
+                if (hasChildren) openSubMenu(item.key);
+              }}
+              onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
+            >
+              {navLabel(item)}
+            </Link>
+          );
+          return hasChildren || !navDescs[item.key] ? (
+            link
+          ) : (
+            <Tooltip
+              key={item.key}
+              content={t(`navMenu.desc.${item.key}`)}
+              delay={600}
+              placement="bottom"
+            >
+              {link}
+            </Tooltip>
+          );
+        })}
         {(() => {
           // 서브메뉴로 넘어갈 땐(선택 항목이 있거나 서브 항목을 hover 중) 메인 인디케이터를
           // 숨긴다 — ▶ (travelInk)가 그 서브 항목에서 대신 표시된다.
@@ -749,8 +778,11 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
-        {siteConfig.translation?.enabled !== false && <SiteLangMenu />}
+        {/* 사이트를 다른 언어로 보기(🌐) — 사이트 설정에서 번역을 껐으면 숨긴다.
+            좁은 화면은 자리가 모자라 KO/EN 만 두고, 🌐 는 메뉴 서랍 좌상단(MobileMenu)으로 옮긴다 */}
+        {siteConfig.translation?.enabled !== false && (
+          <span className={styles.navSiteLang}><SiteLangMenu /></span>
+        )}
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={t("navMenu.ui.switchLanguage")} delay={600} placement="bottom">
           <Pressable noTapScale
@@ -825,54 +857,51 @@ export default function Navigation() {
         </Tooltip>
 
         {/* 액션 항목들 (email + Bell + Logout/GetInTouch) — navActions 직속 자식 */}
-        {isAdminPage && adminEmail && (
+        {section.showEmail && adminEmail && (
           <span className={styles.adminEmail}>{adminEmail}</span>
         )}
+        {/* 알림 — 공용 Popover: 넓은 화면은 종 아래 말풍선(꼬리가 종을 가리킨다), 터치 기기는 아래 시트.
+            위치 · 화면 안으로 당기기 · 바깥 클릭 · Esc 닫기를 Popover 가 맡는다. 포털이라 nav 의 blend 와 격리된다 */}
         {adminEmail && canSeeNotifications && (
-          <Tooltip
-            content={unreadCount > 0
-              ? fillTemplate(t("navMenu.ui.unread"), { n: unreadCount })
-              : t("navMenu.ui.notifications")}
-            placement="bottom"
-            delay={200}
-            disabled={notifOpen}
-          >
-            <Pressable noTapScale
-              ref={notifWrapRef}
-              className={`${styles.actionBtn} ${styles.notifBtn}`}
-              aria-label={t("navMenu.ui.notifications")}
-              aria-expanded={notifOpen}
-              aria-haspopup="dialog"
-              onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifs(); }}
-            >
-              <Bell size={16} strokeWidth={1.8} />
-              {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
-            </Pressable>
-          </Tooltip>
-        )}
-
-        {/* Notification dropdown — createPortal 로 body 에 렌더 (nav 의 mix-blend-mode + z-index 격리) */}
-        {adminEmail && canSeeNotifications && typeof window !== "undefined" && createPortal(
-          <AnimatePresence>
-            {notifOpen && (
-              <motion.div
-                ref={notifDropdownPop}
-                popover="manual"
-                key="notif-dropdown"
-                className={styles.notifDropdown}
-                role="dialog"
-                aria-label={t("navMenu.ui.notifications")}
-                style={{ top: notifPos.top, right: notifPos.right - 24, transformOrigin: "top right" }}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+          <Popover
+            open={notifOpen}
+            onOpenChange={(o) => { setNotifOpen(o); if (o) fetchNotifs(); }}
+            placement="bottom-end"
+            offset={8}
+            variant="solid"
+            arrow
+            sheetTitle={t("navMenu.ui.notifications")}
+            contentClassName={styles.notifDropdown}
+            trigger={
+              <Tooltip
+                content={unreadCount > 0
+                  ? fillTemplate(t("navMenu.ui.unread"), { n: unreadCount })
+                  : t("navMenu.ui.notifications")}
+                placement="bottom"
+                delay={200}
+                disabled={notifOpen}
               >
-                <div className={styles.notifDropdownInner}>
+                <Pressable noTapScale
+                  className={`${styles.actionBtn} ${styles.notifBtn}`}
+                  aria-label={t("navMenu.ui.notifications")}
+                  aria-expanded={notifOpen}
+                  aria-haspopup="dialog"
+                >
+                  <Bell size={16} strokeWidth={1.8} />
+                  {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
+                </Pressable>
+              </Tooltip>
+            }
+          >
+            {({ close, isSheet }) => (
+              <div className={styles.notifDropdownInner}>
                   <div className={styles.notifDropdownHeader}>
-                    <span className={styles.notifDropdownTitle}>
-                      {t("navMenu.ui.notifications")}
-                    </span>
+                    {/* 시트는 제 머리에 제목을 그린다(sheetTitle) — 두 번 뜨지 않게 */}
+                    {!isSheet && (
+                      <span className={styles.notifDropdownTitle}>
+                        {t("navMenu.ui.notifications")}
+                      </span>
+                    )}
                     {unreadCount > 0 && (
                       <span className={styles.notifDropdownBadge}>
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -881,7 +910,7 @@ export default function Navigation() {
                     <Link
                       href="/admin/notifications"
                       className={styles.notifDropdownViewAll}
-                      onClick={() => setNotifOpen(false)}
+                      onClick={close}
                     >
                       <span>{t("navMenu.ui.viewAll")}</span>
                       <ArrowRight size={12} strokeWidth={2} className={styles.notifDropdownViewAllArrow} aria-hidden />
@@ -895,7 +924,7 @@ export default function Navigation() {
                     <ul className={styles.notifDropdownList} data-lenis-prevent>
                       {notifs.slice(0, 5).map((n) => (
                         <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
-                          {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
+                          {renderNotifItem(n, language, now, close, t("navMenu.ui.actionNeeded"), ts)}
                         </li>
                       ))}
                       {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
@@ -914,7 +943,7 @@ export default function Navigation() {
                             }}
                             style={{ overflow: "hidden" }}
                           >
-                            {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"), ts)}
+                            {renderNotifItem(n, language, now, close, t("navMenu.ui.actionNeeded"), ts)}
                           </motion.li>
                         ))}
                       </AnimatePresence>
@@ -931,37 +960,41 @@ export default function Navigation() {
                     </Pressable>
                   )}
                 </div>
-              </motion.div>
             )}
-          </AnimatePresence>,
-          document.body,
+          </Popover>
         )}
         {/* 관리 화면으로 — 로그아웃 왼쪽. 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
-            이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다) */}
-        {!isAdminPage && adminHref && (
-          <Tooltip content={t("navMenu.ui.admin")} delay={200} placement="bottom">
-            <Link href={adminHref} className={styles.actionBtn} aria-label={t("navMenu.ui.admin")}>
-              <Settings size={18} strokeWidth={1.5} />
-            </Link>
-          </Tooltip>
+            이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다).
+            좁은 화면은 자리가 모자라 감춘다 — 메뉴 서랍에 같은 곳으로 가는 Admin 이 있다 */}
+        {section.crossLink === "admin" && adminHref && (
+          <span className={styles.navAdminLink}>
+            <Tooltip content={t("navMenu.ui.admin")} delay={200} placement="bottom">
+              <Link href={adminHref} className={styles.actionBtn} aria-label={t("navMenu.ui.admin")}>
+                <Settings size={18} strokeWidth={1.5} />
+              </Link>
+            </Tooltip>
+          </span>
         )}
 
+        {/* 로그아웃 — 화면과 상관없이 로그인했으면. 좁은 화면은 자리가 모자라 감추고 메뉴 서랍 꼬리에 둔다 */}
         {adminEmail ? (
-          <Tooltip
-            content={adminEmail}
-            placement="bottom"
-            delay={200}
-          >
-            <Button
-              variant="outline"
-              className={styles.logoutBtn}
-              onClick={handleLogout}
-              soundDisabled
+          <span className={styles.navLogout}>
+            <Tooltip
+              content={adminEmail}
+              placement="bottom"
+              delay={200}
             >
-              Logout
-            </Button>
-          </Tooltip>
-        ) : !isAdminPage ? (
+              <Button
+                variant="outline"
+                className={styles.logoutBtn}
+                onClick={handleLogout}
+                soundDisabled
+              >
+                Logout
+              </Button>
+            </Tooltip>
+          </span>
+        ) : section.contact ? (
           <Button
             variant="outline"
             className={styles.contactBtn}
@@ -972,7 +1005,7 @@ export default function Navigation() {
           </Button>
         ) : null}
 
-        {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
+        {/* 메뉴 버튼 (≤768px) — 3×3 점 + magnetic */}
         <MagneticWrapper strength={0.5} radius={50} className={styles.menuBtnWrapper}>
           <Pressable noTapScale
             className={`${styles.actionBtn} ${styles.menuBtn}`}
@@ -1009,13 +1042,18 @@ export default function Navigation() {
         clipWrapperRef={clipWrapperRef}
         menuMounted={menuMounted}
         pathname={pathname}
-        isAdminPage={isAdminPage}
-        menuItems={isAdminPage ? adminMenu : menuItems}
-        adminHref={isAdminPage ? null : adminHref}
+        items={drawerItems}
+        crossLink={section.crossLink === "admin"
+          ? (adminHref ? { href: adminHref, label: "Admin" } : null)
+          : { href: "/", label: t("navMenu.label.home") }}
         contactEmail={siteConfig.contact.email}
+        showSiteLang={siteConfig.translation?.enabled !== false}
         onClose={() => setIsMenuOpen(false)}
-        onContactOpen={openForm}
-        onLogout={handleLogout}
+        onContactOpen={section.contact ? openForm : undefined}
+        onLogout={adminEmail ? handleLogout : undefined}
+        /* 로그인 — 공개 화면에서 로그아웃 상태가 확실할 때만(쿠키가 없거나, 있어도 세션이 없다고 확인됐을 때).
+           푸터의 Login 과 같은 곳으로 간다 */
+        loginHref={section.crossLink === "admin" && !adminEmail && (authChecked || !hasAuthCookie()) ? "/admin/login?next=/admin" : undefined}
       />
 
       {/* nav 하위 드롭다운 — children 있는 항목(사용자 Posts / admin Settings) hover 시.
@@ -1059,7 +1097,7 @@ export default function Navigation() {
                     exit={{ opacity: 0, x: -12, transition: { duration: 0.22, delay: itemExitDelay(index), ease: SUB_EASE } }}
                   >
                     <MotionLink
-                      href={child.href}
+                      href={blogHref(child.href)}
                       role="menuitem"
                       className={`${styles.subNavDropdownItem} ${active ? styles.subNavDropdownItemActive : ""}`}
                       onMouseEnter={() => setHoveredSubKey(child.key)}

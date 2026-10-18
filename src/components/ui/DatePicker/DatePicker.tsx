@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { SelectOption } from "@/types";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "@/components/icons";
@@ -21,6 +21,8 @@ export interface DatePickerProps {
   minDate?: Date;
   /** 이 시점 이후 cell 은 비활성 */
   maxDate?: Date;
+  /** calendar 모드 — 표시할 날과 그날의 개수("YYYY-MM-DD" → n). 있는 날 · 달 · 해에 강조를 단다(글 쓴 날 등) */
+  marks?: Readonly<Record<string, number>>;
 }
 
 function daysInMonthCount(y: number, m: number): number {
@@ -204,7 +206,7 @@ function SpinnerView({
 
 /* ── Calendar View ── */
 function CalendarView({
-  year, month, day, format, onSelect, language, minDate, maxDate,
+  year, month, day, format, onSelect, language, minDate, maxDate, marks,
 }: {
   year: string; month: string; day: string;
   format: Format;
@@ -212,7 +214,12 @@ function CalendarView({
   language: "ko" | "en";
   minDate?: Date;
   maxDate?: Date;
+  marks?: Readonly<Record<string, number>>;
 }) {
+  /* 표시 — 날("YYYY-MM-DD") 개수와, 그걸 묶은 달("YYYY-MM") · 해("YYYY") 집합. 달 · 연도 격자도 표시가 있는 칸을 안다 */
+  const markedMonths = useMemo(() => new Set(Object.keys(marks ?? {}).map((k) => k.slice(0, 7))), [marks]);
+  const markedYears = useMemo(() => new Set(Object.keys(marks ?? {}).map((k) => k.slice(0, 4))), [marks]);
+  const hasMarks = !!marks;
   // min/max 의 date-only (자정) — 비교 시 시간 무시
   const minDay = minDate
     ? new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate()).getTime()
@@ -276,7 +283,7 @@ function CalendarView({
           {years.map((y) => (
             <Pressable
               key={y} type="button"
-              className={`${styles.calCell} ${String(y) === year ? styles.calCellActive : ""} ${y === now ? styles.calCellToday : ""}`}
+              className={`${styles.calCell} ${String(y) === year ? styles.calCellActive : ""} ${y === now ? styles.calCellToday : ""} ${hasMarks && markedYears.has(String(y)) ? styles.calCellMarked : ""}`}
               onClick={() => {
                 /* 연도 형식이면 고른 것이 곧 값, 아니면 그 해의 달 격자로 내려간다 */
                 if (format === "year") { onSelect(String(y), month, day); return; }
@@ -305,10 +312,11 @@ function CalendarView({
           {mLabelsGrid.map((label, i) => {
             const mv = String(i + 1).padStart(2, "0");
             const active = String(viewYear) === year && mv === month;
+            const marked = markedMonths.has(`${viewYear}-${mv}`);
             return (
               <Pressable
                 key={mv} type="button"
-                className={`${styles.calCell} ${active ? styles.calCellActive : ""}`}
+                className={`${styles.calCell} ${active ? styles.calCellActive : ""} ${hasMarks && marked ? styles.calCellMarked : ""}`}
                 onClick={() => {
                   /* 연·월 형식이면 고른 것이 곧 값, 날짜 형식이면 그 달의 날짜로 내려간다 */
                   if (format === "yearMonth") { onSelect(String(viewYear), mv, day); return; }
@@ -366,13 +374,15 @@ function CalendarView({
           const mv = String(viewMonth).padStart(2, "0");
           const active = String(viewYear) === year && mv === month && dv === day;
           const cellTime = new Date(viewYear, viewMonth - 1, d).getTime();
+          const count = marks?.[`${viewYear}-${mv}-${dv}`] ?? 0;
           const outOfRange = (minDay !== null && cellTime < minDay) || (maxDay !== null && cellTime > maxDay);
           return (
             <Pressable
               key={d} type="button"
-              className={`${styles.calDayCell} ${active ? styles.calCellActive : ""} ${outOfRange ? styles.calCellDisabled : ""}`}
+              className={`${styles.calDayCell} ${active ? styles.calCellActive : ""} ${count > 0 ? styles.calCellMarked : ""} ${hasMarks && cellTime === todayTime ? styles.calCellToday : ""} ${outOfRange ? styles.calCellDisabled : ""}`}
               onClick={() => { if (!outOfRange) onSelect(String(viewYear), mv, dv); }}
               disabled={outOfRange}
+              title={count > 0 ? String(count) : undefined}
             >{d}</Pressable>
           );
         })}
@@ -384,11 +394,11 @@ function CalendarView({
 
 /* ── Main ── */
 export default function DatePicker({
-  year, month, day, format, mode, language, onSelect, minDate, maxDate,
+  year, month, day, format, mode, language, onSelect, minDate, maxDate, marks,
 }: DatePickerProps) {
   return mode === "spinner" ? (
     <SpinnerView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} minDate={minDate} maxDate={maxDate} />
   ) : (
-    <CalendarView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} minDate={minDate} maxDate={maxDate} />
+    <CalendarView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} minDate={minDate} maxDate={maxDate} marks={marks} />
   );
 }

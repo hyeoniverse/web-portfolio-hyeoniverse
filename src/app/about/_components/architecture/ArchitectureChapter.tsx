@@ -1,6 +1,8 @@
 "use client";
 
-/* 구조 장 — 프레지 프레임들. 값은 관리자 설정(useAboutConfig)이 먼저, 비어 있으면 기존 About 의 코드 기본값.
+/* 구조 장 — 프레지 프레임들. 값은 코드에서만 온다 — 기술 그래프 · 사용자 흐름은 data/about, ERD 는 빌드 때
+   supabase/setup.sql 에서 굽는 생성본(scripts/gen-erd), API 는 route.ts 에서 굽는 생성본(scripts/gen-api-map).
+   관리자에서 덮어쓰던 편집기는 없앴다 — 덮어쓴 값은 코드가 바뀌어도 그대로 남아 실제와 어긋났다.
    휠 · 키 한 번이 프레임 안 단계(useFrameSteps)를 하나씩 넘기고, 마지막 단계에서 다음 프레임으로 간다.
    1 기술 그래프: 단계마다 묶음 하나 — 그 묶음의 별에 불이 들어오고 카메라가 그쪽으로 다가간다
    2 사용자 흐름: 단계마다 흐름 하나 — 노선이 그려지고 길잡이 별이 정류장을 걷는다
@@ -11,7 +13,6 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useAboutConfig } from "@/app/about/_panels/AboutConfig";
 import {
   ARCH_VIEW,
   DEFAULT_ARCH_NODES,
@@ -21,7 +22,7 @@ import {
 import { userFlows as staticFlows } from "@/data/about/architecture";
 import { erdTables as staticTables, erdRelations as staticRelations, erdDesignNotes } from "@/data/about/erd";
 import { keyNotes, stackKey, stackScene, flowScene, erdScene, erdGroups, erdOtherGroup, erdTour } from "../../_data/architecture";
-import { RowNum, SceneHead, STAR_PATH, StarMark, useL } from "../features/shared";
+import { RowNum, SceneHead, STAR_PATH, StarMark, useL, useTouchInput } from "../features/shared";
 import { useFrame, useFrameSteps } from "../prezi/context";
 import NoteArt from "./NoteArt";
 import fx from "../features/Features.module.css";
@@ -47,9 +48,8 @@ const VISIT_MS = 650;
 
 export function SceneStack() {
   const L = useL();
-  const about = useAboutConfig();
-  const nodes: ArchNode[] = about.archDiagram?.nodes?.length ? about.archDiagram.nodes : DEFAULT_ARCH_NODES;
-  const edges = about.archDiagram?.nodes?.length ? about.archDiagram.edges : DEFAULT_ARCH_EDGES;
+  const nodes: ArchNode[] = DEFAULT_ARCH_NODES;
+  const edges = DEFAULT_ARCH_EDGES;
   const groups = stackScene.groups;
   const { step: index, setStep, current: live } = useFrameSteps(groups.length);
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
@@ -332,8 +332,7 @@ function FlowStars({ flow, language, maxRows, live }: { flow: Flow; language: "k
 export function SceneFlows() {
   const L = useL();
   const { language } = useLanguage();
-  const about = useAboutConfig();
-  const flows = about.userFlows?.length ? about.userFlows : staticFlows;
+  const flows = staticFlows;
   const { step: index, setStep, current: live } = useFrameSteps(flows.length);
   const flow = flows[index];
   /* 가장 긴 흐름 — 판 높이 · 세로 목록 높이를 여기에 맞춰 고정한다 */
@@ -368,10 +367,10 @@ export function SceneFlows() {
 
 export function SceneErd() {
   const L = useL();
+  const touch = useTouchInput();
   const { language } = useLanguage();
-  const about = useAboutConfig();
-  const tables = about.erdTables?.length ? about.erdTables : staticTables;
-  const relations = about.erdTables?.length ? about.erdRelations : staticRelations;
+  const tables = staticTables;
+  const relations = staticRelations;
   /* 길잡이 별 자리는 지금 프레임일 때만 — 이웃 프레임의 자리로 끌려가지 않게 */
   const { current: live } = useFrame();
   /* 단계 — 0 전체 보기, 다음부터 중심 테이블(erdTour)을 하나씩 골라 그 테이블과 이웃만 크게. 다 훑은 뒤 넘기면 다음 패널.
@@ -486,7 +485,7 @@ export function SceneErd() {
           )}
         </aside>
       </div>
-      <p className={styles.erdHint}>{L(erdScene.hint)}</p>
+      <p className={styles.erdHint}>{L(touch ? erdScene.hintTouch : erdScene.hint)}</p>
     </section>
   );
 }

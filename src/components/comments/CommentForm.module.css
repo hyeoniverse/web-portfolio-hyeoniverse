@@ -80,13 +80,6 @@
   padding: var(--spacing-8) var(--spacing-8) 0;
 }
 
-.adminBadge {
-  padding: var(--badge-padding-lg);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent);
-  font: var(--font-label-sm);
-  color: var(--text-accent);
-}
 
 /* 에디터(Write/Preview 탭 + 툴바 + textarea/미리보기) 스타일은 CommentEditor.module.css 로 이관 —
    CommentForm / CommentItem 수정 폼이 공유한다. */

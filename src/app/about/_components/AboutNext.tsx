@@ -2,6 +2,7 @@
 
 /* About 개편 시안 — 큰 산세리프 제목(topology) + 화면 폭 워드마크 · 사진 타일 격자 · 아주 작은 대문자 캡션(magnetism). 스크롤은 섞는다: 첫 화면은 그대로 흐르고, "한눈에 보기" 한 장면만 화면에 고정해 숫자가 차례로 들어온다.
    내용은 _data/showcase.ts. 방향이 정해지면 관리자 About 편집과 이어 붙인다. */
+import { blogHref } from "@/lib/siteHosts";
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -11,8 +12,6 @@ import TimeSky from "./guide/TimeSky";
 import { useVisitorWeather } from "./guide/useVisitorWeather";
 import PreziStage from "./prezi/PreziStage";
 import { useFrameSteps } from "./prezi/context";
-import { AboutConfigProvider } from "@/app/about/_panels/AboutConfig";
-import type { SiteConfigData } from "@/config/site.config";
 import styles from "./AboutNext.module.css";
 
 function useL() {
@@ -68,7 +67,7 @@ export function LiveRow({ live }: { live: LiveInfo }) {
       {post && (
         <li className={styles.liveLatest}>
           {L(liveText.latest)} —{" "}
-          <Link href={`/posts/${post.slug}`} className={styles.liveLink}>
+          <Link href={blogHref(`/posts/${post.slug}`)} className={styles.liveLink}>
             {language === "en" && post.titleEn ? post.titleEn : post.title}
           </Link>
         </li>
@@ -125,15 +124,13 @@ export function Facts() {
   );
 }
 
-export default function AboutNext({ live, about }: { live: LiveInfo; about: SiteConfigData["about"] }) {
+export default function AboutNext({ live }: { live: LiveInfo }) {
   return (
-    <AboutConfigProvider about={about}>
     <div className={styles.page}>
       <TimeSky />
       <GuideStar />
       {/* 프레지 — 페이지 전체가 별자리 세계, 카메라가 장면(프레임)마다 날아다닌다 */}
       <PreziStage live={live} />
     </div>
-    </AboutConfigProvider>
   );
 }

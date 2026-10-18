@@ -213,24 +213,22 @@
   flex: 1;
 }
 
-/* ── Badge row ── */
-.badgeRow {
+/* ── 날짜 줄 — [날짜 · 읽기 시간 … 카테고리]. 날짜를 먼저 보이게 제목 위에 둔다 ── */
+.dateLine {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
   flex-wrap: wrap;
-}
-
-/* ── Category badge ── */
-.categoryBadge {
-  display: inline-flex;
   align-items: center;
-  width: fit-content;
-  white-space: nowrap;
-  padding: var(--badge-padding-md);
-  border: var(--border-accent-light);
-  border-radius: var(--radius-control);
-  background: transparent;
+  gap: var(--spacing-4) var(--spacing-8);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.dateLineDate {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.dateLineCat {
+  margin-left: auto;
   font: var(--font-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -422,24 +420,11 @@
   right: auto;
 }
 
-/* ── Pinned badge ── */
+/* ── Pinned · 언어 배지 — 모양은 Badge(overlay). 여기서는 흐림과 자리만 ── */
 .pinnedOverlay {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-12);
-  border-radius: var(--radius-control);
-  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: var(--border-ghost-light);
-  font: var(--font-label-xs);
-  color: var(--text-white);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
 }
 
-/* ── Lang badge 우상단 오버레이 ── */
 /* 놓이는 자리가 우하단으로 내릴 수 있다 — --post-card-lang-top: auto · --post-card-lang-bottom(PostsGrid 목록) */
 .langOverlay {
   position: absolute;
@@ -447,18 +432,7 @@
   bottom: var(--post-card-lang-bottom, auto);
   right: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  padding: var(--spacing-2) var(--spacing-12);
-  border-radius: var(--radius-control);
-  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: var(--border-ghost-light);
-  font: var(--font-label-xs);
-  color: var(--text-white);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
 }
 
 /* ═══════════════════════════════════════════
@@ -677,4 +651,66 @@
 .featuredHero .placeholderTitle {
   font-size: clamp(1.2rem, 0.977rem + 0.91vw, 1.8rem);
   -webkit-line-clamp: 3;
+}
+
+/* ── 개발 로그 스킨 — 글 목록 페이지(PostsPageChrome 의 data-blog-skin="log")에서만. 배치 · 제목 글꼴은 그대로 두고
+   날짜 줄 · 태그 · 조회 줄은 모노 글꼴로 기록장처럼 ── */
+/* 빼꼼 몽이 — 자리 · 표정 · 기울기는 PostCardStandard 가 --peek-* 로 카드마다(나갈 때마다 새로) 정한다.
+   아래 가장자리면 위로, 위 가장자리면 거꾸로 매달려 아래로 나온다(180° 돌린 틀 안에서 같은 translateY) */
+:global([data-blog-skin="log"]) .imageWrap::after {
+  content: "";
+  position: absolute;
+  top: var(--peek-top, auto);
+  bottom: var(--peek-bottom, 0%);
+  left: var(--peek-x, 70%);
+  z-index: 1; /* 배지(2) 아래 */
+  width: var(--spacing-64);
+  aspect-ratio: 792 / 1262;
+  background: var(--peek-img, url("/images/mascot/bunny-happy-front.png")) center top / contain no-repeat;
+  filter: drop-shadow(0 -2px 0 var(--text-white)) drop-shadow(2px 0 0 var(--text-white)) drop-shadow(-2px 0 0 var(--text-white));
+  rotate: var(--peek-flip, 0deg);
+  transform: translateY(100%);
+  transition: transform var(--duration-base) var(--ease-standard);
+  pointer-events: none;
+}
+/* 카드에 올리면 커버 가장자리에서 몽이가 빼꼼 나온다 */
+:global([data-blog-skin="log"]) .card:hover .imageWrap::after {
+  transform: translateY(45%) rotate(var(--peek-tilt, -4deg));
+}
+:global([data-blog-skin="log"]) .dateLine,
+:global([data-blog-skin="log"]) .dateLineDate,
+:global([data-blog-skin="log"]) .dateLineCat,
+:global([data-blog-skin="log"]) .meta {
+  font: var(--font-code-xs);
+  letter-spacing: 0;
+  text-transform: none;
+}
+:global([data-blog-skin="log"]) .dateLineDate {
+  color: var(--text-primary);
+}
+/* 날짜 앞 기록 표시 — 로고와 같은 강조색 네 갈래 별 */
+:global([data-blog-skin="log"]) .dateLineDate::before {
+  content: "";
+  display: inline-block;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  margin-right: var(--spacing-8);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  vertical-align: 0;
+}
+:global([data-blog-skin="log"]) .dateLineCat::before {
+  content: "[";
+}
+:global([data-blog-skin="log"]) .dateLineCat::after {
+  content: "]";
+}
+:global([data-blog-skin="log"]) .tagPill {
+  padding: 0;
+  background: none;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+:global([data-blog-skin="log"]) .tagPill:hover {
+  color: var(--text-accent);
 }

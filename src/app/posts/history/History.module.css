@@ -1,0 +1,199 @@
+/* ── History — 머리(TIL 표시) · 몽이 길 ── */
+
+.subtitle {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-16);
+}
+.legend {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+/* 글 한 줄의 공통 조각 */
+.postDate {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.postTitle {
+  min-width: 0;
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+.postCat {
+  flex-shrink: 0;
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+.tilTag {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-4);
+  border: var(--border-width-1) solid currentColor;
+  border-radius: var(--radius-mark);
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+}
+/* TIL 글 — 한 단계 옅게, 제목도 한 단계 작게 */
+.isTil .postTitle {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+/* ── 몽이 길 ── 왼쪽 세로 길, 화면 같은 높이에 붙은 몽이, 달 표지판, 글 줄 */
+.trail {
+  position: relative;
+  margin-top: var(--spacing-40);
+  padding-left: var(--spacing-64);
+}
+@media (width >= 768px) {
+  .trail {
+    padding-left: calc(var(--spacing-128) + var(--spacing-32));
+  }
+}
+/* 길 — 점선 한 줄 */
+.trail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--spacing-24);
+  border-left: var(--border-width-2) dashed var(--border-color-strong);
+}
+@media (width >= 768px) {
+  .trail::before {
+    left: var(--spacing-80);
+  }
+}
+/* 몽이 — 길 위, 화면 40% 높이에 붙어 있다 */
+.walker {
+  position: sticky;
+  top: 40vh;
+  z-index: 1;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--spacing-48);
+  height: 0;
+  margin-left: calc(var(--spacing-64) * -1);
+  overflow: visible;
+  pointer-events: none;
+}
+@media (width >= 768px) {
+  .walker {
+    width: var(--spacing-64);
+    margin-left: calc((var(--spacing-128) + var(--spacing-32)) * -1 + var(--spacing-48));
+  }
+}
+.walkerBody {
+  display: block;
+  width: 100%;
+  transform: translateY(-60%);
+  animation: walk-bob var(--duration-base) var(--ease-standard);
+}
+@keyframes walk-bob {
+  50% { transform: translateY(-70%) rotate(-6deg); }
+}
+.walkerSign {
+  position: absolute;
+  top: var(--spacing-40);
+  left: 0;
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font: var(--font-code-xs);
+  white-space: nowrap;
+}
+@media (width >= 768px) {
+  .walkerSign {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.trailList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-40);
+}
+.trailYear {
+  margin: 0 0 var(--spacing-16);
+  font: var(--font-headline-lg);
+  color: var(--text-primary);
+}
+/* 달 표지판 — 길 위의 강조색 별과 달 이름 */
+.trailSign {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
+}
+.trailSignDot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--spacing-64) * -1 + var(--spacing-24) - var(--spacing-8) + 1px);
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  background: var(--text-accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transform: translateY(-50%);
+}
+@media (width >= 768px) {
+  .trailSignDot {
+    left: calc((var(--spacing-128) + var(--spacing-32)) * -1 + var(--spacing-80) - var(--spacing-8) + 1px);
+  }
+}
+.trailSignName {
+  margin: 0;
+  font: var(--font-headline-xs);
+  color: var(--text-primary);
+}
+.trailSignCount {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+.trailPosts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.trailPost {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-light);
+  text-decoration: none;
+  transition: padding var(--duration-fast) var(--ease-standard);
+}
+.trailPost:hover {
+  padding-left: var(--spacing-8);
+}
+.trailPost:hover .postTitle {
+  color: var(--text-accent);
+}
+.trailPost .tilTag,
+.trailPost .postCat {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walkerBody { animation: none; }
+}

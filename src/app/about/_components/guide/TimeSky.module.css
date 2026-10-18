@@ -260,7 +260,7 @@
   display: none;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .caption {
     /* 네비 단추와 한 줄 띄운다 — 장면들의 위쪽 여백(Prezi.module.css · Code.module.css)은 이 줄 아래에서 시작한다 */
     top: calc(var(--header-height) + var(--spacing-20));
@@ -272,6 +272,14 @@
 
   :global(body:has([data-prezi] [data-frame="0"]:not([data-current]))) .caption {
     display: block;
+  }
+}
+
+/* 키 낮은 가로 화면 — 첫 지도의 왼쪽 절반은 소개 글이 끝까지 차지한다. 지도가 앉은 오른쪽 절반 아래에 */
+@media (width > 480px) and (height <= 500px) {
+  .caption {
+    left: 50%;
+    text-align: right;
   }
 }
 

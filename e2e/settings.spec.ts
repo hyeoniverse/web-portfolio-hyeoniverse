@@ -28,9 +28,11 @@ test.describe("설정 화면", () => {
 
   test("Content 탭에는 하위 탭이 있다", async ({ page }) => {
     await openSettings(page, "tab=content&sub=home");
-    for (const name of ["HOME", "PROFILE", "ABOUT", "WORKS", "POSTS", "CALENDAR"]) {
+    for (const name of ["HOME", "PROFILE", "WORKS", "POSTS"]) {
       await expect(page.getByRole("button", { name, exact: true }), `${name} 하위 탭`).toBeVisible();
     }
+    /* About 은 관리자에서 고치지 않는다 — 글은 코드, ERD · API 는 빌드 생성본 */
+    await expect(page.getByRole("button", { name: "ABOUT", exact: true }), "ABOUT 하위 탭은 없다").toHaveCount(0);
   });
 
   test("탭을 바꾸면 주소와 내용이 함께 바뀐다", async ({ page }) => {

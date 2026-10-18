@@ -32,6 +32,7 @@ import {
 } from "@/lib/ai/providers";
 import type { useAiHealth } from "./useAiHealth";
 import styles from "./AiHealthPanel.module.css";
+import Badge from "@/components/ui/Badge";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -139,15 +140,18 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
       <span className={styles.meta}>
         {/* 칸 폭은 가장 긴 배지에 맞춰 고정, 배지 배경은 글자에 맞게 */}
         <span className={styles.statusCell}>
-          <span className={styles.status} data-state={state}>
+          <Badge tone={state === "ok" ? "success" : state === "failing" ? "warning" : state === "off" ? "accent" : "neutral"} data-state={state}>
             {state === "off" ? th("stateOff")
               : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
               : state === "nokey" ? th("stateNoKey")
               : th("stateOk")}
-          </span>
+          </Badge>
         </span>
-        {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
-        <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
+        {/* 안내문(원인 · 사용량) 묶음 — 좁은 화면의 순서 줄에서는 배지와 떨어져 다음 줄 왼쪽에 선다(PriorityList) */}
+        <span className={styles.hint}>
+          {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
+          <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
+        </span>
       </span>
       <span className={styles.actions}>
         {/* ⏻ — 자동으로 꺼졌으면 강조색 사선(누르면 다시 켬). 아니면 이 기능에서 쓸지(초록 = 쓰는 중, 흐림 사선 = 뺌, 1번은 잠금).

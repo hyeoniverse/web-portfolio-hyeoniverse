@@ -58,6 +58,14 @@ export async function GET(request: Request) {
   const pinned = searchParams.get("pinned");
   const seriesId = searchParams.get("series_id");
   const author = searchParams.get("author"); // author id — author_ids 배열에 포함된 게시물만
+  // 날짜 — YYYY-MM-DD 하루(한국 시간 0시~다음 날 0시). 형식이 틀리면 무시한다
+  const dateParam = searchParams.get(QUERY_PARAM.date);
+  const dateRange = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && !Number.isNaN(Date.parse(`${dateParam}T00:00:00+09:00`))
+    ? {
+        from: new Date(`${dateParam}T00:00:00+09:00`).toISOString(),
+        to: new Date(Date.parse(`${dateParam}T00:00:00+09:00`) + 86_400_000).toISOString(),
+      }
+    : null;
 
   // 필터 술어를 한 곳에 모아 page 쿼리와 facet 집계 쿼리가 동일 조건을 공유.
   // (PostgREST 빌더는 mutable 이라 clone 불가 → 새 빌더마다 적용)
@@ -74,6 +82,7 @@ export async function GET(request: Request) {
     else if (pinned === "false") q = q.eq("is_pinned", false);
     if (seriesId) q = q.eq("series_id", seriesId);
     if (author) q = q.contains("author_ids", [author]); // PG 배열 포함(cs) — author_ids 에 이 저자 포함
+    if (dateRange) q = q.gte("created_at", dateRange.from).lt("created_at", dateRange.to);
     if (search) {
       const mode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
       const columns = searchType === "all"

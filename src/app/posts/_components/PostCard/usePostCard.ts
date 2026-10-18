@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -47,10 +48,10 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
     if (prefetchedRef.current) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current = true;
-    router.prefetch(`/posts/${post.slug}`);
+    router.prefetch(blogHref(`/posts/${post.slug}`));
   };
 
-  const href = `/posts/${post.slug}`;
+  const href = blogHref(`/posts/${post.slug}`);
   const coverImage = post.cover_image || "";
   /* 사이트가 다른 언어(ko · en 밖)로 걸려 있으면 제목 · 요약을 그 번역으로 — 같은 화면의 카드들은 한 요청으로 모인다.
      시리즈 접두("시리즈 #n - ")의 시리즈 이름은 원문 그대로 */

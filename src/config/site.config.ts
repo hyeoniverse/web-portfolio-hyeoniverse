@@ -150,12 +150,9 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   emailService: {
     provider: "formspree" as "web3forms" | "formspree" | "emailjs",
-    // 문의 폼은 방문자 브라우저가 고른 공급자로 바로 보낸다(lib/contactSend).
-    // 파일 첨부 — 받는지는 공급자 요금제에 달렸다:
-    // - Formspree: 유료 요금제에서만(무료 요금제는 파일 업로드 없음)
-    // - Web3Forms: 유료(Pro) 요금제에서만
-    // - EmailJS: 유료 요금제에서만(Personal 500KB · Professional 2MB · Business 30MB), 템플릿에 변수 첨부(이름 attachment)도 설정
-    // 첨부를 단 메일이 3번 이어 실패하면 첨부만 저절로 꺼진다(/api/contact/attachment)
+    // 문의 폼은 서버(/api/contact)가 입력 · reCAPTCHA 를 확인한 뒤 고른 공급자로 보낸다(lib/contactSend).
+    // 파일 첨부 — 공급자에 싣지 않고 비공개 버킷(contact-attachments)에 올린 뒤 7일짜리 내려받기 링크를 본문에 붙인다.
+    // 공급자 요금제와 상관없이 쓸 수 있다. 크기 · 형식 제한은 media.limits · blockedExtensions 를 따른다
     enableFileUpload: false,
   },
 
@@ -434,6 +431,14 @@ export const siteConfig = {
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
+    // 글 목록 위 고정글 배너 on/off — 끄면 제목 아래로 바로 목록이 온다(기본 끔 — 첫 글이 바로 보이게)
+    showBanner: false,
+    // 글 목록 위 시리즈 줄 on/off — 시리즈는 Series 탭에도 있어 기본은 끈다
+    showSeriesRow: false,
+    // 블로그 이름 — /posts 머리말의 큰 제목. 비우면 "Log"
+    blogTitle: "",
+    // TIL 페이지(/posts/til)에 모을 글의 태그 — 이 태그가 붙은 발행 글이 잔디에 심긴다
+    tilTag: "TIL",
     bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
     bannerStyle: "editorial" as
       | "editorial"
@@ -441,8 +446,8 @@ export const siteConfig = {
       | "cinematic"
       | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
-    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형)
-    layout: "magazine" as "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
+    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형) / blog(텍스트 우선 글 행) / journal(날짜가 먼저 보이는 고른 2열 카드)
+    layout: "magazine" as "journal" | "blog" | "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
     perPage: 10,
     adminPerPage: 20,
     // 기본 카테고리 — 성격/의도 기준 플랫 6개(배포용 기본값). 2단계 기능은 유지되며 '학습'만 소분류 사용.
@@ -1058,6 +1063,8 @@ export const siteConfig = {
     provider: "system" as "system" | "giscus",
     // 내장(시스템) 댓글 입력란 위치 (top = 리스트 위 / bottom = 리스트 아래, 기본)
     systemInputPosition: "bottom" as "top" | "bottom",
+    // 내장 댓글에 올리는 이미지 한 장의 최대 용량(MB) — 1 · 2 · 3 · 4 중 하나(lib/commentImages)
+    imageMaxMb: 2,
     giscus: {
       repo: "", // "owner/name" 형식
       repoId: "", // giscus.app 발급

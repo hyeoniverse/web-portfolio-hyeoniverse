@@ -17,6 +17,7 @@ import styles from "./EnvVarFields.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
+import Badge from "@/components/ui/Badge";
 
 /* env var 메타 — 발급 docs URL / value prefix (typo 감지용). 설명은 번역 키 admin.settings.envVarDesc.<키 이름>.
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
@@ -33,6 +34,8 @@ const ENV_VAR_META: Record<string, { docsUrl?: string; prefix?: string }> = {
   NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: { docsUrl: "https://dashboard.emailjs.com/admin/account" },
   // 보안
   NEXT_PUBLIC_RECAPTCHA_SITE_KEY: { docsUrl: "https://www.google.com/recaptcha/admin" },
+  RECAPTCHA_SECRET_KEY: { docsUrl: "https://www.google.com/recaptcha/admin" },
+  EMAILJS_PRIVATE_KEY: { docsUrl: "https://dashboard.emailjs.com/admin/account/security" },
   // AI / 번역
   NANOBANANA_API_KEY: { docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
   HUGGINGFACE_API_KEY: { docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
@@ -141,6 +144,7 @@ export default function EnvVarFields({
       { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID" },
       { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID" },
       { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key" },
+      { key: "EMAILJS_PRIVATE_KEY", label: "EmailJS Private Key" },
     ] : []),
   ].filter(Boolean) as FieldRow[];
 
@@ -153,7 +157,11 @@ export default function EnvVarFields({
   const groups: { id: string; rows: FieldRow[]; icon: LucideIcon }[] = [
     { id: "infra", rows: infraRows, icon: Database },
     { id: "email", rows: emailRows, icon: Mail },
-    { id: "security", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [], icon: Shield },
+    { id: "security", rows: recaptchaEnabled ? [
+      { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" },
+      /* 서버 검증(/api/contact) 비밀 키 — 없으면 reCAPTCHA 를 켠 문의 폼이 보내지지 않는다 */
+      { key: "RECAPTCHA_SECRET_KEY", label: "reCAPTCHA Secret Key" },
+    ] : [], icon: Shield },
     { id: "cover", rows: [
       ...toRows(coverProviders),
       { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" },
@@ -498,8 +506,9 @@ export default function EnvVarFields({
             {/* 칩은 모든 행에 — read-only 도 소스는 보여주고, 미설정이면 "누락".
                칩이 있다 없다 하면 행마다 슬롯 폭이 달라져 줄이 어긋나 보인다 */}
             {loaded && (
-              <span
-                className={styles.envSourceBadge}
+              /* 소스별 색 — env(성공), db · 선택(기본), 수정 중 · 누락(강조) */
+              <Badge
+                tone={sourceForBadge === "env" ? "success" : sourceForBadge === "edit" || (sourceForBadge === "none" && !optional) ? "accent" : "neutral"}
                 data-source={sourceForBadge === "none" && optional ? "optional" : sourceForBadge}
               >
                 {sourceForBadge === "env" && ".env"}
@@ -507,7 +516,7 @@ export default function EnvVarFields({
                 {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
                 {sourceForBadge === "none" &&
                   (optional ? t("admin.settings.envOptional") : t("admin.settings.envStatMissing"))}
-              </span>
+              </Badge>
             )}
             {isReadOnly && (
               <Tooltip content={t("admin.settings.envVarReadOnlyHint")} placement="top">

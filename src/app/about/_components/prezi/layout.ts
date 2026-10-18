@@ -42,15 +42,22 @@ const isTall = (vw: number, vh: number) => vw <= 640 && vh > vw;
     좁은 세로 화면은 소개 글이 화면 절반 가까이 차지해서, 잰 소개 글 아래 끝(introBottom)부터 쓴다 */
 export function mapBoxFor(vw: number, vh: number, introBottom = 0): MapBox {
   const tall = isTall(vw, vh);
-  const top = tall && introBottom ? introBottom + 16 : Math.min(vh * 0.2, 180);
+  /* 키 낮은 가로 화면 — 소개 글이 화면 높이를 거의 다 써서 지도와 겹쳤다. 글은 왼쪽 절반(Prezi.module.css .hubIntro),
+     지도는 오른쪽 절반에 두 열 배치로(가로 배치를 절반 폭에 줄이면 이름끼리 겹친다). 위는 네비게이션 아래 끝부터 */
+  const side = !tall && vw > 480 && vh <= 500;
+  const top = tall && introBottom ? introBottom + 16 : side ? 104 : Math.min(vh * 0.2, 180);
   /* 아래는 독 자리. 좁은 화면 첫 지도에서는 하늘 캡션(진짜 하늘 · 별 수)이 거기 뜨므로 더 비운다 */
-  const bottom = tall ? 130 : 90;
-  const availW = vw * 0.94, availH = vh - top - bottom;
-  const geo = tall ? mapTall(availH / availW) : MAP_WIDE;
+  const bottom = tall || side ? 130 : 90;
+  const left = side ? vw * 0.5 : vw * 0.03;
+  const availW = side ? vw * 0.47 : vw * 0.94, availH = vh - top - bottom;
+  const geo = tall ? mapTall(availH / availW) : side ? mapTall(availH / availW, 0.3) : MAP_WIDE;
   const scale = Math.max(0, Math.min(availW / geo.w, availH / geo.h));
   const w = geo.w * scale, h = geo.h * scale;
-  return { x: (vw - w) / 2, y: top + (availH - h) / 2, w, h, geo };
+  return { x: left + (availW - w) / 2, y: top + (availH - h) / 2, w, h, geo };
 }
+
+/** 좁은 화면에서 장 머리 제목 띠가 화면에 차지할 최소 높이(px) — 내비게이션 자리 + 네 줄 제목 + 안내 한두 줄 */
+const HEAD_MIN_PX = 340;
 
 export function layoutWorld(clusters: ClusterDef[], vw: number, vh: number, introBottom = 0): Layout {
   const map = mapBoxFor(vw, vh, introBottom);
@@ -67,11 +74,22 @@ export function layoutWorld(clusters: ClusterDef[], vw: number, vh: number, intr
     const gridH = rows * vh + (rows - 1) * gap;
     let gx = 0, gy = 0, cw = gridW, ch = gridH;
     if (c.head) {
-      const band = gridH * 0.55;
       const pad = gap;
-      const needW = gridW + pad * 2, needH = band + gridH + pad * 2;
-      const s = Math.max(needW / vw, needH / vh);
-      const hw = vw * s, hh = vh * s;
+      /* 좁은 화면 — 제목 띠가 화면에서 최소 HEAD_MIN_PX(화면 높이의 절반까지)는 되게 띠를 늘린다. 세로로 긴 화면은 판이 폭에
+         맞춰 정해져 띠 몫이 30% 남짓이었고, 네 줄짜리 장 제목이 넘쳐 내비게이션 위로 올라갔다 */
+      /* 높이 500px 이하(가로로 든 휴대폰)도 좁은 화면으로 친다. 이때는 화면 절반으로 제목이 안 들어가 띠가 넘치고,
+         넘친 제목이 장면 위로 내려와 장면 안에서 거대한 글자로 보였다 — 띠를 화면의 85% 까지 늘린다 */
+      const want = vw < 768 || vh <= 500 ? Math.min(vh <= 500 ? 0.85 : 0.5, HEAD_MIN_PX / vh) : 0;
+      let band = gridH * 0.55, s = 1, hh = vh, needH = 0;
+      for (let k = 0; k < 40; k++) {
+        const needW = gridW + pad * 2;
+        needH = band + gridH + pad * 2;
+        s = Math.max(needW / vw, needH / vh);
+        hh = vh * s;
+        if ((hh - pad - gridH - (hh - needH) / 2) / hh >= want) break;
+        band *= 1.1;
+      }
+      const hw = vw * s;
       gx = (hw - gridW) / 2;
       gy = hh - pad - gridH - (hh - needH) / 2;
       local.push({ id: `${c.id}-head`, cluster: c.id, kind: "head", x: 0, y: 0, s, headBand: gy / hh });

@@ -10,7 +10,7 @@ import PostsSkeletonCards from "./PostsSkeletonCards";
 import PostsGridItem from "./PostsGridItem";
 import styles from "./PostsGrid.module.css";
 
-export type PostsLayout = "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured";
+export type PostsLayout = "magazine" | "grid" | "list" | "compact" | "blog" | "journal" | "masonry" | "timeline" | "featured";
 
 /* 글 목록 그리드 — 레이아웃 변형 클래스(설정 posts.layout · 시리즈 · 타임라인), magazine 의 masonry row-span(useMasonryRowSpans),
    fetch 전 skeleton, 아이템(PostsGridItem). 타임라인의 [연월 인덱스 | 그리드] 2단은 aside 슬롯으로 받는다.
@@ -49,6 +49,8 @@ export default function PostsGrid({
     postsLayout === "grid" ? styles.gridUniform
       : postsLayout === "list" ? styles.gridList
         : postsLayout === "compact" ? styles.gridCompact
+          : postsLayout === "blog" ? styles.gridBlog
+            : postsLayout === "journal" ? styles.gridJournal
           : postsLayout === "masonry" ? styles.gridMasonry
             : postsLayout === "timeline" ? styles.gridTimeline
               : postsLayout === "featured" ? styles.gridFeatured
@@ -74,7 +76,7 @@ export default function PostsGrid({
             count={perPage}
             activeSeries={!!activeSeries}
             bento={postsLayout === "magazine"}
-            compactLayout={postsLayout === "compact"}
+            compactLayout={postsLayout === "compact" || postsLayout === "blog"}
           />
         ) : (
           posts.map((post, idx) => {

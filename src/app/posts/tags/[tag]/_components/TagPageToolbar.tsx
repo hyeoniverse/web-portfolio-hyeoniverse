@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { type RefObject } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -52,12 +53,12 @@ export default function TagPageToolbar({
         variant="ghost"
         className={styles.backBtn}
         icon={<ArrowLeft size={16} strokeWidth={1.8} />}
-        onClick={() => router.push("/posts/tags")}
+        onClick={() => router.push(blogHref("/posts/tags"))}
         title={t("postsPage.tagListBackTitle")}
       >
         {t("postsPage.tagListBack")}
       </Button>
-      <Link href="/posts/tags" className={styles.heroBadge} title={t("postsPage.viewAllTags")}>
+      <Link href={blogHref("/posts/tags")} className={styles.heroBadge} title={t("postsPage.viewAllTags")}>
         <Hash size={18} strokeWidth={1.8} />
         <span>TAG</span>
       </Link>

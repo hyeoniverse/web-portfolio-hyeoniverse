@@ -1,3 +1,4 @@
+import { blogHref } from "@/lib/siteHosts";
 import type { LocalizedText, Project } from "./projects";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 import type { Post } from "@/types/post";
@@ -110,7 +111,7 @@ export function toPostItems(source: Post[]): WorkItem[] {
       category: { ko: category, en: category },
       main: cover,
       hover: cover,
-      href: `/posts/${post.slug}`,
+      href: blogHref(`/posts/${post.slug}`),
       kind: "post",
     };
   });

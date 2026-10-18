@@ -531,7 +531,7 @@
 
 /* ── 넓은 화면 — 여백을 넓히고, 갤러리는 원래 비율(16:7)로 양옆 장을 더 보인다 ── */
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .panel {
     padding: var(--spacing-24);
   }

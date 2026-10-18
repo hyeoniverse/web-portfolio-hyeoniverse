@@ -1,9 +1,11 @@
+import { blogHref } from "@/lib/siteHosts";
 import { Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
+import { SITE_TIME_ZONE } from "@/constants";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import MediaThumb from "@/components/admin/MediaThumb";
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
@@ -48,7 +50,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       render: (post) =>
         post.published && post.slug ? (
           <a
-            href={`/posts/${post.slug}`}
+            href={blogHref(`/posts/${post.slug}`)}
             target="_blank"
             rel="noopener noreferrer"
             className={ts.viewBtn}
@@ -65,7 +67,9 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       key: "date",
       label: t("admin.posts.tableDate"),
       className: ts.colMeta,
-      render: (post) => new Date(post.created_at).toLocaleDateString(),
+      /* 언어 · 시간대를 고정한다 — 기본값(실행 환경)을 따르면 서버(UTC · en-US)와 브라우저(ko-KR)가 서로 다른 글자로 그려
+         하이드레이션이 깨졌다(8/7/2026 ↔ 2026. 8. 7.) */
+      render: (post) => new Date(post.created_at).toLocaleDateString("ko-KR", { timeZone: SITE_TIME_ZONE }),
       skeletonWidth: "80px",
     },
     {

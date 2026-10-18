@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
@@ -14,6 +15,7 @@ import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
 import PostCardLink from "./PostCardLink";
 import { HotBadge } from "./PostCardChips";
+import Badge from "@/components/ui/Badge";
 import styles from "./PostCard.module.css";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import Pressable from "@/components/ui/Pressable";
@@ -24,7 +26,7 @@ export interface PostCardVariantProps {
   /** 시리즈 필터링 등 — 카드 높이를 축소 (이미지 16:9 + body 슬림) */
   compact?: boolean;
   /** 목록 레이아웃 (설정) — compact 는 전용 렌더, 나머지는 표준 카드 + CSS */
-  layout?: "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured" | "series";
+  layout?: "magazine" | "grid" | "list" | "compact" | "blog" | "journal" | "masonry" | "timeline" | "featured" | "series";
   /** bento — 2-col span + ultra-wide(21:9) 이미지 */
   banner?: boolean;
   /** bento — 정사각 이미지(1:1) */
@@ -92,6 +94,16 @@ export default function PostCardStandard({
     return () => ro.disconnect();
   }, []);
 
+  /* 로그 스킨 — 커버에서 빼꼼 나오는 몽이. 처음 자리는 slug 로 정하고(서버 · 브라우저 같은 값),
+     카드에서 포인터가 나갈 때마다 다음에 나올 자리 · 방향 · 표정 · 기울기를 새로 뽑는다 */
+  const peekRef = useRef<HTMLDivElement>(null);
+  const peekStyle = peekVars(seedOf(post.slug || post.id));
+  const rerollPeek = () => {
+    const el = peekRef.current;
+    if (!el) return;
+    for (const [k, v] of Object.entries(peekVars(Math.random()))) el.style.setProperty(k, v);
+  };
+
   const cardClass = [
     styles.card,
     !showImage && styles.placeholderCard,
@@ -113,12 +125,13 @@ export default function PostCardStandard({
       className={cardClass}
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
+      onMouseLeave={rerollPeek}
       onFocus={handlePrefetch}
       data-more="true"
       data-clickable="true"
     >
       <PostCardLink {...cardLink} />
-      <div className={styles.imageWrap}>
+      <div ref={peekRef} className={styles.imageWrap} style={peekStyle}>
         {showImage ? (
           <ProgressiveImage
             src={post.cover_image}
@@ -148,15 +161,12 @@ export default function PostCardStandard({
                     <HotBadge />
                   )}
                   {post.is_pinned && (
-                    <span className={styles.pinnedOverlay}>
-                      <Pin size={10} />
-                      Pinned
-                    </span>
+                    <Badge variant="overlay" uppercase icon={<Pin size={10} />} className={styles.pinnedOverlay}>Pinned</Badge>
                   )}
                 </div>
               )}
               <div className={styles.placeholderText}>
-                {/* 카테고리는 placeholder 썸네일에 넣지 않음 — 아래 body 의 badgeRow 에 항상 표시 */}
+                {/* 카테고리는 placeholder 썸네일에 넣지 않음 — 아래 body 의 날짜 줄(dateLine)에 항상 표시 */}
                 <h2 className={styles.placeholderTitle}><HighlightedText text={displayTitle} /></h2>
                 {displayExcerpt && (
                   <p className={styles.placeholderExcerpt}><HighlightedText text={displayExcerpt} /></p>
@@ -172,16 +182,13 @@ export default function PostCardStandard({
               <HotBadge />
             )}
             {post.is_pinned && (
-              <span className={styles.pinnedOverlay}>
-                <Pin size={10} />
-                Pinned
-              </span>
+              <Badge variant="overlay" uppercase icon={<Pin size={10} />} className={styles.pinnedOverlay}>Pinned</Badge>
             )}
           </div>
         )}
         {/* lang — 커버/placeholder 무관 imageWrap 우상단 고정 (hot·pinned 유무 상관없이) */}
         {langBadge && (
-          <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
+          <Badge variant="overlay" uppercase className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></Badge>
         )}
         {/* 페이지 이모지 — 커버 좌하단에 겹쳐(Notion·디테일 페이지와 동일 감성) */}
         {showImage && icon && (
@@ -190,12 +197,13 @@ export default function PostCardStandard({
       </div>
 
       <div className={styles.body}>
-        {/* category — cover/placeholder 무관 항상 body 에 표시. lang 은 이미지 위로 이동 */}
-        {category && (
-          <div className={styles.badgeRow}>
-            <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
-          </div>
-        )}
+        {/* 날짜 줄 — 블로그처럼 언제 쓴 글인지를 제목보다 먼저. 카테고리는 같은 줄 오른쪽(cover/placeholder 무관) */}
+        <div className={styles.dateLine}>
+          <time dateTime={post.created_at} className={styles.dateLineDate}>{date}</time>
+          <span aria-hidden>&middot;</span>
+          <span>{readTime} {t("postDetail.minRead")}</span>
+          {category && <span className={styles.dateLineCat}><CategoryLabel category={category} /></span>}
+        </div>
 
         {/* 제목 — 커버 카드는 항상 body. list 레이아웃 placeholder 도 body 로(작은 썸네일에 제목/칩 겹침 방지) */}
         {(showImage || layout === "list") && (
@@ -210,7 +218,7 @@ export default function PostCardStandard({
             {post.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/posts/tags/${encodeURIComponent(tag)}`}
+                href={blogHref(`/posts/tags/${encodeURIComponent(tag)}`)}
                 className={styles.tagPill}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -232,11 +240,6 @@ export default function PostCardStandard({
         <div ref={metaRef} className={styles.meta} data-meta-wrapped={metaWrapped || undefined}>
           {author && <span className={styles.metaGroup}><PostCardAuthor author={author} /></span>}
           <span className={styles.metaGroup}>
-            <span>{date}</span>
-            <span className={styles.dot}>&middot;</span>
-            <span>{readTime} {t("postDetail.minRead")}</span>
-          </span>
-          <span className={styles.metaGroup}>
             <span className={styles.metaItem}>
               <Eye size={11} strokeWidth={1.75} />
               {post.view_count ?? 0} {t("postDetail.views")}
@@ -251,4 +254,27 @@ export default function PostCardStandard({
       </div>
     </div>
   );
+}
+
+const PEEK_POSES = ["happy-front", "normal-front", "surprised-front", "heart-front", "wave-front", "sleep-front"];
+
+/** 0 … 1 사이 씨앗 — 같은 글이면 서버 · 브라우저가 같은 값 */
+function seedOf(text: string) {
+  let h = 2166136261;
+  for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return (h >>> 0) / 4294967296;
+}
+
+/** 빼꼼 몽이의 자리 — 위 · 아래 가장자리, 가로 위치, 표정, 기울기를 CSS 변수로 */
+function peekVars(seed: number): Record<string, string> {
+  const pick = (n: number, k: number) => Math.floor(((seed * 9301 * (k + 1) + 49297 * k) % 1) * n);
+  const fromTop = pick(3, 1) === 0; // 셋 중 하나는 위에서 거꾸로
+  return {
+    "--peek-x": `${8 + pick(70, 2)}%`,
+    "--peek-img": `url("/images/mascot/bunny-${PEEK_POSES[pick(PEEK_POSES.length, 3)]}.png")`,
+    "--peek-tilt": `${pick(25, 4) - 12}deg`,
+    "--peek-flip": fromTop ? "180deg" : "0deg",
+    "--peek-top": fromTop ? "0%" : "auto",
+    "--peek-bottom": fromTop ? "auto" : "0%",
+  };
 }

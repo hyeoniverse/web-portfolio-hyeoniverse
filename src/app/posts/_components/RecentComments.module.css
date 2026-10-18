@@ -66,13 +66,6 @@
   color: var(--text-primary);
 }
 
-.adminBadge {
-  padding: var(--badge-padding-sm);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-solid);
-  font: var(--font-label-xs);
-  color: var(--text-on-accent);
-}
 
 .time {
   font: var(--font-body-xs);

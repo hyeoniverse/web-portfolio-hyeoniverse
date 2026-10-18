@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -11,6 +12,7 @@ import CategoryLabel from "@/components/ui/CategoryLabel";
 import T from "@/components/ui/T";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./BannerSlide.module.css";
+import Badge from "@/components/ui/Badge";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
 
@@ -41,11 +43,11 @@ export default function BannerSlide({
     if (prefetchedRef.current) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current = true;
-    router.prefetch(`/posts/${post.slug}`);
+    router.prefetch(blogHref(`/posts/${post.slug}`));
   };
   // 슬라이드 전체가 글 링크다 — 그냥 누르면 커버가 커지는 연출로, 새 탭 클릭은 브라우저가 연다(#933)
   const linkProps = {
-    href: `/posts/${post.slug}`,
+    href: blogHref(`/posts/${post.slug}`),
     image: post.cover_image || "",
     onMouseEnter: handlePrefetch,
     onFocus: handlePrefetch,
@@ -112,7 +114,7 @@ export default function BannerSlide({
           {(post.category || showLangHint) && (
             <span className={styles.badgeRow}>
               {post.category && (
-                <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
+                <Badge variant="outline" tone="white" size="md" uppercase className={styles.categoryBadge}><CategoryLabel category={post.category} /></Badge>
               )}
               {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
               {showLangHint && (

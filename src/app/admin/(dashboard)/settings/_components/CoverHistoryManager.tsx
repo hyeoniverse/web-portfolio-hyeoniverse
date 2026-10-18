@@ -12,7 +12,6 @@ import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
 import TransitionLink from "@/components/ui/TransitionLink";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { tryRequest } from "@/lib/sendAction";
 import settings from "../Settings.module.css";
@@ -20,6 +19,7 @@ import lib from "./Library.module.css";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import LibraryHead from "./LibraryHead";
+import { GallerySkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type Ref = { id: string; title: string; slug: string };
@@ -77,7 +77,7 @@ export default function CoverHistoryManager() {
           hint={t("admin.inline.coverHistoryManager.hint")}
         />
         {items === null ? (
-          <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
+          <GallerySkeleton />
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{t("admin.inline.coverHistoryManager.empty")}</EmptyState>
         ) : (

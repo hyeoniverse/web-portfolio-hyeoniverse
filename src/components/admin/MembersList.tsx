@@ -15,6 +15,7 @@ import MemberDetailModal from "@/app/admin/(dashboard)/settings/_components/Memb
 import styles from "./MembersList.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import Badge from "@/components/ui/Badge";
 
 interface Props {
   /** 표시할 최대 멤버 수 — 초과 시 "외 N명" + 설정 링크. (대시보드 compact 용) */
@@ -146,9 +147,9 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
               <div className={styles.info}>
                 <div className={styles.nameRow}>
                   <span className={styles.name}>{iv.email}</span>
-                  <span className={`${styles.role} ${styles.rolePendingBadge}`}>
+                  <Badge>
                     {t("admin.inline.membersList.invitedPending")}
-                  </span>
+                  </Badge>
                 </div>
                 <div className={styles.meta}>
                   <span className={styles.since}>

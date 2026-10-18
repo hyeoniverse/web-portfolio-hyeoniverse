@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -28,7 +29,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
   };
 
   const renderItem = (rp: RecommendedPost) => (
-    <TransitionLink key={rp.id} href={`/posts/${rp.slug}`} image={rp.cover_image || ""} className={styles.recommendedItem}>
+    <TransitionLink key={rp.id} href={blogHref(`/posts/${rp.slug}`)} image={rp.cover_image || ""} className={styles.recommendedItem}>
       <div className={styles.recommendedItemThumb}>
         {rp.cover_image ? (
           <MediaThumb src={rp.cover_image} fill sizes="64px" className={styles.recommendedItemImg} />

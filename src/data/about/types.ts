@@ -90,15 +90,6 @@ export interface TechStackItem {
   icon?: string;
 }
 
-export interface DesignConceptItem {
-  id: string;
-  title: string;
-  subtitle: LocalizedText;
-  description: LocalizedText;
-  image?: string;
-  examples?: string[];
-}
-
 interface DbColumn {
   name: string;
   type: string;

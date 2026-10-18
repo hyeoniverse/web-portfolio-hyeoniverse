@@ -340,16 +340,6 @@
   white-space: nowrap;
 }
 
-.statusDraft {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-control);
-  background: var(--bg-warning-soft);
-  color: var(--text-warning);
-  font: var(--font-label-xs);
-  flex-shrink: 0;
-}
 
 /* 글 번호 (인덱스) — 옵션/칩 둘 다 좌측에 # 1, # 2 형태로 표시 */
 .optionIndex,

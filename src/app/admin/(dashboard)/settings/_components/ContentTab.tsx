@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import dynamic from "next/dynamic";
+import { useState, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import type { LocalizedText } from "@/types/common";
 import { X, Trash2, ChevronDown } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
@@ -34,17 +32,11 @@ import { RESUME_MAX_MB } from "@/lib/adminUpload";
 import { fillTemplate } from "@/utils/format";
 import { tryRequest, notifyFailures } from "@/lib/sendAction";
 import { CodedError } from "@/lib/apiError";
-import type { TechItem } from "./AboutTechStackEditor";
 import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
 import Pressable from "@/components/ui/Pressable";
-import SettingsSkeleton from "./SettingsSkeleton";
 
-/* 하위 탭의 무거운 편집기는 그 하위 탭을 열 때 받는다. About 스튜디오는 코드 편집기(CodeMirror·Sandpack)·
-   ERD 캔버스(xyflow)·About 원본 데이터를 싣는다. (달력 관리는 라이브러리 탭으로 옮겼다) */
-const AboutStudio = dynamic(() => import("./about/AboutStudio"), { loading: () => <SettingsSkeleton /> });
-const AboutTechStackEditor = dynamic(() => import("./AboutTechStackEditor"));
 const styles = { ...shared, ...local };
 
 interface ContentTabProps extends SettingsTabProps {
@@ -53,7 +45,7 @@ interface ContentTabProps extends SettingsTabProps {
   profileExpanded: ProfileExpandState;
   setProfileExpanded: Dispatch<SetStateAction<ProfileExpandState>>;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
-  contentSubTab: "home" | "profile" | "about" | "works" | "posts";
+  contentSubTab: "home" | "profile" | "works" | "posts";
 }
 
 /** en/ko 한 쌍의 Field(같은 label, langBadge 만 다름) — fieldPair 레이아웃 + Field ×2. */
@@ -88,28 +80,8 @@ export default function ContentTab({
   contentSubTab,
 }: ContentTabProps) {
   const { t } = useLanguage();
-  const { theme } = useTheme();
 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: styles.sectionTitle };
-
-  /* Hero 배경 color picker 빈 값 fallback — 실제 패널 표면색 (테마 변수) 를 표시. */
-  const [themeBg, setThemeBg] = useState<{ primary: string; secondary: string; accent: string }>({ primary: "#ffffff", secondary: "#f5f5f5", accent: "#d01046" });
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    /* 역할 토큰은 light-dark() 를 담고 있어 사용자 속성을 그대로 읽으면 풀리지 않은 식이 나온다 —
-       요소에 색으로 입혀 지금 테마에서 풀린 값을 읽는다 */
-    const probe = document.createElement("span");
-    document.body.append(probe);
-    const resolve = (token: string, fallback: string) => {
-      probe.style.color = `var(${token})`;
-      return getComputedStyle(probe).color || fallback;
-    };
-    const primary = resolve("--bg-primary", "#ffffff");
-    const secondary = resolve("--bg-secondary", "#f5f5f5");
-    const accent = resolve("--bg-accent-solid", "#d01046");
-    probe.remove();
-    setThemeBg({ primary, secondary, accent });
-  }, [theme]);
 
   /* 태그 deferred 삭제 — pending list. UI 에선 즉시 숨김, 섹션 저장 클릭 시 일괄 API 처리 */
   const [tagPendingDeletes, setTagPendingDeletes] = useState<Set<string>>(new Set());
@@ -425,7 +397,25 @@ export default function ContentTab({
         <>
           {/* Banner Settings — 전폭 얇은 바(셀렉트 3개 한 줄) */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
+            <SectionHeader
+              title={t("admin.settings.banner")}
+              paths={["posts.showBanner", "posts.showSeriesRow", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
+              extra={
+                <>
+                  <Switch
+                    label={t("admin.settings.showBanner")}
+                    checked={config.posts.showBanner === true}
+                    onCheckedChange={(v) => update("posts", "showBanner", v)}
+                  />
+                  <Switch
+                    label={t("admin.settings.showSeriesRow")}
+                    checked={config.posts.showSeriesRow === true}
+                    onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
+                  />
+                </>
+              }
+              {...sh}
+            />
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <FieldRow label={<T k="admin.settings.bannerLayout" />}>
                 <Select
@@ -464,6 +454,19 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 블로그 이름 — /posts 머리말의 큰 제목 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
+            <SectionHeader title={t("admin.settings.blogTitle")} paths={["posts.blogTitle"]} {...sh} />
+            <div className={styles.fields}>
+              <Field
+                label={t("admin.settings.blogTitle")}
+                value={config.posts.blogTitle ?? ""}
+                onChange={(v) => update("posts", "blogTitle", v)}
+                placeholder="Log"
+              />
+            </div>
+          </section>
+
           {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />
@@ -472,6 +475,8 @@ export default function ContentTab({
                 <Select
                   value={config.posts.layout ?? "magazine"}
                   options={[
+                    { value: "journal", label: t("admin.inline.contentTab.journalCards") },
+                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
                     { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
                     { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
                     { value: "list", label: t("admin.inline.contentTab.listRows") },
@@ -778,27 +783,6 @@ export default function ContentTab({
         </>
       )}
 
-      {contentSubTab === "about" && (
-        <AboutStudio
-          config={config}
-          setConfig={setConfig}
-          update={update}
-          savedConfig={savedConfig}
-          saveSection={saveSection}
-          revertSection={revertSection}
-          resetSection={resetSection}
-          savingPaths={savingPaths}
-          t={t}
-          themeBg={themeBg}
-          techStackSlot={
-            <AboutTechStackEditor
-              items={(config.about.techStack ?? []) as TechItem[]}
-              onChange={(v) => update("about", "techStack", v as SiteConfigData["about"]["techStack"])}
-              t={t}
-            />
-          }
-        />
-      )}
     </>
   );
 }

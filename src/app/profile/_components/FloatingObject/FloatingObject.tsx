@@ -56,6 +56,8 @@ export default function FloatingObject() {
   const bubbleFillRef = useRef<HTMLDivElement>(null);
   /** 마지막으로 넘긴 꼬리 어긋남. 매 프레임 같은 값을 다시 쓰면 스타일 재계산만 늘어난다. */
   const tailDxRef = useRef("");
+  /** 내비게이션 높이(px) — 말풍선 위쪽 한계. 아직 안 읽었으면 -1 */
+  const headerPxRef = useRef(-1);
   const rafId = useRef(0);
 
   const [bubbleText, setBubbleText] = useState("");
@@ -175,7 +177,18 @@ export default function FloatingObject() {
       const rawLeft = screenPosRef.current.x - w / 2;
       const boxLeft = Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft));
       const lift = BUBBLE_OFFSET_Y * Math.max(1, screenPosRef.current.s ?? 1);
-      const move = `translate(${Math.round(boxLeft)}px, ${Math.round(screenPosRef.current.y + lift - h)}px)`;
+      /* 위쪽도 화면 끝(내비게이션 아래)에서 멈춘다 — 좁은 화면에서 몽이가 위쪽에 있으면 말풍선이 내비게이션 밑으로 들어갔다.
+         내비게이션 아래 끝(높이 + 위 띄움)은 한 번 재어 둔다(px). 위 띄움(--spacing-nav-top)은 min() 식이라 변수 값을
+         그대로 읽으면 숫자가 아니어서, 그 높이의 빈 상자를 잠깐 그려 잰다 */
+      if (headerPxRef.current < 0) {
+        const probe = document.createElement("div");
+        probe.style.cssText = "position:absolute;visibility:hidden;height:calc(var(--header-height) + var(--spacing-nav-top))";
+        document.body.appendChild(probe);
+        headerPxRef.current = probe.offsetHeight;
+        probe.remove();
+      }
+      const boxTop = Math.max(headerPxRef.current, screenPosRef.current.y + lift - h);
+      const move = `translate(${Math.round(boxLeft)}px, ${Math.round(boxTop)}px)`;
       el.style.transform = move;
       /* 흐림판·글자·외곽선 층은 껍데기와 같은 자리다. 정확히 겹쳐야 한 덩어리로 보인다. */
       for (const layer of [bubbleFillRef.current, bubbleTextRef.current, bubbleBorderRef.current]) {

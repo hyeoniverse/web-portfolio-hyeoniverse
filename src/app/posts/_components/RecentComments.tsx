@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect } from "react";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -7,6 +8,7 @@ import { MessageSquare } from "@/components/icons";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
 import { stripMarkdown } from "@/utils/stripMarkdown";
+import Badge from "@/components/ui/Badge";
 
 interface RecentComment {
   id: string;
@@ -54,11 +56,11 @@ export default function RecentComments() {
       ) : (
         <div className={styles.list}>
           {comments.map((c) => (
-            <TransitionLink key={c.id} href={`/posts/${c.post_slug}`} className={styles.item}>
+            <TransitionLink key={c.id} href={blogHref(`/posts/${c.post_slug}`)} className={styles.item}>
               <div className={styles.itemTop}>
                 <span className={styles.nickname}>
                   {c.nickname}
-                  {c.is_admin && <span className={styles.adminBadge}>Admin</span>}
+                  {c.is_admin && <Badge tone="accent">Admin</Badge>}
                 </span>
                 <span className={styles.time}>{timeAgo(c.created_at, t)}</span>
               </div>

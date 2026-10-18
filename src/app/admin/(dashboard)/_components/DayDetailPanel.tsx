@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import shared from "../Dashboard.module.css";
 import local from "./DayDetailPanel.module.css";
 
@@ -14,6 +15,7 @@ import CloseButton from "@/components/ui/CloseButton";
 import { type TFunction } from "@/providers/LanguageProvider";
 import Link from "next/link";
 import { fillTemplate } from "@/utils/format";
+import Badge from "@/components/ui/Badge";
 type DayTopPost = { id: string; title: string; slug: string; views: number };
 
 /** 선택된 날짜의 분석 패널 — 순위, 평균 대비, 같은 요일 대비, 전일 대비, 그날 인기 게시물 */
@@ -250,7 +252,7 @@ function DayDetailPanel({
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <Link
-                    href={`/posts/${p.slug}`}
+                    href={blogHref(`/posts/${p.slug}`)}
                     className={styles.itemTitle}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -281,20 +283,15 @@ function DiffBadge({
 }: {
   diff: { pct: number; dir: "up" | "down" | "flat" };
 }) {
-  const cls =
-    diff.dir === "up"
-      ? styles.trendUp
-      : diff.dir === "down"
-        ? styles.trendDown
-        : styles.trendFlat;
+  const tone = diff.dir === "up" ? "success" : diff.dir === "down" ? "accent" : "neutral";
   const sign = diff.dir === "up" ? "+" : diff.dir === "down" ? "" : "±";
   return (
-    <span className={`${styles.trendBadge} ${cls}`}>
+    <Badge tone={tone} className={styles.trendBadge}>
       {diff.dir === "up" && <TrendingUp size={11} strokeWidth={2.5} />}
       {diff.dir === "down" && <TrendingDown size={11} strokeWidth={2.5} />}
       {sign}
       {diff.pct}%
-    </span>
+    </Badge>
   );
 }
 

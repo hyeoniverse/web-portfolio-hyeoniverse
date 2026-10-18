@@ -27,7 +27,8 @@
   /* 좁은 화면은 화면 폭에 맞춰 줄이고, 480 초과(아래 media)에서 고정 값으로 */
   --bubble-blur: 5vw;
   --bubble-lh: 1.6;
-  --bubble-fs: 2.6vw;
+  /* 화면 폭에 비례하되 12px(가장 작은 글자 역할) 밑으로는 줄이지 않는다 — 390px 화면에서 10px 로 내려갔다 */
+  --bubble-fs: max(var(--font-size-body-xs), 2.6vw);
   --bubble-py: 1.7vw;
   --bubble-px: 4.2vw;
   --bubble-h: calc(var(--bubble-fs) * var(--bubble-lh) + var(--bubble-py) * 2 + 2px);

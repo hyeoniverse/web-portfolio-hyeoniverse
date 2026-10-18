@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { sendContact, type ContactProvider } from "@/lib/contactSend";
+import { createClient } from "@/lib/supabase/client";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -9,6 +9,29 @@ import { EMAIL_RE } from "@/utils/commentValidation";
 import { validateFileSize } from "@/lib/compressImage";
 import { errorText } from "@/lib/apiError";
 import { useLanguage } from "@/providers/LanguageProvider";
+
+/** 문의 첨부 올리기 — 서명 URL 발급(/api/contact/upload) → 비공개 버킷에 바로 업로드 */
+async function uploadContactAttachment(
+  file: File,
+  recaptchaToken: string | undefined,
+): Promise<{ ok: true; path: string; ticket?: string } | { ok: false; reason: string }> {
+  try {
+    const res = await fetch("/api/contact/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName: file.name, size: file.size, recaptchaToken }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; reason?: string; bucket?: string; path?: string; token?: string; ticket?: string };
+    if (!data.ok || !data.path || !data.token || !data.bucket) return { ok: false, reason: data.reason ?? "network" };
+    const { error } = await createClient().storage
+      .from(data.bucket)
+      .uploadToSignedUrl(data.path, data.token, file, { contentType: file.type || "application/octet-stream" });
+    if (error) return { ok: false, reason: "storage" };
+    return { ok: true, path: data.path, ticket: data.ticket };
+  } catch {
+    return { ok: false, reason: "network" };
+  }
+}
 
 interface SubmittedData {
   name: string;
@@ -64,8 +87,7 @@ interface UseContactFormReturn {
 }
 
 export function useContactForm(): UseContactFormReturn {
-  /* 설정 › 서비스 › 이메일 서비스에서 고른 공급자로 보낸다(lib/contactSend). 예전에는 Formspree 폼 ID 를 여기 박아 두어
-     공급자를 바꿔도 Formspree 로만 갔다 */
+  /* 서버(/api/contact)로 보내면 서버가 입력 · reCAPTCHA 를 확인하고 설정의 공급자로 넘긴다(lib/contactSend) */
   const [formState, setFormState] = useState<ContactFormState>({ submitting: false, succeeded: false });
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -95,8 +117,14 @@ export function useContactForm(): UseContactFormReturn {
   const recaptchaVersion = cfg.recaptcha.version as "v2" | "v3";
   const { executeRecaptcha } = useRecaptcha();
 
-  const provider = (cfg.emailService?.provider ?? "formspree") as ContactProvider;
-  const publicKeys = cfg.publicKeys;
+  /* 서버가 돌려준 실패 사유 → 안내. 설정 문제(not_configured)는 방문자가 고칠 수 없어 일반 문구로 */
+  const showContactFailure = useCallback((reason?: string) => {
+    if (reason === "network") showToastRef.current(t("contact.validation.networkError"), "error");
+    else if (reason === "captcha") showFormToastRef.current(t("contact.validation.captchaFailed"));
+    else if (reason === "rate_limited") showFormToastRef.current(t("contact.validation.rateLimited"));
+    else if (reason === "too_large" || reason === "type") showFormToastRef.current(t("contact.validation.attachmentRejected"));
+    else showFormToastRef.current(t("contact.validation.sendFailed"));
+  }, [t]);
 
   const onShowFormToast = useCallback(
     (callback: (message: string, type?: "error" | "success") => void) => {
@@ -199,55 +227,52 @@ export function useContactForm(): UseContactFormReturn {
           fileName,
         });
 
-        if (recaptchaEnabled) {
-          if (recaptchaVersion === "v3" && executeRecaptcha) {
-            const token = await executeRecaptcha("contact_form");
-            formData.append("g-recaptcha-response", token);
-          } else if (recaptchaVersion === "v2" && recaptchaToken) {
-            formData.append("g-recaptcha-response", recaptchaToken);
-          }
-        }
-
-        /* 파일을 고르지 않았으면 빈 파일 칸을 빼고 보낸다 — 빈 칸도 첨부로 치는 공급자가 있다 */
-        const withAttachment = !!attachedFile;
-        if (!withAttachment) formData.delete("attachment");
-
         setFormState({ submitting: true, succeeded: false });
-        const result = await sendContact(provider, {
-          ...publicKeys,
-          /* 빌드 때 넣은 환경 변수도 받는다 — 설정 화면에 저장한 값이 없을 때 */
-          NEXT_PUBLIC_FORMSPREE_ID: publicKeys.NEXT_PUBLIC_FORMSPREE_ID || process.env.NEXT_PUBLIC_FORMSPREE_ID,
-          NEXT_PUBLIC_WEB3FORMS_KEY: publicKeys.NEXT_PUBLIC_WEB3FORMS_KEY || process.env.NEXT_PUBLIC_WEB3FORMS_KEY,
-          NEXT_PUBLIC_EMAILJS_SERVICE_ID: publicKeys.NEXT_PUBLIC_EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: publicKeys.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: publicKeys.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-        }, formData);
-        setFormState({ submitting: false, succeeded: result.ok });
 
-        /* 첨부를 단 전송의 결과를 알린다 — 이어 실패하면 첨부만 저절로 꺼진다(/api/contact/attachment).
-           연결 실패·설정 없음은 첨부 탓이 아니라 세지 않는다. 기다리지 않는다 */
-        if (withAttachment && (result.ok || result.reason === "rejected")) {
-          void fetch("/api/contact/attachment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ok: result.ok, reason: result.ok ? undefined : result.detail }),
-          }).catch(() => {});
+        /* reCAPTCHA 토큰 — 서버가 Google 에 한 번 확인한다(/api/contact). 토큰은 한 번만 확인할 수 있어서,
+           첨부가 있으면 첨부를 올릴 때 확인하고 그때 받은 티켓을 보내기에 대신 싣는다 */
+        let recaptcha: string | undefined;
+        if (recaptchaEnabled) {
+          if (recaptchaVersion === "v3" && executeRecaptcha) recaptcha = await executeRecaptcha("contact_form");
+          else if (recaptchaVersion === "v2" && recaptchaToken) recaptcha = recaptchaToken;
         }
+
+        /* 첨부 — 서명 URL 을 받아 비공개 버킷에 바로 올린다. 메일에는 서버가 만든 내려받기 링크가 붙는다 */
+        let attachment: { path: string; name: string; ticket?: string } | undefined;
+        if (attachedFile) {
+          const up = await uploadContactAttachment(attachedFile, recaptcha);
+          if (!up.ok) {
+            setFormState({ submitting: false, succeeded: false });
+            showContactFailure(up.reason);
+            return;
+          }
+          attachment = { path: up.path, name: attachedFile.name, ticket: up.ticket };
+        }
+
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            title: title?.trim() || "",
+            message: message.trim(),
+            recaptchaToken: attachment?.ticket ? undefined : recaptcha,
+            attachment,
+          }),
+        });
+        const result = (await res.json().catch(() => ({ ok: false, reason: "network" }))) as { ok: boolean; reason?: string };
+        setFormState({ submitting: false, succeeded: result.ok });
 
         if (result.ok) {
           showFormToastRef.current(t("contact.validation.sent"), "success");
           setRecaptchaToken(null);
           recaptchaRef.current?.reset();
-        } else if (result.reason === "network") {
-          showToastRef.current(t("contact.validation.networkError"), "error");
-        } else if (result.reason === "not_configured") {
-          console.error(`Contact form: ${provider} keys are not configured`);
-          showFormToastRef.current(t("contact.validation.sendFailed"));
         } else {
-          /* 공급자가 돌려준 사유는 영어 한 언어고 방문자가 고칠 수 있는 것도 아니라 콘솔에 남긴다(#862).
-             첨부를 달았으면 파일 없이 다시 보내 보라고 알린다 — 첨부 때문에 막혔을 수 있다 */
-          if (result.detail) console.error(`${provider} rejected the message:`, result.detail);
-          showFormToastRef.current(t(withAttachment ? "contact.validation.sendFailedAttachment" : "contact.validation.sendFailed"));
+          showContactFailure(result.reason);
+          // v2 체크박스 토큰은 한 번 쓰면 끝이라 다시 체크하게 한다
+          setRecaptchaToken(null);
+          recaptchaRef.current?.reset();
         }
       } catch (error) {
         console.error("Form submission error:", error);
@@ -256,8 +281,7 @@ export function useContactForm(): UseContactFormReturn {
       }
     },
     [
-      provider,
-      publicKeys,
+      showContactFailure,
       privacyAccepted,
       recaptchaToken,
       recaptchaEnabled,

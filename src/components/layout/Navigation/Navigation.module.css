@@ -92,8 +92,6 @@
 
 .adminBadgeFixed {
   pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
 
@@ -105,15 +103,17 @@
 
 
 .adminBadge {
-  font: var(--font-label-xs);
+  /* 모양은 Badge(outline · white). 네비 글꼴과 흐린 농도만 — blend 는 부모(.logoNavBar)가 처리 */
+  /* 좁은 화면은 감춘다 — 로고 · 메뉴 단추 사이 자리가 모자라다 */
+  display: none;
   font-family: var(--font-family-nav);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-white);
-  border: var(--border-white);
-  border-radius: var(--radius-control);
-  padding: var(--badge-padding-md);
   opacity: 0.6;
+}
+
+@media (width > 768px) {
+  .adminBadge {
+    display: inline-flex;
+  }
 }
 
 /* difference 를 끈 로고 — 흰색 고정은 blend 반전 전제라 라이트 배경에서 안 보인다.
@@ -335,7 +335,8 @@
   text-decoration: none;
 }
 
-/* Sliding indicator — ►◀︎ markers positioned inside .navCenter */
+/* Sliding indicator — ►◀︎ markers positioned inside .navCenter.
+   글자(▶ ◀)로 그리면 글꼴에 따라 ◀ 이 더 작게 나와, 같은 크기의 삼각형(clip-path)으로 그린다 */
 .navIndicator {
   position: absolute;
   top: 50%;
@@ -353,23 +354,27 @@
 }
 
 .navIndicator::before {
-  content: "▶\fe0e";
+  content: "";
   position: absolute;
   right: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(-3px);
-  font-size: var(--font-size-dot);
-  color: var(--text-white);
+  width: calc(var(--font-size-dot) * 0.9);
+  height: var(--font-size-dot);
+  background: var(--text-white);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .navIndicator::after {
-  content: "◀\fe0e";
+  content: "";
   position: absolute;
   left: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(3px);
-  font-size: var(--font-size-dot);
-  color: var(--text-white);
+  width: calc(var(--font-size-dot) * 0.9);
+  height: var(--font-size-dot);
+  background: var(--text-white);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
 }
 
 /* (0,2,1) 로 ::before / ::after transform transition 도 글로벌 이김 */
@@ -518,6 +523,39 @@
    강조색이 된다. 아이콘 크기는 ContentLangMenu 가 정한다(14) */
 .siteLangBtn {
   gap: var(--spacing-4);
+}
+
+/* 내비게이션의 🌐 자리 — 좁은 화면은 KO/EN 만 두고 감춘다(메뉴 서랍 좌상단으로 옮긴다). 넓은 화면은 자리를 만들지 않는 껍데기 */
+.navSiteLang {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navSiteLang {
+    display: contents;
+  }
+}
+
+/* 로그아웃 — 좁은 화면은 감춘다. 메뉴 서랍 꼬리에 늘 있다 */
+.navLogout {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navLogout {
+    display: contents;
+  }
+}
+
+/* 관리 화면으로(⚙) — 좁은 화면은 감춘다. 메뉴 서랍에 Admin 링크가 있다 */
+.navAdminLink {
+  display: none;
+}
+
+@media (width > 768px) {
+  .navAdminLink {
+    display: contents;
+  }
 }
 
 .siteLangBtn:hover {
@@ -892,14 +930,37 @@
 /* Header: 풀로고 가운데 정렬. sticky 로 스크롤 시 상단 고정 —
    뒤로 지나가는 링크를 가리려 드로어와 같은 배경을 깐다. */
 .menuHeader {
+  /* 첫 줄 = 네비 단추 줄 — 위에서 nav-top, 높이는 네비 단추(actionBtn)와 같다. 로고 · 좌상단 🌐 · 닫기 단추(네비)가
+     한 줄에 같은 세로 중심으로 선다. 아래 여백은 메뉴 목록과의 간격 */
+  --_row: var(--size-40);
+
   position: sticky;
   top: 0;
   z-index: 1;
+  /* 서랍은 세로 flex — 메뉴가 길어 넘치면(관리 화면) 머리가 눌려 첫 줄이 낮아지고 로고가 단추들보다 위로 떴다 */
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: calc(var(--spacing-nav-top) + var(--_row) + var(--spacing-40));
   background: var(--_menu-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-40) var(--spacing-32);
+  padding: var(--spacing-nav-top) var(--spacing-32) var(--spacing-40);
+}
+
+@media (width > 768px) {
+  .menuHeader {
+    --_row: var(--size-32);
+  }
+}
+
+/* 서랍 좌상단 🌐 — 네비의 닫기 단추와 같은 높이, 좌우는 마주 보게. 모양은 네비 단추(actionBtn).
+   오른쪽 단추 묶음(.navActions)처럼 아이콘 끝이 페이지 가장자리에 오도록 같은 만큼 바깥으로 당긴다 */
+.menuSiteLangSlot {
+  position: absolute;
+  top: var(--spacing-nav-top);
+  left: calc(var(--spacing-page-inline) + (var(--size-32) - 12px) / -2);
+  display: flex;
 }
 
 .menuLogo {
@@ -918,6 +979,23 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
+}
+
+/* 꼬리 맨 위 한 줄 — 문의 · 건너가는 링크 · 로그아웃. 메뉴 목록과 선으로 끊고, 목록보다 작은 글씨로 나란히 */
+.menuFooterActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-ghost);
+}
+
+/* 모양은 메뉴 링크(menuLink) 그대로, 크기만 줄인다 */
+.menuFooterLink {
+  --_menu-link-size: var(--font-size-headline-sm);
 }
 
 .menuFooterLabel {
@@ -1111,7 +1189,8 @@
   /* 폭만 보면 창이 넓어질 때 글자가 두 배로 커져(8vw) 목록이 창보다 길어지고, 아래쪽 항목이
      바닥에 붙은 푸터 뒤로 숨는다. 모바일 폭에서 열어 둔 채 창을 넓히면 실제로 그렇게 됐다.
      높이도 같이 보게 해서 창이 넓어도 목록이 창 안에 남는다 */
-  font-size: clamp(36px, 2.041rem + 0.86vw, 3.05rem);
+  /* 크기는 --_menu-link-size 로 줄일 수 있다(서랍 꼬리 menuFooterLink) */
+  font-size: var(--_menu-link-size, clamp(36px, 2.041rem + 0.86vw, 3.05rem));
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -1160,28 +1239,6 @@
   font-family: var(--font-family-headline);
 }
 
-/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면이 한 층이다.
-   위 목록과는 줄 하나로 끊고, 둘끼리는 크기·정렬을 같게 둔다 */
-.menuAside {
-  display: flex;
-  flex-direction: column;
-  /* 두 항목이 각자 자리를 잡도록 폭을 줄 전체로 늘린다 */
-  align-items: stretch;
-  gap: var(--spacing-12);
-  margin-top: var(--spacing-20);
-  padding-top: var(--spacing-16);
-  border-top: var(--border-ghost);
-}
-
-/* 문의는 가운데, 관리 화면은 오른쪽 — 같은 층이되 자리로 갈린다 */
-.menuAsideAction {
-  justify-content: center;
-  text-align: center;
-}
-
-.menuAsideAdmin {
-  text-align: right;
-}
 
 /* Close button — nav 햄버거 버튼과 동일한 우상단 위치 */
 
@@ -1266,17 +1323,10 @@
 
 .navAdmin {
   /* mix-blend-mode: difference 유지 */
-  /* Admin 링크가 로고("H (ADMIN)")를 침범하는 건 폭이 좁아 navCenter 의 중앙 콘텐츠가 로고 밑까지
-     밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어 더 심하다). 그 구간에서만 로고 폭만큼 시작
-     여백을 줘 비켜나게 한다. navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
-  --_logo-reserve: var(--size-112);
-}
-
-/* 넓은 화면은 링크가 로고 근처에 올 일이 없어 예약하면 오히려 우측으로 치우친다 — 예약을 끈다 */
-@media (width > 1024px) {
-  .navAdmin {
-    --_logo-reserve: initial;
-  }
+  /* 로고는 fixed 라 navCenter 가 로고 밑에서 시작한다. admin 은 링크가 많고 로고 옆에 배지까지 붙어
+     폭과 상관없이 첫 링크가 로고에 붙거나 겹친다. 실제 로고 폭(--_logo-w, Navigation 이 잼, 배지 포함)에
+     간격(spacing-24)을 더한 만큼 시작 여백을 줘 항상 비켜나게 한다. */
+  --_logo-reserve: calc(var(--_logo-w, var(--size-112)) + var(--spacing-24));
 }
 
 /* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강
@@ -1332,41 +1382,16 @@
 
 /* ── Notification dropdown — 말풍선 모양 (외부 wrapper 는 overflow visible 로 pointer 노출,
    내부 content 가 overflow hidden 으로 둥근 모서리 처리) ── */
+/* 알림 창 — 공용 Popover(solid · 꼬리)의 내용 폭. 자리 · 테두리 · 그림자 · 꼬리 · 터치 기기 시트는 Popover 가 맡는다 */
 .notifDropdown {
-  position: fixed;
-  /* top/right 은 inline style 로 trigger getBoundingClientRect 결과 적용 */
   width: 320px;
   max-width: calc(100vw - 32px);
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-overlay);
-  /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
-  overflow: visible;
 }
 
-/* 내부 컨텐츠 — 둥근 모서리 안쪽으로 자식들이 clip 되도록 */
+/* 내부 컨텐츠 — 둥근 모서리 안쪽으로 자식들이 clip 되도록(꼬리 때문에 패널은 overflow visible) */
 .notifDropdownInner {
   border-radius: inherit;
   overflow: hidden;
-}
-
-/* 말풍선 화살표 — Bell 방향(우상단) 으로 향하는 작은 삼각형, dropdown 위로 노출 */
-/* 말풍선 화살표 — V edges 의 좌/우 tip 이 dropdown top border 와 정확히 만나도록 정렬.
-   pointer 의 body 가 두 tip 사이의 dropdown border 를 자연스럽게 가려서 연속된 윤곽 형성. */
-.notifDropdown::before {
-  content: "";
-  position: absolute;
-  /* tip 이 dropdown top edge(y=0) 에 닿도록 — 12*sqrt(2)/2 ≈ 8.5, 그래서 top: -8 + 1.5 보정 = -6 근처 */
-  top: -6px;
-  right: 32px;
-  width: 12px;
-  height: 12px;
-  background: var(--bg-primary);
-  border-top: var(--border-light);
-  border-left: var(--border-light);
-  transform: rotate(45deg);
-  z-index: 1;
 }
 
 .notifDropdownHeader {

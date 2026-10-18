@@ -277,11 +277,11 @@
   flex-shrink: 0;
 }
 
-/* 설정 페이지 컨트롤 높이(sm) — 옆 값 입력과 같은 높이 */
+/* 설정 페이지 컨트롤 높이(md) — 옆 값 입력과 같은 높이 */
 .envRevealBtn,
 .envDeleteBtn {
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -325,28 +325,7 @@
   }
 }
 
-.envSourceBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit·none(액센트) */
-.envSourceBadge[data-source="env"] {
-  color: var(--bg-success-solid);
-}
 
-.envSourceBadge[data-source="none"] {
-  color: var(--text-accent);
-}
-.envSourceBadge[data-source="db"] {
-  color: var(--text-primary);
-}
-.envSourceBadge[data-source="edit"] {
-  color: var(--text-accent);
-}
 
 .envActions {
   display: flex;

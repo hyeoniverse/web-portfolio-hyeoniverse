@@ -45,6 +45,7 @@ import shared from "../Settings.module.css";
 import { errorText } from "@/lib/apiError";
 import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
+import { COMMENT_IMAGE_MB_CHOICES, resolveCommentImageMaxMb } from "@/lib/commentImages";
 
 
 /* 공급자별 모델 목록 — 한 번 받아 둔다(요약 · 번역 두 줄이 같은 목록을 쓴다) */
@@ -553,7 +554,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           })(),
           envKeyLine([...(CONTACT_KEYS[config.emailService.provider as keyof typeof CONTACT_KEYS] ?? [])], t),
         ]} />
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair} ${shared.fieldPairAlways}`}>
           <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
@@ -662,6 +663,16 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 ]}
                 value={config.comments?.systemInputPosition === "top" ? "top" : "bottom"}
                 onChange={(v) => update("comments", "systemInputPosition", v as SiteConfigData["comments"]["systemInputPosition"])}
+              />
+            </FieldRow>
+          )}
+
+          {config.comments?.provider !== "giscus" && (
+            <FieldRow label={t("admin.settings.commentImageMaxMb")} help={t("admin.settings.commentImageMaxMbHelp")}>
+              <SegmentedControl<string>
+                items={COMMENT_IMAGE_MB_CHOICES.map((mb) => ({ value: String(mb), label: `${mb}MB` }))}
+                value={String(resolveCommentImageMaxMb(config.comments?.imageMaxMb))}
+                onChange={(v) => update("comments", "imageMaxMb", Number(v))}
               />
             </FieldRow>
           )}
@@ -841,7 +852,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         {/* 설명이 제목 바로 아래, 켜기 스위치는 그 다음(칸 묶음의 첫 줄) */}
         <HintLines className={styles.sectionHints} lines={[envKeyLine(["NEXT_PUBLIC_RECAPTCHA_SITE_KEY"], t)]} />
         {/* 켜기 · 버전을 두 칸으로 — 이메일 섹션의 공급자 · 파일 업로드와 같은 모양 */}
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair} ${shared.fieldPairAlways}`}>
           <Switch
             label={t("admin.settings.recaptchaEnabled")}
             labelPosition="top"
