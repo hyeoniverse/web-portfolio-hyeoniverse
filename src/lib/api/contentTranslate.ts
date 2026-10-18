@@ -47,8 +47,10 @@ export type ContentFields = ContentTextFields & ContentMeta & {
 export const CONTENT_TRANSLATION_VERSION = 2;
 
 export interface ContentSource {
-  /** 원문 언어 — 한국어 본문이 있으면 ko, 없으면 en */
+  /** 원문 칸 — 한국어 본문이 있으면 ko, 없으면 en(갤러리 음성 · 자막을 그 칸의 노트로 맞춘다) */
   lang: "ko" | "en";
+  /** 원문의 실제 언어 — 공급자에 넘긴다. ko 칸이면 source_lang(기본 언어가 ja 면 ja, 비면 ko) */
+  from: string;
   fields: ContentTextFields;
   /** 정보 칸 — 빈 칸은 넣지 않는다 */
   meta: ContentMeta;
@@ -88,6 +90,7 @@ export function postSource(row: Row, series?: Row | null): ContentSource | null 
   const useKo = !!ko;
   return {
     lang: useKo ? "ko" : "en",
+    from: useKo ? str(row.source_lang) || "ko" : "en",
     html: row.content_type === "richtext",
     fields: {
       title: (useKo ? str(row.title) : str(row.title_en)) || str(row.title) || str(row.title_en),
@@ -143,6 +146,7 @@ export function workSource(row: Row, gallery?: Record<string, string[]>): Conten
 
   return {
     lang,
+    from: useKo ? str(row.source_lang) || "ko" : "en",
     html: row.content_type === "richtext",
     fields: {
       title: (useKo ? str(row.title) : str(row.title_en)) || str(row.title) || str(row.title_en),
@@ -170,7 +174,8 @@ export function sourceHash(src: ContentSource): string {
   const metaKeys = (Object.keys(src.meta) as ContentMetaField[]).sort();
   const payload = JSON.stringify([
     CONTENT_TRANSLATION_VERSION,
-    src.lang,
+    /* 원문 칸과 실제 언어가 같으면 예전 해시 그대로 — 저장된 번역을 버리지 않게 */
+    src.from === src.lang ? src.lang : [src.lang, src.from],
     src.html,
     keys.map((k) => [k, src.fields[k] ?? ""]),
     metaKeys.map((k) => [k, src.meta[k]]),

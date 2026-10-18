@@ -68,10 +68,10 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const table = type === "post" ? "posts" : "works";
   const select = type === "post"
-    ? "title, title_en, excerpt, excerpt_en, content, content_en, content_type, summary_ko, summary_en, series_id"
+    ? "title, title_en, excerpt, excerpt_en, content, content_en, content_type, summary_ko, summary_en, series_id, source_lang"
     : "title, title_en, subtitle_ko, subtitle_en, description_ko, description_en, content_ko, content_en, content_type, "
       + "summary_ko, summary_en, categories_ko, categories_en, nature_ko, nature_en, role_ko, role_en, "
-      + "contributions_ko, contributions_en, tech_notes, team_members, gallery, gallery_notes";
+      + "contributions_ko, contributions_en, tech_notes, team_members, gallery, gallery_notes, source_lang";
   const access = await requirePostAccess(table, id);
   let query = admin.from(table).select(select).eq("id", id);
   if (access.error) query = query.eq("published", true).is("deleted_at", null);
@@ -92,6 +92,11 @@ export async function POST(request: Request) {
     src = workSource(fieldsRow, workCaptions(fieldsRow));
   }
   if (!src) return jsonError("Nothing to translate", 404);
+  /* 원문이 이미 고른 언어 — 번역하지 않고 원문 그대로(기본 언어가 ja 일 때 한국어로 보기의, 아직 한국어인 글) */
+  if (src.from === lang) {
+    const fields: ContentFields = { ...src.fields, ...src.meta, source: src.lang, v: CONTENT_TRANSLATION_VERSION };
+    return NextResponse.json({ fields, lang, cached: true });
+  }
   const hash = sourceHash(src);
 
   /* 저장된 번역 — 원문이 그대로면 공급자를 부르지 않는다. 표가 아직 없어도(마이그레이션 전) 번역은 된다 */
@@ -120,8 +125,8 @@ export async function POST(request: Request) {
   const plainTexts = [...plainKeys.map((k) => src.fields[k]!), ...pieces.map((p) => p.text)];
   /* 라벨은 이 요청이 이미 상한을 셌다 — 한 요청에 두 번 세지 않는다 */
   const [plain, content, ui] = await Promise.all([
-    translateWithFallback(providers, plainTexts, src.lang, lang, tag),
-    translateWithFallback(providers, [src.fields.content ?? ""], src.lang, lang, tag, { html: src.html }),
+    translateWithFallback(providers, plainTexts, src.from, lang, tag),
+    translateWithFallback(providers, [src.fields.content ?? ""], src.from, lang, tag, { html: src.html }),
     uiLabels(admin, lang, providers, () => true),
   ]);
   if ("error" in content || content.failedIndices.includes(0)) {

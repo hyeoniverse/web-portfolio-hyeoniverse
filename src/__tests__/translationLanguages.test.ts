@@ -41,7 +41,8 @@ describe("TRANSLATION_LANGUAGES", () => {
 
   it("요청 값 확인 · 정규화", () => {
     expect(isTranslationLanguage("ja")).toBe(true);
-    expect(isTranslationLanguage("ko")).toBe(false);
+    /* 한국어는 목록 밖이지만 받는다 — 기본 언어가 ko · en 밖일 때 🌐 메뉴의 한국어(#1497) */
+    expect(isTranslationLanguage("ko")).toBe(true);
     expect(isTranslationLanguage(42)).toBe(false);
     expect(normalizeTranslationLang("ZH-HANS")).toBe("zh-Hans");
     expect(normalizeTranslationLang("xx")).toBeNull();

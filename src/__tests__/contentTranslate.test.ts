@@ -20,12 +20,12 @@ import type { Project } from "@/data/projects";
 describe("postSource", () => {
   it("한국어 본문이 있으면 한국어 칸들", () => {
     const s = postSource({ title: "제목", title_en: "Title", excerpt: "요약", content: "본문", content_en: "Body", content_type: "richtext" });
-    expect(s).toEqual({ lang: "ko", html: true, fields: { title: "제목", excerpt: "요약", content: "본문" }, meta: {} });
+    expect(s).toEqual({ lang: "ko", from: "ko", html: true, fields: { title: "제목", excerpt: "요약", content: "본문" }, meta: {} });
   });
 
   it("한국어 본문이 없으면 영어 칸들 — 영어 제목이 비면 한국어 제목", () => {
     const s = postSource({ title: "제목", title_en: "", excerpt: "요약", excerpt_en: "Sum", content: "", content_en: "Body", content_type: "markdown" });
-    expect(s).toEqual({ lang: "en", html: false, fields: { title: "제목", excerpt: "Sum", content: "Body" }, meta: {} });
+    expect(s).toEqual({ lang: "en", from: "en", html: false, fields: { title: "제목", excerpt: "Sum", content: "Body" }, meta: {} });
   });
 
   it("본문이 둘 다 없으면 null", () => {
@@ -43,7 +43,7 @@ describe("workSource", () => {
 
   it("한국어 본문이 있으면 한국어 칸들", () => {
     const s = workSource({ title: "작품", content_ko: "<p>한국어 본문입니다</p>", content_en: "", subtitle_ko: "부제", description_ko: "설명", content_type: "richtext" });
-    expect(s).toEqual({ lang: "ko", html: true, fields: { title: "작품", subtitle: "부제", description: "설명", content: "<p>한국어 본문입니다</p>" }, meta: {} });
+    expect(s).toEqual({ lang: "ko", from: "ko", html: true, fields: { title: "작품", subtitle: "부제", description: "설명", content: "<p>한국어 본문입니다</p>" }, meta: {} });
   });
 });
 

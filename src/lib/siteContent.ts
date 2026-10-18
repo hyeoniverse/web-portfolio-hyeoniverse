@@ -111,8 +111,10 @@ export function siteContentSource(
   return [...new Set(all)].sort();
 }
 
-/** 원문의 언어 — 한글이 들어 있으면 한국어, 아니면 영어(공급자에 원문 언어로 넘긴다) */
-export const sourceLangOf = (text: string) => (/[가-힣]/.test(text) ? "ko" : "en");
+/** 원문의 언어(공급자에 원문 언어로 넘긴다) — 한글이 있으면 한국어, 라틴 문자 밖의 글자(かな · 漢字 등)가 있으면 other,
+ *  아니면 영어. other 는 원문 칸의 언어 — 기본 언어가 ja 면 설정 글의 ko 칸이 일본어다(metadata.sourceLanguage) */
+export const sourceLangOf = (text: string, other = "en") =>
+  /[가-힣]/.test(text) ? "ko" : /[^\p{Script=Latin}\p{N}\p{P}\p{S}\s]/u.test(text) ? other : "en";
 
 /* 표시 기호는 번역 뒤에도 같은 수여야 한다 — 홈 소개 글의 강조 자리({aesthetics}), About 글의 굵게(**) · 코드(`) ·
    채움 자리({phases}). 빠지거나 늘면 강조 · 코드 조각이 깨진다 */

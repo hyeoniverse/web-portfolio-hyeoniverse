@@ -24,6 +24,7 @@ describe("siteContent — 사이트 내용 글 묶음", () => {
   it("한글이 있으면 한국어 원문", () => {
     expect(sourceLangOf("리액트")).toBe("ko");
     expect(sourceLangOf("React")).toBe("en");
+    expect(sourceLangOf("ウェブ開発", "ja")).toBe("ja");
   });
 
   it("강조 자리({ })가 어긋나거나 빈 번역은 버린다", () => {

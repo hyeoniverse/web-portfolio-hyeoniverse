@@ -1,5 +1,6 @@
 import en from "@/locales/en.json";
 import { matchVisitorLanguage, normalizeTranslationLang } from "@/lib/translationLanguages";
+import { isForeignSiteLanguage } from "@/lib/siteLanguage";
 import { SITE_UI_KEYS_MAX, siteUiSource, siteUiSrcOf, validSiteUi, type SiteUiCache } from "@/lib/siteTranslation";
 
 /**
@@ -50,7 +51,7 @@ export function resolveInitialLang(
   const fromSaved = normalizeTranslationLang(saved);
   if (fromSaved) return { lang: fromSaved, auto: false };
   /* 기본 언어도 고른 것이 아니라 자동으로 건 것 — 번역이 막힌 사이트면 조용히 영어로 물러난다 */
-  const fromSite = normalizeTranslationLang(siteDefault);
+  const fromSite = isForeignSiteLanguage(siteDefault) ? normalizeTranslationLang(siteDefault) : null;
   if (fromSite) return { lang: fromSite, auto: true };
   return { lang: matchVisitorLanguage(browserLangs), auto: true };
 }
@@ -214,7 +215,7 @@ export function dismissAutoSiteLang() {
  * 자동으로 건 언어는 새 기본값으로 다시 정한다. 방문자가 고른 언어는 그대로 둔다
  */
 export function setSiteDefaultLang(code: string | null | undefined) {
-  const next = normalizeTranslationLang(code);
+  const next = isForeignSiteLanguage(code) ? normalizeTranslationLang(code) : null;
   if (siteDefault === next) return;
   siteDefault = next;
   if (state?.auto) {

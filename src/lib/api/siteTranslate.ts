@@ -16,7 +16,8 @@ export const metaSourceType = (t: ListItemType): ListMetaSourceType => `${t}_met
 const LIST_META_VERSION = 1;
 
 export interface ListMetaSource {
-  lang: "ko" | "en";
+  /** 원문 언어 — 영어 칸이면 en, 원문 칸(ko)이면 그 칸의 실제 언어(source_lang — 기본 언어가 ja 면 ja, 비면 ko) */
+  lang: string;
   /** 빈 칸은 넣지 않는다 */
   fields: ListItemFields;
 }
@@ -30,8 +31,8 @@ function compact(f: ListItemFields): ListItemFields {
 
 /** 목록에서 고르는 열(종류별) */
 export const LIST_META_SELECT: Record<ListItemType, string> = {
-  post: "id, title, title_en, excerpt, excerpt_en, content, content_en",
-  work: "id, title, title_en, subtitle_ko, subtitle_en, description_ko, description_en, content_ko, content_en",
+  post: "id, title, title_en, excerpt, excerpt_en, content, content_en, source_lang",
+  work: "id, title, title_en, subtitle_ko, subtitle_en, description_ko, description_en, content_ko, content_en, source_lang",
   series: "id, title, title_en, description, description_en",
 };
 
@@ -44,7 +45,7 @@ export function listMetaSource(type: ListItemType, row: Row): ListMetaSource | n
   if (type === "post") {
     const useKo = !!str(row.content) || !str(row.content_en);
     src = {
-      lang: useKo ? "ko" : "en",
+      lang: useKo ? str(row.source_lang) || "ko" : "en",
       fields: compact({
         title: (useKo ? str(row.title) : str(row.title_en)) || str(row.title) || str(row.title_en),
         excerpt: useKo ? str(row.excerpt) : str(row.excerpt_en),
@@ -55,7 +56,7 @@ export function listMetaSource(type: ListItemType, row: Row): ListMetaSource | n
     const en = str(row.content_en);
     const useKo = !isContentMissing(ko, en, "ko") || isContentMissing(en, ko, "en");
     src = {
-      lang: useKo ? "ko" : "en",
+      lang: useKo ? str(row.source_lang) || "ko" : "en",
       fields: compact({
         title: (useKo ? str(row.title) : str(row.title_en)) || str(row.title) || str(row.title_en),
         subtitle: useKo ? str(row.subtitle_ko) : str(row.subtitle_en),
