@@ -17,24 +17,37 @@ type Config = Awaited<ReturnType<typeof getSiteConfig>>;
 type Obj = Record<string, unknown>;
 
 /** 설정 글 백업 줄의 고정 번호 */
-export const SETTINGS_SOURCE_ID = "00000000-0000-0000-0000-000000000004";
+const SETTINGS_SOURCE_ID = "00000000-0000-0000-0000-000000000004";
 /** 프로필 글 백업 줄의 고정 번호 */
-export const PROFILE_SOURCE_ID = "00000000-0000-0000-0000-000000000005";
+const PROFILE_SOURCE_ID = "00000000-0000-0000-0000-000000000005";
 
 function providersOf(config: Config): Provider[] {
   return buildProviderList((config?.translation?.provider as Provider) ?? "deepl", config?.translation?.fallback);
 }
 
-/** 여러 글을 묶음으로 나눠 번역한다 — 하나라도 못 받으면 null(덮어쓰지 않는다) */
+/* 묶음 크기 · 동시에 보내는 묶음 수 — 설정 글 250여 개(약 9천 자)를 Claude 로 재 보니
+   120개 · 6천 자 묶음을 하나씩 보내면 묶음 하나가 1분 가까이 걸렸고, 30개 · 2천 자로 잘라 6개씩 보내면 25초였다 */
+const CHUNK_ITEMS = 30;
+const CHUNK_CHARS = 2000;
+const PARALLEL = 6;
+
+/** 여러 글을 묶음으로 나눠 번역한다 — 묶음은 PARALLEL 개씩 동시에. 하나라도 못 받으면 null(덮어쓰지 않는다) */
 async function translateAll(texts: string[], from: string, to: string, config: Config, tag: string, html = false): Promise<string[] | null> {
   if (!texts.length) return [];
   const out: string[] = new Array(texts.length);
-  for (const idx of chunkIndices(texts)) {
-    const res = await translateWithFallback(providersOf(config), idx.map((i) => texts[i]), from, to, tag, { html });
-    if ("error" in res || res.failedIndices.length) return null;
-    idx.forEach((i, n) => { out[i] = res.translations[n]; });
-  }
-  return out;
+  const chunks = chunkIndices(texts, CHUNK_ITEMS, CHUNK_CHARS);
+  let next = 0;
+  let failed = false;
+  const worker = async () => {
+    while (!failed && next < chunks.length) {
+      const idx = chunks[next++];
+      const res = await translateWithFallback(providersOf(config), idx.map((i) => texts[i]), from, to, tag, { html });
+      if ("error" in res || res.failedIndices.length) { failed = true; return; }
+      idx.forEach((i, n) => { out[i] = res.translations[n]; });
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(PARALLEL, chunks.length) }, worker));
+  return failed ? null : out;
 }
 
 async function backup(sourceType: "post_source" | "work_source" | "settings_source", sourceId: string, lang: string, fields: Obj) {
@@ -48,6 +61,10 @@ async function backup(sourceType: "post_source" | "work_source" | "settings_sour
 /* ── 설정 글 ── */
 
 type Path = (string | number)[];
+
+/** about 설정 가운데 공개 화면이 읽는 것은 크레딧 문구뿐이다 — 나머지(옛 패널 글 · 소개 줄)는 #1487 로 화면에서 빠져
+ *  번역해도 보이지 않고, 설정 글 글자 수의 7 할을 차지해 저장을 몇 분씩 붙잡았다 */
+const unrenderedAbout = (p: Path) => p[0] === "about" && !String(p[1]).startsWith("credits");
 
 /** 설정에서 원문 칸(ko) 글의 자리를 모은다 — { ko, en } 묶음의 ko, x_ko 칸(글 · 글 배열) */
 export function collectKoTexts(v: unknown, path: Path = [], out: [Path, string][] = [], depth = 0): [Path, string][] {
@@ -74,12 +91,14 @@ function getAt(v: unknown, path: Path): unknown {
   return path.reduce<unknown>((cur, key) => (cur && typeof cur === "object" ? (cur as Obj)[key as string] : undefined), v);
 }
 
-/** delta 의 path 에 값을 넣는다 — 중간 객체가 없으면 만든다 */
+/** path 에 값을 넣는다 — 중간 칸이 없으면 다음 키가 번호면 배열, 아니면 객체로 만든다.
+ *  이미 있는 배열은 그대로 따라 들어간다. 배열을 객체로 갈아 끼우면 항목의 다른 칸(영어 · 링크 · 날짜)이 사라지고
+ *  화면이 배열을 기대하는 곳(.join · .map)이 깨진다 */
 function setAt(target: Obj, path: Path, value: unknown) {
   let cur: Obj = target;
-  path.slice(0, -1).forEach((key) => {
+  path.slice(0, -1).forEach((key, i) => {
     const next = cur[key as string];
-    if (!next || typeof next !== "object" || Array.isArray(next)) cur[key as string] = {};
+    if (!next || typeof next !== "object") cur[key as string] = typeof path[i + 1] === "number" ? [] : {};
     cur = cur[key as string] as Obj;
   });
   cur[path[path.length - 1] as string] = value;
@@ -90,7 +109,7 @@ function setAt(target: Obj, path: Path, value: unknown) {
  * 배열 안의 글이면 그 배열을 번역된 전체 값으로 넣는다. 성공하면 true — 실패하면 delta 를 건드리지 않는다.
  */
 export async function translateConfigSource(full: Obj, delta: Obj, from: string, to: string, config: Config): Promise<boolean> {
-  const items = collectKoTexts(full);
+  const items = collectKoTexts(full).filter(([p]) => !unrenderedAbout(p));
   const texts = items.map(([, t]) => t);
   const translated = await translateAll(texts, from, to, config, `[source-translate settings ${from}→${to}]`);
   if (!translated) return false;
@@ -109,25 +128,34 @@ export async function translateConfigSource(full: Obj, delta: Obj, from: string,
   return true;
 }
 
-/** 프로필(site_settings 의 profile 행) 원문 글을 from → to 로 — 저장 형식({ data, savedDefaults } 또는 통째)을 그대로 지킨다 */
-export async function translateProfileSource(from: string, to: string, config: Config): Promise<boolean> {
+/**
+ * 프로필(site_settings 의 profile 행) 원문 글을 from → to 로 번역만 해 두고, 저장은 돌려준 save() 가 한다 —
+ * 설정 글 번역과 동시에 돌리되, 설정 쪽이 실패하면 프로필만 바뀐 채 남지 않게. 번역에 실패하면 null.
+ * 저장 형식({ data, savedDefaults } 또는 통째)을 그대로 지킨다
+ */
+export async function prepareProfileSource(from: string, to: string, config: Config): Promise<{ save: () => Promise<boolean> } | null> {
   const admin = createAdminClient();
   const { data: row } = await admin.from("site_settings").select("config").eq("id", "profile").maybeSingle();
   const stored = row?.config as Obj | undefined;
-  if (!stored) return true;
+  if (!stored) return { save: async () => true };
   const data = (stored.data && stored.savedDefaults ? stored.data : stored) as Obj;
   const items = collectKoTexts(data);
   const translated = await translateAll(items.map(([, t]) => t), from, to, config, `[source-translate profile ${from}→${to}]`);
-  if (!translated) return false;
-  if (!items.length) return true;
-  await backup("settings_source", PROFILE_SOURCE_ID, from, Object.fromEntries(items.map(([p, t]) => [p.join("."), t])));
-  const next = structuredClone(data);
-  items.forEach(([p], i) => setAt(next, p, translated[i]));
-  const config2 = stored.data && stored.savedDefaults ? { ...stored, data: next } : next;
-  const { error } = await admin.from("site_settings").upsert({ id: "profile", config: config2, updated_at: new Date().toISOString() }, { onConflict: "id" });
-  if (error) console.error("[source-translate profile] save failed", error.message);
-  return !error;
+  if (!translated) return null;
+  if (!items.length) return { save: async () => true };
+  return {
+    save: async () => {
+      await backup("settings_source", PROFILE_SOURCE_ID, from, Object.fromEntries(items.map(([p, t]) => [p.join("."), t])));
+      const next = structuredClone(data);
+      items.forEach(([p], i) => setAt(next, p, translated[i]));
+      const config2 = stored.data && stored.savedDefaults ? { ...stored, data: next } : next;
+      const { error } = await admin.from("site_settings").upsert({ id: "profile", config: config2, updated_at: new Date().toISOString() }, { onConflict: "id" });
+      if (error) console.error("[source-translate profile] save failed", error.message);
+      return !error;
+    },
+  };
 }
+
 
 /* ── 글 · 작업물 ── */
 

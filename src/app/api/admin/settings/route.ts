@@ -10,7 +10,7 @@ import { checkRequiredSettings } from "@/lib/api/validateRequiredSettings";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
 import { getSiteConfig, mergeSiteConfig } from "@/lib/getSiteConfig";
-import { translateConfigSource, translateProfileSource } from "@/lib/api/sourceTranslate";
+import { translateConfigSource, prepareProfileSource } from "@/lib/api/sourceTranslate";
 import { sourceTargetOf } from "@/lib/siteLanguage";
 import { prewarmDefaultLangUi } from "@/lib/api/defaultLangUi";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
@@ -159,8 +159,12 @@ export async function PATCH(request: Request) {
     const target = sourceTargetOf(full.metadata?.defaultLanguage);
     const from = full.metadata?.sourceLanguage || "ko";
     if (target && target !== from && full.translation?.enabled !== false) {
-      const ok = await translateConfigSource(full as unknown as Record<string, unknown>, delta, from, target, full)
-        && await translateProfileSource(from, target, full);
+      /* 설정 글과 프로필을 동시에 번역하고, 프로필은 설정 쪽이 성공했을 때만 저장한다 */
+      const [configOk, profile] = await Promise.all([
+        translateConfigSource(full as unknown as Record<string, unknown>, delta, from, target, full),
+        prepareProfileSource(from, target, full),
+      ]);
+      const ok = configOk && !!profile && await profile.save();
       if (!ok) return jsonError("원문을 새 기본 언어로 번역하지 못했습니다. 잠시 뒤 다시 저장해 주세요.", 502, { code: "TRANSLATION_FAILED" });
       const meta = (delta.metadata ?? {}) as Record<string, unknown>;
       delta.metadata = { ...meta, sourceLanguage: target };
