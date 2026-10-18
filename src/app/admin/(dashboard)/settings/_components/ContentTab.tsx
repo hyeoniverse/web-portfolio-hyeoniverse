@@ -36,6 +36,8 @@ import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
 import Pressable from "@/components/ui/Pressable";
+import enMessages from "@/locales/en.json";
+import koMessages from "@/locales/ko.json";
 
 const styles = { ...shared, ...local };
 
@@ -49,16 +51,17 @@ interface ContentTabProps extends SettingsTabProps {
 }
 
 /** en/ko 한 쌍의 Field(같은 label, langBadge 만 다름) — fieldPair 레이아웃 + Field ×2. */
+/* fallback — 비워 두면 쓰이는 기본 문장. 칸에 흐리게 보이고, 빈 칸에서 Tab 을 누르면 채워진다 */
 function BilingualFieldPair({ label, en, ko, multiline }: {
   label: string;
-  en: { value: string; onChange: (v: string) => void };
-  ko: { value: string; onChange: (v: string) => void };
+  en: { value: string; onChange: (v: string) => void; fallback?: string };
+  ko: { value: string; onChange: (v: string) => void; fallback?: string };
   multiline?: boolean;
 }) {
   return (
     <div className={styles.fieldPair}>
-      <Field label={label} langBadge="en" value={en.value} onChange={en.onChange} multiline={multiline} />
-      <Field label={label} langBadge="ko" value={ko.value} onChange={ko.onChange} multiline={multiline} />
+      <Field label={label} langBadge="en" value={en.value} onChange={en.onChange} multiline={multiline} placeholder={en.fallback} tabFill={en.fallback} />
+      <Field label={label} langBadge="ko" value={ko.value} onChange={ko.onChange} multiline={multiline} placeholder={ko.fallback} tabFill={ko.fallback} />
     </div>
   );
 }
@@ -758,13 +761,13 @@ export default function ContentTab({
             <div className={styles.fields}>
               <BilingualFieldPair
                 label={t("admin.inline.contentTab.title")}
-                en={{ value: config.works.emptyTitle ?? "", onChange: (v) => update("works", "emptyTitle", v) }}
-                ko={{ value: config.works.emptyTitle_ko ?? "", onChange: (v) => update("works", "emptyTitle_ko", v) }}
+                en={{ value: config.works.emptyTitle ?? "", onChange: (v) => update("works", "emptyTitle", v), fallback: enMessages.worksPage.emptyTitle }}
+                ko={{ value: config.works.emptyTitle_ko ?? "", onChange: (v) => update("works", "emptyTitle_ko", v), fallback: koMessages.worksPage.emptyTitle }}
               />
               <BilingualFieldPair
                 label={t("admin.inline.contentTab.subtitle")}
-                en={{ value: config.works.emptySub ?? "", onChange: (v) => update("works", "emptySub", v) }}
-                ko={{ value: config.works.emptySub_ko ?? "", onChange: (v) => update("works", "emptySub_ko", v) }}
+                en={{ value: config.works.emptySub ?? "", onChange: (v) => update("works", "emptySub", v), fallback: enMessages.worksPage.emptySub }}
+                ko={{ value: config.works.emptySub_ko ?? "", onChange: (v) => update("works", "emptySub_ko", v), fallback: koMessages.worksPage.emptySub }}
               />
             </div>
           </section>

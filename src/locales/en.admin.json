@@ -2672,7 +2672,7 @@
         "masonryVariableHeight": "Masonry (variable height)",
         "featuredHeroGrid": "Featured (hero + grid)",
         "emptyState": "Empty state",
-        "emptyWorksHint": "Shown with the starry background when no works are published. Left blank, the default sentence is used.",
+        "emptyWorksHint": "Shown with the starry background when no works are published. Left blank, the faded default sentence in the field is used.",
         "title": "Title",
         "subtitle": "Subtitle"
       },
