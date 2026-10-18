@@ -8,6 +8,8 @@ import dynamic from "next/dynamic";
 import { CalendarDays, Pencil, Trash2, Check, X, RotateCcw, ChevronDown } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
+import Checkbox from "@/components/ui/Checkbox";
+import { LibraryBulkBar, runBulk, useLibrarySelection } from "./LibrarySelection";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -39,6 +41,9 @@ const ReaderCalendar = dynamic(() => import("@/components/posts/plate/ReaderCale
 
 /* 한 쪽에 3열 × 8줄 */
 const PAGE_SIZE = 24;
+
+/* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const calendarKey = (it: CalendarListItem) => it.id;
 
 export default function CalendarManager() {
   const { language, t, dateLocale } = useLanguage();
@@ -169,6 +174,36 @@ export default function CalendarManager() {
     );
   };
 
+  /* 여러 개 고르기 — 찾은 달력 전체가 대상(쪽을 넘겨도 고른 것은 남는다). 지우기 = 휴지통으로 */
+  const sel = useLibrarySelection(filtered, calendarKey);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const trashSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.trashConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.trashN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, (it) => deleteCalendar(it.id));
+          setBulkDeleting(false);
+          const gone = new Set(ok.map(calendarKey));
+          setItems((prev) => (prev ? prev.filter((x) => !gone.has(x.id)) : prev));
+          showToast(
+            failed.length
+              ? fillTemplate(t("admin.inline.libraryBulk.trashPartial"), { ok: ok.length, failed: failed.length })
+              : fillTemplate(t("admin.inline.libraryBulk.trashDone"), { n: ok.length }),
+            failed.length ? "error" : "success",
+          );
+          sel.clear();
+          if (trashOpen) reloadTrash();
+        }}
+      />,
+      { id: "cal-mgr-bulk-trash", header: { title: t("admin.inline.calendarManager.deleteCalendar") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
+  };
+
   // 휴지통 토글 — 처음 열 때 로드
   const toggleTrash = () => { if (!trashOpen && trash === null) reloadTrash(); setTrashOpen((v) => !v); };
 
@@ -223,6 +258,16 @@ export default function CalendarManager() {
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.calendarManager.noResults") : t("admin.inline.calendarManager.noCalendarsYet")}</EmptyState>
         ) : (
+          <>
+          <LibraryBulkBar
+            count={sel.count}
+            selectableCount={sel.selectableCount}
+            onSelectAll={sel.selectAll}
+            onClear={sel.clear}
+            onDelete={trashSelected}
+            deleting={bulkDeleting}
+            deleteLabel={t("admin.inline.libraryBulk.trashN")}
+          />
           <div className={styles.list}>
             {paged.slice!.map((it) => {
               const isEditing = editingId === it.id;
@@ -238,7 +283,14 @@ export default function CalendarManager() {
                   ref={(el) => { if (el) rowRefs.current.set(it.id, el); else rowRefs.current.delete(it.id); }}
                   className={`${styles.row}${focusId === it.id ? ` ${styles.rowFocus}` : ""}`}
                 >
-                  {dateIcon(it.month)}
+                  <span className={styles.lead}>
+                    <Checkbox
+                      checked={sel.isSelected(it)}
+                      onChange={(v) => sel.toggle(it, v)}
+                      ariaLabel={fillTemplate(t("admin.inline.libraryBulk.select"), { name: titleText })}
+                    />
+                    {dateIcon(it.month)}
+                  </span>
                   {isEditing ? (
                     <div className={styles.renameForm}>
                       <Input
@@ -281,6 +333,7 @@ export default function CalendarManager() {
               );
             })}
           </div>
+          </>
         )}
         {paged.totalPages > 1 && (
           <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={setPage} showJump={false} />

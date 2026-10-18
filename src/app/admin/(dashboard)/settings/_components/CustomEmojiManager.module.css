@@ -44,8 +44,34 @@
   opacity: 1;
 }
 
+/* 고르기 상자 — 왼쪽 위 모서리. 올렸을 때 · 고른 칸 · 하나라도 고른 격자 · 터치에서 보인다 */
+.select {
+  position: absolute;
+  top: calc(-1 * var(--spacing-2));
+  left: calc(-1 * var(--spacing-2));
+  z-index: 1;
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.tile:hover .select,
+.tile:focus-within .select,
+.tile[data-selected] .select,
+.grid[data-selecting] .select {
+  opacity: 1;
+}
+
+.tile[data-selected] {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
+}
+
 @media (hover: none) {
-  .remove {
+  .remove,
+  .select {
     opacity: 1;
   }
 }

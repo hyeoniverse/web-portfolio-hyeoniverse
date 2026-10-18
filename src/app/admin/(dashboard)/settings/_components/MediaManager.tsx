@@ -26,6 +26,8 @@ import lib from "./Library.module.css";
 import styles from "./MediaManager.module.css";
 import LibraryHead from "./LibraryHead";
 import { GallerySkeleton, MediaFiltersSkeleton } from "./LibrarySkeletons";
+import Checkbox from "@/components/ui/Checkbox";
+import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryFileIconClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
@@ -43,6 +45,10 @@ function fmtSize(n: number): string {
 }
 
 const KIND_ICON: Record<Exclude<Kind, "image">, typeof File> = { video: Film, audio: Music, font: Type, doc: FileText, other: File };
+
+/* 여러 개 고르기의 열쇠 · 조건 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const mediaKey = (m: MediaItem) => `${m.bucket}/${m.path}`;
+const isUnused = (m: MediaItem) => m.usage.length === 0;
 
 export default function MediaManager() {
   const { language, t } = useLanguage();
@@ -87,6 +93,10 @@ export default function MediaManager() {
   }, [page, kind, unusedOnly, query, reload]);
 
   const items = data?.items ?? null;
+  /* 여러 개 고르기 — 쓰는 곳이 없는 파일만(하나씩 지울 때와 같은 조건) */
+  const sel = useLibrarySelection(items, mediaKey, isUnused);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const bulkResult = useBulkResultText();
   const summary = data?.summary;
   const counts = summary?.counts ?? {};
   const allCount = counts.all ?? 0;
@@ -142,6 +152,36 @@ export default function MediaManager() {
       { id: "media-delete", header: { title: t("admin.inline.mediaManager.deleteTitle") }, closeButton: true, width: "min(460px, 92vw)" },
     );
   };
+
+  const removeSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.deleteConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.deleteN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, async (m) => {
+            const res = await tryRequest("/api/admin/media", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ bucket: m.bucket, path: m.path }),
+            });
+            return res instanceof Response && res.ok;
+          });
+          setBulkDeleting(false);
+          showToast(bulkResult(ok.length, failed.length), failed.length ? "error" : "success");
+          sel.clear();
+          setReload((n) => n + 1);
+        }}
+      />,
+      { id: "media-bulk-delete", header: { title: t("admin.inline.mediaManager.deleteTitle") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
+  };
+  const selectOf = (m: MediaItem) => (isUnused(m)
+    ? { checked: sel.isSelected(m), onChange: (v: boolean) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }) }
+    : undefined);
 
   /* 쓰는 곳 — 글·프로젝트가 있으면 올렸을 때 제목 목록(누르면 편집 화면) */
   const usageNode = (m: MediaItem, usedClass: string, mutedClass?: string) => {
@@ -223,8 +263,17 @@ export default function MediaManager() {
           <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("admin.inline.mediaManager.noMatch") : t("admin.inline.mediaManager.empty")}</EmptyState>
         ) : (
           <>
+            <LibraryBulkBar
+              count={sel.count}
+              selectableCount={sel.selectableCount}
+              onSelectAll={sel.selectAll}
+              onClear={sel.clear}
+              onDelete={removeSelected}
+              deleting={bulkDeleting}
+              deleteLabel={t("admin.inline.libraryBulk.deleteN")}
+            />
             {view === "gallery" ? (
-              <LibraryGallery>
+              <LibraryGallery selecting={sel.count > 0}>
                 {items.map((m) => (
                   <GalleryItem
                     key={`${m.bucket}/${m.path}`}
@@ -232,12 +281,14 @@ export default function MediaManager() {
                     title={<span title={m.path}>{m.name}</span>}
                     meta={<><span>{fmtSize(m.size)}</span><span aria-hidden>·</span>{usageNode(m, galleryUsedClass)}</>}
                     actions={actionsOf(m, galleryActionClass)}
+                    select={selectOf(m)}
                   />
                 ))}
               </LibraryGallery>
             ) : (
               <div className={styles.table} role="table">
                 <div className={`${styles.row} ${styles.rowHead}`} role="row">
+                  <span role="columnheader" />
                   <span role="columnheader" aria-label={t("admin.inline.mediaManager.colPreview")} />
                   <span role="columnheader">{t("admin.inline.mediaManager.colName")}</span>
                   <span role="columnheader">{t("admin.inline.mediaManager.colSize")}</span>
@@ -246,7 +297,10 @@ export default function MediaManager() {
                   <span role="columnheader" />
                 </div>
                 {items.map((m) => (
-                  <div key={`${m.bucket}/${m.path}`} className={styles.row} role="row">
+                  <div key={`${m.bucket}/${m.path}`} className={styles.row} role="row" data-selected={sel.isSelected(m) ? "" : undefined}>
+                    <span role="cell">
+                      {(() => { const s = selectOf(m); return s ? <Checkbox checked={s.checked} onChange={s.onChange} ariaLabel={s.label} /> : null; })()}
+                    </span>
                     <span className={styles.thumb} role="cell">{thumbOf(m, "44px", styles.thumbIcon, false)}</span>
                     <span className={styles.nameCell} role="cell">
                       <span className={styles.name} title={m.path}>{m.name}</span>

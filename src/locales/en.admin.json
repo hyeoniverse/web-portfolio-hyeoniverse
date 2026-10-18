@@ -2537,6 +2537,23 @@
       "visitsTrend": {
         "uniqueVisitorsDaily": "Unique visitors · daily"
       },
+      "libraryBulk": {
+        "toolbar": "Bulk selection",
+        "selected": "{{n}} selected",
+        "selectAll": "Select all ({{n}})",
+        "clear": "Clear",
+        "select": "Select {{name}}",
+        "done": "Deleted {{n}}.",
+        "partial": "Deleted {{ok}}; {{failed}} could not be deleted.",
+        "deleteN": "Delete {{n}}",
+        "deleteConfirm": "Delete the {{n}} selected items? This can't be undone.",
+        "removeFromHistoryN": "Remove {{n}} from history",
+        "removeHistoryConfirm": "Remove the {{n}} selected covers from history? Covers already used by posts or projects stay as they are.",
+        "trashN": "Move {{n}} to trash",
+        "trashConfirm": "Move the {{n}} selected calendars to the trash? They are permanently deleted after 30 days and can be restored from the trash until then.",
+        "trashDone": "Moved {{n}} to the trash.",
+        "trashPartial": "Moved {{ok}} to the trash; {{failed}} could not be moved."
+      },
       "libraryTab": {
         "calendars": "Calendars",
         "polls": "Polls",

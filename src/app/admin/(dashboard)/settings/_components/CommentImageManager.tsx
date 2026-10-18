@@ -24,6 +24,7 @@ import lib from "./Library.module.css";
 import LibraryHead from "./LibraryHead";
 import { CommentImagesSkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass } from "./LibraryGallery";
+import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
 
 type Item = { path: string; name: string; size: number; createdAt: string | null; url: string; deleteAfter: string | null };
 type Data = { due: Item[]; scheduled: Item[]; usedCount: number };
@@ -33,6 +34,9 @@ function fmtSize(n: number): string {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
+
+/* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const commentImageKey = (m: Item) => m.path;
 
 export default function CommentImageManager() {
   const { language, t } = useLanguage();
@@ -103,6 +107,37 @@ export default function CommentImageManager() {
     );
   };
 
+  /* 여러 개 고르기 — 지울 때가 지난 것만(하나씩 지울 때와 같은 조건) */
+  const sel = useLibrarySelection(data?.due ?? null, commentImageKey);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const bulkResult = useBulkResultText();
+  const removeSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.deleteConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.deleteN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, async (m) => {
+            const res = await tryRequest("/api/admin/media", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ bucket: COMMENT_IMAGE_BUCKET, path: m.path }),
+            });
+            return res instanceof Response && res.ok;
+          });
+          setBulkDeleting(false);
+          showToast(bulkResult(ok.length, failed.length), failed.length ? "error" : "success");
+          sel.clear();
+          setReload((k) => k + 1);
+        }}
+      />,
+      { id: "comment-image-bulk", header: { title: t("admin.inline.commentImageManager.deleteTitle") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
+  };
+
   const item = (m: Item, due: boolean) => (
     <GalleryItem
       key={m.path}
@@ -121,6 +156,7 @@ export default function CommentImageManager() {
           <Pressable className={galleryActionClass} onClick={() => remove(m)} aria-label={t("admin.inline.commentImageManager.delete")} title={t("admin.inline.commentImageManager.delete")}><Trash2 size={13} /></Pressable>
         )}
       </>}
+      select={due ? { checked: sel.isSelected(m), onChange: (v) => sel.toggle(m, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: m.name }) } : undefined}
     />
   );
 
@@ -148,12 +184,21 @@ export default function CommentImageManager() {
           <EmptyState pad="sm">{t("admin.inline.commentImageManager.empty")}</EmptyState>
         ) : (
           <>
+            <LibraryBulkBar
+              count={sel.count}
+              selectableCount={sel.selectableCount}
+              onSelectAll={sel.selectAll}
+              onClear={sel.clear}
+              onDelete={removeSelected}
+              deleting={bulkDeleting}
+              deleteLabel={t("admin.inline.libraryBulk.deleteN")}
+            />
             {data.due.length > 0 && (
               <FormGroup
                 title={fillTemplate(t("admin.inline.commentImageManager.dueTitle"), { n: data.due.length })}
                 description={t("admin.inline.commentImageManager.dueDesc")}
               >
-                <LibraryGallery>{data.due.map((m) => item(m, true))}</LibraryGallery>
+                <LibraryGallery selecting={sel.count > 0}>{data.due.map((m) => item(m, true))}</LibraryGallery>
               </FormGroup>
             )}
             {data.scheduled.length > 0 && (

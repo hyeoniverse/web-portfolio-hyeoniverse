@@ -8,7 +8,8 @@
 .row {
   display: grid;
   /* 단추 열도 폭을 고정해야 머리 줄(빈 칸)과 값 줄의 열이 맞는다 */
-  grid-template-columns: 44px minmax(0, 1fr) 80px 104px 140px 96px;
+  /* 첫 칸 — 여러 개 고르기 상자 */
+  grid-template-columns: 24px 44px minmax(0, 1fr) 80px 104px 140px 96px;
   align-items: center;
   gap: var(--spacing-16);
   padding: var(--spacing-8) 0;
@@ -110,12 +111,12 @@
 /* 좁은 화면 — 크기·날짜 열을 접는다(이름·쓰는 곳·단추만) */
 @container settings-panel (width < 570px) {
   .row {
-    grid-template-columns: 40px minmax(0, 1fr) 96px;
+    grid-template-columns: 24px 40px minmax(0, 1fr) 96px;
   }
 
-  .row > :nth-child(3),
   .row > :nth-child(4),
-  .row > :nth-child(5) {
+  .row > :nth-child(5),
+  .row > :nth-child(6) {
     display: none;
   }
 }

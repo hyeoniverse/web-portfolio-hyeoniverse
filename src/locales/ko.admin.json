@@ -2537,6 +2537,23 @@
       "visitsTrend": {
         "uniqueVisitorsDaily": "유니크 방문자 · 일별"
       },
+      "libraryBulk": {
+        "toolbar": "여러 개 고르기",
+        "selected": "{{n}}개 선택",
+        "selectAll": "모두 선택({{n}})",
+        "clear": "선택 해제",
+        "select": "{{name}} 고르기",
+        "done": "{{n}}개를 지웠습니다.",
+        "partial": "{{ok}}개를 지웠고 {{failed}}개는 지우지 못했습니다.",
+        "deleteN": "{{n}}개 지우기",
+        "deleteConfirm": "고른 {{n}}개를 지울까요? 되돌릴 수 없습니다.",
+        "removeFromHistoryN": "기록에서 {{n}}개 빼기",
+        "removeHistoryConfirm": "고른 커버 {{n}}개를 기록에서 뺄까요? 글 · 프로젝트에 이미 쓴 커버는 그대로 남습니다.",
+        "trashN": "{{n}}개 휴지통으로",
+        "trashConfirm": "고른 달력 {{n}}개를 휴지통으로 옮길까요? 30일 뒤 영구 삭제되며, 그 전에는 휴지통에서 되살릴 수 있습니다.",
+        "trashDone": "{{n}}개를 휴지통으로 옮겼습니다.",
+        "trashPartial": "{{ok}}개를 휴지통으로 옮겼고 {{failed}}개는 옮기지 못했습니다."
+      },
       "libraryTab": {
         "calendars": "달력",
         "polls": "투표",

@@ -18,12 +18,18 @@ import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
 import LibraryHead from "./LibraryHead";
 import { GallerySkeleton } from "./LibrarySkeletons";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type Ref = { id: string; title: string; slug: string };
 type CoverItem = { id: string; url: string; source: "ai" | "unsplash" | "preset" | string; meta: string; created_at: string; usage?: { posts: Ref[]; works: Ref[] } };
+
+/* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const coverKey = (c: CoverItem) => c.id;
 
 export default function CoverHistoryManager() {
   const { language, t } = useLanguage();
@@ -62,10 +68,39 @@ export default function CoverHistoryManager() {
     catch { showToast(t("admin.inline.coverHistoryManager.copyFailed"), "error"); }
   };
 
-  const remove = async (c: CoverItem) => {
+  const removeOne = async (c: CoverItem) => {
     const res = await tryRequest(`/api/admin/cover-history?url=${encodeURIComponent(c.url)}`, { method: "DELETE" });
-    if (!(res instanceof Response) || !res.ok) { showToast(t("admin.inline.coverHistoryManager.removeFailed"), "error"); return; }
+    return res instanceof Response && res.ok;
+  };
+  const remove = async (c: CoverItem) => {
+    if (!(await removeOne(c))) { showToast(t("admin.inline.coverHistoryManager.removeFailed"), "error"); return; }
     setItems((prev) => prev?.filter((x) => x.id !== c.id) ?? prev);
+  };
+
+  /* 여러 개 고르기 — 기록에서 빼기(글 · 프로젝트에 쓴 커버는 그대로 남는다) */
+  const sel = useLibrarySelection(items, coverKey);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const bulkResult = useBulkResultText();
+  const openModal = useModalStore((s) => s.openModal);
+  const removeSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.removeHistoryConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.removeFromHistoryN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, removeOne);
+          setBulkDeleting(false);
+          const gone = new Set(ok.map(coverKey));
+          setItems((prev) => prev?.filter((x) => !gone.has(x.id)) ?? prev);
+          showToast(bulkResult(ok.length, failed.length), failed.length ? "error" : "success");
+          sel.clear();
+        }}
+      />,
+      { id: "cover-history-bulk", header: { title: t("admin.inline.coverHistoryManager.removeFromHistory") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
   };
 
   return (
@@ -81,7 +116,17 @@ export default function CoverHistoryManager() {
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{t("admin.inline.coverHistoryManager.empty")}</EmptyState>
         ) : (
-          <LibraryGallery>
+          <>
+          <LibraryBulkBar
+            count={sel.count}
+            selectableCount={sel.selectableCount}
+            onSelectAll={sel.selectAll}
+            onClear={sel.clear}
+            onDelete={removeSelected}
+            deleting={bulkDeleting}
+            deleteLabel={t("admin.inline.libraryBulk.removeFromHistoryN")}
+          />
+          <LibraryGallery selecting={sel.count > 0}>
             {items.map((c) => {
               const u = usage?.[c.id];
               const used = [...(u?.posts ?? []).map((r) => ({ ...r, kind: "post" as const })), ...(u?.works ?? []).map((r) => ({ ...r, kind: "work" as const }))];
@@ -108,10 +153,12 @@ export default function CoverHistoryManager() {
                     <a className={galleryActionClass} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("admin.inline.coverHistoryManager.openNewTab")} title={t("admin.inline.coverHistoryManager.openNewTab")}><ExternalLink size={13} /></a>
                     <Pressable className={galleryActionClass} onClick={() => void remove(c)} aria-label={t("admin.inline.coverHistoryManager.removeFromHistory")} title={t("admin.inline.coverHistoryManager.removeFromHistory")}><Trash2 size={13} /></Pressable>
                   </>}
+                  select={{ checked: sel.isSelected(c), onChange: (v) => sel.toggle(c, v), label: fillTemplate(t("admin.inline.libraryBulk.select"), { name: `${sourceLabel(c)} · ${date(c.created_at)}` }) }}
                 />
               );
             })}
           </LibraryGallery>
+          </>
         )}
       </div>
     </section>
