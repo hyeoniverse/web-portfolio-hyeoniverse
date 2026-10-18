@@ -5,227 +5,135 @@
 <details>
 <summary><strong>11. React reconciliation: changing a component's type in place remounts the subtree</strong></summary>
 
-<p align="center">
-  <img src="../../../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
-</p>
+**Symptom**: The first click on a page, such as the first language switch, brought the loading screen back. From the second click on, everything behaved normally.
 
-**Problem**
+**Cause**: At the time, `RecaptchaProvider` flipped `shouldLoad` from `false` to `true` on the first click event, and the render tree changed from `<>{children}</>` to `<GoogleReCaptchaProvider>{children}</GoogleReCaptchaProvider>`. When the component type at the same position changes, React unmounts the whole subtree and mounts it again. The loading screen hook's state was recreated with its initial value (loading), so the loading screen reappeared.
 
-The loading screen reappeared when switching language for the first time on a page. Second switch onwards worked normally
+**Fix**: The first fix recorded load completion in a module-level variable, `hasCompletedInitialLoad`, so a remount skipped the loading screen. That variable still exists in `src/hooks/useLoadingProgress.ts`.
 
-**Cause**
+The root fix removed the cause of the tree change. The current `RecaptchaProvider` never wraps conditionally. It always renders children inside the same Context Provider. The reCAPTCHA script is loaded by `load()`, which inserts a `<script>` into the head directly. The contact drawer (`ContactDrawerWrapper`) calls `load()` only when it opens and `unload()` when it closes.
 
-- `RecaptchaProvider` changes `shouldLoad` from `false` to `true` on the first click event
-- The render tree changes from `<Fragment>{children}</Fragment>` to `<GoogleReCaptchaProvider>{children}</GoogleReCaptchaProvider>`
-- React unmounts and remounts the entire subtree when the component type changes at the same position
-- `useLoadingScreen()`'s `useState(true)` initial value causes the loading screen to reappear
+**Conclusion**: Wrapping a third-party Provider conditionally (switching between `Fragment` and `Provider`) makes React remount the subtree. If lazy loading is needed, keep the tree shape fixed and load the script imperatively.
 
-**Solution**
 
-Track initial loading completion with a module-level flag to skip the loading screen on remount
+</details>
 
-```tsx
-// Module level: persists across component remounts
-let hasCompletedInitialLoad = false;
+<details>
+<summary><strong>12. Autosave design: when not to save and when it is safe to restore</strong></summary>
 
-export function useLoadingScreen() {
-  // If session already completed loading on remount, start with false
-  const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
-  const hasCompletedRef = useRef(hasCompletedInitialLoad);
+**Symptom**: Four problems appeared in turn while building and refining autosave.
 
-  const completeLoading = () => {
-    hasCompletedRef.current = true;
-    hasCompletedInitialLoad = true; // Sync module flag
-    setIsLoading(false);
-  };
-}
+1. Opening the editor and changing nothing still created an autosave revision.
+2. At first everything was saved only to `localStorage`, so work could not continue in another tab or on another device.
+3. Moving or editing blocks in an existing post rolled the whole content back to an old version after autosave.
+4. For a new post that had not been saved yet, every autosave request failed with 500.
+
+**Cause**:
+
+1. The baseline used to decide whether anything changed started as an empty string (`""`). On the first comparison, `JSON.stringify` of the current form never matched `""`, so it always counted as a change. Even after the baseline matched the real form, the body editor normalizing loaded HTML into its own format produced automatic changes that created revisions (#837).
+2. `localStorage` is readable only in the same browser.
+3. Server revision auto-restore loaded "the most recent revision not yet dismissed". Past saves of existing posts did not update `posts.updated_at`, so a revision older than the saved content could not be recognized as stale. For a while, server auto-restore was turned off and only `localStorage` restore was used.
+4. `revisions.entity_id` was a uuid column. A new post has no `posts.id` before its first save, so it sent the draft sentinel string `"draft-new-post"` as `entity_id`, and the uuid cast failed.
+
+**Fix**: Saving is split into two layers, and restoring into two stages.
+
+- `useEditorDraft` writes a draft to `localStorage` on every input change. It is a same-device backup against unexpected tab closes and reloads. It is cleared after a successful save.
+- `useEditorAutoSave` writes a DB revision with `POST /api/revisions` once 3 seconds pass after the last edit. When the page is left (tab hidden, `beforeunload`, SPA navigation), it sends the last state with `navigator.sendBeacon`. sendBeacon is best effort, so delivery is not guaranteed.
+
+The conditions for not saving are as follows. The baseline is the snapshot hash taken when a valid id first becomes available. Changes made before the user does anything (key input, pointer, paste, drop, IME composition) are treated as automatic changes from loading and are absorbed into the baseline. If the changed span, excluding the common prefix and suffix, is shorter than 10 characters, nothing is saved. A mutex blocks duplicate requests while a save is in flight.
+
+Restore runs in this order. In stage 1, a `localStorage` draft is applied if it is newer than the saved content (`updated_at`), and deleted if it is older. In stage 2, the most recent undismissed server revision is loaded, and it is applied only if it was created after `updated_at` and the user has not edited yet. Saving a post updates `updated_at` and marks all of that post's revisions as dismissed.
+
+```mermaid
+flowchart TD
+    A[Editor loads] --> B{localStorage draft newer<br/>than saved content?}
+    B -- yes --> C[Apply draft]
+    B -- no --> D[Delete draft]
+    C --> E{Server revision newer<br/>than updated_at?}
+    D --> E
+    E -- no --> G[Keep current content]
+    E -- yes --> F{Has the user edited<br/>since load?}
+    F -- yes --> G
+    F -- no --> H[Apply server revision]
 ```
 
-**Insight**
+`revisions.entity_id` became text through the migration `2026_08_05_revisions_entity_id_text.sql`, and `setup.sql` was updated to match.
 
-Conditionally rendering a third-party Provider (`Fragment` <-> `Provider`) causes React to remount the subtree. State relying on `useState` initial values must be supplemented with module-level variables to be remount-safe
-
-
-</details>
-
-<details>
-<summary><strong>12. Baseline initialization: a mismatched initial value always reads as changed</strong></summary>
-
-**Problem**
-
-Opening the editor without making any changes still showed 'Autosaved' after 30 seconds, and the next visit triggered a 'Load autosaved version?' prompt
-
-**Cause**
-
-The `lastAutoSaveJson` ref in `useEditorAutoSave` was initialized with an empty string (`""`). When the 30-second debounce fires, `JSON.stringify` of the current form is compared against `""` — always different, so **a revision was created even with zero changes**
-
-```
-lastAutoSaveJson.current = ""       // initial value
-JSON.stringify(form)     = "{...}"  // current form
-"" !== "{...}"           → detected as changed → revision saved ✗
-```
-
-**Solution**
-
-Changed the initial value to `JSON.stringify(formRef.current)` so the first comparison matches the actual initial form state and skips saving
-
-**Insight**
-
-When a comparison ref is initialized with a value of a different type/shape than the actual data, **the first comparison always evaluates as 'changed'**. Initial values must reflect the real initial state
+**Conclusion**: Deciding when not to save matters more in autosave than saving periodically. The baseline must be the real initial state, and automatic changes from loading must be told apart from user edits. Restoring is safe only when a "newer than the saved content" time comparison holds. A column that must reference an entity that does not exist yet has to be text, not uuid.
 
 
 </details>
 
 <details>
-<summary><strong>13. Autosave design: knowing when not to save</strong></summary>
+<summary><strong>13. SSR inclusion: an overlay covering first paint must ship in the server HTML</strong></summary>
 
-**Problem**
+**Symptom**: On page load, content flashed briefly before the loading screen (black background) appeared.
 
-The initial auto-save used `localStorage` directly, but multiple issues compounded:
-1. **No cross-tab/device sharing** — localStorage is browser-local only
-2. **Unnecessary saves on refresh** — "Auto-saved" appeared even without any changes
-3. **Re-prompting after dismissing identical content** — same revision content kept triggering restore prompts
+**Cause**: `LoadingScreen` was loaded inside `ClientOverlays` with `dynamic(() => import(...), { ssr: false })`, so it was not in the server HTML. It mounted only after the browser downloaded the JS bundle and React finished hydrating, and the content was visible in between.
 
-**Cause**
+**Fix**: `LoadingScreen` switched to a regular import so it is part of the server HTML. The loading state's server snapshot starts with `isLoading: true`, so the HTML arrives with the black cover already drawn. Because `ClientOverlays` sat after the main content and footer, the first panel could still paint before the cover while the HTML streamed. The root layout now renders `<LoadingScreen />` at the very start of `<body>`. The other overlays (Modal, CursorTrail and so on) do not need server rendering and stay lazy-loaded.
 
-1. Inherent limitation of localStorage (browser-local storage)
-2. `lastAutoSaveJson` ref initialized to `""` (empty string), so `JSON.stringify(form)` always differed
-3. Dismissed revision snapshots weren't tracked, so identical content recreated in DB triggered re-prompts
-
-**Solution**
-
-**Improved in 3 stages:**
-1. Completely removed localStorage, made **DB `revisions` table the sole storage** — enables cross-tab/device sharing
-2. Set `lastAutoSaveJson` initial value to `JSON.stringify(formRef.current)` so **unchanged state skips saving**
-3. Track dismissed revision snapshots in a `Set`, so **identical content doesn't re-prompt**
-
-Additionally, page leave saves use `navigator.sendBeacon` (browser close) and `fetch({ keepalive: true })` (SPA routing) to **minimize the chance of losing the final state** (sendBeacon and keepalive are best-effort, not a guarantee)
-
-**Insight**
-
-Auto-save isn't just "save periodically" — the key challenge is **knowing when NOT to save**. Proper initial value comparison, duplicate detection, and dismissed tracking are all necessary to prevent unnecessary revision accumulation and UX confusion
+**Conclusion**: An overlay that must cover first paint has to be in the server HTML. A component loaded with `ssr: false` appears only after hydration. Because HTML streams, the cover also has to come before the content in the document.
 
 
 </details>
 
 <details>
-<summary><strong>14. SSR inclusion: an overlay covering first paint must ship in the server HTML</strong></summary>
+<summary><strong>14. Soft delete and recoverability: restore requires non-destructive deletion</strong></summary>
 
-**Problem**
+**Symptom**: A restore feature for deleted (tombstoned) comments brought back empty comments when only `is_deleted` was reverted.
 
-Page content briefly appears before the loading screen (black backdrop) shows up
+**Cause**: For privacy, tombstoning a comment overwrote `content`, `password_hash` and `commenter_hash` with empty values. The original text no longer existed in the database.
 
-**Cause**
+**Fix**: Deletion keeps the content, and exposure is blocked in the public API response.
 
-`LoadingScreen` was loaded inside `ClientOverlays` using `dynamic(() => import(...), { ssr: false })`, excluding it from the server HTML. The browser displayed page content immediately, and `LoadingScreen` only mounted after JS bundle load + React hydration
+1. Tombstoning sets only `is_deleted` and `deleted_by` and leaves the content in place.
+2. The public GET replaces `content` and `commenter_hash` with empty values for `is_deleted` rows. The UI draws a placeholder for deleted comments. The admin GET returns the original text, which the restore preview uses.
+3. The restore endpoint matches only rows with `is_deleted=true`. A comment whose row was hard-deleted does not match and returns 404.
 
-**Solution**
-
-Changed `LoadingScreen` to a regular `import` so it's included in server HTML. Since `useLoadingScreen()` initializes with `isLoading: true`, the black backdrop renders at `opacity: 1` in the SSR output. Other overlays (Modal, CursorTrail, etc.) remain `ssr: false` as they don't need server rendering
-
-**Insight**: An overlay that must cover the first paint has to ship in the server HTML. Anything behind `ssr: false` appears only after hydration.
+**Conclusion**: Whether something can be restored depends on what deletion erased. If deletion does not destroy data and exposure is blocked at the API response, privacy and recoverability can both hold.
 
 
 </details>
 
 <details>
-<summary><strong>15. Shared build output: dev and build sharing .next breaks live chunks</strong></summary>
+<summary><strong>15. Server cookies vs client navigation: full reload after auth state changes</strong></summary>
 
-**Problem**: Running `npm run build` to sanity-check a build mid-development broke the open dev site with a `ChunkLoadError`.
+**Symptom**: After a successful email login, entering the admin pages required a refresh. The navigation's signed-in indicators (email, notifications, logout) did not appear either.
 
-**Cause**: `next dev` and `next build` share the same `.next` directory — the build overwrites the dev output, so the chunk hashes the browser was holding disappear.
+**Cause**: Login is handled in a server route, and the response's Set-Cookie only plants the session cookie. The browser's Supabase client never receives a SIGNED_IN event. Navigating with `router.push` in that state, the server layout's `getUser()` does not see the new cookie. The Navigation hook, mounted at the root the whole time, checks the cookie once on mount and does not check again.
 
-**Solution**: Don't run a build while the dev server is up (or separate them with a distinct `distDir`).
+**Fix**: Navigation after a successful login now uses `window.location.assign`, a full reload. This matches the server redirect used by GitHub OAuth. The full reload remounts Navigation with the new cookie present, and both symptoms disappear.
 
-**Insight**: When two processes write to the same output directory, "verifying the build" becomes "destroying the dev environment" — to check whether a build passes, either stop dev or split the output path.
-
-
-</details>
-
-<details>
-<summary><strong>16. Soft delete and recoverability: restore requires non-destructive deletion</strong></summary>
-
-**Problem**: Building a feature to bring back a deleted (tombstoned) comment, flipping `is_deleted` back restored an empty-content comment.
-
-**Cause**: Comment delete overwrote `content`·`password_hash`·`commenter_hash` with empty strings on tombstone (for privacy). The original text to restore simply wasn't in the DB.
-
-**Solution**: Preserve the content on delete, but hide it in the public API.
-
-1. Tombstone sets only `is_deleted`/`deleted_by` and keeps `content`
-2. The public GET masks `content`·`commenter_hash` to empty for `is_deleted` rows (the UI draws a placeholder anyway); the admin GET keeps the original for the restore preview
-3. The restore endpoint matches only `is_deleted=true` rows — a hard-deleted ("permanently deleted") row is gone, so it naturally 404s
-
-**Insight**: "Restore" depends entirely on "what did delete erase" — for something to be restorable, delete must not destroy the data, and exposure must instead be masked at the API-response layer so privacy and restorability coexist.
+**Conclusion**: A cookie set by the server does not reach components that are already mounted when navigation happens on the client. Right after the auth state changes, a full navigation is the safe choice.
 
 
 </details>
 
 <details>
-<summary><strong>17. Optimistic restore and clock comparison: untrusted timestamps cause rollbacks</strong></summary>
+<summary><strong>16. Measuring external-service reliability: status codes, not console errors</strong></summary>
 
-**Problem**: Moving a block by DnD or editing it in an existing post rolled the whole content back to an old version after auto-save.
+**Symptom**: The preview iframe for attached office documents was frequently blank, and Chrome showed a "gview download failed" notice.
 
-**Cause**: On load, the server (cross-device) auto-restore restored a "non-dismissed revision older than the saved copy." Past saves of an existing post didn't bump `posts.updated_at`, so the staleness check never fired.
+**Cause**: `docs.google.com/gview?embedded=true` returned an empty 204 to about 5 of 12 iframe requests (`Sec-Fetch-Dest: iframe`). The iframe stays blank, and Chrome treats that navigation as a file download attempt and shows the failure notice. This was the behavior of the service, not of the code.
 
-**Solution**: Disabled server auto-restore → use only localStorage (same-device) restore; `posts.content` is the truth. Re-enabling is possible after saving each post once (dismisses the old revision + bumps `updated_at`) or behind a `savedAt>updated_at` guard.
+**Fix**: The viewer changed to Microsoft's (`view.officeapps.live.com/op/embed.aspx`), which returned 200 on all 8 requests under the same conditions. Old gview URLs already stored in saved HTML are rewritten at render time by `migrateOfficeViewerUrls`. The `appChrome is not defined` error in the MS viewer's console does not affect the page. An earlier move to gview was made because of that console error alone, and that move led to the 204 problem.
 
-**Insight**: Optimistic restore is only safe when there's a trustworthy timestamp comparison asserting "the saved copy is newest."
-
-
-</details>
-
-<details>
-<summary><strong>18. Schema types and sentinels: a not-yet-existing entity cannot be a uuid</strong></summary>
-
-**Problem**: In a new post (not yet saved), every auto-save request returned 500.
-
-**Cause**: `revisions.entity_id` was uuid, but a pre-save new post has no `posts.id`, so it sends a draft sentinel string (`"draft-new-post"`) as the `entity_id` → the uuid cast fails.
-
-**Solution**: Changed `revisions.entity_id` to text (migration `2026_08_05`). `setup.sql` updated too.
-
-**Insight**: A temporary reference to an entity that doesn't exist yet can't fit in a uuid — to allow a sentinel, use text.
+**Conclusion**: The reliability of an external viewer should be judged by the distribution of status codes, not by console errors. It was measured by calling the URL repeatedly with curl and a `Sec-Fetch-Dest: iframe` header.
 
 
 </details>
 
 <details>
-<summary><strong>19. Server cookies vs client navigation: full reload after auth state changes</strong></summary>
+<summary><strong>17. Two representations in one column: interpretation must be shared by every consumer</strong></summary>
 
-**Problem**: After a successful email login, entering admin pages required a refresh, and the navigation's logged-in state (email, notifications, logout) never appeared.
+**Symptom**: The year slot on work cards showed raw JSON such as `{"start":{"year":2024,...}}`.
 
-**Cause**: Login happens in a server route, so only the session cookie is set via Set-Cookie in the response. The browser Supabase client never receives a SIGNED_IN event. Navigating with `router.push` from there, the server layout's `getUser()` does not see the new cookie, and the Navigation hook, mounted since the login page, checks the cookie only once on mount and never again.
+**Cause**: The editor stores the period input as a JSON string in the `year` column, and the list page printed that value as is. The logic that turns a period into a string existed only in the editor preview.
 
-**Solution**: Changed the post-login navigation to a full reload with `window.location.assign`, the same pattern as the GitHub OAuth server redirect. The full reload remounts Navigation with the cookie present, clearing both symptoms.
+**Fix**: The `parseStoredPeriod` and `formatWorkYear` utilities were extracted. If the stored value is a JSON period, it becomes a period string in the current language; otherwise the raw value is shown. Every component that renders the year uses these utilities.
 
-**Insight**: A cookie set by the server does not propagate through client-side navigation. Right after changing auth state, a full navigation is the safe move.
-
-
-</details>
-
-<details>
-<summary><strong>20. Measuring external-service reliability: status codes, not console errors</strong></summary>
-
-**Problem**: The iframe previewing attached Office documents frequently rendered blank, and Chrome showed a "gview download failed" notification.
-
-**Cause**: `docs.google.com/gview?embedded=true` returned an empty 204 response to iframe requests (Sec-Fetch-Dest: iframe) about 5 times out of 12. The iframe goes blank, and Chrome treats that navigation as a failed file download. Not a bug in our code; it is the service's behavior.
-
-**Solution**: Switched to the MS viewer (`view.officeapps.live.com/op/embed.aspx`), which returned 200 on 8 out of 8 under the same conditions. Old gview URLs frozen into saved HTML are rewritten at render time by `migrateOfficeViewerUrls`. The MS viewer's console errors (`appChrome is not defined`) are unrelated to the rendered output — an earlier switch to gview based on those very errors is how the 204s were met.
-
-**Insight**: Judge an external viewer's reliability by its status code distribution, not its console errors. Measured with repeated curl calls carrying the `Sec-Fetch-Dest: iframe` header.
-
-
-</details>
-
-<details>
-<summary><strong>21. Two representations in one column: interpretation must be shared by every consumer</strong></summary>
-
-**Problem**: The year slot on work cards displayed raw JSON like `{"start":{"year":2024,...}}`.
-
-**Cause**: The editor saves period input as a JSON string in the `year` column, and the list screens printed the value verbatim. The logic assembling a period into a readable string existed only in the editor preview.
-
-**Solution**: Extracted `parseStoredPeriod` and `formatWorkYear` utilities: if the stored value is a JSON period it formats a language-appropriate period string, otherwise it returns the original text. Every component that renders the year shares these utilities.
-
-**Insight**: When one column holds two representations (plain text and JSON), the interpretation logic belongs in one shared utility. Keeping it only in the editor lets public screens leak the raw form.
+**Conclusion**: When a column holds two representations, plain text and JSON, the interpretation logic belongs in one utility shared by every consumer. If it lives only in the editor, public pages expose the raw value.
 
 
 </details>
