@@ -17,7 +17,11 @@ vi.mock("@/lib/supabase/admin", () => ({
         if (table === "site_settings") db.saved = row.config;
         return { error: null };
       },
-      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { config: db.profile } }) }) }),
+      /* 프로필 행 읽기 — 백업 줄(content_translations)은 비어 있다 */
+      select: () => {
+        const q = { eq: () => q, maybeSingle: async () => ({ data: table === "site_settings" ? { config: db.profile } : null }) };
+        return q;
+      },
     }),
   }),
 }));
