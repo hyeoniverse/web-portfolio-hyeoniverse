@@ -4,11 +4,12 @@
 // AI 로 만들거나 이미지 검색·기본 이미지에서 고른 커버의 최근 기록(최대 24개, 계정별).
 // 예전엔 커버 고르기 창 안에서만 보였다. 여기서 모아 보고 주소를 복사해 다른 글에 쓰거나 기록에서 뺀다.
 // 기록에서 빼도 이미지 파일과 이미 커버로 쓴 글은 그대로다.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Copy, ExternalLink, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import EmptyState from "@/components/ui/EmptyState";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -30,6 +31,9 @@ type CoverItem = { id: string; url: string; source: "ai" | "unsplash" | "preset"
 
 /* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
 const coverKey = (c: CoverItem) => c.id;
+
+type UseFilter = "all" | "used" | "unused";
+const isUsed = (u: CoverItem["usage"]) => !!u && (u.posts.length > 0 || u.works.length > 0);
 
 export default function CoverHistoryManager() {
   const { language, t } = useLanguage();
@@ -77,8 +81,22 @@ export default function CoverHistoryManager() {
     setItems((prev) => prev?.filter((x) => x.id !== c.id) ?? prev);
   };
 
-  /* 여러 개 고르기 — 기록에서 빼기(글 · 프로젝트에 쓴 커버는 그대로 남는다) */
-  const sel = useLibrarySelection(items, coverKey);
+  /* 쓰는 곳으로 걸러 보기 — 사용처가 오기 전에는 전체만 보인다(사용 중 · 안 씀은 숫자 없이 고르면 뼈대) */
+  const [useFilter, setUseFilter] = useState<UseFilter>("all");
+  const usedCount = useMemo(() => (items && usage ? items.filter((c) => isUsed(usage[c.id])).length : null), [items, usage]);
+  const shown = useMemo(() => {
+    if (!items || useFilter === "all") return items;
+    if (!usage) return null;
+    return items.filter((c) => isUsed(usage[c.id]) === (useFilter === "used"));
+  }, [items, usage, useFilter]);
+  const filterItems = [
+    { value: "all" as const, label: `${t("admin.inline.coverHistoryManager.all")} ${items?.length ?? 0}` },
+    { value: "used" as const, label: usedCount === null ? t("admin.inline.coverHistoryManager.used") : `${t("admin.inline.coverHistoryManager.used")} ${usedCount}` },
+    { value: "unused" as const, label: usedCount === null ? t("admin.inline.coverHistoryManager.unused") : `${t("admin.inline.coverHistoryManager.unused")} ${items!.length - usedCount}` },
+  ];
+
+  /* 여러 개 고르기 — 기록에서 빼기(글 · 프로젝트에 쓴 커버는 그대로 남는다). 걸러 본 것만 대상 */
+  const sel = useLibrarySelection(shown, coverKey);
   const pick = useDragSelect(sel);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkResult = useBulkResultText();
@@ -111,11 +129,14 @@ export default function CoverHistoryManager() {
           title={t("admin.inline.coverHistoryManager.title")}
           count={items?.length}
           hint={t("admin.inline.coverHistoryManager.hint")}
+          filters={<SegmentedControl items={filterItems} value={useFilter} onChange={setUseFilter} variant="subtle" />}
         />
-        {items === null ? (
+        {items === null || shown === null ? (
           <GallerySkeleton />
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{t("admin.inline.coverHistoryManager.empty")}</EmptyState>
+        ) : shown.length === 0 ? (
+          <EmptyState pad="sm">{t("admin.inline.coverHistoryManager.noMatch")}</EmptyState>
         ) : (
           <>
           <LibraryBulkBar
@@ -128,7 +149,7 @@ export default function CoverHistoryManager() {
             deleteLabel={t("admin.inline.libraryBulk.removeFromHistoryN")}
           />
           <LibraryGallery selecting={sel.count > 0}>
-            {items.map((c) => {
+            {shown.map((c) => {
               const u = usage?.[c.id];
               const used = [...(u?.posts ?? []).map((r) => ({ ...r, kind: "post" as const })), ...(u?.works ?? []).map((r) => ({ ...r, kind: "work" as const }))];
               return (
