@@ -1,0 +1,107 @@
+/* 라이브러리 파일 미리보기 — 모달 본문 */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--modal-padding-md);
+}
+
+.image,
+.video {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  margin: 0 auto;
+  border-radius: var(--radius-surface);
+  object-fit: contain;
+  background: var(--bg-secondary);
+}
+
+.video {
+  width: 100%;
+}
+
+.audio,
+.none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-32) 0;
+  color: var(--text-tertiary);
+  font: var(--font-body-sm);
+}
+
+.audio audio {
+  width: min(480px, 100%);
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+.text {
+  max-height: 70vh;
+  margin: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  overflow: auto;
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font: var(--font-code-xs);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 폰트 견본 — 큰 · 중간 · 작은 글 세 묶음 */
+.font {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  color: var(--text-primary);
+}
+
+.font p {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.fontLg {
+  font: var(--font-display-sm);
+}
+
+.fontMd {
+  font: var(--font-body-xl);
+}
+
+.fontSm {
+  font: var(--font-body-md);
+}
+
+.fontLoading {
+  margin: 0;
+  color: var(--text-tertiary);
+  font: var(--font-body-sm);
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  align-self: flex-end;
+  color: var(--text-secondary);
+  font: var(--font-label-sm);
+  text-decoration: none;
+}
+
+.open:hover {
+  color: var(--text-primary);
+}
