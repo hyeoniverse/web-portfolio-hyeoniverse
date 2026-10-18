@@ -2889,6 +2889,10 @@
         "post": "Post",
         "project": "Project",
         "notUsed": "Not used",
+        "all": "All",
+        "used": "In use",
+        "unused": "Unused",
+        "noMatch": "No covers match",
         "copyUrl": "Copy URL",
         "openNewTab": "Open in new tab",
         "removeFromHistory": "Remove from history"
