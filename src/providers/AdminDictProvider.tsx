@@ -3,7 +3,7 @@
 import { useContext, useEffect, useMemo, type ReactNode } from "react";
 import { LanguageContext, type Language, type Translations } from "@/providers/LanguageProvider";
 import { useSiteLang } from "@/providers/SiteTranslationProvider";
-import { ensureAdminUi } from "@/lib/adminLang";
+import { loadAdminUi } from "@/lib/adminLang";
 
 /**
  * admin 사전을 이미 로드한 상태로 대시보드 하위 트리에 제공한다.
@@ -33,10 +33,11 @@ export default function AdminDictProvider({
     addTranslations(dict);
   }, [addTranslations, dict]);
 
-  /* 다른 언어가 걸려 있으면 관리자 사전 번역을 받아 t() 에 얹는다(lib/adminLang → siteLang 스냅숏의 adminUi) */
+  /* 다른 언어가 걸려 있으면 저장해 둔 관리자 화면 글 번역을 t() 에 얹는다(lib/adminLang → siteLang 스냅숏의 adminUi).
+     없는 글은 t() 가 찾을 때 그 글만 묻는다 */
   const { lang } = useSiteLang();
   useEffect(() => {
-    if (lang) void ensureAdminUi(lang);
+    if (lang) loadAdminUi(lang);
   }, [lang]);
 
   const value = useMemo(

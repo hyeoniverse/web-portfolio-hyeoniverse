@@ -13,7 +13,7 @@ import {
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
 import type { Language } from "@/types";
-import { getServerSiteLangSnapshot, getSiteLangSnapshot, primeSiteUi, selectSiteLang, serverSnapshotFor, setSiteDefaultLang, subscribeSiteLang, type SiteLangSnapshot } from "@/lib/siteLang";
+import { getServerSiteLangSnapshot, getSiteLangSnapshot, primeSiteUi, requestSiteUiKey, selectSiteLang, serverSnapshotFor, setSiteDefaultLang, subscribeSiteLang, type SiteLangSnapshot } from "@/lib/siteLang";
 import { baseLanguageOf, isForeignSiteLanguage, normalizeSiteLanguage } from "@/lib/siteLanguage";
 
 export type { Language };
@@ -235,13 +235,22 @@ export function useLanguage(): LanguageControls & {
   const language: Language = native ? "ko" : foreignLang || nativeLang ? "en" : savedLanguage;
   const overlayOn = !!foreignLang || native;
   const overlay = useMemo(
-    () => (!overlayOn ? null : site.adminUi ? { ...site.ui, ...site.adminUi } : site.ui),
+    () => (!overlayOn ? null : { ...(site.ui ?? {}), ...(site.adminUi ?? {}) }),
     [overlayOn, site.ui, site.adminUi],
   );
+  const overlayLang = overlayOn ? site.lang : null;
   const t = useCallback(
-    /* ko 자리가 다른 언어면 바탕 사전은 영어 — 번역을 받기 전에 한국어가 보이지 않게 */
-    (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[native ? "en" : language], key)),
-    [dict, language, overlay, native],
+    /* ko 자리가 다른 언어면 바탕 사전은 영어 — 번역을 받기 전에 한국어가 보이지 않게.
+       번역에 없는 글은 영어로 그리고 그 열쇠만 묻는다(보는 화면의 글만 번역 — lib/siteLang) */
+    (key: string) => {
+      if (!overlay) return getNestedValue(dict[native ? "en" : language], key);
+      const hit = overlay[key];
+      if (hit !== undefined) return hit;
+      const base = getNestedValue(dict.en, key);
+      if (overlayLang && base !== key) requestSiteUiKey(overlayLang, key);
+      return base;
+    },
+    [dict, language, overlay, overlayLang, native],
   );
   /* 반대 언어 말풍선 — 다른 언어로 볼 때는 한국어를 꺼내 보이지 않는다(같은 글을 돌려주면 T 가 말풍선을 생략한다) */
   const tAlt = useCallback(

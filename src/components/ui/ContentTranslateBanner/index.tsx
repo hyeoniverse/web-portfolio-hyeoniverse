@@ -27,8 +27,8 @@ export default function ContentTranslateBanner({
   onShowOriginal: () => void;
   onRetry: () => void;
 }) {
-  const { t, language } = useLanguage();
-  const name = localLangName(lang, language);
+  const { t, dateLocale } = useLanguage();
+  const name = localLangName(lang, dateLocale);
   const message = error
     ? t(error === "rateLimited" ? "contentTranslate.rateLimited" : "contentTranslate.failed")
     : fillTemplate(t(translating ? "contentTranslate.translating" : "contentTranslate.notice"), { lang: name });
@@ -72,12 +72,13 @@ export function TranslatingRegion({ active, children }: { active: boolean; child
  * 아래에 "~(으)로 번역하는 중…" 한 줄이 뜬다. 받으면 사라진다.
  */
 export function SiteTranslatingStatus({ lang }: { lang: string }) {
-  const { t, language } = useLanguage();
+  /* 언어 이름은 화면에 보이는 언어로 — 기본 언어가 ko · en 밖(ja)이면 language 는 "ko 자리"라 "일본어"가 섞였다 */
+  const { t, dateLocale } = useLanguage();
   return (
     <div className={`${styles.banner} ${styles.sitePill}`} role="status" aria-live="polite" data-busy="">
       <Languages className={styles.icon} size={14} aria-hidden />
       <p className={styles.message}>
-        {fillTemplate(t("contentTranslate.translating"), { lang: localLangName(lang, language) })}
+        {fillTemplate(t("contentTranslate.translating"), { lang: localLangName(lang, dateLocale) })}
         <LoadingDots className={styles.dots} />
       </p>
     </div>

@@ -48,16 +48,17 @@ export default function ContentLangMenu({
   tooltipPlacement = "top",
   iconSize = 14,
 }: ContentLangMenuProps) {
-  const { t, language } = useLanguage();
+  /* 화면 언어의 이름은 지금 보이는 언어로 — 기본 언어가 ko · en 밖이면 language 는 "ko 자리"다 */
+  const { t, dateLocale } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
     return TRANSLATION_LANGUAGES
-      .map((l) => ({ ...l, local: localLangName(l.code, language) }))
+      .map((l) => ({ ...l, local: localLangName(l.code, dateLocale) }))
       .filter((l) => !q || [l.native, l.name, l.local, l.code].some((s) => s.toLowerCase().includes(q)));
-  }, [query, language]);
+  }, [query, dateLocale]);
 
   const pick = (lang: string | null, close: () => void) => {
     onChange(lang);
