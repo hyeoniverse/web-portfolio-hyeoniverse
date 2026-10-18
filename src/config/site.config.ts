@@ -171,9 +171,9 @@ export const siteConfig = {
   // 소셜 링크 (순서 변경·추가 가능, 최대 6개 표시)
   // platform: github | linkedin | blog | twitter | instagram | youtube | behance | dribbble | custom
   socialLinks: [
-    { platform: "github", url: "https://github.com" },
-    { platform: "linkedin", url: "https://linkedin.com" },
-    { platform: "blog", url: "https://velog.io" },
+    { platform: "github", url: "https://github.com/hyeoniverse" },
+    { platform: "linkedin", url: "https://www.linkedin.com/in/정현-김-35135331a" },
+    { platform: "blog", url: "https://blog.hyeoniverse.com" },
   ] as { platform: string; url: string; label?: string; icon?: string }[],
 
   // ---------------------------------------------------------------------------
