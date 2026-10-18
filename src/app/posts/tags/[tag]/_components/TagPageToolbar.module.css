@@ -18,7 +18,10 @@
 .heroTopRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* 좁은 화면은 뒤로 · TAG 가 한 줄에 둘만 남는다 — 양끝으로 벌리지 않고 붙인다 */
+  justify-content: flex-start;
+  /* 좁은 화면 — 뒤로 · TAG 줄 아래로 정렬 · 보기 · 검색이 내려간다(한 줄이면 오른쪽이 잘렸다) */
+  flex-wrap: wrap;
   width: 100%;
   gap: var(--spacing-12);
   position: sticky;
@@ -65,8 +68,9 @@
 }
 /* 검색창 + 뒤의 perPage select 를 우측으로 — 검색창이 margin-left:auto 로 그룹을 오른쪽에 밀착 */
 .heroSearch {
-  flex: 0 0 auto;
-  max-width: 360px;
+  /* 좁은 화면은 보기 단추 아래 줄로 내려가 도움말(?) 옆을 다 쓴다 — 360px 그대로면 보기 단추 옆에서 화면 밖으로 나갔다 */
+  flex: 1 1 240px;
+  min-width: 0;
 }
 
 .heroBadge {
@@ -89,9 +93,31 @@
 .toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-12);
-  flex: 1;
+  flex: 1 1 100%;
   min-width: 0;
+}
+
+@media (width > 768px) {
+  .heroTopRow,
+  .toolbar,
+  .searchPerPageGroup {
+    flex-wrap: nowrap;
+  }
+
+  .heroTopRow {
+    justify-content: space-between;
+  }
+
+  .toolbar {
+    flex: 1;
+  }
+
+  .heroSearch {
+    flex: 0 0 auto;
+    max-width: 360px;
+  }
 }
 
 
@@ -124,6 +150,7 @@
 .searchPerPageGroup {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-8);
   margin-left: auto;
   min-width: 0;

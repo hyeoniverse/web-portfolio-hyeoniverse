@@ -76,11 +76,14 @@
   flex: 0 0 auto;
 }
 
-.meta > .usageInline {
+.meta > .usageInline,
+.hint > .usageInline {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* 원인 · 사용량 묶음(.hint) 안에 들어가면 묶음이 flex 라 묶음의 말줄임이 글에 닿지 않아 글자 중간에서 잘렸다 — 글 자신이 줄인다 */
+  white-space: nowrap;
 }
 
 /* 원인 · 사용량 묶음 — 넘치면 말줄임 */
