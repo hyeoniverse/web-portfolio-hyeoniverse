@@ -12,6 +12,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import { fillRich } from "@/utils/fillRich";
 import CloseButton from "@/components/ui/CloseButton";
 import Textarea from "@/components/ui/Textarea";
 import ContactSuccessView from "./ContactSuccessView";
@@ -98,7 +99,7 @@ export default function ContactDrawer({
   setCopied,
 }: ContactDrawerProps) {
   const siteConfig = useSiteConfig();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   /* 첨부가 여러 번 이어 실패해 저절로 꺼졌는지 — 설정은 켜져 있어도 꺼질 수 있다(/api/contact/attachment).
      서랍을 처음 열 때 한 번 묻는다. 모르는 동안은 설정을 따른다 */
   const [attachmentOn, setAttachmentOn] = useState(true);
@@ -432,8 +433,8 @@ export default function ContactDrawer({
                             data-clickable="true"
                           />
                           <span>
-                            {language === "ko" ? (
-                              <>
+                            {fillRich(t("contact.drawer.acceptPrivacy"), {
+                              policy: (
                                 <Link
                                   data-more="true"
                                   href="/privacy"
@@ -443,22 +444,8 @@ export default function ContactDrawer({
                                 >
                                   <T k="contact.drawer.privacyPolicy" />
                                 </Link>
-                                <T k="contact.drawer.acceptPrivacy" />
-                              </>
-                            ) : (
-                              <>
-                                <T k="contact.drawer.acceptPrivacy" />
-                                <Link
-                                  data-more="true"
-                                  href="/privacy"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <T k="contact.drawer.privacyPolicy" />
-                                </Link>
-                              </>
-                            )}
+                              ),
+                            })}
                           </span>
                         </label>
                       </div>

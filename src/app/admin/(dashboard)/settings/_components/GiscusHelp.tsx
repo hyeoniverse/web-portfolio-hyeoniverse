@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { HelpCircle, ExternalLink } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillRich } from "@/utils/fillRich";
 import styles from "./GiscusHelp.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -21,6 +22,8 @@ const Ext = ({ href, children }: { href: string; children: ReactNode }) => (
 /** giscus 설정 방법(단계) Popover — 핵심 단어 highlight + kbd 칩 + 외부 링크. 값·옵션 설명은 필드 ? 툴팁. */
 export default function GiscusHelp() {
   const { t } = useLanguage();
+  /* 단계 글은 문장 하나가 한 키 — 칩 · 강조 · 링크는 자리표시로 끼운다(언어마다 어순이 달라 조각으로 나누지 않는다) */
+  const k = (key: string, slots: Record<string, ReactNode>) => fillRich(t(`admin.inline.giscusHelp.${key}`), slots);
 
   return (
     <Popover
@@ -40,35 +43,29 @@ export default function GiscusHelp() {
         </div>
 
         <p className={styles.intro}>
-          {t("admin.inline.giscusHelp.idsCopyHint")}
-          <Kbd>data-repo-id</Kbd> · <Kbd>data-category-id</Kbd>
-          {t("admin.inline.giscusHelp.attributesOfTheScript")}
+          {k("intro", { repoId: <Kbd>data-repo-id</Kbd>, categoryId: <Kbd>data-category-id</Kbd> })}
         </p>
 
         <section className={styles.sec}>
           <span className={styles.secTitle}>{t("admin.inline.giscusHelp.setupTitle")}</span>
           <ol className={styles.steps}>
             <li>
-              {t("admin.inline.giscusHelp.makeSureTheComment")}
-              <Hl>Public</Hl>
-              {t("admin.inline.giscusHelp.fragAndThat")}
-              <Hl>Discussions</Hl>
-              {t("admin.inline.giscusHelp.isEnabled")}
-              <Kbd>{t("admin.inline.giscusHelp.settingsGeneralFeaturesDiscussions")}</Kbd>
-              {t("admin.inline.giscusHelp.text")}
+              {k("stepRepo", {
+                public: <Hl>Public</Hl>,
+                discussions: <Hl>Discussions</Hl>,
+                path: <Kbd>{t("admin.inline.giscusHelp.discussionsPath")}</Kbd>,
+              })}
             </li>
             <li>
-              <b>{t("admin.inline.giscusHelp.installTheGiscusApp")}</b>
-              {t("admin.inline.giscusHelp.fragGoTo")}
-              <Ext href="https://github.com/apps/giscus">github.com/apps/giscus</Ext>
-              {t("admin.inline.giscusHelp.fragAndClick")}
-              <Kbd>Install</Kbd>{t("admin.inline.giscusHelp.fragOr")}<Kbd>Configure</Kbd>{t("admin.inline.giscusHelp.ifAlreadyInstalledChoose")}
-              <Kbd>Only select repositories</Kbd>
-              {t("admin.inline.giscusHelp.fragPickRepo")}
-              <Kbd>All repositories</Kbd>
-              {t("admin.inline.giscusHelp.fragGrantAccess")}
-              <Kbd>Install / Save</Kbd>
-              {t("admin.inline.giscusHelp.fragPeriod")}
+              {k("stepInstall", {
+                title: <b>{t("admin.inline.giscusHelp.installApp")}</b>,
+                link: <Ext href="https://github.com/apps/giscus">github.com/apps/giscus</Ext>,
+                install: <Kbd>Install</Kbd>,
+                configure: <Kbd>Configure</Kbd>,
+                only: <Kbd>Only select repositories</Kbd>,
+                all: <Kbd>All repositories</Kbd>,
+                save: <Kbd>Install / Save</Kbd>,
+              })}
             </li>
           </ol>
         </section>
@@ -77,15 +74,12 @@ export default function GiscusHelp() {
           <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionAuto")}</span>
           <ol className={styles.steps} start={3}>
             <li>
-              {t("admin.inline.giscusHelp.fragInThe")}
-              <Kbd>{t("admin.inline.giscusHelp.repository")}</Kbd>
-              {t("admin.inline.giscusHelp.fieldEnter")}
-              <Kbd>owner/repository-name</Kbd>
-              {t("admin.inline.giscusHelp.andClick")}
-              <Kbd>{t("admin.inline.giscusHelp.loadRepository")}</Kbd>
-              {t("admin.inline.giscusHelp.requires")}
-              <Kbd>GITHUB_TOKEN</Kbd>
-              {t("admin.inline.giscusHelp.fragCloseParen")}
+              {k("autoLoad", {
+                field: <Kbd>{t("admin.inline.giscusHelp.repository")}</Kbd>,
+                format: <Kbd>owner/repository-name</Kbd>,
+                load: <Kbd>{t("admin.inline.giscusHelp.loadRepository")}</Kbd>,
+                token: <Kbd>GITHUB_TOKEN</Kbd>,
+              })}
             </li>
             <li>{t("admin.inline.giscusHelp.autoFillHint")}</li>
           </ol>
@@ -94,36 +88,16 @@ export default function GiscusHelp() {
         <section className={styles.sec}>
           <span className={styles.subTitle}>{t("admin.inline.giscusHelp.optionManual")}</span>
           <ol className={styles.steps} start={3}>
-            <li>
-              {t("admin.inline.giscusHelp.goToTheGiscus")}
-              <Ext href="https://giscus.app/ko">giscus.app</Ext>
-              {t("admin.inline.giscusHelp.fragCloseParenPeriod")}
-            </li>
-            <li>
-              {t("admin.inline.giscusHelp.fragEnterRepo")}
-              <Kbd>{t("admin.inline.giscusHelp.repoFormat")}</Kbd>
-              {t("admin.inline.giscusHelp.fragPeriod2")}
-            </li>
-            <li>
-              {t("admin.inline.giscusHelp.fragChooseCategory")}
-              <Hl>Announcements</Hl>
-              {t("admin.inline.giscusHelp.fragCloseParenPeriod2")}
-            </li>
-            <li>
-              {t("admin.inline.giscusHelp.findTheGenerated")}
-              <Kbd>&lt;script&gt;</Kbd>
-              {t("admin.inline.giscusHelp.tagInTheEnable")}
-            </li>
-            <li>
-              {t("admin.inline.giscusHelp.copy")}
-              <Kbd>data-repo-id</Kbd> · <Kbd>data-category-id</Kbd>
-              {t("admin.inline.giscusHelp.fromTheScriptInto")}
-            </li>
+            <li>{k("manualOpen", { link: <Ext href="https://giscus.app/ko">giscus.app</Ext> })}</li>
+            <li>{k("manualRepo", { format: <Kbd>{t("admin.inline.giscusHelp.repoFormat")}</Kbd> })}</li>
+            <li>{k("manualCategory", { example: <Hl>Announcements</Hl> })}</li>
+            <li>{k("manualScript", { tag: <Kbd>&lt;script&gt;</Kbd> })}</li>
+            <li>{k("manualCopy", { repoId: <Kbd>data-repo-id</Kbd>, categoryId: <Kbd>data-category-id</Kbd> })}</li>
           </ol>
         </section>
 
         <p className={styles.caution}>
-          {t("admin.inline.giscusHelp.aCustomCssUrl")}
+          {t("admin.inline.giscusHelp.cssUrlCaution")}
         </p>
       </div>
     </Popover>

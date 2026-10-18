@@ -4,6 +4,7 @@ import type { SearchOptions, SyntaxMode } from "@/lib/searchQuery";
 import styles from "./SearchCapsule.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillRich } from "@/utils/fillRich";
 
 /** 검색 syntax 도움말 본문 — 공통 문법 + 매칭 강도(prefix/regex) 표.
  *  패널(배경·보더·radius·그림자·위치·애니메이션)은 공통 Popover 가 담당하고, 여기선 내용만.
@@ -100,7 +101,11 @@ export default function SearchSyntaxHelpContent({
               </li>
             </ul>
             <p className={styles.helpFootnote}>
-              {t("common.searchHelp.regexLead")} <code>.</code> <code>*</code> <code>+</code> <code>|</code> <code>^</code> <code>$</code> <code>\d</code> <code>\w</code> <code>\s</code> {t("common.searchHelp.regexEtc")} <code>\</code> {t("common.searchHelp.regexEscape")} <code>\.</code>)
+              {fillRich(t("common.searchHelp.regexNote"), {
+                meta: <><code>.</code> <code>*</code> <code>+</code> <code>|</code> <code>^</code> <code>$</code> <code>\d</code> <code>\w</code> <code>\s</code></>,
+                backslash: <code>\</code>,
+                example: <code>\.</code>,
+              })}
             </p>
           </>
         )}
