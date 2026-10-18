@@ -3,145 +3,102 @@
 [← Index](../troubleshooting.md)
 
 <details>
-<summary><strong>26. Reserving space across locales: em-based min-height against layout shift</strong></summary>
+<summary><strong>21. Reserving space across locales: em-based min-height against layout shift</strong></summary>
 
-**Problem**
+**Symptom**: Switching between Korean and English in the Works intro section changed the height of the text areas and shifted the layout slightly.
 
-When switching between Korean and English in the Works intro section, the text area height changed causing slight layout movement
+**Cause**: The two languages have different text lengths, so line breaks and line counts differed. The intro is a flex container with `justify-content: center`, so when a child's height changed, the free space was redistributed.
 
-**Cause**
-
-- Different text lengths between Korean and English cause different line break positions
-- In a flex container with `justify-content: center`, child height changes redistribute space
-
-**Solution**
-
-Set `min-height` in `em` units (number of lines x line-height) to ensure consistent space for both languages
+**Fix**: Each text area got a `min-height` in `em` units (maximum line count × line-height), so both languages take the same height.
 
 ```css
-/* Reserve min-height based on maximum line count */
-.introDesc {
-  min-height: 4.95em;
-} /* 3 lines x 1.65 line-height */
-.introDetail {
-  min-height: 6.6em;
-} /* 4 lines x 1.65 line-height */
-.introQuote {
-  min-height: 3.3em;
-} /* 2 lines x 1.65 line-height */
-
-/* Not needed on mobile since it uses vertical scroll */
-@media (max-width: 768px) {
-  .introDesc,
-  .introDetail,
-  .introQuote {
-    min-height: auto;
-  }
+@media (width > 1024px) and (height > 700px) {
+  .introDesc   { min-height: 4.95em; } /* 3 lines × 1.65 */
+  .introDetail { min-height: 6.6em; }  /* 4 lines × 1.65 */
+  .introQuote  { min-height: 3.3em; }  /* 2 lines × 1.65 */
 }
 ```
 
-**Insight**
+These are the rules in `WorksIntro.module.css`. They do not apply to narrow screens, where the content stacks vertically, and reserve space only in the desktop layout.
 
-When supporting multiple languages, reserving space with `min-height` based on maximum line count prevents layout shift on language switch. Using `em` units automatically adapts to font-size changes
-
-
-</details>
-
-<details>
-<summary><strong>27. Breakpoint-only elements: hide them at the opposite breakpoint</strong></summary>
-
-**Problem**
-
-The mobile-only DB list (`dbMobileList`) in the About page's Backend panel was rendering on desktop viewports, breaking the layout
-
-**Cause**
-
-The `dbMobileList` element was missing a `display: none` media query for desktop breakpoints. It occupied DOM space and displayed on desktop even though it was intended for mobile only
-
-**Solution**
-
-CSS-only fix — added `display: none` at the desktop breakpoint so the element only renders on mobile
-
-**Insight**
-
-Responsive-only elements **must have `display: none` at the opposite breakpoint**. CSS media queries alone are often sufficient without JS branching
+**Conclusion**: Reserving `min-height` for the maximum line count in multilingual text areas keeps the layout still when the language changes. With `em` units, the reserved height follows font-size changes.
 
 
 </details>
 
 <details>
-<summary><strong>28. Silent var() failure: an undefined token voids the declaration</strong></summary>
+<summary><strong>22. Silent var() failure: an undefined token voids the declaration</strong></summary>
 
-**Problem**
+**Symptom**: After a bulk replacement of design tokens, padding stopped applying in several CSS files. The build and type checks all passed.
 
-The `--box-3xs-xs` token was used as `padding: var(--box-3xs-xs)` across 11 CSS files, but was never defined in `_spacing.css`, causing all those paddings to silently fail
+**Cause**: The new token used in the replacement was never added to the definition file. When the variable referenced by `var()` is undefined and there is no fallback, the declaration becomes invalid at computed-value time and falls back to the inherited or initial value. The browser reports no error and build tools do not check it.
 
-**Cause**
+**Fix**: The missing token definition was added. Since then, every token replacement searches the usages and then confirms the definition file contains each token.
 
-During a CSS token audit, `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px) was batch-replaced with the box shorthand `var(--box-3xs-xs)`, but the token definition was never added to the Compound block in `_spacing.css`. CSS `var()` silently invalidates declarations when undefined — **undetectable by build or typecheck**
-
-**Solution**
-
-Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` definition to `_spacing.css`. Future token replacements should follow a two-step verification: **grep for usage → confirm definition exists**
-
-**Insight**: An undefined `var()` fails silently. Token replacement must verify usage sites and definitions as a pair.
+**Conclusion**: An undefined `var()` silently voids its declaration. When tokens change, usages and definitions must be verified together.
 
 
 </details>
 
 <details>
-<summary><strong>29. Compositing layers and backdrop sampling: an ancestor transform kills the effect</strong></summary>
+<summary><strong>23. When backdrop-filter does not show: isolation, transforms and prefixes</strong></summary>
 
-**Problem**: The `backdrop-filter` on the home CTA button had no effect in Chrome.
+**Symptom**: `backdrop-filter` failed to show as expected in two places. The blur on the home CTA button had no effect in Chrome. The sticky selection action bar in the admin lists did not blur the table rows passing behind it, so the right-hand cells stayed sharp, and the glass looked faint or yellowish.
 
-**Cause**: The `.home` entrance animation ran on a `y` transform, which created a compositing layer on an ancestor. That layer cut off the backdrop sampling range, so the button had no backdrop to reference. The `-webkit-backdrop-filter` prefix killed the effect too — the build (Lightning CSS) treats the prefixed and standard declarations as one property and keeps only the last one, so Chrome received only the prefixed declaration and no blur at all.
+**Cause**: There were several layers of causes.
 
-**Solution**: Switched the entrance animation from transform to `marginTop` so no compositing layer is created, and removed the prefixed declaration.
+1. `-webkit-backdrop-filter` was written after the standard property. Lightning CSS, used by the build, treats the two as the same property and keeps only the last declaration. The output CSS kept only the prefixed one, so Chrome had no blur.
+2. The home `.home` entrance animation ran on `transform`. The compositing layer created on the ancestor cut the backdrop range the button could sample.
+3. The action bar placed the glass on `::before { z-index: -1; backdrop-filter }`. The parent sticky bar creates a stacking context through z-index, so `::before` was isolated inside it and could not capture the sibling table rows as its backdrop.
+4. Making the bar full-bleed with `transform: translateX`, or using `translateY` in its entrance animation, broke the blur.
+5. `saturate()` amplified the warm colors of the rows behind, making the glass look yellowish.
 
-**Insight**: `backdrop-filter` is not decided by its own declaration alone. A compositing layer created by an ancestor cuts the sampling range, so when the effect is missing, check ancestor transforms first.
+**Fix**: All prefixed declarations were removed and stylelint now blocks them (design-system decision D17). The home entrance animation switched to `margin-top`, and today there is no entrance animation at all. The action bar (`.bulkBar` in `AdminTable.module.css`) applies `backdrop-filter: blur(24px)` directly to the element. A backdrop-filter on the element does not blur its child buttons and blurs only the rows passing behind. Full-bleed uses a negative `margin-inline` with `padding-inline`, and the entrance animation changes opacity only. `saturate` was dropped, leaving blur only with no background color.
 
-
-</details>
-
-<details>
-<summary><strong>30. Transition start values: final state on the mount frame means no transition</strong></summary>
-
-**Problem**: Dropdowns rendered through a portal appeared instantly with no open transition.
-
-**Cause**: The open-state class was already applied at mount, so the transition's start and end values were identical. The browser does not run a transition on a property whose value never changed.
-
-**Solution**: Added a separate `animateOpen` state and used two `requestAnimationFrame` calls to guarantee the mount, closed, open order. Raised specificity with a compound selector so the global theme transition rule does not override it.
-
-**Insight**: A transition needs a value change. Rendering the final state at mount leaves nothing to transition, so the initial state must persist for at least one frame.
+**Conclusion**: `backdrop-filter` is not decided by its own declaration alone. When the effect does not show, check whether the standard property survived the build, whether the element is inside an isolated stacking context, and whether it or an ancestor has a transform. The related conflict with blend modes is covered in Top 10, item 7.
 
 
 </details>
 
 <details>
-<summary><strong>31. Blend compositing units: child exceptions require DOM separation</strong></summary>
+<summary><strong>24. Transition start values: final state on the mount frame means no transition</strong></summary>
 
-**Problem**: Applying `mix-blend-mode: difference` to the hero inverted every piece of text inside it, making it impossible to keep the description in its original color.
+**Symptom**: A dropdown rendered through a Portal (`Select`) appeared instantly when opened, with no transition.
 
-**Cause**: Blending a parent composites all of its children as one unit. Re-declaring a color on a child does not help because the blend applies on top of it, so per-child exceptions cannot exist.
+**Cause**: The open-state class was already present at mount, so the transition's start and end values were the same. Browsers do not run a transition on a property whose value did not change.
 
-**Solution**: Kept only the title and category in the difference element, and moved the description and details into a sibling overlay. The two elements are position-synced in rAF.
+**Fix**: A separate `animateOpen` state was added. The dropdown mounts closed, and after two `requestAnimationFrame` callbacks `animateOpen` becomes `true` and the open class is applied. This guarantees the order: mount, paint the closed state, open.
 
-**Insight**: Blending can only be excepted at the element level. When only part of the content should blend, the DOM has to be split.
+**Conclusion**: A transition runs only when a value changes. Rendering the final state at mount leaves nothing to transition, so the initial state must be painted for at least one frame.
 
 
 </details>
 
 <details>
-<summary><strong>32. Independent grid containers: one row's min-width does not propagate</strong></summary>
+<summary><strong>25. Blend compositing units: child exceptions require DOM separation</strong></summary>
 
-**Problem**: On mobile, horizontally scrolling admin/posts and admin/works tables caused row border-bottoms to stop mid-scroll instead of extending across the full scrollable width
+**Symptom**: Applying `mix-blend-mode: difference` to the hero area inverted every piece of text inside it. The description text could not keep its original color.
 
-**Cause**: `.colTitle { min-width: 280px }` was applied to guarantee a readable title column, but `.row` / `.tableHeader` / `.bulkBar` are each **independent CSS Grid containers**, so track expansion is computed per-row. Data rows had `col.className` applied, expanding the title track to 280px — but the header's title `<span>` had no className, leaving the 1fr track at its natural size. This created a **width mismatch: rows grew to 868px while header/bulkBar stayed at 720px**. On scroll, row borders drew out to 868px but header/bulkBar borders cut off at 720px
+**Cause**: A blend on a parent composites all of its children as one unit. Setting a color again on a child does not help, because the composite is applied on top of it. Per-child exceptions are impossible.
 
-**Solution**: Two simultaneous fixes
+**Fix**: Only the title and category that need difference sit in their own element, and the description and details became a sibling overlay. The positions of the two are synchronized in requestAnimationFrame.
 
-1. **Apply `col.className` to header `<span>`** — so `.colTitle` applies to the header's title cell too, expanding the header title track to 280px
-2. **Add `.tableInner` wrapper** inside the scroll container (`.table`, `.tableScroll`):
+**Conclusion**: Blend exceptions can be made only per element. If only part of an area should be composited, the DOM has to be split.
+
+
+</details>
+
+<details>
+<summary><strong>26. Independent grid containers: one row's min-width does not propagate</strong></summary>
+
+**Symptom**: On mobile, scrolling the admin posts and works tables horizontally showed the rows' bottom borders stopping partway instead of reaching the end of the scroll.
+
+**Cause**: `.colTitle { min-width: 280px }` reserved the title column width. But `.row`, `.tableHeader` and `.bulkBar` are separate CSS Grid containers, so track sizes are computed per row. Data rows had `col.className` applied, so their title track grew to 280px. The header's title `<span>` lacked that className and computed only 1fr. As a result, data rows were 868px wide while the header and bulk bar were 720px, and each border ended at its own width.
+
+**Fix**: Two changes were made together.
+
+1. The header `<span>` also gets `col.className`, so the header's title track grows to 280px as well.
+2. A `.tableInner` wrapper was added inside the scroll container.
 
 ```css
 .tableInner {
@@ -152,245 +109,133 @@ Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` definition to `_spaci
 }
 ```
 
-In a flex column, items auto-stretch on the cross-axis (horizontal), and `width: max-content` sizes the wrapper to the widest child's max-content (868px). **All rows/header/bulkBar align to the same 868px width**, so border-bottom extends continuously across the full scrollable area
+Children of a flex column stretch horizontally, and `width: max-content` sizes the wrapper to the widest child (868px). All rows, the header and the bulk bar end up the same width, and the border runs across the whole scroll area.
 
-**Insight**: When each row is an independent grid container, **track expansion is computed per-row** — a `min-width` on one row's cell doesn't propagate to siblings. For continuous borders during horizontal scroll, every row must share the same total width. The `width: max-content + min-width: 100%` wrapper pattern enforces this by sizing to the widest child. Additionally, **className mismatches between row and header** (where `col.className` is applied to rows but omitted in headers) are a common source of width divergence
+**Conclusion**: When each row is its own grid container, a min-width on one row does not propagate to the others. To keep borders continuous in a horizontal scroll, a wrapper with `width: max-content` and `min-width: 100%` must give every row the same width. When widths differ, first check that rows and the header carry the same className.
 
 
 </details>
 
 <details>
-<summary><strong>33. JS-assisted masonry: pixel tracks with measured spans</strong></summary>
+<summary><strong>27. JS-assisted masonry: pixel tracks with measured spans</strong></summary>
 
-**Problem**: The `/posts` bento mixes five variants — wide / banner (21:9) / square (1:1) / portrait (3:4) / standard. With plain CSS Grid, row tracks stretch to the tallest card in that row, leaving **empty cells** beside smaller cards. `grid-auto-flow: dense` alone can't backfill the leftover vertical space when card aspect ratios differ widely
+**Symptom**: The `/posts` bento layout mixes card variants of different heights. With a plain CSS Grid, row tracks sized to the tallest card and left empty cells under smaller cards. `grid-auto-flow: dense` alone could not fill that space.
 
-**Cause**: `grid-template-rows: auto` (or any fixed ratio) sizes a row to the tallest child, so a square next to a portrait leaves dead space below the square equal to the height delta
+**Cause**: Defining rows with `grid-template-rows: auto` or fixed ratios makes every cell in a row follow the tallest child. When a square card and a portrait card share a row, the square card leaves empty space equal to the height difference.
 
-**Solution**: Implement true masonry as a JS + CSS Grid hybrid
+**Fix**: The layout became a masonry that combines CSS Grid with JS measurement. The CSS splits row tracks into 1px units with `grid-auto-rows: 1px` and sets `grid-auto-flow: dense`. The JS (`useMasonryRowSpans`) measures each card and sets `grid-row: span N` as an inline style.
 
-1. CSS — `grid-auto-rows: 1px` shreds row tracks to the pixel, plus `grid-auto-flow: dense` and `gap: var(--bento-gap)` only
-2. JS — a `useEffect` measures every card's `firstElementChild.scrollHeight` → computes `span = ceil((h + gap) / (rowUnit + gap))` → assigns `style.gridRow = span ${span}`
-3. Recalculate on `ResizeObserver(grid)` and image `onLoad` so font/image loads can't leave stale spans
-4. On mobile (`<= 640px`), all variants flatten to a uniform 16:10 ratio and JS measurement is disabled
-
-```css
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 1px;
-  grid-auto-flow: dense;
-  gap: var(--bento-gap);
+```ts
+function measureRowSpans(grid: HTMLElement): number[] {
+  const rowGap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+  return Array.from(grid.children, (node) => {
+    const el = node as HTMLElement;
+    const h = (el.firstElementChild as HTMLElement | null)?.scrollHeight ?? el.scrollHeight;
+    return h ? Math.ceil((h + rowGap) / (1 + rowGap)) : 0; // 1 = grid-auto-rows: 1px
+  });
 }
 ```
 
+Height is measured from the `scrollHeight` of `firstElementChild`, not the card wrapper. It is recomputed on image load events, on `ResizeObserver` callbacks and on window resize, so late fonts and images still produce correct heights. Before hydration, an inline script (`ROW_SPANS_SCRIPT`) runs the same calculation and inserts nth-child rules into the head. When the hook mounts, it removes those rules and takes over.
+
+**Conclusion**: `grid-template-rows: masonry` is not yet supported in Chrome. Gap-free packing works by splitting row tracks into pixels and assigning spans from heights measured in JS. Measurement must be repeated every time the content can change.
+
+
+</details>
+
+<details>
+<summary><strong>28. Detecting sticky anchoring: rootMargin must match the real top</strong></summary>
+
+**Symptom**: The `/posts` filter bar sticks with `position: sticky; top: var(--nav-height)`. With the IntersectionObserver that detects sticking set to a fixed `rootMargin` (`-44px 0px 0px 0px`), the detection point drifted whenever the nav height changed with screen width or the filter bar grew to two lines. Neighboring elements then looked about 1px overlapped or separated.
+
+**Cause**: The sticky `top` changes through a CSS variable, but an IntersectionObserver's `rootMargin` is fixed at creation. After the sticky position changed, the observer kept judging against the old line.
+
+**Fix**: `rootMargin` is computed from the real sticky `top`, and the observer is recreated on every window resize.
+
 ```ts
-const recomputeRowSpans = () => {
-  const grid = gridRef.current;
-  if (!grid) return;
-  const rowUnit = parseFloat(getComputedStyle(grid).gridAutoRows) || 1;
-  const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
-  itemRefs.current.forEach((el) => {
-    const h = (el.firstElementChild as HTMLElement | null)?.scrollHeight ?? el.scrollHeight;
-    const span = Math.max(1, Math.ceil((h + gap) / (rowUnit + gap)));
-    el.style.gridRow = `span ${span}`;
-  });
+const setup = () => {
+  observer?.disconnect();
+  const stickyTop = parseFloat(window.getComputedStyle(fb).top) || 0;
+  observer = new IntersectionObserver(
+    ([entry]) => setIsStuck(!entry.isIntersecting),
+    { rootMargin: `-${stickyTop + 1}px 0px 0px 0px`, threshold: 0 },
+  );
+  observer.observe(el);
 };
+setup();
+window.addEventListener("resize", setup);
 ```
 
-**Insight**: CSS-only masonry is still experimental (`grid-template-rows: masonry` isn't shipped in Chrome). The de facto standard for gap-free packing is **shred row tracks to a fine pixel unit, then have JS assign spans from measured heights**. `firstElementChild.scrollHeight` is the most accurate source (immune to wrapper padding), and you must recompute on both image `onLoad` and `ResizeObserver` to correct heights captured before fonts/images settled
+This is a shortened version of `src/hooks/useStickyFilterBar.ts`. It reads the sticky element's actual `top` with `getComputedStyle` and adds 1px to catch the moment it crosses the line. The post list and the tag page share this hook.
+
+**Conclusion**: Detecting whether a sticky element is stuck with IntersectionObserver requires `rootMargin` to match the real sticky `top`. Where `top` changes through CSS variables or media queries, the observer must be recreated each time.
 
 
 </details>
 
 <details>
-<summary><strong>34. Detecting sticky anchoring: rootMargin must match the real top</strong></summary>
+<summary><strong>29. Serialized inline styles: stored values beat your stylesheets</strong></summary>
 
-**Problem**: `/posts` filterBar uses `position: sticky; top: var(--nav-height)`, but the sentinel's `rootMargin` was hard-coded (`-44px 0px 0px 0px`). When PC ↔ mobile nav heights differ or the filterBar grows from one row to two, the anchor moment falls out of sync — the bar visually overlaps Popular Posts by ~1px or leaves a hairline gap
+**Symptom**: A float image placed beside body text rendered on the detail page with no gap between it and the adjacent text.
 
-**Cause**: `top` is dynamic (driven by a CSS variable), but `IntersectionObserver`'s `rootMargin` is set once at construction. When the filterBar height changed from 44px to 80px (added search row), the sentinel kept gating on the old offset
+**Cause**: `plateSerializer` stored float figures with inline styles such as `style="float:left;margin:0"`. With zero horizontal margin, text touched the image. Inline styles take precedence over ordinary rules such as `.prose figure`, so the stylesheet could not override them.
 
-**Solution**: Sync `rootMargin` with the component's actual sticky `top`
+**Fix**: The fix has two steps.
 
-1. Read `getComputedStyle(filterBar).top`, then set `rootMargin: -${stickyTop + 1}px 0px 0px 0px` (the +1px is a cross-frame safety margin)
-2. On every `resize`, disconnect and rebuild the observer so nav-height changes are picked up
-3. Updated the sibling sidebar's `top` to use the same arithmetic (`calc(var(--nav-height) + 80px + ...)`) so both elements share one anchor line
+1. `plateSerializer.ts` now stores float figure margins as `0 24px 24px 0` (left) or `0 0 24px 24px` (right).
+2. So that content saved earlier with `margin:0` also gets a gap, the body CSS overrides the inline value with an attribute selector and `!important`.
 
-```ts
-useEffect(() => {
-  const setup = () => {
-    const top = parseFloat(getComputedStyle(filterBarRef.current!).top) || 0;
-    const observer = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting),
-      { rootMargin: `-${top + 1}px 0px 0px 0px`, threshold: 0 });
-    observer.observe(sentinelRef.current!);
-    return () => observer.disconnect();
-  };
-  let cleanup = setup();
-  const onResize = () => { cleanup(); cleanup = setup(); };
-  window.addEventListener("resize", onResize);
-  return () => { cleanup(); window.removeEventListener("resize", onResize); };
-}, []);
+```css
+.prose figure[style*="float:left"] {
+  margin: 0 var(--spacing-20) var(--spacing-20) 0 !important;
+}
 ```
 
-**Insight**: For a sticky element, the `IntersectionObserver` that detects "now stuck" must use a `rootMargin` that **matches the actual sticky top to the pixel**. When that top is dynamic (CSS variable / media query), the observer must rebuild alongside it — otherwise you get a viewport that looks correct but a 1px drift after `resize`
+Posts have this rule in `components/posts/PostArticleBody.module.css`, and works have the same rule on `.sectionProse` in `components/works/WorkArticleBody.module.css`.
+
+**Conclusion**: Inline styles written at serialization take precedence over external CSS. First make the serializer store the right value, then override already-stored data with an attribute selector and `!important`.
 
 
 </details>
 
 <details>
-<summary><strong>35. Serialized inline styles: stored values beat your stylesheets</strong></summary>
+<summary><strong>30. The scope of viewport meta: desktop browsers ignore width</strong></summary>
 
-**Problem**: A float image wrapped beside the body text rendered **flush against the adjacent text with no gap** on the detail page.
+**Symptom**: Turning on "mobile mode" with `ViewModeToggle` on desktop changed nothing.
 
-**Cause**: plateSerializer saved the float figure with **inline-style `margin:0`**, like `style="float:left;margin:0"`.
+**Cause**: The toggle works by changing the viewport meta `width`. Desktop browsers ignore viewport meta `width`. That behavior exists only in mobile browsers.
 
-- With zero horizontal margin, the text clung to the image
-- And **inline styles win on specificity**, so a generic CSS rule like `.prose figure` couldn't override it
+**Fix**: The toggle is shown only on touch devices. The condition is `pointer: coarse` rather than viewport width, so after switching to PC mode the toggle remains and can switch back.
 
-**Solution**: Fix the serialized value itself, and also force it via CSS `!important`
-
-1. `plateSerializer.ts` — change the float figure's serialized margin to `0 24px 24px 0` (left) / `0 0 24px 24px` (right). Side/bottom spacing is applied at the serialization step
-2. `PostDetail.module.css` / `WorkDetail.module.css` — force side/bottom spacing (`--spacing-lg`) with `margin: ... !important` on `.prose figure[style*="float:left"]` / `.sectionProse figure[style*="float:right"]`. This applies the gap consistently **even to old content saved with `margin:0`** (covering it regardless of the serialized value)
-
-**Insight**:
-
-① When serialization bakes in an inline style, that value **outranks external CSS** and is hard to override later — putting the right value in at the serialization step is the first line of defense
-② To also cover already-broken legacy data, add a second line of defense: an attribute selector (`[style*="float"]`) + `!important` to **neutralize the inline value**
+**Conclusion**: Overriding viewport meta `width` works only in mobile browsers. It is not a way to force a mobile width on desktop, so the feature should be limited to touch devices.
 
 
 </details>
 
 <details>
-<summary><strong>36. Specificity against global rules: compound selectors to save transitions</strong></summary>
+<summary><strong>31. Atomic inline boxes: a chip cannot fragment across lines</strong></summary>
 
-**Problem**: After moving EmojiPicker from inline styles to a CSS module, transitions like the indicator slide and category opacity stopped working.
+**Symptom**: Long inline code did not wrap when it exceeded the container width. It stuck out on one line or was clipped.
 
-**Cause**: The global rule `html[data-theme-ready] *` (specificity `(0,1,1)`) transition overrides a single-class `(0,1,0)` component transition.
+**Cause**: The inline code chip used `display: inline-block`. With inline-block, vertical padding counts toward the line box, so it does not overlap neighboring lines. But it is an atomic inline box and cannot be split across lines. The chip either moves to the next line as a whole or overflows the container.
 
-**Solution**: For properties not in the global rule, raise specificity with a compound selector
+**Fix**: The chip switched to `display: inline` with `box-decoration-break`, and its look was redesigned as a background highlight. With `display: inline` the code wraps, but vertical padding does not grow the line box and can overlap neighboring lines. A bordered capsule also breaks into pieces at line breaks (`clone`) or ends open (`slice`). The border was therefore removed, leaving a subtle background. The background flows naturally across line breaks, and `box-decoration-break: slice` rounds only the two ends. line-height is not set and inherits the context value (1.6).
 
-1. Set properties absent from the global transition rule — indicator slide, category opacity — via compound selectors `(0,2,0)` like `.tabHeader .indicator`, `.picker .catBtn`
-
-**Insight**: The global theme-transition rule `(0,1,1)` overrides single-class component transitions, so properties not in the global rule (transform/opacity, etc.) need a compound selector to win on specificity.
+**Conclusion**: A chip-like inline element is a choice between inline-block (no wrapping) and inline (wraps, but padding does not grow the line). When multi-line wrapping is needed, a background design suits it better than a bordered capsule.
 
 
 </details>
 
 <details>
-<summary><strong>37. The scope of viewport meta: desktop browsers ignore width</strong></summary>
+<summary><strong>32. Global defaults vs scoped variables: splitting strong color with a fallback</strong></summary>
 
-**Problem**: Toggling "mobile mode" with ViewModeToggle on desktop produced no change.
+**Symptom**: Bold text given a text color still appeared in the theme accent color in the body.
 
-**Cause**: Desktop browsers ignore the viewport meta `width` (it's a mobile-browser-only behavior).
+**Cause**: The global `strong { color: var(--text-accent) }` is a site-wide default, and it applied inside the editor and body too. Saved HTML puts the color on an outer span (`<span style="color: X"><strong>`). The global color set on the strong itself beat the color inherited from the span.
 
-**Solution**: Show the toggle only on touch devices
+**Fix**: Inside the body scope (`.prose-content`), strong uses `color: var(--_strong-color, inherit)`. A strong inside a span whose style starts with a color declaration uses `inherit` and takes that color. The work body, whose text color differs, passes its default color through `--_strong-color`.
 
-1. The viewport override is only meaningful as "view PC version" on mobile, so the toggle is shown only on touch devices (`pointer:coarse`)
-
-**Insight**: A viewport meta `width` override only takes effect in mobile browsers — it isn't a way to force a mobile width on desktop, so limiting the feature to touch devices is the correct scope.
-
-
-</details>
-
-<details>
-<summary><strong>38. :has() combinators define scope: enumerate the renderer's DOM shapes</strong></summary>
-
-**Problem**: The `:has()` rule that removes bullets from checkbox lists missed some lists (bullets remained) and over-matched others (bullets vanished from perfectly normal lists).
-
-**Cause**: `marked` emits tight lists as `<li><input>` and loose lists (blank line between items) as `<li><p><input>`. `:has(> li > input)` alone misses the loose form, while collapsing it to a descendant combinator `:has(input)` removes **the parent list's bullets too** whenever a checkbox sublist sits inside an ordinary bullet list.
-
-**Solution**: Spell out only the two direct paths
-
-1. `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])` — catches both tight and loose forms while excluding descendant matches
-
-**Insight**: With `:has()`, the combinator choice *is* the match scope — widening it to a descendant combinator contaminates ancestors in nested structures. Enumerating **every DOM shape the markdown renderer actually produces** and nailing them down as direct paths is the safer route.
-
-
-</details>
-
-<details>
-<summary><strong>39. Resets and revert: appearance alone will not revive native widgets</strong></summary>
-
-**Problem**: `<input type="checkbox">` survived sanitize and was present in the DOM, yet no checkbox appeared on screen — `appearance: auto` didn't help.
-
-**Cause**: The global reset `input { border: none; background: none }` in `src/styles/globals/_base.css` wipes the UA default styles, leaving the native checkbox with no surface to render on.
-
-**Solution**: Restore the UA default styling
-
-1. `background: revert; border: revert` on the checkbox — the point is reverting the two properties the reset erased, not `appearance`
-2. `background` / `border` are shorthands, so they fall outside stylelint's `declaration-strict-value` — no conflict with the token rules
-
-**Insight**: `appearance: auto` only says "draw this as a native widget" — it does not resurrect a `background`/`border` already erased by a reset. In a project with a global reset, bringing back a native control means restoring the UA styles themselves with `revert`.
-
-
-</details>
-
-<details>
-<summary><strong>40. Atomic inline boxes: a chip cannot fragment across lines</strong></summary>
-
-**Problem**: Long inline code overflowed the container as a single line (or got clipped) instead of wrapping.
-
-**Cause**: The inline-code chip used `display: inline-block`. inline-block reflects vertical padding into the line box (so it doesn't overlap neighboring lines), but it is an **atomic box that cannot fragment across lines** (the whole chip moves to the next line or overflows the container).
-
-**Solution**: Switch to `display: inline` + `box-decoration-break`, and ultimately redesign it as a background style (Notion-like).
-
-1. With `display: inline` it wraps, but vertical padding can't widen the line box (risk of overlapping neighbors), and a bordered capsule fragments at wrap points (`clone`) or gets cut open (`slice`)
-2. Dropping the border and keeping only a subtle background makes the highlight flow naturally even when wrapped — capsule caps only at the two ends (`slice`), line-height inherited from context (1.6, not hardcoded)
-
-**Insight**: A "chip-like" inline element has a trade-off between inline-block (no wrap) and inline (wraps, but padding doesn't widen the line) — if multi-line wrapping is required, a background style fits fundamentally better than a bordered capsule.
-
-
-</details>
-
-<details>
-<summary><strong>41. Stacking contexts and backdrops: an isolated sibling cannot be blurred</strong></summary>
-
-**Problem**: The admin selection action bar was made a sticky glass, but the rows behind it didn't blur (only the right-hand cells stayed sharp) and the frost was faint or yellowish.
-
-**Cause**: Three things overlapped
-
-1. The frost sat on `::before{ z-index:-1; backdrop-filter }`, but the parent sticky creates a stacking context via z-index, so the `::before` can't grab its sibling table rows as backdrop
-2. Doing full-bleed with `transform: translateX` breaks backdrop-filter
-3. saturate amplified the warm color of the rows behind, turning it yellowish
-
-**Solution**: Strip the isolation and blur the element directly
-
-1. Put backdrop-filter on the element, not `::before` — child buttons then don't blur
-2. full-bleed via margin/left-right (`-page-px`), no `transform`
-3. Drop saturate, blur only; transparent background color
-
-**Insight**: backdrop-filter can't see "siblings outside the stacking context the element belongs to" as backdrop — watch out for isolation (z-index/transform).
-
-
-</details>
-
-<details>
-<summary><strong>42. space-between with a single child: the branch that overlaps fixed elements</strong></summary>
-
-**Problem**: After hiding the center menu (`navCenter`) with `display: none` on mobile, the right-hand button group (`navActions`) moved left and overlapped the fixed logo.
-
-**Cause**: `.nav` uses `justify-content: space-between`, and when only one child remains it aligns to the start. The logo is fixed, outside the flex flow, drawn at the same spot with `left: var(--page-px)`.
-
-**Solution**: Forced `.nav { justify-content: flex-end }` in the mobile media query. The logo is outside the flex flow, but with the buttons on the right the layout reads "logo, space, buttons" naturally.
-
-**Insight**: `space-between` changes its alignment result as the child count changes. A container that overlays a fixed element needs the single-child branch spelled out separately.
-
-
-</details>
-
-<details>
-<summary><strong>43. Global defaults vs scoped variables: splitting strong color with a fallback</strong></summary>
-
-<p align="center">
-  <img src="../../../public/images/screenshots/pc/editor-light.png" width="100%" alt="Editor: bold and colored text" />
-</p>
-
-**Problem**: Bold text always appeared in the theme accent color in article bodies, even when a text color was explicitly set on it.
-
-**Cause**: The global `strong { color: var(--text-accent) }` is the site-wide default, and it also applied to the editor and article bodies. Saved HTML writes colors on an outer span (`<span style="color: X"><strong>`), so the global color on strong itself beat the inherited value.
-
-**Solution**: In the prose scope (`.prose-content`), strong is `color: var(--_strong-color, inherit)`, and only strong inside spans whose style starts with a color declaration gets `inherit` to follow that color. Contexts whose body text color differs (work bodies) pass the default through `--_strong-color`.
-
-**Insight**: When a global default and a user-set value fight over the same property, a scoped variable with a fallback expresses "default unless specified" in pure CSS.
+**Conclusion**: When a global default and a user-set value compete for the same property, a scoped variable with a fallback can express "default when unset, the value when set" in CSS alone.
 
 
 </details>

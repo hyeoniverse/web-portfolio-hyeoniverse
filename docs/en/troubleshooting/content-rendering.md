@@ -3,229 +3,139 @@
 [← Index](../troubleshooting.md)
 
 <details>
-<summary><strong>60. Finish before render: dangerouslySetInnerHTML vs post-hoc DOM mutation</strong></summary>
+<summary><strong>47. Finish before render: dangerouslySetInnerHTML vs post-hoc DOM mutation</strong></summary>
 
-**Problem**
+**Symptom**: In richtext posts written with the Plate editor, code blocks lost their syntax highlighting and the labels of the wrap/scroll toggle buttons. Markdown posts were fine.
 
-Code blocks in richtext posts written with the Plate editor lost syntax highlighting and the wrap/scroll toggle button. Markdown posts worked correctly
+**Cause**: Highlighting (highlight.js at the time) and button labels were applied by mutating the DOM in a `useEffect`. After the page loaded, API responses such as like counts, adjacent posts and recommendations changed state and re-rendered the component. `dangerouslySetInnerHTML` then overwrote the DOM with the original HTML, removing the classes and labels the effect had added. The effect's dependencies had not changed, so it did not run again. Markdown posts were unaffected because `MarkdownRenderer` hands over HTML that is already highlighted.
 
-**Cause**
-
-Code highlighting (highlight.js) and button labels were applied by **directly manipulating the DOM in `useEffect`**. After page load, API calls (like count, adjacent posts, recommended posts) completed → state changes → React re-render → `dangerouslySetInnerHTML` overwrites DOM with original HTML → all hljs classes and button labels wiped. The `useEffect` dependencies hadn't changed, so it never re-ran
-
-```
-[Initial render]  dangerouslySetInnerHTML = original HTML (no highlighting)
-       ↓
-[useEffect]        highlight.js applied + button labels created ✓
-       ↓
-[API complete]     setLikeCount / setAdjacentPosts → state change
-       ↓
-[Re-render]        dangerouslySetInnerHTML = original HTML → DOM overwritten
-       ↓
-[Result]           Highlighting & button labels gone, useEffect won't re-run ✗
+```mermaid
+sequenceDiagram
+    participant R as React render
+    participant D as DOM
+    participant E as useEffect
+    R->>D: dangerouslySetInnerHTML (original HTML)
+    E->>D: add highlight classes and button labels
+    Note over R: API response changes state
+    R->>D: dangerouslySetInnerHTML (overwrites with original HTML)
+    Note over E: dependencies unchanged, so it does not run again
+    Note over D: highlights and labels stay missing
 ```
 
-Markdown posts were unaffected because `MarkdownRenderer` generates pre-highlighted HTML on the server
-
-**Solution**
-
-Instead of DOM manipulation, apply **highlighting and button labels to the HTML string itself in `useMemo`**:
+**Fix**: Instead of patching the DOM, the HTML string is completed before render. `processRichtextHtml` inserts the button labels into the HTML inside a `useMemo`. Syntax highlighting is done by the detail page's server component, which pre-renders code block HTML with `highlightRichtextCode` (Shiki). The `useMemo` dependencies hold the label strings rather than the translation function `t`. With `t` as a dependency, settling the language changed only `t`'s identity, which produced a new string with the same content, reset `dangerouslySetInnerHTML` and wiped the post-processing.
 
 ```tsx
-const processedHtml = useMemo(() => {
-  let html = addIdsToHtml(displayContent);
-  // Find <pre><code> blocks via regex, apply hljs.highlight()
-  html = html.replace(/<pre><code ...>/, (code) => hljs.highlight(code).value);
-  // Fill empty <button data-wrap-btn> with label spans
-  html = html.replace(/<button data-wrap-btn><\/button>/, labelHtml);
-  return html;
-}, [displayContent, t]);
+const processedRichtextHtml = useMemo(() => {
+  if (isMarkdown) return "";
+  return processRichtextHtml(content, { codeScroll, codeWrap });
+}, [isMarkdown, content, codeScroll, codeWrap]);
 ```
 
-`useEffect` only handles **click event delegation**
+This is the code in `PostArticleView.tsx`. Effects now handle only work that does not rewrite the DOM, such as click delegation, and post-processing that is applied once to a given HTML.
 
-**Insight**
-
-DOM manipulation on `dangerouslySetInnerHTML` content is erased on any state-triggered re-render. HTML must be **finalized before render (useMemo/server-side)**
+**Conclusion**: Patching content rendered with `dangerouslySetInnerHTML` from a `useEffect` loses the changes on any re-render. The HTML must be complete before render (in useMemo or on the server), and the HTML string should not be rebuilt when its content is the same.
 
 
 </details>
 
 <details>
-<summary><strong>61. Parser extension ordering: postprocess over custom renderers</strong></summary>
+<summary><strong>48. Parser extension ordering: postprocess over custom renderers</strong></summary>
 
-**Problem**
+**Symptom**: Using a heading (`# Title`) together with a footnote (`[^1]`) in the markdown renderer misnumbered footnotes or left the footnote inside the heading unconverted.
 
-When using headings (`# Title`) and footnotes (`[^1]`) together in the markdown renderer, **footnote numbers got tangled or footnotes inside headings were not converted at all**
-
-**Cause**
-
-The custom heading renderer executed **before** the `marked-footnote` extension, consuming the raw `[^1]` text before it could be converted to a footnote. This left heading footnote references as plain text, and shifted the numbering for all remaining footnotes
+**Cause**: A custom heading renderer ran before the `marked-footnote` extension. It consumed the raw text before the `[^1]` inside the heading became a footnote. The reference in the heading stayed as plain text, and the remaining footnotes were each shifted by one.
 
 ```
-# Title [^1]     ← heading renderer processes first → [^1] not converted
-Body [^2]         ← should be [^1] but number shifted
+# Title [^1]     ← the heading renderer runs first, so [^1] is not converted
+Body [^2]        ← should be [^1], but the numbering shifts
 ```
 
-**Solution**
+**Fix**: The heading renderer was removed and replaced with a `postprocess` hook. `marked-footnote` processes every footnote first, and postprocess then only adds an `id` attribute to headings. `markedFootnote({ keepLabels: true })` keeps the numbers the author wrote (`[^2]` stays 2).
 
-Removed the heading renderer and replaced it with a `postprocess` hook. This ensures marked-footnote **processes all footnotes first**, then the postprocess hook adds `id` attributes to headings afterward. Additionally applied `keepLabels: true` to preserve user-specified footnote numbers (`[^2]` → 2) instead of auto-renumbering
-
-**Insight**
-
-When marked extensions and custom renderers target the same syntax, **execution order determines the result**. Using a postprocess hook instead of a renderer guarantees all extensions process first before any post-processing
+**Conclusion**: When marked extensions and custom renderers handle the same syntax, execution order decides the result. A postprocess hook runs after every extension has finished.
 
 
 </details>
 
 <details>
-<summary><strong>62. Runtime conversion vs stored values: URLs that only play in the editor</strong></summary>
+<summary><strong>49. Runtime conversion vs stored values: URLs that only play in the editor</strong></summary>
 
-**Problem**
+**Symptom**: A YouTube video inserted with a `youtube.com/watch?v=xxx` URL played in the editor but showed a blank frame on the post detail page.
 
-When users insert a YouTube video with a `youtube.com/watch?v=xxx` URL, it's stored as-is in `<iframe src="...">`. **Watch URLs cannot load in iframes**, showing a blank screen both in the editor preview and on the published post detail page
-
-**Cause**
-
-Inside the editor, `parseEmbed()` converts watch URLs to embed URLs so **the editor displays correctly**, but `plateSerializer` serializes the node's original `url` property (the watch URL) directly into `<iframe src="...">`. The **editor and serialized URLs diverge** in the database
+**Cause**: Inside the editor, `parseEmbed()` converts the watch URL to an embed URL for display. `plateSerializer`, however, serialized the node's `url` property (the original watch URL) into `<iframe src="...">` as is. A watch URL cannot load in an iframe. The URL the editor showed and the URL stored in the database differed.
 
 ```
-Editor display: youtube.com/embed/xxx  (parseEmbed conversion) → plays OK
-DB storage:     youtube.com/watch?v=xxx (raw original)          → iframe load fails
+Editor display: youtube.com/embed/xxx  (converted by parseEmbed) → plays
+Stored in DB:   youtube.com/watch?v=xxx (original)               → iframe fails to load
 ```
 
-**Solution**
+**Fix**: `fixEmbedUrls()` (`src/utils/htmlUtils.ts`) runs just before HTML is rendered. It rewrites YouTube watch, shorts and youtu.be URLs in iframe `src` to embed URLs, and `vimeo.com/123` to `player.vimeo.com/video/123`. `processRichtextHtml`, shared by the detail page and the preview, calls it.
 
-Created a `fixEmbedUrls()` utility that **bulk-converts iframe src watch/shorts URLs to embed URLs** just before HTML rendering. Applied to both the post detail page and preview page
-
-```ts
-// youtube.com/watch?v=xxx → youtube.com/embed/xxx
-// youtu.be/xxx → youtube.com/embed/xxx
-// vimeo.com/123 → player.vimeo.com/video/123
-html.replace(/<iframe([^>]*)\ssrc="([^"]*)"([^>]*)>/gi, ...)
-```
-
-**Insight**
-
-A URL mismatch between editor runtime conversion and serialization creates "works in editor but broken on the actual page" bugs. Adding a URL normalization post-processing step before rendering resolves this
+**Conclusion**: When an editor's runtime conversion differs from the stored value, content shows in the editor but not on the real page. Normalizing URLs right before render also fixes posts that were already saved.
 
 
 </details>
 
 <details>
-<summary><strong>63. DOM outside React: native listeners plus MutationObserver</strong></summary>
+<summary><strong>50. DOM outside React: native listeners plus MutationObserver</strong></summary>
 
-**Problem**: We wanted a single fallback rule across **every image surface** — editor / posts / works / Plate panels — so that load failures swap to `/images/placeholder.svg`. React's `<img onError>` worked everywhere it was JSX. But in MarkdownRenderer (marked → HTML → `dangerouslySetInnerHTML`) and `useRichtextEnhance`-styled richtext regions, `onError` never fired and broken images stayed visible
+**Symptom**: Every image was supposed to switch to `/images/placeholder.svg` when it failed to load. React components' `<img onError>` worked, but images rendered with `dangerouslySetInnerHTML`, as in `MarkdownRenderer`, and images in richtext areas handled by `useRichtextEnhance` never triggered onError, so broken images stayed visible.
+
+**Cause**: There were three reasons.
+
+1. DOM inserted with `dangerouslySetInnerHTML` is not managed by React, so synthetic event props such as `onError` are never attached.
+2. For an image whose request has already failed (`complete && naturalWidth === 0`), a listener attached late never receives an `error` event.
+3. Images that the content adds later are not caught by an initial `querySelectorAll`.
+
+**Fix**: `useRichtextEnhance` and `MarkdownRenderer` share `attachImageFallback(root)` from `src/lib/imageFallback.ts`. It attaches a native `error` listener to every `<img>` in the container, with `data-fallback-bound` preventing duplicates. Right after attaching, if `complete && naturalWidth === 0`, the image is swapped immediately. `MutationObserver(root, { childList: true, subtree: true })` handles images added later the same way. The swap also removes `srcset`, because a remaining `srcset` makes the browser try those candidates first and fail again. React components (editor covers, galleries, relation picker chips, the Plate image element and so on) switch state in `onError`.
+
+**Conclusion**: React synthetic events are not attached to DOM inserted with `dangerouslySetInnerHTML`, so native `addEventListener` is required. An image that already failed never fires `error` again, so its state must be checked synchronously right after attaching the listener. Areas whose content changes must also handle new elements through a MutationObserver.
+
+
+</details>
+
+<details>
+<summary><strong>51. Single-sourcing: preview and detail render the same component</strong></summary>
+
+**Symptom**: The admin editor's preview kept drifting from the published detail page in layout, spacing and code block handling.
+
+**Cause**: The preview was a simplified version built separately from the detail page. Every change to the detail page's markup or style had to be repeated in the preview, and changing only one side broke the match. Richtext processing (heading ids, embed URL conversion and so on) also went through different code paths, so the output differed.
+
+**Fix**: The detail page's article view was extracted into shared presentational components, and the detail and preview pages render the same components. For posts, the detail page and the preview page under `admin/(preview)` both use `PostArticleHeader`, `PostArticleBody` and `PostArticleAuthors` from `PostArticleView.tsx`. For works, they share `WorkArticleHeader`, `WorkArticleBody`, `WorkArticleGallery` and others. Only parts the preview does not have, such as comments and the back link, are added on the detail side. Richtext HTML processing happens in one place, `src/utils/processRichtextHtml.ts`, which injects heading ids, converts embed URLs, inserts the wrap toggle labels and adds `data-cursor="zoom"` to images in the same order for both.
+
+**Conclusion**: A preview that differs from the real page is useless as a preview. When the same output is needed, use the same components and the same processing functions instead of synchronizing two versions, so one side cannot change alone.
+
+
+</details>
+
+<details>
+<summary><strong>52. Comment checklists: parser context, DOMPurify value checks and :has() match scope</strong></summary>
+
+**Symptom**: Checklists in comment markdown ran into a series of problems.
+
+1. `- [ ] todo` rendered as a plain bullet instead of a checkbox, even though `type` was in `ALLOWED_ATTR`.
+2. Pressing the toolbar's checkbox button on an empty line produced a bullet instead of a checkbox. The `---` divider button produced a heading instead of a divider when the previous line had text.
+3. The `:has()` rule that removes bullets from checkbox lists did not apply to some lists and removed ordinary bullets from others.
 
 **Cause**:
 
-1. DOM injected via `dangerouslySetInnerHTML` is outside React's reconciler — synthetic event props like `onError` never bind
-2. Even native `addEventListener("error")` has a sub-trap: an image whose fetch already completed (`complete && naturalWidth === 0`) won't re-fire `error` when a listener is attached late, leaving it stuck
-3. When richtext content mutates (editor mode toggle, lazy load), a one-shot `querySelectorAll` misses the newly added images
+1. DOMPurify checks the value of any attribute that is not known to be URI-safe against `ALLOWED_URI_REGEXP`. The default URI-safe list (alt, class, title, value and so on) does not include `type`. The value of `type="checkbox"` failed `/^(?:https?:|mailto:|#|\/(?!\/))/i` and was removed silently. A hook then removed the `<input>` whose type was no longer checkbox, leaving only the bullet. For the same reason, table `align` was removed and markdown table alignment was ignored.
+2. GFM parses a task list only when text follows the `- [ ] ` marker. A marker alone on an empty line becomes a `<li>[ ]</li>` bullet. `---` directly under a line of text is read as a setext heading (underline heading syntax). Code fences and tables are also parsed only at the start of a line.
+3. `marked` renders a tight list as `<li><input>` and a loose list, with blank lines between items, as `<li><p><input>`. `:has(> li > input)` alone misses loose lists. The descendant combinator `:has(input)` removes the parent list's bullets when an ordinary bullet list contains a checkbox sublist.
 
-**Solution**: Apply the `attachImageFallback(root)` pattern in both `useRichtextEnhance` and MarkdownRenderer
+**Fix**:
 
-1. **Walk every `<img>` in the container** — gate with `data-fallback-bound` to prevent double binding, attach an `error` listener, **and immediately swap if the image is already failed (`complete && naturalWidth === 0`)**
-2. **`MutationObserver(root, { childList: true, subtree: true })`** — so images added later get the same treatment
-3. **`removeAttribute("srcset")` together with the swap** — otherwise the browser keeps retrying the broken candidates
-4. **React-rendered surfaces use `onError` + state swap** — PostEditor cover / WorkEditor main·gallery / RelationPicker chip·option / Plate ImagePanel·ImageElement all share the pattern via a `displayUrl`
+1. `type`, `checked`, `disabled` and `align` were added to `ADD_URI_SAFE_ATTR`, which removes them from the URI value check. These are inert attributes, not URLs. Adding them to `ALLOWED_ATTR` alone is not enough, because the two options cover different axes: whether an attribute is allowed and how its value is checked.
+2. Line-prefix actions in the toolbar got a placeholder. Pressed on an empty line, they fill in example text ("todo") and leave it selected. Block inserts first make sure there is a blank line before the insertion.
+3. The selector lists only the two real DOM shapes as direct-child paths.
 
-```ts
-function attachImageFallback(root: HTMLElement): () => void {
-  const handle = (img: HTMLImageElement) => {
-    if (img.dataset.fallbackBound === "1") return;
-    img.dataset.fallbackBound = "1";
-    img.addEventListener("error", () => swapToPlaceholder(img));
-    if (img.complete && img.naturalWidth === 0) swapToPlaceholder(img);
-  };
-  root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
-  const mo = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      m.addedNodes.forEach((node) => {
-        if (node.nodeType !== 1) return;
-        const el = node as Element;
-        if (el.tagName === "IMG") handle(el as HTMLImageElement);
-        el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
-      });
-    }
-  });
-  mo.observe(root, { childList: true, subtree: true });
-  return () => mo.disconnect();
-}
-
-function swapToPlaceholder(img: HTMLImageElement) {
-  if (img.src.endsWith("/images/placeholder.svg")) return;
-  img.src = "/images/placeholder.svg";
-  img.removeAttribute("srcset");
-}
+```css
+.commentMarkdown ul:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"]) { … }
 ```
 
-**Insight**:
+This is the rule in `CommentMarkdown.module.css`. The checkbox itself is drawn with `appearance: none`, with its border and fill in the accent color.
 
-① **DOM from `dangerouslySetInnerHTML` is React's synthetic-event blind spot** — without delegation, `addEventListener` is the only path
-② Images that already finished loading (or failing) won't re-fire `error` retroactively — pair the listener attach with a synchronous `complete && naturalWidth === 0` check
-③ Leaving `srcset` after a `src` swap lets the browser keep retrying the broken candidates — `removeAttribute("srcset")` together with the swap
-④ For dynamic regions like richtext, a one-shot `querySelectorAll` won't catch images added later — pair it with a `MutationObserver` for incremental coverage
-
-
-</details>
-
-<details>
-<summary><strong>64. Single-sourcing: preview and detail render the same component</strong></summary>
-
-**Problem**: The admin editor's preview kept subtly diverging from the actual published detail page — in layout, spacing, and code-block handling.
-
-**Cause**: The preview was a **separate, simplified version** built apart from the detail page.
-
-- Every time the detail markup/styles changed, the preview had to be matched separately; fix one side and it drifted — the same screen implemented twice
-- richtext handling (code highlighting, embeds, heading ids) ran through different code paths too, so the output differed
-
-**Solution**: Extract the detail page's article view into **shared presentation components** so detail and preview render the same component
-
-1. `PostArticleView` / `WorkArticleView` export `Header` / `Body` / `Team` → `PostDetailClient`/`WorkDetailClient` (detail) and `posts/preview`/`works/preview` (preview) use the **same components**. Only chrome absent from preview (comments, back link) is added on the detail side
-2. richtext HTML processing is shared in one place, `src/utils/processRichtextHtml.ts` — both paths run the identical order: heading id injection → embed URL fix → hljs highlighting → wrap-toggle label → img `data-cursor="zoom"` → identical down to the code blocks
-
-**Insight**:
-
-① A "preview" that differs from the real screen has no value as a preview — the moment you keep a simplified version separate, the **two screens silently drift**
-② The fix isn't synchronization but a **single source**: if you need identical output, make both use the same component and the same processing function, so a one-side-only change becomes structurally impossible
-
-
-</details>
-
-<details>
-<summary><strong>65. Allowlists vs value checks: DOMPurify's two separate axes</strong></summary>
-
-**Problem**: `- [ ] todo` in comment markdown rendered as a plain bullet instead of a checkbox — even with `type` listed in `ALLOWED_ATTR`.
-
-**Cause**: DOMPurify tests an attribute's **value** against `ALLOWED_URI_REGEXP` unless the attribute is known to be URI-safe. `type` isn't in the default URI-safe list (alt/class/title/value, …), so the value of `type="checkbox"` failed `/^(?:https?:|mailto:)/i` and was silently dropped — the hook then judged it "not a checkbox" and removed the `<input>`, leaving only the bullet. Table `align` was dead for the same reason, so markdown table alignment was being ignored wholesale.
-
-**Solution**: Declare them as inert, non-URL attributes
-
-1. Added `ADD_URI_SAFE_ATTR: ["type", "checked", "disabled", "align"]` — excluded from the URI check
-2. Registering them in `ALLOWED_ATTR` alone does nothing — the two options are different axes (whether it's allowed vs. how its value is inspected)
-
-**Insight**: The allowlist (`ALLOWED_ATTR`) and the value-inspection policy (`ADD_URI_SAFE_ATTR`) are separate axes — when something is "allowed but disappears anyway," suspect that the filter is misreading the attribute's **value** as a URL.
-
-
-</details>
-
-<details>
-<summary><strong>66. Context the parser reads: markdown insertion is more than a string</strong></summary>
-
-**Problem**: Pressing the comment toolbar's checkbox button on a blank line produced a bullet, not a checkbox. The `---` divider button produced a **heading** instead of a rule whenever the previous line had text on it.
-
-**Cause**: Two GFM parsing rules
-
-1. Checkbox: GFM only parses a task list when **text follows** the `- [ ] ` marker — a bare marker on a blank line yields a `<li>[ ]</li>` bullet
-2. `---`: with text on the line above, it's read as a **setext h2** (underlined heading syntax), not an hr. Code fences and tables likewise only parse at the start of a line
-
-**Solution**: Have the insert action build the context along with the text
-
-1. Added a placeholder to prefix actions — on a blank line it fills in example text and leaves it selected
-2. Block inserts first ensure a blank line above, then insert
-
-**Insight**: A markdown insert button must not just drop a string in — it has to **create the context in which the parser will recognize that syntax**. Inserting the bare marker just makes the button look broken.
+**Conclusion**: When an allowed attribute still disappears, check whether the filter is validating its value as a URL. A markdown insert button must create the context the parser needs to recognize the syntax, not just insert a string. In `:has()`, the combinator defines the match scope, so enumerate every DOM shape the renderer produces and pin them with direct-child paths.
 
 
 </details>
