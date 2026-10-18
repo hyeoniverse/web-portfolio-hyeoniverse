@@ -44,26 +44,24 @@
   }
 }
 /* 현재 색상이 어떤 preset 과도 다를 때만 노출되는 + 버튼 */
-/* 지금 색을 프리셋으로 — 점선 상자 대신 프리셋 줄과 같은 높이의 글 단추 */
 .presetCardAddBtn {
   display: flex;
   align-items: center;
-  gap: var(--spacing-8);
-  height: var(--control-height-lg);
-  padding: 0 var(--spacing-12);
-  border: 0;
+  justify-content: center;
+  height: 52px;
+  border: var(--border-light);
+  border-style: dashed;
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-muted);
-  font: var(--font-body-sm);
   cursor: pointer;
   transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 
 .presetCardAddBtn:hover {
-  background: var(--bg-secondary);
+  border-color: var(--text-accent);
   color: var(--text-accent);
 }
 
@@ -73,30 +71,13 @@
 }
 
 /* 색 칩은 96px — 140px 일 땐 200px 카드에 이름 자리가 거의 없어 "De…" "M" 처럼 잘렸다 */
-/* 프리셋 색 띠 — 다크 배경 · 강조 · 라이트 배경. 바탕과 같은 색도 보이게 안쪽 선 하나 */
 .presetSwatches {
-  position: relative;
   display: flex;
-  width: 48px;
-  height: 20px;
+  width: 96px;
+  height: 100%;
   overflow: hidden;
   flex-shrink: 0;
-  border-radius: var(--radius-full);
-}
-
-.presetSwatches::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: var(--border-light);
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-/* 고른 프리셋 — 색 띠 둘레 강조색 링 */
-.presetSwatchesActive {
-  outline: var(--border-width-2) solid var(--text-accent);
-  outline-offset: 2px;
+  border-right: var(--border-light);
 }
 
 .presetSwatch {
@@ -230,14 +211,6 @@
   gap: var(--spacing-20);
   width: 100%;
 }
-/* flat — 카드(테두리/배경) 없이 여백으로만 나눈다 (선은 파트 헤어라인·탭 underline 두 종류만) */
-.faviconPreviewBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--spacing-24);
-  padding-bottom: var(--spacing-8);
-}
 .faviconPanels {
   display: grid;
   grid-template-columns: var(--grid-columns-2);
@@ -292,21 +265,9 @@
   font: var(--font-label-md);
   color: var(--text-primary);
 }
-
-.faviconPreviewCell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-4);
-}
 /* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
 .faviconPreview {
   display: block;
-}
-
-.faviconPreviewLabel {
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
 }
 /* 풀로고(메인) 폼 — 라벨 위·컨트롤 아래 stacked (FieldRow 기본). */
 .faviconForm {
@@ -334,14 +295,6 @@
   flex-direction: column;
   gap: var(--spacing-2);
   min-width: 0;
-}
-/* 업로드 favicon 미리보기 받침 — 실제 테마 배경색(inline) 위에서 확인 */
-.faviconImagePreviewBackdrop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-4);
-  border: var(--border-light);
 }
 
 /* 색 입력 캡슐 — 배치만 여기서(행 폭 채움). 모양 규칙(민짜 input·정사각 세그먼트·포커스)은
@@ -391,11 +344,6 @@
   font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
-/* 숏 텍스트처럼 짧은 입력은 폭 제한 (풀폭이면 4자 필드가 휑함) */
-.faviconTextInputWrap {
-  width: 100%;
-  max-width: 14rem;
-}
 .brandTextInputWrap {
   width: 100%;
   max-width: 22rem;
@@ -405,63 +353,51 @@
    간격·정렬·높이를 한 규칙으로 통일해 섹션 전체가 정돈돼 보이도록.
    ═══════════════════════════════════════════════════════════════════════ */
 /* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
+/* 묶음 — 로고 방식별 파트들 · 효과. 파트가 제 위 선을 가지므로 묶음은 쌓기만 */
 .brandGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-20);
 }
-.brandGroup + .brandGroup {
-  margin-top: var(--spacing-24);
-  padding-top: var(--spacing-24);
-  border-top: var(--border-light);
-}
-/* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
+/* 파트 한 줄 — 왼쪽 머리(이름 + 어디에 보이는지) · 오른쪽 본문(조작). 좁으면 위아래로.
+   파트마다 위 선 하나로 나눈다(상자 없이) */
 .brandPart {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-}
-/* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
-.brandTabs {
-  display: flex;
-  gap: var(--spacing-20);
-  border-bottom: var(--border-light);
-}
-/* 설정 페이지 컨트롤 높이(sm) — 패딩 합산(40)이면 다른 조작보다 높았다 */
-.brandTab {
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-height-sm);
-  padding: 0;
-  margin-bottom: -1px;
-  border: none;
-  border-bottom: var(--border-width-2) solid transparent;
-  background: transparent;
-  font: var(--font-label-md);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.brandTab:hover {
-  color: var(--text-secondary);
-}
-.brandTabActive {
-  color: var(--text-primary);
-  font-weight: 700;
-  border-bottom-color: var(--text-primary);
-}
-/* 그룹 탭 아래 활성 그룹 설명 */
-.brandTabHint {
-  margin: 0;
-  font: var(--font-body-sm);
-  line-height: var(--line-height-135);
-  color: var(--text-tertiary);
-}
-/* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
-.brandPart + .brandPart {
-  padding-top: var(--spacing-16);
+  gap: var(--spacing-16);
+  padding-block: var(--spacing-24);
   border-top: var(--border-light);
 }
+
+/* 파트 안 소제목 — 숏로고 안의 "브라우저 탭 아이콘"처럼 같은 대상의 다른 쓰임. 위 칸들과 선으로 나눈다 */
+.brandSubTitle {
+  margin: var(--spacing-8) 0 0;
+  padding-top: var(--spacing-20);
+  border-top: var(--border-light);
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+
+/* 로고 방식 — 미리보기 띠 바로 아래. 띠의 아래 선이 경계라 위 선은 뺀다 */
+.brandModePart {
+  border-top: 0;
+}
+
+.brandPartBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  min-width: 0;
+}
+
+@media (width >= 1024px) {
+  .brandPart {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    column-gap: var(--spacing-32);
+    align-items: start;
+  }
+}
+/* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
 
 /* 파트 안 소구획 구분선 — 예: 풀로고의 로딩 연출과 네비게이션 로고 그림자 사이 */
 .brandSubDivider {
@@ -474,9 +410,7 @@
 }
 
 /* 섹션 상단 공용 파트(네비게이션 로고) — 탭 위. 탭바가 아래 경계를 그어 주므로 여백만 보탠다 */
-.brandTopShared {
-  margin-bottom: var(--spacing-12);
-}
+/* ① 로고 방식 — 미리보기 띠 아래, 고르기 + 그 방식 설명 */
 
 /* 로고 폰트·장평 쌍 — fieldPair 와 달리 태블릿 이하에서도 2열 유지 (짧은 컨트롤 둘이라 좁아도 buckles 없음) */
 .typoPair {
@@ -487,32 +421,26 @@
 }
 /* 파트 헤더 — 라벨(좌) + 액션/토글(우). min-height 로 액션 유무와 무관하게 높이 일정 */
 .brandPartHead {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-4) var(--spacing-16);
-  min-height: var(--control-height-sm);
+  min-width: 0;
 }
-/* 파트 제목 — 계층 최상위(섹션 제목 다음). 필드 라벨(13/500/tertiary)보다 확실히 크고 진하게.
-   스케일: 파트 14/700/primary → 소구획 13/600/secondary → 필드 라벨 13/500/tertiary → 캡션 12/tertiary */
+/* 파트 이름 — 섹션 제목 다음 위계. 필드 라벨(13/500/tertiary)보다 확실히 크고 진하게(title-sm 16/600) */
 .brandPartTitle {
   margin: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-8);
-  font: var(--font-body-md);
-  font-weight: 700;
+  gap: var(--spacing-4) var(--spacing-8);
+  font: var(--font-title-sm);
   color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 /* 파트 힌트 — 제목보다 한 단계 작게 (예전엔 힌트가 제목보다 커서 위계가 뒤집혔다) */
+/* 설명은 이름(+ 도움말 ?) 아래 줄 */
 .brandPartTitleHint {
+  flex-basis: 100%;
+  order: 2;
   font: var(--font-body-xs);
   color: var(--text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
+  word-break: keep-all;
 }
 .brandPartHeadEnd {
   margin-left: auto;
@@ -544,57 +472,15 @@
   flex-wrap: wrap;
   gap: var(--spacing-12) var(--spacing-20);
 }
-/* 풀로고(텍스트) 미리보기 — 라이트/다크 배경 박스에 폰트·색·장평 적용한 로고 텍스트 + 아래 캡션 */
-.fullLogoPreview {
-  display: grid;
-  grid-template-columns: var(--grid-columns-2);
-  gap: var(--spacing-16);
-  width: 100%;
-}
-.fullLogoPreviewCell {
+/* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
+/* 업로드 로고 — 라이트 · 다크를 한 줄짜리 업로드 칸(UploadField compact)으로 위아래로 */
+.brandDropsStack {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
-  min-width: 0;
-}
-.fullLogoPreviewBox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 72px;
-  padding: var(--spacing-8) var(--spacing-16);
-  border-radius: var(--radius-surface);
-  overflow: hidden;
-}
-.fullLogoPreviewText {
-  font: var(--font-headline-md);
-  line-height: var(--line-height-100);
-  white-space: nowrap;
-  letter-spacing: -0.02em;
-  transform-origin: center;
-}
-.fullLogoPreviewCap {
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.fullLogoPreviewMeta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-/* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
-.brandDrops {
-  display: grid;
-  gap: var(--spacing-16);
-  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-4);
 }
 
 @container settings-panel (width < 570px) {
-  .brandDrops {
-    grid-template-columns: 1fr;
-  }
 }
 /* 업로드 favicon 전용 옵션 — 박스(테두리/배경) 안 쓰고, accent eyebrow 헤더(라벨 + 라인)
    와 여백만으로 새 구분. 카드가 아니라 '섹션 표제' 결. */
@@ -660,26 +546,56 @@
 
 /* ── Favicon 그림자 컨트롤 — 세그먼트 탭 전환, 플랫(카드/그리드 아님). 세그먼트 pill 이 앵커.
    .fields(align-items:flex-start) 안에서 shrink 되지 않게 .faviconShadowCard 가 width:100%. ── */
+/* 그림자 — 위 모양 · 색 칸과 선으로 나누고, 그림자마다 [이름 · 켜기] 한 줄 */
 .faviconShadowCard {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
+  padding-top: var(--spacing-20);
+  border-top: var(--border-light);
+  /* 좁으면 미리보기 위 · 조절 아래 — 파비콘 패널(favicon-panel) 밖이라 제 폭으로 잰다 */
+  container: shadow-card / inline-size;
 }
 
-.faviconShadowHead {
+/* 카드 안 자손으로 세기를 올린다 — 뒤에 오는 .faviconShadowBody { flex-direction: row } 와 같은 세기면 덮인다 */
+@container shadow-card (width < 560px) {
+  .faviconShadowCard .faviconShadowBody {
+    flex-direction: column;
+  }
+
+  .faviconShadowCard .shadowControls {
+    max-width: none;
+  }
+}
+
+.shadowRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.shadowRowHead {
   display: flex;
   align-items: center;
-  /* space-between 은 세그먼트와 토글을 양 끝으로 벌려 거리가 과함 → 토글을 세그먼트 바로 옆에 */
-  justify-content: flex-start;
-  gap: var(--spacing-20);
+  gap: var(--spacing-16);
+  min-height: var(--control-height-md);
 }
 
-/* single 모드 — 세그먼트 대신 그림자 대상 라벨 하나만 */
-.faviconShadowSingleLabel {
-  font: var(--font-label-md);
-  color: var(--text-primary);
+/* 켜져 있지만 접힌 그림자 — 펼쳐서 조절 */
+.shadowEdit {
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-control);
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
 }
+
+.shadowEdit:hover {
+  color: var(--text-accent);
+}
+
+
 
 .faviconShadowBody {
   display: flex;
@@ -691,13 +607,15 @@
   padding-top: var(--spacing-4);
 }
 /* 우측 컨트롤 — 2열로 채워 넓은 카드에서 빈 공간 최소화. 프리셋은 상단 풀폭. */
+/* 조절 — 한 열(프리셋 → 크기 → 색 → 안쪽). 예전엔 2열이라 크기 · 색이 옆으로 흩어졌다 */
 .shadowControls {
   flex: 1;
   min-width: 0;
+  max-width: 480px;
   display: grid;
-  grid-template-columns: var(--grid-columns-2);
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
-  gap: var(--spacing-12) var(--spacing-20);
+  gap: var(--spacing-12);
 }
 .shadowControls > .shadowPresetRadio {
   grid-column: 1 / -1;
@@ -708,7 +626,7 @@
     flex-direction: column;
   }
   .shadowControls {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 /* 카드 안 각 컨트롤 행 — 라벨 좌측 고정폭 + 컨트롤 우측 (FieldRow 세로 배치 override).
@@ -738,7 +656,9 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-16);
-  border-radius: var(--radius-surface);
+  border: var(--border-light);
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 미리보기 받침은 살짝만 둥글게(사용자 지정, 브랜드 미리보기와 같은 값) */
+  border-radius: var(--radius-mark);
   cursor: crosshair;
   touch-action: none;
   user-select: none;
@@ -800,43 +720,6 @@
   font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
-}
-/* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
-.faviconContrast {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2);
-  font: var(--font-body-xs);
-  line-height: var(--line-height-100);
-  white-space: nowrap;
-  max-width: 100%;
-}
-
-.faviconContrastRatio {
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.faviconContrastMuted {
-  color: var(--text-tertiary);
-}
-
-.faviconContrastBadge {
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-full);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.faviconContrastPass {
-  color: var(--text-success-strong);
-  background: var(--bg-success-soft);
-}
-
-.faviconContrastFail {
-  color: var(--text-error-strong);
-  background: var(--bg-error-soft);
 }
 
 .inlineToggle {

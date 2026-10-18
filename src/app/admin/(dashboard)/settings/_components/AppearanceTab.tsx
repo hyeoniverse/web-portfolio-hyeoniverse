@@ -91,7 +91,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       className={`${shared.presetCard} ${matchesCurrent(preset) ? shared.presetCardActive : ""}`}
                       onClick={() => applyTheme(preset.theme)}
                     >
-                      <div className={`${styles.presetSwatches} ${matchesCurrent(preset) ? styles.presetSwatchesActive : ""}`}>
+                      <div className={styles.presetSwatches}>
                         <span className={styles.presetSwatch} style={{ background: preset.theme.darkBg }} />
                         <span className={styles.presetSwatch} style={{ background: preset.theme.accentColor }} />
                         <span className={styles.presetSwatch} style={{ background: preset.theme.lightBg }} />
@@ -122,8 +122,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   title={t(anyMatch ? "admin.settings.presetSameAsCurrent" : "admin.settings.saveThemePreset")}
                   aria-label={t("admin.settings.saveThemePreset")}
                 >
-                  <Plus size={14} strokeWidth={2} />
-                  <span>{t("admin.settings.addThemePreset")}</span>
+                  <Plus size={16} strokeWidth={2} />
                 </Pressable>
               </>
             );

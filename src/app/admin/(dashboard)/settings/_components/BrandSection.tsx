@@ -30,13 +30,14 @@ import {
   type ResolvedShadow,
 } from "@/lib/favicon";
 import { resolveBrandLogos } from "@/lib/brandLogos";
-import { contrastRatio, contrastLevel } from "@/utils/contrast";
 import { fillTemplate } from "@/utils/format";
 import { FONT_GROUPS, FONT_FAMILIES_FLAT } from "@/components/posts/plate/constants";
 import { FAVICON_FONT_SIZE_PRESETS } from "../_data/faviconPresets";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { UploadField, FieldHelp } from "./SettingsFormFields";
+import BrandPreview from "./BrandPreview";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import SectionHeader from "./SectionHeader";
 import ButtonGroup from "@/components/ui/ButtonGroup";
 import { FaviconShadowControls, PresetNameAddRow } from "./FaviconControls";
@@ -373,90 +374,80 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
     const imgBgShadow = bg ? resolveFaviconShadow(config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW) : null;
     const imgScaleRaw = parseFloat(config.brand.faviconImageScale ?? "");
     const imgScale = Number.isFinite(imgScaleRaw) ? imgScaleRaw : 1;
-    return (
-      <span
-        className={styles.faviconImagePreviewBackdrop}
-        style={{
-          background: variant === "light" ? config.theme.lightBg : config.theme.darkBg,
-        }}
-      >
-        <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />
-      </span>
-    );
+    return <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />;
   };
+
+  /* 텍스트 로고 favicon — 맨 위 미리보기 띠의 탭 아이콘. 대비는 글자색 vs 실제로 글자 뒤에 깔리는 색(배경이 없으면 테마 바탕) */
+  const systemFaviconTab = (variant: "light" | "dark") => {
+    // preset 색 — 미리보기는 theme.lightText/darkText 로 fallback (route.ts 와 동일 계산 구조)
+    const presetLight = config.brand.logoColor || config.theme.lightText;
+    const presetDark = config.brand.logoColorDark || config.theme.darkText;
+    const render = resolveFavicon(
+      {
+        shape: (config.brand.faviconShape ?? "circle") as FaviconShape,
+        faviconRadius: config.brand.faviconRadius ?? "",
+        faviconBgRatio: config.brand.faviconBgRatio ?? "1",
+        weight: (config.brand.faviconWeight ?? "light") as FaviconWeight,
+        logoText: config.brand.logoText ?? "",
+        logoFont: config.brand.logoFont ?? "",
+        logoFontStretch: config.brand.logoFontStretch ?? "",
+        faviconBgLight: config.brand.faviconBgLight ?? "",
+        faviconBgDark: config.brand.faviconBgDark ?? "",
+        faviconBorderWidth: config.brand.faviconBorderWidth ?? "0",
+        faviconBorderColorLight: config.brand.faviconBorderColorLight ?? "",
+        faviconBorderColorDark: config.brand.faviconBorderColorDark ?? "",
+        faviconFontSize: config.brand.faviconFontSize ?? "20",
+        faviconColor: config.brand.faviconColor ?? "",
+        faviconColorDark: config.brand.faviconColorDark ?? "",
+        faviconTextShadow: config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
+        faviconBgShadow: config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
+        presetLight,
+        presetDark,
+      },
+      variant,
+    );
+    const textShadowId = `favicon-text-shadow-${variant}`;
+    const bgShadowId = `favicon-bg-shadow-${variant}`;
+    /* 대비율 — 글자색 vs 실제로 글자 뒤에 깔리는 색. 배경이 없으면 테마 바탕(미리보기 받침과 같은 색) */
+    const themeBg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
+    return {
+      icon: <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />,
+      contrast: { fg: render.fgColor, bg: render.hasBg ? render.bgColor : themeBg },
+    };
+  };
+
+  /* 미리보기 띠의 브라우저 탭 — 로고 방식에 따라 이미지 / 텍스트 favicon */
+  const renderTab = (variant: "light" | "dark") =>
+    brandTab === "system" ? systemFaviconTab(variant) : { icon: renderImageFaviconPreview(variant) };
 
   return (
       <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader title={t("admin.settings.brand")} paths={["brand"]} {...sh} />
 
-        {/* ══ 공통 — 소스(업로드/시스템)와 무관하게 네비 마크·로딩 스크린 로고에 적용되는 표시 설정.
-            그림자는 별도 설정 없이 Favicon 그림자를 따른다 ══ */}
-        <div className={`${styles.brandGroup} ${styles.brandTopShared}`}>
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.navLogoPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.navLogoPartHint")}</span>
-              </h4>
-            </div>
-            <div className={styles.logoEffectsRow}>
-              <span className={styles.logoEffectsLabel}>{t("admin.settings.logoEffects")}</span>
-              <div className={styles.logoEffectsToggles}>
-                <label className={styles.inlineToggle}>
-                  <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
-                  {t("admin.settings.logoGlitch")}
-                </label>
-                <label className={styles.inlineToggle}>
-                  {/* 미지정(undefined) = 자동 — 보고 있는 탭의 기본을 보여준다: 업로드(이미지)는 해제,
-                     시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
-                  <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
-                  {t("admin.settings.logoDifference")}
-                </label>
-                <label className={styles.inlineToggle}>
-                  <Checkbox checked={config.brand.logoFollowTheme !== false} onChange={(v) => update("brand", "logoFollowTheme", v)} shape="square" />
-                  {t("admin.settings.logoFollowTheme")}
-                </label>
-              </div>
-            </div>
-            {/* 로딩 스크린 등장 연출 — 이미지 로딩 로고(풀, 없으면 숏 다크)에 적용 */}
-            <FieldRow label={t("admin.settings.loadingAnimation")}>
-              <Select
-                value={config.brand.loadingAnimation ?? "fade"}
-                onChange={(v) => update("brand", "loadingAnimation", v as typeof config.brand.loadingAnimation)}
-                options={[
-                  { value: "fade", label: t("admin.settings.loadingAnimationFade") },
-                  { value: "rise", label: t("admin.settings.loadingAnimationRise") },
-                  { value: "scale", label: t("admin.settings.loadingAnimationScale") },
-                  { value: "wipe", label: t("admin.settings.loadingAnimationWipe") },
-                  { value: "none", label: t("admin.settings.loadingAnimationNone") },
-                ]}
-              />
-            </FieldRow>
+        {/* 지금 고치는 설정으로 그린 실제 모습 — 네비 · 로딩 · 브라우저 탭 */}
+        <BrandPreview config={config} renderTab={renderTab} />
+
+        {/* ① 로고 방식 — 고르고 저장하면 사이트가 그 로고를 쓴다(brand.logoMode). 화면 전환 탭처럼 보이지 않게 명시적 선택 */}
+        <div className={`${styles.brandPart} ${styles.brandModePart}`}>
+          <div className={styles.brandPartHead}>
+            <h4 className={styles.brandPartTitle}>
+              {t("admin.settings.logoModeLabel")}
+              <span className={styles.brandPartTitleHint}>
+                {brandTab === "uploaded" ? t("admin.settings.uploadedLogoHint") : t("admin.settings.systemLogoHint")}
+              </span>
+            </h4>
+          </div>
+          <div className={styles.brandPartBody}>
+            <SegmentedControl<"uploaded" | "system">
+              items={[
+                { value: "uploaded", label: t("admin.settings.logoModeImage") },
+                { value: "system", label: t("admin.settings.logoModeText") },
+              ]}
+              value={brandTab}
+              onChange={setBrandTab}
+            />
           </div>
         </div>
-
-        {/* 그룹 탭 — 언더라인 탭(세그먼트 pill 과 구분). 업로드 로고 / 시스템 로고(텍스트) */}
-        <div className={styles.brandTabs} role="tablist">
-          <Pressable
-            role="tab"
-            aria-selected={brandTab === "uploaded"}
-            className={`${styles.brandTab}${brandTab === "uploaded" ? ` ${styles.brandTabActive}` : ""}`}
-            onClick={() => setBrandTab("uploaded")}
-          >
-            {t("admin.settings.uploadedLogoSection")}
-          </Pressable>
-          <Pressable
-            role="tab"
-            aria-selected={brandTab === "system"}
-            className={`${styles.brandTab}${brandTab === "system" ? ` ${styles.brandTabActive}` : ""}`}
-            onClick={() => setBrandTab("system")}
-          >
-            {t("admin.settings.systemLogoSection")}
-          </Pressable>
-        </div>
-        <p className={styles.brandTabHint}>
-          {brandTab === "uploaded" ? t("admin.settings.uploadedLogoHint") : t("admin.settings.systemLogoHint")}
-        </p>
 
         {/* ══ 업로드 로고 — 이미지. 올리면 텍스트 로고를 대체 ══ */}
         <AnimatePresence mode="wait">
@@ -477,45 +468,13 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 {t("admin.settings.logoShortPart")}
                 <span className={styles.brandPartTitleHint}>{t("admin.settings.logoShortPartHint")}</span>
               </h4>
-              {/* 파트별 "기본 로고 사용" 버튼은 섹션 머리의 기본값 버튼과 중복이라 없앴다 */}
             </div>
-            <div className={styles.brandDrops}>
-              <UploadField kind="logo" tint={config.brand.logoShortColor} onTintChange={(c) => update("brand", "logoShortColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
-              <UploadField kind="logo" tint={config.brand.logoShortColorDark} onTintChange={(c) => update("brand", "logoShortColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
+            <div className={styles.brandPartBody}>
+            <div className={styles.brandDropsStack}>
+              <UploadField compact kind="logo" tint={config.brand.logoShortColor} onTintChange={(c) => update("brand", "logoShortColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
+              <UploadField compact kind="logo" tint={config.brand.logoShortColorDark} onTintChange={(c) => update("brand", "logoShortColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
             </div>
-          </div>
-
-          {/* 풀로고(메인) 이미지 — 비우면 텍스트 풀로고로 fallback */}
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoFullPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
-              </h4>
-            </div>
-            <div className={styles.brandDrops}>
-              <UploadField kind="logo" tint={config.brand.logoFullColor} onTintChange={(c) => update("brand", "logoFullColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
-              <UploadField kind="logo" tint={config.brand.logoFullColorDark} onTintChange={(c) => update("brand", "logoFullColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
-            </div>
-          </div>
-
-          {/* FAVICON — 이 소스(업로드 이미지)의 브라우저 탭 렌더 */}
-            <div className={styles.brandPart}>
-              <div className={styles.brandPartHead}>
-                <h4 className={styles.brandPartTitle}>
-                  {t("admin.settings.logoFaviconPart")}
-                  <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFaviconPartHint")}</span>
-                </h4>
-              </div>
-              {/* 미리보기 — 라우트와 같은 계산의 실제 탭 아이콘 렌더 */}
-              <div className={styles.faviconPreviewBar}>
-                {(["light", "dark"] as const).map((variant) => (
-                  <div key={variant} className={styles.faviconPreviewCell}>
-                    {renderImageFaviconPreview(variant)}
-                    <span className={styles.faviconPreviewLabel}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
-                  </div>
-                ))}
-              </div>
+              <h5 className={styles.brandSubTitle}>{t("admin.settings.shortLogoTabIcon")}</h5>
             {/* favicon 전용 옵션 — 적용처가 브라우저 탭이라 FAVICON 파트 안에 둔다 */}
             <div className={styles.faviconForm}>
               {/* 컨트롤 2패널(크기·모양 | 색상) — 시스템 로고 FAVICON 과 같은 배치 */}
@@ -650,6 +609,23 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               />
             </div>
             </div>
+          </div>
+          {/* 풀로고(메인) 이미지 — 비우면 텍스트 풀로고로 fallback */}
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoFullPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
+              </h4>
+            </div>
+            <div className={styles.brandPartBody}>
+            <div className={styles.brandDropsStack}>
+              <UploadField compact kind="logo" tint={config.brand.logoFullColor} onTintChange={(c) => update("brand", "logoFullColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
+              <UploadField compact kind="logo" tint={config.brand.logoFullColorDark} onTintChange={(c) => update("brand", "logoFullColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
+            </div>
+            </div>
+          </div>
+
         </motion.div>
         )}
 
@@ -664,155 +640,32 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
           transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
         >
 
-          {/* 공통 — 숏(favicon)·풀 로고가 함께 쓰는 타이포그래피. 폰트·장평은 둘 다에 적용되므로
-              어느 한쪽 파트에 두면 반대쪽에도 영향을 주는 게 가려진다. 그래서 맨 위 공통 블록으로 뺀다. */}
           <div className={styles.brandPart}>
             <div className={styles.brandPartHead}>
               <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoSharedPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoSharedPartHint")}</span>
-              </h4>
-            </div>
-            <div className={styles.faviconForm}>
-              {/* 로고 폰트 + 장평 — 둘 다 타이포그래피라 한 행에 나란히 (태블릿 이하에서도 유지) */}
-              <div className={styles.typoPair}>
-              <FieldRow label={t("admin.settings.logoFont")}>
-                <FontPicker
-                  value={config.brand.logoFont ?? ""}
-                  onChange={(v) => update("brand", "logoFont", v)}
-                  groups={FONT_GROUPS}
-                  triggerClassName={shared.fontPickerSelect}
-                  dropdownClassName={shared.fontPickerDropdown}
-                  renderValue={() => {
-                    const v = config.brand.logoFont ?? "";
-                    const matched = FONT_FAMILIES_FLAT.find((f) => f.value === v);
-                    const label = matched
-                      ? matched.label
-                      : v.replace(/["']/g, "").split(",")[0].trim();
-                    return <span style={{ fontFamily: v }}>{label}</span>;
-                  }}
-                  resolveMatch={(v, entries) => {
-                    if (!v) return "";
-                    if (entries.some((e) => e.value === v)) return v;
-                    const normalized = v.replace(/["']/g, "").split(",")[0].trim();
-                    const byName = entries.find((e) => e.label.toLowerCase() === normalized.toLowerCase());
-                    return byName ? byName.value : "";
-                  }}
-                  toGoogleValue={(name) => `'${name}', sans-serif`}
-                />
-              </FieldRow>
-              {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
-              <FieldRow label={t("admin.settings.logoFontStretch")}>
-                <Select
-                  value={config.brand.logoFontStretch ?? "1"}
-                  onChange={(v) => update("brand", "logoFontStretch", v)}
-                  editable
-                  editableInputProps={{ placeholder: t("admin.settings.logoFontStretchPlaceholder"), maxLength: 8 }}
-                  options={[
-                    { value: "0.8", label: "0.8 (-20%)" },
-                    { value: "0.9", label: "0.9 (-10%)" },
-                    { value: "1", label: "1.0" },
-                    { value: "1.1", label: "1.1 (+10%)" },
-                    { value: "1.2", label: "1.2 (+20%)" },
-                  ]}
-                />
-              </FieldRow>
-              </div>
-            </div>
-          </div>
-
-          {/* 그림자 파트는 없앴다 — favicon 그림자는 위 FAVICON 파트 안(업로드 탭과 동일 구조),
-              네비게이션 로고 그림자는 탭 위 공용 블록이 담당(중복 노출 제거) */}
-          {/* Favicon(숏) — 짧은 텍스트 → 브라우저 탭 아이콘 렌더 */}
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoFaviconPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFaviconPartHint")}</span>
+                {t("admin.settings.logoShortPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoShortPartHint")}</span>
                 <FieldHelp content={t("admin.settings.wcagHelp")} />
               </h4>
             </div>
+            <div className={styles.brandPartBody}>
+              <FieldRow label={t("admin.settings.logoText")}>
+                <div className={styles.brandTextInputWrap}>
+                  {/* favicon 은 한 grapheme 만 렌더 → 마지막 입력 글자로 덮어쓰기(이모지 보존). 4글자 제한 제거 */}
+                  <HighlightInput
+                    value={config.brand.logoText}
+                    onChange={(v) => update("brand", "logoText", lastGrapheme(v))}
+                    placeholder={t("admin.settings.logoTextPlaceholder")}
+                  />
+                </div>
+              </FieldRow>
+              <h5 className={styles.brandSubTitle}>{t("admin.settings.shortLogoBadgeIcon")}</h5>
             <p className={styles.faviconImageOptionsHint}>{t("admin.settings.faviconThemeHint")}</p>
             {/* 프리뷰(상단 가로 카드) + 컨트롤 2패널(글자·모양 | 색상) + 그림자 카드 */}
             <div className={styles.faviconStudio}>
-              <div className={styles.faviconPreviewBar}>
-                {(["light", "dark"] as const).map((variant) => {
-                  // preset 색 — 미리보기는 theme.lightText/darkText 로 fallback (route.ts 와 동일 계산 구조)
-                  const presetLight = config.brand.logoColor || config.theme.lightText;
-                  const presetDark = config.brand.logoColorDark || config.theme.darkText;
-                  const render = resolveFavicon(
-                    {
-                      shape: (config.brand.faviconShape ?? "circle") as FaviconShape,
-                      faviconRadius: config.brand.faviconRadius ?? "",
-                      faviconBgRatio: config.brand.faviconBgRatio ?? "1",
-                      weight: (config.brand.faviconWeight ?? "light") as FaviconWeight,
-                      logoText: config.brand.logoText ?? "",
-                      logoFont: config.brand.logoFont ?? "",
-                      logoFontStretch: config.brand.logoFontStretch ?? "",
-                      faviconBgLight: config.brand.faviconBgLight ?? "",
-                      faviconBgDark: config.brand.faviconBgDark ?? "",
-                      faviconBorderWidth: config.brand.faviconBorderWidth ?? "0",
-                      faviconBorderColorLight: config.brand.faviconBorderColorLight ?? "",
-                      faviconBorderColorDark: config.brand.faviconBorderColorDark ?? "",
-                      faviconFontSize: config.brand.faviconFontSize ?? "20",
-                      faviconColor: config.brand.faviconColor ?? "",
-                      faviconColorDark: config.brand.faviconColorDark ?? "",
-                      faviconTextShadow: config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
-                      faviconBgShadow: config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
-                      presetLight,
-                      presetDark,
-                    },
-                    variant,
-                  );
-                  const textShadowId = `favicon-text-shadow-${variant}`;
-                  const bgShadowId = `favicon-bg-shadow-${variant}`;
-                  /* 대비율 — 글자색 vs 실제로 글자 뒤에 깔리는 색. 배경이 없으면 테마 바탕(미리보기 받침과 같은 색) */
-                  const themeBg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
-                  const ratio = contrastRatio(render.fgColor, render.hasBg ? render.bgColor : themeBg);
-                  const level = ratio != null ? contrastLevel(ratio) : null;
-                  return (
-                    <div key={variant} className={styles.faviconPreviewCell}>
-                      {/* 테마 바탕 위에 올린다 — 배경이 투명하면 실제로 이 색 위에 보인다(이미지 favicon 미리보기와 같은 받침) */}
-                      <span
-                        className={styles.faviconImagePreviewBackdrop}
-                        style={{ background: themeBg }}
-                      >
-                        <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
-                      </span>
-                      <span className={styles.faviconPreviewLabel}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
-                      {/* 대비율 + WCAG 배지 — favicon 은 그래픽 글리프라 3:1(1.4.11)이 실질 최소 */}
-                      <span className={styles.faviconContrast}>
-                        {ratio == null || level == null ? (
-                          <span className={styles.faviconContrastMuted}>—</span>
-                        ) : (
-                          <>
-                            <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
-                            <span
-                              className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`}
-                              title={t(`admin.settings.faviconContrast_${level}`)}
-                            >
-                              {t(`admin.settings.faviconContrast_${level}`)}
-                            </span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
               <div className={styles.faviconPanels}>
                 <div className={styles.faviconPanel}>
                   <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconGroupGlyph")}</h5>
-                <FieldRow label={t("admin.settings.logoText")}>
-                  <div className={styles.faviconTextInputWrap}>
-                    {/* favicon 은 한 grapheme 만 렌더 → 마지막 입력 글자로 덮어쓰기(이모지 보존). 4글자 제한 제거 */}
-                    <HighlightInput
-                      value={config.brand.logoText}
-                      onChange={(v) => update("brand", "logoText", lastGrapheme(v))}
-                      placeholder={t("admin.settings.logoTextPlaceholder")}
-                    />
-                  </div>
-                </FieldRow>
                 <FieldRow label={t("admin.settings.faviconShape")}>
                   <RadioGroup<"circle" | "square" | "none">
                     // 선택 표시는 radius 에서 파생 — 슬라이더로 반경 바꾸면 원/사각 하이라이트가 따라 이동
@@ -1000,52 +853,77 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               onChangeBg={(v) => update("brand", "faviconBgShadow", v)}
               t={t}
             />
+            </div>
           </div>
-          {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
+
           <div className={styles.brandPart}>
             <div className={styles.brandPartHead}>
               <h4 className={styles.brandPartTitle}>
                 {t("admin.settings.logoFullPart")}
                 <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
-                <FieldHelp content={t("admin.settings.wcagHelp")} />
               </h4>
             </div>
-            {/* 풀로고 미리보기 — 텍스트 로고를 폰트·색·장평 적용해 라이트/다크 배경에서 확인 */}
-            <div className={styles.fullLogoPreview}>
-              {(["light", "dark"] as const).map((variant) => {
-                const bg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
-                const color = variant === "light" ? (config.brand.logoColor || config.theme.lightText) : (config.brand.logoColorDark || config.theme.darkText);
-                const stretch = parseFloat(config.brand.logoFontStretch || "1") || 1;
-                const ratio = contrastRatio(color, bg);
-                const level = ratio != null ? contrastLevel(ratio) : null;
-                return (
-                  <div key={variant} className={styles.fullLogoPreviewCell}>
-                    <div className={styles.fullLogoPreviewBox} style={{ background: bg }}>
-                      <span className={styles.fullLogoPreviewText} style={{ fontFamily: config.brand.logoFont || undefined, color, transform: `scaleX(${stretch})` }}>
-                        {config.brand.logoFullText || "LOGO"}
-                      </span>
-                    </div>
-                    <span className={styles.fullLogoPreviewMeta}>
-                      <span className={styles.fullLogoPreviewCap}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
-                      {ratio != null && level != null && (
-                        <span className={styles.faviconContrast}>
-                          <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
-                          <span className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`} title={t(`admin.settings.faviconContrast_${level}`)}>
-                            {t(`admin.settings.faviconContrast_${level}`)}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className={styles.faviconForm}>
+            <div className={styles.brandPartBody}>
               <FieldRow label={t("admin.settings.logoFullText")}>
                 <div className={styles.brandTextInputWrap}>
                   <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
                 </div>
               </FieldRow>
+            </div>
+          </div>
+
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoTypeColorPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoTypeColorPartHint")}</span>
+              </h4>
+            </div>
+            <div className={styles.brandPartBody}>
+            <div className={styles.faviconForm}>
+              <div className={styles.typoPair}>
+              <FieldRow label={t("admin.settings.logoFont")}>
+                <FontPicker
+                  value={config.brand.logoFont ?? ""}
+                  onChange={(v) => update("brand", "logoFont", v)}
+                  groups={FONT_GROUPS}
+                  triggerClassName={shared.fontPickerSelect}
+                  dropdownClassName={shared.fontPickerDropdown}
+                  renderValue={() => {
+                    const v = config.brand.logoFont ?? "";
+                    const matched = FONT_FAMILIES_FLAT.find((f) => f.value === v);
+                    const label = matched
+                      ? matched.label
+                      : v.replace(/["']/g, "").split(",")[0].trim();
+                    return <span style={{ fontFamily: v }}>{label}</span>;
+                  }}
+                  resolveMatch={(v, entries) => {
+                    if (!v) return "";
+                    if (entries.some((e) => e.value === v)) return v;
+                    const normalized = v.replace(/["']/g, "").split(",")[0].trim();
+                    const byName = entries.find((e) => e.label.toLowerCase() === normalized.toLowerCase());
+                    return byName ? byName.value : "";
+                  }}
+                  toGoogleValue={(name) => `'${name}', sans-serif`}
+                />
+              </FieldRow>
+              {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
+              <FieldRow label={t("admin.settings.logoFontStretch")}>
+                <Select
+                  value={config.brand.logoFontStretch ?? "1"}
+                  onChange={(v) => update("brand", "logoFontStretch", v)}
+                  editable
+                  editableInputProps={{ placeholder: t("admin.settings.logoFontStretchPlaceholder"), maxLength: 8 }}
+                  options={[
+                    { value: "0.8", label: "0.8 (-20%)" },
+                    { value: "0.9", label: "0.9 (-10%)" },
+                    { value: "1", label: "1.0" },
+                    { value: "1.1", label: "1.1 (+10%)" },
+                    { value: "1.2", label: "1.2 (+20%)" },
+                  ]}
+                />
+              </FieldRow>
+              </div>
               {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
               <FieldRow label={t("admin.settings.logoColorPresets")}>
             <div className={styles.logoColorPresets}>
@@ -1108,11 +986,59 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             onSave={addCurrentAsPreset}
             t={t}
           />
+            </div>
           </div>
-
         </motion.div>
         )}
         </AnimatePresence>
+
+        {/* ══ 효과 · 연출 — 로고 방식과 무관하게 네비 마크·로딩 스크린 로고에 적용되는 표시 설정.
+            그림자는 별도 설정 없이 Favicon 그림자를 따른다 ══ */}
+        <div className={styles.brandGroup}>
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoEffectsPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.navLogoPartHint")}</span>
+              </h4>
+            </div>
+            <div className={styles.brandPartBody}>
+            <div className={styles.logoEffectsRow}>
+              <span className={styles.logoEffectsLabel}>{t("admin.settings.logoEffects")}</span>
+              <div className={styles.logoEffectsToggles}>
+                <label className={styles.inlineToggle}>
+                  <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
+                  {t("admin.settings.logoGlitch")}
+                </label>
+                <label className={styles.inlineToggle}>
+                  {/* 미지정(undefined) = 자동 — 보고 있는 탭의 기본을 보여준다: 업로드(이미지)는 해제,
+                     시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
+                  <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
+                  {t("admin.settings.logoDifference")}
+                </label>
+                <label className={styles.inlineToggle}>
+                  <Checkbox checked={config.brand.logoFollowTheme !== false} onChange={(v) => update("brand", "logoFollowTheme", v)} shape="square" />
+                  {t("admin.settings.logoFollowTheme")}
+                </label>
+              </div>
+            </div>
+            {/* 로딩 스크린 등장 연출 — 이미지 로딩 로고(풀, 없으면 숏 다크)에 적용 */}
+            <FieldRow label={t("admin.settings.loadingAnimation")}>
+              <Select
+                value={config.brand.loadingAnimation ?? "fade"}
+                onChange={(v) => update("brand", "loadingAnimation", v as typeof config.brand.loadingAnimation)}
+                options={[
+                  { value: "fade", label: t("admin.settings.loadingAnimationFade") },
+                  { value: "rise", label: t("admin.settings.loadingAnimationRise") },
+                  { value: "scale", label: t("admin.settings.loadingAnimationScale") },
+                  { value: "wipe", label: t("admin.settings.loadingAnimationWipe") },
+                  { value: "none", label: t("admin.settings.loadingAnimationNone") },
+                ]}
+              />
+            </FieldRow>
+            </div>
+          </div>
+        </div>
 
       </section>
   );
