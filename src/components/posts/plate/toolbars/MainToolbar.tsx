@@ -10,6 +10,7 @@ import { indent, outdent } from "@platejs/indent";
 import { useEditorSelector } from "platejs/react";
 import { shallow } from "zustand/shallow";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -494,7 +495,7 @@ export default React.memo(function MainToolbar({
         <TBtn
           square
           key={cols}
-          tooltip={`${cols}${t("editor.columns")}`}
+          tooltip={fillTemplate(t("editor.columns"), { n: cols })}
           onClick={() => {
             // 현재 커서가 column_group 안에 있으면 열 개수 변경
             try {

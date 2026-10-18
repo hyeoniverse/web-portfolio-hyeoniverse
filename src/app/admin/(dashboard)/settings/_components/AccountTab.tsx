@@ -5,6 +5,7 @@ import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { useRouter } from "next/navigation";
 import { Monitor, Smartphone, Tablet, Check, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
@@ -205,8 +206,8 @@ export default function AccountTab({
     if (remaining <= 0) return t("admin.settings.linkExpired");
     const mins = Math.ceil(remaining / 60000);
     return mins >= 60
-      ? `${Math.floor(mins / 60)}${t("admin.settings.timeHour")} ${mins % 60}${t("admin.settings.timeMin")}`
-      : `${mins}${t("admin.settings.timeMin")}`;
+      ? fillTemplate(t("admin.settings.timeLeftHm"), { h: Math.floor(mins / 60), m: mins % 60 })
+      : fillTemplate(t("admin.settings.timeLeftM"), { m: mins });
   };
 
   return (
