@@ -22,7 +22,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Server Component에서는 set-cookie 불가 — middleware에서 처리
+            // Server Component 에서는 쿠키를 쓸 수 없다. 토큰 갱신 쿠키는 proxy(src/proxy.ts)가 응답에 싣는다
           }
         },
       },

@@ -226,7 +226,7 @@ export function useHorizontalScroll(
     gsap.set(track, { x: initialX });
 
     /* .animate 요소 초기화 — 1회만. 장면 전환(cinematic)에서는 내용이 흐름 값(--flow-in/out)을 따라 CSS 로
-       움직이므로(AboutPanel.module.css) 쓰지 않는다 — 인라인 opacity·transform 을 박으면 그 규칙을 덮는다 */
+       움직이므로 쓰지 않는다 — 인라인 opacity·transform 을 박으면 그 규칙을 덮는다 */
     if (!initializedRef.current && !cinematic) {
       initializedRef.current = true;
       allPanels.forEach((panel, i) => {
