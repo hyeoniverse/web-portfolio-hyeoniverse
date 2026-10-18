@@ -37,6 +37,11 @@ function ensureOwnerAuthor(merged: SiteConfigData): void {
   (merged as { authors: Author[] }).authors = withOwnerAuthor(merged.authors as Author[] | undefined, fallback);
 }
 
+/** 저장된 delta 를 기본값 위에 얹은 전체 설정 — 저장하기 전 값을 미리 볼 때(설정 저장 API) */
+export function mergeSiteConfig(delta: Record<string, unknown>): SiteConfigData {
+  return deepMerge(structuredClone(siteConfig) as unknown as SiteConfigData, delta);
+}
+
 export async function getSiteConfig(): Promise<SiteConfigData> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return structuredClone(siteConfig) as unknown as SiteConfigData;

@@ -85,6 +85,12 @@ function saveFailure(err: unknown, t: TFunction): { message: string; reason: str
 }
 
 
+/** 설정 저장 응답이 원문을 새 기본 언어로 번역해 덮어썼다고 알리는가(#1425) */
+async function sourceTranslated(res: Response): Promise<boolean> {
+  const body = (await res.clone().json().catch(() => null)) as { sourceTranslated?: unknown } | null;
+  return body?.sourceTranslated === true;
+}
+
 export default function SettingsPage() {
   const { t } = useLanguage();
   useStaticPageScroll();
@@ -457,6 +463,11 @@ export default function SettingsPage() {
           throw errorFromBody(body, res.status);
         }
       }
+      /* 기본 언어를 바꿔 원문을 번역해 덮어썼으면(#1425) 들고 있는 값이 번역 전이다 — 다시 불러온다 */
+      if (await sourceTranslated(results[0])) {
+        window.location.reload();
+        return;
+      }
 
       savedConfigRef.current = structuredClone(mergedConfig);
       storedDeltaRef.current = structuredClone(buildDeltaPayload(mergedConfig, savePaths).delta);
@@ -638,6 +649,10 @@ export default function SettingsPage() {
         /* "왜" 는 코드로 온다(예: 본인 프로필만 추가할 수 있습니다). error 는 "Forbidden" 뿐이라,
            saveFailure 가 코드를 화면 언어 문구로 바꿔 보인다(#862) */
         throw errorFromBody(body, res.status);
+      }
+      if (await sourceTranslated(res)) {
+        window.location.reload();
+        return { ok: true };
       }
       savedConfigRef.current = structuredClone(merged);
       storedDeltaRef.current = structuredClone(payload.delta);

@@ -2940,6 +2940,10 @@
         "loadFailed": "Couldn’t load comment images.",
         "empty": "No comment images to clean up."
       }
+    },
+    "sourceTranslate": {
+      "translating": "Translating the original text into the default language ({{lang}}). Long content may take a moment.",
+      "failed": "Could not translate the original text into the default language. You are editing the existing original."
     }
   }
 }

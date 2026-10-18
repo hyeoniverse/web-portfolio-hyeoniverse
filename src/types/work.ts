@@ -36,6 +36,8 @@ export interface Work {
   id: string;
   slug: string;
   title: string;      // 국문/기본 제목
+  /** 원문 칸(ko)이 쓰인 언어(#1425) — 비어 있으면 ko */
+  source_lang?: string | null;
   title_en: string;   // 영문 제목 (빈 값이면 title 로 fallback)
   subtitle_ko: string;
   subtitle_en: string;
