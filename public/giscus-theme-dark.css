@@ -72,6 +72,12 @@ main .gsc-comment-content {
   font-family: inherit;
 }
 
+/* "Aa" 버튼 = 입력칸 고정폭 글꼴 토글(giscus 가 .gsc-is-fixed-width 를 붙였다 뗀다).
+   바로 위 inherit 가 giscus 기본 규칙(.gsc-is-fixed-width, 0,1,0)보다 세서 눌러도 글꼴이 그대로였다 */
+main .gsc-comment-box-textarea.gsc-is-fixed-width {
+  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, Consolas, monospace;
+}
+
 /* ============================================================================
  * 블로그 디자인 언어
  * ==========================================================================*/
