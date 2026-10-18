@@ -2,14 +2,14 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 193,
-  "routeFiles": 134,
+  "total": 199,
+  "routeFiles": 139,
   "access": {
-    "public": 65,
+    "public": 68,
     "signed-in": 60,
-    "author": 27,
+    "author": 28,
     "admin": 16,
-    "owner": 23,
+    "owner": 25,
     "cron": 2
   },
   "tables": [
@@ -383,6 +383,72 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "comments",
+      "files": 6,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/comments",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/comments/[id]",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/[id]/report",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/[id]/restore",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/api/comments/images",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/api/comments/recent",
+          "access": "public"
+        }
+      ],
+      "tables": [
+        "admin_notifications",
+        "comment_reports",
+        "comments",
+        "posts",
+        "site_settings"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage",
+        "mail"
+      ],
+      "access": {
+        "public": 7,
+        "signed-in": 1,
+        "author": 0,
+        "admin": 0,
+        "owner": 0,
+        "cron": 0
+      }
+    },
+    {
       "key": "demo",
       "files": 4,
       "endpoints": [
@@ -493,66 +559,6 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 1,
         "signed-in": 6,
-        "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "comments",
-      "files": 5,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "PATCH",
-          "path": "/api/comments",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/comments/[id]",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments/[id]/report",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/comments/[id]/restore",
-          "access": "signed-in"
-        },
-        {
-          "method": "GET",
-          "path": "/api/comments/recent",
-          "access": "public"
-        }
-      ],
-      "tables": [
-        "admin_notifications",
-        "comment_reports",
-        "comments",
-        "posts",
-        "site_settings"
-      ],
-      "rpcs": [],
-      "services": [
-        "mail"
-      ],
-      "access": {
-        "public": 6,
-        "signed-in": 1,
         "author": 0,
         "admin": 0,
         "owner": 0,
@@ -780,6 +786,52 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "contact",
+      "files": 3,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/contact",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/api/contact/attachment",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/contact/attachment",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/contact/attachment",
+          "access": "owner"
+        },
+        {
+          "method": "POST",
+          "path": "/api/contact/upload",
+          "access": "public"
+        }
+      ],
+      "tables": [
+        "site_settings"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage"
+      ],
+      "access": {
+        "public": 4,
+        "signed-in": 0,
+        "author": 0,
+        "admin": 0,
+        "owner": 1,
+        "cron": 0
+      }
+    },
+    {
       "key": "cover",
       "files": 5,
       "endpoints": [
@@ -915,6 +967,52 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "admin/media",
+      "files": 2,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/admin/media",
+          "access": "owner"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/admin/media",
+          "access": "owner"
+        },
+        {
+          "method": "GET",
+          "path": "/api/admin/media/comment-images",
+          "access": "owner"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/media/comment-images",
+          "access": "owner"
+        }
+      ],
+      "tables": [
+        "cover_image_history",
+        "custom_emojis",
+        "posts",
+        "series",
+        "site_settings",
+        "works"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage"
+      ],
+      "access": {
+        "public": 0,
+        "signed-in": 0,
+        "author": 0,
+        "admin": 0,
+        "owner": 4,
+        "cron": 0
+      }
+    },
+    {
       "key": "admin/notifications",
       "files": 2,
       "endpoints": [
@@ -1013,7 +1111,6 @@ export const apiMap: ApiMap = {
         "admin/emoji-kitchen",
         "admin/giscus-repo",
         "admin/me",
-        "admin/media",
         "admin/polls",
         "admin/posts",
         "admin/profile",
@@ -1022,6 +1119,7 @@ export const apiMap: ApiMap = {
         "admin/settings",
         "admin/site-translate-texts",
         "admin/site-translate-ui",
+        "admin/source-translate",
         "admin/tags",
         "admin/traffic",
         "admin/translate",
@@ -1116,16 +1214,6 @@ export const apiMap: ApiMap = {
         },
         {
           "method": "GET",
-          "path": "/api/admin/media",
-          "access": "owner"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/admin/media",
-          "access": "owner"
-        },
-        {
-          "method": "GET",
           "path": "/api/admin/polls",
           "access": "owner"
         },
@@ -1200,6 +1288,11 @@ export const apiMap: ApiMap = {
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/api/admin/source-translate",
+          "access": "author"
+        },
+        {
           "method": "GET",
           "path": "/api/admin/tags",
           "access": "signed-in"
@@ -1251,7 +1344,6 @@ export const apiMap: ApiMap = {
         "poll_votes",
         "post_work_relations",
         "posts",
-        "series",
         "site_settings",
         "traffic_excluded_ips",
         "work_comments",
@@ -1272,21 +1364,20 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 2,
         "signed-in": 16,
-        "author": 2,
+        "author": 3,
         "admin": 10,
-        "owner": 12,
+        "owner": 10,
         "cron": 0
       }
     },
     {
       "key": "etc",
-      "files": 27,
+      "files": 26,
       "folded": [
         "auth",
         "brand-symbol-font",
         "categories",
         "comment-reactions",
-        "contact",
         "content-translate",
         "cron",
         "custom-emojis",
@@ -1322,21 +1413,6 @@ export const apiMap: ApiMap = {
           "method": "POST",
           "path": "/api/comment-reactions",
           "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/contact/attachment",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/contact/attachment",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/contact/attachment",
-          "access": "owner"
         },
         {
           "method": "POST",
@@ -1499,11 +1575,11 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 24,
+        "public": 22,
         "signed-in": 5,
         "author": 1,
         "admin": 0,
-        "owner": 1,
+        "owner": 0,
         "cron": 2
       }
     }

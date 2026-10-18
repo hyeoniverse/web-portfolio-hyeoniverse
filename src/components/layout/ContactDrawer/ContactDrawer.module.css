@@ -155,7 +155,7 @@
   width: 100%;
   background: transparent;
   font-family: inherit;
-  font-size: var(--_font-size-md);
+  font-size: max(var(--font-size-input-min), var(--_font-size-md)); /* 좁은 폰(360)에서 4.2vw 는 15px — iOS 확대를 막는 바닥 */
   color: var(--text-black);
   transition: border-color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-control);
@@ -281,7 +281,7 @@
   width: 100%;
   background: transparent;
   font-family: inherit;
-  font-size: var(--_font-size-md);
+  font-size: max(var(--font-size-input-min), var(--_font-size-md));
   line-height: var(--_line-height);
   color: var(--text-black);
   transition: border-color var(--duration-base) var(--ease-standard);

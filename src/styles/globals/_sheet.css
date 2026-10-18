@@ -1,8 +1,8 @@
 /* ==========================================================================
    Bottom Sheet — 공통 모바일 시트 시각 패턴 (Popover / CoverImagePicker 사용)
    --------------------------------------------------------------------------
-   ※ Modal 은 여기를 쓰지 않는다 — 자체 시트 구현(드래그 확장/dismiss, --sheet-y)을 갖고 있고
-     backdrop 도 자기 것을 쓴다. 통합하려면 Modal 의 드래그 로직까지 옮겨야 함.
+   ※ Modal 은 이 시각을 쓰지 않는다(자기 #modal · backdrop). 끌어 펼치기 · 접기 · 닫기는 Modal 도
+     같은 useSheetDrag 를 쓴다 — 시트 요소에 data-sheet 를 단다.
    --------------------------------------------------------------------------
    재사용을 위해 전역 클래스로 정의 (id 는 유일해야 하므로 클래스).
    컴포넌트는 framer-motion 으로 slide(y 100%→0) 애니메이션만 입히고,
@@ -24,7 +24,7 @@
   position: fixed;
   inset: auto 0 0 0;
   width: 100vw;
-  max-height: 85vh;
+  max-height: var(--sheet-initial-height);
   display: flex;
   flex-direction: column;
   background: var(--bg-dialog);

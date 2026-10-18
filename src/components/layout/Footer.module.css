@@ -93,27 +93,30 @@
   }
 }
 
-/* indicator 화살표 — 좌/우 짝 매칭. BLACK …TRIANGLE + text variation selector (U+FE0E)
-   로 통일해 양쪽 모두 text 형태로 렌더 (이전엔 ► (POINTER) + ◀︎ (TRIANGLE+VS) 가 family 가 달라 크기 차이) */
+/* indicator 화살표 — 좌/우 짝 매칭. 글자(▶ ◀)는 글꼴에 따라 ◀ 이 더 작게 나와, 같은 크기의 삼각형(clip-path)으로 그린다 */
 .footerIndicator::before {
-  content: "▶\fe0e";
+  content: "";
   position: absolute;
   right: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(-3px);
-  font-size: var(--font-size-dot);
-  color: var(--text-primary);
+  width: calc(var(--font-size-dot) * 0.9);
+  height: var(--font-size-dot);
+  background: var(--text-primary);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .footerIndicator::after {
-  content: "◀\fe0e";
+  content: "";
   position: absolute;
   left: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(3px);
-  font-size: var(--font-size-dot);
-  color: var(--text-primary);
+  width: calc(var(--font-size-dot) * 0.9);
+  height: var(--font-size-dot);
+  background: var(--text-primary);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
@@ -213,6 +216,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-8);
+  max-width: 100%;
 }
 
 @media (width > 768px) {
@@ -221,11 +225,19 @@
   }
 }
 
-/* Visitor counter */
+/* Visitor counter — 작은 화면에서는 줄을 넘긴다. minimal 변형은 링크 셋과 방문 수가 한 줄이라 390px 보다 넓었다 */
 .visits {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+@media (width > 768px) {
+  .visits {
+    flex-wrap: nowrap;
+  }
 }
 
 .visitItem {
@@ -255,11 +267,19 @@
   background: var(--text-muted);
 }
 
+/* 작은 화면에서는 줄바꿈 자리 — 링크 줄과 방문 수 줄을 나눈다 */
 .stretchLine {
-  flex: 1;
-  min-width: var(--spacing-20);
-  height: 1px;
-  background: var(--border-color-light);
+  flex-basis: 100%;
+  height: 0;
+}
+
+@media (width > 768px) {
+  .stretchLine {
+    flex: 1;
+    min-width: var(--spacing-20);
+    height: 1px;
+    background: var(--border-color-light);
+  }
 }
 
 .copyright {
@@ -330,6 +350,7 @@
 /* Admin 진입 링크 */
 .adminLink {
   color: var(--text-tertiary);
+  white-space: nowrap;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;

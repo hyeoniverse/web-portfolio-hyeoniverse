@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { UiLabel, useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { bodyLabelPair } from "@/lib/bodyLabels";
 import { motion } from "framer-motion";
@@ -10,6 +11,7 @@ import T from "@/components/ui/T";
 import WorkYear from "@/components/works/WorkYear";
 import styles from "./WorkArticleInfoGrid.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+import Badge from "@/components/ui/Badge";
 
 
 /* ────────────────────────────────────────────────────────────
@@ -35,6 +37,7 @@ export default function WorkArticleInfoGrid({
       {/* ── Info grid ── */}
       <motion.div
         className={styles.infoGrid}
+        data-listen="meta"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45, duration: 0.6 }}
@@ -81,7 +84,7 @@ export default function WorkArticleInfoGrid({
                   <ul className={styles.techNotesList}>
                     {withText.map(({ tech, text }) => (
                       <li key={tech} className={styles.techNoteItem}>
-                        <span className={styles.techNoteTag}>{tech}</span>
+                        <Badge variant="outline" size="md">{tech}</Badge>
                         <span className={styles.techNoteText}>{text}</span>
                       </li>
                     ))}
@@ -90,7 +93,7 @@ export default function WorkArticleInfoGrid({
                 {plain.length > 0 && (
                   <div className={styles.techPlainGroup}>
                     {plain.map((tech) => (
-                      <span key={tech} className={styles.techNoteTag}>{tech}</span>
+                      <Badge key={tech} variant="outline" size="md">{tech}</Badge>
                     ))}
                   </div>
                 )}
@@ -160,7 +163,7 @@ export default function WorkArticleInfoGrid({
               items={relatedPosts.map((p) => ({
                 id: p.id,
                 title: viewLang === "en" && p.title_en ? p.title_en : p.title,
-                href: `/posts/${p.slug}`,
+                href: blogHref(`/posts/${p.slug}`),
                 image: p.cover_image || undefined,
                 category: p.category || undefined,
                 desc: p.excerpt || undefined,
@@ -179,7 +182,7 @@ export default function WorkArticleInfoGrid({
               items={relatedSeries.map((s) => ({
                 id: s.id,
                 title: viewLang === "en" && s.title_en ? s.title_en : s.title,
-                href: `/posts?series=${s.id}`,
+                href: blogHref(`/posts?series=${s.id}`),
                 image: s.cover_image || undefined,
                 category: s.category || undefined,
                 desc: (viewLang === "en" ? (s.description_en || s.description) : s.description) || undefined,

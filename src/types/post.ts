@@ -24,6 +24,8 @@ export interface Post {
   is_pinned: boolean;
   published: boolean;
   language: "ko" | "en";
+  /** 원문 칸(title · content · excerpt)이 쓰인 언어(#1425) — 비어 있으면 ko */
+  source_lang?: string | null;
   view_count: number;
   like_count: number;
   created_at: string;
@@ -70,6 +72,8 @@ export interface PostFormData {
   is_pinned: boolean;
   published: boolean;
   language: "ko" | "en";
+  /** 원문 칸(title · content · excerpt)이 쓰인 언어(#1425) — 비어 있으면 ko */
+  source_lang?: string | null;
   title_en: string;
   content_en: string;
   excerpt_en: string;

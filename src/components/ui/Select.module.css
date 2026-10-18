@@ -1,11 +1,13 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
 .root {
-  /* width: max-content — trigger 가 항상 옵션 최대 자연 너비 유지 (잘림 방지).
-   * max-width 제약 X — 부모 wrapper 가 좁아도 trigger 자연 너비 그대로 (overflow).
+  /* width: max-content — trigger 가 옵션 최대 자연 너비를 유지한다(옵션을 바꿔도 폭이 흔들리지 않게).
+   * 다만 칸보다 넓어지지는 않는다(max-width 100%) — 좁은 화면에서 셀렉트가 화면 밖으로 나갔다.
+   * 줄어들면 값은 말줄임(.value)으로 끝난다.
    * full-width 필요한 곳은 className 또는 부모에서 width:100%/flex:1 override. */
   display: inline-block;
   width: max-content;
+  max-width: 100%;
   min-width: 0;
   position: relative;
 }
@@ -58,6 +60,7 @@
    글자가 말줄임된다 — :where 로 특이도를 (0,1,0) 에 묶어 둔 이유다 */
 .trigger:where(button) {
   width: max-content;
+  max-width: 100%;
 }
 
 /* width="full" 은 부모 폭을 채운다 — auto 로 두면 button 은 글자 폭만큼만 잡혀 넓어지지 않았다 */

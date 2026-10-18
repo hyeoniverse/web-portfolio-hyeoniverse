@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import shared from "../Dashboard.module.css";
 import local from "./CategoryDonut.module.css";
 
@@ -226,7 +227,7 @@ function CategoryDonut({
               {expandedPosts.map((p) => (
                 <ListItem key={p.id}>
                   <Link
-                    href={`/posts/${p.slug}`}
+                    href={blogHref(`/posts/${p.slug}`)}
                     className={styles.itemTitle}
                     target="_blank"
                     rel="noopener noreferrer"

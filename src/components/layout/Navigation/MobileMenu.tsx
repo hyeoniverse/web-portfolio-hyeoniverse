@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { Fragment, useCallback, useState, type RefObject } from "react";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import { createPortal } from "react-dom";
@@ -9,6 +10,7 @@ import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { colorTone, type Tone } from "@/lib/navBackdrop";
+import SiteLangMenu from "./SiteLangMenu";
 
 interface MenuChild {
   key: string;
@@ -18,7 +20,7 @@ interface MenuChild {
 
 interface MenuItem {
   key: string;
-  href: string | null;
+  href: string;
   label?: string;
   children?: MenuChild[];
 }
@@ -29,14 +31,20 @@ interface MobileMenuProps {
   clipWrapperRef: RefObject<HTMLDivElement | null>;
   menuMounted: boolean;
   pathname: string;
-  isAdminPage: boolean;
-  menuItems: MenuItem[];
-  /** 관리 화면으로 들어가는 자리 — 권한이 없거나 이미 관리 화면이면 null */
-  adminHref?: string | null;
+  /** 페이지 목록 — 화면(공개 · 관리)마다 다른 목록은 Navigation 이 NAV_SECTIONS 에서 골라 준다 */
+  items: MenuItem[];
+  /** 건너가는 링크 — 공개 화면은 관리 화면(Admin, 권한이 없으면 null), 관리 화면은 사이트 홈(Home) */
+  crossLink: { href: string; label: string } | null;
   contactEmail: string;
+  /** 다른 언어로 보기(🌐) — 좁은 화면 내비게이션에는 자리가 없어 서랍 좌상단에 둔다 */
+  showSiteLang?: boolean;
   onClose: () => void;
-  onContactOpen: () => void;
-  onLogout: () => void;
+  /** 문의 — 있으면 목록 아래에 Contacts 를 둔다(공개 화면) */
+  onContactOpen?: () => void;
+  /** 로그아웃 — 로그인했으면 준다. 꼬리 맨 위에 늘 보인다(화면과 상관없이) */
+  onLogout?: () => void;
+  /** 로그인 — 공개 화면에서 로그아웃 상태가 확실하면 그 주소를 준다. 로그아웃 자리에 둔다 */
+  loginHref?: string;
 }
 
 export default function MobileMenu({
@@ -45,13 +53,14 @@ export default function MobileMenu({
   clipWrapperRef,
   menuMounted,
   pathname,
-  isAdminPage,
-  menuItems,
-  adminHref,
+  items,
+  crossLink,
   contactEmail,
+  showSiteLang = false,
   onClose,
   onContactOpen,
   onLogout,
+  loginHref,
 }: MobileMenuProps) {
   const { t } = useLanguage();
   /* 메뉴 이름 — 사전(navMenu.label)에 있으면 그것(사이트 번역이 덮는다), 없으면 적힌 이름 */
@@ -78,17 +87,13 @@ export default function MobileMenu({
 
   // 가장 긴 prefix 매칭만 active — 예: /admin/works 일 때 /admin (dashboard) 까지 active 되던 문제 방지
   const activeHref: string | null = (() => {
-    const matches = menuItems
-      .filter((it) => it.href && (pathname === it.href || pathname.startsWith(it.href + "/")))
-      .map((it) => it.href as string);
+    const matches = items
+      .filter((it) => pathname === it.href || pathname.startsWith(it.href + "/"))
+      .map((it) => it.href);
     if (!matches.length) return null;
     return matches.reduce((best, h) => (h.length > best.length ? h : best));
   })();
 
-  /* 페이지 링크와 행동을 가른다 — 목록에는 페이지만 남기고, href 가 없는 항목(문의·로그아웃)은
-     아래 묶음이 맡는다 */
-  const linkItems = menuItems.filter((item): item is MenuItem & { href: string } => !!item.href);
-  const actionItem = menuItems.find((item) => !item.href);
 
   return createPortal(
     <div
@@ -106,15 +111,22 @@ export default function MobileMenu({
         {/* Header: 풀로고 가운데 */}
         <div className={styles.menuHeader} onClick={onClose}>
           <Logo variant="full" as="link" className={styles.menuLogo} bg={drawerTone ?? undefined} />
+          {/* 다른 언어로 보기(🌐) — 좌상단, 오른쪽 위 닫기 단추와 마주 보는 자리. 머리를 누르면 닫히므로
+              이 단추와 여기서 연 언어 목록(포털이라도 React 트리로 올라온다)의 탭은 머리까지 보내지 않는다 */}
+          {showSiteLang && (
+            <span className={styles.menuSiteLangSlot} onClick={(e) => e.stopPropagation()}>
+              <SiteLangMenu iconSize={18} />
+            </span>
+          )}
         </div>
 
         <nav aria-label={t("navMenu.ui.mobileMenu")} className={styles.menuNav}>
-          {linkItems.map((item) => {
+          {items.map((item) => {
             if (item.children?.length) {
               return (
                 <Fragment key={item.key}>
                   <Link
-                    href={item.href}
+                    href={blogHref(item.href)}
                     className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                     onClick={onClose}
                   >
@@ -127,7 +139,7 @@ export default function MobileMenu({
                       return (
                         <Link
                           key={child.key}
-                          href={child.href}
+                          href={blogHref(child.href)}
                           className={`${styles.menuSubLink} glith-on-hover ${childActive ? styles.menuSubLinkActive : ""}`}
                           onClick={onClose}
                         >
@@ -142,7 +154,7 @@ export default function MobileMenu({
             return (
               <Link
                 key={item.key}
-                href={item.href}
+                href={blogHref(item.href)}
                 className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                 onClick={onClose}
               >
@@ -151,36 +163,49 @@ export default function MobileMenu({
             );
           })}
 
-          {/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면. 위 목록은 사이트의
-              페이지고 이 둘은 행동이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
-          {(actionItem || adminHref) && (
-            <div className={styles.menuAside}>
-              {actionItem && (
-                <Pressable noTapScale
-                  className={`${styles.menuLink} ${styles.menuAsideAction} glith-on-hover`}
-                  onClick={() => {
-                    onClose();
-                    if (isAdminPage) {
-                      onLogout();
-                    } else {
-                      onContactOpen();
-                    }
-                  }}
-                >
-                  {navLabel(actionItem.key, actionItem.label)}
-                </Pressable>
-              )}
-              {adminHref && (
-                <Link href={adminHref} className={`${styles.menuLink} ${styles.menuAsideAdmin} glith-on-hover`} onClick={onClose}>
-                  Admin
-                </Link>
-              )}
-            </div>
-          )}
         </nav>
 
         {/* Footer: email */}
         <div className={styles.menuFooter}>
+          {/* 페이지가 아닌 자리 — 문의(공개 화면) · 건너가는 링크(관리 화면으로 / 사이트 홈으로) · 로그아웃(로그인했으면) · 로그인(공개 화면, 로그아웃 상태).
+              목록 끝에 두면 메뉴가 길 때 아래 고정된 이 꼬리에 가려져, 꼬리 맨 위 한 줄에 나란히 둔다 */}
+          {(onContactOpen || crossLink || onLogout || loginHref) && (
+            <div className={styles.menuFooterActions}>
+              {onContactOpen && (
+                <Pressable noTapScale
+                  className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`}
+                  onClick={() => {
+                    onClose();
+                    onContactOpen();
+                  }}
+                >
+                  {navLabel("contacts", "Contacts")}
+                </Pressable>
+              )}
+              {crossLink && (
+                <Link href={blogHref(crossLink.href)} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
+                  {crossLink.label}
+                </Link>
+              )}
+              {onLogout && (
+                <Pressable noTapScale
+                  className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`}
+                  onClick={() => {
+                    onClose();
+                    onLogout();
+                  }}
+                >
+                  Logout
+                </Pressable>
+              )}
+              {loginHref && (
+                /* 방문자가 거의 누르지 않아 미리 받지 않는다(푸터의 Login 과 같다) */
+                <Link href={loginHref} prefetch={false} className={`${styles.menuLink} ${styles.menuFooterLink} glith-on-hover`} onClick={onClose}>
+                  Login
+                </Link>
+              )}
+            </div>
+          )}
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
             href={`mailto:${contactEmail}`}

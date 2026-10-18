@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getWorks } from "@/lib/getWorks";
-import { getSiteConfig } from "@/lib/getSiteConfig";
 import AboutNext, { type LiveInfo } from "./_components/AboutNext";
 
 export const metadata: Metadata = { title: "About" };
@@ -31,7 +30,6 @@ async function getLiveInfo(): Promise<LiveInfo> {
 /* 전역 .content 로 감싸지 않는다 — .content 는 overflow-x: hidden 이라 스크롤 상자가 되어 안쪽의 고정 장면(sticky)이
    붙지 않는다. 가로 넘침은 바깥 main 이 이미 자른다(overflow-x: clip) */
 export default async function AboutPage() {
-  /* about — 관리자 About 편집 값(구조 장의 그래프 · 흐름 · API · ERD). 모든 페이지에 싣는 설정에서 빠져 있어 여기서 받는다(#944) */
-  const [live, siteConfig] = await Promise.all([getLiveInfo(), getSiteConfig()]);
-  return <AboutNext live={live} about={siteConfig.about} />;
+  /* 구조 장의 그래프 · 흐름 · API · ERD 는 코드와 빌드 생성본에서 온다 — 관리자 설정을 읽지 않는다 */
+  return <AboutNext live={await getLiveInfo()} />;
 }

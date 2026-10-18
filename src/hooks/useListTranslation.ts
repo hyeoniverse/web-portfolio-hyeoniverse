@@ -87,7 +87,7 @@ function flush() {
  * 목록 항목들의 번역 — 언어가 걸려 있을 때만 묻는다. 돌려주는 값: 열쇠(type:id) → 번역(없으면 빠진다).
  * 서버 · 하이드레이션 때는 늘 빈 결과(화면은 ko/en 으로 먼저 그려진다).
  */
-export function useListTranslations(refs: readonly ListItemRef[]): Record<string, ListItemFields> {
+function useListTranslations(refs: readonly ListItemRef[]): Record<string, ListItemFields> {
   const { lang } = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
   const v = useSyncExternalStore(subscribe, getVersion, getServerVersion);
   const sig = refs.map(listItemKey).join(",");
@@ -115,16 +115,6 @@ export function useListTranslation(type: ListItemType, id: string | null | undef
   const refs = useMemo(() => (id ? [{ type, id }] : []), [type, id]);
   const map = useListTranslations(refs);
   return id ? map[listItemKey({ type, id })] ?? null : null;
-}
-
-/** 테스트용 */
-export function __resetListTranslationForTest() {
-  results.clear();
-  inflight.clear();
-  pending.clear();
-  if (timer) clearTimeout(timer);
-  timer = null;
-  version = 0;
 }
 
 /* ── 목록 모양에 덧씌우기 ──

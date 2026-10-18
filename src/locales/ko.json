@@ -89,7 +89,9 @@
       "networkError": "네트워크 오류가 났습니다. 연결을 확인해 주세요.",
       "sent": "메시지를 보냈습니다.",
       "sendFailed": "메시지를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
-      "sendFailedAttachment": "메시지를 보내지 못했습니다. 첨부 파일 때문일 수 있으니 파일을 빼고 다시 보내 주세요."
+      "captchaFailed": "자동 입력 방지 확인에 실패했습니다. 페이지를 새로 고친 뒤 다시 보내 주세요.",
+      "rateLimited": "짧은 시간에 너무 많이 보냈습니다. 잠시 뒤 다시 시도해 주세요.",
+      "attachmentRejected": "이 첨부 파일은 보낼 수 없습니다. 형식이나 크기를 확인해 주세요."
     }
   },
   "aboutPage": {
@@ -160,6 +162,7 @@
   "common": {
     "toastConfirm": "확인",
     "toastShowAll": "전체 보기",
+    "toastCopy": "복사",
     "toastFullTitle": "알림 전체 보기",
     "partialFailed": "{{total}}개 중 {{failed}}개를 처리하지 못했습니다.",
     "loading": "로딩 중...",
@@ -180,8 +183,6 @@
     "codeScrollTitle": "가로 스크롤로 전환",
     "codeCopy": "복사",
     "codeCopied": "복사됨",
-    "codeExpand": "펼치기 · {{n}}줄",
-    "codeCollapse": "접기",
     "mermaidViewCode": "코드 보기",
     "mermaidHideCode": "코드 숨기기",
     "cancel": "취소",
@@ -356,6 +357,7 @@
     "editFailed": "댓글을 수정하지 못했습니다.",
     "translateFailed": "⚠ 번역하지 못했습니다. 다시 시도해 주세요.",
     "reactionFailed": "반응을 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+    "imageUploadFailed": "이미지를 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
     "reportFailed": "신고를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요."
   },
   "postDetail": {
@@ -468,7 +470,48 @@
       "activityTitle": "{{year}}년 {{count}}개 저장소"
     }
   },
+  "tilPage": {
+    "openPost": "글로 보기",
+    "subtitle": "Today I Learned — 매일 배운 걸 한 칸씩 심는 잔디밭이에요.",
+    "tagHint": "#{{tag}} 태그를 단 글이 잔디로 자라요.",
+    "yearTabs": "연도",
+    "statYear": "올해 기록",
+    "statStreak": "연속",
+    "statLongest": "최장 연속",
+    "pickDay": "잔디를 눌러 보세요! 그날 배운 걸 보여 줄게요.",
+    "streakCheer": "{{n}}일째 이어서 기록 중이에요! 오늘도 한 칸 심어 볼까요?",
+    "restDay": "이 날은 쉬어 갔어요. 쿨쿨…",
+    "dayCount": "이 날 배운 것 {{n}}개",
+    "showAll": "전체 보기",
+    "loadMore": "더 보기",
+    "emptyYear": "이 해에는 아직 심은 칸이 없어요.",
+    "less": "적음",
+    "more": "많음",
+    "todayDone": "오늘 {{n}}칸 심었어요",
+    "todayNot": "오늘은 아직 안 심었어요",
+    "topics": "배운 주제",
+    "revisit": "다시 보기",
+    "weekAgo": "1주 전",
+    "monthAgo": "1달 전",
+    "yearAgo": "1년 전",
+    "revisitEmpty": "이맘때 기록이 없어요",
+    "random": "랜덤 TIL 뽑기",
+    "viewMap": "별자리 하늘 보기",
+    "mapDone": "올해 완성 {{n}} / 12",
+    "dragHint": "끌어서 하늘을 둘러보세요 · 별자리를 누르면 가까이 가요",
+    "closeSky": "하늘 닫기",
+    "skyBack": "하늘로",
+    "skyOpenFeed": "피드에서 이달 기록 보기",
+    "skyEmpty": "이 달엔 아직 켜진 별이 없어요. TIL 을 쓰면 별이 하나씩 켜져요."
+  },
   "postsPage": {
+    "statPosts": "글",
+    "statTags": "태그",
+    "statSeries": "시리즈",
+    "calendar": "날짜별 기록",
+    "onlyMarked": "기록된 날만",
+    "calendarEmpty": "아직 기록된 날이 없어요.",
+    "clearDate": "날짜 필터 해제",
     "subtitle": "기억은 흐려지지만, 기록은 남고, 나눌수록 깊어진다.",
     "searchPlaceholder": "검색...",
     "searchAll": "제목+내용",
@@ -1023,6 +1066,7 @@
     "UPLOAD_TYPE_MISMATCH": "파일 내용이 확장자(.{{ext}})와 맞지 않습니다.",
     "UPLOAD_CONVERT_FAILED": "이미지를 변환하지 못했습니다. 다른 형식으로 저장해 다시 올려 주세요.",
     "UPLOAD_ONLY_IMAGE": "이미지 파일만 올릴 수 있습니다.",
+    "COMMENT_IMAGE_DAILY_LIMIT": "댓글 이미지는 하루에 {{limit}}장까지 올릴 수 있습니다. 내일 다시 올려 주세요.",
     "UPLOAD_ONLY_AUDIO": "오디오 파일만 올릴 수 있습니다.",
     "UPLOAD_ONLY_PDF": "PDF 파일만 올릴 수 있습니다.",
     "UPLOAD_ONLY_FONT": "글꼴 파일(woff2, woff, ttf, otf)만 올릴 수 있습니다.",
@@ -1034,5 +1078,27 @@
     "COMMENT_PASSWORD_WRONG": "비밀번호가 맞지 않습니다.",
     "COMMENT_ALREADY_REMOVED": "이미 지워진 댓글입니다.",
     "TTS_DISABLED": "TTS 가 꺼져 있습니다. 설정 › 서비스 › TTS 에서 켜 주세요."
+  },
+  "readAloud": {
+    "listen": "소리로 읽기",
+    "stopListen": "읽기 멈추기",
+    "controls": "읽어 주기 조작",
+    "reading": "읽는 중",
+    "paused": "일시정지",
+    "pause": "일시정지",
+    "resume": "이어 읽기",
+    "stop": "멈추기",
+    "prev": "이전 문단",
+    "next": "다음 문단",
+    "speed": "읽기 속도 {{rate}}배",
+    "jumpHint": "읽는 중에는 문단을 누르면 거기서부터 읽습니다.",
+    "expand": "읽어 주기 조작 펼치기",
+    "collapse": "접기",
+    "goToCurrent": "읽는 곳으로 이동",
+    "drag": "끌어서 옮기기"
+  },
+  "historyPage": {
+    "tilLegend": "표시는 TIL 글이에요",
+    "count": "글 {{n}}개"
   }
 }

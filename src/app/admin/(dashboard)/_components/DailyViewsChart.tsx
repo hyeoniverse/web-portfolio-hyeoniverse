@@ -21,6 +21,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { type TFunction, useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
+import Badge from "@/components/ui/Badge";
 /** Catmull-Rom 보간으로 cubic bezier path 생성 (부드러운 곡선) */
 /** Monotone cubic Hermite interpolation (Fritsch-Carlson).
    Catmull-Rom 의 overshoot 없이 자연스러운 smooth curve 보장 — baseline 아래로 dip 안 함. */
@@ -372,16 +373,14 @@ function DailyViewsChart({
                   ? "admin.dashboard.trendVsPrevMonth"
                   : "admin.dashboard.trendVsPrev")}
               </span>
-              <span
-                className={`${styles.trendBadge} ${trend.direction === "up" ? styles.trendUp : styles.trendDown}`}
-              >
+              <Badge tone={trend.direction === "up" ? "success" : "accent"} className={styles.trendBadge}>
                 {trend.direction === "up" ? (
                   <TrendingUp size={11} strokeWidth={2.5} />
                 ) : (
                   <TrendingDown size={11} strokeWidth={2.5} />
                 )}
                 {Math.abs(trend.pct)}%
-              </span>
+              </Badge>
             </div>
           );
         })()}

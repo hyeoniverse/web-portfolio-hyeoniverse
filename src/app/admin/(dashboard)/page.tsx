@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import {
   useEffect,
   useMemo,
@@ -55,6 +56,8 @@ import TrafficChannels from "./_components/TrafficChannels";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { fillTemplate, formatDwell } from "@/utils/format";
 import { localizeReportReason } from "@/lib/reportReasons";
+import Badge from "@/components/ui/Badge";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 
 
 export default function AdminDashboard() {
@@ -350,11 +353,17 @@ export default function AdminDashboard() {
           <Link href="/admin/service-log" className={styles.serviceBar} data-alert={service.fails24h > 0 || service.off > 0 ? "" : undefined}>
             <History size={16} strokeWidth={1.6} aria-hidden />
             <span className={styles.serviceBarTitle}>{t("admin.dashboard.serviceLog")}</span>
+            {/* 덩어리마다 한 줄(좁은 화면) · 가운뎃점으로 이어 한 줄(넓은 화면) */}
             <span className={styles.serviceBarStats}>
-              {t("admin.dashboard.serviceLogStats")
-                .replace("{{total}}", String(service.total24h))
-                .replace("{{fails}}", String(service.fails24h))}
-              {service.off > 0 && ` · ${t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}`}
+              <span>{t("admin.dashboard.serviceLogTotal").replace("{{total}}", String(service.total24h))}</span>
+              <span className={styles.serviceBarSep} aria-hidden> · </span>
+              <span>{t("admin.dashboard.serviceLogFails").replace("{{fails}}", String(service.fails24h))}</span>
+              {service.off > 0 && (
+                <>
+                  <span className={styles.serviceBarSep} aria-hidden> · </span>
+                  <span>{t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}</span>
+                </>
+              )}
             </span>
             <ChevronRight size={16} strokeWidth={1.6} className={styles.serviceBarArrow} aria-hidden />
           </Link>
@@ -367,12 +376,13 @@ export default function AdminDashboard() {
           <T k="admin.dashboard.stats" />
         </SectionHeader>
 
-        <Panel variant="grid" cols="repeat(3, 1fr)" divided>
-          {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
+        {/* 칸 수는 클래스로(statsGrid) — 좁은 화면은 한 줄에 하나, 넓으면 3칸 */}
+        <Panel variant="grid" className={styles.statsGrid} divided>
+          {/* 1. 방문자(heroStat) — 맨 위 한 줄 전체. 좁은 화면은 숫자 아래 그래프(heroStat) */}
           <Item
+            className={styles.heroStat}
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 320px)",
               gridColumn: "1 / -1",
               gap: "var(--spacing-24)",
               alignItems: "center",
@@ -403,8 +413,10 @@ export default function AdminDashboard() {
                     placement="top"
                     delay={200}
                   >
-                    <span
-                      className={`${styles.trendBadge} ${styles.trendBadgeLg} ${wow.direction === "up" ? styles.trendUp : styles.trendDown}`}
+                    <Badge
+                      tone={wow.direction === "up" ? "success" : "accent"}
+                      size="md"
+                      className={styles.trendBadgeLg}
                     >
                       {wow.direction === "up" ? (
                         <TrendingUp size={13} strokeWidth={2.5} />
@@ -412,7 +424,7 @@ export default function AdminDashboard() {
                         <TrendingDown size={13} strokeWidth={2.5} />
                       )}
                       {Math.abs(wow.pct)}%
-                    </span>
+                    </Badge>
                   </Tooltip>
                 )}
               </div>
@@ -559,24 +571,20 @@ export default function AdminDashboard() {
                     <Link
                       href={
                         p.published
-                          ? `/posts/${p.slug}`
+                          ? blogHref(`/posts/${p.slug}`)
                           : `/admin/posts/${p.id}/edit`
                       }
                       className={styles.listItemLink}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span
-                        className={
-                          p.published ? styles.statusPub : styles.statusDraft
-                        }
-                      >
+                      <StatusBadge variant={p.published ? "published" : "draft"}>
                         {p.published ? (
                           <T k="admin.dashboard.published" />
                         ) : (
                           <T k="admin.dashboard.draft" />
                         )}
-                      </span>
+                      </StatusBadge>
                       <span className={styles.itemTitle}>{p.title}</span>
                       <span className={styles.itemDate}>
                         {fmtDate(p.updated_at)}
@@ -600,17 +608,13 @@ export default function AdminDashboard() {
               <List>
                 {data.works.recent.map((w) => (
                   <ListItem key={w.id}>
-                    <span
-                      className={
-                        w.published ? styles.statusPub : styles.statusDraft
-                      }
-                    >
+                    <StatusBadge variant={w.published ? "published" : "draft"}>
                       {w.published ? (
                         <T k="admin.dashboard.published" />
                       ) : (
                         <T k="admin.dashboard.draft" />
                       )}
-                    </span>
+                    </StatusBadge>
                     <Link
                       href={`/admin/works/${w.id}`}
                       className={styles.itemTitle}
@@ -653,7 +657,7 @@ export default function AdminDashboard() {
                   <p className={styles.commentBody}>{c.content}</p>
                   {c.post_slug ? (
                     <Link
-                      href={`/posts/${c.post_slug}`}
+                      href={blogHref(`/posts/${c.post_slug}`)}
                       className={styles.commentSource}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -776,7 +780,7 @@ export default function AdminDashboard() {
                     </div>
                     {/* L2: 제목 */}
                     <Link
-                      href={`/posts/${p.slug}`}
+                      href={blogHref(`/posts/${p.slug}`)}
                       className={styles.popularTitle}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -803,7 +807,7 @@ export default function AdminDashboard() {
           </Panel>
 
           <Panel className={styles.panelCell}>
-            <PanelTitle href="/posts/tags" external>
+            <PanelTitle href={blogHref("/posts/tags")} external>
               <T k="admin.dashboard.topTags" />
             </PanelTitle>
             {data.stats.tags.length === 0 ? (
@@ -815,7 +819,7 @@ export default function AdminDashboard() {
                 {data.stats.tags.slice(0, 10).map(({ tag, count }) => (
                   <Link
                     key={tag}
-                    href={`/posts/tags/${encodeURIComponent(tag)}`}
+                    href={blogHref(`/posts/tags/${encodeURIComponent(tag)}`)}
                     className={styles.tagPill}
                     title={`${count}`}
                     target="_blank"

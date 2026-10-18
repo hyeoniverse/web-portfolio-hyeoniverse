@@ -15,7 +15,7 @@ import { allUnavailable, anyProviderUsable, providerLabel, publicFailures, succe
  * 번역 데모 — 댓글 번역(/api/translate)과 같은 공급자 · 같은 순서(설정 › 서비스 › 번역)로 옮긴다.
  * 공급자 상태 · 사용량 기록(ai_usage)은 translateWithFallback 이 실제 경로와 똑같이 남긴다.
  */
-export const TRANSLATE_MAX = 1000;
+const TRANSLATE_MAX = 1000;
 
 export interface TranslateInput {
   text: string;

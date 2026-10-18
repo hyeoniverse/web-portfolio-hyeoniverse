@@ -2,12 +2,14 @@
 
 import PostsSubnav from "./PostsSubnav";
 import PostsBannerSection from "./PostsBannerSection";
+import MastheadMong from "./MastheadMong";
 import PageTitle from "@/components/ui/PageTitle";
 import T from "@/components/ui/T";
-import { LayoutGrid, History as HistoryIcon } from "@/components/icons";
+import { History as HistoryIcon } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "../Posts.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 interface PostsPageChromeProps {
   /** history 모드 — 제목/부제가 History 로 바뀌고 배너를 렌더하지 않는다. */
@@ -20,7 +22,13 @@ interface PostsPageChromeProps {
    본문(PostsClient)은 children 으로 받는다. */
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
   const { t } = useLanguage();
+  // 설정 posts.showBanner — 켤 때만 고정글 배너를 그린다
+  const siteConf = useSiteConfig();
+  const showBanner = siteConf.posts.showBanner === true;
+  // 블로그 이름 — 설정 posts.blogTitle, 비면 "Log"
+  const blogTitle = siteConf.posts.blogTitle?.trim() || "Log";
   return (
+    /* 별밭 · 로그 스킨은 posts/layout.tsx 가 블로그 전체에 깐다 */
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
       <div className={styles.header}>
@@ -32,17 +40,22 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
             <p className={styles.subtitle}>{t("postsPage.historySubtitle")}</p>
           </>
         ) : (
-          <>
-            <PageTitle icon={<LayoutGrid size={40} strokeWidth={1.6} aria-hidden />}>
-              Posts.
-            </PageTitle>
-            <p className={styles.subtitle}>
+          /* 블로그 머리말 — 블로그 이름(큰 제목) · 한 줄 소개. 블로그라는 표시는 로고 옆 Blog 배지가 맡아 여기선 되풀이하지 않는다 */
+          <div className={styles.masthead}>
+            {/* 머리말 오른쪽 — 출렁이는 격자 위의 몽이(포인터를 따라 기울고, 누르면 표정이 바뀐다) */}
+            <MastheadMong className={styles.mastheadArt} gridClassName={styles.mastheadGrid} mongClassName={styles.mastheadMong} />
+            {/* 로그 스킨의 프롬프트 줄 — 장식이라 읽지 않는다 */}
+            <span className={styles.mastheadPrompt} aria-hidden>
+              <b>~/log</b> $ ls -t posts/
+            </span>
+            <PageTitle className={styles.mastheadTitle}>{blogTitle}</PageTitle>
+            <p className={styles.mastheadLead}>
               <T k="postsPage.subtitle" />
             </p>
-          </>
+          </div>
         )}
       </div>
-      {!history && <PostsBannerSection posts={pinnedPosts} />}
+      {!history && showBanner && <PostsBannerSection posts={pinnedPosts} />}
       {children}
     </div>
   );

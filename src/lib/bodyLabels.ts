@@ -75,8 +75,6 @@ const DEFS = {
   /* 코드 블록 바 — highlightCodeBlocks.attachCodeWrapToggle · processRichtextHtml · MarkdownRenderer */
   codeCopy: common("codeCopy"),
   codeCopied: common("codeCopied"),
-  codeExpand: common("codeExpand"),
-  codeCollapse: common("codeCollapse"),
   codeScroll: common("codeScroll"),
   codeWrap: common("codeWrap"),
   codeScrollTitle: common("codeScrollTitle"),
@@ -149,7 +147,7 @@ export function bodyLabelSource(): [BodyLabelKey, string][] {
 
 const PLACEHOLDER = /\{\{\s*(\w+)\s*\}\}/g;
 /** 글 안의 자리표시 이름(정렬) */
-export function placeholders(s: string): string[] {
+function placeholders(s: string): string[] {
   return [...s.matchAll(PLACEHOLDER)].map((m) => m[1]).sort();
 }
 

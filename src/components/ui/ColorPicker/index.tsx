@@ -1134,6 +1134,7 @@ export default function ColorPicker({
               ref={topPopRef}
               popover="manual"
               className={`${useSheet ? `ui-sheet ${styles.sheet}` : styles.popover} ${shaking ? styles.shaking : ""}`}
+              data-sheet={useSheet || undefined}
               style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
               initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
               animate={useSheet ? { y: 0 } : { opacity: 1, scale: 1 }}

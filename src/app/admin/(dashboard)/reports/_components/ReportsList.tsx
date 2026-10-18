@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useCallback } from "react";
 import { Flag, ExternalLink, Check, X, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -19,6 +20,7 @@ import type { Report, StatusFilter } from "../_types";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { localizeReportReason } from "@/lib/reportReasons";
+import Badge from "@/components/ui/Badge";
 
 function ReportsSkeleton() {
   return (
@@ -138,7 +140,7 @@ export default function ReportsList({
   const commentUrl = (r: Report) => {
     if (!r.comment?.parentSlug) return null;
     const base = r.comment_type === "post" ? "/posts" : "/works";
-    return `${base}/${r.comment.parentSlug}#comment-${r.comment_id}`;
+    return blogHref(`${base}/${r.comment.parentSlug}#comment-${r.comment_id}`);
   };
 
   /** 행 클릭 → 상세. 목록에서는 본문이 잘리고 사유·처리 이력은 보이지 않는다. */
@@ -201,7 +203,7 @@ export default function ReportsList({
                 <>
                   <div className={styles.commentNick}>
                     {r.comment.nickname}
-                    {r.comment.is_deleted && <span className={styles.deletedBadge}><T k="admin.reports.commentDeleted" /></span>}
+                    {r.comment.is_deleted && <Badge><T k="admin.reports.commentDeleted" /></Badge>}
                   </div>
                   <p className={styles.commentBody}>{r.comment.content || "—"}</p>
                 </>

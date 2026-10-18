@@ -13,14 +13,10 @@ export interface WrapLabels {
   scrollTitle: string;
   copy: string;
   copied: string;
-  /** 긴 코드 펼치기/접기 — {{n}} 은 줄 수. 없으면 한국어 기본값 */
-  expand?: string;
-  collapse?: string;
 }
 
-/** 이 줄 수를 넘는 코드만 접어 두고 "펼치기"를 붙인다. 그보다 짧으면 높이 제한 없이 다 보인다 */
-const COLLAPSE_LINES = 30;
-
+/** useRichtextEnhance 가 동적 import 로 꺼내 쓴다(knip 이 그 사용을 못 본다)
+ *  @public */
 export function highlightCodeBlocks(container: HTMLElement) {
   // markdown 콘텐츠용 DOM 하이라이팅. wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
   // 이미 Shiki(.shiki)로 칠해진 건 건드리지 않음 — 서버에서 처리됨.
@@ -130,6 +126,10 @@ function attachWheelRouting(pre: HTMLElement) {
   );
 }
 
+/* lucide wrap-text — 에디터 코드블록 헤더(<WrapText />)와 같은 아이콘 */
+const WRAP_ICON =
+  '<svg class="code-wrap-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" x2="21" y1="6" y2="6"/><path d="M3 12h15a3 3 0 1 1 0 6h-4"/><polyline points="16 16 14 18 16 20"/><line x1="3" x2="10" y1="18" y2="18"/></svg>';
+
 /**
  * 코드블록 줄바꿈 토글 — 이벤트 위임 (컨테이너에 한 번만 등록)
  * HTML 내 `<button data-wrap-btn>` 클릭 시 동작
@@ -163,6 +163,9 @@ export function attachCodeWrapToggle(
       pre.parentNode?.insertBefore(wrap, pre);
       wrap.appendChild(pre);
     }
+    /* 예전 마크업(마크다운 렌더 · 예전에 저장한 HTML)은 pre 아래에 줄바꿈 단추를 직접 달고 있다 — 위 바에
+       같은 단추를 새로 다므로 그대로 두면 블록 아래에 '↔ 스크롤' 이 하나 더 보인다. 바 밖의 것은 떼어 낸다 */
+    wrap.querySelectorAll(":scope > button[data-wrap-btn]").forEach((b) => b.remove());
 
     // 바깥 컨테이너 — resize 오버레이가 wrap 의 형제가 되도록 wrap 을 감싼다(댓글창 Textarea 구조).
     // 오버레이가 wrap 의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다.
@@ -194,17 +197,6 @@ export function attachCodeWrapToggle(
       rc.setAttribute("data-cursor", "resizeV");
       rc.setAttribute("aria-hidden", "true");
       outer.appendChild(rc);
-    }
-    /* 긴 코드는 접어 둔다 — 창 안 세로 스크롤 대신 페이지 흐름 그대로 읽고, 필요할 때 펼친다 */
-    const lineCount = (codeEl?.textContent ?? pre.textContent ?? "").replace(/\n$/, "").split("\n").length;
-    if (lineCount > COLLAPSE_LINES && !outer.querySelector(":scope > .code-expand-btn")) {
-      wrap.classList.add("is-collapsed");
-      const expandBtn = document.createElement("button");
-      expandBtn.type = "button";
-      expandBtn.className = "code-expand-btn";
-      expandBtn.setAttribute("data-code-expand", "");
-      expandBtn.dataset.lines = String(lineCount);
-      outer.appendChild(expandBtn);
     }
     const bar = document.createElement("div");
     bar.className = "code-block-bar";
@@ -245,22 +237,16 @@ export function attachCodeWrapToggle(
     if (done) done.textContent = labels.copied;
   });
 
-  // 펼치기/접기 라벨 (언어별, 매 호출 갱신)
-  container.querySelectorAll<HTMLButtonElement>("button[data-code-expand]").forEach((btn) => {
-    const collapsed = btn.parentElement?.querySelector(".code-block-wrap")?.classList.contains("is-collapsed");
-    const n = btn.dataset.lines ?? "";
-    btn.dataset.expandLabel = labels.expand ?? "펼치기 · {{n}}줄";
-    btn.dataset.collapseLabel = labels.collapse ?? "접기";
-    btn.textContent = (collapsed ? btn.dataset.expandLabel : btn.dataset.collapseLabel).replace("{{n}}", n);
-    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
-  });
-
   // 초기 라벨 설정 (언어별) — 두 개의 span으로 hover 전환
   container.querySelectorAll<HTMLButtonElement>("button[data-wrap-btn]").forEach((btn) => {
     const wrap = btn.closest(".code-block-wrap");
     const pre = wrap?.querySelector("pre");
     const isWrapped = pre?.style.whiteSpace === "pre-wrap";
     btn.textContent = "";
+    /* 좁은 화면에서는 라벨 대신 이 아이콘만 보인다(_hljs.css). 켜짐은 data-on 강조색 — 에디터와 같은 결 */
+    btn.insertAdjacentHTML("beforeend", WRAP_ICON);
+    btn.toggleAttribute("data-on", isWrapped);
+    btn.setAttribute("aria-label", labels.wrap);
     const spanDefault = document.createElement("span");
     spanDefault.className = "code-wrap-label-default";
     const spanHover = document.createElement("span");
@@ -292,12 +278,9 @@ export function attachCodeWrapToggle(
       const startH = wrap.offsetHeight;
       /* 늘릴 수 있는 한도는 코드 전체 높이 — 그보다 크게 늘리면 빈 칸만 생긴다 */
       const prevH = wrap.style.height;
-      const prevCollapsed = wrap.classList.contains("is-collapsed");
-      wrap.classList.remove("is-collapsed");
       wrap.style.height = "auto";
       const fullH = wrap.offsetHeight;
       wrap.style.height = prevH;
-      if (prevCollapsed) wrap.classList.add("is-collapsed");
       const onMove = (ev: PointerEvent) => {
         const next = Math.max(96, Math.min(fullH, startH + (ev.clientY - startY)));
         wrap.style.height = `${next}px`;
@@ -318,22 +301,6 @@ export function attachCodeWrapToggle(
   container.dataset.wrapDelegated = "1";
 
   container.addEventListener("click", (e) => {
-    // 긴 코드 펼치기/접기
-    const expandBtn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-code-expand]");
-    if (expandBtn) {
-      const w = expandBtn.parentElement?.querySelector<HTMLElement>(".code-block-wrap");
-      if (!w) return;
-      /* toggle 은 클래스가 붙었으면 true — 곧 "지금 접혔다" */
-      const nowCollapsed = w.classList.toggle("is-collapsed");
-      /* 사용자가 손잡이로 정한 높이가 있으면 펼칠 때 풀어 준다 */
-      if (!nowCollapsed) w.style.height = "";
-      const n = expandBtn.dataset.lines ?? "";
-      expandBtn.textContent = (nowCollapsed ? expandBtn.dataset.expandLabel ?? "" : expandBtn.dataset.collapseLabel ?? "").replace("{{n}}", n);
-      expandBtn.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");
-      /* 접으면 블록 머리가 화면 위로 사라질 수 있다 — 버튼이 보이는 자리로 */
-      if (nowCollapsed) expandBtn.scrollIntoView({ block: "nearest" });
-      return;
-    }
     // 복사 버튼
     const copyBtn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-copy-btn]");
     if (copyBtn) {
@@ -370,6 +337,8 @@ export function attachCodeWrapToggle(
       pre.style.wordBreak = "break-all";
       pre.style.overflowX = "visible";
     }
+
+    btn.toggleAttribute("data-on", !isWrapped);
 
     // 클릭 직후: 텍스트 안 바꾸고 just-clicked만 추가
     // → hover 중이던 라벨(= 전환된 새 상태)이 그대로 유지

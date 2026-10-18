@@ -13,6 +13,7 @@ import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import T from "@/components/ui/T";
 import styles from "./WorkArticleTeam.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+import Badge from "@/components/ui/Badge";
 
 /* 프로필 소개가 "영문 :: 국문" 처럼 두 언어를 한 줄에 이어 쓴 경우 — 보는 언어 쪽 하나만 남긴다.
    한글이 든 조각을 국문으로 본다. 나눌 수 없으면 그대로 */
@@ -272,7 +273,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                       /* 기여 목록이 없으면 역할을 칩으로 — 쉼표로 이은 한 줄은 대문자 · 자간 때문에 읽기 어려웠다 */
                       <ul className={styles.polaroidBackRoleChips}>
                         {splitRoles((viewLang === "en" ? m.role.en || m.role.ko : m.role.ko || m.role.en) ?? "").map((r) => (
-                          <li key={r} className={styles.polaroidBackRoleChip}>{r}</li>
+                          <li key={r}><Badge variant="outline">{r}</Badge></li>
                         ))}
                       </ul>
                     )}

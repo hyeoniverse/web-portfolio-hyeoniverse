@@ -16,12 +16,6 @@ const starsOf = (geo: MapGeo) =>
     .filter((t) => t.href && geo.stars[t.href])
     .map((t, i) => ({ href: t.href!, label: t.label, n: i + 1, ...geo.stars[t.href!] }));
 
-/** 별 하나의 화면 위 자리(지도 판 기준 %) — 카메라 기준점 */
-export const starOrigin = (href: string, geo: MapGeo = MAP_WIDE) => {
-  const s = geo.stars[href];
-  return s ? `${(s.x / geo.w) * 100}% ${(s.y / geo.h) * 100}%` : "50% 50%";
-};
-
 interface Props {
   /** 지금 다가가는(또는 고른) 별 — 밝게 */
   focus?: string | null;

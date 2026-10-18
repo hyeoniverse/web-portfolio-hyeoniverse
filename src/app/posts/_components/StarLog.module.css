@@ -1,0 +1,103 @@
+/* 글 목록 페이지 바탕의 별밭 — 페이지 전체 길이를 덮고 함께 스크롤된다. 내용 뒤(.page 의 isolation 안 z -1).
+   --px · --py 는 StarLog 가 포인터 위치로 넣는다 */
+.wrap {
+  --px: -999px;
+  --py: -999px;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  color: var(--text-accent);
+  pointer-events: none;
+}
+.field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* 손전등 — 포인터 둘레 원 안에서만 밝은 별이 보인다 */
+.lamp {
+  opacity: 0;
+  mask-image: radial-gradient(circle 180px at var(--px) var(--py), black 0%, transparent 100%);
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+.wrap[data-lit] .lamp {
+  opacity: 1;
+}
+.glowDust {
+  fill: var(--text-secondary);
+  opacity: 0.55;
+}
+.glowStar {
+  fill: var(--text-accent);
+  opacity: 0.8;
+}
+/* 빈 곳을 누르면 ✦ 여섯 개가 사방으로 퍼지며 사라진다 */
+.burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.spark,
+.sparkDust {
+  position: absolute;
+  left: calc(var(--s) / -2);
+  top: calc(var(--s) / -2);
+  width: var(--s);
+  max-width: none; /* 전역 svg max-width: 100% — 너비 0 인 .burst 안에서 찌그러지지 않게 */
+  height: var(--s);
+  opacity: 0;
+  animation-name: spark-fly;
+  animation-timing-function: var(--ease-exit);
+  animation-fill-mode: forwards;
+}
+.spark {
+  fill: currentColor;
+}
+.sparkSoft {
+  fill: var(--text-tertiary);
+}
+.sparkDust {
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+@keyframes spark-fly {
+  from { transform: rotate(var(--a)) translateY(0) scale(0.3) rotate(0deg); opacity: 1; }
+  40% { opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1) rotate(var(--spin, 0deg)); opacity: 0; }
+}
+.dust {
+  fill: var(--text-tertiary);
+  opacity: 0.16;
+}
+.twinkle {
+  fill: var(--text-tertiary);
+  opacity: 0.28;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: star-twinkle calc(var(--duration-slower) * 5) var(--ease-standard) infinite;
+}
+.brand {
+  fill: currentColor;
+  opacity: 0.45;
+}
+.shoot {
+  stroke: var(--text-tertiary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: star-shoot calc(var(--duration-slower) * 12) var(--ease-standard) infinite;
+}
+@keyframes star-twinkle {
+  50% { transform: scale(0.4); opacity: 0.08; }
+}
+@keyframes star-shoot {
+  0% { opacity: 0; transform: translate(0, 0); }
+  3% { opacity: 0.35; }
+  9%, 100% { opacity: 0; transform: translate(400px, 140px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .twinkle,
+  .shoot { animation: none; }
+}

@@ -17,8 +17,6 @@ import { architectureScenes } from "../architecture/preziScenes";
 import { decisionsScenes, makingScenes } from "../making/preziScenes";
 import { k, type SceneDef } from "./types";
 
-export type { SceneDef };
-
 export interface ClusterDef {
   id: string;
   /** 장 앵커(#features) — 목차 · 링크가 이 무리로 날아온다 */
@@ -36,7 +34,7 @@ export const CLUSTERS: ClusterDef[] = [
     anchor: "#features",
     head: {
       label: k("기능", "Features"),
-      render: () => <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} />,
+      render: () => <ChapterHead eyebrow={featuresChapter.eyebrow} title={featuresChapter.title} note={featuresChapter.note} noteTouch={featuresChapter.noteTouch} />,
     },
     scenes: featuresScenes,
   },

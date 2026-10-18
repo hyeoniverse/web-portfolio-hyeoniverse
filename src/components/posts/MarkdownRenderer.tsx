@@ -8,16 +8,7 @@ import markedKatex from "marked-katex-extension";
 import { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode } from "./highlightCodeBlocks";
 import { highlightCode } from "@/utils/prismHighlight";
 import { useBodyLabels } from "./BodyLabelsContext";
-import { escapeLabelHtml } from "@/lib/bodyLabels";
 import { attachImageFallback } from "@/lib/imageFallback";
-
-/* 코드블록 토글 라벨의 자리표시자.
-   렌더러는 모듈 스코프에 있고 번역값(t)은 컴포넌트 안에만 있다. 전에는 모듈 변수를 parse
-   직전에 덮어썼는데, 서버에서는 모듈 상태가 요청 사이에 공유돼 다른 언어 요청의 라벨이
-   섞일 수 있었다. 렌더러는 자리표시자만 심고 번역은 parse 뒤에 넣는다.
-   사용자 문서에 섞일 일이 없도록 사용자 영역(PUA) 문자를 쓴다. */
-const WRAP_SLOT = "\uE000";
-const SCROLL_SLOT = "\uE001";
 
 export function slugify(text: string): string {
   return text
@@ -67,7 +58,7 @@ marked.use(
       // 자세한 건 utils/prismHighlight 주석.
       const { html: highlighted, lang: resolved } = highlightCode(text, lang ?? undefined);
       const language = resolved || null;
-      return `<div class="code-block-wrap"><pre><code${language ? ` class="language-${language}"` : ""}>${highlighted}</code></pre><button class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${SCROLL_SLOT}</span><span class="code-wrap-label-hover">${WRAP_SLOT}</span></button></div>\n`;
+      return `<div class="code-block-wrap"><pre><code${language ? ` class="language-${language}"` : ""}>${highlighted}</code></pre></div>\n`;
     },
   },
 });
@@ -91,9 +82,6 @@ export default function MarkdownRenderer({
 
   const html = useMemo(() => {
     let raw = marked.parse(content, { async: false }) as string;
-    raw = raw
-      .replaceAll(WRAP_SLOT, `↩ ${escapeLabelHtml(labels.codeWrap)}`)
-      .replaceAll(SCROLL_SLOT, `↔ ${escapeLabelHtml(labels.codeScroll)}`);
     // 상대 경로 이미지를 절대 경로로 변환 (admin 페이지에서 404 방지)
     raw = raw.replace(/(<img\s[^>]*src=")(?!https?:\/\/|\/|data:)([^"]+)(")/g, '$1/$2$3');
     // 파일 첨부 링크를 파일 카드로 변환: <a href="url">📎 name</a>
@@ -113,7 +101,7 @@ export default function MarkdownRenderer({
     );
     // img에 data-cursor="zoom" 주입 → CursorTrail이 이미지 뷰어 힌트 표시
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
-  }, [content, labels.codeWrap, labels.codeScroll]);
+  }, [content]);
 
   // 코드블록 복사·줄바꿈 바 주입 — marked 가 이미 Prism 으로 하이라이트했으므로 컨트롤 바만 붙인다.
   // 부모(디테일/미리보기/works)가 ref 를 넘겨주는지에 의존하지 않고 자체 ref 로 처리 → markdown 은
@@ -128,8 +116,6 @@ export default function MarkdownRenderer({
       scrollTitle: labels.codeScrollTitle,
       copy: labels.codeCopy,
       copied: labels.codeCopied,
-      expand: labels.codeExpand,
-      collapse: labels.codeCollapse,
     });
     // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
     applyColorSwatches(root);

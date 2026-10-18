@@ -1,5 +1,7 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
+import MongSticker from "../_components/MongSticker";
 import SiteText from "@/components/ui/SiteText";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
@@ -147,6 +149,8 @@ export default function TagsIndexClient({ tags }: Props) {
           <PageTitle icon={<Tags size={40} strokeWidth={1.6} aria-hidden />}>
             Tags.
           </PageTitle>
+          {/* 제목 옆 몽이 — 블로그 공통 몽이 테마 */}
+          <MongSticker pose="heart-front" float flat className={page.headerMong} />
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&section=tags"
@@ -197,7 +201,10 @@ export default function TagsIndexClient({ tags }: Props) {
         <p className={page.endNote}>{fillTemplate(t("postsPage.allTagsShown"), { n: filtered.length })}</p>
       )}
       {filtered.length === 0 && (
-        <p className={page.empty}>{t("postsPage.noMatchingTags")}</p>
+        <div className={page.emptyMongWrap}>
+          <MongSticker pose="surprised-front" float className={page.emptyMong} />
+          <p className={page.empty}>{t("postsPage.noMatchingTags")}</p>
+        </div>
       )}
 
       {/* 터치 디바이스 — 탭 시 바텀 시트로 detail. 연관 태그 pills 는 IndexSheet 의 children 슬롯 */}
@@ -207,7 +214,7 @@ export default function TagsIndexClient({ tags }: Props) {
         title={sheetTag ? `#${sheetTag.tag}` : null}
         count={sheetTag ? fillCount(t, "postsPage.countPosts", sheetTag.count) : null}
         description={sheetTag?.description}
-        cta={{ href: `/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`, label: t("postsPage.viewTagPosts") }}
+        cta={{ href: blogHref(`/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`), label: t("postsPage.viewTagPosts") }}
       >
         {sheetTag && sheetTag.related.length > 0 && (
           <div className={styles.sheetRelated}>
@@ -217,7 +224,7 @@ export default function TagsIndexClient({ tags }: Props) {
                 <Chip
                   key={r}
                   variant="capsule"
-                  href={`/posts/tags/${encodeURIComponent(r)}`}
+                  href={blogHref(`/posts/tags/${encodeURIComponent(r)}`)}
                   onClick={() => setSheetTag(null)}
                 >
                   <span>#<SiteText text={r} /></span>

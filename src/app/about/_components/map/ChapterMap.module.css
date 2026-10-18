@@ -127,28 +127,3 @@
   font: var(--font-grotesk-micro);
   color: var(--text-accent);
 }
-
-/* ── 첫 화면 — 고르면 카메라가 그 별로 날아 들어간다 ── */
-.heroMap {
-  --_fly: 0.8s; /* 별로 날아 들어가는 시간 — 한 자리(3.9-1) */
-
-  transition:
-    scale var(--_fly) var(--ease-exit),
-    opacity var(--_fly) var(--ease-exit);
-}
-
-.heroMap[data-flying] {
-  scale: 9;
-  opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroMap {
-    transition: none;
-  }
-
-  .heroMap[data-flying] {
-    scale: 1;
-    opacity: 1;
-  }
-}

@@ -67,7 +67,7 @@ const isCodeLike = (v: string) => /@|https?:|\(\)|\(['"]|['"]\)|`|^[\w.-]+\.(web
  * 프로필의 한 언어 칸 — 두 언어 쌍이 아니라 pairTexts 가 못 줍는 글. 경력 · 교육 · 활동의 기관 이름(한국어로만 적힌 경우가 많다),
  * 정보 창의 라벨 · 값(코드 · 메일은 뺀다). 기술 이름 · 묶음 이름 · 원칙 · 과정 제목은 한국어 화면에서도 영어로 두는 표기라 넣지 않는다
  */
-export function profilePlainTexts(profile: unknown): string[] {
+function profilePlainTexts(profile: unknown): string[] {
   const p = obj(profile);
   const timeline = ["experiences", "education", "activities"].flatMap((k) => (Array.isArray(p[k]) ? (p[k] as unknown[]) : []));
   const blocks = Array.isArray(p.infoBlocks) ? (p.infoBlocks as unknown[]) : [];
@@ -124,10 +124,6 @@ export function acceptContentString(source: string, v: unknown): string | null {
   if (marks(v) !== marks(source)) return null;
   return v.trim();
 }
-
-/** 번역 묶음 — site: 사이트 내용 글(설정 · DB), about: About 코드의 글(생성 파일 aboutDict) */
-export type SiteBundle = "site" | "about";
-export const SITE_BUNDLES: readonly SiteBundle[] = ["site", "about"];
 
 /** 묶음 해시 — 원문 목록이 같으면 캐시를 그대로 쓴다 */
 export function siteContentHash(source: string[]): string {

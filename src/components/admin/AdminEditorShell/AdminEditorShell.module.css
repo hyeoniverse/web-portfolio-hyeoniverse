@@ -99,7 +99,8 @@
 .navGroup {
   display: inline-flex;
   align-items: center;
-  flex-wrap: nowrap;
+  /* 아주 좁으면(뒤로 · 확인란 · 언어 전환이 안 들어가면) 줄을 넘긴다 — nowrap 이면 언어 전환이 화면 밖으로 나갔다 */
+  flex-wrap: wrap;
   gap: var(--spacing-12);
   width: 100%;
   min-width: 0;
@@ -111,8 +112,12 @@
 .saveGroup {
   display: inline-flex;
   align-items: center;
-  flex-wrap: nowrap;
+  /* 한 줄에 안 들어가면 오른쪽 정렬로 줄을 넘긴다 — nowrap 이면 오른쪽 정렬 줄에서 왼쪽 화면 밖으로 밀렸다 */
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--spacing-12);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .topBarRow:last-child {
@@ -271,14 +276,10 @@
   }
 }
 
-/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
-.revertBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 — hover 때까지 덮으면
+   outline 채움(반전 배경) 위에 글자만 원래 색으로 남으니, 쉬는 상태에만 건다 */
+.revertBtn:not(:hover:not(:disabled)) {
   color: var(--text-secondary);
-}
-
-.topBarActions .revertBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
 }
 
 /* ── Status / Error / Success Banner (inline in actions) — top bar 위쪽으로 띄움 ── */
@@ -646,28 +647,7 @@
 
 /* ── Revision = Current 일 때 header badge ── */
 /* revision 의 모든 필드가 current form 과 동일하면 diff 가 안 보임 → header 가운데 배지로 식별 */
-.revisionCurrentBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--badge-padding-md);
-  border: var(--border-light);
-  border-radius: var(--radius-control);
-  background: color-mix(in oklch, var(--text-success) 8%, transparent);
-  color: var(--text-success);
-  font: var(--font-body-xs);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
 
-.revisionCurrentDot {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--radius-full);
-  background: var(--text-success);
-  flex-shrink: 0;
-}
 
 /* ── Revision Meta — 그룹 + form-like list (label | value) ── */
 .revisionMetaSection {
@@ -1167,14 +1147,10 @@
 }
 
 /* ── Retranslate ── */
-/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
-.retranslateBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 — hover 때까지 덮으면
+   outline 채움(반전 배경) 위에 글자만 원래 색으로 남으니, 쉬는 상태에만 건다 */
+.retranslateBtn:not(:hover:not(:disabled)) {
   color: var(--text-secondary);
-}
-
-.topLeft .retranslateBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
 }
 
 .retranslateDropdown {

@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Trash2, RotateCcw, MessageSquare } from "@/components/icons";
@@ -17,6 +18,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import { Skeleton, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import styles from "./Comments.module.css";
 import Pressable from "@/components/ui/Pressable";
+import Badge from "@/components/ui/Badge";
 
 interface CommentRow {
   id: string;
@@ -260,11 +262,11 @@ export default function CommentsModerationPage() {
               <span className={styles.colCheck}>
                 <Checkbox checked={selected.has(c.id)} onChange={() => toggleSelect(c.id)} shape="square" />
               </span>
-              <span className={`${styles.sourceBadge} ${c.source === "posts" ? styles.badgePosts : styles.badgeWorks}`}>
+              <Badge tone={c.source === "posts" ? "neutral" : "accent"} className={styles.sourceBadge}>
                 {c.source === "posts" ? "Post" : "Work"}
-              </span>
+              </Badge>
               <span className={styles.author}>
-                {c.is_admin && <span className={styles.adminBadge}>Admin</span>}
+                {c.is_admin && <Badge tone="accent">Admin</Badge>}
                 {c.nickname}
               </span>
               <span className={styles.content}>
@@ -285,7 +287,7 @@ export default function CommentsModerationPage() {
               </span>
               <span className={styles.target}>
                 {c.target_slug ? (
-                  <Link href={c.source === "posts" ? `/posts/${c.target_slug}` : `/works/${c.target_slug}`} className={styles.targetLink}>
+                  <Link href={c.source === "posts" ? blogHref(`/posts/${c.target_slug}`) : `/works/${c.target_slug}`} className={styles.targetLink}>
                     {c.target_title || "—"}
                   </Link>
                 ) : "—"}

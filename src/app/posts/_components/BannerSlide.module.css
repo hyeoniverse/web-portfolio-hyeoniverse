@@ -138,15 +138,7 @@
 }
 
 .categoryBadge {
-  display: inline-block;
   margin-bottom: var(--spacing-12);
-  padding: var(--spacing-4) var(--spacing-16);
-  border: var(--border-ghost);
-  border-radius: var(--radius-control);
-  font: var(--font-label-xs);
-  color: var(--text-white);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
 .titleMinimal {

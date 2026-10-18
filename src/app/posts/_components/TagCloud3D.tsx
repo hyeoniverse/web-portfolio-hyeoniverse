@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import SiteText from "@/components/ui/SiteText";
 import { useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -188,7 +189,7 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
 
   return (
     <div className={styles.wrap}>
-      <Link href="/posts/tags" className={styles.label}>
+      <Link href={blogHref("/posts/tags")} className={styles.label}>
         <Tags size={14} aria-hidden />
         <T k="postsPage.tags" tooltip={t("postsPage.tagCloudHint")} />
         <ChevronRight size={14} aria-hidden className={styles.labelArrow} />
@@ -215,7 +216,7 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
               <Link
                 key={p.tag}
                 ref={(el) => { itemRefs.current[i] = el; }}
-                href={`/posts/tags/${encodeURIComponent(p.tag)}`}
+                href={blogHref(`/posts/tags/${encodeURIComponent(p.tag)}`)}
                 onClick={(e) => {
                   // onTagClick 이 명시되면 페이지 이동 막고 호출자에 위임 (필터링 등)
                   if (onTagClick) {

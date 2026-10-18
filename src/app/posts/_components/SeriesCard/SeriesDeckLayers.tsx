@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -90,7 +91,7 @@ export default function SeriesDeckLayers({
           return (
             <TransitionLink
               key={postIndex}
-              href={`/posts/${slug}`}
+              href={blogHref(`/posts/${slug}`)}
               prefetch="auto"
               image={previewCover || ""}
               color={layerBg || ""}

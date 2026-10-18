@@ -1,5 +1,7 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
+import MongSticker from "./MongSticker";
 import { useState, useEffect } from "react";
 import type { Post } from "@/types/post";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -40,17 +42,19 @@ export default function PopularPosts() {
       <div className={styles.label}>
         <Flame size={14} className={styles.flameIcon} fill="currentColor" />
         <T k="postsPage.popular" />
-        <SegmentedControl<Metric>
-
-          items={METRICS}
-          value={metric}
-          onChange={setMetric}
-          className={styles.metricControl}
-        />
+        {/* 하트 몽이 — 인기 글에 마음이 간다. 목록에 올리면 들썩인다 */}
+        <MongSticker pose="heart-left" flat className={styles.labelMong} />
       </div>
+      {/* 지표 선택은 라벨 아래 줄 — 같은 줄에 두면 좁은 사이드바에서 라벨이 한 글자씩 접혔다 */}
+      <SegmentedControl<Metric>
+        items={METRICS}
+        value={metric}
+        onChange={setMetric}
+        className={styles.metricControl}
+      />
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
+          <TransitionLink key={post.id} href={blogHref(`/posts/${post.slug}`)} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
               {String(idx + 1).padStart(2, "0")}
             </span>

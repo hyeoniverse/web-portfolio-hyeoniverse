@@ -95,25 +95,15 @@ describe("code block copy bar", () => {
     expect(bars[1].querySelector(".code-lang-label")).toBeNull();
   });
 
-  // 긴 코드(30줄 초과)만 접고 펼치기 단추를 붙인다. 짧은 코드는 접지 않는다.
-  it("collapses only long code blocks and toggles with the expand button", () => {
-    const long = Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n");
-    document.body.innerHTML = `<div id="root"><pre><code>${long}</code></pre><pre><code>short</code></pre></div>`;
-    const root = document.getElementById("root")!;
-    attachCodeWrapToggle(root, { ...labels, expand: "Expand · {{n}} lines", collapse: "Collapse" });
-
-    const wraps = root.querySelectorAll(".code-block-wrap");
-    expect(wraps[0].classList.contains("is-collapsed")).toBe(true);
-    expect(wraps[1].classList.contains("is-collapsed")).toBe(false);
-    const btns = root.querySelectorAll<HTMLButtonElement>("[data-code-expand]");
+  // 회귀: 예전 마크업(pre 아래 줄바꿈 단추가 박힌 HTML)도 위 바의 단추 하나만 남는다 — 아래 '↔ 스크롤' 중복 제거
+  it("legacy wrap button under pre is removed, leaving only the bar's", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      '<div class="code-block-wrap"><pre><code class="language-ts">const a = 1;</code></pre>' +
+      '<button class="code-wrap-toggle" data-wrap-btn>↔ Scroll</button></div>';
+    attachCodeWrapToggle(root, labels);
+    const btns = root.querySelectorAll("[data-wrap-btn]");
     expect(btns.length).toBe(1);
-    expect(btns[0].textContent).toBe("Expand · 40 lines");
-
-    btns[0].scrollIntoView = () => {};
-    btns[0].click();
-    expect(wraps[0].classList.contains("is-collapsed")).toBe(false);
-    expect(btns[0].textContent).toBe("Collapse");
-    btns[0].click();
-    expect(wraps[0].classList.contains("is-collapsed")).toBe(true);
+    expect(btns[0].closest(".code-block-bar")).not.toBeNull();
   });
 });

@@ -39,8 +39,6 @@ export {
   inferGroup,
   recommendedSize,
   normalizeLimits,
-  SIZE_OPTIONS,
-  STORAGE_MAX_MB,
   STORAGE_MAX_MB_CEILING,
   resolveStorageMaxMb,
   sizeOptionsFor,

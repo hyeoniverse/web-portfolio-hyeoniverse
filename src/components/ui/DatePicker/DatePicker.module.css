@@ -835,6 +835,14 @@
   box-shadow: none;
 }
 
+/* 표시가 있는 칸(marks — 글 쓴 날 · 달 · 해) — 강조색 옅은 면 + 강조색 글자 */
+.calCellMarked:not(.calCellActive),
+.calCellMarked:not(.calCellActive):hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+
 .formatChecks {
   display: flex;
   align-items: center;

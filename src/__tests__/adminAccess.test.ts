@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import { canOpenAdminPage, canOpenSettingsTab, visibleAdminItems, type AdminAccess } from "@/lib/adminAccess";
 import { TAB_IDS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
-import { adminNavItems, adminMenuItems } from "@/components/layout/Navigation/navigationData";
+import { adminNavItems } from "@/components/layout/Navigation/navigationData";
 
 /* 관리자 화면을 누가 여는가(#883). 대시보드·알림·신고·댓글 관리는 API 가 관리자 이상만 허용하고,
    설정의 사이트 탭은 소유자만 연다. 메뉴는 실제 메뉴 데이터로 거른 결과를 본다. */
@@ -47,7 +47,7 @@ describe("visibleAdminItems", () => {
   });
 
   it("소유자는 모든 항목과 설정 탭을 본다", () => {
-    expect(visibleAdminItems(adminMenuItems, OWNER)).toEqual(adminMenuItems);
+    expect(visibleAdminItems(adminNavItems, OWNER)).toEqual(adminNavItems);
   });
 
   it("관리자는 설정에서 계정 탭만 본다", () => {
@@ -64,7 +64,6 @@ describe("visibleAdminItems", () => {
     const nav = visibleAdminItems(adminNavItems, AUTHOR);
     expect(keys(nav)).toEqual(["admin-settings", "admin-works", "admin-posts"]);
     expect(settingsTabs(nav)).toEqual(["settings-account"]);
-    expect(keys(visibleAdminItems(adminMenuItems, AUTHOR))).toEqual(["admin-settings", "admin-works", "admin-posts", "logout"]);
   });
 });
 

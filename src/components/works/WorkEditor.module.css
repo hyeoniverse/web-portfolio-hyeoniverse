@@ -455,15 +455,6 @@
   left: var(--spacing-8);
   top: 50%;
   transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  height: 16px;
-  padding: 0 var(--spacing-8);
-  border-radius: var(--radius-control);
-  background: var(--bg-secondary);
-  font: var(--font-label-xs);
-  letter-spacing: 0.04em;
-  color: var(--text-tertiary);
   pointer-events: none;
 }
 
@@ -694,16 +685,6 @@
   position: absolute;
   top: var(--spacing-8);
   left: var(--spacing-8);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  height: var(--control-height-xs);
-  padding: 0 var(--spacing-8);
-  border-radius: var(--radius-control);
-  background: var(--text-accent);
-  color: var(--text-inverse);
-  font: var(--font-label-xs);
-  letter-spacing: 0.02em;
   pointer-events: none;
   z-index: 3;
 }
@@ -1060,7 +1041,8 @@
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
 .memberList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  /* 칸 최소 360 — 화면이 그보다 좁으면 화면 폭(카드가 화면 밖으로 나갔다) */
+  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
   height: auto;
   gap: 0 var(--spacing-24);
   border-top: none;
@@ -1435,18 +1417,6 @@
   flex-wrap: wrap;
 }
 
-.memberLinkedBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-  font: var(--font-label-xs);
-  line-height: 1;
-  white-space: nowrap;
-}
 
 /* 새 팀원 자기소개 KO·EN 두 칸 — 좁으면 위아래로 */
 .memberBioPair {

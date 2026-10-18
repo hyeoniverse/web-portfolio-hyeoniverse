@@ -1,5 +1,6 @@
 "use client";
 
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import styles from "../WorkEditor.module.css";
 import { useState } from "react";
 import { Plus } from "@/components/icons";
@@ -8,6 +9,7 @@ import Chip, { useChipReorder } from "@/components/ui/Chip";
 import Select from "@/components/ui/Select";
 import { type LocalizedText } from "@/types/common";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import Badge from "@/components/ui/Badge";
 export interface WorksCategory {
   ko: string;
   en: string;
@@ -115,6 +117,7 @@ export function CategoryMultiPicker({
 
 /** 카테고리 직접 입력 — KO/EN 두 input + 추가 버튼. Enter 로 submit 가능 */
 function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string; addLabel: string }) {
+  const srcBadge = useSourceBadge();
   const [ko, setKo] = useState("");
   const [en, setEn] = useState("");
   const handleAdd = () => {
@@ -126,7 +129,7 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd:
   return (
     <>
       <div className={styles.customCategoryInputWrap}>
-        <span className={styles.customCategoryBadge}>KO</span>
+        <Badge className={styles.customCategoryBadge}>{srcBadge}</Badge>
         <input
           className={`${es.fieldInput} ${styles.customCategoryInput}`}
           type="text"
@@ -138,7 +141,7 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd:
         />
       </div>
       <div className={styles.customCategoryInputWrap}>
-        <span className={styles.customCategoryBadge}>EN</span>
+        <Badge className={styles.customCategoryBadge}>EN</Badge>
         <input
           className={`${es.fieldInput} ${styles.customCategoryInput}`}
           type="text"

@@ -24,7 +24,7 @@ import path from "node:path";
 import { parseDecisionMarkdown, mergeDecisionPair } from "@/lib/about/decisionsMarkdown";
 import {
   parseSimpleMarkdown, securityPanel, featuresPanel, processPanel,
-  overviewPanel, type SimpleDoc,
+  type SimpleDoc,
 } from "@/lib/about/panelMarkdown";
 import { MARKDOWN_PANELS } from "@/lib/about/contentSources";
 
@@ -59,17 +59,6 @@ function readDir(dir: string): Pair[] {
     });
 }
 
-function readSingle(name: string): { ko: SimpleDoc; en?: SimpleDoc } | null {
-  const koPath = path.join(ROOT, `${name}.md`);
-  if (!fs.existsSync(koPath)) return null;
-  const enPath = path.join(ROOT, `${name}.en.md`);
-  const opts = { optionalBody: true };
-  return {
-    ko: parseSimpleMarkdown(fs.readFileSync(koPath, "utf8"), opts),
-    en: fs.existsSync(enPath) ? parseSimpleMarkdown(fs.readFileSync(enPath, "utf8"), opts) : undefined,
-  };
-}
-
 function build(): string {
   const decisions = readDir(MARKDOWN_PANELS.troubleshooting.dir).map((p) =>
     mergeDecisionPair(
@@ -87,9 +76,6 @@ function build(): string {
   const features = list(MARKDOWN_PANELS.features.dir, featuresPanel.read);
   const process_ = list(MARKDOWN_PANELS.process.dir, processPanel.read);
 
-  const ov = readSingle(MARKDOWN_PANELS.overview.dir);
-  const overview = ov ? overviewPanel.read(ov.ko, ov.en) : null;
-
   const json = (v: unknown) => JSON.stringify(v, null, 2);
 
   return `/* 자동 생성 — 고치지 마세요. 원본은 content/about/ 의 .md 입니다.
@@ -98,7 +84,7 @@ function build(): string {
  * About 패널의 폴백. DB(동기화 결과)가 있으면 그게 이기고, 여기도 비어 있으면 화면이 빈다 —
  * 아직 아무것도 쓰지 않았다는 뜻이다. */
 import type { TroubleShootingItem } from "@/data/about/types";
-import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues } from "@/lib/about/panelMarkdown";
+import type { CfgSecurity, CfgFeature, CfgProcess } from "@/lib/about/panelMarkdown";
 
 export const aboutDecisions: TroubleShootingItem[] = ${json(decisions)};
 
@@ -107,8 +93,6 @@ export const aboutSecurity: CfgSecurity[] = ${json(security)};
 export const aboutFeatures: CfgFeature[] = ${json(features)};
 
 export const aboutProcess: CfgProcess[] = ${json(process_)};
-
-export const aboutOverview: OverviewValues | null = ${json(overview)};
 `;
 }
 

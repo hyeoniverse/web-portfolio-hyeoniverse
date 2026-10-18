@@ -458,22 +458,6 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 
 ---
 
-### SqlEditor (About Studio 전용)
-
-`src/app/admin/(dashboard)/settings/_components/about/SqlEditor.tsx` — ERD 가져오기 입력창. 투명 `textarea` 를 `<pre>` 위에 겹치는 방식은 쓰지 않습니다(두 요소의 렌더링 경로가 달라 캐럿·스크롤·줄바꿈이 어긋납니다 — `CodeBlockEditor` 주석과 같은 이유). 편집은 CodeMirror 에 맡깁니다.
-
-| 기능 | 구현 |
-| ---- | ---- |
-| SQL 하이라이팅 | `sqlLanguage.ts` — `StreamLanguage` 로 직접 정의. `@codemirror/lang-sql` 을 넣지 않은 이유는 필요한 게 "읽히게 색이 붙는 것" 뿐이기 때문 (달러인용 `$fn$ … $fn$` 인식 포함) |
-| 자동완성 | 현재 ERD 의 테이블·컬럼 이름 + SQL 키워드. `posts.` 까지 찍으면 그 테이블의 컬럼만 좁혀 제안. 키워드 목록은 하이라이터와 **같은 배열을 공유** |
-| 진단(밑줄) | 별도 SQL 파서를 두지 않고 **`parseSqlErd` 가 못 읽은 자리**를 그대로 표시 — 밑줄과 결과가 어긋나지 않는다. 오류(문법·괄호·컬럼 정의) / 경고(ALTER 대상 없음·버려지는 `REFERENCES`) |
-| 찾기·바꾸기 | `⌘F` (`@codemirror/search`) |
-| Tab 들여쓰기 | 완성 목록이 열려 있으면 Tab 이 먼저 채택. `Escape` 는 **낮은 우선순위**라 닫을 패널이 없을 때만 포커스를 빼낸다 — 키보드 사용자가 편집기에 갇히지 않게 |
-
-진단 위치를 원본과 맞추려고 파서가 주석을 **지우지 않고 같은 길이의 공백으로 덮습니다**. 글자를 빼면 뒤쪽 위치가 전부 밀려 밑줄이 엉뚱한 줄에 그어집니다.
-
----
-
 ### 공통 컴포넌트 — 이번 사이클 prop 추가
 
 | 컴포넌트 | 추가 | 내용 |

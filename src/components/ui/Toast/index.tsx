@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertCircle, AlertTriangle, Info, MoreHorizontal } from "@/components/icons";
+import { Check, AlertCircle, AlertTriangle, Info, MoreHorizontal, Copy } from "@/components/icons";
 import { useToastStore, type ToastVariant } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -15,7 +15,7 @@ import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 /** 줄바꿈 문구의 구조 — 첫 줄은 설명, "· " 로 시작하는 줄은 항목("이름: 사유" 꼴이면 이름을 따로), 그 뒤 줄은 각주.
  *  토스트(두 줄 안에 설명 + 항목)와 전체 보기 모달(설명 · 목록 · 각주)이 같은 해석을 쓴다 */
 const isItemLine = (l: string) => /^[·•\-]\s/.test(l);
-export function parseMessage(message: string) {
+function parseMessage(message: string) {
   const lines = message.split("\n").map((l) => l.trim()).filter(Boolean);
   const first = lines.length > 1 && !isItemLine(lines[0]) ? lines[0] : "";
   const rest = first ? lines.slice(1) : lines;
@@ -45,6 +45,17 @@ function ToastMessage({ message, onOpenFull }: { message: string; onOpenFull: ()
   const parsed = parseMessage(message);
   /* 각주를 토스트에서 뺐으면 잘린 게 없어도 전체 보기 단추를 둔다 */
   const overflow = clipped || (parsed.structured && parsed.notes.length > 0);
+  /* 복사 — 오류 문구를 그대로 붙여 넣어 묻거나 찾을 수 있게. 잘린 부분까지 원문 전체를 복사한다 */
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const id = setTimeout(() => setCopied(false), 1200);
+    return () => clearTimeout(id);
+  }, [copied]);
+  const copy = () => {
+    navigator.clipboard?.writeText(message).then(() => setCopied(true), () => {});
+  };
+  const copyLabel = copied ? t("common.copied") : t("common.toastCopy");
   return (
     <>
       <span ref={ref} className={styles.message}>
@@ -72,6 +83,15 @@ function ToastMessage({ message, onOpenFull }: { message: string; onOpenFull: ()
           <MoreHorizontal size={14} strokeWidth={2} aria-hidden />
         </Pressable>
       )}
+      <Pressable
+        className={styles.more}
+        aria-label={copyLabel}
+        title={copyLabel}
+        onClick={(e) => { e.stopPropagation(); copy(); }}
+        soundDisabled
+      >
+        {copied ? <Check size={14} strokeWidth={2} aria-hidden /> : <Copy size={14} strokeWidth={2} aria-hidden />}
+      </Pressable>
     </>
   );
 }

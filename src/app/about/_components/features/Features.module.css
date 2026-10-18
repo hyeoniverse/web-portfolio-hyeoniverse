@@ -306,6 +306,10 @@
 }
 
 .browserOpen {
+  /* 글자만 한 링크라 21px 였다 — 모양은 그대로 두고 누르는 높이만 단추 높이로 */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-md);
   font: var(--font-body-sm);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -402,7 +406,31 @@
 /* ── 1 · 공개 화면 — 캡처를 가로로 늘어놓고 단계마다 다음 장을 가운데로. 가운데는 크게, 양옆은 작고 흐리게 ── */
 
 .pub {
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* 좁은 화면 — 캡처 칸은 캡처만큼(아래 .pubStage), 제목 줄은 맨 위에 두고 캡처 · 설명 묶음을 남은 높이의 가운데에.
+     캡처 칸이 남은 높이를 다 가지면 16:10 캡처가 그 가운데에 떠 위아래가 110px 씩 비었다 */
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr);
+}
+
+.pub > .pubStage {
+  grid-row: 3;
+  /* 캡처 너비(84cqw = 화면 폭의 84%) ÷ 16:10 + 양옆 장이 커졌다 작아지는 여유 */
+  height: min(calc(84vw / 1.6 + var(--spacing-32)), 55svh);
+}
+
+.pub > .pubCaption {
+  grid-row: 4;
+}
+
+@media (width > 768px) and (height > 500px) {
+  .pub {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .pub > .pubStage,
+  .pub > .pubCaption {
+    grid-row: auto;
+    height: auto;
+  }
 }
 
 /* 제목 줄 — 왼쪽 제목, 오른쪽 위 별자리 단계 표시(좁으면 아래로 내려간다) */
@@ -478,7 +506,7 @@
   animation: shotIn var(--_capIn-duration) var(--ease-enter) both;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .pubCard {
     width: min(62cqw, 100cqh * 1.6);
     translate: calc(-50% + var(--o) * 92%) -50%;
@@ -513,7 +541,7 @@
   width: min(100cqw, (100cqh - 3rem) * 1.6);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .layouts {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
@@ -701,7 +729,24 @@
   color: var(--text-accent);
 }
 
-@media (width > 1024px) {
+/* 키 낮은 가로 화면 — 위아래로 쌓으면 몽이가 손톱만 해지고 목록이 독 밑으로 내려간다. 무대와 글을 나란히 두고,
+   글이 넘치면 프레임이 스크롤한다(높이를 100% 로 묶으면 넘친 부분이 프레임 아래 여백을 못 받는다) */
+@media (width > 480px) and (height <= 500px) {
+  .mascotGrid {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-24);
+    height: auto;
+    min-height: 100%;
+    padding-bottom: 0;
+  }
+
+  .mascotDock {
+    height: min(56svh, 34rem);
+  }
+}
+
+@media (width > 1024px) and (height > 500px) {
   .mascotGrid {
     padding-bottom: 0;
     grid-template-rows: none;
@@ -837,6 +882,15 @@
   transition: color var(--duration-base) var(--ease-standard);
 }
 
+/* 손가락 — 좁은 화면은 글을 감추고 점 · 캡슐만 남아 누를 곳이 8px 였다. 모양은 그대로 두고 누르는 자리만 넓힌다 */
+@media (pointer: coarse) {
+  .shotTab::after {
+    position: absolute;
+    inset: calc(var(--spacing-12) * -1) calc(var(--spacing-4) * -1);
+    content: "";
+  }
+}
+
 .shotTab:hover,
 .shotTab[data-on] {
   color: var(--text-primary);
@@ -852,7 +906,7 @@
   background: linear-gradient(to right, var(--text-accent) calc(var(--auto, 0) * 100%), var(--border-color-light) 0);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .admin {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
@@ -908,6 +962,20 @@
   transition:
     opacity var(--_hide) var(--ease-standard) var(--_hide),
     scale var(--_suck) var(--ease-enter);
+}
+
+/* 좁은 화면 — 데모가 열리면 장면이 데모만큼 자라 프레임 안에서 스크롤한다. 데모를 화면 높이에 끼워 넣으면(FitZoom)
+   글자 · 단추가 0.78 배까지 줄어 누르기 어려웠다. 목차(닫힌 때)는 그대로 화면 높이 */
+.cms[data-open] {
+  height: auto;
+  min-height: 100%;
+}
+
+@media (width > 1024px) and (height > 500px) {
+  .cms[data-open] {
+    height: 100%;
+    min-height: 0;
+  }
 }
 
 .cms[data-open] .cmsIntro {
@@ -1312,7 +1380,7 @@
   min-height: 0;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .cmsIntro {
     gap: var(--spacing-40);
   }
@@ -1435,6 +1503,20 @@
   width: min(100cqw, (100cqh - 11rem) * 16 / 9);
 }
 
+/* 태블릿 폭 — 아래 썸네일(4열 2줄)이 판 폭에 비례해 커져 11rem 으로는 모자랐다(판이 칸 아래로 넘쳐 안내 줄이 아래 막대 뒤에).
+   16:9 무대(0.5625 × 폭) + 썸네일 두 줄(약 0.28 × 폭)이 남은 높이에 들어가게 폭을 정한다. 휴대폰은 폭이 먼저 한계라 그대로 */
+@container (width > 600px) {
+  .voiceSlides > * {
+    width: min(100cqw, (100cqh - 11rem) / 0.85);
+  }
+}
+
+@media (width > 1024px) and (height > 500px) {
+  .voiceSlides > * {
+    width: min(100cqw, (100cqh - 11rem) * 16 / 9);
+  }
+}
+
 /* 편집 도구 — 카드 없이 하늘 위에. 좁은 화면은 글 칸 아래 데모를 위쪽에 붙이고, 넓은 화면은 왼쪽 글 칸 · 오른쪽 데모 */
 .voiceTool {
   grid-template-rows: auto minmax(0, 1fr);
@@ -1472,7 +1554,7 @@
   min-height: 0;
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .voice {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
@@ -1496,11 +1578,51 @@
   }
 }
 
+/* 키 낮은 가로 화면 — 글 · 그림을 위아래로 쌓으면 남는 높이(200px 남짓)에 그림 자리가 0 이 되었다(1fr 줄이 크기를 잃는다).
+   넓은 화면처럼 글 왼쪽 · 그림 오른쪽으로 두고 넘치면 프레임이 스크롤한다. 관리자 · 레이아웃의 그림 상자(fitBox)는
+   줄 높이로 늘어나 크기를 받고, 갤러리는 칸 폭에 맞춘 제 높이로 그린다 */
+@media (width > 480px) and (height <= 500px) {
+  .layouts,
+  .admin,
+  .voice,
+  .voiceTool {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--spacing-32);
+  }
+
+  .voice,
+  .voiceTool {
+    align-items: start;
+  }
+
+  .voiceSlides {
+    container-type: inline-size;
+  }
+
+  .voiceSlides > * {
+    width: 100%;
+  }
+}
+
 /* ── 6 · 테마 — 프리셋이 저절로 바뀐다. 다음 단계에서 미니 홈이 위로 물러나고 대비 점검표가 올라온다 ── */
 
 .theme {
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--spacing-16);
+}
+
+/* 좁은 화면 — 내용만큼 자라 프레임 안에서 스크롤한다. 화면 높이에 묶으면 대비 점검표 아래 줄(링크↔본문)이 아래 막대 뒤로 잘렸다 */
+.pz.theme {
+  height: auto;
+  min-height: 100%;
+}
+
+@media (width > 1024px) and (height > 500px) {
+  .pz.theme {
+    height: 100%;
+    min-height: 0;
+  }
 }
 
 .themeText {
@@ -1562,6 +1684,19 @@
   transition:
     translate var(--_move) var(--ease-enter),
     scale var(--_move) var(--ease-enter);
+}
+
+/* 좁은 화면 — 덩어리(줄어든 미니 홈 + 사이 + 점검표)가 무대보다 크면 무대를 그만큼 키운다. 무대가 낮으면 점검표가
+   무대 아래로 삐져나와(절대 위치라 프레임 스크롤의 아래 여백을 받지 못해) 마지막 줄이 아래 막대 뒤에 남았다.
+   min-height 가 아니라 height — 무대는 size 컨테이너라 높이가 정해져야 안쪽의 cqh(미니 홈 가운데 맞춤)가 0 이 되지 않는다 */
+.theme .themeStage {
+  height: calc(var(--pair-h, 0px) * var(--_k) + var(--_between) + var(--tbl-h, 0px));
+}
+
+@media (width > 1024px) and (height > 500px) {
+  .theme .themeStage {
+    height: auto;
+  }
 }
 
 .theme[data-step="1"] .miniPair {
@@ -1671,7 +1806,7 @@
   color: var(--text-tertiary);
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .theme {
     grid-template-rows: none;
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);

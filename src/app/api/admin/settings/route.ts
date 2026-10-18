@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import type { ApiErrorCode } from "@/lib/apiError";
 import { revalidatePath } from "next/cache";
@@ -9,6 +9,10 @@ import { checkAboutContent } from "@/lib/api/validateAboutContent";
 import { checkRequiredSettings } from "@/lib/api/validateRequiredSettings";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
+import { getSiteConfig, mergeSiteConfig } from "@/lib/getSiteConfig";
+import { translateConfigSource, translateProfileSource } from "@/lib/api/sourceTranslate";
+import { sourceTargetOf } from "@/lib/siteLanguage";
+import { prewarmDefaultLangUi } from "@/lib/api/defaultLangUi";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { siteConfig } from "@/config/site.config";
 import type { Author } from "@/types/author";
@@ -82,6 +86,9 @@ function checkNonOwnerConfig(
 }
 
 // GET /api/admin/settings — 설정 조회 (공개)
+/* 기본 언어를 바꾸면 응답 뒤에 화면 글 사전 두 벌을 번역한다(after) — 관리자 사전이 커서 여유를 둔다 */
+export const maxDuration = 300;
+
 export async function GET() {
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -143,6 +150,24 @@ export async function PATCH(request: Request) {
     }
   }
 
+  /* 기본 언어를 바꿨으면 설정 글 · 프로필의 원문 칸(ko 자리)을 새 언어로 번역해 덮어쓴다(#1425).
+     번역에 실패하면 저장하지 않는다 — 언어만 바뀌고 글은 그대로인 상태가 남지 않게 */
+  let sourceTranslated = false;
+  {
+    const delta = (body.config.delta ?? body.config) as Record<string, unknown>;
+    const full = mergeSiteConfig(delta);
+    const target = sourceTargetOf(full.metadata?.defaultLanguage);
+    const from = full.metadata?.sourceLanguage || "ko";
+    if (target && target !== from && full.translation?.enabled !== false) {
+      const ok = await translateConfigSource(full as unknown as Record<string, unknown>, delta, from, target, full)
+        && await translateProfileSource(from, target, full);
+      if (!ok) return jsonError("원문을 새 기본 언어로 번역하지 못했습니다. 잠시 뒤 다시 저장해 주세요.", 502, { code: "TRANSLATION_FAILED" });
+      const meta = (delta.metadata ?? {}) as Record<string, unknown>;
+      delta.metadata = { ...meta, sourceLanguage: target };
+      sourceTranslated = true;
+    }
+  }
+
   const { data, error } = await admin
     .from("site_settings")
     .upsert({ id: "default", config: body.config, updated_at: new Date().toISOString() })
@@ -155,6 +180,13 @@ export async function PATCH(request: Request) {
   }
 
   revalidatePath("/", "layout");
+
+  /* 사이트 기본 언어가 ko · en 밖이면 화면 글 사전(방문자 · 관리자)을 그 언어로 미리 번역해 둔다(#1406) —
+     응답을 보낸 뒤에 돈다. 이미 번역해 둔 언어면 캐시를 읽고 끝난다. 다 번역하면 첫 화면을 다시 그린다 */
+  after(async () => {
+    await prewarmDefaultLangUi(await getSiteConfig());
+    revalidatePath("/", "layout");
+  });
 
   // 설정 변경 알림 — delta 내부 키로 실제 변경된 섹션만 기록
   try {
@@ -179,5 +211,6 @@ export async function PATCH(request: Request) {
     }
   } catch { /* notify 실패는 swallow */ }
 
-  return NextResponse.json(data);
+  /* 원문을 번역해 덮어썼으면 알린다 — 설정 화면이 들고 있는 값은 번역 전이라 다시 불러와야 한다 */
+  return NextResponse.json(sourceTranslated ? { ...data, sourceTranslated } : data);
 }

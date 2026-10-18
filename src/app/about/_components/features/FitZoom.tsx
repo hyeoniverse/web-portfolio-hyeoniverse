@@ -16,7 +16,17 @@ export default function FitZoom({ className, children }: { className?: string; c
     const inner = innerRef.current;
     if (!box || !inner) return;
     let z = 1;
+    /* 좁은 화면(세로로 쌓는 구간)은 줄이지 않는다 — 0.78배면 13px 글자가 10px, 28px 단추가 22px 로 줄어 손가락으로
+       누르기 어려웠다. 장면이 안에서 스크롤되니 넘치는 데모는 내려서 본다 */
+    const narrow = matchMedia("(width <= 1024px), (height <= 500px)");
     const fit = () => {
+      if (narrow.matches) {
+        if (z !== 1) {
+          z = 1;
+          inner.style.zoom = "";
+        }
+        return;
+      }
       /* 지금 배율로 그려진 높이를 배율로 나누면 원래 높이. 둘 다 화면에 그려진 크기라 카메라 배율은 약분된다 */
       const natural = inner.getBoundingClientRect().height / z;
       const avail = box.getBoundingClientRect().height;

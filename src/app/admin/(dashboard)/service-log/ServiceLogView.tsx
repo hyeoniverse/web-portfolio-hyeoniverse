@@ -28,6 +28,7 @@ import { AI_PROVIDERS, AI_PROVIDER_INFO, type AiProvider } from "@/lib/ai/provid
 import { SERVICE_PROVIDER_LABEL, type ServiceLogCategory, type ServiceLogEntry } from "@/lib/serviceLogTypes";
 import { demoServiceLog, DEMO_STATES } from "./demoEntries";
 import styles from "./ServiceLog.module.css";
+import Badge from "@/components/ui/Badge";
 
 type Result = "all" | "ok" | "fail";
 type Category = ServiceLogCategory | "all";
@@ -373,9 +374,9 @@ export default function ServiceLogView() {
                           >
                             <span className={`${styles.time} ${styles.pin}`} data-cursor="text">{when(e.at)}</span>
                             <span className={`${styles.provider} ${styles.pin} ${styles.pin2}`} data-cursor="text">{labelOf(e)}</span>
-                            <span className={styles.status} data-ok={e.ok ? "" : undefined} data-cursor="text">
+                            <Badge tone={e.ok ? "success" : "accent"} className={styles.status} data-cursor="text">
                               {e.ok ? th("logOk") : th(`kind.${e.kind ?? "unknown"}`)}
-                            </span>
+                            </Badge>
                             <span className={styles.detail} data-cursor="text">{detailOf(e)}</span>
                           </div>
                           {isOpen && (

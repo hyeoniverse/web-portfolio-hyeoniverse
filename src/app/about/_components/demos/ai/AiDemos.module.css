@@ -218,7 +218,7 @@
   );
 }
 
-@media (width > 1024px) {
+@media (width > 1024px) and (height > 500px) {
   .coverFrame {
     width: auto;
     max-width: 100%;

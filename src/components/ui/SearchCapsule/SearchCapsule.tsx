@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { useScopedSize } from "@/components/ui/controlSize";
 import { useRef, useState, useEffect, useContext } from "react";
 import { useHasMounted } from "@/hooks/useHasMounted";
@@ -70,7 +71,7 @@ export default function SearchCapsule({
   className,
   autoFocus,
   onBlur,
-  size: sizeProp = "sm",
+  size: sizeProp = "md",
   historyKey,
   historyLimit = 10,
   routeParam,
@@ -81,7 +82,7 @@ export default function SearchCapsule({
   collapsible = false,
   expandedWidth = 280,
 }: SearchCapsuleProps) {
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
   const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const clearLabel = t("common.clear");
@@ -123,7 +124,8 @@ export default function SearchCapsule({
     if (trimmed) params.set(routeParam, trimmed);
     else params.delete(routeParam);
     const qs = params.toString();
-    router?.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    /* 블로그 주소에서는 앱 경로(/posts/…)를 블로그 주소로 바꿔 보낸다 — 그대로 보내면 proxy 가 한 번 더 돌려보낸다 */
+    router?.replace(blogHref(qs ? `${pathname}?${qs}` : pathname), { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, routeParam]);
 

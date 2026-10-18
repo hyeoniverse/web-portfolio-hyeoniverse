@@ -27,6 +27,7 @@ export default function PostsFilterBar({
   extraCategories,
   allTags,
   query,
+  sidebarCategories = false,
 }: {
   ref: RefObject<HTMLDivElement | null>;
   isStuck: boolean;
@@ -38,6 +39,8 @@ export default function PostsFilterBar({
   extraCategories: string[];
   allTags: { tag: string; count: number }[];
   query: PostsQuery;
+  /** 사이드바가 카테고리 목록을 보여 줄 때(blog 레이아웃) — 사이드바가 옆에 서는 넓은 화면에선 여기 카테고리 줄을 숨긴다 */
+  sidebarCategories?: boolean;
 }) {
   const { t } = useLanguage();
   const {
@@ -126,6 +129,7 @@ export default function PostsFilterBar({
           )}
         </AnimatePresence>
 
+        <div className={sidebarCategories ? styles.catNavSidebarDup : styles.catNavSlot}>
         <CategoryNav
           extraCategories={extraCategories}
           activeCategories={activeCategories}
@@ -137,6 +141,7 @@ export default function PostsFilterBar({
             if (v) onShowTagsChange(false);
           }}
         />
+        </div>
       </div>
 
       <TagFilterPanel

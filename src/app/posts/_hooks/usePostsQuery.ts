@@ -26,7 +26,7 @@ export function usePostsQuery({
   defaultPerPage: number;
 }) {
   const filters = usePostsFilters({ allTags: initialData.allTags });
-  const { search, searchType, syntaxMode, activeCategoryKey, activeTagsKey, activeSeries, activeAuthor, applyUrlParams } = filters;
+  const { search, searchType, syntaxMode, activeCategoryKey, activeTagsKey, activeSeries, activeAuthor, activeDate, applyUrlParams } = filters;
   const sortState = usePostsSort({ timeline: postsLayout === "timeline" });
   const { sort, sortDir, randomSeed } = sortState;
 
@@ -42,7 +42,7 @@ export function usePostsQuery({
   // 필터·정렬이 바뀌면 page 를 1 로. 주소의 필터와 ?page= 를 함께 옮기는 커밋은 되돌리지 않는다
   const { page, setPage, perPage, setPerPage } = usePageControls({
     defaultPerPage,
-    resetOn: [search, searchType, activeCategoryKey, activeTagsKey, activeSeries, sort, sortDir],
+    resetOn: [search, searchType, activeCategoryKey, activeTagsKey, activeSeries, activeDate, sort, sortDir],
     holdReset: !urlApplied,
   });
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -66,6 +66,15 @@ export function usePostsQuery({
     return () => document.documentElement.removeAttribute(LIST_PENDING_ATTR);
   }, [applyUrlParams, setPage]);
 
+  // 날짜 필터 URL 동기화 — 사이드바 달력에서 고른 날을 주소에 남겨 공유 · 새로고침해도 유지한다
+  useEffect(() => {
+    if (!urlApplied) return;
+    const url = new URL(window.location.href);
+    if (activeDate) url.searchParams.set(QUERY_PARAM.date, activeDate);
+    else url.searchParams.delete(QUERY_PARAM.date);
+    window.history.replaceState(null, "", url.toString());
+  }, [activeDate, urlApplied]);
+
   // page 변경 시 URL 동기화 — replace 로 history 누적 방지. page=1 일 땐 param 제거(깔끔)
   useEffect(() => {
     if (!urlApplied) return;
@@ -88,6 +97,7 @@ export function usePostsQuery({
     if (activeTagsKey) params.set("tags", activeTagsKey);
     if (activeSeries) params.set("series_id", activeSeries);
     if (activeAuthor) params.set("author", activeAuthor);
+    if (activeDate) params.set(QUERY_PARAM.date, activeDate);
     params.set(QUERY_PARAM.sort, sort);
     params.set("sortDir", sortDir);
     if (sort === "random") params.set("seed", String(randomSeed));
@@ -129,6 +139,7 @@ export function usePostsQuery({
     activeTagsKey,
     activeSeries,
     activeAuthor,
+    activeDate,
     sort,
     sortDir,
     randomSeed,

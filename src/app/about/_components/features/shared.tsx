@@ -1,7 +1,7 @@
 "use client";
 
 /* 기능 장의 장면들이 함께 쓰는 것 — 언어 고르기, 스크롤 진행 단계, 캡처 · 영상, 브라우저 창 */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -13,13 +13,26 @@ import styles from "./Features.module.css";
 export function useWide() {
   const [wide, setWide] = useState(true);
   useEffect(() => {
-    const mq = matchMedia("(width > 1024px)");
+    /* 높이 500px 이하(가로로 든 휴대폰)는 넓은 화면으로 치지 않는다 — CSS 의 넓은 화면 규칙과 같은 기준 */
+    const mq = matchMedia("(width > 1024px) and (height > 500px)");
     const sync = () => setWide(mq.matches);
     sync();
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
   return wide;
+}
+
+/* 손가락으로 쓰는 기기인지 — 안내 글을 "누르세요 · 쓸어 넘기세요"로. 마우스가 없고(hover: none) 굵은 포인터(coarse)일 때.
+   서버와 첫 그림은 데스크톱 글(클릭 · 스크롤) */
+const TOUCH_QUERY = "(hover: none) and (pointer: coarse)";
+const subscribeTouch = (cb: () => void) => {
+  const mq = matchMedia(TOUCH_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+export function useTouchInput() {
+  return useSyncExternalStore(subscribeTouch, () => matchMedia(TOUCH_QUERY).matches, () => false);
 }
 
 export function useL() {
@@ -32,48 +45,6 @@ export function useL() {
 export function useShotSrc() {
   const { theme } = useTheme();
   return (s: { src: string; srcDark?: string }) => (theme === "dark" && s.srcDark ? s.srcDark : s.src);
-}
-
-/**
- * 고정 장면의 스크롤 진행 — 섹션이 화면을 지나는 동안 0~1 을 --p 로 넘기고, count 칸으로 나눈 지금 칸(index)을
- * 돌려준다. 칸이 바뀔 때만 렌더한다. goTo(i) 는 그 칸 가운데로 스크롤한다(칩 · 단추용).
- */
-export function useScrollStep<T extends HTMLElement>(count: number) {
-  const ref = useRef<T>(null);
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const r = el.getBoundingClientRect();
-      const range = r.height - window.innerHeight;
-      const p = range > 0 ? Math.min(1, Math.max(0, -r.top / range)) : 0;
-      el.style.setProperty("--p", p.toFixed(4));
-      /* 칸 안에서 얼마나 왔는지(0~1) — 자막 채우기 같은 칸 안 움직임용 */
-      const f = Math.min(count - 0.0001, p * count);
-      el.style.setProperty("--step-p", (f - Math.floor(f)).toFixed(4));
-      setIndex(Math.floor(f));
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [count]);
-  const goTo = (i: number) => {
-    const el = ref.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const range = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + (range * (i + 0.5)) / count, behavior: "smooth" });
-  };
-  return { ref, index, goTo };
 }
 
 /**
@@ -136,7 +107,7 @@ export function AutoBar() {
 }
 
 /** 화면에 보이는 동안만 소리 없이 재생하는 영상 */
-export function ShotVideo({ src, className }: { src: string; className?: string }) {
+function ShotVideo({ src, className }: { src: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current;
@@ -228,8 +199,9 @@ export function RowNum({ n }: { n: number }) {
 }
 
 /** 장 머리 — 눈썹 · 큰 제목 · 덧말. 오른쪽에 길잡이 별이 내려앉는 자리 */
-export function ChapterHead({ eyebrow, title, note }: { eyebrow: L10n; title: L10n; note?: L10n }) {
+export function ChapterHead({ eyebrow, title, note, noteTouch }: { eyebrow: L10n; title: L10n; note?: L10n; noteTouch?: L10n }) {
   const L = useL();
+  const touch = useTouchInput();
   return (
     <div className={styles.head}>
       <span className={styles.headAnchor}>
@@ -237,7 +209,7 @@ export function ChapterHead({ eyebrow, title, note }: { eyebrow: L10n; title: L1
       </span>
       <span className={styles.eyebrow}>{L(eyebrow)}</span>
       <h2 className={styles.title}>{L(title)}</h2>
-      {note && <p className={styles.note}>{L(note)}</p>}
+      {note && <p className={styles.note}>{L(touch && noteTouch ? noteTouch : note)}</p>}
     </div>
   );
 }

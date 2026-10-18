@@ -56,9 +56,9 @@ export default function SegmentedControl<T extends string, S extends string = st
   onSubChange,
   subVariant = "nested",
   onBack,
-  size: sizeProp = "sm",
+  size: sizeProp = "md",
 }: Props<T, S>) {
-  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 md — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
   const size = useScopedSize(sizeProp);
   const layoutId = useId();
   const [hovered, setHovered] = useState<T | null>(null);

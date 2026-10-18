@@ -36,6 +36,8 @@ export interface Work {
   id: string;
   slug: string;
   title: string;      // 국문/기본 제목
+  /** 원문 칸(ko)이 쓰인 언어(#1425) — 비어 있으면 ko */
+  source_lang?: string | null;
   title_en: string;   // 영문 제목 (빈 값이면 title 로 fallback)
   subtitle_ko: string;
   subtitle_en: string;
@@ -297,6 +299,7 @@ export function workToProject(w: Work): Project {
     size: getCardSize(w.sort_order),
     content: loc(contentKo, contentEn),
     contentType: w.content_type || "markdown",
+    viewCount: w.view_count ?? 0,
     teamMembers: teamMembers.length > 0 ? teamMembers : undefined,
     gallery: w.gallery,
     galleryNotes: w.gallery_notes ?? undefined,

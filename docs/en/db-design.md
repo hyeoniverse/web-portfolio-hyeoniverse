@@ -231,6 +231,8 @@ Members (owner/editor/author) and their permissions are **delegated to Supabase 
 
 ### About Studio ERD config validation: about_erd_valid
 
+> The admin About Studio is gone and the About page no longer reads `about.erdTables` (the ERD is drawn only from the build-time output of `supabase/setup.sql`). The validation below stays to guard any stored values.
+
 The About page's ERD is edited in the admin **About Studio**, and the result is stored inside `site_settings.config` JSONB as `about.erdTables` / `about.erdRelations`. JSONB gives a free schema, but the public About panel draws `col.type` straight into the SVG, so an empty value leaves a blank cell in the deployed diagram. Hence a **three-tier UI · API · DB validation** (same convention as the [title length CHECK constraints](#title-length-check-constraints)).
 
 | Tier | Location | Role |

@@ -1,5 +1,6 @@
 "use client";
 
+import { blogHref } from "@/lib/siteHosts";
 import { Fragment, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -282,7 +283,8 @@ export default function NotificationsPage() {
    *  이동은 상세 안의 "바로가기" 로 옮긴다. */
   const handleItemClick = (n: Notification) => {
     if (!n.read) handleMarkRead(n.id);
-    const url = n.metadata?.url;
+    /* 글 알림은 /posts/… 로 저장돼 있다 — 블로그 주소로 바꿔 연다 */
+    const url = n.metadata?.url ? blogHref(n.metadata.url) : undefined;
     openModal(
       <NotificationDetail
         data={{

@@ -1,5 +1,8 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
+import { authoringLangOf } from "@/lib/siteLanguage";
+import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { LocalizedText } from "@/types/common";
@@ -85,6 +88,7 @@ import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFor
 import { CodedError, errorFromBody, errorFromResponse, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
+import Badge from "@/components/ui/Badge";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -103,12 +107,14 @@ const isFileDrag = (e: React.DragEvent) => e.dataTransfer.types.includes("Files"
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
+  const srcBadge = useSourceBadge();
+  const badgeOf = useLangBadge();
   const { t, tLang, language } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
   // 콘텐츠 작성 기본 언어 — nature/categories 필수 항목 + 초기 편집 언어의 기준 (방문자 언어와 무관)
-  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
+  const primaryLang = authoringLangOf(useSiteConfig().metadata.defaultLanguage);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
@@ -1341,7 +1347,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 {isCustom && (
                   <>
                     <div className={styles.customCategoryInputWrap}>
-                      <span className={styles.customCategoryBadge}>KO</span>
+                      <Badge className={styles.customCategoryBadge}>{srcBadge}</Badge>
                       <input
                         className={`${es.fieldInput} ${styles.customCategoryInput}`}
                         type="text"
@@ -1352,7 +1358,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       />
                     </div>
                     <div className={styles.customCategoryInputWrap}>
-                      <span className={styles.customCategoryBadge}>EN</span>
+                      <Badge className={styles.customCategoryBadge}>EN</Badge>
                       <input
                         className={`${es.fieldInput} ${styles.customCategoryInput}`}
                         type="text"
@@ -1417,7 +1423,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    hasSavedId, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
+    hasSavedId, srcBadge, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
@@ -1681,10 +1687,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       />
                     )}
                     {isMain && (
-                      <span className={styles.galleryMainBadge}>
-                        <Star size={10} strokeWidth={2.5} fill="currentColor" />
+                      <Badge variant="solid" tone="accent" size="md" icon={<Star size={10} strokeWidth={2.5} fill="currentColor" />} className={styles.galleryMainBadge}>
                         {tw("currentMain")}
-                      </span>
+                      </Badge>
                     )}
                     <div className={styles.galleryOverlay}>
                       {/* 단추를 눌렀을 때만 칸의 고르기가 따라오지 않게 한다 — 겹 전체에 걸면
@@ -2103,7 +2108,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {(["ko", "en"] as const).map((lang) => (
                 <div key={lang} className={styles.memberBioCol}>
                   <Textarea
-                    inlineLabel={lang.toUpperCase()}
+                    inlineLabel={badgeOf(lang)}
                     textareaClassName={styles.fieldTextarea}
                     value={lang === "ko" ? team.memberBioKo : team.memberBioEn}
                     onChange={lang === "ko" ? team.setMemberBioKo : team.setMemberBioEn}
@@ -2169,7 +2174,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, myRole.canManageWorks, siteAuthors, team,
+    badgeOf, editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, myRole.canManageWorks, siteAuthors, team,
     teamAvatarPreview, teamAvatarUploading, teamRole.selectNode, toggleLinkedAuthor, tw, updateField,
   ]);
 

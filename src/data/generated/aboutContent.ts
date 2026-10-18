@@ -4,7 +4,7 @@
  * About 패널의 폴백. DB(동기화 결과)가 있으면 그게 이기고, 여기도 비어 있으면 화면이 빈다 —
  * 아직 아무것도 쓰지 않았다는 뜻이다. */
 import type { TroubleShootingItem } from "@/data/about/types";
-import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues } from "@/lib/about/panelMarkdown";
+import type { CfgSecurity, CfgFeature, CfgProcess } from "@/lib/about/panelMarkdown";
 
 export const aboutDecisions: TroubleShootingItem[] = [
   {
@@ -495,41 +495,3 @@ export const aboutProcess: CfgProcess[] = [
     "description_en": "Moved the design system onto web platform features: CSS split into seven **cascade layers**, themes on `light-dark()` and View Transitions, modals and menus in the top layer via `<dialog>` and popover, layout rules flipped to small-screen-first, and `!important` removed. Decisions are recorded with reasons — **70** entries.\n\nVisitors can switch the whole site into one of **33 languages** from the 🌐 button in the menu, and auto-translations are rebuilt when the source changes. Successes and failures of AI, mail and GitHub calls go to a service log, and visits and views were merged into one `page_views` log, so visitors, visit flow and time on page are counted on one basis."
   }
 ];
-
-export const aboutOverview: OverviewValues | null = {
-  "overview_description_ko": "Claude와 함께 만든 풀스택 포트폴리오. Next.js 16 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
-  "overview_description_en": "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 16 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
-  "overview_highlights": "Next.js 16, GSAP ScrollTrigger, Framer Motion, Lenis Smooth Scroll, Three.js (R3F), CSS Variables, Supabase, i18n (KO/EN + 33), IP-Based Likes, Dark/Light Theme",
-  "overview_stats": [
-    {
-      "value": "8 Mo+",
-      "label_ko": "개발 기간\n(2/5 – 지속 업데이트 중)",
-      "label_en": "Dev Period\n(Feb 5 – continuously updated)"
-    },
-    {
-      "value": "600+",
-      "label_ko": "컴포넌트",
-      "label_en": "Components"
-    },
-    {
-      "value": "150+",
-      "label_ko": "커스텀 훅",
-      "label_en": "Custom Hooks"
-    },
-    {
-      "value": "97",
-      "label_ko": "Lighthouse\n(데스크톱 Performance)",
-      "label_en": "Lighthouse\n(desktop performance)"
-    },
-    {
-      "value": "33",
-      "label_ko": "번역해 볼 수 있는 언어",
-      "label_en": "Languages to translate into"
-    },
-    {
-      "value": "80+",
-      "label_ko": "라이브러리",
-      "label_en": "Libraries"
-    }
-  ]
-};

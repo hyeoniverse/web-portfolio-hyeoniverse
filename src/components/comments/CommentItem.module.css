@@ -234,13 +234,6 @@
   color: var(--text-primary);
 }
 
-.adminBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  background: var(--bg-accent);
-  font: var(--font-label-xs);
-  color: var(--text-accent);
-}
 
 .date {
   font: var(--font-body-sm);

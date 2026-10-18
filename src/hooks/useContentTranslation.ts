@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import {
   dismissAutoSiteLang,
+  getSiteDefaultLang,
   getServerSiteLangSnapshot,
   getSiteLangSnapshot,
   selectSiteLang,
@@ -10,9 +11,6 @@ import {
 } from "@/lib/siteLang";
 import type { ContentFields } from "@/lib/api/contentTranslate";
 import type { BodyLabels } from "@/lib/bodyLabels";
-
-/** 방문자가 고른 읽기 언어의 저장 열쇠 — 사이트 전체가 같이 쓴다(lib/siteLang) */
-export { CONTENT_LANG_STORAGE_KEY } from "@/lib/siteLang";
 
 export type ContentTranslateError = "failed" | "rateLimited";
 
@@ -38,7 +36,8 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
   const [uiResults, setUiResults] = useState<Record<string, Partial<BodyLabels>>>({});
   const [errors, setErrors] = useState<Record<string, ContentTranslateError>>({});
 
-  const targetLang = !enabled || !site.lang || nothing[site.lang] ? null : site.lang;
+  /* 사이트 기본 언어(ko · en 밖)는 번역하지 않는다 — 글의 ko 칸이 이미 그 언어의 원문이다(#1406) */
+  const targetLang = !enabled || !site.lang || nothing[site.lang] || site.lang === getSiteDefaultLang() ? null : site.lang;
   /* 자동으로 건 번역인가 — 서버 설정 때문에 못 하면 조용히 물러난다 */
   const isAuto = site.auto;
 

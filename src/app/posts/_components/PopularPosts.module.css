@@ -40,9 +40,9 @@
   transform: rotate(180deg);
 }
 
-/* metric selector — label 우측에 inline. slim capsule (위아래 padding 작게, font 적당) */
+/* metric selector — label 아래 줄. slim capsule (위아래 padding 작게, font 적당) */
 .metricControl {
-  margin-left: auto;
+  margin-top: var(--spacing-12);
 }
 
 /* SegmentedControl .group 기본 border-default → light 로 통일 (0,2,0 로 base .group 이김) */
@@ -127,4 +127,23 @@
 .itemMeta {
   font: var(--font-body-sm);
   color: var(--text-tertiary);
+}
+
+/* 라벨 끝 하트 몽이 — 섹션에 포인터가 올라오면 들썩인다 */
+.labelMong {
+  width: var(--spacing-32);
+  /* 흔들릴 때 사이드바 스크롤 영역(오른쪽 · 위)에 잘리지 않게 안쪽으로 여유를 둔다 */
+  margin-left: auto;
+  margin-right: var(--spacing-12);
+  margin-block: calc(var(--spacing-4) * -1);
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .section:hover .labelMong {
+    animation: mong-wiggle var(--duration-slower) var(--ease-standard) infinite;
+  }
+}
+@keyframes mong-wiggle {
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
 }

@@ -137,18 +137,17 @@ export function getTabForConfigPath(path: string): TabId {
   return "general";
 }
 
-export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts"] as const;
+export const CONTENT_SUBTABS = ["home", "profile", "works", "posts"] as const;
 export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
 /* 라이브러리 섹션 — 한 페이지에 차례로 놓고, 화면에 가까워질 때 각자 불러온다. ?sub= 는 섹션 딥링크 */
-export const LIBRARY_SECTIONS = ["calendars", "polls", "emojis", "covers", "files"] as const;
+export const LIBRARY_SECTIONS = ["calendars", "polls", "emojis", "covers", "files", "commentImages"] as const;
 export type LibrarySection = (typeof LIBRARY_SECTIONS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   home: ["hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile"],
-  about: ["about"],
   works: ["works"],
   posts: ["posts"],
 };

@@ -16,6 +16,7 @@ import { SkeletonLine } from "@/components/ui/Skeleton";
 import { FAVICON_REFRESH_EVENT } from "@/components/layout/FaviconSync";
 import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
+import { LibraryTabSkeleton } from "./_components/LibrarySkeletons";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
@@ -49,7 +50,8 @@ const tabLoading = () => <SettingsSkeleton />;
 const ContentTab = dynamic(() => import("./_components/ContentTab"), { loading: tabLoading });
 const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loading: tabLoading });
 const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
-const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: tabLoading });
+/* 라이브러리는 설정 폼이 아니라 목록이라 폼 뼈대 대신 목록 뼈대를 쓴다 */
+const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: () => <LibraryTabSkeleton /> });
 const AccountTab = dynamic(() => import("./_components/AccountTab"));
 const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
 /* 받는 시점을 앞당기는 것은 settingsTabLoaders — 연 탭은 설정값과 함께, 다른 탭은 단추에 올렸을 때 */
@@ -82,6 +84,12 @@ function saveFailure(err: unknown, t: TFunction): { message: string; reason: str
   return { message: `${base}${detail ? ` (${detail})` : ""}`, reason: reason || base };
 }
 
+
+/** 설정 저장 응답이 원문을 새 기본 언어로 번역해 덮어썼다고 알리는가(#1425) */
+async function sourceTranslated(res: Response): Promise<boolean> {
+  const body = (await res.clone().json().catch(() => null)) as { sourceTranslated?: unknown } | null;
+  return body?.sourceTranslated === true;
+}
 
 export default function SettingsPage() {
   const { t } = useLanguage();
@@ -455,6 +463,11 @@ export default function SettingsPage() {
           throw errorFromBody(body, res.status);
         }
       }
+      /* 기본 언어를 바꿔 원문을 번역해 덮어썼으면(#1425) 들고 있는 값이 번역 전이다 — 다시 불러온다 */
+      if (await sourceTranslated(results[0])) {
+        window.location.reload();
+        return;
+      }
 
       savedConfigRef.current = structuredClone(mergedConfig);
       storedDeltaRef.current = structuredClone(buildDeltaPayload(mergedConfig, savePaths).delta);
@@ -601,7 +614,7 @@ export default function SettingsPage() {
    * 그런데도 새로고침하면, 같은 탭에서 저장하지 않은 다른 편집이 조용히 사라진다
    * (이 화면에는 이탈 경고가 없다).
    */
-  const NO_RELOAD_KEYS = useMemo(() => new Set(["authors", "posts", "works", "about"]), []);
+  const NO_RELOAD_KEYS = useMemo(() => new Set(["authors", "posts", "works"]), []);
 
   /** 서버에 저장돼 있는 delta 원본. 부분 저장의 기준이다. */
   const storedDeltaRef = useRef<Record<string, unknown>>({});
@@ -636,6 +649,10 @@ export default function SettingsPage() {
         /* "왜" 는 코드로 온다(예: 본인 프로필만 추가할 수 있습니다). error 는 "Forbidden" 뿐이라,
            saveFailure 가 코드를 화면 언어 문구로 바꿔 보인다(#862) */
         throw errorFromBody(body, res.status);
+      }
+      if (await sourceTranslated(res)) {
+        window.location.reload();
+        return { ok: true };
       }
       savedConfigRef.current = structuredClone(merged);
       storedDeltaRef.current = structuredClone(payload.delta);
@@ -925,7 +942,7 @@ export default function SettingsPage() {
             가로 스크롤(overflow)은 안쪽 nav 가 맡는다 (overflow 가 ::before frost 를 안 자르게). */}
         <div className={`${styles.tabBarSticky} ${navPinned ? styles.tabBarPinned : ""}`}>
         {/* data-lenis-prevent-wheel — 사이드바가 안에서 스크롤될 때 전역 Lenis 가 휠을 가로채지 않게.
-            data-lenis-prevent 는 쓰지 않는다. AboutStudio 가 그 안의 클릭을 팝오버 안으로 보고 Hero 편집 바를 닫지 않는다. */}
+            data-lenis-prevent 는 쓰지 않는다 — 휠만 막으면 되고, 클릭 · 터치까지 Lenis 에서 뺄 까닭이 없다. */}
         <nav className={styles.sideNav} ref={sideNavRef} data-lenis-prevent-wheel
           aria-label={t("admin.settings.title")}>
           {TAB_IDS.filter((id) => allowedTabs.includes(id)).map((id) => {
@@ -961,10 +978,6 @@ export default function SettingsPage() {
                             {subCount > 0 && <span className={styles.navConflictBadge}
                               role="img" aria-label={fillTemplate(t("admin.settings.conflictBadge"), { n: subCount })} />}
                           </Pressable>
-                          {/* 패널이 많고 긴 About 에는 이 화면의 섹션 목록을 둔다(데스크톱만) */}
-                          {subActive && sub === "about" && (
-                            <SectionOutline sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} dirty={sectionNav.dirty} />
-                          )}
                         </Fragment>
                       );
                     })}

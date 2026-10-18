@@ -1,5 +1,6 @@
 "use client";
 
+import { useLangBadge } from "@/hooks/useSourceBadge";
 import { useContext, useRef, useState } from "react";
 import type { SelectOption } from "@/types";
 import type { Outcome } from "../_types";
@@ -28,6 +29,7 @@ import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { errorText } from "@/lib/apiError";
+import Badge from "@/components/ui/Badge";
 
 /* 한국어 칸에 넣는 예시 · 기본 내용 — 화면 글이 아니라 편집하는 한국어 내용의 값(번역하지 않는다) */
 // eslint-disable-next-line no-restricted-syntax -- 위 설명
@@ -64,6 +66,7 @@ interface Props {
 export default function MemberEditModal({
   initial, member, invited, linkMemberId, levels, onSaveProfile, onInvite, onChangeLevel, onLink, uploadAvatarFile, suggestions, canManageAccess = true, githubInfo,
 }: Props) {
+  const badgeOf = useLangBadge();
   const { language, t } = useLanguage();
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
@@ -360,7 +363,7 @@ export default function MemberEditModal({
             프리셋을 고르면 지금 언어 칸에 넣고, 다른 언어 칸이 비어 있으면 짝도 채운다 */}
         <FieldRow
           className={styles.authorCardFieldWide}
-          label={<>{t("admin.inline.memberEditModal.jobTitle")}<span className={styles.labelLangBadge}>{profileLang.toUpperCase()}</span></>}
+          label={<>{t("admin.inline.memberEditModal.jobTitle")}<Badge className={styles.labelLangBadge}>{badgeOf(profileLang)}</Badge></>}
         >
           <span
             className={styles.jobCombo}
@@ -444,7 +447,7 @@ export default function MemberEditModal({
                 {busy ? t("admin.inline.memberEditModal.sending") : localInvited ? t("admin.inline.memberEditModal.resendInvite") : t("admin.inline.memberEditModal.inviteByEmail")}
               </Button>
               {localInvited && (
-                <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>{t("admin.inline.memberEditModal.invitedPending")}</span>
+                <Badge>{t("admin.inline.memberEditModal.invitedPending")}</Badge>
               )}
             </div>
           </>

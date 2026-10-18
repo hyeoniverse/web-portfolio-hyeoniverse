@@ -3,7 +3,8 @@
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
-import { Sparkles, SearchEmptyIcon } from "@/components/icons";
+import { Sparkles } from "@/components/icons";
+import MongSticker from "../MongSticker";
 import type { PostsQuery } from "../../_hooks/usePostsQuery";
 import styles from "./PostsEmptyState.module.css";
 
@@ -41,7 +42,8 @@ export default function PostsEmptyState({ query }: { query: PostsQuery }) {
   }
   return (
     <div className={styles.emptyState}>
-      <SearchEmptyIcon />
+      {/* 결과가 없어 놀란 몽이 */}
+      <MongSticker pose="surprised-front" float className={styles.emptyMong} />
       <p className={styles.emptyTitle}>{t("postsPage.noPostsYet")}</p>
       {(search ||
         activeTags.size > 0 ||

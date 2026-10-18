@@ -9,8 +9,11 @@ import { GithubIcon } from "@/components/icons";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
+import { formatCount } from "@/utils/format";
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
+import ListenButton from "@/components/ui/ListenButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
 import Pressable from "@/components/ui/Pressable";
@@ -45,6 +48,10 @@ export function WorkArticleHeader({
   const isAdmin = isAdminProp ?? authed;
 
   const handleLangChange = onLangChange ?? (() => {});
+  /* 조회수 — 글 상세 메타 줄과 같은 표기(n 조회). 사이트 밖 자료(저장소)는 세지 않아 없다 */
+  const viewCount = project.viewCount !== undefined && (
+    <span className={styles.viewCount}>{formatCount(project.viewCount)} <UiLabel name="postViews" /></span>
+  );
 
   return (
     <>
@@ -58,57 +65,56 @@ export function WorkArticleHeader({
         <div className={styles.metaLeft}>
           <span className={styles.projectNumber}>#{project.number}</span>
           {/* 팀/개인 + 성격 배지는 한 묶음 (좁은 gap) — metaLeft 의 lg gap 영향 안 받게 */}
-          <div className={styles.tagGroup}>
+          <div className={styles.tagGroup} data-listen="meta">
             {(() => {
               /* 본인(소유자)은 늘 한 명으로 센다 — 팀원 목록에 소유자 계정으로 이미 들어 있으면 두 번 세지 않는다.
                  예전에는 목록 수에 무조건 1을 더해, 본인 한 명뿐인 작업물이 "팀 · 2"로 보였다 */
               const others = (project.teamMembers ?? []).filter((m) => m.author_id !== OWNER_AUTHOR_ID).length;
               const total = others + 1;
               return others > 0 ? (
-                <span className={`${styles.tag} ${styles.tagTeam}`}>
-                  <Users size={11} strokeWidth={1.8} />
+                <Badge variant="outline" size="md" uppercase icon={<Users size={11} strokeWidth={1.8} />}>
                   <UiLabel name="workTeamCount" vars={{ n: total }} />
-                </span>
+                </Badge>
               ) : (
-                <span className={`${styles.tag} ${styles.tagSolo}`}>
-                  <User size={11} strokeWidth={1.8} />
+                <Badge variant="outline" size="md" uppercase icon={<User size={11} strokeWidth={1.8} />}>
                   <UiLabel name="workSolo" />
-                </span>
+                </Badge>
               );
             })()}
             {project.nature && (
-              <span className={`${styles.tag} ${styles.tagNature}`} lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></span>
+              <Badge variant="outline" tone="accent" size="md" uppercase lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></Badge>
             )}
-          </div>
-          {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
-          {isAdmin && !isPreview && project.external && onImportEdit && (
-            <>
-              <span className={styles.metaDivider} />
+            {/* 편집 — 배지 바로 오른쪽(구분선 없이). 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
+            {isAdmin && !isPreview && project.external && onImportEdit && (
               <Tooltip content={t("workDetail.editRepoWork")} placement="top" delay={200}>
                 <Pressable
                   onClick={onImportEdit}
                   aria-label={t("workDetail.editRepoWork")}
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)" }}
+                  className={styles.metaIconLink}
                 >
                   <Pencil size={13} />
                 </Pressable>
               </Tooltip>
-            </>
-          )}
-          {isAdmin && !isPreview && !project.external && (
-            <>
-              <span className={styles.metaDivider} />
+            )}
+            {isAdmin && !isPreview && !project.external && (
               <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
                 <a
                   href={`/admin/works/${project.id}/edit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                  className={styles.metaIconLink}
                 >
                   <Pencil size={13} />
                 </a>
               </Tooltip>
-            </>
+            )}
+          </div>
+          {/* 조회수 — 넓은 화면은 배지 뒤에 구분선과 함께, 좁은 화면은 언어 전환 줄 왼쪽 끝(아래 metaRight) */}
+          {viewCount && (
+            <span className={styles.viewCountWide}>
+              <span className={styles.metaDivider} />
+              {viewCount}
+            </span>
           )}
           {viewHref && (
             <>
@@ -118,7 +124,7 @@ export function WorkArticleHeader({
                   href={viewHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                  className={styles.metaIconLink}
                 >
                   <ExternalLink size={13} />
                 </a>
@@ -126,7 +132,8 @@ export function WorkArticleHeader({
             </>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className={styles.metaRight}>
+          {viewCount && <span className={styles.viewCountNarrow}>{viewCount}</span>}
           {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
@@ -136,6 +143,7 @@ export function WorkArticleHeader({
       <TranslatingRegion active={!!translating}>
       <motion.h1
         className={styles.title}
+        data-listen="title"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
@@ -146,6 +154,7 @@ export function WorkArticleHeader({
       {/* ── Description ── */}
       <motion.p
         className={styles.description}
+        data-listen="summary"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
@@ -162,18 +171,19 @@ export function WorkArticleHeader({
         transition={{ delay: 0.42, duration: 0.5 }}
       >
         {project.liveUrl && (
-          <Button variant="outline" href={project.liveUrl} external>
+          <Button variant="outline" size="sm" href={project.liveUrl} external>
             <Globe size={14} />
             <UiLabel name="workVisitSite" tooltip="workVisitSiteTip" />
           </Button>
         )}
         {project.githubUrl && (
-          <Button variant="outline" href={project.githubUrl} external>
+          <Button variant="outline" size="sm" href={project.githubUrl} external>
             <GithubIcon size={14} />
             GitHub
           </Button>
         )}
         <ShareButton />
+        <ListenButton title={viewLang === "en" ? project.title.en || project.title.ko : project.title.ko} />
       </motion.div>
 
       <TranslatingRegion active={!!translating}>

@@ -368,7 +368,7 @@
   list-style: none;
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   .track {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -919,7 +919,7 @@
   }
 }
 
-@media (width > 768px) {
+@media (width > 768px) and (height > 500px) {
   /* 좁은 화면은 표 높이를 지키려 판정 줄에서만 설명한다 */
   .rowGuard {
     display: block;

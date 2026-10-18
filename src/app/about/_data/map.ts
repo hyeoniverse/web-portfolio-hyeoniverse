@@ -1,10 +1,10 @@
 /* 장 별자리 지도 — 첫 화면의 목차가 별자리가 되고, 장으로 들어갈 때 카메라가 그 별로 날아 들어간다.
    별 자리는 지도 판(1000 × 640) 위 좌표. 차례대로 선이 이어진다(목차 순서). 이름은 목차(showcase.ts 의 toc)에서 */
-export const MAP_W = 1000;
-export const MAP_H = 640;
+const MAP_W = 1000;
+const MAP_H = 640;
 
 /** 목차 href → 별 자리 · 크기(밝기) */
-export const MAP_STARS: Record<string, { x: number; y: number; r: number }> = {
+const MAP_STARS: Record<string, { x: number; y: number; r: number }> = {
   "#facts": { x: 170, y: 420, r: 14 },
   "#features": { x: 320, y: 250, r: 22 },
   "#ai": { x: 450, y: 340, r: 18 },
@@ -44,8 +44,9 @@ const TALL_STARS: MapGeo["stars"] = {
   "#faq": { x: 350, y: 60, r: 10 },
 };
 
-export function mapTall(aspect: number): MapGeo {
-  const h = Math.round(600 * Math.min(1.2, Math.max(0.5, aspect)));
+/** floor — 가장 납작한 비율. 키 낮은 가로 화면은 지도 칸이 납작해서(높이 / 폭 0.35 남짓) 더 눌러 폭을 다 쓴다 */
+export function mapTall(aspect: number, floor = 0.5): MapGeo {
+  const h = Math.round(600 * Math.min(1.2, Math.max(floor, aspect)));
   const k = h / 500;
   const stars = Object.fromEntries(Object.entries(TALL_STARS).map(([href, st]) => [href, { ...st, y: st.y * k }]));
   return { w: 600, h, stars, tall: true };

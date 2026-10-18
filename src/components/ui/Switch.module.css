@@ -1,10 +1,10 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
-/* 컨트롤 높이 범위 안 — 차지하는 높이만 sm(옆 단추 · 입력과 같은 줄 높이). 스위치 모양은 그대로 */
+/* 컨트롤 높이 범위 안 — 차지하는 높이만 md(옆 단추 · 입력과 같은 줄 높이). 스위치 모양은 그대로 */
 .scopeBox {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-height-sm);
+  min-height: var(--control-height-md);
 }
 
 /* ── Switch ── */
@@ -182,7 +182,9 @@
 /* 라벨 칸 폭 — 기본은 글자만큼. 여러 스위치를 한 줄로 세울 때는 부모(FormGroup switchLabelWidth)나
    labelWidth 로 --switch-label-width 를 주면 라벨 길이와 상관없이 스위치가 같은 자리에서 시작한다 */
 .label {
-  flex-shrink: 0;
+  /* 좁은 화면에서 이름이 길면 줄을 넘긴다 — 줄지 않게 두면 스위치가 화면 밖으로 밀렸다 */
+  flex-shrink: 1;
+  min-width: 0;
   width: var(--switch-label-width, auto);
   font: var(--font-label-sm);
   color: var(--text-tertiary);
