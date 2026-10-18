@@ -1,31 +1,56 @@
 # User Flow
 
-### Visitor Flow
+### Visitor flow
 
-```
-Home -> Works Gallery (horizontal scroll) -> Work Detail (likes)
-     -> Posts List (search/tag filter) -> Post Detail (likes/comments)
-     -> Profile -> About (technical documentation)
-```
+Visitors move between pages through the five navigation items (Home · Works · Posts · Profile · About) and the footer. The diagram below shows only the main paths.
 
-- **Works**: Browse projects in the horizontal scroll gallery, and leave IP-based likes on the detail page. The bottom of the detail page surfaces a related-projects horizontal carousel (hover preview) + related-series/posts chips. On touch devices (e.g. mobile), the Footer's ViewModeToggle switches to "view PC version"
-- **Posts**: Enter the sub-indexes through the top subnav (All / Series / Tags / History) and filter posts by tags, search, or category (2-level tree, multi-select). Selecting a category displays that category's series as book-shaped cards, and clicking a series filters to its posts only. On the detail page, you can leave likes and guest comments (dual auth: browser UUID + password); comments support markdown write/preview plus emoji reactions (a fixed set of 8). If the admin switches the comment provider to giscus in settings, a GitHub Discussions widget renders in the same slot. Series posts show previous/next navigation
-- **About**: Traverse 14 panels via horizontal scroll (project overview, user flow, architecture, features, design system, development process, tech stack, backend, ERD, code highlights, troubleshooting, security). The UserFlow panel visualizes 9 flows (Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts/Works) with tabs + SVG diagrams. The ERD panel displays all 23 tables with full schema in a zoom/pan interactive diagram (click a table → it and everything it connects to, plus design notes, framed together; click again → that one fills the view; click empty space → show all. Columns carry NOT NULL / UNIQUE / index / default badges, with descriptions and ENUM values on hover). The Security panel visualizes 8 security layers (SQL Injection, XSS, Input Validation, Dual Auth, RLS, Route Protection, Duplicate Prevention, Secret Management)
-
-### Admin Flow
-
-```
-Direct access to /admin -> GitHub OAuth login (`/auth/callback` authorization gate — blocks un-invited accounts) or password login (owner fallback) -> Settings redirect
--> Write post (Markdown/Rich Text toggle; the editor can add poll/tabs blocks + a CoverBanner cover banner) -> Select cover image (preset/Unsplash/AI) -> Select series (optional) -> Publish
--> Manage works (/admin/works) — create, edit, delete, publish/private toggle, sort order change
--> Site settings (/admin/settings) — General (brand/logo customization, SEO [default content language ko/en], footer, BGM), Content (Home/Profile/About/Posts/Works sub-tabs), Appearance (theme/typography/date picker styles), Services (API key management, reveal original after password verification), Account (email change pending management, password policy, security notification emails + member management)
--> Member management (Account tab, owner-only) — invite a member by email (author_invites + Resend) -> when the invitee signs in with GitHub under that same email, the role is granted -> change/remove owner/editor/author roles and permissions. Non-owners access only the Account tab (other settings tabs are owner-only both client- and server-side)
--> Settings conflict detection — when code defaults change, compare with DB-stored values and visualize via per-hunk diff modal, checked items are auto-applied on save (JSON key order independent via deepEqual comparison)
+```mermaid
+flowchart TD
+  home["Home /"] --> works["Works /works<br/>6 layouts"]
+  home --> posts["Posts /posts"]
+  home --> profile["Profile /profile"]
+  home --> about["About /about"]
+  home -.Get in Touch.-> contact["Contact drawer"]
+  works --> wdetail["Work detail /works/[slug]<br/>likes · comments · gallery"]
+  posts --> sub["Series · tags · history · TIL · categories"]
+  posts --> pdetail["Post detail /posts/[slug]<br/>likes · comments · read aloud"]
+  sub --> pdetail
+  wdetail -.related posts · related works.- pdetail
+  pdetail --> comment["Comment · emoji reaction · report"]
+  wdetail --> comment
+  about --> chapters["Constellation map → chapter<br/>at a glance · features · AI · architecture · decisions ·<br/>design · code · making of · trust · FAQ"]
 ```
 
-- No login button — accessed by directly entering the URL; members use GitHub OAuth, the owner is bootstrapped from `OWNER_EMAIL`
-- Layout-level Supabase Auth session verification — redirects to `/admin/denied` (access denied page) when unauthenticated
-- Role-based access — server helpers re-check `app_metadata` on every request; non-owners cannot write site settings
-- Cross-tab logout — when `AdminAuthSync` receives a `SIGNED_OUT` broadcast, every open tab drops to the login screen
+- **Works**: Browsed in the layout chosen in admin settings (default: the horizontal-scroll Flow). The detail page shows IP-based likes, comments, the gallery, and related posts and series.
+- **Posts**: Found through the sub pages and search, categories, tags, and sorting. Posts in a series link to the previous and next post.
+- **Comments**: Written without sign-in. The same browser is verified automatically, and other devices use a password to edit or delete. When the admin switches the comment provider to giscus, a GitHub Discussions widget appears in the same place.
+- **About**: Picking a star on the central constellation map (`src/app/about/_components/prezi/PreziStage.tsx`) flies into that chapter, and the view pulls back to the map when the chapter ends. The page is drawn by `src/app/about/_components/AboutNext.tsx`.
 
+### Admin flow
 
+```mermaid
+flowchart TD
+  login["/admin/login<br/>(footer Login link)"] --> gh["GitHub OAuth"]
+  login --> pw["Password (owner)"]
+  gh --> cb{"/auth/callback<br/>owner · has role · invited?"}
+  cb -->|no| deny["account deleted · back to sign-in"]
+  cb -->|yes| dash
+  pw --> dev{"approved device?"}
+  dev -->|no| mail["approval mail · sign in again"]
+  dev -->|yes| settings
+  dash["Dashboard /admin<br/>traffic · notifications · reports · comments · service log"]
+  dash --> plist["Posts /admin/posts"]
+  dash --> wlist["Works /admin/works"]
+  dash --> settings["Settings /admin/settings"]
+  plist --> editor["Editor<br/>writing · cover · series · translation"]
+  wlist --> editor
+  editor --> publish["save · publish · schedule"]
+  settings --> tabs["General · Content · Library ·<br/>Appearance · Services · Account"]
+  tabs --> invite["Account tab: invite members (owner)"]
+```
+
+- GitHub sign-in goes to the `next` address (default `/admin`). Password sign-in goes to `/admin/settings` when there is no `next`.
+- When an author (level 1) opens an admin-only screen (dashboard, notifications, reports, comments), the proxy sends them to `/admin/posts`. Only the owner opens the service log.
+- Of the six settings tabs, only the owner opens the five other than Account. What each tab holds is in [Supabase setup](./supabase-setup.md#5-admin-login).
+- The editor autosaves and keeps revision history, and saving an unpublished post asks whether to publish now.
+- Signing out in one tab sends the other open tabs to the sign-in screen through `AdminAuthSync`.

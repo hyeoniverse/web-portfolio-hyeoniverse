@@ -1,5 +1,120 @@
 # DB Design Decisions
 
+### Core table relationships
+
+The diagram below draws only the tables around posts, works, and series, out of the 26 tables in [`supabase/setup.sql`](../../supabase/setup.sql). Columns are limited to the relationships and to what this document explains. Solid lines are foreign keys (FK). Dotted lines are logical relationships joined only by value, without an FK.
+
+```mermaid
+erDiagram
+  series ||--o{ posts : "series_id (ON DELETE SET NULL)"
+  posts ||--o{ comments : "post_id"
+  comments ||--o{ comments : "parent_id"
+  works ||--o{ work_comments : "work_id"
+  work_comments ||--o{ work_comments : "parent_id"
+  posts ||--o{ post_work_relations : "post_id"
+  works ||--o{ post_work_relations : "work_id"
+  series ||--o{ series_work_relations : "series_id"
+  works ||--o{ series_work_relations : "work_id"
+  posts ||..o{ revisions : "entity_id (no FK)"
+  works ||..o{ revisions : "entity_id (no FK)"
+  posts ||..o{ content_translations : "source_id (no FK)"
+  works ||..o{ content_translations : "source_id (no FK)"
+  posts ||..o{ page_views : "slug in path (no FK)"
+  works ||..o{ page_views : "slug in path (no FK)"
+  site_settings ||..o{ author_invites : "author_id = author id in the profile row"
+
+  series {
+    uuid id PK
+    text title
+    text slug
+    int sort_order
+    boolean published
+  }
+  posts {
+    uuid id PK
+    text slug
+    text title
+    uuid series_id FK
+    int series_order
+    text_array author_ids
+    boolean published
+    int view_count
+    int like_count
+    int version
+    timestamptz scheduled_at
+    timestamptz deleted_at
+  }
+  works {
+    uuid id PK
+    text slug
+    text title
+    jsonb team_members
+    int sort_order
+    boolean published
+    int view_count
+    int like_count
+    timestamptz deleted_at
+  }
+  comments {
+    uuid id PK
+    uuid post_id FK
+    uuid parent_id FK
+    text commenter_hash
+    text password_hash
+  }
+  work_comments {
+    uuid id PK
+    uuid work_id FK
+    uuid parent_id FK
+  }
+  post_work_relations {
+    uuid post_id PK
+    uuid work_id PK
+  }
+  series_work_relations {
+    uuid series_id PK
+    uuid work_id PK
+  }
+  revisions {
+    uuid id PK
+    text entity_type
+    text entity_id
+    jsonb snapshot
+    boolean dismissed
+  }
+  page_views {
+    uuid id PK
+    text path
+    text session_id
+    text visitor_id
+    boolean is_landing
+    date viewed_date
+    int duration_ms
+  }
+  content_translations {
+    uuid id PK
+    text source_type
+    uuid source_id
+    text lang
+    jsonb fields
+    text source_hash
+  }
+  site_settings {
+    text id PK
+    jsonb config
+  }
+  author_invites {
+    text email PK
+    text author_id
+    int permission_level
+    timestamptz consumed_at
+  }
+```
+
+- Authors have no table of their own. Roles live in `auth.users.app_metadata`, author profiles live in the `profile` row of `site_settings`, and `posts.author_ids` holds those profile ids. Works point to authors through `author_id` inside `team_members`.
+- `revisions` · `content_translations` point at both posts and works, so a single FK cannot express them. `page_views` keeps the path (`/posts/<slug>`, `/works/<slug>`) as a string.
+- `likes` · `comment_reactions` · `comment_reports` are also polymorphic references that split the target kind by a column value (`target_type` · `comment_type`), so they have no FK. `likes` and `comment_reactions` are explained in their own sections below.
+
 ### Unified Likes Table: `likes`
 
 All likes (posts, works, post comments, work comments) are managed in a single `likes` table, distinguished by `target_type`.
@@ -223,68 +338,28 @@ Members (owner/editor/author) and their permissions are **delegated to Supabase 
 | Constraint | Target | Limit | Note |
 |------|------|------|------|
 | `series_title_maxlen` / `series_title_en_maxlen` | `series.title` / `title_en` | 80 chars | `NOT VALID` — existing rows are not checked |
-| `posts_title_len` / `posts_title_en_len` | `posts.title` / `title_en` | 120 chars | Validated immediately (the migration fails if existing rows are too long) |
+| `posts_title_len` / `posts_title_en_len` | `posts.title` / `title_en` | 120 chars | The migration validates immediately (fails if existing rows are too long); `setup.sql` uses `NOT VALID` |
 
 **Rationale:** The server code validates too (`SERIES_TITLE_MAX = 80`), but the API is reachable through several paths (editor, `.md` sync, manual SQL), so the DB constraint is the last line of defense. The series constraints are `NOT VALID` so that only new and modified rows are checked, since data was already deployed.
 
-> **Note:** `posts_title_len` / `posts_title_en_len` exist only in the migration file, not in `setup.sql`. A DB provisioned from `setup.sql` alone has no post title length constraint.
+> **Note:** `posts_title_len` / `posts_title_en_len` exist in both `2026_07_13_posts_title_len.sql` and `setup.sql`. The migration checks existing rows right away. `setup.sql` adds them as `NOT VALID`, so only newly written or modified rows are checked.
 
-### About Studio ERD config validation: about_erd_valid
+### Former About ERD config validation: about_erd_valid
 
-> The admin About Studio is gone and the About page no longer reads `about.erdTables` (the ERD is drawn only from the build-time output of `supabase/setup.sql`). The validation below stays to guard any stored values.
+The admin About Studio and its ERD editor are gone. The About page's ERD draws `src/data/generated/erdSchema.ts`, which `scripts/gen-erd.ts` builds from `supabase/setup.sql` before each build. The page does not read `about.erdTables` / `about.erdRelations` in `site_settings.config`.
 
-The About page's ERD is edited in the admin **About Studio**, and the result is stored inside `site_settings.config` JSONB as `about.erdTables` / `about.erdRelations`. JSONB gives a free schema, but the public About panel draws `col.type` straight into the SVG, so an empty value leaves a blank cell in the deployed diagram. Hence a **three-tier UI · API · DB validation** (same convention as the [title length CHECK constraints](#title-length-check-constraints)).
+Two layers of validation remain. They guard against old stored values and against anyone writing to that path again.
 
-| Tier | Location | Role |
-|------|----------|------|
-| UI | `ErdTableModal` | Blocks during editing and shows the reason |
-| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | Checks on `/api/admin/settings` PATCH — defends against client bypass |
-| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | Last line of defense when even the API is bypassed (manual SQL, etc.) |
+| Layer | Location | Role |
+|------|------|------|
+| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | Checked in `/api/admin/settings` PATCH. Returns 400 on violation |
+| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | The last line of defense for writes that skip the API |
 
-**Validation rules** (identical across tiers):
-- Table name required · no duplicate table names (case-insensitive)
-- At least one column per table
-- Column name · **type** required · no duplicate column names within a table
-- (API-only addition) relation (`erdRelations`) `from`/`to` must reference existing tables
-
-**Implementation notes:**
-- `config` is a `{ delta, savedDefaults }` wrapper, so the DB function unwraps it exactly like the read path (`config.delta ?? config` in `getSiteConfig.ts`): `cfg #> '{delta,about,erdTables}'` → `cfg #> '{about,erdTables}'`.
-- Most settings saves don't touch the ERD, so `erdTables` is absent and the function simply `RETURN true`s — the rules only apply to a save that actually changes the ERD.
-- The function is `IMMUTABLE` and the constraint is added `NOT VALID`: if an already-stored config has an empty type, `ADD CONSTRAINT` would fail immediately and block the deploy. To also enforce it on existing rows, check for violations first, then `VALIDATE`:
-  ```sql
-  SELECT id FROM site_settings WHERE NOT public.about_erd_valid(config);
-  ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
-  ```
-
-**What a column carries** — optional fields filled in by SQL import. All optional, so previously saved ERDs stay valid and no migration is needed.
-
-| Field | Source SQL | Shown as |
-|-------|-----------|----------|
-| `required` | `NOT NULL` (true by definition for PKs) | `*` after the column name |
-| `unique` | column/table `UNIQUE`, `CREATE UNIQUE INDEX` | `U` badge |
-| `indexed` | `CREATE INDEX` | `IX` badge |
-| `defaultValue` | `DEFAULT …`, `serial`, `GENERATED … IDENTITY/STORED` | `=value` after the type |
-| `comment` | `COMMENT ON COLUMN` | hover |
-| `enumValues` | `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE` | hover |
-| (table) `kind` | `CREATE [MATERIALIZED] VIEW` | `VIEW` badge in the header |
-| (table) `comment` | `COMMENT ON TABLE` | hover |
-
-The DB function checks the same rules — present values must have the right type (`required`/`unique`/`indexed` boolean, `defaultValue`/`comment` string, `enumValues` string array), and a table `kind` may only be `'view'`. Absent fields simply pass.
-
-**Merge semantics** — import runs in **merge (default)** or **replace** mode. There is no undo, so the rules are pinned by tests rather than prose (`src/__tests__/mergeErd.test.ts`).
-
-1. Same-named tables **merge columns** — columns that exist only in the ERD are never dropped
-2. A column present on both sides is **updated from SQL** — type, PK, and FK follow the SQL
-3. Column order follows the **SQL definition**, with ERD-only columns appended after
-4. Tables absent from the SQL are left untouched
-
-`DROP TABLE`, `DROP COLUMN`, and `RENAME` are the exception. **"Absent from the SQL" and "deleted by the SQL" are not the same thing**, so the parser reports deletions separately (`removedTables` / `removedColumns`) and only those are actually removed. Without that distinction, rules 1 and 4 silently resurrect what the SQL deleted.
-
-> This function and constraint are also included in `setup.sql`, so a DB provisioned from `setup.sql` from the start enforces it identically.
+The rules are: table name required and unique, at least one column per table, column name and type required. A save without `erdTables` passes as is. The function is `IMMUTABLE` and the constraint is added `NOT VALID`, so existing rows are not checked. The migration file is `2026_07_21_about_erd_valid.sql`, and it is also included in `setup.sql`.
 
 ### Site settings required-value validation: settings_required_valid
 
-Admin settings (General·Appearance·Services tabs) contain required values that break the site render or a feature if left blank. Previously only the global "Save" button had partial validation, and **the per-section Save buttons bypassed it** — so the site title, theme colors, etc. could be saved empty. So we guard it with the same **UI · API · DB three-layer validation** as the ERD.
+Admin settings (General·Appearance·Services tabs) contain required values that break the site render or a feature if left blank. Previously only the global "Save" button had partial validation, and **the per-section Save buttons bypassed it** — so the site title, theme colors, etc. could be saved empty. So we guard it with **UI · API · DB three-layer validation**.
 
 | Layer | Location | Role |
 |-------|----------|------|
@@ -304,9 +379,38 @@ Admin settings (General·Appearance·Services tabs) contain required values that
 
 
 
-### Work Popularity Signals: `works.is_pinned` / `view_count` / `like_count` + `work_views`
+### Work Popularity Signals: `works.is_pinned` / `view_count` / `like_count`
 
-To rank the home Selected Works section "pinned → popular → recent", the signals that only posts had were mirrored onto works (`2026_09_15_works_pinned_views_likes.sql`). The popularity score uses the same `lib/popularity.ts` as posts (`view_count + like_count*3 + comments*5`). The view time series lives in the `work_views` table, recorded through the `record_work_view` RPC.
+To sort the home Selected Works as "pinned → popular → newest", the signals that only posts had were added to works in the same shape (`2026_09_15_works_pinned_views_likes.sql`). The popularity score uses the same `lib/popularity.ts` as posts (`view_count + like_count*3 + comments*5`). View counts are raised by the `page_views` recording function below.
+
+### One view log: `page_views`
+
+Visits (`site_visits`), post views (`post_views`), and work views (`work_views`) used to pile up in three separate tables. The 2026-10-14 to 10-17 migrations moved them into a single `page_views` table and dropped the old tables and view functions (`2026_10_17_drop_legacy_views.sql`). Migrated rows keep their origin in `migrated_from`.
+
+Every time a page is shown, the `record_page_view(path, ip, session, visitor, meta)` RPC writes one row.
+
+- The same IP and path count once per 30 minutes. `pg_advisory_xact_lock` serializes concurrent requests so they do not both create a row.
+- Visits (sessions) are told apart by `session_id`, visitors by `visitor_id`. The first view of a session has `is_landing = true`, and only that row carries the referrer, device, country, and UTM.
+- If the path is `/posts/<slug>` or `/works/<slug>` and the client is not a bot, that post's or work's `view_count` goes up by 1.
+- Time on page is added by `record_page_duration`. It only accepts values sent by the same IP within a day.
+- Bots are stored with `device_kind = 'bot'` and left out by the aggregate functions (`daily_page_views` · `page_view_totals` · `page_view_stats`).
+- IPs are cleared after 90 days (`anonymize_old_site_visits`, pg_cron). IPs the operator excluded (`traffic_excluded_ips`) are not recorded.
+
+RLS is on with no policies, and anon · authenticated privileges are revoked. All reads and writes go through the server with service_role.
+
+### Translation cache for other languages: `content_translations`
+
+The ko · en text of posts and works lives in their own columns (`title_en`, `content_en`, etc.). Translations made for any other language are stored here, one row each.
+
+| Column | Description |
+|------|------|
+| `source_type` | What is translated: `post` · `work` bodies, short list-card fields (`post_meta` · `work_meta` · `series_meta`), labels inside bodies (`ui`), visitor-facing UI text (`site_ui`), and more |
+| `source_id` | The source id. It points at both posts and works, so there is no FK. Sources that exist only once, such as `ui` · `site_ui`, use a fixed value |
+| `lang` | Target language |
+| `fields` | Translated fields (JSONB) |
+| `source_hash` | Hash of the source text used for the translation |
+
+`UNIQUE (source_type, source_id, lang)` keeps one row per source and language. On a request, the hash of the current source is compared with `source_hash`, and a mismatch triggers a new translation that overwrites the row. Editing the source needs no separate cleanup. RLS is on with no policies, and the public APIs (`/api/content-translate` and others) read and write it on the server.
 
 ### Per-slide Audio for Galleries: `works.gallery_notes`
 

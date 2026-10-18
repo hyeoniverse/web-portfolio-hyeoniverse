@@ -2,6 +2,52 @@
 
 모든 공개 API 엔드포인트에 다층 보안 검증을 적용합니다.
 
+### 요청이 지나는 길
+
+요청 하나는 세 겹을 차례로 지난다. 앞 겹을 통과해도 뒤 겹이 같은 판단을 다시 한다.
+
+```mermaid
+flowchart TD
+  req["브라우저 요청"] --> proxy{"proxy<br/>src/proxy.ts"}
+  proxy -->|"/api/* 의 POST · PATCH · PUT · DELETE<br/>Origin/Referer 가 SITE_URL · 블로그 주소가 아니다"| r403["403"]
+  proxy -->|"/admin/* · /api/admin/*<br/>로그인한 사용자가 없다"| rlogin["화면: /admin/login<br/>API: 401"]
+  proxy -->|"작성자가 관리자 전용 화면을 연다"| rposts["/admin/posts 로 보냄"]
+  proxy -->|통과| route{"라우트 가드<br/>requireAuth · requireRole · requireOwner · requirePostAccess"}
+  route -->|"세션이 없다"| r401["401"]
+  route -->|"app_metadata 의 역할 · 레벨이 모자란다"| r403b["403"]
+  route -->|통과| client{"Supabase 쿼리"}
+  client -->|"세션 클라이언트"| rls["RLS 정책<br/>app_role() · app_level() · app_author_id()<br/>= JWT 의 app_metadata"]
+  client -->|"service_role (서버 전용)"| bypass["RLS 우회<br/>집계 · 판정 조회 · 공개 쓰기"]
+  rls --> db[("Postgres")]
+  bypass --> db
+```
+
+- proxy 는 `/api/*` 쓰기 요청의 출처를 본다. localhost 에서 온 요청과 개발 모드는 통과시킨다. 배포 환경에서 `SITE_URL` 이 비어 있으면 모두 막는다.
+- 라우트 가드는 매 요청 `app_metadata` 를 다시 읽는다. 클라이언트가 보낸 역할 값은 쓰지 않는다.
+- RLS 헬퍼(`app_role` · `app_level` · `app_author_id`)는 `supabase/setup.sql` 에 있다. `is_admin()` 은 owner 이거나 권한 레벨 2 이상, `can_edit_post()` 는 owner · 레벨 2 이상 · 글의 `author_ids` 에 든 저자, `can_edit_work()` 는 관리자 · `team_members` 에 든 저자다.
+
+### 관리자 비밀번호 로그인
+
+`POST /api/admin/auth` 는 비밀번호가 맞아도 처음 보는 기기면 세션을 바로 거둔다.
+
+```mermaid
+flowchart TD
+  start["POST /api/admin/auth"] --> lock{"잠금 중인가<br/>admin_login_attempts"}
+  lock -->|예| r423["423 남은 시간"]
+  lock -->|아니오| pw{"signInWithPassword"}
+  pw -->|실패| fail["실패 횟수 +1<br/>5회째면 15분 잠금"]
+  fail --> r401["401 남은 시도 · 423"]
+  pw -->|성공| clear["실패 기록 삭제"]
+  clear --> dev{"기기 지문<br/>admin_known_devices"}
+  dev -->|승인된 기기| ok["200 로그인"]
+  dev -->|처음 보는 기기| out["signOut + 승인 메일<br/>(토큰 24시간 유효)"]
+  out --> r202["202 device_pending"]
+  r202 -. 메일 링크 .-> approve["/api/admin/auth/approve-device<br/>approved = true"]
+  approve -. 다시 로그인 .-> start
+```
+
+기기 지문은 UA 에서 브라우저 · OS · 기기 종류만 뽑아 해시한 값이다. 브라우저가 자동 업데이트돼도 같은 기기로 본다. GitHub OAuth 로그인은 이 경로를 거치지 않고 `/auth/callback` 의 인가 게이트를 지난다(아래).
+
 | 보안 레이어 | 구현 방식 | 적용 범위 |
 |------------|-----------|----------|
 | **SQL Injection 방지** | Supabase 파라미터화 쿼리 (prepared statements) | 모든 DB 쿼리 |
@@ -10,12 +56,12 @@
 | **입력 검증** | UUID 포맷 검증, 길이 제한, 이메일 포맷 검증, enum 타입 검증, 카테고리 화이트리스트 검증 | 모든 공개 API |
 | **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), 관리자 댓글 서버 측 Supabase Auth 재검증 | 댓글 수정/삭제, 관리자 |
 | **RLS** | JWT(`app_metadata`) 를 읽는 정책 헬퍼로 역할별 접근 판정 + anon 쓰기 GRANT 회수 + Storage 직접 업로드 정책 제거 (아래) | 모든 테이블, Storage |
-| **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
-| **CSRF Origin 검증** | proxy(미들웨어)가 모든 `/api/*` POST/PATCH/PUT/DELETE 의 Origin/Referer 를 `SITE_URL` origin 과 대조 — 불일치·해석 불가 시 403 (fail-closed). GET 은 skip | 모든 API mutation |
+| **경로 보호** | proxy 가 로그인 여부와 화면별 권한을 먼저 보고, Dashboard layout 이 세션을 다시 확인한다(없으면 접근 거부 페이지) | `/admin/*` |
+| **CSRF Origin 검증** | proxy(`src/proxy.ts`)가 모든 `/api/*` POST/PATCH/PUT/DELETE 의 Origin/Referer 를 `SITE_URL` · 블로그 주소의 origin 과 대조한다. 불일치하거나 해석할 수 없으면 403(fail-closed). GET 은 건너뛴다 | 모든 API 쓰기 요청 |
 | **로그인 보호** | 5회 실패 시 15분 잠금(`admin_login_attempts`) + 처음 보는 기기는 이메일 승인 전 로그인 거부(`admin_known_devices`, UA fingerprint + 24시간 토큰) + 전기기 로그아웃 | `/api/admin/auth` |
 | **역할 기반 인가** | owner(전권) / admin(모든 글 + 중재) / author(자기 글만) / visitor(공개만) 4단계 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
 | **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단. 단 `OWNER_EMAIL` 미설정 시엔 삭제하지 않고 설정 에러만 표시(부트스트랩 락아웃 방지) | GitHub OAuth 로그인 |
-| **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래) | 좋아요, 방문자 통계, 투표, 댓글 반응 |
+| **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래). 조회 기록은 같은 IP · 경로를 30분에 한 번만 센다(`record_page_view`) | 좋아요, 투표, 댓글 반응, 조회 기록 |
 | **service_role 쓰기** | `/api/polls` 투표 + related-series 쓰기는 service_role admin client 로 처리 | 투표, 관련 시리즈 편집 |
 | **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한, 최소 2자 | 댓글 비밀번호 |
 | **카테고리 검증** | 서버 측 화이트리스트 검증 — 사이트 설정에 등록된 카테고리만 허용 | Posts, Works, Series |
@@ -48,7 +94,7 @@
 | `POST /api/contact/attachment` | `ok` 불리언·사유(200자)만 받음, 같은 IP 는 10분에 한 번만 셈(첨부 자동 끄기 악용 방지). 문의 메일 본문은 브라우저가 공급자로 바로 보내며 입력 검증은 폼(`useContactForm`)이 한다 |
 | `POST /api/translate` | 텍스트 (2000자), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — admin client 로 `posts.category` 를 대량 변경하므로 인증 필수 |
-| `PATCH /api/admin/settings` | About ERD 형태(`checkAboutErd`) + **필수값(`checkRequiredSettings`)** — 제목·이름·테마색·멤버이름 빈값, giscus 필수 필드, 이메일 형식. 위반 시 400. 클라이언트(섹션 저장 포함) 우회 방어 + DB CHECK(`settings_required_valid`) 최종선 |
+| `PATCH /api/admin/settings` | 예전 About ERD 저장값 형태(`checkAboutErd`, [DB 설계](./db-design.md#예전-about-erd-설정-검증-about_erd_valid)) + **필수값(`checkRequiredSettings`)** — 제목·이름·테마색·멤버이름 빈값, giscus 필수 필드, 이메일 형식. 위반 시 400. 클라이언트(섹션 저장 포함) 우회 방어 + DB CHECK(`settings_required_valid`) 최종선 |
 
 **댓글 마크다운 sanitize (`CommentMarkdown.tsx`):**
 
@@ -103,9 +149,9 @@ GitHub OAuth 는 **인증만** 합니다 — 아무 GitHub 계정이나 로그�
 
 **CSRF Origin 검증 (proxy):**
 
-미들웨어(`src/proxy.ts`)가 모든 `/api/*` 의 POST/PATCH/PUT/DELETE 에서 Origin/Referer 를 `SITE_URL` 과 대조합니다. same-origin 브라우저 fetch 는 Origin 이 자동으로 붙어 통과하고, cross-origin 요청과 Origin 없는 요청(curl 등)은 차단됩니다. GET 은 쿠키 CSRF 의 영향이 없어 건너뜁니다. SameSite=Lax 쿠키에만 의존하지 않는 application-level 방어입니다.
+proxy(`src/proxy.ts`)가 모든 `/api/*` 의 POST/PATCH/PUT/DELETE 에서 Origin/Referer 를 `SITE_URL` 과 대조합니다. same-origin 브라우저 fetch 는 Origin 이 자동으로 붙어 통과하고, cross-origin 요청과 Origin 없는 요청(curl 등)은 차단됩니다. GET 은 쿠키 CSRF 의 영향이 없어 건너뜁니다. SameSite=Lax 쿠키에만 의존하지 않는 application-level 방어입니다.
 
-비교 기준은 `new URL(SITE_URL).origin` 으로 정규화합니다. 요청의 Origin 헤더에는 끝 `/` 가 없어서 설정값 `https://x.com/` 을 그대로 비교하면 전부 403 이 됩니다. 설정값을 해석할 수 없으면(스킴 누락 등) 빈 문자열로 두어 fail-closed 로 떨어집니다. production 에 `SITE_URL` 미설정이면 admin mutation 이 모두 403 입니다.
+비교 기준은 `new URL(SITE_URL).origin` 으로 정규화합니다. 요청의 Origin 헤더에는 끝 `/` 가 없어서 설정값 `https://x.com/` 을 그대로 비교하면 전부 403 이 됩니다. 설정값을 해석할 수 없으면(스킴 누락 등) 빈 문자열로 두어 fail-closed 로 떨어집니다. production 에 `SITE_URL` 이 없으면 `/api/*` 의 쓰기 요청이 모두 403 이다. 블로그 서브도메인(`blog.hyeoniverse.com`)에서 보낸 댓글 · 좋아요도 같은 사이트 요청이라 허용 목록에 들어 있다.
 
 **관리자 로그인 보호 (`/api/admin/auth`):**
 

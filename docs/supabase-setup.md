@@ -1,49 +1,48 @@
 # Supabase 세팅 가이드
 
-Posts 기능을 사용하려면 Supabase 프로젝트 세팅이 필요합니다.
+글 · 작업물 · 댓글 · 관리자 화면은 Supabase 프로젝트가 있어야 동작한다.
 
 ### 1. 환경변수 설정
 
-`.env.local` 파일을 프로젝트 루트에 생성:
+[`.env.example`](../.env.example) 을 `.env.local` 로 복사해 채운다. Supabase 와 로그인에 필요한 값은 다음과 같다.
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
-# 부트스트랩 소유자 이메일 — 이 계정은 초대 없이 자동으로 소유자 권한 (GitHub OAuth 로그인 / 멤버 관리)
+# 부트스트랩 소유자 이메일. 이 계정은 초대 없이 소유자 권한을 받는다
 OWNER_EMAIL=you@example.com
 
-# production 도메인 — middleware 의 CSRF Origin 체크 기준
-# production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
+# 사이트 주소. proxy(src/proxy.ts)의 CSRF Origin 검사 기준이자 메일 발신 도메인
+# 배포 환경에서 비어 있으면 /api/* 의 쓰기 요청이 모두 403 이다. 로컬은 검사를 건너뛴다
 SITE_URL=https://your-domain.com
 
-# Cover Image Picker — Unsplash (선택사항)
+# 커버 이미지 검색 (선택)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
-
-# Cover Image Picker — Pexels (선택사항, Unsplash 대안)
 PEXELS_API_KEY=your_pexels_api_key
 
-# Cover Image Picker — AI Generate (provider에 맞는 키 하나만 설정)
-# site.config.ts의 aiCover.provider 값에 따라 해당 키 사용
-HUGGINGFACE_API_KEY=hf_...          # provider: "huggingface"
-NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
+# AI 커버 생성 (선택). 쓰는 공급자의 키만 있으면 된다
+HUGGINGFACE_API_KEY=hf_...
+NANOBANANA_API_KEY=your_key
 
-# Translation — 선택한 provider에 맞는 키만 설정
-# site.config.ts의 translation.provider 값에 따라 해당 키 사용 (기본: deepl)
-DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (기본)
-GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
-GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
-ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + AI 요약)
+# 번역 · AI 요약 (선택). 쓰는 공급자의 키만 있으면 된다
+DEEPL_API_KEY=your_deepl_key
+GOOGLE_TRANSLATE_API_KEY=your_google_key
+GEMINI_API_KEY=your_gemini_key
+ANTHROPIC_API_KEY=your_anthropic_key
 
-# GitHub API 토큰 (선택) — 프로필·홈 GitHub 연동(저장소·조직 저장소·잔디) + giscus Discussion 카테고리 조회
-# 공개 저장소 읽기용 GitHub PAT (별도 권한 없이도 공개 데이터 조회 가능)
+# GitHub API 토큰 (선택). 프로필 · 홈의 GitHub 연동과 giscus Discussion 카테고리 조회
 GITHUB_TOKEN=ghp_...
 ```
 
-> `GITHUB_TOKEN` 은 admin Services 탭에 저장한 시크릿이 우선이고, 없으면 환경변수를 씁니다 (`getSecret("GITHUB_TOKEN")`).
+나머지 선택 키(문의 폼, reCAPTCHA, Resend, TTS, 주기 작업, e2e 계정)와 각 키의 용도는 [deploy.md](./deploy.md#2-환경변수) 에 있다.
 
-> `OWNER_EMAIL` 은 부트스트랩 소유자를 지정합니다 (초대 테이블 없이 자동으로 전체 권한). **첫 로그인 전에 반드시 지정하세요** — 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 1회 영속화되어(claim-and-close), 이후 이 값이 바뀌거나 비어도 소유권이 유지됩니다. GitHub OAuth 자체(Client ID/Secret)는 `.env.local` 이 아니라 Supabase 대시보드의 **Authentication → Providers → GitHub** 에서 설정합니다 (4번 참고). 멤버 초대 메일은 Resend (인증된 도메인) 를 사용합니다.
+어느 공급자를 먼저 쓸지는 환경변수가 아니라 관리자 **설정 › 서비스** 에서 고른다. 기본 공급자와 실패 시 넘어갈 순서(fallback 우선순위)를 그 화면이 `site_settings` 에 저장한다. `src/config/site.config.ts` 의 `aiCover` · `translation` · `aiSummary` · `tts` 값은 저장값이 없을 때의 기본값이다.
+
+API 키도 같은 화면(설정 › 서비스 › 환경 변수)에 저장할 수 있다. 서버는 DB 에 저장된 키를 먼저 쓰고, 없으면 환경변수를 쓴다(`src/lib/getSecret.ts`). Supabase 키 · `SITE_URL` · `OWNER_EMAIL` · `CRON_SECRET` 처럼 그 화면에서 편집할 수 없는 값은 `.env.local` 과 Vercel 환경변수에서만 정한다.
+
+`OWNER_EMAIL` 은 첫 로그인 전에 지정한다. 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 한 번 저장된다(claim-and-close). 그 뒤로는 이 값이 바뀌거나 비어도 소유권이 유지된다. GitHub OAuth 의 Client ID · Secret 은 `.env.local` 이 아니라 Supabase 대시보드의 **Authentication → Providers → GitHub** 에서 설정한다(4번 참고).
 
 **값 확인 방법:**
 
@@ -57,43 +56,46 @@ GITHUB_TOKEN=ghp_...
 
 ### 2. 데이터베이스 테이블 생성
 
-[`supabase/setup.sql`](../supabase/setup.sql) 파일에 전체 테이블 생성 + RLS 정책이 포함되어 있습니다.
+[`supabase/setup.sql`](../supabase/setup.sql) 에 테이블 · RLS 정책 · 함수 · 예약 작업 · Storage 버킷 생성이 모두 들어 있다. Supabase Dashboard → **SQL Editor** 에 파일 내용을 붙여 넣고 한 번에 실행한다.
 
-Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
-
-**생성되는 테이블 (23개):**
+**생성되는 테이블 (26개):**
 
 | 테이블 | 용도 |
 |--------|------|
-| `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
-| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시, 제목 80자 CHECK) |
-| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL + `version` 낙관적 잠금 + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
-| `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
-| `comment_reactions` | 댓글 이모지 반응 (고정 8종, `comment_type` 으로 post/work 구분, `reactor_hash` 중복 방지) |
-| `comment_reports` | 댓글 신고 (사유 + resolve/dismiss 상태) |
-| `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (slug, `title`/`title_en` (이중언어 제목), `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
-| `site_visits` | 방문자 통계 (IP+날짜 1회) |
-| `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
-| `work_comments` | Works 댓글 (대댓글, 이중 인증) |
-| `admin_notifications` | 관리자 알림 로그 |
-| `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
-| `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
-| `series_work_relations` | series ↔ works 다대다 (프로젝트에 관련 시리즈 연결, post_work_relations 와 동일 패턴) |
-| `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
-| `calendars` | 에디터 캘린더 블록의 공유 달력 (`data jsonb`, soft delete + `purge_after` 30일 TTL) |
-| `custom_emojis` | EmojiPicker 커스텀 업로드 아이콘 (admin 전용 RLS) |
-| `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
-| `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
-| `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
-| `applied_migrations` | 적용된 schema migration 추적 (최초 적용 시 알림 발생) |
-| `author_invites` | 이메일 저자 초대 (email PK, author_id — site_settings.profile 의 프로필 id 참조, permission_level 1=저자/2=편집자, invited_by, created_at, consumed_at, RLS service_role 전용). OAuth 로그인 시 역할이 app_metadata 에 부여되고 초대 소비 |
+| `site_settings` | 사이트 설정 · 프로필 · 시크릿(API 키). `id` 가 `default` · `profile` · `secrets` 인 세 행에 JSONB 로 담는다 |
+| `series` | 블로그 시리즈 (`sort_order`, `auto_cover_url` Unsplash 캐시, 제목 80자 CHECK) |
+| `posts` | 블로그 글 (`post_number` 시퀀스, `scheduled_at` 예약 발행, `purge_after` 휴지통 기한, `version` 낙관적 잠금, `author_ids`) |
+| `comments` | 글 댓글 (대댓글, 이중 인증: `commenter_hash` + 비밀번호) |
+| `work_comments` | 작업물 댓글 (`comments` 와 같은 구조) |
+| `comment_reactions` | 댓글 이모지 반응 (고정 8종, `comment_type` 으로 post/work 구분) |
+| `comment_reports` | 댓글 신고 (사유 + 처리 상태) |
+| `likes` | 좋아요 (글 · 작업물 · 댓글을 `target_type` 으로 구분, IP 중복 방지) |
+| `works` | 작업물 (slug, 한/영 제목, `categories_ko/en text[]`, `nature_ko/en`, `contributions_ko/en`, `tech_notes`, `team_members`, `gallery_notes`, `is_pinned` · `view_count` · `like_count`) |
+| `page_views` | 사이트의 조회 기록. 방문 · 방문자 · 유입 · 기기 · 국가 · UTM · 머문 시간 · 글/작업물 조회수가 모두 여기서 나온다 |
+| `traffic_excluded_ips` | 운영자가 '내 IP' 로 지정한 IP. 이 IP 의 방문은 기록하지 않고 집계에서도 뺀다 |
+| `admin_notifications` | 관리자 알림 기록 |
+| `revisions` | 편집기 리비전 기록 (posts/works 공용, JSONB snapshot) |
+| `post_work_relations` | 글 ↔ 작업물 다대다 |
+| `series_work_relations` | 시리즈 ↔ 작업물 다대다 |
+| `poll_votes` | 본문 투표 블록 집계 (`poll_id` + `option_id`, IP 중복 방지) |
+| `calendars` | 편집기 캘린더 블록이 가리키는 공유 달력 (휴지통 30일) |
+| `custom_emojis` | 이모지 선택기에 올린 커스텀 아이콘 |
+| `cover_image_history` | 커버 이미지 선택 이력 (사용자별, RLS) |
+| `admin_login_attempts` | 관리자 로그인 실패 횟수 (5회 실패 → 15분 잠금) |
+| `admin_known_devices` | 승인된 관리자 기기 지문 (미등록 기기는 24시간 유효한 메일 승인) |
+| `applied_migrations` | 적용된 마이그레이션 기록 (처음 적용될 때 알림) |
+| `author_invites` | 이메일 저자 초대 (`email` PK, `author_id`, `permission_level` 1=저자 / 2=편집자, `consumed_at`) |
+| `service_logs` | AI · 외부 서비스 · 메일 · GitHub · 예약 작업의 성공/실패 기록 (90일 보관) |
+| `content_translations` | ko · en 밖의 언어로 읽을 때 쓰는 번역 캐시 (원문 해시가 바뀌면 다시 번역) |
+| `demo_usage` | About 라이브 데모(번역 · 요약 · 커버 · 음성)의 하루 사용 횟수 (7일 보관) |
+
+예전의 `site_visits` · `post_views` · `work_views` 는 2026-10-17 마이그레이션(`2026_10_17_drop_legacy_views.sql`)에서 `page_views` 로 합쳐지고 삭제됐다.
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
-> **setup.sql ↔ migrations 차이**: `custom_emojis` 는 `setup.sql` 에만 있고 대응 마이그레이션 파일이 없습니다. 반대로 `posts` 제목 길이 CHECK(`posts_title_len` / `posts_title_en_len`, 120자)는 `2026_07_13_posts_title_len.sql` 에만 있고 `setup.sql` 에는 없습니다. 신규 세팅은 `setup.sql` 한 번으로 충분하지만, 두 경로를 섞어 쓴다면 이 두 항목을 확인하세요.
+**setup.sql 과 migrations 의 차이**: `custom_emojis` 는 `setup.sql` 에서만 만들어지고, 이 테이블을 만드는 마이그레이션 파일은 없다. 글 제목 길이 CHECK(`posts_title_len` / `posts_title_en_len`, 120자)는 두 곳에 다 있지만 `setup.sql` 은 `NOT VALID` 로 걸어 기존 행을 검사하지 않고, `2026_07_13_posts_title_len.sql` 은 기존 행까지 바로 검사한다. 새로 세팅할 때는 `setup.sql` 한 번이면 된다.
 
-**수동 실행 마이그레이션 (선택):** 아래 두 파일은 데이터 재작성 스크립트라 자동 적용되지 않습니다. 필요할 때만 SQL Editor 에서 직접 실행하세요.
+**수동 실행 마이그레이션 (선택):** 아래 두 파일은 데이터를 다시 쓰는 스크립트라 자동으로 적용되지 않는다. 필요할 때만 SQL Editor 에서 직접 실행한다.
 
 | 파일 | 하는 일 |
 |------|---------|
@@ -102,65 +104,20 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 
 > **Supabase 없이도 동작**: 환경변수가 설정되지 않으면 Works(`data/projects.ts`), Profile(`data/profile.ts`), Settings(`config/site.config.ts`)의 정적 데이터로 자동 fallback됩니다.
 
-**주요 API 엔드포인트:**
+**API 라우트 목록**은 문서에 따로 적지 않는다. `src/app/api` · `src/app/auth` 의 `route.ts` 에서 빌드 전에 만드는 [`src/data/generated/apiMap.ts`](../src/data/generated/apiMap.ts) 가 라우트마다 메서드 · 접근 등급 · 쓰는 테이블 · 외부 서비스를 담는다. 직접 다시 만들려면 `npm run gen-api-map` 을 실행한다. About 페이지의 구조 장도 이 파일을 그린다.
 
-> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`, `GET /api/posts/export` (단일/전체/시리즈 .md 내보내기)
->
-> **Series API**: `GET/POST /api/series`, `GET/PATCH/DELETE /api/series/[id]`
->
-> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`, `GET /api/works/export` (단일/전체 .md 내보내기)
->
-> **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `PATCH /api/comments` (수정), `DELETE /api/comments/[id]`
->
-> **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (수정), `DELETE /api/work-comments/[id]`
->
-> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (반응 집계 + 내 반응 일괄 조회), `POST /api/comment-reactions` (이모지 반응 토글)
->
-> **Calendars API**: `GET/POST /api/calendars` (목록 — `?trash=true` 면 휴지통 / 생성), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — 모두 admin 전용
->
-> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker 커스텀 아이콘, admin 전용
->
-> **Upload API**: `POST /api/upload` (서버 경유 업로드, MIME 별 크기 제한 + 절대 상한 200MB), `POST /api/upload/signed-url` (Storage 직접 업로드용 signed URL 발급 — 파일명·타입만 전송해 요청 본문 크기 제한 회피)
->
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
->
-> **Auth & Members API**: `GET /auth/callback` (OAuth 콜백 + 인가 게이트 — 소유자 첫 로그인 시 owner 역할 영속화 · 미초대 계정 삭제, 단 `OWNER_EMAIL` 미설정 시엔 삭제 없이 설정 에러), `GET /api/admin/me` (현재 사용자 email/role/level/isOwner — settings 탭 게이팅), `GET|PATCH|DELETE /api/admin/authors/members` (소유자 전용 — 멤버 + 대기 초대 목록 / 권한 변경·저자 프로필 연결 / 계정 삭제), `GET /api/admin/authors/context` (requireAuth, 비소유자 접근 가능 — ownerEmail + 멤버 author-id/email 반환), `POST /api/admin/authors/invite` (소유자 전용 — author_invites insert + Resend 메일)
->
-> **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
->
-> **Categories API**: `GET /api/categories` (Posts 이중언어 카테고리 목록), `GET /api/works-categories` (Works 이중언어 카테고리 목록)
->
-> **Polls API**: `GET/POST /api/polls/[pollId]` (본문 투표 블록 집계 조회 / 투표)
->
-> **Related Series API**: `GET /api/works/[id]/related-series` (공개 관련 시리즈), `GET/PUT /api/admin/works/[id]/related-series` (관리자 관련 시리즈 편집)
->
-> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색), `POST /api/highlight` (서버사이드 코드 하이라이팅)
+### 3. Storage 버킷
 
-### 3. Storage 버킷 생성
+`setup.sql` 이 공개 버킷 두 개를 만든다.
 
-이미지·이력서·BGM 업로드용:
+| 버킷 | 공개 | 쓰는 곳 |
+|------|------|---------|
+| `uploads` | 공개 | `/api/admin/upload` 의 일반 첨부 (로고 · 이력서 · BGM 등) |
+| `posts` | 공개 | 게시물 이미지와 커버(`/api/upload`, AI 생성 · Unsplash 내려받기) |
 
-1. Supabase Dashboard → **Storage**
-2. **New bucket** 클릭
-3. 버킷 이름: `uploads`
-4. **Public bucket** 체크 (파일을 공개 URL로 접근 가능하게)
-5. **Create bucket**
+두 버킷에는 누구나 읽는 SELECT 정책만 있고 업로드 정책은 없다. 브라우저 업로드는 서버가 발급한 서명 URL(`/api/upload/signed-url`)로만 이뤄지고, 서버 업로드는 service_role 로 한다. `authenticated` 에 INSERT 를 열면 멤버가 서버의 확장자 · 크기 검증을 건너뛸 수 있으므로 정책을 두지 않는다.
 
-> 업로드 API가 폴더별로 파일을 구분합니다: `logos/`, `resume/`, `bgm/`, `covers/`, `images/` 등
-
-**Storage 정책 설정:**
-
-```sql
--- 인증된 사용자만 업로드 가능
-CREATE POLICY "Authenticated users can upload"
-  ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'uploads' AND auth.role() = 'authenticated');
-
--- 누구나 읽기 가능 (public bucket)
-CREATE POLICY "Anyone can view uploads"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'uploads');
-```
+문의 폼 첨부 버킷 `contact-attachments` 는 마이그레이션 `2026_10_19_contact_attachments_bucket.sql` 이 만든다. 비공개 버킷이고 크기 상한은 25MB 다. 정책은 없다. 방문자 브라우저는 `/api/contact/upload` 가 발급한 서명 URL 로 올리고, 메일 본문에는 서버가 만든 7일짜리 내려받기 링크가 붙는다.
 
 ### 4. Admin 계정 생성
 
@@ -169,69 +126,72 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
-**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). **첫 로그인 전에 반드시 지정하세요** — 미설정 상태로 로그인하면 소유자를 판정할 수 없어 진입이 막힙니다(이때는 계정을 삭제하지 않고 설정 안내만 표시하므로, env 지정 후 다시 로그인하면 됩니다). 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 1회 영속화되어(claim-and-close) 이후 `OWNER_EMAIL` 이 바뀌거나 비어도 소유권이 유지됩니다. 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
+**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 된다. 첫 로그인 전에 지정해야 한다. 지정하지 않고 로그인하면 소유자를 판정할 수 없어 진입이 막힌다. 이때는 계정을 지우지 않고 설정 안내만 보여 주므로, 값을 지정한 뒤 다시 로그인하면 된다. 나머지 멤버는 이메일 초대로 추가한다(5번 참고).
 
 **GitHub OAuth 로그인 설정** — 멤버는 GitHub OAuth 로 로그인합니다:
 
-1. **GitHub OAuth App 생성** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Authorization callback URL 에 `https://<PROJECT_REF>.supabase.co/auth/v1/callback` 입력
+1. **GitHub OAuth App 생성**: GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Authorization callback URL 에 `https://<PROJECT_REF>.supabase.co/auth/v1/callback` 입력
 2. Supabase Dashboard → **Authentication → Providers → GitHub** 를 활성화하고 위 OAuth App 의 Client ID + Secret 붙여넣기
 3. Supabase **Authentication → URL Configuration → Redirect URLs** 에 사이트의 `/auth/callback` 추가
 
 ### 5. Admin 로그인 방법
 
-사이트에 별도 로그인 버튼은 없습니다. 관리자만 URL을 직접 입력하여 접속합니다.
+로그인 화면은 `/admin/login` 이다. 푸터의 **Login** 링크가 이 주소(`/admin/login?next=/admin`)로 간다.
 
 **GitHub OAuth 로그인** (멤버 표준 경로):
 
-1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 리다이렉트
-2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고(소유자 첫 로그인이면 `owner` 역할을 1회 영속화) 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀 (단 `OWNER_EMAIL` 미설정이면 삭제하지 않고 설정 안내 에러만 표시)
-3. 성공 → `/admin/settings` 리다이렉트
+1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 돌아온다.
+2. `/auth/callback` 이 이메일이 `OWNER_EMAIL` 이거나, 이미 역할이 있거나, `author_invites` 에 초대가 있는지 확인한다. 통과하면 초대를 소비하고 역할을 `app_metadata` 에 넣는다. 소유자의 첫 로그인이면 `owner` 역할을 한 번 저장한다. 셋 다 아니면 계정을 지우고 오류와 함께 로그인 화면으로 돌려보낸다. 단 `OWNER_EMAIL` 이 비어 있으면 지우지 않고 설정 안내 오류만 보여 준다.
+3. 성공하면 `next` 주소로 간다. `next` 가 없으면 `/admin`(대시보드)이다.
 
 **비밀번호 로그인** (소유자 폴백):
 
 1. `/admin/login` 접속
 2. Supabase에서 생성한 이메일/비밀번호 입력
-3. 로그인 성공 → `/admin/settings` (설정)으로 리다이렉트
+3. 성공하면 `next` 주소로, `next` 가 없으면 `/admin/settings` 로 간다. 처음 보는 기기면 승인 메일을 보내고 로그인을 멈춘다.
 
-**멤버 추가 (이메일 초대)**: 소유자가 Settings → **Account 탭**에서 이메일로 멤버를 초대하면 `author_invites` 행 + Resend 안내 메일이 발송됩니다. 초대받은 사람이 같은 이메일의 GitHub 로 OAuth 로그인하면 자동으로 저자/편집자 권한을 얻습니다. Account 탭에서 소유자가 멤버 목록·역할·권한을 관리합니다 (비소유자는 Account 탭만 접근).
+**멤버 추가 (이메일 초대)**: 소유자가 설정 › **계정** 탭에서 이메일로 멤버를 초대하면 `author_invites` 행이 생기고 Resend 안내 메일이 나간다. 초대받은 사람이 같은 이메일의 GitHub 로 로그인하면 저자 또는 편집자 권한을 얻는다. 소유자가 같은 탭에서 멤버 목록 · 역할 · 권한을 관리한다.
 
-**로그인 후 사용 가능한 기능:**
+**로그인 후 쓰는 화면:**
 
-- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일). 위쪽 시리즈 패널에서 시리즈 순서 바꾸기·삭제·내보내기, 시리즈 만들기·편집은 Settings → Content → Posts
-- `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
-- `/admin/posts/[id]/edit` — 기존 포스트 수정 (PlateEditor 로딩 스켈레톤)
-- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
-- `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
-- `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO(기본 콘텐츠 언어 `defaultLanguage` ko/en Select — admin 저작 폼에서 어느 언어를 필수 입력으로 둘지[제목/부제목/nature/카테고리]와 에디터 초기 언어 탭을 결정, 방문자 표시 언어와는 무관)·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경 + 멤버 관리(소유자 전용 — 멤버 목록·역할[소유자/편집자/저자]·이메일 초대·권한 변경, 비소유자는 Account 탭만 노출)
+- `/admin`: 대시보드. 아래에 트래픽 · 알림 · 신고 · 댓글 · 서비스 기록 화면이 있다.
+- `/admin/posts`: 글 목록. 위쪽 시리즈 패널에서 시리즈 순서 바꾸기 · 삭제 · 내보내기를 한다.
+- `/admin/posts/new` · `/admin/posts/[id]/edit`: 글 편집기 (Markdown ↔ Rich Text, 자동 번역, 자동 저장 + 리비전 기록 + diff 비교)
+- `/admin/works`: 작업물 목록 (발행 전환, 정렬 순서, `.md` 업로드)
+- `/admin/works/new` · `/admin/works/[id]/edit`: 작업물 편집기 (한/영, 기술 스택, 갤러리)
+- `/admin/settings`: 사이트 설정. 탭은 여섯 개다.
+
+| 탭 | 내용 |
+|----|------|
+| 일반 | 개인 정보 · 연락처, SEO 메타데이터(기본 콘텐츠 언어 포함), BGM |
+| 콘텐츠 | 홈 · 프로필 · 작업물 · 글 하위 탭 |
+| 라이브러리 | 캘린더 · 투표 · 커스텀 이모지 · 커버 이력 · 파일 · 댓글 이미지 |
+| 외관 | 테마 · 글꼴 · 날짜 선택기 모양 · 브랜드(로고 · 파비콘) |
+| 서비스 | 이메일 서비스, AI 커버 · 요약 · 모델, reCAPTCHA, 번역, TTS, 댓글 알림 메일, 댓글 공급자, 미디어 제한, API 키 |
+| 계정 | 관리자 이메일 · 비밀번호, 보안, 멤버 관리(소유자 전용) |
+
+계정 탭을 뺀 다섯 탭은 소유자만 연다. 소유자가 아닌 멤버에게는 계정 탭만 보인다(`src/lib/adminAccess.ts` 의 `canOpenSettingsTab`).
+
+기본 콘텐츠 언어(`metadata.defaultLanguage`)는 관리자 작성 폼에서 어느 언어를 필수 입력으로 둘지와 편집기의 첫 언어 탭을 정한다. 방문자에게 보이는 언어와는 관계없다.
 
 ### 6. Cover Image Picker 사용법
 
-포스트·시리즈·작업물 에디터의 Cover Image / Main Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
-
-**Choose cover** 클릭 시 5개 탭 + 로컬 파일 영역이 표시됩니다 (모바일에서는 bottom sheet 으로 자동 전환):
+글 · 시리즈 · 작업물 편집기의 커버 이미지 영역에서 **Upload**(직접 업로드)와 **Choose cover**(선택기) 중 하나를 고른다. **Choose cover** 를 누르면 탭 여섯 개가 나온다. 모바일에서는 바텀 시트로 열린다.
 
 | 탭 | 설명 | 필요한 환경변수 |
 |----|------|----------------|
-| **Presets** | 16종 그라데이션/패턴 — 클릭 시 Canvas API 로 1200×630 이미지를 생성하여 Supabase 에 업로드. `public/cover/images/` · `public/cover/videos/` 의 로컬 미디어도 같은 패널에서 노출 (공용 `/api/admin/cover`) | 없음 |
-| **Unsplash** | 키워드로 Unsplash 사진 검색 → 클릭 시 다운로드 트래킹 + Supabase 업로드 | `UNSPLASH_ACCESS_KEY` |
-| **Pexels** | 키워드로 Pexels 사진 검색 → 클릭 시 다운로드 + Supabase 업로드. Unsplash 보완 대안 (API 정책 변경 시 fail-safe) | `PEXELS_API_KEY` |
-| **AI Generate** | 프롬프트 + 스타일 선택 → AI로 이미지 생성 → Supabase 업로드 | provider별 API key (아래 참고) |
-| **History** | 과거 선택한 cover 영구 보관 (`cover_image_history` 테이블, RLS) — preset / Unsplash / Pexels / AI 통합. 키워드·색상표 복사 · 다운로드 · 재선택 인라인 | 없음 |
-
-> **참고**: Unsplash · Pexels · AI Generate 탭은 각각 API key 가 필요합니다. Presets 탭과 History 탭은 환경변수 없이 사용 가능합니다.
+| **Presets** | 그라데이션 프리셋 16종과 그라데이션 편집기. 고르면 Canvas API 로 이미지를 만들어 Supabase 에 올린다. `public/cover/videos/` 의 로컬 영상도 같은 탭에 나온다(`/api/admin/cover`) | 없음 |
+| **Project** | 저장소에 커밋된 `public/images/screenshots/` 이미지를 폴더별로 고른다(`/api/admin/project-images`) | 없음 |
+| **Unsplash** | 키워드로 Unsplash 사진 검색 → 고르면 다운로드 기록 + Supabase 업로드 | `UNSPLASH_ACCESS_KEY` |
+| **Pexels** | 키워드로 Pexels 사진 검색 → 고르면 Supabase 업로드 | `PEXELS_API_KEY` |
+| **AI Generate** | 프롬프트 + 스타일 → AI 이미지 생성 → Supabase 업로드. 설정 › 서비스에서 AI 커버를 켰을 때만 보인다 | 공급자별 API key (아래 참고) |
+| **History** | 지금까지 고른 커버 기록(`cover_image_history`). 다시 고르기 · 다운로드 · 키워드와 색상표 복사 | 없음 |
 
 ---
 
-#### AI Generate — Provider 설정
+#### AI Generate — 공급자 설정
 
-`src/config/site.config.ts`의 `aiCover.provider`에서 사용할 서비스를 선택합니다:
-
-```ts
-aiCover: {
-  provider: "huggingface",  // "nanobanana" | "huggingface"
-},
-```
+공급자는 관리자 **설정 › 서비스** 의 AI 커버 항목에서 고른다. 기본 공급자와 실패 시 넘어갈 순서를 함께 정한다. `site.config.ts` 의 `aiCover.provider` 는 저장값이 없을 때의 기본값이다.
 
 | Provider | 모델 | 환경변수 | 가격 | 발급 방법 |
 |----------|------|----------|------|-----------|
@@ -249,7 +209,7 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-> provider를 변경한 후 `.env.local`에 해당 키만 설정하면 됩니다. 사용하지 않는 provider의 키는 비워두어도 무방합니다.
+쓰는 공급자의 키만 넣으면 된다. 쓰지 않는 공급자의 키는 비워 둔다.
 
 ---
 
@@ -311,35 +271,36 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 **인증 플로우:**
 
+아래는 로그인 경로와 관리자 화면 진입 경로를 순서대로 적은 것이다.
+
 ```
 /admin/login (GitHub 로 로그인)
   → supabase.auth.signInWithOAuth({ provider: "github" })
-    → GitHub 인증 → GET /auth/callback
+    → GitHub 인증 → GET /auth/callback?next=…
       → exchangeCodeForSession (인증만 수행)
       → 인가 게이트: 이메일이 OWNER_EMAIL || 역할 보유 || author_invites 초대?
         → 통과 → app_metadata 에 역할 부여 + 초대 소비(consumed_at)
-                 (소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 영속화)
-        → 실패 & OWNER_EMAIL 설정됨 → signOut() + service-role deleteUser() → 에러와 함께 /admin/login
-        → 실패 & OWNER_EMAIL 미설정 → 삭제 없이 "OWNER_EMAIL 미설정" 설정 에러 (env 지정 후 재로그인하면 소유자)
-  → /admin/settings 로 리다이렉트
+                 (소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 저장)
+        → 실패 & OWNER_EMAIL 설정됨 → signOut() + service-role deleteUser() → 오류와 함께 /admin/login
+        → 실패 & OWNER_EMAIL 미설정 → 삭제 없이 "OWNER_EMAIL 미설정" 오류
+  → next 주소로 (기본 /admin)
 
 /admin/login (폼 제출 — 소유자 폴백)
   → POST /api/admin/auth
-    → supabase.auth.signInWithPassword()
+    → 잠금 확인(admin_login_attempts) → signInWithPassword()
+    → 처음 보는 기기면 signOut() + 승인 메일 (202)
     → 세션 쿠키 설정
-  → /admin/settings로 리다이렉트
+  → next 주소로 (기본 /admin/settings), 전체 페이지 이동(window.location.assign)
 
 /admin/* 접속 시
-  → Dashboard layout에서 세션 확인
-  → 세션 없으면 → /admin/denied (접근 거부 페이지)
-  → 세션 있으면 → 정상 접근 (서버 헬퍼가 app_metadata 역할 재확인)
-  → AdminAuthSync 가 onAuthStateChange 구독 → 다른 탭에서 SIGNED_OUT 시 /admin/login (크로스탭 로그아웃)
+  → proxy: 로그인한 사용자가 없으면 /admin/login, 권한이 모자란 화면이면 /admin/posts
+  → Dashboard layout: getUser() 가 없으면 /admin/denied
+  → 서버 헬퍼가 app_metadata 역할을 다시 확인
+  → AdminAuthSync 가 onAuthStateChange 구독 → 다른 탭에서 SIGNED_OUT 시 /admin/login
 
 /admin/login 접속 시
-  → Auth layout에서 세션 확인
-  → 이미 로그인 → /admin/settings로 리다이렉트
+  → Auth layout 에서 세션 확인
+  → 이미 로그인 → /admin
 ```
 
-> **포인트**: 일반 방문자는 `/posts`에서 글 읽기 + 댓글만 가능하고, 관리자(본인)만 `/admin/login`을 직접 입력해서 접속합니다. 포트폴리오 사이트이므로 로그인 UI를 노출하지 않습니다.
-
-테스트 실행 방법과 테스트 목록은 [testing.md](./testing.md), 토큰과 컴포넌트는 [design-system.md](./design-system.md)와 `/design-system` 페이지에서 볼 수 있습니다.
+테스트 실행 방법은 [testing.md](./testing.md), 토큰과 컴포넌트는 [design-system.md](./design-system.md)와 `/design-system` 페이지에서 볼 수 있다.

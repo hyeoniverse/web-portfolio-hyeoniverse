@@ -1,50 +1,48 @@
 # Supabase Setup Guide
 
-Supabase project setup is required for Posts features.
+Posts, works, comments, and the admin screens need a Supabase project.
 
 ### 1. Environment Variables
 
-Create a `.env.local` file in the project root:
+Copy [`.env.example`](../../.env.example) to `.env.local` and fill it in. The values needed for Supabase and sign-in are:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
-# Bootstrap owner email — this account gets owner permission automatically, no invite needed (GitHub OAuth login / member management)
+# Bootstrap owner email. This account gets owner permission without an invite
 OWNER_EMAIL=you@example.com
 
-# Production domain — the baseline for the middleware's CSRF Origin check
-# If unset in production, every admin mutation is 403 (fail-closed). Dev passes even when empty
+# Site address. The baseline for the proxy (src/proxy.ts) CSRF Origin check and the mail sender domain
+# If it is empty in a deployed environment, every write request to /api/* is 403. Local runs skip the check
 SITE_URL=https://your-domain.com
 
-# Cover Image Picker — Unsplash (optional)
+# Cover image search (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
-
-# Cover Image Picker — Pexels (optional, alternative to Unsplash)
 PEXELS_API_KEY=your_pexels_api_key
 
-# Cover Image Picker — AI Generate (set only the key matching your provider)
-# Uses the key corresponding to aiCover.provider value in site.config.ts
-HUGGINGFACE_API_KEY=hf_...          # provider: "huggingface"
-NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
+# AI cover generation (optional). Only the key of the provider you use is needed
+HUGGINGFACE_API_KEY=hf_...
+NANOBANANA_API_KEY=your_key
 
-# Translation — set only the key matching your chosen provider
-# Uses the key corresponding to translation.provider value in site.config.ts (default: deepl)
-DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (default)
-GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
-GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
-ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (translation + AI summary)
+# Translation · AI summary (optional). Only the key of the provider you use is needed
+DEEPL_API_KEY=your_deepl_key
+GOOGLE_TRANSLATE_API_KEY=your_google_key
+GEMINI_API_KEY=your_gemini_key
+ANTHROPIC_API_KEY=your_anthropic_key
 
-# GitHub API token (optional) — profile/home GitHub integration (repos, org repos,
-# contribution graph) + giscus Discussion category lookup. A PAT for reading public
-# repos (no scopes needed)
+# GitHub API token (optional). Profile/home GitHub integration and giscus Discussion category lookup
 GITHUB_TOKEN=ghp_...
 ```
 
-> `GITHUB_TOKEN` prefers the secret saved in the admin Services tab, falling back to the environment variable (`getSecret("GITHUB_TOKEN")`).
+The remaining optional keys (contact form, reCAPTCHA, Resend, TTS, scheduled jobs, e2e account) and what each one does are listed in [deploy.md](./deploy.md#2-environment-variables).
 
-> `OWNER_EMAIL` designates the bootstrap owner (full permissions automatically, without an invite row). **Set it before the first login** — on the owner's first sign-in the `owner` role is persisted into `app_metadata` once (claim-and-close), so ownership survives even if this value later changes or is removed. GitHub OAuth itself (Client ID/Secret) is configured not in `.env.local` but in the Supabase dashboard under **Authentication → Providers → GitHub** (see step 4). Member invite emails use Resend (with a verified domain).
+Which provider runs first is not chosen by environment variables. It is chosen in admin **Settings › Services**. That screen stores the default provider and the order to fall back to on failure (fallback priority) in `site_settings`. The `aiCover` · `translation` · `aiSummary` · `tts` values in `src/config/site.config.ts` are defaults used only when nothing is stored.
+
+API keys can also be stored on the same screen (Settings › Services › Environment variables). The server uses a key stored in the DB first and falls back to the environment variable (`src/lib/getSecret.ts`). Values that screen cannot edit, such as the Supabase keys, `SITE_URL`, `OWNER_EMAIL`, and `CRON_SECRET`, are set only in `.env.local` and the Vercel environment variables.
+
+Set `OWNER_EMAIL` before the first sign-in. When the owner signs in for the first time, the `owner` role is stored once in `app_metadata` (claim-and-close). After that, ownership survives even if this value changes or becomes empty. The GitHub OAuth Client ID and Secret are not set in `.env.local`. They are set in the Supabase dashboard under **Authentication → Providers → GitHub** (see step 4).
 
 **How to find the values:**
 
@@ -54,190 +52,151 @@ GITHUB_TOKEN=ghp_...
 4. `anon` `public` key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 5. `service_role` `secret` key -> `SUPABASE_SERVICE_ROLE_KEY`
 
-> **Warning**: The `service_role` key bypasses RLS and must never be exposed to the client. `SUPABASE_SERVICE_ROLE_KEY` is used server-side only without the `NEXT_PUBLIC_` prefix.
+> **Warning**: The `service_role` key bypasses RLS and must never be exposed to the client. `SUPABASE_SERVICE_ROLE_KEY` has no `NEXT_PUBLIC_` prefix and is only used server-side.
 
-### 2. Database Table Creation
+### 2. Create Database Tables
 
-The [`supabase/setup.sql`](../../supabase/setup.sql) file contains all table creation + RLS policies.
+[`supabase/setup.sql`](../../supabase/setup.sql) contains the tables, RLS policies, functions, scheduled jobs, and Storage bucket creation. Paste the file into Supabase Dashboard -> **SQL Editor** and run it once.
 
-Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
-
-**Tables created (23):**
+**Tables created (26):**
 
 | Table | Purpose |
 |--------|------|
-| `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
-| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache, 80-char title CHECK) |
-| `posts` | Blog posts (post_number sequence + `scheduled_at` scheduled publishing + `purge_after` trash TTL + `version` optimistic locking + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
-| `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
-| `comment_reactions` | Comment emoji reactions (fixed set of 8, post/work split via `comment_type`, duplicate prevention via `reactor_hash`) |
-| `comment_reports` | Comment reports (reason + resolve/dismiss state) |
-| `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
-| `works` | Portfolio works (slug, `title`/`title_en` (bilingual title), `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
-| `site_visits` | Visitor statistics (1 per IP+date) |
-| `post_views` | Per-post time-series view records (daily trend chart on the dashboard) |
-| `work_comments` | Works comments (threaded replies, dual auth) |
-| `admin_notifications` | Admin notification logs |
-| `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
-| `post_work_relations` | Posts ↔ works bidirectional many-to-many (Notion Relation style) |
-| `series_work_relations` | Series ↔ works many-to-many (related series on a project, same pattern as post_work_relations) |
-| `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
-| `calendars` | Shared calendars for the editor's calendar block (`data jsonb`, soft delete + 30-day `purge_after` TTL) |
-| `custom_emojis` | Custom uploaded icons for the EmojiPicker (admin-only RLS) |
-| `cover_image_history` | Unified Cover Image Picker history (per admin user, ai/unsplash/preset tagged, RLS) |
-| `admin_login_attempts` | Admin login failure counter (5 failures → 15-minute lockout) |
-| `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices need email approval, 24h TTL) |
-| `applied_migrations` | Tracks applied schema migrations (fires a notification on first application) |
-| `author_invites` | Email author invites (email PK, author_id references the profile id in site_settings.profile, permission_level 1=author/2=editor, invited_by, created_at, consumed_at, service_role-only RLS). On OAuth login the role is granted into app_metadata and the invite is consumed |
+| `site_settings` | Site settings, profile, secrets (API keys). Stored as JSONB in three rows whose `id` is `default` · `profile` · `secrets` |
+| `series` | Blog series (`sort_order`, `auto_cover_url` Unsplash cache, 80-char title CHECK) |
+| `posts` | Blog posts (`post_number` sequence, `scheduled_at` scheduled publishing, `purge_after` trash deadline, `version` optimistic lock, `author_ids`) |
+| `comments` | Post comments (replies, dual auth: `commenter_hash` + password) |
+| `work_comments` | Work comments (same structure as `comments`) |
+| `comment_reactions` | Comment emoji reactions (fixed 8, `comment_type` splits post/work) |
+| `comment_reports` | Comment reports (reason + handling status) |
+| `likes` | Likes (posts, works, and comments split by `target_type`, IP dedup) |
+| `works` | Works (slug, ko/en title, `categories_ko/en text[]`, `nature_ko/en`, `contributions_ko/en`, `tech_notes`, `team_members`, `gallery_notes`, `is_pinned` · `view_count` · `like_count`) |
+| `page_views` | The site's view log. Visits, visitors, referrers, devices, countries, UTM, time on page, and post/work view counts all come from here |
+| `traffic_excluded_ips` | IPs the operator marked as "my IP". Visits from them are not recorded and are excluded from totals |
+| `admin_notifications` | Admin notification log |
+| `revisions` | Editor revision history (shared by posts/works, JSONB snapshot) |
+| `post_work_relations` | Posts ↔ works many-to-many |
+| `series_work_relations` | Series ↔ works many-to-many |
+| `poll_votes` | In-body poll block tallies (`poll_id` + `option_id`, IP dedup) |
+| `calendars` | Shared calendars referenced by the editor's calendar block (30-day trash) |
+| `custom_emojis` | Custom icons uploaded in the emoji picker |
+| `cover_image_history` | Cover image selection history (per user, RLS) |
+| `admin_login_attempts` | Admin sign-in failure count (5 failures -> 15-minute lock) |
+| `admin_known_devices` | Approved admin device fingerprints (unknown devices get a mail approval valid for 24 hours) |
+| `applied_migrations` | Applied migration log (notifies on first apply) |
+| `author_invites` | Email author invites (`email` PK, `author_id`, `permission_level` 1=author / 2=editor, `consumed_at`) |
+| `service_logs` | Success/failure log of AI, external services, mail, GitHub, and scheduled jobs (kept 90 days) |
+| `content_translations` | Translation cache used when reading in languages other than ko · en (re-translated when the source hash changes) |
+| `demo_usage` | Daily usage count of the About live demos (translation, summary, cover, speech) (kept 7 days) |
 
-> Uses `IF NOT EXISTS` so existing tables are skipped. Missing columns (commenter_hash, updated_at, etc.) in existing deployed DBs are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
+The older `site_visits` · `post_views` · `work_views` tables were merged into `page_views` and dropped by the 2026-10-17 migration (`2026_10_17_drop_legacy_views.sql`).
 
-> **setup.sql ↔ migrations drift**: `custom_emojis` exists only in `setup.sql`, with no matching migration file. Conversely, the `posts` title length CHECKs (`posts_title_len` / `posts_title_en_len`, 120 chars) exist only in `2026_07_13_posts_title_len.sql` and are absent from `setup.sql`. A fresh setup needs only `setup.sql`, but if you mix the two paths, check these two items.
+> Uses `IF NOT EXISTS`, so existing tables are skipped. Columns missing from an existing deployed DB (commenter_hash, updated_at, etc.) are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
 
-**Manual-run migrations (optional):** The two files below are data-rewriting scripts and are not applied automatically. Run them by hand in the SQL Editor only when needed.
+**setup.sql vs. migrations**: `custom_emojis` is created only by `setup.sql`. No migration file creates it. The post title length CHECKs (`posts_title_len` / `posts_title_en_len`, 120 chars) exist in both, but `setup.sql` adds them as `NOT VALID` and does not check existing rows, while `2026_07_13_posts_title_len.sql` checks existing rows immediately. For a fresh setup, running `setup.sql` once is enough.
+
+**Manual migrations (optional):** The two files below rewrite data, so they are not applied automatically. Run them yourself in the SQL Editor only when needed.
 
 | File | What it does |
 |------|---------|
-| `2026_07_13_category_reset.sql` | Removes the category overrides from `site_settings` and remaps `posts.category` / `series.category` onto the new taxonomy. **It updates every row with no WHERE clause, and any value missing from the mapping is swept into `ELSE '기타'`** — always review the step [0] distribution output before running |
-| `2026_07_13_tag_descriptions_reset.sql` | Removes the `tagDescriptions` override from `site_settings` so the default dictionary in `site.config.ts` shows through (leaves `posts.tags` / `tag_notes` untouched) |
+| `2026_07_13_category_reset.sql` | Removes the category override from `site_settings` and remaps `posts.category` / `series.category` to the new taxonomy. **It updates every row with no WHERE clause, and any value missing from the mapping is absorbed into `ELSE '기타'`**, so always check the distribution output from step [0] before running it |
+| `2026_07_13_tag_descriptions_reset.sql` | Removes the `tagDescriptions` override from `site_settings` so the default dictionary in `site.config.ts` shows through (does not touch `posts.tags` / `tag_notes`) |
 
-> **Works without Supabase**: If environment variables are not set, the site automatically falls back to static data from Works (`data/projects.ts`), Profile (`data/profile.ts`), and Settings (`config/site.config.ts`).
+> **Works without Supabase**: When environment variables are not set, it automatically falls back to static data from Works (`data/projects.ts`), Profile (`data/profile.ts`), and Settings (`config/site.config.ts`).
 
-**Key API endpoints:**
+**The API route list** is not kept in the docs. [`src/data/generated/apiMap.ts`](../../src/data/generated/apiMap.ts), built before each build from the `route.ts` files under `src/app/api` and `src/app/auth`, records each route's methods, access level, tables, and external services. Run `npm run gen-api-map` to rebuild it. The About page's architecture chapter draws this file.
 
-> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`, `GET /api/posts/export` (single/all/series .md export)
->
-> **Series API**: `GET/POST /api/series`, `GET/PATCH/DELETE /api/series/[id]`
->
-> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`, `GET /api/works/export` (single/all .md export)
->
-> **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `PATCH /api/comments` (edit), `DELETE /api/comments/[id]`
->
-> **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (edit), `DELETE /api/work-comments/[id]`
->
-> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (batch tally + my reactions), `POST /api/comment-reactions` (toggle an emoji reaction)
->
-> **Calendars API**: `GET/POST /api/calendars` (list — `?trash=true` for trash / create), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — all admin-only
->
-> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker custom icons, admin-only
->
-> **Upload API**: `POST /api/upload` (server-proxied upload, per-MIME size limits + a 200MB absolute cap), `POST /api/upload/signed-url` (issues a signed URL for direct Storage upload — only the filename and type transit, sidestepping the request body size cap)
->
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
->
-> **Auth & Members API**: `GET /auth/callback` (OAuth callback + authorization gate — persists the owner role on the owner's first login · deletes un-invited accounts, except when `OWNER_EMAIL` is unset where it shows a config error without deleting), `GET /api/admin/me` (current user's email/role/level/isOwner — settings tab gating), `GET|PATCH|DELETE /api/admin/authors/members` (owner-only — list members + pending invites / change permission or link author profile / delete account), `GET /api/admin/authors/context` (requireAuth, non-owner accessible — returns ownerEmail + member author-ids/emails), `POST /api/admin/authors/invite` (owner-only — insert author_invites + Resend email)
->
-> **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
->
-> **Categories API**: `GET /api/categories` (Posts bilingual category list), `GET /api/works-categories` (Works bilingual category list)
->
-> **Polls API**: `GET/POST /api/polls/[pollId]` (in-content poll block tally query / vote)
->
-> **Related Series API**: `GET /api/works/[id]/related-series` (public related series), `GET/PUT /api/admin/works/[id]/related-series` (admin related-series editing)
->
-> **Utility API**: `POST /api/translate` (public, Gemini single text), `POST /api/posts/reassign-category` (batch category reassignment), `GET /api/fonts/search?q=` (Google Fonts autocomplete search), `POST /api/highlight` (server-side code highlighting)
+### 3. Storage Buckets
 
-### 3. Storage Bucket Creation
+`setup.sql` creates two public buckets.
 
-For image, resume, and BGM uploads:
+| Bucket | Public | Used by |
+|------|------|---------|
+| `uploads` | Public | General attachments from `/api/admin/upload` (logo, resume, BGM, etc.) |
+| `posts` | Public | Post images and covers (`/api/upload`, AI generation, Unsplash download) |
 
-1. Supabase Dashboard -> **Storage**
-2. Click **New bucket**
-3. Bucket name: `uploads`
-4. Check **Public bucket** (to allow public URL access to files)
-5. **Create bucket**
+Both buckets have only a public SELECT policy and no upload policy. Browser uploads go only through signed URLs issued by the server (`/api/upload/signed-url`), and server uploads use service_role. Opening INSERT to `authenticated` would let members skip the server's extension and size checks, so there is no such policy.
 
-> The upload API organizes files by folder: `logos/`, `resume/`, `bgm/`, `covers/`, `images/`, etc.
+The contact form attachment bucket `contact-attachments` is created by the migration `2026_10_19_contact_attachments_bucket.sql`. It is private with a 25MB size limit and has no policies. The visitor's browser uploads through a signed URL issued by `/api/contact/upload`, and the mail body carries a 7-day download link made by the server.
 
-**Storage policy setup:**
-
-```sql
--- Only authenticated users can upload
-CREATE POLICY "Authenticated users can upload"
-  ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'uploads' AND auth.role() = 'authenticated');
-
--- Anyone can read (public bucket)
-CREATE POLICY "Anyone can view uploads"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'uploads');
-```
-
-### 4. Admin Account Creation
+### 4. Create Admin Account
 
 Supabase Dashboard -> **Authentication** -> **Users** -> **Add user**:
 
 - Enter Email and Password
 - Check **Auto Confirm User** (skip email verification)
 
-**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). **Set it before the first login** — signing in while it's unset can't resolve an owner and is blocked (the account is *not* deleted in that case, only a config error is shown, so you can set the env var and sign in again). On the owner's first login the `owner` role is persisted into `app_metadata` once (claim-and-close), so ownership survives even if `OWNER_EMAIL` later changes or is removed. All other members are added by email invite (see step 5).
+**Owner account (`OWNER_EMAIL`)**: Set the email created above as `OWNER_EMAIL` and that account becomes the bootstrap owner. Set it before the first sign-in. Signing in without it leaves the app unable to identify the owner, so entry is blocked. In that case the account is not deleted and only a setup notice is shown, so set the value and sign in again. Other members are added by email invite (see step 5).
 
-**GitHub OAuth login setup** — members sign in with GitHub OAuth:
+**GitHub OAuth sign-in setup** — members sign in with GitHub OAuth:
 
-1. **Create a GitHub OAuth App** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Set the Authorization callback URL to `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+1. **Create a GitHub OAuth App**: GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Set the Authorization callback URL to `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
 2. In Supabase Dashboard → **Authentication → Providers → GitHub**, enable it and paste the OAuth App's Client ID + Secret
-3. Add your site's `/auth/callback` to Supabase **Authentication → URL Configuration → Redirect URLs**
+3. In Supabase **Authentication → URL Configuration → Redirect URLs**, add your site's `/auth/callback`
 
-### 5. Admin Login Method
+### 5. Admin Login
 
-There is no login button on the site. Only the admin accesses it by entering the URL directly.
+The sign-in screen is `/admin/login`. The **Login** link in the footer goes there (`/admin/login?next=/admin`).
 
 **GitHub OAuth login** (standard path for members):
 
-1. On `/admin/login`, click **Sign in with GitHub** → `supabase.auth.signInWithOAuth` → GitHub auth → redirect to `/auth/callback`
-2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata (on the owner's first login the `owner` role is persisted once) and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error — except when `OWNER_EMAIL` is unset, where the account is kept and only a config error is shown
-3. Success -> Redirect to `/admin/settings`
+1. On `/admin/login`, **Sign in with GitHub** -> `supabase.auth.signInWithOAuth` -> GitHub auth -> back to `/auth/callback`.
+2. `/auth/callback` checks whether the email is `OWNER_EMAIL`, already has a role, or has an invite in `author_invites`. If it passes, the invite is consumed and the role is put into `app_metadata`. On the owner's first sign-in, the `owner` role is stored once. If none of the three apply, the account is deleted and the user is sent back to the sign-in screen with an error. If `OWNER_EMAIL` is empty, the account is not deleted and only a setup error is shown.
+3. On success it goes to the `next` address. Without `next` it goes to `/admin` (dashboard).
 
 **Password login** (owner fallback):
 
 1. Go to `/admin/login`
 2. Enter the email/password created in Supabase
-3. Login success -> Redirect to `/admin/settings`
+3. On success it goes to the `next` address, or `/admin/settings` without `next`. On an unknown device it sends an approval mail and stops the sign-in.
 
-**Adding members (email invite)**: From Settings → the **Account tab**, the owner invites a member by email, which inserts an `author_invites` row and sends a Resend notice email. When the invitee signs in via GitHub OAuth with that same email, they automatically gain author/editor permission. The owner manages the member list, roles, and permissions from the Account tab (non-owners see only the Account tab).
+**Adding members (email invite)**: When the owner invites a member by email from Settings › **Account**, an `author_invites` row is created and a Resend notice mail is sent. When the invitee signs in with GitHub under the same email, they get author or editor permission. The owner manages the member list, roles, and permissions on the same tab.
 
-**Features available after login:**
+**Screens available after sign-in:**
 
-- `/admin/posts` — Post list (publish/private status, hover preview, row numbers, thumbnails). The series panel above it reorders, deletes, and exports series; creating and editing series happens in Settings → Content → Posts
-- `/admin/posts/new` — New post creation (Markdown <-> Rich Text toggle, auto translation, re-translate, auto save + DB revision history + diff comparison + Revert)
-- `/admin/posts/[id]/edit` — Edit existing post (PlateEditor loading skeleton)
-- `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
-- `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
-- `/admin/works/[id]/edit` — Edit existing work
-- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO (incl. a `defaultLanguage` ko/en Select that decides which language is required in admin authoring forms [title/subtitle/nature/categories] plus the editor's initial language tab — independent of the visitor-facing language)/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes + member management (owner-only — member list, roles [owner/editor/author], email invites, permission changes; non-owners see only the Account tab)
+- `/admin`: Dashboard. Traffic, notifications, reports, comments, and the service log screens sit under it.
+- `/admin/posts`: Post list. The series panel above it reorders, deletes, and exports series.
+- `/admin/posts/new` · `/admin/posts/[id]/edit`: Post editor (Markdown ↔ Rich Text, auto translation, auto save + revision history + diff comparison)
+- `/admin/works`: Works list (publish toggle, sort order, `.md` upload)
+- `/admin/works/new` · `/admin/works/[id]/edit`: Work editor (ko/en, tech stack, gallery)
+- `/admin/settings`: Site settings. It has six tabs.
+
+| Tab | Contents |
+|----|------|
+| General | Personal info and contact, SEO metadata (including the default content language), BGM |
+| Content | Home · Profile · Works · Posts sub-tabs |
+| Library | Calendars, polls, custom emojis, cover history, files, comment images |
+| Appearance | Theme, typography, date picker style, brand (logo, favicon) |
+| Services | Email service, AI cover · summary · models, reCAPTCHA, translation, TTS, comment notification mail, comment provider, media limits, API keys |
+| Account | Admin email and password, security, member management (owner only) |
+
+Only the owner can open the five tabs other than Account. Members who are not the owner see only the Account tab (`canOpenSettingsTab` in `src/lib/adminAccess.ts`).
+
+The default content language (`metadata.defaultLanguage`) decides which language is required in the admin authoring forms and which language tab the editor opens first. It is unrelated to the language visitors see.
 
 ### 6. Cover Image Picker Usage
 
-In the Cover Image / Main Image area of the post, series, and work editors, you can choose between **Upload** (direct upload) and **Choose cover** (picker).
-
-Clicking **Choose cover** shows 5 tabs plus a local-file area (it automatically becomes a bottom sheet on mobile):
+In the cover image area of the post, series, and work editors, choose **Upload** (direct upload) or **Choose cover** (picker). **Choose cover** shows six tabs. On mobile it opens as a bottom sheet.
 
 | Tab | Description | Required Environment Variable |
 |----|------|----------------|
-| **Presets** | 16 gradients/patterns — clicking one generates a 1200x630 image via the Canvas API and uploads it to Supabase. Local media under `public/cover/images/` · `public/cover/videos/` also appears in the same panel (shared `/api/admin/cover`) | None |
-| **Unsplash** | Search Unsplash photos by keyword -> click to trigger download tracking + Supabase upload | `UNSPLASH_ACCESS_KEY` |
-| **Pexels** | Search Pexels photos by keyword -> click to download + Supabase upload. A complement to Unsplash (fail-safe if their API policy changes) | `PEXELS_API_KEY` |
-| **AI Generate** | Prompt + style selection -> AI image generation -> Supabase upload | Provider-specific API key (see below) |
-| **History** | Permanently keeps previously chosen covers (`cover_image_history` table, RLS) — preset / Unsplash / Pexels / AI unified. Inline keyword & palette copy, download, and re-select | None |
-
-> **Note**: The Unsplash, Pexels, and AI Generate tabs each require their own API key. The Presets and History tabs work without any environment variables.
+| **Presets** | 16 gradient presets and a gradient editor. On selection it renders an image with the Canvas API and uploads it to Supabase. Local videos in `public/cover/videos/` appear in the same tab (`/api/admin/cover`) | None |
+| **Project** | Pick images committed under `public/images/screenshots/`, grouped by folder (`/api/admin/project-images`) | None |
+| **Unsplash** | Search Unsplash photos by keyword -> on selection, record the download + upload to Supabase | `UNSPLASH_ACCESS_KEY` |
+| **Pexels** | Search Pexels photos by keyword -> on selection, upload to Supabase | `PEXELS_API_KEY` |
+| **AI Generate** | Prompt + style -> AI image generation -> upload to Supabase. Shown only when the AI cover is enabled in Settings › Services | Provider-specific API key (see below) |
+| **History** | Covers picked so far (`cover_image_history`). Pick again, download, copy keywords and palette | None |
 
 ---
 
 #### AI Generate — Provider Setup
 
-Select the service to use in `src/config/site.config.ts` under `aiCover.provider`:
-
-```ts
-aiCover: {
-  provider: "huggingface",  // "nanobanana" | "huggingface"
-},
-```
+The provider is chosen in the AI cover section of admin **Settings › Services**, together with the order to fall back to on failure. `aiCover.provider` in `site.config.ts` is the default used when nothing is stored.
 
 | Provider | Model | Environment Variable | Price | How to Get |
 |----------|------|----------|------|-----------|
-| **huggingface** | FLUX.1-schnell | `HUGGINGFACE_API_KEY` | Free (with rate limits) | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) -> New token -> Check `Inference Providers` permission |
-| **nanobanana** | Gemini 2.5 Flash | `NANOBANANA_API_KEY` | ~$0.02/image (free credits on signup) | [nanobananaapi.ai/api-key](https://nanobananaapi.ai/api-key) -> Sign up -> Copy API Key |
+| **huggingface** | Chosen in Settings › Services. The default `latest` is the most popular text-to-image model on the Hub that can run right now (Inference Providers auto routing) | `HUGGINGFACE_API_KEY` | Billed per provider (monthly free credits) | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) -> New token -> Check `Inference Providers` permission |
+| **nanobanana** | Chosen in Settings › Services. `nanobanana-2` (default, latest) · `nanobanana-pro` · `nanobanana` | `NANOBANANA_API_KEY` | ~$0.02/image (free credits on signup) | [nanobananaapi.ai/api-key](https://nanobananaapi.ai/api-key) -> Sign up -> Copy API Key |
 
 **Setup example (.env.local):**
 
@@ -250,7 +209,7 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-> After changing the provider, just set the corresponding key in `.env.local`. Keys for unused providers can be left empty.
+Set only the key of the provider you use. Leave the keys of unused providers empty.
 
 ---
 
@@ -312,35 +271,36 @@ Used by the profile/home GitHub integration (repository lists, organization repo
 
 **Authentication flow:**
 
+The block below lists the sign-in paths and the path into the admin screens, in order.
+
 ```
 /admin/login (Sign in with GitHub)
   -> supabase.auth.signInWithOAuth({ provider: "github" })
-    -> GitHub auth -> GET /auth/callback
+    -> GitHub auth -> GET /auth/callback?next=…
       -> exchangeCodeForSession (authenticates only)
       -> authorization gate: email is OWNER_EMAIL || has a role || author_invites row?
         -> pass -> grant role into app_metadata + consume invite (consumed_at)
-                   (on the owner's first login, persist the owner role into app_metadata once)
+                   (on the owner's first login, store the owner role into app_metadata once)
         -> fail & OWNER_EMAIL set   -> signOut() + service-role deleteUser() -> /admin/login with an error
-        -> fail & OWNER_EMAIL unset -> no delete, "OWNER_EMAIL not set" config error (set env, sign in again to become owner)
-  -> Redirect to /admin/settings
+        -> fail & OWNER_EMAIL unset -> no delete, "OWNER_EMAIL not set" error
+  -> go to next (default /admin)
 
 /admin/login (form submit — owner fallback)
   -> POST /api/admin/auth
-    -> supabase.auth.signInWithPassword()
-    -> Set session cookie
-  -> Redirect to /admin/settings
+    -> lockout check (admin_login_attempts) -> signInWithPassword()
+    -> unknown device -> signOut() + approval mail (202)
+    -> set session cookie
+  -> go to next (default /admin/settings) with a full page load (window.location.assign)
 
 Accessing /admin/*
-  -> Dashboard layout checks session
-  -> No session -> /admin/denied (access denied page)
-  -> Session exists -> Normal access (server helpers re-check the app_metadata role)
-  -> AdminAuthSync subscribes to onAuthStateChange -> SIGNED_OUT in another tab -> /admin/login (cross-tab logout)
+  -> proxy: no signed-in user -> /admin/login, page above the user's permission -> /admin/posts
+  -> Dashboard layout: no user from getUser() -> /admin/denied
+  -> server helpers re-check the app_metadata role
+  -> AdminAuthSync subscribes to onAuthStateChange -> SIGNED_OUT in another tab -> /admin/login
 
 Accessing /admin/login
-  -> Auth layout checks session
-  -> Already logged in -> Redirect to /admin/settings
+  -> Auth layout checks the session
+  -> already signed in -> /admin
 ```
 
-> **Key point**: Regular visitors can only read posts and leave comments at `/posts`. Only the admin (yourself) accesses `/admin/login` by entering the URL directly. Since this is a portfolio site, the login UI is not exposed.
-
-See [testing.md](./testing.md) for how to run the tests, and [components.md](./components.md) and the `/design-system` page for tokens and components.
+See [testing.md](./testing.md) for how to run the tests, and [design-system.md](../design-system.md) and the `/design-system` page for tokens and components.

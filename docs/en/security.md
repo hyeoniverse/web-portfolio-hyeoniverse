@@ -2,6 +2,52 @@
 
 Multi-layered security validation is applied to all public API endpoints.
 
+### The path a request takes
+
+A request passes three layers in order. Passing an earlier layer does not skip the later ones, which repeat the same judgment.
+
+```mermaid
+flowchart TD
+  req["Browser request"] --> proxy{"proxy<br/>src/proxy.ts"}
+  proxy -->|"POST · PATCH · PUT · DELETE on /api/*<br/>Origin/Referer is not SITE_URL or the blog host"| r403["403"]
+  proxy -->|"/admin/* · /api/admin/*<br/>no signed-in user"| rlogin["Page: /admin/login<br/>API: 401"]
+  proxy -->|"an author opens an admin-only page"| rposts["redirect to /admin/posts"]
+  proxy -->|pass| route{"Route guard<br/>requireAuth · requireRole · requireOwner · requirePostAccess"}
+  route -->|"no session"| r401["401"]
+  route -->|"role · level in app_metadata too low"| r403b["403"]
+  route -->|pass| client{"Supabase query"}
+  client -->|"session client"| rls["RLS policies<br/>app_role() · app_level() · app_author_id()<br/>= app_metadata in the JWT"]
+  client -->|"service_role (server only)"| bypass["bypasses RLS<br/>aggregates · access lookups · public writes"]
+  rls --> db[("Postgres")]
+  bypass --> db
+```
+
+- The proxy checks the origin of write requests to `/api/*`. Requests from localhost and dev mode pass. In a deployed environment with an empty `SITE_URL`, all of them are blocked.
+- Route guards re-read `app_metadata` on every request. Role values sent by the client are never used.
+- The RLS helpers (`app_role` · `app_level` · `app_author_id`) live in `supabase/setup.sql`. `is_admin()` means owner or permission level 2+, `can_edit_post()` means owner, level 2+, or an author listed in the post's `author_ids`, and `can_edit_work()` means an admin or an author listed in `team_members`.
+
+### Admin password sign-in
+
+`POST /api/admin/auth` revokes the session right away on an unknown device, even with the right password.
+
+```mermaid
+flowchart TD
+  start["POST /api/admin/auth"] --> lock{"Locked?<br/>admin_login_attempts"}
+  lock -->|yes| r423["423 with remaining time"]
+  lock -->|no| pw{"signInWithPassword"}
+  pw -->|fail| fail["failure count +1<br/>5th failure locks for 15 minutes"]
+  fail --> r401["401 attempts left · 423"]
+  pw -->|success| clear["clear failure record"]
+  clear --> dev{"device fingerprint<br/>admin_known_devices"}
+  dev -->|approved device| ok["200 signed in"]
+  dev -->|unknown device| out["signOut + approval mail<br/>(token valid 24 hours)"]
+  out --> r202["202 device_pending"]
+  r202 -. mail link .-> approve["/api/admin/auth/approve-device<br/>approved = true"]
+  approve -. sign in again .-> start
+```
+
+The device fingerprint hashes only the browser, OS, and device type parsed from the UA. A browser auto-update is still the same device. GitHub OAuth sign-in does not take this path. It goes through the authorization gate in `/auth/callback` (below).
+
 | Security Layer | Implementation | Scope |
 |------------|-----------|----------|
 | **SQL Injection Prevention** | Supabase parameterized queries (prepared statements) | All DB queries |
@@ -10,12 +56,12 @@ Multi-layered security validation is applied to all public API endpoints.
 | **Input Validation** | UUID format validation, length limits, email format validation, enum type validation, category whitelist validation | All public APIs |
 | **Authentication** | Comment dual authentication (commenter_hash + bcrypt password), admin comment server-side Supabase Auth re-verification | Comment edit/delete, admin |
 | **RLS** | Policy helpers reading the JWT (`app_metadata`) decide access per role + anon write GRANTs revoked + direct Storage upload policy removed (below) | All tables, Storage |
-| **Route Protection** | Layout-level Supabase Auth session check + access denied page | `/admin/*` |
-| **CSRF origin check** | The proxy (middleware) compares Origin/Referer on every `/api/*` POST/PATCH/PUT/DELETE against the `SITE_URL` origin — mismatch or unparsable config means 403 (fail-closed). GET is skipped | All API mutations |
+| **Route Protection** | The proxy checks sign-in and per-page permission first, then the Dashboard layout checks the session again (access denied page if missing) | `/admin/*` |
+| **CSRF origin check** | The proxy (`src/proxy.ts`) compares Origin/Referer on every `/api/*` POST/PATCH/PUT/DELETE against the origins of `SITE_URL` and the blog host. A mismatch or an unparsable value means 403 (fail-closed). GET is skipped | All API write requests |
 | **Login protection** | 15-minute lockout after 5 failures (`admin_login_attempts`) + logins from unseen devices are denied until approved by email (`admin_known_devices`, UA fingerprint + 24-hour token) + sign-out-everywhere | `/api/admin/auth` |
 | **Role-based authorization** | Four tiers: owner (full control) / admin (all posts + moderation) / author (own posts only) / visitor (public only) + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
 | **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account. When `OWNER_EMAIL` is unset, the account is kept and only a config error is shown (prevents bootstrap lockout) | GitHub OAuth login |
-| **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below) | Likes, visitor statistics, votes, comment reactions |
+| **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below). The view log counts the same IP and path once per 30 minutes (`record_page_view`) | Likes, votes, comment reactions, view log |
 | **service_role Writes** | `/api/polls` votes + related-series writes are handled by the service_role admin client | Votes, related-series editing |
 | **Password Security** | bcrypt (salt round 10), 72-byte limit, minimum 2 characters | Comment passwords |
 | **Category Validation** | Server-side whitelist validation — only categories registered in site settings are allowed | Posts, Works, Series |
@@ -48,7 +94,7 @@ Multi-layered security validation is applied to all public API endpoints.
 | `POST /api/contact/attachment` | Accepts only an `ok` boolean and a reason (200 chars); counts the same IP once per 10 minutes (prevents abusing the attachment auto-off). The message itself goes from the browser to the provider, validated by the form (`useContactForm`) |
 | `POST /api/translate` | Text (2000 chars), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — auth required, since it bulk-updates `posts.category` through the admin client |
-| `PATCH /api/admin/settings` | About ERD shape (`checkAboutErd`) + **required values (`checkRequiredSettings`)** — empty title/name/theme-colors/member-names, giscus required fields, email format. Returns 400 on violation. Guards against client bypass (incl. per-section save) + DB CHECK (`settings_required_valid`) as the last line |
+| `PATCH /api/admin/settings` | Shape of old stored About ERD values (`checkAboutErd`, [DB design](./db-design.md#former-about-erd-config-validation-about_erd_valid)) + **required values (`checkRequiredSettings`)** — empty title/name/theme-colors/member-names, giscus required fields, email format. Returns 400 on violation. Guards against client bypass (incl. per-section save) + DB CHECK (`settings_required_valid`) as the last line |
 
 **Comment markdown sanitize (`CommentMarkdown.tsx`):**
 
@@ -103,9 +149,9 @@ GitHub OAuth only **authenticates** — any GitHub account can complete the sign
 
 **CSRF origin check (proxy):**
 
-The middleware (`src/proxy.ts`) compares Origin/Referer against `SITE_URL` on every POST/PATCH/PUT/DELETE under `/api/*`. Same-origin browser fetches carry an automatic Origin header and pass; cross-origin requests and requests without an Origin (curl and the like) are blocked. GET is skipped since cookie CSRF does not affect it. This is an application-level defense that does not rely on SameSite=Lax cookies alone.
+The proxy (`src/proxy.ts`) compares Origin/Referer against `SITE_URL` on every POST/PATCH/PUT/DELETE under `/api/*`. Same-origin browser fetches carry an automatic Origin header and pass; cross-origin requests and requests without an Origin (curl and the like) are blocked. GET is skipped since cookie CSRF does not affect it. This is an application-level defense that does not rely on SameSite=Lax cookies alone.
 
-The comparison base is normalized with `new URL(SITE_URL).origin`. Request Origin headers have no trailing `/`, so comparing a configured `https://x.com/` verbatim would 403 everything. When the configured value cannot be parsed (missing scheme and the like), it becomes an empty string and falls through to fail-closed. With `SITE_URL` unset in production, every admin mutation is a 403.
+The comparison base is normalized with `new URL(SITE_URL).origin`. Request Origin headers have no trailing `/`, so comparing a configured `https://x.com/` verbatim would 403 everything. When the configured value cannot be parsed (missing scheme and the like), it becomes an empty string and falls through to fail-closed. With `SITE_URL` unset in production, every write request to `/api/*` is a 403. Comments and likes sent from the blog subdomain (`blog.hyeoniverse.com`) are same-site requests, so that origin is on the allow list.
 
 **Admin login protection (`/api/admin/auth`):**
 

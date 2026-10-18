@@ -10,7 +10,7 @@ Next.js 16 · React 19 · TypeScript 로 만든 개인 포트폴리오입니다.
 [![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0-d40063?style=flat-square)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 
 **[www.hyeoniverse.com →](https://www.hyeoniverse.com)**
@@ -66,7 +66,11 @@ Next.js 16 · React 19 · TypeScript 로 만든 개인 포트폴리오입니다.
 
 | 프로필 (Three.js) | 소개 |
 |:---:|:---:|
-| <img src="public/images/screenshots/pc/profile-dark.png" alt="프로필" width="100%" /> | <img src="public/images/screenshots/pc/about-light.png" alt="소개" width="100%" /> |
+| <img src="public/images/screenshots/pc/profile-dark.png" alt="프로필" width="100%" /> | <img src="docs/images/about-dark.png" alt="소개 — 별자리 지도" width="100%" /> |
+
+소개 페이지는 별자리 지도에서 시작합니다. 별을 누르면 그 장으로 가고, 아래로 굴리면 01 한눈에 보기부터 10 자주 묻는 질문까지 차례로 넘어갑니다. 내용은 `content/about/*.md` 에서 빌드 때 만들어집니다.
+
+<img src="docs/images/about-chapter-dark.png" alt="소개 02 기능 장" width="100%" />
 
 ### 편집기 · 디자인 시스템
 
@@ -134,13 +138,17 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 #### 설정
 
-`/admin/settings` 는 여섯 탭입니다 — **일반**(개인 정보 · 브랜드와 로고 · SEO · 배경 음악), **콘텐츠**(홈의 히어로 · 인트로 · 작업물 묶음 · 마퀴 · 푸터 · 소셜 · 배너, 페이지네이션, 태그 · 카테고리, 작업물 인트로 영상, 그리고 PROFILE 서브탭), **라이브러리**(달력 · 투표 · 커스텀 이모지 · 커버 이미지 기록 · 업로드한 파일), **외관**(디자인 시스템 미리보기 · 테마 색상 · 날짜 선택 스타일 · 타이포그래피와 폰트 업로드), **서비스**(기능별 공급자 우선순위 · 이메일 · 댓글 시스템과 giscus · 보안 · 업로드 형식과 크기 한도 · 공급자 상태 패널 · 환경 변수), **계정**(인증 · 이메일 변경 · 비밀번호 정책, 등록된 기기와 **모든 기기 로그아웃**, 멤버와 역할 — 소유자 · 관리자 · 저자).
+`/admin/settings` 는 여섯 탭입니다. **일반**(개인 정보 · 연락처 · SEO 메타데이터 · 배경 음악), **콘텐츠**(홈의 히어로 · 인트로 · 작업물 묶음 · 마퀴 · 푸터 · 소셜 · 배너, 페이지네이션, 태그 · 카테고리, 작업물 인트로 영상, 그리고 PROFILE 서브탭), **라이브러리**(달력 · 투표 · 커스텀 이모지 · 커버 이미지 기록 · 업로드한 파일), **외관**(디자인 시스템 미리보기 · 테마 색상 · 브랜드(로고 방식 · 숏로고 · 풀로고 · 파비콘) · 날짜 선택 스타일 · 타이포그래피와 폰트 업로드), **서비스**(기능별 공급자 우선순위 · 이메일 · 댓글 시스템과 giscus · 보안 · 업로드 형식과 크기 한도 · 공급자 상태 패널 · 환경 변수), **계정**(인증 · 이메일 변경 · 비밀번호 정책, 등록된 기기와 **모든 기기 로그아웃**, 멤버와 역할(소유자 · 관리자 · 저자)).
 
 저장은 탭 전체 또는 섹션 하나씩이고, 되돌리기와 코드 기본값이 있습니다. 비울 수 없는 값(사이트 제목 · 이름 · 테마 색 다섯 · 멤버 이름, giscus 를 고르면 저장소 정보)은 UI · API · DB 세 겹에서 막고, 코드 기본값이 바뀐 뒤에는 **충돌 리스트**가 섹션별로 새 값을 보여 주어 골라 반영합니다.
 
 | 라이브러리 — 달력 · 투표 · 이모지 · 커버 · 파일 | 계정 — 보안 / 세션, 등록된 기기, 멤버 |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/26-settings-library-light.png" alt="설정 라이브러리 탭" width="100%" /> | <img src="public/images/screenshots/cms/27-settings-account-light.png" alt="설정 계정 탭" width="100%" /> |
+
+외관 탭의 브랜드는 맨 위 미리보기 띠에 저장 전 설정으로 그린 네비 · 브라우저 탭(숏로고)과 로딩 화면(풀로고)을 보여 줍니다. 그 아래에서 로고 방식(이미지 / 텍스트)을 고르고, 숏로고 · 풀로고 · 효과를 파트별로 조절합니다.
+
+<img src="docs/images/settings-brand-dark.png" alt="설정 외관 — 브랜드" width="100%" />
 
 #### 로그인과 보안
 
@@ -244,7 +252,6 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | **작업물** | 여섯 가지 레이아웃(Flow · Fullscreen · Cinematic · Grid · Split · Cylinder), 상세 페이지 |
 | **글** | SSR + ISR, 시리즈, 배너 슬라이더, 여섯 가지 목록 레이아웃, 게스트 댓글(마크다운 + 이모지 반응) 또는 giscus |
 | **관리자** | 대시보드(통계 · 일별 조회 · 인기 · 신고 · 서비스 상태) · 트래픽 분석(유입 · 기기 · 국가 · 랜딩 · IP · UTM) · 알림 · 서비스 호출 기록, Plate.js 편집기(다이어그램 · 코드 플레이그라운드 · 수식 블록, 색 도구, 발행 상태 전환), `.md` 동기화, AI 번역·요약, 발표 갤러리 음성(TTS · 녹음 · PPTX 발표자 노트), 테마 프리셋 + WCAG 대비 점검, 리비전 히스토리, 멤버 초대와 역할 |
-| **성능** | Lighthouse 98 — LCP 1.9s, 초기 번들 449KB |
 | **보안** | RLS 4단계 권한, CSRF Origin 체크(운영은 fail-closed), 로그인 5회 실패 잠금 + 새 기기 메일 승인 |
 | **디자인 시스템** | 3층 토큰(Raw → Semantic → Component) + 역할 토큰, 전체 색 OKLCH |
 
@@ -254,7 +261,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 | 분류 | 사용 |
 |:---|:---|
-| 프레임워크 | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 5 |
+| 프레임워크 | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 6 |
 | 스타일 | CSS Modules + CSS 변수 3층 토큰 · stylelint 규칙으로 집행 |
 | 애니메이션 | Framer Motion · GSAP · Lenis |
 | 3D | Three.js · React Three Fiber · Drei |
@@ -283,7 +290,7 @@ npm run build          # 프로덕션 빌드
 npm test               # 단위 테스트 (Vitest)
 npm run test:smoke     # 스모크 e2e (빌드 산출물 필요)
 npm run audit:full     # typecheck + eslint + stylelint + knip
-npm run sync-all       # content/*.md ↔ DB 동기화
+npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB 대신 빌드 때 md 에서 만든다)
 ```
 
 ---
@@ -296,11 +303,11 @@ npm run sync-all       # content/*.md ↔ DB 동기화
 | [Supabase 세팅](./docs/supabase-setup.md) | 환경변수, 테이블, Storage, 관리자 계정, 커버 이미지 |
 | [배포](./docs/deploy.md) | Vercel, 도메인, 메일, 배포 후 점검 |
 | [테스트](./docs/testing.md) | Vitest 목록, 스모크 e2e, admin 세션 준비 |
-| [디자인 시스템](./docs/design-system.md) | 토큰 3층, 축별 규칙과 강제 상태, `@layer`·이행 계획 (토큰 값은 [자동 생성 표](./docs/tokens.md)) |
+| [디자인 시스템](./docs/design-system.md) · [결정 기록](./docs/design-system-decisions.md) | 토큰 3층, 축별 규칙과 강제 상태, `@layer` (토큰 값은 [자동 생성 표](./docs/tokens.md)) |
 | [트러블슈팅](./docs/troubleshooting.md) | 막혔던 지점과 원인·해결 기록 |
 | [컴포넌트](./docs/components.md) · [DB 설계](./docs/db-design.md) · [보안](./docs/security.md) · [사용자 흐름](./docs/user-flow.md) | 영역별 상세 |
-| [편집기 가이드](./docs/editor-guide.md) · [글](./docs/md-posts-guide.md) · [작업물](./docs/md-works-guide.md) · [소개](./docs/md-about-guide.md) | 편집기 사용법과 `.md` 작성 규칙 |
-| [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) | 구조 정리 기록과 성능 기준선 |
+| [편집기 가이드](./docs/editor-guide.md) · [.md 콘텐츠 안내](./docs/md-content-guide.md) | 편집기 사용법과 글 · 작업물 · 소개 `.md` 작성 규칙 |
+| [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [커밋 컨벤션](./docs/commit-convention.md) | 구조 정리 기록, 번들 기준선, 커밋 규칙 |
 
 ---
 
@@ -308,14 +315,16 @@ npm run sync-all       # content/*.md ↔ DB 동기화
 
 ```
 src/
-├─ app/           # App Router — (home) · works · posts · about · profile · admin · api
+├─ app/           # App Router: (home) · works · posts · about · profile · privacy · auth · design-system · admin · api
 ├─ components/    # 화면별 컴포넌트 + ui/ 공통 컴포넌트
-├─ styles/        # tokens/ (Raw) · globals/ (Semantic · Component)
-├─ providers/     # 테마 · 언어 · 스크롤
+├─ styles/        # tokens/ (Raw) · globals/ (Semantic · Component) · vendor/ · layers.css
+├─ providers/     # 테마 · 언어 · 스크롤 · 사이트 설정
+├─ config/ constants/ data/ types/
 ├─ lib/ hooks/ stores/ utils/
-└─ locales/       # 한국어 · 영어
-content/          # .md 원본 (posts · works · about) — sync 스크립트로 DB 왕복
-docs/             # 문서
+├─ locales/       # 한국어 · 영어
+└─ proxy.ts       # CSRF Origin 확인 · 블로그 주소 라우팅
+content/          # .md 원본: posts · works 는 sync 스크립트로 DB 와 맞추고, about 은 빌드 때 페이지 데이터로 만든다
+docs/             # 문서 (docs/images: 문서 전용 이미지)
 e2e/ scripts/     # 스모크 테스트 · 동기화와 스크린샷 스크립트
 supabase/         # 마이그레이션 SQL
 ```
