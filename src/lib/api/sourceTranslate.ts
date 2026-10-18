@@ -10,7 +10,8 @@ import { type Provider, buildProviderList, translateWithFallback } from "@/lib/a
  *
  * - 설정 글: 설정을 저장할 때 한 번에(양이 적다) — translateConfigSource
  * - 글 · 작업물: 관리자가 편집 화면에 들어갈 때 그 글만 — translateRowSource
- * 덮어쓰기 전 원문은 content_translations 에 그 언어로 한 줄 남긴다(되돌릴 때 원래 글로 돌아오게).
+ * 덮어쓰기 전 원문은 content_translations 에 그 언어로 한 줄 남긴다 — 그때 써 넣은 글도 같이(SourceBackup).
+ * 나중에 그 언어로 되돌리면 그 사이 고치지 않은 칸은 번역하지 않고 백업의 원래 글로 되살린다(restoreOrTranslate).
  */
 
 type Config = Awaited<ReturnType<typeof getSiteConfig>>;
@@ -50,12 +51,57 @@ async function translateAll(texts: string[], from: string, to: string, config: C
   return failed ? null : out;
 }
 
-async function backup(sourceType: "post_source" | "work_source" | "settings_source", sourceId: string, lang: string, fields: Obj) {
+type BackupType = "post_source" | "work_source" | "settings_source";
+
+/**
+ * 백업 한 줄(content_translations, lang = 덮어쓰기 전 언어) — 원래 글(original)과 그때 to 언어로 써 넣은 글(written).
+ * 키는 설정 경로("hero.headline_ko.0") 또는 칸 이름("title" · "categories_ko.0"). 예전 줄(v 없음)은 원래 글만 있어 되살리지 않는다
+ */
+interface SourceBackup {
+  v: 2;
+  to: string;
+  original: Record<string, string>;
+  written: Record<string, string>;
+}
+
+async function readBackup(sourceType: BackupType, sourceId: string, lang: string): Promise<SourceBackup | null> {
+  const { data } = await createAdminClient()
+    .from("content_translations")
+    .select("fields")
+    .eq("source_type", sourceType).eq("source_id", sourceId).eq("lang", lang)
+    .maybeSingle();
+  const f = data?.fields as Partial<SourceBackup> | null | undefined;
+  return f?.v === 2 && typeof f.to === "string" && f.original && f.written ? (f as SourceBackup) : null;
+}
+
+async function backup(sourceType: BackupType, sourceId: string, from: string, to: string, original: Record<string, string>, written: Record<string, string>) {
+  const fields: SourceBackup = { v: 2, to, original, written };
   const { error } = await createAdminClient().from("content_translations").upsert({
-    source_type: sourceType, source_id: sourceId, lang, fields, source_hash: "",
+    source_type: sourceType, source_id: sourceId, lang: from, fields, source_hash: "",
     updated_at: new Date().toISOString(),
   }, { onConflict: "source_type,source_id,lang" });
   if (error) console.error(`[source-translate ${sourceType}] backup failed`, error.message);
+}
+
+/**
+ * 글 묶음(키 → 지금 글)을 from → to 로. 예전에 to 에서 from 으로 덮어쓴 백업(prior, lang = to)이 있고 그 칸이 그때
+ * 써 넣은 글 그대로면(그 사이 고치지 않았으면) 번역하지 않고 백업의 원래 글로 되살린다. 나머지만 번역한다.
+ * 하나라도 번역을 못 받으면 null(덮어쓰지 않는다)
+ */
+async function restoreOrTranslate(
+  entries: [string, string][], prior: SourceBackup | null, from: string, to: string, config: Config, tag: string, html = false,
+): Promise<Record<string, string> | null> {
+  const out: Record<string, string> = {};
+  const todo: [string, string][] = [];
+  for (const [k, v] of entries) {
+    const original = prior?.to === from && prior.written[k] === v ? prior.original[k] : undefined;
+    if (typeof original === "string") out[k] = original;
+    else todo.push([k, v]);
+  }
+  const translated = await translateAll(todo.map(([, v]) => v), from, to, config, tag, html);
+  if (!translated) return null;
+  todo.forEach(([k], i) => { out[k] = translated[i]; });
+  return out;
 }
 
 /* ── 설정 글 ── */
@@ -110,14 +156,15 @@ function setAt(target: Obj, path: Path, value: unknown) {
  */
 export async function translateConfigSource(full: Obj, delta: Obj, from: string, to: string, config: Config): Promise<boolean> {
   const items = collectKoTexts(full).filter(([p]) => !unrenderedAbout(p));
-  const texts = items.map(([, t]) => t);
-  const translated = await translateAll(texts, from, to, config, `[source-translate settings ${from}→${to}]`);
-  if (!translated) return false;
+  const entries = items.map(([p, t]) => [p.join("."), t] as [string, string]);
+  const prior = await readBackup("settings_source", SETTINGS_SOURCE_ID, to);
+  const result = await restoreOrTranslate(entries, prior, from, to, config, `[source-translate settings ${from}→${to}]`);
+  if (!result) return false;
 
-  await backup("settings_source", SETTINGS_SOURCE_ID, from, Object.fromEntries(items.map(([p, t]) => [p.join("."), t])));
+  await backup("settings_source", SETTINGS_SOURCE_ID, from, to, Object.fromEntries(entries), result);
 
   const next = structuredClone(full);
-  items.forEach(([p], i) => setAt(next, p, translated[i]));
+  items.forEach(([p]) => setAt(next, p, result[p.join(".")]));
   const roots = new Map<string, Path>();
   for (const [p] of items) {
     const arrayAt = p.findIndex((_, n) => Array.isArray(getAt(next, p.slice(0, n + 1))));
@@ -140,14 +187,16 @@ export async function prepareProfileSource(from: string, to: string, config: Con
   if (!stored) return { save: async () => true };
   const data = (stored.data && stored.savedDefaults ? stored.data : stored) as Obj;
   const items = collectKoTexts(data);
-  const translated = await translateAll(items.map(([, t]) => t), from, to, config, `[source-translate profile ${from}→${to}]`);
-  if (!translated) return null;
+  const entries = items.map(([p, t]) => [p.join("."), t] as [string, string]);
+  const prior = await readBackup("settings_source", PROFILE_SOURCE_ID, to);
+  const result = await restoreOrTranslate(entries, prior, from, to, config, `[source-translate profile ${from}→${to}]`);
+  if (!result) return null;
   if (!items.length) return { save: async () => true };
   return {
     save: async () => {
-      await backup("settings_source", PROFILE_SOURCE_ID, from, Object.fromEntries(items.map(([p, t]) => [p.join("."), t])));
+      await backup("settings_source", PROFILE_SOURCE_ID, from, to, Object.fromEntries(entries), result);
       const next = structuredClone(data);
-      items.forEach(([p], i) => setAt(next, p, translated[i]));
+      items.forEach(([p]) => setAt(next, p, result[p.join(".")]));
       const config2 = stored.data && stored.savedDefaults ? { ...stored, data: next } : next;
       const { error } = await admin.from("site_settings").upsert({ id: "profile", config: config2, updated_at: new Date().toISOString() }, { onConflict: "id" });
       if (error) console.error("[source-translate profile] save failed", error.message);
@@ -186,30 +235,30 @@ export async function translateRowSource(
   const tag = `[source-translate ${table} ${id} ${from}→${to}]`;
   const textCols = spec.text.filter((c) => typeof row[c] === "string" && row[c].trim());
   const listCols = spec.list.filter((c) => Array.isArray(row[c]) && row[c].length);
-  const plain = [...textCols.map((c) => row[c] as string), ...listCols.flatMap((c) => row[c] as string[])];
+  /* 칸마다 키 — 목록 칸은 항목마다("categories_ko.0") */
+  const plain: [string, string][] = [
+    ...textCols.map((c) => [c, row[c] as string] as [string, string]),
+    ...listCols.flatMap((c) => (row[c] as string[]).map((x, i) => [`${c}.${i}`, x] as [string, string])),
+  ];
   const body = typeof row[spec.html] === "string" ? (row[spec.html] as string) : "";
+  const bodyEntries: [string, string][] = body.trim() ? [[spec.html, body]] : [];
 
+  const backupType = table === "posts" ? "post_source" : "work_source";
+  const prior = await readBackup(backupType, id, to);
   const [plainTr, bodyTr] = await Promise.all([
-    translateAll(plain, from, to, config, tag),
-    body.trim() ? translateAll([body], from, to, config, tag, row.content_type === "richtext") : Promise.resolve([""]),
+    restoreOrTranslate(plain, prior, from, to, config, tag),
+    restoreOrTranslate(bodyEntries, prior, from, to, config, tag, row.content_type === "richtext"),
   ]);
   if (!plainTr || !bodyTr) return { error: "failed" };
 
-  const original: Obj = { [spec.html]: body };
   const patch: Obj = { source_lang: to, updated_at: new Date().toISOString() };
   /* 편집기는 version 으로 다른 저장과의 충돌을 가린다 — 덮어쓴 것도 한 번의 저장으로 센다 */
   if (typeof row.version === "number") patch.version = row.version + 1;
-  textCols.forEach((c, i) => { original[c] = row[c]; patch[c] = plainTr[i]; });
-  let n = textCols.length;
-  for (const c of listCols) {
-    const list = row[c] as string[];
-    original[c] = list;
-    patch[c] = plainTr.slice(n, n + list.length);
-    n += list.length;
-  }
-  if (body.trim()) patch[spec.html] = bodyTr[0];
+  textCols.forEach((c) => { patch[c] = plainTr[c]; });
+  for (const c of listCols) patch[c] = (row[c] as string[]).map((_, i) => plainTr[`${c}.${i}`]);
+  if (bodyEntries.length) patch[spec.html] = bodyTr[spec.html];
 
-  await backup(table === "posts" ? "post_source" : "work_source", id, from, original);
+  await backup(backupType, id, from, to, Object.fromEntries([...plain, ...bodyEntries]), { ...plainTr, ...bodyTr });
   const { data: updated, error } = await supabase.from(table).update(patch).eq("id", id).select().single();
   if (error || !updated) {
     console.error(tag, "update failed", error?.message);
