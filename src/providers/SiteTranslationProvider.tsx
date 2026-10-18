@@ -59,7 +59,8 @@ export default function SiteTranslationProvider() {
   /* 안내 글은 그 문장의 번역이 온 뒤에 띄운다 — 화면 글은 보이는 것만 받아 와서, 먼저 띄우면 영어로 굳는다.
      그리는 동안 t() 를 불러 둬야 그 문장을 묻는다 */
   const noticeText = t("contentTranslate.siteNotice");
-  const uiReady = !!(site.lang && site.ui?.["contentTranslate.siteNotice"] && site.lang !== getSiteDefaultLang());
+  /* 한국어로 보기는 화면 글이 한국어 사전이라 기다릴 번역이 없다 — 내용 글만 기계 번역이므로 안내는 띄운다 */
+  const uiReady = !!(site.lang && (site.lang === "ko" || site.ui?.["contentTranslate.siteNotice"]) && site.lang !== getSiteDefaultLang());
   useEffect(() => {
     if (!uiReady || !site.lang) return;
     const key = `siteTranslateNotice:${site.lang}`;
@@ -72,7 +73,7 @@ export default function SiteTranslationProvider() {
   }, [uiReady, site.lang, noticeText]);
 
   /* 화면 글이 그 언어로 바뀐 뒤에 바꾼다 — 받기 전(또는 실패)에는 화면이 아직 ko/en 이다 */
-  const shownLang = site.lang && site.ui ? site.lang : language;
+  const shownLang = site.lang && (site.ui || site.lang === "ko") ? site.lang : language;
   useEffect(() => {
     document.documentElement.setAttribute("lang", shownLang);
   }, [shownLang]);

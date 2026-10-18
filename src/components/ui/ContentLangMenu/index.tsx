@@ -7,7 +7,7 @@ import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
 import LoadingDots from "@/components/ui/LoadingDots";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { TRANSLATION_LANGUAGES } from "@/lib/translationLanguages";
+import { KOREAN, TRANSLATION_LANGUAGES } from "@/lib/translationLanguages";
 import { localLangName } from "@/utils/localLangName";
 import { cn } from "@/utils/cn";
 import styles from "./ContentLangMenu.module.css";
@@ -49,16 +49,18 @@ export default function ContentLangMenu({
   iconSize = 14,
 }: ContentLangMenuProps) {
   /* 화면 언어의 이름은 지금 보이는 언어로 — 기본 언어가 ko · en 밖이면 language 는 "ko 자리"다 */
-  const { t, dateLocale } = useLanguage();
+  const { t, dateLocale, koLabel } = useLanguage();
+  /* 기본 언어가 ko · en 밖이면 KO 자리가 그 언어라 한국어로 볼 길이 없다 — 그때만 한국어를 맨 앞에 둔다 */
+  const foreignDefault = koLabel !== "KO";
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return TRANSLATION_LANGUAGES
+    return (foreignDefault ? [KOREAN, ...TRANSLATION_LANGUAGES] : TRANSLATION_LANGUAGES)
       .map((l) => ({ ...l, local: localLangName(l.code, dateLocale) }))
       .filter((l) => !q || [l.native, l.name, l.local, l.code].some((s) => s.toLowerCase().includes(q)));
-  }, [query, dateLocale]);
+  }, [query, dateLocale, foreignDefault]);
 
   const pick = (lang: string | null, close: () => void) => {
     onChange(lang);

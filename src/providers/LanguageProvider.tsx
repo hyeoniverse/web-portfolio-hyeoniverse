@@ -244,6 +244,11 @@ export function useLanguage(): LanguageControls & {
        번역에 없는 글은 영어로 그리고 그 열쇠만 묻는다(보는 화면의 글만 번역 — lib/siteLang) */
     (key: string) => {
       if (!overlay) return getNestedValue(dict[native ? "en" : language], key);
+      /* 한국어로 보기(기본 언어가 ko · en 밖일 때 🌐 메뉴의 한국어) — 화면 글은 기계 번역이 아니라 한국어 사전 */
+      if (overlayLang === "ko") {
+        const ko = getNestedValue(dict.ko, key);
+        return ko !== key ? ko : getNestedValue(dict.en, key);
+      }
       const hit = overlay[key];
       if (hit !== undefined) return hit;
       const base = getNestedValue(dict.en, key);

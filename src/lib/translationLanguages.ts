@@ -57,7 +57,14 @@ export const TRANSLATION_LANGUAGES: readonly TranslationLanguage[] = [
   { code: "zh-Hant", deepl: "ZH-HANT", google: "zh-TW", name: "Traditional Chinese", native: "繁體中文" },
 ];
 
-const BY_CODE = new Map(TRANSLATION_LANGUAGES.map((l) => [l.code.toLowerCase(), l]));
+/**
+ * 한국어 — 목록(TRANSLATION_LANGUAGES)에는 없다. 사이트 기본 언어가 ko · en 밖(ja 등)이면 KO 자리를 그 언어가 차지해
+ * 한국어로 볼 길이 없어지므로, 그때만 🌐 메뉴에 이 항목을 더한다(ContentLangMenu). 코드 확인(normalizeTranslationLang)은
+ * 늘 받아 준다 — 고른 값이 저장 · 요청에 실려 온다.
+ */
+export const KOREAN: TranslationLanguage = { code: "ko", deepl: "KO", google: "ko", name: "Korean", native: "한국어" };
+
+const BY_CODE = new Map([...TRANSLATION_LANGUAGES, KOREAN].map((l) => [l.code.toLowerCase(), l]));
 
 /** 코드로 찾기 — 대소문자는 가리지 않는다(zh-hans 도 zh-Hans) */
 export function findTranslationLanguage(code: string | null | undefined): TranslationLanguage | undefined {

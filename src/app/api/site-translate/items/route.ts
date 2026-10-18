@@ -92,8 +92,13 @@ export async function POST(request: Request) {
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const providers = buildProviderList(primary, config?.translation?.fallback);
   const rows: { source_type: string; source_id: string; lang: string; fields: ListItemFields; source_hash: string; provider: Provider; updated_at: string }[] = [];
-  for (const srcLang of ["ko", "en"] as const) {
+  for (const srcLang of new Set(misses.map(([, s]) => s.src.lang))) {
     const group = misses.filter(([, s]) => s.src.lang === srcLang);
+    /* 원문이 이미 고른 언어 — 번역하지 않고 원문 그대로(기본 언어가 ja 일 때 한국어로 보기의, 아직 한국어인 글) */
+    if (srcLang === lang) {
+      for (const [key, s] of group) items[key] = s.src.fields;
+      continue;
+    }
     const slots: { key: string; field: keyof ListItemFields; text: string }[] = [];
     for (const [key, s] of group) {
       for (const [field, text] of Object.entries(s.src.fields) as [keyof ListItemFields, string][]) slots.push({ key, field, text });

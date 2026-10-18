@@ -7,6 +7,7 @@ import { getGithubShowcase, loginFromLinks } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
+import { isForeignSiteLanguage, normalizeSiteLanguage } from "@/lib/siteLanguage";
 import { createMissLimiter } from "@/lib/api/contentTranslate";
 import { SITE_ABOUT_SOURCE_ID, SITE_CONTENT_SOURCE_ID } from "@/lib/api/siteTranslate";
 import { aboutSource } from "@/data/generated/aboutDict";
@@ -92,10 +93,14 @@ export async function POST(request: Request) {
   const failures: Parameters<typeof translationFailure>[0] = [];
   let failed = 0;
 
-  /* 원문 언어(한국어 · 영어)마다 나눠 보낸다 */
-  for (const from of ["en", "ko"] as const) {
-    const texts = missing.filter((s) => sourceLangOf(s) === from);
-    if (!texts.length) continue;
+  /* 원문 언어마다 나눠 보낸다 — 한국어 · 영어, 기본 언어가 ko · en 밖이면 그 언어(ko 칸의 원문). 고른 언어와 같으면 원문 그대로 */
+  const slotLang = isForeignSiteLanguage(config.metadata?.sourceLanguage) ? normalizeSiteLanguage(config.metadata?.sourceLanguage) : "en";
+  for (const from of new Set(missing.map((s) => sourceLangOf(s, slotLang)))) {
+    const texts = missing.filter((s) => sourceLangOf(s, slotLang) === from);
+    if (from === lang) {
+      texts.forEach((s) => { strings[s] = s; });
+      continue;
+    }
     const chunks = chunkIndices(texts);
     for (let i = 0; i < chunks.length; i += PARALLEL) {
       await Promise.all(chunks.slice(i, i + PARALLEL).map(async (idx) => {
