@@ -8,7 +8,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
  * 인증 실패 시 401 NextResponse를, 성공 시 User + 이미 생성된 supabase 클라이언트를 반환.
  * 핸들러 본문에서 supabase 가 또 필요하면 `createClient()` 를 다시 호출할 필요 없이 그대로 재사용.
  *
- * CSRF 방어는 middleware (Origin/Referer 체크) 에서 처리됨 — 모든 /api/* mutation 에 일괄 적용.
+ * CSRF 방어는 proxy(src/proxy.ts)가 맡는다. /api/* 의 POST · PATCH · PUT · DELETE 는 Origin/Referer 가 이 사이트여야 통과한다.
  */
 export async function requireAuth(): Promise<
   | { user: User; supabase: SupabaseClient; error?: never }
