@@ -740,6 +740,14 @@ export default function SettingsPage() {
     return false;
   }, [activeTab, config, profileData]);
 
+  /* 위쪽 "기본값으로" — 설정 전체를 코드 기본값으로 되돌린다. 이미 기본값이면 되돌릴 것이 없다.
+     기본값과 다른 부분(computeDelta — 저장 때 쓰는 판정)이 비었는지로 본다. 키 개수까지 맞추는 deepEqual 은
+     값이 빈 키 하나에도 "다르다"고 한다 */
+  const configAtDefaults = useMemo(
+    () => Object.keys(computeDelta(config, siteConfig)).length === 0,
+    [config],
+  );
+
   /* 저장하지 않은 변경이 있으면 떠나기 전에 묻는다 — 탭·하위탭 옮기기, 사이트 안 링크, 새로고침·닫기.
      예전에는 탭을 옮기면 묻지 않고 버렸다. */
   const askLeave = (go: () => void) => openModal(
@@ -887,6 +895,7 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   tone="danger"
+                  disabled={configAtDefaults}
                   onClick={() => {
                     openModal(
                       <ModalConfirm

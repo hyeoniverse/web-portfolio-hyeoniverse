@@ -13,6 +13,7 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Tooltip from "@/components/ui/Tooltip";
 import { sanitizeSummaryOptions, type SummaryOptions } from "@/lib/ai/summary";
+import { deepEqual } from "@/lib/settingsDelta";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { loadSummaryOptions, saveSummaryOptions } from "./summaryOptionsStore";
@@ -125,7 +126,7 @@ export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: 
         </Tooltip>
         <span className={styles.optSpacer} />
         {/* 기본값 = 설정 › 서비스의 사이트 기본값 */}
-        <Button variant="ghost" shape="capsule" onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
+        <Button variant="ghost" shape="capsule" disabled={deepEqual(o, siteDefaults)} onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
         <Button variant="primary" shape="capsule" onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
       </div>
     </div>
