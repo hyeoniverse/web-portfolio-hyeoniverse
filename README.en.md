@@ -10,7 +10,7 @@ One repository holds both the public site that shows the work and the admin stud
 [![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0-d40063?style=flat-square)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 
 **[www.hyeoniverse.com →](https://www.hyeoniverse.com)**
@@ -66,7 +66,11 @@ Six layouts, switchable with the `?layout=` query or from the admin settings —
 
 | Profile (Three.js) | About |
 |:---:|:---:|
-| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile" width="100%" /> | <img src="public/images/screenshots/pc/about-light.png" alt="About" width="100%" /> |
+| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile" width="100%" /> | <img src="docs/images/about-dark.png" alt="About: constellation map" width="100%" /> |
+
+The About page starts from a constellation map. Clicking a star flies into that chapter, and scrolling moves through the chapters in order, from 01 at a glance to 10 FAQ. Its content is built from `content/about/*.md` at build time.
+
+<img src="docs/images/about-chapter-dark.png" alt="About chapter 02: features" width="100%" />
 
 ### Editor · Design system
 
@@ -134,13 +138,17 @@ The **service log** (`/admin/service-log`) lists successes and failures of AI (t
 
 #### Settings
 
-`/admin/settings` has six tabs — **General** (personal info · brand and logo · SEO · background music), **Content** (home hero · intro · featured works · marquee · footer · social links · banner, pagination, tags · categories, works intro video, plus a PROFILE sub-tab), **Library** (calendars · polls · custom emojis · cover image history · uploaded files), **Appearance** (design-system preview · theme colours · date-picker style · typography and font upload), **Services** (per-feature provider order · email · comment system and giscus · security · upload formats and size limits · provider status panel · environment variables) and **Account** (auth · email change · password policy, registered devices and **sign out everywhere**, members and roles — owner · admin · author).
+`/admin/settings` has six tabs: **General** (personal info · contact · SEO metadata · background music), **Content** (home hero · intro · featured works · marquee · footer · social links · banner, pagination, tags · categories, works intro video, plus a PROFILE sub-tab), **Library** (calendars · polls · custom emojis · cover image history · uploaded files), **Appearance** (design-system preview · theme colours · brand (logo type · short logo · full logo · favicon) · date-picker style · typography and font upload), **Services** (per-feature provider order · email · comment system and giscus · security · upload formats and size limits · provider status panel · environment variables) and **Account** (auth · email change · password policy, registered devices and **sign out everywhere**, members and roles (owner · admin · author)).
 
 You save a whole tab or one section at a time, with revert and code defaults. Values that cannot be empty (site title · name · the five theme colours · member names, repository details when giscus is selected) are enforced in the UI, the API and the database, and when code defaults change a **conflict list** shows the new value per section so you can take it or keep yours.
 
 | Library — calendars · polls · emojis · covers · files | Account — security / sessions, devices, members |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/26-settings-library-light.png" alt="Settings — Library tab" width="100%" /> | <img src="public/images/screenshots/cms/27-settings-account-light.png" alt="Settings — Account tab" width="100%" /> |
+
+Brand, under the Appearance tab, opens with a preview strip drawn from the unsaved settings: the nav and browser tab (short logo) and the loading screen (full logo). Below it you pick the logo type (image or text) and tune the short logo, full logo and effects part by part.
+
+<img src="docs/images/settings-brand-dark.png" alt="Settings › Appearance: brand" width="100%" />
 
 #### Login and security
 
@@ -244,7 +252,6 @@ Works link related posts and series; posts link related projects, all through a 
 | **Works** | Six layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) and detail pages |
 | **Posts** | SSR + ISR, series, banner slider, six list layouts, guest comments (markdown + emoji reactions) or giscus |
 | **Admin** | Dashboard (stats · daily views · popular · reports · service status) · traffic analytics (sources · devices · countries · landing pages · IP · UTM) · notifications · service log, Plate.js editor (diagram · code playground · math blocks, color tools, publish toggle), `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
-| **Performance** | Lighthouse 98 — LCP 1.9s, 449KB initial bundle |
 | **Security** | RLS with four roles, CSRF origin checks (fail-closed in production), five-attempt lockout plus new-device email approval |
 | **Design system** | Three-tier tokens (Raw → Semantic → Component) with role tokens, all colors in OKLCH |
 
@@ -254,7 +261,7 @@ Works link related posts and series; posts link related projects, all through a 
 
 | Category | Technology |
 |:---|:---|
-| Framework | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 5 |
+| Framework | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 6 |
 | Styling | CSS Modules + CSS variables in three tiers, enforced by stylelint |
 | Animation | Framer Motion · GSAP · Lenis |
 | 3D | Three.js · React Three Fiber · Drei |
@@ -283,7 +290,7 @@ npm run build          # production build
 npm test               # unit tests (Vitest)
 npm run test:smoke     # smoke e2e (needs a build)
 npm run audit:full     # typecheck + eslint + stylelint + knip
-npm run sync-all       # sync content/*.md with the database
+npm run sync-all       # sync content/*.md with the database (the About page is built from md at build time, not read from the database)
 ```
 
 ---
@@ -296,11 +303,11 @@ npm run sync-all       # sync content/*.md with the database
 | [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
 | [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
 | [Testing](./docs/en/testing.md) | Vitest suites, smoke e2e, preparing the admin session |
-| [Design system](./docs/design-system.md) | Three token tiers, per-axis rules with enforcement status, `@layer` and migration plan (token values in the [generated table](./docs/tokens.md)) |
+| [Design system](./docs/design-system.md) | Three token tiers, per-axis rules with enforcement status, `@layer` (token values in the [generated table](./docs/tokens.md)); decisions in [design-system-decisions.md](./docs/design-system-decisions.md) (Korean) |
 | [Troubleshooting](./docs/en/troubleshooting.md) | What broke, why, and how it was fixed |
 | [Components](./docs/en/components.md) · [DB design](./docs/en/db-design.md) · [Security](./docs/en/security.md) · [User flow](./docs/en/user-flow.md) | Area deep dives |
 | [Editor guide](./docs/en/editor-guide.md) | Editor usage and `.md` authoring rules |
-| [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) | Structural cleanup notes and the performance baseline |
+| [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Commit convention](./docs/commit-convention.md) | Structural cleanup notes, bundle baseline, commit rules (Korean) |
 
 ---
 
@@ -308,13 +315,15 @@ npm run sync-all       # sync content/*.md with the database
 
 ```
 src/
-├─ app/           # App Router — (home) · works · posts · about · profile · admin · api
+├─ app/           # App Router: (home) · works · posts · about · profile · privacy · auth · design-system · admin · api
 ├─ components/    # per-screen components plus shared ui/
-├─ styles/        # tokens/ (raw) · globals/ (semantic · component)
-├─ providers/     # theme · language · scroll
+├─ styles/        # tokens/ (raw) · globals/ (semantic · component) · vendor/ · layers.css
+├─ providers/     # theme · language · scroll · site config
+├─ config/ constants/ data/ types/
 ├─ lib/ hooks/ stores/ utils/
-└─ locales/       # Korean · English
-content/          # .md sources (posts · works · about), synced with the database
+├─ locales/       # Korean · English
+└─ proxy.ts       # CSRF Origin check · blog host routing
+content/          # .md sources: posts · works are synced with the database, about is built into page data at build time
 docs/             # documentation
 e2e/ scripts/     # smoke tests · sync and screenshot scripts
 supabase/         # migration SQL

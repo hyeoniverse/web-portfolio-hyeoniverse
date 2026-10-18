@@ -82,6 +82,11 @@ The features visitors and admins use on screen, listed by page. How they are bui
 - The architecture chapter's ERD and API map are built before each build from `supabase/setup.sql` and the route files. Design decisions, security, and the making-of are built from the md files in `content/about/` ([md-content-guide.md](../md-content-guide.md), Korean). None of it is edited in the admin.
 - The AI chapter has live demos to try translation, summary, cover, and speech. Daily usage is capped.
 
+<p>
+  <img src="../images/about-light.png" alt="About: constellation map (light)" width="49%" />
+  <img src="../images/about-chapter-dark.png" alt="About: chapter 02 features" width="49%" />
+</p>
+
 ## Admin
 
 The sign-in screen is `/admin/login`. Members use GitHub OAuth, and the owner can also use a password. The full flow is in [Supabase setup](./supabase-setup.md#5-admin-login) and [Security](./security.md).

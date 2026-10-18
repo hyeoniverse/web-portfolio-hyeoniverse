@@ -82,6 +82,11 @@
 - 구조 장의 ERD 와 API 지도는 빌드 전에 `supabase/setup.sql` 과 라우트 파일에서 만든다. 설계 결정 · 보안 · 작업 과정은 `content/about/` 의 md 에서 만든다([md-content-guide.md](./md-content-guide.md)). 관리자 화면에서 고치지 않는다.
 - AI 장에는 번역 · 요약 · 커버 · 음성을 직접 돌려 보는 라이브 데모가 있다. 하루 사용 횟수에 상한이 있다.
 
+<p>
+  <img src="images/about-light.png" alt="소개 — 별자리 지도 (라이트)" width="49%" />
+  <img src="images/about-chapter-dark.png" alt="소개 02 기능 장" width="49%" />
+</p>
+
 ## 관리자
 
 로그인 화면은 `/admin/login` 이다. 멤버는 GitHub OAuth, 소유자는 비밀번호로도 들어온다. 자세한 흐름은 [Supabase 세팅](./supabase-setup.md#5-admin-로그인-방법)과 [Security](./security.md) 에 있다.
