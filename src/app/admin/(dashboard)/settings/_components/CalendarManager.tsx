@@ -9,7 +9,7 @@ import { CalendarDays, Pencil, Trash2, Check, X, RotateCcw, ChevronDown } from "
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
-import { LibraryBulkBar, runBulk, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, isInnerControl, runBulk, useLibrarySelection } from "./LibrarySelection";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -268,7 +268,7 @@ export default function CalendarManager() {
             deleting={bulkDeleting}
             deleteLabel={t("admin.inline.libraryBulk.trashN")}
           />
-          <div className={styles.list}>
+          <div className={styles.list} data-library-list="">
             {paged.slice!.map((it) => {
               const isEditing = editingId === it.id;
               const titleText = it.title || (it.month ? monthTitle(it.month, language) : t("admin.inline.calendarManager.untitled"));
@@ -282,6 +282,14 @@ export default function CalendarManager() {
                   key={it.id}
                   ref={(el) => { if (el) rowRefs.current.set(it.id, el); else rowRefs.current.delete(it.id); }}
                   className={`${styles.row}${focusId === it.id ? ` ${styles.rowFocus}` : ""}`}
+                  data-selected={sel.isSelected(it) ? "" : undefined}
+                  /* 줄을 눌러 고른다 — 이름 칸은 평소 미리보기라, 하나라도 고른 뒤(고르는 중)에만 이름 칸도 고르기로 */
+                  onClick={(e) => {
+                    if (isEditing) return;
+                    const inMain = !!(e.target as Element).closest(`.${styles.rowMain}`);
+                    if (inMain ? !sel.count : isInnerControl(e.target)) return;
+                    sel.toggle(it, !sel.isSelected(it));
+                  }}
                 >
                   <span className={styles.lead}>
                     <Checkbox
@@ -314,8 +322,8 @@ export default function CalendarManager() {
                         role="button"
                         tabIndex={0}
                         title={t("admin.inline.calendarManager.clickToPreview")}
-                        onClick={() => openPreview(it)}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPreview(it); } }}
+                        onClick={() => { if (!sel.count) openPreview(it); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (sel.count) sel.toggle(it, !sel.isSelected(it)); else openPreview(it); } }}
                       >
                         <span className={styles.rowLine}>
                           <span className={`${styles.rowTitle}${it.title ? "" : ` ${styles.rowTitleMuted}`}`}>{titleText}</span>

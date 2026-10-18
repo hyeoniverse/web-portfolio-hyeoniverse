@@ -29,8 +29,14 @@
   border-bottom: var(--border-light);
 }
 
-/* 도구막대 바로 아래 갤러리는 실선에 붙인다 — 칸 사이 1px 선과 이어지게(목록 사이 간격을 지운다) */
-.toolbar + [data-library-gallery] {
+/* 도구막대가 없는 섹션의 선 — 도구막대의 위 선과 같은 자리 */
+.rule {
+  border-top: var(--border-light);
+}
+
+/* 선(도구막대 · 머리 선 · 고르기 줄) 바로 아래 갤러리 · 줄 목록 · 고르기 줄은 선에 붙인다 — 칸 사이 1px 선 · 줄 사이 선과
+   이어지게(섹션 안 간격을 지운다). 빈 상태 · 이모지 격자처럼 선이 없는 것은 간격을 둔다 */
+:is(.toolbar, .rule, .bulkBar) + :is([data-library-gallery], [data-library-list], .bulkBar) {
   margin-top: calc(var(--spacing-16) * -1);
 }
 
@@ -122,7 +128,3 @@
   margin-left: auto;
 }
 
-/* 고르기 줄이 뜨면 갤러리는 그 줄에 붙인다 — 도구막대 바로 아래 규칙과 같게 */
-.bulkBar + [data-library-gallery] {
-  margin-top: calc(var(--spacing-16) * -1);
-}

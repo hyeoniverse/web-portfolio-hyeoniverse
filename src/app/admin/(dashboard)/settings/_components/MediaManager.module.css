@@ -120,3 +120,12 @@
     display: none;
   }
 }
+
+/* 줄을 눌러 고른다(쓰는 곳이 없는 파일) */
+.row[data-selectable] {
+  cursor: pointer;
+}
+
+.row[data-selected] {
+  background: color-mix(in srgb, var(--text-accent) 8%, transparent);
+}

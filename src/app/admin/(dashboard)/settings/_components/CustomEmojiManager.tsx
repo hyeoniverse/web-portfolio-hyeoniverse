@@ -28,7 +28,7 @@ import { EmojiGridSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
 import Checkbox from "@/components/ui/Checkbox";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, isInnerControl, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
 
 /* 격자 한 쪽 — 넓은 화면 12열 × 10줄 */
 const PAGE_SIZE = 120;
@@ -176,7 +176,13 @@ export default function CustomEmojiManager() {
           <div className={styles.grid} data-selecting={sel.count > 0 ? "" : undefined}>
             {paged.slice!.map((e) => (
               <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("admin.inline.customEmojiManager.untitled")}</span>} placement="bottom" delay={120}>
-                <div className={styles.tile} tabIndex={0} data-selected={sel.isSelected(e) ? "" : undefined}>
+                <div
+                  className={styles.tile}
+                  tabIndex={0}
+                  data-selected={sel.isSelected(e) ? "" : undefined}
+                  /* 칸을 눌러 고른다 — 지우기 단추 · 고르기 상자는 제 일 */
+                  onClick={(ev) => { if (!isInnerControl(ev.target)) sel.toggle(e, !sel.isSelected(e)); }}
+                >
                   <span className={styles.select}>
                     <Checkbox
                       checked={sel.isSelected(e)}

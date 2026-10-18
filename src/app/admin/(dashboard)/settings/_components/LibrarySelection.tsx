@@ -33,6 +33,11 @@ export function useLibrarySelection<T>(items: readonly T[] | null | undefined, k
   return { selected, count: selected.length, selectableCount: selectable.length, isSelected, toggle, selectAll, clear };
 }
 
+/** 칸을 눌러 고를 때 — 칸 안의 단추 · 링크 · 입력(복사 · 열기 · 지우기 · 고르기 상자)을 누른 것은 빼고 */
+export function isInnerControl(target: EventTarget | null): boolean {
+  return target instanceof Element && !!target.closest("a, button, input, label, textarea, select, [role='button']");
+}
+
 /** 여러 개를 나눠 처리한다 — 한 번에 limit 개씩. 실패한 것을 돌려준다(하나가 실패해도 나머지는 계속) */
 export async function runBulk<T>(items: readonly T[], fn: (item: T) => Promise<boolean>, limit = 4): Promise<{ ok: T[]; failed: T[] }> {
   const ok: T[] = [];

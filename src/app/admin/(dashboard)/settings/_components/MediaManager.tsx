@@ -27,7 +27,7 @@ import styles from "./MediaManager.module.css";
 import LibraryHead from "./LibraryHead";
 import { GallerySkeleton, MediaFiltersSkeleton } from "./LibrarySkeletons";
 import Checkbox from "@/components/ui/Checkbox";
-import { LibraryBulkBar, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
+import { LibraryBulkBar, isInnerControl, runBulk, useBulkResultText, useLibrarySelection } from "./LibrarySelection";
 import { LibraryGallery, GalleryItem, galleryActionClass, galleryFileIconClass, galleryUsedClass, galleryUsedLinkClass, galleryUsedListClass } from "./LibraryGallery";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
@@ -286,7 +286,7 @@ export default function MediaManager() {
                 ))}
               </LibraryGallery>
             ) : (
-              <div className={styles.table} role="table">
+              <div className={styles.table} role="table" data-library-list="">
                 <div className={`${styles.row} ${styles.rowHead}`} role="row">
                   <span role="columnheader" />
                   <span role="columnheader" aria-label={t("admin.inline.mediaManager.colPreview")} />
@@ -297,7 +297,14 @@ export default function MediaManager() {
                   <span role="columnheader" />
                 </div>
                 {items.map((m) => (
-                  <div key={`${m.bucket}/${m.path}`} className={styles.row} role="row" data-selected={sel.isSelected(m) ? "" : undefined}>
+                  <div
+                    key={`${m.bucket}/${m.path}`}
+                    className={styles.row}
+                    role="row"
+                    data-selected={sel.isSelected(m) ? "" : undefined}
+                    data-selectable={isUnused(m) ? "" : undefined}
+                    onClick={(e) => { if (isUnused(m) && !isInnerControl(e.target)) sel.toggle(m, !sel.isSelected(m)); }}
+                  >
                     <span role="cell">
                       {(() => { const s = selectOf(m); return s ? <Checkbox checked={s.checked} onChange={s.onChange} ariaLabel={s.label} /> : null; })()}
                     </span>
