@@ -1098,5 +1098,12 @@
   "historyPage": {
     "tilLegend": "marks a TIL post",
     "count": "{{n}} posts"
+  },
+  "pageMeta": {
+    "seriesIndex": "All series",
+    "tagsIndex": "All tags",
+    "categoriesIndex": "All categories",
+    "til": "Today I Learned — a daily record of what I learned, stacked as a contribution graph",
+    "tag": "Posts tagged \"{{tag}}\""
   }
 }

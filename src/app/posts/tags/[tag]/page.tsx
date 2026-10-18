@@ -1,4 +1,5 @@
 import { getTagPageData, getAllTagsData } from "@/lib/posts";
+import { siteMetaText } from "@/lib/siteMetaText";
 import TagPageClient from "./TagPageClient";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const decoded = decodeURIComponent(tag);
   return {
     title: `#${decoded}`,
-    description: `"${decoded}" 태그가 달린 게시물 모음`,
+    description: await siteMetaText("pageMeta.tag", { tag: decoded }),
   };
 }
 

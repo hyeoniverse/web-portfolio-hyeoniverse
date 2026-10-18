@@ -1,13 +1,14 @@
 import { getAllTagsData } from "@/lib/posts";
 import TagsIndexClient from "./TagsIndexClient";
 import type { Metadata } from "next";
+import { siteMetaText } from "@/lib/siteMetaText";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Tags",
-  description: "모든 태그 목록",
-};
+/* 설명은 사이트 기본 언어로(#1406) */
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Tags", description: await siteMetaText("pageMeta.tagsIndex") };
+}
 
 export default async function TagsIndexPage() {
   const data = await getAllTagsData();
