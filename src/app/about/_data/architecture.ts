@@ -1,5 +1,5 @@
-/* About 개편 — 구조 장. 그래프 · 흐름 · API · ERD 의 값은 관리자 설정(siteConfig.about)이 먼저이고, 비어 있으면
-   기존 About 이 쓰던 코드 기본값(src/data/about/*, panels/archDiagramData)을 쓴다. 여기에는 장면의 글만 둔다.
+/* About 개편 — 구조 장. 그래프 · 흐름 · API · ERD 는 코드(src/data/about/*, panels/archDiagramData)와 빌드 때 만든
+   생성본(src/data/generated/erdSchema · apiMap)에서만 온다 — 관리자 덮어쓰기는 없다. 여기에는 장면의 글만 둔다.
    묶음 설명은 README 의 기술 스택 · 한눈에 보기 표와 그래프 노드에서 옮겼다. */
 import type { L10n } from "./showcase";
 

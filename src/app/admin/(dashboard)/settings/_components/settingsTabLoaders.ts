@@ -13,9 +13,7 @@ const TABS: Partial<Record<TabId, () => Promise<unknown>>> = {
   account: () => Promise.all([import("./AccountTab"), import("./AuthorsEditor")]),
 };
 
-const CONTENT_SUBS: Partial<Record<ContentSubTab, () => Promise<unknown>>> = {
-  about: () => Promise.all([import("./about/AboutStudio"), import("./AboutTechStackEditor")]),
-};
+const CONTENT_SUBS: Partial<Record<ContentSubTab, () => Promise<unknown>>> = {};
 
 export function preloadSettingsTab(tab: TabId, sub?: ContentSubTab): void {
   TABS[tab]?.().catch(() => {});

@@ -12,8 +12,6 @@ import TimeSky from "./guide/TimeSky";
 import { useVisitorWeather } from "./guide/useVisitorWeather";
 import PreziStage from "./prezi/PreziStage";
 import { useFrameSteps } from "./prezi/context";
-import { AboutConfigProvider } from "@/app/about/_panels/AboutConfig";
-import type { SiteConfigData } from "@/config/site.config";
 import styles from "./AboutNext.module.css";
 
 function useL() {
@@ -126,15 +124,13 @@ export function Facts() {
   );
 }
 
-export default function AboutNext({ live, about }: { live: LiveInfo; about: SiteConfigData["about"] }) {
+export default function AboutNext({ live }: { live: LiveInfo }) {
   return (
-    <AboutConfigProvider about={about}>
     <div className={styles.page}>
       <TimeSky />
       <GuideStar />
       {/* 프레지 — 페이지 전체가 별자리 세계, 카메라가 장면(프레임)마다 날아다닌다 */}
       <PreziStage live={live} />
     </div>
-    </AboutConfigProvider>
   );
 }

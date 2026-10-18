@@ -231,6 +231,8 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 
 ### About Studio ERD 설정 검증: about_erd_valid
 
+> 관리자 About Studio 는 없어졌고 About 페이지는 `about.erdTables` 를 읽지 않습니다(ERD 는 빌드 때 `supabase/setup.sql` 에서 만든 생성본만 그립니다). 아래 검증은 남아 있는 저장값을 지키려고 그대로 둡니다.
+
 About 페이지의 ERD 는 관리자 설정의 **About Studio** 에서 편집하며, 그 결과는 `site_settings.config` JSONB 안에 `about.erdTables` / `about.erdRelations` 로 저장됩니다. JSONB 라 스키마가 자유롭지만, 공개 About 패널이 `col.type` 을 그대로 SVG 에 그리기 때문에 값이 비면 배포된 다이어그램에 빈 칸이 남습니다. 그래서 **UI · API · DB 3중 검증**을 둡니다 ([제목 길이 CHECK 제약](#제목-길이-check-제약)과 같은 관례).
 
 | 계층 | 위치 | 역할 |

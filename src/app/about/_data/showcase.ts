@@ -1,6 +1,6 @@
 /* About 내용 — MacFolio 의 hyeoniverse 사례 페이지에서 가져오고, 숫자는 이 레포에서 다시 셌다
    (API 라우트 = src/app/api 의 route.ts 수, 테스트 = vitest, 결정 기록 = docs/design-system-decisions.md 의 D 항목,
-   성능 = README). 방향이 정해지면 관리자 About 편집(site.config about)으로 옮긴다. */
+   성능 = README). 관리자 편집은 없다 — 글은 이 파일에서 고친다. */
 import { apiMap } from "@/data/generated/apiMap";
 
 export interface L10n {
