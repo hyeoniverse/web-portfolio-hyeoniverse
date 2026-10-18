@@ -81,7 +81,7 @@ export default function CoverHistoryManager() {
     setItems((prev) => prev?.filter((x) => x.id !== c.id) ?? prev);
   };
 
-  /* 쓰는 곳으로 걸러 보기 — 사용처가 오기 전에는 전체만 보인다(사용 중 · 안 씀은 숫자 없이 고르면 뼈대) */
+  /* 쓰는 곳으로 걸러 보기 — 사용처가 오기 전에는 전체만 보인다(사용 중 · 미사용은 숫자 없이 고르면 뼈대) */
   const [useFilter, setUseFilter] = useState<UseFilter>("all");
   const usedCount = useMemo(() => (items && usage ? items.filter((c) => isUsed(usage[c.id])).length : null), [items, usage]);
   const shown = useMemo(() => {

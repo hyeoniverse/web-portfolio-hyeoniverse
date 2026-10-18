@@ -127,7 +127,7 @@ const TOOLBAR: Record<LibrarySection, { filters?: boolean | number; search?: boo
   calendars: { search: true },
   polls: { search: true },
   emojis: { search: true, buttons: [76, 76] },
-  /* 전체 · 사용 중 · 안 씀 */
+  /* 전체 · 사용 중 · 미사용 */
   covers: { filters: 240 },
   files: { filters: true, search: true, buttons: [84] },
   /* "모두 지우기"는 지울 이미지가 있을 때만 생기므로 자리를 잡지 않는다 */

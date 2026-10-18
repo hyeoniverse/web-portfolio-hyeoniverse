@@ -2891,7 +2891,7 @@
         "notUsed": "쓰는 곳 없음",
         "all": "전체",
         "used": "사용 중",
-        "unused": "안 씀",
+        "unused": "미사용",
         "noMatch": "조건에 맞는 커버가 없습니다",
         "copyUrl": "주소 복사",
         "openNewTab": "새 탭에서 열기",
