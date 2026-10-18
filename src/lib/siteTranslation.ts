@@ -1,17 +1,18 @@
 /**
  * 사이트 전체 "다른 언어로 보기"의 순수한 부분 — 서버(라우트)와 브라우저가 같이 쓴다(crypto 없이).
  *
- *  1) 화면 글(UI 문자열) — 방문자 사전(locales/en.json) 전체를 언어마다 한 번 번역해 한 줄로 캐시한다.
- *     원문은 영어 사전 — 키 순서로 펼친 [열쇠, 글] 묶음. 해시는 그 묶음으로 만들어 브라우저도 같은 값을
- *     계산한다(localStorage 캐시가 지금 사전과 맞는지 서버에 묻지 않고 안다).
- *     관리자 사전(*.admin.json)은 따로 한 벌 — 같은 방식, 다른 해시(adminUiHash). 관리 화면의 내용(편집하는 글)은 번역하지 않는다.
+ *  1) 화면 글(UI 문자열) — 원문은 영어 사전(locales/en.json · 관리자는 en.admin.json)을 펼친 [열쇠, 글] 묶음.
+ *     사전을 통째로 번역하지 않는다 — 화면이 실제로 찾은 열쇠만 모아 묻는다(보는 페이지의 글만).
+ *     캐시는 문장마다 번역과 그 원문의 해시를 같이 둔다(SiteUiCache) — 받은 것은 남고, 원문이 바뀐 문장만 다시 번역한다.
+ *     해시는 브라우저도 같은 값을 계산한다(localStorage 캐시가 지금 사전과 맞는지 서버에 묻지 않고 안다).
+ *     관리 화면의 내용(편집하는 글)은 번역하지 않는다.
  *  2) 목록의 짧은 칸(제목 · 요약 · 부제목 · 설명) — 카드가 보이는 대로 모아 한 번에 묻는다(batch).
  */
 
 export type SiteUiSource = [string, string][];
 
-/** 판 — 펼치는 규칙 · 받는 규칙이 바뀌면 올린다(해시에 들어가 예전 캐시를 버린다) */
-const SITE_UI_VERSION = 1;
+/** 판 — 펼치는 규칙 · 받는 규칙 · 캐시 모양이 바뀌면 올린다(문장 해시에 들어가 예전 캐시를 버린다) */
+const SITE_UI_VERSION = 2;
 
 type Dict = { [key: string]: string | Dict };
 
@@ -43,14 +44,15 @@ function cyrb53(str: string, seed = 0): string {
   return (h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0");
 }
 
-/** 화면 글 묶음의 해시 — 영어 글을 고치거나 더하면 바뀌어 다음 요청이 다시 번역한다 */
-export function siteUiHash(source: SiteUiSource): string {
-  return cyrb53(JSON.stringify(["site-ui", SITE_UI_VERSION, source]));
+/** 문장 하나의 원문 해시 — 영어 글을 고치면 그 문장만 바뀌어 그 문장만 다시 번역한다 */
+export function siteUiEntryHash(text: string): string {
+  return cyrb53(JSON.stringify([SITE_UI_VERSION, text]));
 }
 
-/** 관리자 사전 묶음의 해시 — 방문자 사전과 섞이지 않게 머리말이 다르다 */
-export function adminUiHash(source: SiteUiSource): string {
-  return cyrb53(JSON.stringify(["admin-ui", SITE_UI_VERSION, source]));
+/** 화면 글 캐시 한 벌 — 열쇠 → 번역, 열쇠 → 그 번역을 만든 원문의 해시. DB 한 줄 · localStorage 가 같은 모양이다 */
+export interface SiteUiCache {
+  strings: Record<string, string>;
+  src: Record<string, string>;
 }
 
 /* ── 받을 수 있는 번역인가 ──
@@ -74,34 +76,43 @@ export function acceptSiteString(source: string, v: unknown): string | null {
   return v.trim().replace(PLACEHOLDER, (_, name: string) => `{{${name}}}`);
 }
 
-/**
- * 공급자 결과(source 순서) → 열쇠 → 번역. 실패한 자리 · 쓸 수 없는 번역은 뺀다(화면은 영어 글을 쓴다).
- * complete 는 모두 받았는지 — 아니면 캐시하지 않는다(다음에 다시 번역).
- */
-export function assembleSiteUi(
-  source: SiteUiSource,
-  translations: (string | undefined)[],
-  failed: Iterable<number> = [],
-): { strings: Record<string, string>; complete: boolean } {
-  const bad = new Set(failed);
-  const strings: Record<string, string> = {};
-  source.forEach(([k, text], i) => {
-    const v = bad.has(i) ? null : acceptSiteString(text, translations[i]);
-    if (v) strings[k] = v;
-  });
-  return { strings, complete: Object.keys(strings).length === source.length };
-}
-
-/** 저장된(또는 받아 온) 번역을 다시 거른다 — 지금 사전에 없는 열쇠 · 쓸 수 없는 글은 버린다 */
-export function sanitizeSiteUi(source: SiteUiSource, raw: unknown): Record<string, string> {
+/** 캐시 가운데 쓸 수 있는 번역만 — 사전에 없는 열쇠 · 원문이 바뀐 문장 · 자리표시나 태그가 깨진 글은 버린다 */
+export function validSiteUi(texts: ReadonlyMap<string, string>, raw: unknown): Record<string, string> {
   const out: Record<string, string> = {};
   if (!raw || typeof raw !== "object") return out;
-  const r = raw as Record<string, unknown>;
-  for (const [k, text] of source) {
-    const v = acceptSiteString(text, r[k]);
-    if (v) out[k] = v;
+  const { strings, src } = raw as Partial<SiteUiCache>;
+  if (!strings || typeof strings !== "object" || !src || typeof src !== "object") return out;
+  for (const [k, v] of Object.entries(strings)) {
+    const text = texts.get(k);
+    if (text === undefined || src[k] !== siteUiEntryHash(text)) continue;
+    const ok = acceptSiteString(text, v);
+    if (ok) out[k] = ok;
   }
   return out;
+}
+
+/** 열쇠마다 지금 원문의 해시 — 받은 번역을 캐시에 넣을 때 같이 둔다 */
+export function siteUiSrcOf(texts: ReadonlyMap<string, string>, keys: Iterable<string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const k of keys) {
+    const text = texts.get(k);
+    if (text !== undefined) out[k] = siteUiEntryHash(text);
+  }
+  return out;
+}
+
+/** 한 요청에 묻는 열쇠 상한 — 한 화면의 글은 많아야 수백 개다. 넘치면 다음 요청으로 */
+export const SITE_UI_KEYS_MAX = 300;
+
+/** 요청 본문의 열쇠 — 사전에 있는 것만, 겹친 것은 하나로, 상한까지 */
+export function parseSiteUiKeys(raw: unknown, texts: ReadonlyMap<string, string>, max = SITE_UI_KEYS_MAX): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out = new Set<string>();
+  for (const k of raw) {
+    if (typeof k === "string" && texts.has(k)) out.add(k);
+    if (out.size >= max) break;
+  }
+  return [...out];
 }
 
 /** 공급자에 나눠 보내기 — 한 번에 maxItems 개 · maxChars 글자 넘지 않게(순서는 그대로) */

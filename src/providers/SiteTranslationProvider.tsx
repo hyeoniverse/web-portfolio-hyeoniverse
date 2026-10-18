@@ -10,7 +10,6 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
   ensureSiteContent,
-  ensureSiteUi,
   getSiteDefaultLang,
   getServerSiteLangSnapshot,
   getSiteLangSnapshot,
@@ -26,7 +25,7 @@ export function useSiteLang() {
 /**
  * 사이트 전체 번역의 연결부 — 그리는 것은 번역 중 안내 한 줄뿐. 루트 레이아웃의 LanguageProvider 안에 둔다.
  *   - 번역이 꺼진 사이트(설정)에서는 언어를 걸지 않는다. 관리 화면(/admin)도 같은 언어 — 화면 글만 번역(AdminDictProvider)
- *   - 걸린 언어의 화면 글 번역을 한 번 받아 둔다(메모리 + localStorage, lib/siteLang)
+ *   - 화면 글 번역은 t() 가 화면에 그리는 글만 그때그때 묻는다(lib/siteLang · 메모리 + localStorage)
  *   - 그 언어의 화면 글이 처음 걸릴 때 "기계 번역" 안내를 토스트로 한 번(언어마다, 탭을 닫을 때까지) — 늘 보이는 표시는
  *     내비게이션 🌐 단추의 언어 코드다. 푸터는 홈 · 작업물 · 소개 화면에서 숨으므로 안내 자리로 쓰지 않는다
  *   - <html lang> 을 지금 보이는 언어로 — 다른 언어의 화면 글이 걸리면 그 코드, 아니면 ko/en(LanguageProvider 가 쓰던 값)
@@ -43,10 +42,6 @@ export default function SiteTranslationProvider() {
     setSiteLangEnabled(configEnabled);
   }, [configEnabled]);
 
-  useEffect(() => {
-    if (site.lang && site.uiStatus === "idle") void ensureSiteUi(site.lang);
-  }, [site.lang, site.uiStatus]);
-
   /* 사이트 내용 글(홈 글 · 카테고리 · 태그 · 프로필) — 언어마다 이번 방문에 한 번. About 글은 About 화면에 왔을 때만.
      화면을 옮길 때마다 부르지만 이미 받았으면 바로 돌아온다 — 실패했던 것만 그때 다시 묻는다 */
   const onAbout = pathname === "/about" || pathname.startsWith("/about/");
@@ -61,7 +56,7 @@ export default function SiteTranslationProvider() {
   }, [contentLang, onAbout, pathname]);
 
   /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번. 사이트 기본 언어는 안내하지 않는다(#1406) */
-  const uiReady = !!(site.lang && site.ui && site.lang !== getSiteDefaultLang());
+  const uiReady = !!(site.lang && site.ui && site.uiStatus !== "loading" && site.lang !== getSiteDefaultLang());
   useEffect(() => {
     if (!uiReady || !site.lang) return;
     const key = `siteTranslateNotice:${site.lang}`;

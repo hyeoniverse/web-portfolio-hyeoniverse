@@ -4,14 +4,15 @@ import ko from "@/locales/ko.json";
 import {
   LIST_BATCH_MAX,
   acceptSiteString,
-  assembleSiteUi,
   chunkIndices,
   listItemKey,
   parseListItems,
-  sanitizeSiteUi,
+  parseSiteUiKeys,
   selectListBatch,
-  siteUiHash,
+  siteUiEntryHash,
   siteUiSource,
+  siteUiSrcOf,
+  validSiteUi,
 } from "@/lib/siteTranslation";
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -29,12 +30,18 @@ describe("화면 글 묶음(siteUiSource)", () => {
     expect(siteUiSource({ a: { b: "x", c: "" }, d: "y" })).toEqual([["a.b", "x"], ["d", "y"]]);
   });
 
-  it("해시는 같은 원문이면 같고, 글 하나만 바뀌어도 달라진다 — 한국어 사전과는 무관", () => {
-    const a = siteUiHash(siteUiSource(en));
-    expect(siteUiHash(siteUiSource(JSON.parse(JSON.stringify(en))))).toBe(a);
-    expect(siteUiHash(siteUiSource({ ...en, nav: { ...en.nav, home: "Home!" } }))).not.toBe(a);
-    expect(siteUiHash(siteUiSource(en))).toMatch(/^[0-9a-f]{16}$/);
+  it("문장 해시는 같은 원문이면 같고, 글이 바뀌면 달라진다 — 한국어 사전과는 무관", () => {
+    expect(siteUiEntryHash(en.nav.home)).toBe(siteUiEntryHash(String(en.nav.home)));
+    expect(siteUiEntryHash("Home!")).not.toBe(siteUiEntryHash(en.nav.home));
+    expect(siteUiEntryHash(en.nav.home)).toMatch(/^[0-9a-f]{16}$/);
     void ko;
+  });
+
+  it("요청 열쇠 — 사전에 있는 것만, 겹친 것은 하나로, 상한까지", () => {
+    const texts = new Map(siteUiSource(en));
+    expect(parseSiteUiKeys(["nav.home", "nope", "nav.home", 3, "nav.works"], texts)).toEqual(["nav.home", "nav.works"]);
+    expect(parseSiteUiKeys([...texts.keys()], texts, 5)).toHaveLength(5);
+    expect(parseSiteUiKeys("nav.home", texts)).toEqual([]);
   });
 });
 
@@ -59,18 +66,14 @@ describe("받을 수 있는 번역(acceptSiteString)", () => {
     expect(acceptSiteString("Home", 3)).toBeNull();
   });
 
-  it("묶음 — 실패 · 깨진 자리는 빼고(화면은 영어), 다 받았을 때만 complete", () => {
-    const src: [string, string][] = [["a", "{{n}} posts"], ["b", "Home"], ["c", "About"]];
-    const r = assembleSiteUi(src, ["posts", "Startseite", "Über"], [2]);
-    expect(r.strings).toEqual({ b: "Startseite" });
-    expect(r.complete).toBe(false);
-    expect(assembleSiteUi(src, ["{{n}} Beiträge", "Startseite", "Über"]).complete).toBe(true);
-  });
-
-  it("저장된 번역을 다시 거른다 — 모르는 열쇠 · 깨진 글은 버린다", () => {
-    const src: [string, string][] = [["a", "{{n}} posts"], ["b", "Home"]];
-    expect(sanitizeSiteUi(src, { a: "x", b: "Start", z: "zzz" })).toEqual({ b: "Start" });
-    expect(sanitizeSiteUi(src, null)).toEqual({});
+  it("캐시를 문장마다 거른다 — 모르는 열쇠 · 원문이 바뀐 문장 · 깨진 글은 버린다", () => {
+    const texts = new Map<string, string>([["a", "{{n}} posts"], ["b", "Home"], ["c", "About"]]);
+    const src = siteUiSrcOf(texts, ["a", "b", "c"]);
+    expect(validSiteUi(texts, { strings: { a: "x", b: "Start", c: "Über", z: "zzz" }, src: { ...src, c: "old" } })).toEqual({ b: "Start" });
+    expect(validSiteUi(texts, { strings: { a: "{{ n }} Beiträge" }, src })).toEqual({ a: "{{n}} Beiträge" });
+    expect(validSiteUi(texts, null)).toEqual({});
+    /* 예전 모양(사전 통째 해시)은 쓰지 않는다 */
+    expect(validSiteUi(texts, { h: "x", s: { b: "Start" } })).toEqual({});
   });
 
   it("나눠 보내기 — 개수 · 글자 상한, 순서 그대로", () => {

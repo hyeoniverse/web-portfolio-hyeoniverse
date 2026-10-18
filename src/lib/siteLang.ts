@@ -1,6 +1,6 @@
 import en from "@/locales/en.json";
 import { matchVisitorLanguage, normalizeTranslationLang } from "@/lib/translationLanguages";
-import { sanitizeSiteUi, siteUiHash, siteUiSource, type SiteUiSource } from "@/lib/siteTranslation";
+import { SITE_UI_KEYS_MAX, siteUiSource, siteUiSrcOf, validSiteUi, type SiteUiCache } from "@/lib/siteTranslation";
 
 /**
  * 방문자가 고른 "다른 언어" — 사이트 전체가 나눠 쓰는 하나의 상태(브라우저 쪽 저장소).
@@ -12,8 +12,9 @@ import { sanitizeSiteUi, siteUiHash, siteUiSource, type SiteUiSource } from "@/l
  * "original" 이면 번역하지 않는다. 서버 · 하이드레이션 때는 늘 꺼진 상태(SERVER_SNAPSHOT) — 화면은 ko/en 으로
  * 먼저 그려지고, 하이드레이션 뒤 저장된 번역(localStorage)으로 곧장 바뀐다.
  *
- * 화면 글 번역은 언어마다 한 벌 — 메모리 + localStorage(해시가 지금 사전과 같을 때만 쓴다)에 두어
- * 화면을 옮길 때마다 다시 받지 않는다. 서버는 /api/site-translate/ui.
+ * 화면 글 번역은 사전을 통째로 받지 않는다 — t() 가 번역에 없는 열쇠를 만나면(requestSiteUiKey) 모아 두었다가
+ * 잠깐 뒤 그 열쇠만 묻는다(보는 화면의 글만). 받은 것은 언어마다 메모리 + localStorage(문장마다 원문 해시가 같을 때만 쓴다)에
+ * 쌓여 화면을 옮겨도 다시 받지 않는다. 서버는 /api/site-translate/ui, 관리자 사전 열쇠(admin.*)는 lib/adminLang.
  */
 export const CONTENT_LANG_STORAGE_KEY = "contentTranslateLang";
 const ORIGINAL = "original";
@@ -26,7 +27,7 @@ export interface SiteLangSnapshot {
   lang: string | null;
   /** 저장된 선택이 아니라 브라우저 언어로 건 것 — 서버 설정 때문에 못 하면 조용히 물러난다 */
   auto: boolean;
-  /** 지금 언어의 화면 글 번역(열쇠 → 글) — 아직 없으면 null */
+  /** 지금 언어의 화면 글 번역 — 받은 만큼(열쇠 → 글). 하나도 없으면 null */
   ui: Readonly<Record<string, string>> | null;
   uiStatus: SiteUiStatus;
   /** 지금 언어의 사이트 내용 글 번역(원문 → 글, lib/siteContent — 홈 글 · 카테고리 · 태그) — 아직 없으면 null */
@@ -61,35 +62,28 @@ function writeSaved(v: string) {
   try { localStorage.setItem(CONTENT_LANG_STORAGE_KEY, v); } catch { /* 저장소를 못 쓰면 이번 방문에만 */ }
 }
 
-/* 영어 사전을 펼친 원문과 해시 — 처음 쓸 때 한 번 */
-let sourceCache: { source: SiteUiSource; hash: string } | null = null;
-export function siteUiSourceInfo() {
-  if (!sourceCache) {
-    const source = siteUiSource(en);
-    sourceCache = { source, hash: siteUiHash(source) };
-  }
-  return sourceCache;
+/* 영어 사전 — 열쇠 → 원문. 처음 쓸 때 한 번 */
+let textsCache: Map<string, string> | null = null;
+export function siteUiTexts(): ReadonlyMap<string, string> {
+  return (textsCache ??= new Map(siteUiSource(en)));
 }
 
-/* 화면 글 번역 — 메모리. 실패/상한은 그 언어에 대해 이번 방문 동안 기억한다(다시 고르면 지운다) */
+/* 화면 글 번역 — 언어마다 받은 만큼. 상한에 걸린 언어는 이번 방문 동안 더 묻지 않는다(다시 고르면 지운다) */
 const uiMemory = new Map<string, Record<string, string>>();
 const uiErrors = new Map<string, "failed" | "rateLimited">();
-const uiInflight = new Set<string>();
 
 function readUiCache(lang: string): Record<string, string> | null {
   try {
     const raw = localStorage.getItem(UI_CACHE_PREFIX + lang);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { h?: unknown; s?: unknown };
-    const { source, hash } = siteUiSourceInfo();
-    if (parsed.h !== hash) return null;
-    const s = sanitizeSiteUi(source, parsed.s);
+    const s = validSiteUi(siteUiTexts(), JSON.parse(raw));
     return Object.keys(s).length ? s : null;
   } catch { return null; }
 }
 function writeUiCache(lang: string, strings: Record<string, string>) {
   try {
-    localStorage.setItem(UI_CACHE_PREFIX + lang, JSON.stringify({ h: siteUiSourceInfo().hash, s: strings }));
+    const cache: SiteUiCache = { strings, src: siteUiSrcOf(siteUiTexts(), Object.keys(strings)) };
+    localStorage.setItem(UI_CACHE_PREFIX + lang, JSON.stringify(cache));
   } catch { /* 저장소가 가득 차거나 막혔으면 메모리에만 */ }
 }
 function uiFor(lang: string): Record<string, string> | null {
@@ -135,11 +129,13 @@ function contentFor(lang: string): Record<string, string> | null {
 
 /* 관리자 화면 글 번역 — 받아 오기 · 저장소는 lib/adminLang(관리자 사전을 공개 번들에 싣지 않으려고 따로 둔다). 여기는 메모리만 */
 const adminUiMemory = new Map<string, Record<string, string>>();
-const adminUiInflight = new Set<string>();
+const adminUiInflight = new Map<string, number>();
 export function setAdminUiLoading(lang: string, loading: boolean) {
-  if (loading) adminUiInflight.add(lang); else adminUiInflight.delete(lang);
+  const n = (adminUiInflight.get(lang) ?? 0) + (loading ? 1 : -1);
+  if (n > 0) adminUiInflight.set(lang, n); else adminUiInflight.delete(lang);
   emit();
 }
+export const getAdminUi = (lang: string): Record<string, string> | null => adminUiMemory.get(lang) ?? null;
 export function setAdminUi(lang: string, strings: Record<string, string>) {
   adminUiMemory.set(lang, strings);
   emit();
@@ -167,7 +163,7 @@ function build(): SiteLangSnapshot {
   if (!lang) return { lang: null, auto: false, ui: null, uiStatus: "idle", content: null, adminUi: null, adminUiLoading: false };
   const ui = uiFor(lang);
   const err = uiErrors.get(lang);
-  const uiStatus: SiteUiStatus = ui ? "ready" : err ?? (uiInflight.has(lang) ? "loading" : "idle");
+  const uiStatus: SiteUiStatus = (uiInflight.get(lang) ?? 0) > 0 ? "loading" : err ?? "ready";
   return { lang, auto, ui, uiStatus, content: contentFor(lang), adminUi: adminUiMemory.get(lang) ?? null, adminUiLoading: adminUiInflight.has(lang) };
 }
 
@@ -190,17 +186,17 @@ export function serverSnapshotFor(lang: string, ui: Readonly<Record<string, stri
   return { ...SERVER_SNAPSHOT, lang, auto: true, ui, uiStatus: "ready" };
 }
 
-/** 서버가 넘긴 기본 언어 화면 글을 메모리에 넣어 둔다 — 브라우저가 다시 받지 않는다. 이미 있으면 그대로 */
+/** 서버가 넘긴 기본 언어 화면 글을 메모리에 넣어 둔다 — 브라우저가 다시 받지 않는다. 저장된 것과 합친다. 이미 있으면 그대로 */
 export function primeSiteUi(lang: string, strings: Record<string, string>) {
   if (typeof window === "undefined" || uiMemory.has(lang)) return;
-  uiMemory.set(lang, strings);
+  uiMemory.set(lang, { ...(readUiCache(lang) ?? {}), ...strings });
 }
 
 /** 언어 고르기 — null 이면 원문. 고른 것은 저장한다(원문은 "original" 로 — 다음 방문에 자동 번역이 다시 걸리지 않게) */
 export function selectSiteLang(lang: string | null) {
   const next = normalizeTranslationLang(lang);
   state = { lang: next, auto: false };
-  if (next) uiErrors.delete(next);
+  if (next) { uiErrors.delete(next); asked.delete(next); }
   writeSaved(next ?? ORIGINAL);
   emit();
 }
@@ -237,35 +233,80 @@ export function setSiteLangEnabled(on: boolean) {
   emit();
 }
 
+/* ── 화면 글 — 보는 화면의 열쇠만 ──
+ * t() 가 번역에 없는 열쇠를 만나면 모아 두었다가 잠깐 뒤 한 번에 묻는다. 물은 열쇠는 이번 방문 동안 다시 묻지 않는다
+ * (번역이 깨져 버린 글이 그릴 때마다 다시 물리지 않게 — 그 글은 영어로 남는다). 관리자 사전 열쇠(admin.*)는
+ * lib/adminLang 이 등록한 쪽이 묻는다(관리자 사전을 공개 번들에 싣지 않으려고). */
+const ADMIN_PREFIX = "admin.";
+const asked = new Map<string, Set<string>>();
+const pending = new Map<string, Set<string>>();
+const uiInflight = new Map<string, number>();
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+type KeyFetcher = (lang: string, keys: string[]) => Promise<void>;
+let adminFetcher: KeyFetcher | null = null;
+export function registerAdminUiFetcher(fetcher: KeyFetcher) {
+  adminFetcher = fetcher;
+}
+
+/** 화면이 찾았는데 번역에 없는 열쇠 — 그리는 중에 불려도 상태는 바꾸지 않고 묻기만 예약한다 */
+export function requestSiteUiKey(lang: string, key: string) {
+  if (typeof window === "undefined" || !enabled || uiErrors.has(lang)) return;
+  let seen = asked.get(lang);
+  if (!seen) asked.set(lang, (seen = new Set()));
+  if (seen.has(key)) return;
+  seen.add(key);
+  let wait = pending.get(lang);
+  if (!wait) pending.set(lang, (wait = new Set()));
+  wait.add(key);
+  flushTimer ??= setTimeout(flushSiteUi, 30);
+}
+
+function flushSiteUi() {
+  flushTimer = null;
+  for (const [lang, set] of pending) {
+    pending.delete(lang);
+    const keys = [...set];
+    const site = keys.filter((k) => !k.startsWith(ADMIN_PREFIX));
+    const admin = keys.filter((k) => k.startsWith(ADMIN_PREFIX));
+    for (let i = 0; i < site.length; i += SITE_UI_KEYS_MAX) void fetchSiteUiKeys(lang, site.slice(i, i + SITE_UI_KEYS_MAX));
+    if (adminFetcher) for (let i = 0; i < admin.length; i += SITE_UI_KEYS_MAX) void adminFetcher(lang, admin.slice(i, i + SITE_UI_KEYS_MAX));
+  }
+}
+
 /**
- * 지금 언어의 화면 글 번역을 받아 온다 — 메모리/저장소에 있거나 받는 중이거나 이미 실패했으면 아무것도 안 한다.
- * 다 받지 못한 번역(complete:false)은 메모리에만 둔다 — 다음 방문에 다시 받아 빈자리를 채운다.
+ * 열쇠들의 화면 글 번역을 받아 지금 것에 더한다(메모리 + localStorage). 상한(429)에 걸리면 이 언어는 이번 방문 동안 더 묻지 않는다.
+ * 그 밖의 실패는 그 열쇠들만 영어로 남는다(다시 묻지 않는다).
  */
-export async function ensureSiteUi(lang: string, fetcher: typeof fetch = fetch): Promise<void> {
-  if (uiFor(lang) || uiInflight.has(lang) || uiErrors.has(lang)) return;
-  uiInflight.add(lang);
+export async function fetchSiteUiKeys(lang: string, keys: string[], fetcher: typeof fetch = fetch): Promise<void> {
+  if (!keys.length) return;
+  uiInflight.set(lang, (uiInflight.get(lang) ?? 0) + 1);
   emit();
   try {
     const res = await fetcher("/api/site-translate/ui", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lang }),
+      body: JSON.stringify({ lang, keys }),
     });
     if (res.ok) {
-      const data = (await res.json()) as { strings?: unknown; hash?: unknown; complete?: unknown };
-      const { source, hash } = siteUiSourceInfo();
-      const strings = sanitizeSiteUi(source, data.strings);
-      uiMemory.set(lang, strings);
-      if (data.complete === true && data.hash === hash) writeUiCache(lang, strings);
+      const data = (await res.json()) as { strings?: unknown };
+      const raw = data.strings && typeof data.strings === "object" ? (data.strings as Record<string, string>) : {};
+      const texts = siteUiTexts();
+      const got = validSiteUi(texts, { strings: raw, src: siteUiSrcOf(texts, Object.keys(raw)) });
+      if (Object.keys(got).length) {
+        const merged = { ...(uiFor(lang) ?? {}), ...got };
+        uiMemory.set(lang, merged);
+        writeUiCache(lang, merged);
+      }
     } else if (res.status === 503 && current().auto) {
       dismissAutoSiteLang();
-    } else {
-      uiErrors.set(lang, res.status === 429 ? "rateLimited" : "failed");
+    } else if (res.status === 429) {
+      uiErrors.set(lang, "rateLimited");
     }
   } catch {
-    uiErrors.set(lang, "failed");
+    /* 그 열쇠들은 영어로 남는다 */
   } finally {
-    uiInflight.delete(lang);
+    const n = (uiInflight.get(lang) ?? 1) - 1;
+    if (n > 0) uiInflight.set(lang, n); else uiInflight.delete(lang);
     emit();
   }
 }
@@ -309,10 +350,14 @@ export function __resetSiteLangForTest() {
   uiMemory.clear();
   uiErrors.clear();
   uiInflight.clear();
+  asked.clear();
+  pending.clear();
+  if (flushTimer) clearTimeout(flushTimer);
+  flushTimer = null;
   contentMemory.clear();
   contentFetched.clear();
   mergedCache.clear();
   adminUiMemory.clear();
   adminUiInflight.clear();
-  sourceCache = null;
+  textsCache = null;
 }
