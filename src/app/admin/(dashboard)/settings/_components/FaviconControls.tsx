@@ -11,7 +11,7 @@ import RadioGroup from "@/components/ui/RadioGroup";
 import { Switch } from "@/components/ui/Switch";
 import NumberInput from "@/components/ui/NumberInput";
 import FieldRow from "@/components/ui/FieldRow";
-import SegmentedControl from "@/components/ui/SegmentedControl";
+import Pressable from "@/components/ui/Pressable";
 import { FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPresets";
 import { resolveFaviconShadow, type FaviconShadow } from "@/lib/favicon";
 import type { PresetNameProblem } from "../_data/presetName";
@@ -74,7 +74,11 @@ export function FaviconShadowControls({
   // 미리보기 안에서 빛을 드래그 → 그림자 방향(광원 반대, 45° 스냅) + 거리(blur 1~12)
   const handleLightDrag = (e: React.PointerEvent) => {
     const el = previewRef.current;
-    if (!el) return;
+    if (!el || (e.pointerType === "mouse" && e.button !== 0)) return;
+    /* 기본 동작(글자 선택 · 끌기 시작)을 막고 포인터를 붙잡는다 — 끄는 도중 커서가 다른 요소나 창 밖으로
+       나가도 움직임 · 놓음이 이 미리보기로 온다(안 붙잡으면 중간에 놓친 것처럼 멈출 수 있다) */
+    e.preventDefault();
+    try { el.setPointerCapture(e.pointerId); } catch { /* 이미 끝난 포인터 */ }
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -109,48 +113,60 @@ export function FaviconShadowControls({
       const d = calc(); // 놓을 때만 config 에 commit
       onChange({ ...value, angle: d.angle, size: "custom", custom: d.blur });
       setDrag(null);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
     };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+    /* 붙잡은 포인터의 이벤트는 이 요소로 온다 — window 로 들으면 WebKit 은 끄는 동안 움직임을 넘기지 않았다 */
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
   };
+
+  /* 그림자마다 한 줄 — [이름 · 켜기] 와 (켜져 있으면) 조절 단추. 켠 그림자 하나만 아래에 조절 칸을 편다.
+     예전엔 세그먼트(로고 | 배경) 옆 스위치 하나가 "지금 고른 쪽"을 켜고 꺼서, 어느 그림자의 스위치인지 알 수 없었다 */
+  const rows: { key: "text" | "bg"; label: string; shadow: FaviconShadow; set: (v: FaviconShadow) => void }[] = [
+    { key: "text", label: textLabel || t("admin.settings.faviconTextShadow"), shadow: textShadow, set: onChangeText },
+    ...(!single && bgShadow && onChangeBg ? [{ key: "bg" as const, label: bgLabel || t("admin.settings.faviconBgShadow"), shadow: bgShadow, set: onChangeBg }] : []),
+  ];
+  const editing = single ? "text" : tab;
 
   return (
     <div className={styles.faviconShadowCard}>
-      <div className={styles.faviconShadowHead}>
-        {single ? (
-          // textLabel="" 이면 내부 라벨 생략 — 바깥에서 라벨을 따로 줄 때(대칭 배치) 사용
-          textLabel === "" ? null : (
-            <span className={styles.faviconShadowSingleLabel}>{textLabel ?? t("admin.settings.faviconTextShadow")}</span>
-          )
-        ) : (
-          <SegmentedControl<"text" | "bg">
-
-            items={[
-              { value: "text", label: textLabel ?? t("admin.settings.faviconTextShadow") },
-              { value: "bg", label: bgLabel ?? t("admin.settings.faviconBgShadow") },
-            ]}
-            value={tab}
-            onChange={setTab}
-          />
-        )}
-        <Switch
-          checked={value.enabled}
-          onCheckedChange={(v) => onChange({ ...value, enabled: v })}
-          showStateText
-        />
-      </div>
-      <AnimatePresence initial={false}>
-        {value.enabled && (
-          <motion.div
-            key="shadow-body"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            style={{ overflow: "hidden" }}
-          >
+      <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconShadowTitle")}</h5>
+      {rows.map((r) => {
+        const open = r.shadow.enabled && editing === r.key;
+        return (
+          <div key={r.key} className={styles.shadowRow}>
+            <div className={styles.shadowRowHead}>
+              <Switch
+                checked={r.shadow.enabled}
+                onCheckedChange={(v) => {
+                  r.set({ ...r.shadow, enabled: v });
+                  /* 켜면 그쪽을 펴고, 펴 둔 쪽을 끄면 켜져 있는 다른 쪽을 편다 */
+                  const other = rows.find((o) => o.key !== r.key && o.shadow.enabled);
+                  if (v) setTab(r.key);
+                  else if (editing === r.key && other) setTab(other.key);
+                }}
+                label={r.label}
+                labelWidth="8em"
+              />
+              {r.shadow.enabled && !open && (
+                <Pressable className={styles.shadowEdit} onClick={() => setTab(r.key)}>
+                  {t("admin.settings.faviconShadowEdit")}
+                </Pressable>
+              )}
+            </div>
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  key="shadow-body"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
         <div className={styles.faviconShadowBody}>
           {/* 광원 드래그 미리보기 — 빛(점)을 끌면 그림자 방향·거리(blur)가 실시간 반영 */}
           <div
@@ -206,9 +222,12 @@ export function FaviconShadowControls({
             <p className={styles.shadowDragHint}>{t("admin.settings.faviconShadowDragHint")}</p>
           </div>
         </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
     </div>
   );
 }

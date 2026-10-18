@@ -150,12 +150,14 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
       {tab === "wheel" ? (
         <>
         <div className={styles.ruleRow}>
-          <SegmentedControl
-            items={HARMONY_RULES.map((r) => ({ value: r, label: k(r) }))}
-            value={rule}
-            onChange={setRule}
-            variant="subtle"
-          />
+          <div className={styles.ruleScroll}>
+            <SegmentedControl
+              items={HARMONY_RULES.map((r) => ({ value: r, label: k(r) }))}
+              value={rule}
+              onChange={setRule}
+              variant="subtle"
+            />
+          </div>
           <span className={styles.wheelHint}>{k(`${rule}Desc`)}</span>
         </div>
         <div className={styles.suggestBody}>

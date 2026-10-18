@@ -322,3 +322,50 @@
   gap: var(--spacing-8);
   flex: 1;
 }
+
+/* 한 줄 배치(compact) — [미리보기] [이름 · 로고 색] … [업로드 · 삭제]. 줄 전체가 끌어다 놓기 자리 */
+.logoCompact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-12) var(--spacing-16);
+  min-width: 0;
+  padding-block: var(--spacing-4);
+  border-radius: var(--radius-surface);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+/* 파일을 끌고 들어온 동안 */
+.logoCompactOver {
+  background: var(--bg-secondary);
+}
+
+.logoCompact .logoActions {
+  margin-left: auto;
+}
+
+.logoCompactMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+/* 아직 안 올린 칸 — 미리보기 자리에 올리기 단추 */
+.logoCompactEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.logoCompactEmpty:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}

@@ -270,9 +270,11 @@ interface UploadFieldProps {
   previewSquare?: boolean;
   /** 기본 미리보기 대신 그릴 노드 — favicon 필드는 실제 탭 아이콘 렌더를 하나로 통일해 보여준다 */
   previewNode?: React.ReactNode;
+  /** 한 줄 배치 — [미리보기] [이름 · 로고 색] [업로드 · 삭제]. 브랜드처럼 라이트/다크를 위아래로 쌓을 때 */
+  compact?: boolean;
 }
 
-export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg, previewSquare, previewNode }: UploadFieldProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg, previewSquare, previewNode, compact = false }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -309,6 +311,71 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
   // 이미지(로고) — 넓은 dropzone. 클릭/드래그 업로드, 파일 있으면 미리보기 + 교체/삭제.
   if (preview === "image") {
     const openPicker = () => fileRef.current?.click();
+    const previewEl = url ? previewNode ?? (
+    <div className={`${styles.logoPreview}${previewSquare ? ` ${styles.logoPreviewSquare}` : ""}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
+      {tint ? (
+        /* 숨긴 img 로 원본 비율의 폭을 잡고 그 형태를 mask 로 tint 색 채움 —
+           span 100% 채움 방식은 원본과 크기가 달라져 색만 바꿔도 로고가 커졌다 */
+        <span
+          className={styles.logoPreviewTint}
+          style={{ maskImage: `url("${url}")`, WebkitMaskImage: `url("${url}")`, backgroundColor: tint }}
+          role="img"
+          aria-label={label}
+        >
+          <Image src={url} alt="" width={120} height={48} unoptimized className={styles.logoPreviewImage} />
+        </span>
+      ) : (
+        <Image src={url} alt={label} width={120} height={48} unoptimized className={styles.logoPreviewImage} />
+      )}
+    </div>
+    ) : null;
+    const tintEl = url ? (onTintChange && (
+      /* 정체불명 색상원이던 것 — 라벨을 붙이고, 빈 값(원본)은 사선으로 표시,
+         기능 설명은 hover 툴팁이 말한다 */
+      <Tooltip content={t("admin.settings.logoRecolorHint")} placement="top" delay={250}>
+        <div className={styles.logoTintControl}>
+          <span className={styles.logoTintLabel}>{recolorLabel}</span>
+          <span className={`${styles.logoPreviewColor}${!tint ? ` ${styles.logoPreviewColorEmpty}` : ""}`}>
+            <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
+          </span>
+          {tint && (
+            <Pressable className={styles.logoTintReset} onClick={() => onTintChange("")}>
+              {originalLabel}
+            </Pressable>
+          )}
+        </div>
+      </Tooltip>
+    )) : null;
+    if (compact) {
+      return (
+        <div
+          className={`${styles.logoCompact}${dragOver ? ` ${styles.logoCompactOver}` : ""}`}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleUpload(file);
+          }}
+        >
+          {previewEl ?? (
+            <Pressable className={styles.logoCompactEmpty} onClick={openPicker} aria-label={uploadLabel}>
+              <Upload size={16} />
+            </Pressable>
+          )}
+          <div className={styles.logoCompactMeta}>
+            <span className={styles.fieldLabel}>{label}</span>
+            {tintEl}
+          </div>
+          <div className={styles.logoActions}>
+            <Button variant="outline" onClick={openPicker} loading={uploading}>{uploadLabel}</Button>
+            {url && <Button variant="outline" tone="danger" onClick={onRemove}>{removeLabel}</Button>}
+          </div>
+          {fileInput}
+        </div>
+      );
+    }
     return (
       <div className={styles.fieldRow}>
         {/* 라벨 라인 우측에 업로드/삭제 — 드롭존 안에 두면 카드가 두 줄로 커진다 */}
@@ -348,41 +415,8 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
           {url ? (
             <>
               <div className={styles.logoPreviewRow}>
-                {previewNode ?? (
-                <div className={`${styles.logoPreview}${previewSquare ? ` ${styles.logoPreviewSquare}` : ""}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
-                  {tint ? (
-                    /* 숨긴 img 로 원본 비율의 폭을 잡고 그 형태를 mask 로 tint 색 채움 —
-                       span 100% 채움 방식은 원본과 크기가 달라져 색만 바꿔도 로고가 커졌다 */
-                    <span
-                      className={styles.logoPreviewTint}
-                      style={{ maskImage: `url("${url}")`, WebkitMaskImage: `url("${url}")`, backgroundColor: tint }}
-                      role="img"
-                      aria-label={label}
-                    >
-                      <Image src={url} alt="" width={120} height={48} unoptimized className={styles.logoPreviewImage} />
-                    </span>
-                  ) : (
-                    <Image src={url} alt={label} width={120} height={48} unoptimized className={styles.logoPreviewImage} />
-                  )}
-                </div>
-                )}
-                {onTintChange && (
-                  /* 정체불명 색상원이던 것 — 라벨을 붙이고, 빈 값(원본)은 사선으로 표시,
-                     기능 설명은 hover 툴팁이 말한다 */
-                  <Tooltip content={t("admin.settings.logoRecolorHint")} placement="top" delay={250}>
-                    <div className={styles.logoTintControl}>
-                      <span className={styles.logoTintLabel}>{recolorLabel}</span>
-                      <span className={`${styles.logoPreviewColor}${!tint ? ` ${styles.logoPreviewColorEmpty}` : ""}`}>
-                        <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
-                      </span>
-                      {tint && (
-                        <Pressable className={styles.logoTintReset} onClick={() => onTintChange("")}>
-                          {originalLabel}
-                        </Pressable>
-                      )}
-                    </div>
-                  </Tooltip>
-                )}
+                {previewEl}
+                {tintEl}
               </div>
             </>
           ) : (
