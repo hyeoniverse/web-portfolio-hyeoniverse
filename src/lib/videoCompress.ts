@@ -18,6 +18,9 @@ export interface CompressOptions {
   onProgress?: (ratio: number) => void;
 }
 
+/** ffmpeg.wasm 의 ESM 진입 파일 — scripts/copy-ffmpeg.mjs 가 복사해 둔다 */
+const FFMPEG_ESM = "/vendor/ffmpeg/index.js";
+
 let ffmpegInstance: FFmpeg | null = null;
 let loadingPromise: Promise<FFmpeg> | null = null;
 
@@ -25,11 +28,13 @@ async function getFFmpeg(): Promise<FFmpeg> {
   if (ffmpegInstance) return ffmpegInstance;
   if (loadingPromise) return loadingPromise;
   loadingPromise = (async () => {
-    const { FFmpeg } = await import("@ffmpeg/ffmpeg");
+    /* 번들에 넣지 않고 public/vendor/ffmpeg(scripts/copy-ffmpeg.mjs 가 복사)에서 불러온다 — Turbopack 이 이 패키지의
+       워커 주소(변수)를 해석하지 못해 빌드가 실패했다(#1503). 같은 출처라 워커(worker.js)도 그대로 뜬다 */
+    const { FFmpeg } = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ FFMPEG_ESM)) as typeof import("@ffmpeg/ffmpeg");
     const { toBlobURL } = await import("@ffmpeg/util");
     const ffmpeg = new FFmpeg();
-    // CDN 에서 wasm core 로드 (Vercel 대역폭 절약)
-    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+    // CDN 에서 wasm core 로드 (Vercel 대역폭 절약). ESM 판 — 워커가 module 워커라 UMD 판은 불러오지 못한다
+    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
       wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
