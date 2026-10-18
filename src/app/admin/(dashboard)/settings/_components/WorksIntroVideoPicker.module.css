@@ -2,7 +2,8 @@
 /* ── Works Intro Video Picker — 2 column grid: preview | actions, 그 아래 picker drawer full width ── */
 .worksIntroVideoPicker {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  /* minmax(0, …) — 미리보기가 없으면 단추 · 주소 칸 묶음이 첫 열에 오는데, max-content 열은 줄지 않아 좁은 화면에서 칸이 넘쳤다 */
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   column-gap: var(--spacing-20);
   row-gap: var(--spacing-16);
   align-items: start;

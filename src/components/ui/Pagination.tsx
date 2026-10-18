@@ -50,7 +50,7 @@ export default function Pagination({ page, totalPages, onChange, className, show
   return (
     <div className={`${styles.paginationWrap} ${size === "sm" ? styles.paginationWrapSm : ""} ${className ?? ""}`}>
       <div className={styles.pagination}>
-        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} aria-label={t("common.pageFirst")} title={t("common.pageFirst")}>
+        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={`${styles.pageBtn} ${styles.pageEdge}`} aria-label={t("common.pageFirst")} title={t("common.pageFirst")}>
           <ChevronsLeft size={14} />
         </Pressable>
         <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn} aria-label={t("common.pagePrev")}>
@@ -73,7 +73,7 @@ export default function Pagination({ page, totalPages, onChange, className, show
         <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn} aria-label={t("common.pageNext")}>
           <ChevronRight size={14} />
         </Pressable>
-        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} aria-label={t("common.pageLast")} title={t("common.pageLast")}>
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={`${styles.pageBtn} ${styles.pageEdge}`} aria-label={t("common.pageLast")} title={t("common.pageLast")}>
           <ChevronsRight size={14} />
         </Pressable>
       </div>

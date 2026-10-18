@@ -152,7 +152,8 @@
   max-width: var(--width-page-max);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, …) — 한 열일 때 아래로 흐르는 사이드바의 최소 폭이 열을 화면보다 넓혔다(모바일에서 카드 오른쪽 여백이 사라짐) */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-32);
   align-items: start;
 }
@@ -161,7 +162,7 @@
    DOM 은 본문 → 사이드바 순서 그대로(1024 이하에선 본문 아래로 흐른다) */
 @media (width > 1024px) {
   .contentArea {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 280px minmax(0, 1fr);
     gap: var(--spacing-48);
   }
 
@@ -219,7 +220,7 @@
 /* /posts/history (history 모드) — 본문 단일 컬럼 (타임라인만).
    시리즈(SeriesSection)·사이드바(PostsSidebar)는 history 에선 PostsClient 가 렌더하지 않는다. */
 .historyMode .contentArea {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 .historyMode .contentArea > .mainColumn {
   grid-column: 1;

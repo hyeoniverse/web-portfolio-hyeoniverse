@@ -13,7 +13,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-12);
+  /* 좁은 화면 — 단추 사이를 좁히고 처음 · 끝 단추를 거둔다(번호에 1 · 마지막 쪽이 늘 있고 쪽 이동 칸도 있다).
+     쪽이 많으면 단추 열한 개가 화면보다 넓어 양쪽이 잘렸다 */
+  gap: var(--spacing-4);
+}
+
+/* .pageBtn(display:flex)보다 뒤에 와도 이기게 둘을 겹쳐 적는다 */
+.pagination .pageEdge {
+  display: none;
+}
+
+@media (width > 480px) {
+  .pagination {
+    gap: var(--spacing-12);
+  }
+
+  .pagination .pageEdge {
+    display: flex;
+  }
 }
 
 .pageBtn {

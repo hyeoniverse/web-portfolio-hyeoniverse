@@ -78,7 +78,25 @@
   /* basis 240 은 실제 콘텐츠 (label + year/month/day select + sep + calendar btn) ~320px 보다 작아
    * 부모가 ~500px 일 때 둘 다 한 줄에 우겨져 들어가서 wrap 이 트리거 안 됨. basis 를 실제 콘텐츠 폭에 맞춤. */
   flex: 1 1 320px;
-  min-width: 280px;
+  /* 좁은 화면 — 라벨(시작 · 끝)을 입력칸 위 줄로 내린다. 옆에 두면 연 · 월 · 일 · 달력 묶음(약 320px)이 칸보다 넓어 달력 단추가 잘렸다 */
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* 좁은 화면 — 입력칸 묶음은 제 폭(내용)을 기준으로 둔다. flex:1(기준 0)이면 줄을 넘기지 않고 라벨 옆에 눌려 넘쳤다 */
+.dateRow > .dateInputs {
+  flex: 1 1 auto;
+}
+
+@media (width > 480px) {
+  .dateRow {
+    flex-wrap: nowrap;
+    min-width: 280px;
+  }
+
+  .dateRow > .dateInputs {
+    flex: 1;
+  }
 }
 
 /* 시각 형식 — 줄 전체를 쓴다 */
@@ -176,7 +194,14 @@
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: var(--spacing-4);
+  /* 좁은 화면은 칸 사이를 좁혀 한 줄에 들인다 */
+  gap: var(--spacing-2);
+}
+
+@media (width > 480px) {
+  .dateGroup {
+    gap: var(--spacing-4);
+  }
 }
 
 /* 날짜와 시각 사이 — "시간" 라벨. 시작·종료 라벨과 같은 모양, 앞쪽을 조금 더 띄운다 */

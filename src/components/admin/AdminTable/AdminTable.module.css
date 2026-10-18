@@ -31,7 +31,9 @@
 .bulkBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-12);
+  /* 좁은 화면은 단추가 한 줄에 다 들어가지 않는다 — 줄을 넘겨 모두 보이게(가로로 넘치면 오른쪽 단추가 잘렸다) */
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-12);
   font: var(--font-body-sm);
   color: var(--text-secondary);
   /* full-bleed 유리(양옆 뷰포트 끝까지) — margin 으로 빼고 padding 으로 콘텐츠는 본문 폭 유지. */
@@ -537,9 +539,9 @@
   width: max-content;
 }
 
+/* 일괄 선택 바는 표 바깥이라(위 주석) 표와 함께 가로로 밀리지 않는다 — 폭을 표에 맞추면 화면 밖으로 넘친다 */
 .tableHeader,
-.row,
-.bulkBar {
+.row {
   min-width: 800px;
 }
 
@@ -602,8 +604,7 @@
   }
 
   .tableHeader,
-  .row,
-  .bulkBar {
+  .row {
     min-width: auto;
   }
 
