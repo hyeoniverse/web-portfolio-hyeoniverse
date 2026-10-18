@@ -4,7 +4,7 @@
 // 저장소 두 곳(posts: 글·프로젝트 이미지·커버·낭독 음성 / uploads: 로고·아이콘·이모지·배경음·폰트·이력서)의 파일과
 // 쓰는 곳. 예전엔 올린 파일을 볼 곳이 없어 쌓이기만 했다. 어디서도 쓰지 않는 파일만 지울 수 있다(서버도 다시 확인한다).
 import { useEffect, useState } from "react";
-import { Copy, ExternalLink, Eye, File, FileText, Film, LayoutGrid, List, Music, Trash2, Type } from "@/components/icons";
+import { Copy, ExternalLink, File, FileText, Film, LayoutGrid, List, Maximize2, Music, Trash2, Type } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
@@ -214,7 +214,7 @@ export default function MediaManager() {
 
   const actionsOf = (m: MediaItem, cls: string) => (
     <>
-      <Pressable className={cls} onClick={() => openPreview(m)} aria-label={t("admin.inline.filePreview.preview")} title={t("admin.inline.filePreview.preview")}><Eye size={13} /></Pressable>
+      <Pressable className={cls} onClick={() => openPreview(m)} aria-label={t("admin.inline.filePreview.preview")} title={t("admin.inline.filePreview.preview")}><Maximize2 size={13} /></Pressable>
       <Pressable className={cls} onClick={() => void copy(m.url)} aria-label={t("admin.inline.mediaManager.copyUrl")} title={t("admin.inline.mediaManager.copyUrl")}><Copy size={13} /></Pressable>
       <a className={cls} href={m.url} target="_blank" rel="noopener noreferrer" aria-label={t("admin.inline.mediaManager.openNewTab")} title={t("admin.inline.mediaManager.openNewTab")}><ExternalLink size={13} /></a>
       {!m.usage.length && (
