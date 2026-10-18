@@ -120,3 +120,17 @@ github_url: https://github.com/user/repo
 | `github_url` | string | GitHub URL | 없음 |
 
 > **참고**: Works는 `slug` 필드가 없습니다. 동기화 시 `title`로 기존 항목을 매칭합니다. 동일 제목의 작업물이 이미 DB에 있으면 업데이트됩니다.
+
+### 옆 파일(.json) — 갤러리 · 대본 · 작업 내용
+
+frontmatter 한 줄로 적을 수 없는 칸은 같은 이름의 `.json` 에 둡니다(`macfolio.md` 옆의 `macfolio.json`). 동기화가 아래 칸만 읽어 함께 올리고, 두 파일 중 늦게 고친 시각으로 UPDATE 여부를 정합니다.
+
+| 키 | 설명 |
+|----|------|
+| `gallery` | 갤러리(발표 장표) 그림 주소 목록 |
+| `gallery_notes` | 장마다의 대본 — 그림 주소가 열쇠, `{ script, en: { script } }` |
+| `contributions_ko` / `contributions_en` | 역할별 작업 내용 `{ 역할: [항목] }` |
+| `tech_notes` | 기술별 메모 `{ 기술: { ko, en } }` |
+| `team_members` | 팀원 목록 |
+| `summary_ko` / `summary_en` | 요약 |
+| `content_en` | 영문 본문 |

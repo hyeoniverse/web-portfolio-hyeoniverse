@@ -40,6 +40,22 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const DRY_RUN = process.argv.includes("--dry");
+/**
+ * frontmatter 한 줄로 적을 수 없는 칸 — 갤러리(발표 장표)와 장마다의 대본, 역할별 작업 내용, 기술 메모,
+ * 팀원, 영문 본문 — 은 같은 이름의 .json(`foo.md` 옆의 `foo.json`)에 둔다. 아래 칸만 받는다.
+ */
+const SIDECAR_KEYS = [
+  "gallery", "gallery_notes", "contributions_ko", "contributions_en", "tech_notes",
+  "team_members", "summary_ko", "summary_en", "content_en",
+] as const;
+
+function readSidecar(mdPath: string): Record<string, unknown> {
+  const jsonPath = mdPath.replace(/\.md$/, ".json");
+  if (!fs.existsSync(jsonPath)) return {};
+  const raw = JSON.parse(fs.readFileSync(jsonPath, "utf-8")) as Record<string, unknown>;
+  return Object.fromEntries(SIDECAR_KEYS.filter((k) => k in raw).map((k) => [k, raw[k]]));
+}
+
 const CONTENT_DIR = path.resolve(process.cwd(), "content/works");
 
 /* 파싱은 관리자 "마크다운 가져오기" 와 같은 함수를 쓴다(@/utils/mdParser) — 칸 이름이 표와 어긋나지 않게.
@@ -70,9 +86,11 @@ async function main() {
   for (const file of files) {
     const filePath = path.join(CONTENT_DIR, file);
     const raw = fs.readFileSync(filePath, "utf-8");
-    const parsed = parseMdWork(raw, file) as ParsedWork;
-    const stat = fs.statSync(filePath);
-    works.push({ ...parsed, filePath, mtime: stat.mtime });
+    const parsed = { ...parseMdWork(raw, file), ...readSidecar(filePath) } as ParsedWork;
+    /* 옆의 .json 만 고쳐도 다시 올라가게 — 둘 중 늦은 시각 */
+    const jsonPath = filePath.replace(/\.md$/, ".json");
+    const times = [filePath, jsonPath].filter((p) => fs.existsSync(p)).map((p) => fs.statSync(p).mtime.getTime());
+    works.push({ ...parsed, filePath, mtime: new Date(Math.max(...times)) });
   }
 
   // title 기준으로 DB 조회. 휴지통(deleted_at)에 있는 같은 제목은 빼고 본다 — 거기에 쓰면 화면에 안 나온다
