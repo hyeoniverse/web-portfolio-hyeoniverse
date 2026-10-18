@@ -56,7 +56,10 @@ export default function SiteTranslationProvider() {
   }, [contentLang, onAbout, pathname]);
 
   /* 기계 번역 안내 — 화면 글이 바뀐 뒤(그 언어로 읽히게), 언어마다 한 번. 사이트 기본 언어는 안내하지 않는다(#1406) */
-  const uiReady = !!(site.lang && site.ui && site.uiStatus !== "loading" && site.lang !== getSiteDefaultLang());
+  /* 안내 글은 그 문장의 번역이 온 뒤에 띄운다 — 화면 글은 보이는 것만 받아 와서, 먼저 띄우면 영어로 굳는다.
+     그리는 동안 t() 를 불러 둬야 그 문장을 묻는다 */
+  const noticeText = t("contentTranslate.siteNotice");
+  const uiReady = !!(site.lang && site.ui?.["contentTranslate.siteNotice"] && site.lang !== getSiteDefaultLang());
   useEffect(() => {
     if (!uiReady || !site.lang) return;
     const key = `siteTranslateNotice:${site.lang}`;
@@ -65,8 +68,8 @@ export default function SiteTranslationProvider() {
       sessionStorage.setItem(key, "1");
     } catch { /* 저장소를 못 쓰면 기억하지 못한 채 띄운다 */ }
     /* 언어 이름은 그 언어로 쓴 이름(日本語) — 안내 글이 그 언어로 번역돼 있다 */
-    showToast(fillTemplate(t("contentTranslate.siteNotice"), { lang: findTranslationLanguage(site.lang)?.native ?? site.lang }), "info", 6000);
-  }, [uiReady, site.lang, t]);
+    showToast(fillTemplate(noticeText, { lang: findTranslationLanguage(site.lang)?.native ?? site.lang }), "info", 6000);
+  }, [uiReady, site.lang, noticeText]);
 
   /* 화면 글이 그 언어로 바뀐 뒤에 바꾼다 — 받기 전(또는 실패)에는 화면이 아직 ko/en 이다 */
   const shownLang = site.lang && site.ui ? site.lang : language;
