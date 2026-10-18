@@ -403,18 +403,18 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               <span className={styles.logoEffectsLabel}>{t("admin.settings.logoEffects")}</span>
               <div className={styles.logoEffectsToggles}>
                 <label className={styles.inlineToggle}>
-                  {t("admin.settings.logoGlitch")}
                   <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
+                  {t("admin.settings.logoGlitch")}
                 </label>
                 <label className={styles.inlineToggle}>
-                  {t("admin.settings.logoDifference")}
                   {/* 미지정(undefined) = 자동 — 보고 있는 탭의 기본을 보여준다: 업로드(이미지)는 해제,
                      시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
                   <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
+                  {t("admin.settings.logoDifference")}
                 </label>
                 <label className={styles.inlineToggle}>
-                  {t("admin.settings.logoFollowTheme")}
                   <Checkbox checked={config.brand.logoFollowTheme !== false} onChange={(v) => update("brand", "logoFollowTheme", v)} shape="square" />
+                  {t("admin.settings.logoFollowTheme")}
                 </label>
               </div>
             </div>
@@ -512,7 +512,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 {(["light", "dark"] as const).map((variant) => (
                   <div key={variant} className={styles.faviconPreviewCell}>
                     {renderImageFaviconPreview(variant)}
-                    <span className={styles.faviconPreviewLabel}>{variant}</span>
+                    <span className={styles.faviconPreviewLabel}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
                   </div>
                 ))}
               </div>
@@ -549,9 +549,9 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                         }));
                       }}
                       options={[
-                        { value: "circle", label: "Circle" },
-                        { value: "square", label: "Square" },
-                        { value: "none", label: "None" },
+                        { value: "circle", label: t("admin.settings.faviconShapeCircle") },
+                        { value: "square", label: t("admin.settings.faviconShapeSquare") },
+                        { value: "none", label: t("admin.settings.faviconShapeNone") },
                       ]}
                     />
                   </FieldRow>
@@ -779,7 +779,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                       >
                         <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
                       </span>
-                      <span className={styles.faviconPreviewLabel}>{variant}</span>
+                      <span className={styles.faviconPreviewLabel}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
                       {/* 대비율 + WCAG 배지 — favicon 은 그래픽 글리프라 3:1(1.4.11)이 실질 최소 */}
                       <span className={styles.faviconContrast}>
                         {ratio == null || level == null ? (
@@ -845,9 +845,9 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                       }));
                     }}
                     options={[
-                      { value: "circle", label: "Circle" },
-                      { value: "square", label: "Square" },
-                      { value: "none", label: "None" },
+                      { value: "circle", label: t("admin.settings.faviconShapeCircle") },
+                      { value: "square", label: t("admin.settings.faviconShapeSquare") },
+                      { value: "none", label: t("admin.settings.faviconShapeNone") },
                     ]}
                   />
                 </FieldRow>
@@ -899,9 +899,9 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     value={(config.brand.faviconWeight ?? "light") as "light" | "regular" | "bold"}
                     onChange={(v) => update("brand", "faviconWeight", v)}
                     options={[
-                      { value: "light", label: "Light" },
-                      { value: "regular", label: "Regular" },
-                      { value: "bold", label: "Bold" },
+                      { value: "light", label: t("admin.settings.faviconWeightLight") },
+                      { value: "regular", label: t("admin.settings.faviconWeightRegular") },
+                      { value: "bold", label: t("admin.settings.faviconWeightBold") },
                     ]}
                   />
                 </FieldRow>
@@ -1026,7 +1026,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                       </span>
                     </div>
                     <span className={styles.fullLogoPreviewMeta}>
-                      <span className={styles.fullLogoPreviewCap}>{variant}</span>
+                      <span className={styles.fullLogoPreviewCap}>{t(variant === "light" ? "admin.settings.faviconVariantLight" : "admin.settings.faviconVariantDark")}</span>
                       {ratio != null && level != null && (
                         <span className={styles.faviconContrast}>
                           <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>

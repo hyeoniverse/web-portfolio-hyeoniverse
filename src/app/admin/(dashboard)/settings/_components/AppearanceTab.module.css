@@ -9,44 +9,61 @@
   }
 }
 /* Design System 섹션 제목 우측(customActions): [hint] | [열기 링크] 한 줄, 우측 정렬. */
+/* 좁은 화면은 안내 위 · 링크 아래로 쌓고 세로선은 뺀다(옆으로 두면 둘 다 두 줄로 접혀 엉켰다). 넓으면 한 줄 */
 .dsActions {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
   min-width: 0;
 }
-/* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
+
 .dsHint {
   font: var(--font-body-sm);
   line-height: var(--line-height-135);
   color: var(--text-tertiary);
 }
-/* 세로 구분선 — hint 와 링크 사이 */
+
 .dsDivider {
+  display: none;
   width: 1px;
   height: 0.9em;
   flex-shrink: 0;
   background: var(--border-color-strong);
 }
+
+@media (width >= 768px) {
+  .dsActions {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-12);
+  }
+
+  .dsDivider {
+    display: block;
+  }
+}
 /* 현재 색상이 어떤 preset 과도 다를 때만 노출되는 + 버튼 */
+/* 지금 색을 프리셋으로 — 점선 상자 대신 프리셋 줄과 같은 높이의 글 단추 */
 .presetCardAddBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 52px;
-  border: var(--border-light);
-  border-style: dashed;
+  gap: var(--spacing-8);
+  height: var(--control-height-lg);
+  padding: 0 var(--spacing-12);
+  border: 0;
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-muted);
+  font: var(--font-body-sm);
   cursor: pointer;
   transition:
-    border-color var(--duration-base) var(--ease-standard),
-    color var(--duration-base) var(--ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .presetCardAddBtn:hover {
-  border-color: var(--text-accent);
+  background: var(--bg-secondary);
   color: var(--text-accent);
 }
 
@@ -56,13 +73,30 @@
 }
 
 /* 색 칩은 96px — 140px 일 땐 200px 카드에 이름 자리가 거의 없어 "De…" "M" 처럼 잘렸다 */
+/* 프리셋 색 띠 — 다크 배경 · 강조 · 라이트 배경. 바탕과 같은 색도 보이게 안쪽 선 하나 */
 .presetSwatches {
+  position: relative;
   display: flex;
-  width: 96px;
-  height: 100%;
+  width: 48px;
+  height: 20px;
   overflow: hidden;
   flex-shrink: 0;
-  border-right: var(--border-light);
+  border-radius: var(--radius-full);
+}
+
+.presetSwatches::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--border-light);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* 고른 프리셋 — 색 띠 둘레 강조색 링 */
+.presetSwatchesActive {
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: 2px;
 }
 
 .presetSwatch {
@@ -201,9 +235,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: center;
-  gap: var(--spacing-32);
-  padding-bottom: var(--spacing-20);
+  gap: var(--spacing-24);
+  padding-bottom: var(--spacing-8);
 }
 .faviconPanels {
   display: grid;
@@ -264,9 +297,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2);
-  /* 대비 배지 텍스트 폭 변화가 셀·슬롯 레이아웃을 흔들지 않게 고정 폭 확보 */
-  min-width: 8rem;
+  gap: var(--spacing-4);
 }
 /* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
 .faviconPreview {
@@ -276,8 +307,6 @@
 .faviconPreviewLabel {
   font: var(--font-body-xs);
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 /* 풀로고(메인) 폼 — 라벨 위·컨트롤 아래 stacked (FieldRow 기본). */
 .faviconForm {
@@ -292,6 +321,13 @@
   grid-template-columns: var(--grid-columns-2);
   gap: var(--spacing-8) var(--spacing-16);
   width: 100%;
+}
+
+/* 반쪽 패널 안에서 라이트 · 다크를 나란히 두면 칸마다 단추 둘(= ×)에 밀려 색 값이 "#0(" 처럼 잘렸다 — 좁으면 위아래로 */
+@container favicon-panel (width < 520px) {
+  .faviconColorDuo {
+    grid-template-columns: 1fr;
+  }
 }
 .faviconColorItem {
   display: flex;
@@ -354,8 +390,6 @@
 .faviconColorCaption {
   font: var(--font-body-xs);
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 /* 숏 텍스트처럼 짧은 입력은 폭 제한 (풀폭이면 4자 필드가 휑함) */
 .faviconTextInputWrap {
@@ -490,18 +524,18 @@
 /* 로고 효과(글리치·Difference) — 탭 밖 섹션 레벨(브랜드 상단). nav 로고 전체(숏 배지·풀 텍스트)에 적용됨을 나타냄 */
 /* 로고 효과 행 — 네비게이션 로고 파트 안의 한 행. 선은 파트 헤어라인·탭 underline 만 쓰는 규칙이라
    개별 border 를 두지 않는다 */
+/* 로고 효과 — 아래 "로딩 연출"(FieldRow)과 같은 꼴: 이름 위, 체크 묶음 아래 */
 .logoEffectsRow {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-12) var(--spacing-16);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-8);
 }
 
 /* 로고 효과 라벨 — 소구획 레벨(파트 제목보다 작게. 예전 body 14 는 제목을 눌렀다) */
 .logoEffectsLabel {
   font: var(--font-label-sm);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
 .logoEffectsToggles {
@@ -810,7 +844,7 @@
   align-items: center;
   gap: var(--spacing-8);
   font: var(--font-body-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
@@ -825,8 +859,10 @@
 
 /* sectionHint 의 margin-bottom(sm)을 끈다 — 간격은 블록 gap 하나로.
    같은 (0,1,0) 이면 번들 순서가 승자를 정하므로 부모를 태워 (0,2,0) (#632) */
-.customFontsBlock .customFontsLabel {
-  margin-bottom: 0;
+/* 칸 이름 — 위 폰트 칸들의 라벨(FieldRow)과 같은 글 */
+.customFontsLabel {
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
 }
 
 .customFonts {

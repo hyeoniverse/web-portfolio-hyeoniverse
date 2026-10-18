@@ -262,11 +262,11 @@
   min-width: 0;
 }
 
-/* ── Theme Presets ── */
+/* ── Theme Presets ── 테두리 상자 없이 색 띠 + 이름. 올리면 알약 배경, 고르면 강조색 이름 + 색 띠 링 */
 .presetGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-8);
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-2) var(--spacing-8);
 }
 
 /* 통합된 Theme Colors — 프리셋(빠른 선택) 그리드와 개별 색상 입력 사이 구분선.
@@ -281,20 +281,20 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  height: 52px;
-  padding: 0 var(--spacing-16) 0 0;
-  border: var(--border-light);
+  height: var(--control-height-lg);
+  padding: 0 var(--spacing-12) 0 var(--spacing-8);
+  border: 0;
   border-radius: var(--radius-control);
   background: transparent;
-  overflow: hidden;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .section .presetCard:hover {
-  border-color: var(--text-primary);
+  background: var(--bg-secondary);
 }
 
-.presetCardActive {
-  border-color: var(--text-accent);
+.section .presetCard:hover .presetName {
+  color: var(--text-primary);
 }
 
 .section .presetCardActive .presetName {
@@ -315,7 +315,7 @@
    모양·hover 는 CloseButton 몫이고 여기선 자리만 잡는다. 세로 가운데는 transform 대신 margin 으로 —
    누를 때 줄어드는 효과(transform)와 겹치지 않게 */
 .presetCardWrap:has(.presetCardRemove) > .presetCard {
-  padding-right: calc(var(--control-height-xs) + var(--spacing-12));
+  padding-right: calc(var(--control-height-xs) + var(--spacing-8));
 }
 
 .presetCardRemove {

@@ -91,7 +91,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       className={`${shared.presetCard} ${matchesCurrent(preset) ? shared.presetCardActive : ""}`}
                       onClick={() => applyTheme(preset.theme)}
                     >
-                      <div className={styles.presetSwatches}>
+                      <div className={`${styles.presetSwatches} ${matchesCurrent(preset) ? styles.presetSwatchesActive : ""}`}>
                         <span className={styles.presetSwatch} style={{ background: preset.theme.darkBg }} />
                         <span className={styles.presetSwatch} style={{ background: preset.theme.accentColor }} />
                         <span className={styles.presetSwatch} style={{ background: preset.theme.lightBg }} />
@@ -122,7 +122,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   title={t(anyMatch ? "admin.settings.presetSameAsCurrent" : "admin.settings.saveThemePreset")}
                   aria-label={t("admin.settings.saveThemePreset")}
                 >
-                  <Plus size={16} strokeWidth={2} />
+                  <Plus size={14} strokeWidth={2} />
+                  <span>{t("admin.settings.addThemePreset")}</span>
                 </Pressable>
               </>
             );
@@ -242,9 +243,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             라벨과 필드를 한 블록으로 묶는다 — 그리드 형제로 두면 라벨 margin-bottom 에 섹션 row-gap 까지
             더해져 사이가 두 배로 벌어진다 */}
         <div className={styles.customFontsBlock}>
-          <p className={`${shared.sectionHint} ${styles.customFontsLabel}`}>
+          <span className={styles.customFontsLabel}>
             <T k="admin.settings.customFontsLabel" />
-          </p>
+          </span>
           <CustomFontsField
             fonts={config.typography?.customFonts ?? []}
             onChange={(v) => update("typography", "customFonts", v)}
