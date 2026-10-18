@@ -20,7 +20,7 @@ import { LibraryTabSkeleton } from "./_components/LibrarySkeletons";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, LIBRARY_SECTIONS, type LibrarySection, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, CONTENT_SUBTAB_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, LIBRARY_SECTIONS, type LibrarySection, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
 import { preloadSettingsTab } from "./_components/settingsTabLoaders";
@@ -740,13 +740,18 @@ export default function SettingsPage() {
     return false;
   }, [activeTab, config, profileData]);
 
-  /* 위쪽 "기본값으로" — 설정 전체를 코드 기본값으로 되돌린다. 이미 기본값이면 되돌릴 것이 없다.
-     기본값과 다른 부분(computeDelta — 저장 때 쓰는 판정)이 비었는지로 본다. 키 개수까지 맞추는 deepEqual 은
-     값이 빈 키 하나에도 "다르다"고 한다 */
-  const configAtDefaults = useMemo(
-    () => Object.keys(computeDelta(config, siteConfig)).length === 0,
-    [config],
+  /* 위쪽 "기본값으로" — 지금 보는 탭(콘텐츠는 하위 탭)의 설정만 코드 기본값으로 되돌린다. 화면 위쪽에 있어 이 탭의
+     단추로 읽히는데, 예전에는 설정 전체를 되돌려 홈 탭이 다 기본값이어도 다른 탭이 다르면 켜져 있었다.
+     이미 기본값이면 끈다 — 기본값과 다른 부분(computeDelta — 저장 때 쓰는 판정)이 비었는지로 본다.
+     키 개수까지 맞추는 deepEqual 은 값이 빈 키 하나에도 "다르다"고 한다 */
+  const resetKeys = useMemo<(keyof SiteConfigData)[]>(
+    () => (activeTab === "content" ? CONTENT_SUBTAB_KEYS[contentSubTab] : TAB_CONFIG_KEYS[activeTab] ?? []),
+    [activeTab, contentSubTab],
   );
+  const viewAtDefaults = useMemo(() => {
+    const pick = (src: object) => Object.fromEntries(resetKeys.map((k) => [k, (src as Record<string, unknown>)[k]]));
+    return Object.keys(computeDelta(pick(config), pick(siteConfig))).length === 0;
+  }, [config, resetKeys]);
 
   /* 저장하지 않은 변경이 있으면 떠나기 전에 묻는다 — 탭·하위탭 옮기기, 사이트 안 링크, 새로고침·닫기.
      예전에는 탭을 옮기면 묻지 않고 버렸다. */
@@ -895,14 +900,18 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   tone="danger"
-                  disabled={configAtDefaults}
+                  disabled={resetKeys.length === 0 || viewAtDefaults}
                   onClick={() => {
                     openModal(
                       <ModalConfirm
                         desc={t("admin.settings.resetDefaultsConfirm")}
                         confirmText={t("admin.settings.resetDefaults")}
                         danger
-                        onConfirm={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
+                        onConfirm={() => setConfig((prev) => {
+                          const next = { ...prev } as Record<string, unknown>;
+                          for (const k of resetKeys) next[k] = structuredClone((siteConfig as unknown as Record<string, unknown>)[k]);
+                          return next as unknown as SiteConfigData;
+                        })}
                       />,
                       { width: "min(90vw, 480px)" },
                     );

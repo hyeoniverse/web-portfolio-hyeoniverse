@@ -145,7 +145,7 @@ export const LIBRARY_SECTIONS = ["calendars", "polls", "emojis", "covers", "file
 export type LibrarySection = (typeof LIBRARY_SECTIONS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
-const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
+export const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   home: ["hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile"],
   works: ["works"],
