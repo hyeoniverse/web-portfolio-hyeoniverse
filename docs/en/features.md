@@ -50,6 +50,7 @@ The features visitors and admins use on screen, listed by page. How they are bui
 - **Sidebar**: 3D tag cloud, popular posts, random posts, recent comments.
 - **Series**: Posts are grouped into series and read in order. Hovering a series card expands a preview of its posts, and the detail page links to the previous and next post.
 - **Detail (`/posts/[slug]`)**: table of contents, AI summary, read aloud, share, likes, related works, comments.
+- **Read aloud**: browser speech (Web Speech API) reads the title → summary → details → body blocks in order and highlights the block being read. A floating bar offers previous · pause · next · speed (1 · 1.25 · 1.5 · 0.75×) · stop, and clicking a paragraph starts from there. Code blocks, math and video are only announced by kind, and tables are read row by row with their headers. Work detail pages have it too.
 - The blog subdomain (`blog.hyeoniverse.com`) opens the same posts at shorter addresses.
 
 <p align="center">
