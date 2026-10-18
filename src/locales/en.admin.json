@@ -2537,6 +2537,32 @@
       "visitsTrend": {
         "uniqueVisitorsDaily": "Unique visitors · daily"
       },
+      "libraryBulk": {
+        "toolbar": "Bulk selection",
+        "selected": "{{n}} selected",
+        "selectAll": "Select all ({{n}})",
+        "clear": "Clear",
+        "select": "Select {{name}}",
+        "fileInUse": "Files used in posts or projects can't be deleted, so they can't be selected.",
+        "imageNotDue": "This image can't be selected until its retention period ends.",
+        "done": "Deleted {{n}}.",
+        "partial": "Deleted {{ok}}; {{failed}} could not be deleted.",
+        "deleteN": "Delete {{n}}",
+        "deleteConfirm": "Delete the {{n}} selected items? This can't be undone.",
+        "removeFromHistoryN": "Remove {{n}} from history",
+        "removeHistoryConfirm": "Remove the {{n}} selected covers from history? Covers already used by posts or projects stay as they are.",
+        "trashN": "Move {{n}} to trash",
+        "trashConfirm": "Move the {{n}} selected calendars to the trash? They are permanently deleted after 30 days and can be restored from the trash until then.",
+        "trashDone": "Moved {{n}} to the trash.",
+        "trashPartial": "Moved {{ok}} to the trash; {{failed}} could not be moved.",
+        "purgeN": "Delete {{n}} forever",
+        "purgeConfirm": "Permanently delete the {{n}} selected calendars? This can't be undone, and blocks that embed them will show as \"deleted\" for good.",
+        "purgeDone": "Permanently deleted {{n}}.",
+        "purgePartial": "Permanently deleted {{ok}}; {{failed}} could not be deleted.",
+        "restoreN": "Restore {{n}}",
+        "restoreDone": "Restored {{n}}.",
+        "restorePartial": "Restored {{ok}}; {{failed}} could not be restored."
+      },
       "libraryTab": {
         "calendars": "Calendars",
         "polls": "Polls",

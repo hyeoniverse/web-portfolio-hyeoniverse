@@ -8,6 +8,8 @@ import dynamic from "next/dynamic";
 import { CalendarDays, Pencil, Trash2, Check, X, RotateCcw, ChevronDown } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
+import Checkbox from "@/components/ui/Checkbox";
+import { LibraryBulkBar, isInnerControl, runBulk, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -39,6 +41,9 @@ const ReaderCalendar = dynamic(() => import("@/components/posts/plate/ReaderCale
 
 /* 한 쪽에 3열 × 8줄 */
 const PAGE_SIZE = 24;
+
+/* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const calendarKey = (it: CalendarListItem) => it.id;
 
 export default function CalendarManager() {
   const { language, t, dateLocale } = useLanguage();
@@ -169,6 +174,42 @@ export default function CalendarManager() {
     );
   };
 
+  /* 여러 개 고르기 — 찾은 달력 전체가 대상(쪽을 넘겨도 고른 것은 남는다). 지우기 = 휴지통으로 */
+  const sel = useLibrarySelection(filtered, calendarKey);
+  const pick = useDragSelect(sel);
+  /* 이름 칸은 평소 미리보기 — 하나라도 고른 뒤(고르는 중)에만 고르기. 그 밖의 칸 안 단추 · 링크는 제 일 */
+  /* 이름 칸을 누른 순간 고르는 중이었는지 — 그때는 고르기만, 미리보기는 열지 않는다(마지막 하나를 풀면 바로 0개가 돼 열렸다) */
+  const pressedWhileSelecting = useRef(false);
+  const calendarBlocked = (target: EventTarget | null) =>
+    target instanceof Element && target.closest(`.${styles.rowMain}`) ? !sel.count : isInnerControl(target);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const trashSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.trashConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.trashN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, (it) => deleteCalendar(it.id));
+          setBulkDeleting(false);
+          const gone = new Set(ok.map(calendarKey));
+          setItems((prev) => (prev ? prev.filter((x) => !gone.has(x.id)) : prev));
+          showToast(
+            failed.length
+              ? fillTemplate(t("admin.inline.libraryBulk.trashPartial"), { ok: ok.length, failed: failed.length })
+              : fillTemplate(t("admin.inline.libraryBulk.trashDone"), { n: ok.length }),
+            failed.length ? "error" : "success",
+          );
+          sel.clear();
+          if (trashOpen) reloadTrash();
+        }}
+      />,
+      { id: "cal-mgr-bulk-trash", header: { title: t("admin.inline.calendarManager.deleteCalendar") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
+  };
+
   // 휴지통 토글 — 처음 열 때 로드
   const toggleTrash = () => { if (!trashOpen && trash === null) reloadTrash(); setTrashOpen((v) => !v); };
 
@@ -194,6 +235,44 @@ export default function CalendarManager() {
         }}
       />,
       { id: "cal-mgr-purge", header: { title: t("admin.inline.calendarManager.deleteForever") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
+  };
+
+  /* 휴지통도 여러 개 고르기 — 줄을 눌러 · 끌어서 고르고, 한꺼번에 복구하거나 영구 삭제 */
+  const trashSel = useLibrarySelection(trash, calendarKey);
+  const trashPick = useDragSelect(trashSel);
+  const [trashBulk, setTrashBulk] = useState<"restore" | "purge" | null>(null);
+  const bulkText = (done: string, partial: string, ok: number, failed: number) =>
+    failed ? fillTemplate(t(partial), { ok, failed }) : fillTemplate(t(done), { n: ok });
+  const restoreSelected = async () => {
+    const targets = trashSel.selected;
+    setTrashBulk("restore");
+    const { ok, failed } = await runBulk(targets, (it) => restoreCalendar(it.id));
+    setTrashBulk(null);
+    const back = new Set(ok.map(calendarKey));
+    setTrash((prev) => (prev ? prev.filter((x) => !back.has(x.id)) : prev));
+    showToast(bulkText("admin.inline.libraryBulk.restoreDone", "admin.inline.libraryBulk.restorePartial", ok.length, failed.length), failed.length ? "error" : "success");
+    trashSel.clear();
+    if (ok.length) reloadActive();
+  };
+  const purgeSelected = () => {
+    const targets = trashSel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.purgeConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.purgeN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setTrashBulk("purge");
+          const { ok, failed } = await runBulk(targets, (it) => purgeCalendar(it.id));
+          setTrashBulk(null);
+          const gone = new Set(ok.map(calendarKey));
+          setTrash((prev) => (prev ? prev.filter((x) => !gone.has(x.id)) : prev));
+          showToast(bulkText("admin.inline.libraryBulk.purgeDone", "admin.inline.libraryBulk.purgePartial", ok.length, failed.length), failed.length ? "error" : "success");
+          trashSel.clear();
+        }}
+      />,
+      { id: "cal-mgr-bulk-purge", header: { title: t("admin.inline.calendarManager.deleteForever") }, closeButton: true, width: "min(460px, 92vw)" },
     );
   };
 
@@ -223,7 +302,17 @@ export default function CalendarManager() {
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.calendarManager.noResults") : t("admin.inline.calendarManager.noCalendarsYet")}</EmptyState>
         ) : (
-          <div className={styles.list}>
+          <>
+          <LibraryBulkBar
+            count={sel.count}
+            selectableCount={sel.selectableCount}
+            onSelectAll={sel.selectAll}
+            onClear={sel.clear}
+            onDelete={trashSelected}
+            deleting={bulkDeleting}
+            deleteLabel={t("admin.inline.libraryBulk.trashN")}
+          />
+          <div className={styles.list} data-library-list="">
             {paged.slice!.map((it) => {
               const isEditing = editingId === it.id;
               const titleText = it.title || (it.month ? monthTitle(it.month, language) : t("admin.inline.calendarManager.untitled"));
@@ -237,8 +326,18 @@ export default function CalendarManager() {
                   key={it.id}
                   ref={(el) => { if (el) rowRefs.current.set(it.id, el); else rowRefs.current.delete(it.id); }}
                   className={`${styles.row}${focusId === it.id ? ` ${styles.rowFocus}` : ""}`}
+                  data-selected={sel.isSelected(it) ? "" : undefined}
+                  /* 줄을 눌러 · 끌어서 고른다 */
+                  {...pick(it, { enabled: !isEditing, blocked: calendarBlocked })}
                 >
-                  {dateIcon(it.month)}
+                  <span className={styles.lead}>
+                    <Checkbox
+                      checked={sel.isSelected(it)}
+                      onChange={(v) => sel.toggle(it, v)}
+                      ariaLabel={fillTemplate(t("admin.inline.libraryBulk.select"), { name: titleText })}
+                    />
+                    {dateIcon(it.month)}
+                  </span>
                   {isEditing ? (
                     <div className={styles.renameForm}>
                       <Input
@@ -262,8 +361,9 @@ export default function CalendarManager() {
                         role="button"
                         tabIndex={0}
                         title={t("admin.inline.calendarManager.clickToPreview")}
-                        onClick={() => openPreview(it)}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPreview(it); } }}
+                        onPointerDown={() => { pressedWhileSelecting.current = sel.count > 0; }}
+                        onClick={() => { if (!pressedWhileSelecting.current && !sel.count) openPreview(it); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (sel.count) sel.toggle(it, !sel.isSelected(it)); else openPreview(it); } }}
                       >
                         <span className={styles.rowLine}>
                           <span className={`${styles.rowTitle}${it.title ? "" : ` ${styles.rowTitleMuted}`}`}>{titleText}</span>
@@ -281,6 +381,7 @@ export default function CalendarManager() {
               );
             })}
           </div>
+          </>
         )}
         {paged.totalPages > 1 && (
           <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={setPage} showJump={false} />
@@ -302,11 +403,39 @@ export default function CalendarManager() {
               ) : trash.length === 0 ? (
                 <EmptyState pad="sm">{t("admin.inline.calendarManager.trashIsEmpty")}</EmptyState>
               ) : (
-                trash.map((it) => {
+                <>
+                <LibraryBulkBar
+                  count={trashSel.count}
+                  selectableCount={trashSel.selectableCount}
+                  onSelectAll={trashSel.selectAll}
+                  onClear={trashSel.clear}
+                  onDelete={purgeSelected}
+                  deleting={trashBulk === "purge"}
+                  deleteLabel={t("admin.inline.libraryBulk.purgeN")}
+                  extra={
+                    <Button variant="outline" icon={<RotateCcw size={13} />} loading={trashBulk === "restore"} disabled={trashSel.count === 0 || trashBulk !== null} onClick={restoreSelected}>
+                      {fillTemplate(t("admin.inline.libraryBulk.restoreN"), { n: trashSel.count })}
+                    </Button>
+                  }
+                />
+                {trash.map((it) => {
                   const daysLeft = getTrashDaysLeft(it.deletedAt ?? "", it.purgeAfter);
                   return (
-                    <div key={it.id} className={styles.row}>
-                      {dateIcon(it.month)}
+                    <div
+                      key={it.id}
+                      className={styles.row}
+                      data-selected={trashSel.isSelected(it) ? "" : undefined}
+                      /* 줄을 눌러 · 끌어서 고른다(복구 · 영구 삭제 단추는 제 일) */
+                      {...trashPick(it)}
+                    >
+                      <span className={styles.lead}>
+                        <Checkbox
+                          checked={trashSel.isSelected(it)}
+                          onChange={(v) => trashSel.toggle(it, v)}
+                          ariaLabel={fillTemplate(t("admin.inline.libraryBulk.select"), { name: calLabel(it) })}
+                        />
+                        {dateIcon(it.month)}
+                      </span>
                       <div className={styles.rowMain}>
                         <span className={styles.rowTitle}>{calLabel(it)}</span>
                         <span className={`${styles.rowMeta}${daysLeft <= 7 ? ` ${styles.trashSoon}` : ""}`}>
@@ -319,7 +448,8 @@ export default function CalendarManager() {
                       </div>
                     </div>
                   );
-                })
+                })}
+                </>
               )}
             </div>
           )}

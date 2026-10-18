@@ -28,6 +28,8 @@ export default function LibraryHead({ title, count, hint, filters, search, actio
         {count != null && <span className={lib.headCount}>{count}</span>}
       </div>
       <p className={lib.hint}>{hint}</p>
+      {/* 도구막대가 없는 섹션(커버 기록 · 댓글 이미지)도 설명 아래 선을 하나 긋는다 — 섹션마다 목록이 같은 선에서 시작하게 */}
+      {!toolbar && <div className={lib.rule} aria-hidden />}
       {toolbar && (
         <div className={lib.toolbar}>
           {filters && <div className={lib.toolbarFilters}>{filters}</div>}

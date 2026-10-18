@@ -15,6 +15,8 @@ interface CheckboxProps {
   label?: ReactNode;
   disabled?: boolean;
   className?: string;
+  /** 글(label) 없이 쓸 때 화면 읽기 이름 */
+  ariaLabel?: string;
 }
 
 export default function Checkbox({
@@ -25,6 +27,7 @@ export default function Checkbox({
   label,
   disabled = false,
   className,
+  ariaLabel,
 }: CheckboxProps) {
   /* 컨트롤 높이 범위(설정 페이지 등) 안이면 상자는 그대로, 줄 높이만 sm */
   const inScope = useInControlSizeScope();
@@ -33,7 +36,9 @@ export default function Checkbox({
   return (
     <label
       className={`${styles.wrapper} ${inScope ? styles.scopeBox : ""} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
-      data-clickable="true"
+      /* disabled 면 커스텀 커서(CursorTrail)가 금지 모양 — 누를 수 없는데 누르는 모양이면 헷갈린다 */
+      data-clickable={disabled ? undefined : "true"}
+      data-disabled={disabled ? "" : undefined}
     >
       <input
         type="checkbox"
@@ -41,6 +46,7 @@ export default function Checkbox({
         checked={checked}
         onChange={(e) => !disabled && onChange(e.target.checked)}
         disabled={disabled}
+        aria-label={ariaLabel}
       />
       <span className={`${styles.box} ${styles[shape]} ${state ? styles[state] : ""}`}>
         {(checked || indeterminate) && (

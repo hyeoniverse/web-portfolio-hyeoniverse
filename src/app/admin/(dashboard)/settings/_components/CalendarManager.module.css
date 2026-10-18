@@ -27,11 +27,16 @@
   align-items: center;
   column-gap: var(--spacing-12);
   row-gap: var(--spacing-1);
-  padding: var(--spacing-8) var(--spacing-4);
+  /* 안쪽 여백 — 줄 앞 고르기 상자가 줄 끝에 붙지 않게 */
+  padding: var(--spacing-8) var(--spacing-12);
   border-bottom: var(--border-light);
+  cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
+.row[data-selected] { background: color-mix(in srgb, var(--text-accent) 8%, transparent); }
 .row:hover { background: var(--bg-secondary); }
+/* 첫 칸 — 여러 개 고르기 상자 + 날짜 그림 */
+.lead { display: inline-flex; align-items: center; gap: var(--spacing-8); }
 .rowFocus {
   --_calMgrPulse-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   background: var(--bg-accent-light);

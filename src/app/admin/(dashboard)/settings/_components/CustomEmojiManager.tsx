@@ -26,11 +26,17 @@ import lib from "./Library.module.css";
 import styles from "./CustomEmojiManager.module.css";
 import { EmojiGridSkeleton } from "./LibrarySkeletons";
 import { usePagedList } from "./usePagedList";
+import Checkbox from "@/components/ui/Checkbox";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { LibraryBulkBar, runBulk, useBulkResultText, useDragSelect, useLibrarySelection } from "./LibrarySelection";
 
 /* 격자 한 쪽 — 넓은 화면 12열 × 10줄 */
 const PAGE_SIZE = 120;
 
 type CustomEmoji = { id: string; name: string; src: string; created_at?: string };
+
+/* 여러 개 고르기의 열쇠 — 모듈 수준이라 훅의 의존 배열이 늘 같다 */
+const emojiKey = (e: CustomEmoji) => e.id;
 
 export default function CustomEmojiManager() {
   const { t } = useLanguage();
@@ -87,15 +93,45 @@ export default function CustomEmojiManager() {
     { id: "emoji-kitchen", header: { title: t("admin.inline.customEmojiManager.mixTitle") }, closeButton: true, width: "min(720px, 94vw)" },
   );
 
-  const remove = async (e: CustomEmoji) => {
+  const removeOne = async (e: CustomEmoji) => {
     const res = await tryRequest(`/api/custom-emojis/${e.id}`, { method: "DELETE" });
-    if (!(res instanceof Response) || !res.ok) {
+    if (!(res instanceof Response) || !res.ok) return false;
+    forgetCustomEmoji(e.src);
+    return true;
+  };
+  const remove = async (e: CustomEmoji) => {
+    if (!(await removeOne(e))) {
       showToast(t("admin.inline.customEmojiManager.removeFailed"), "error");
       return;
     }
-    forgetCustomEmoji(e.src);
     setItems((prev) => (prev ? prev.filter((x) => x.id !== e.id) : prev));
     showToast(t("admin.inline.customEmojiManager.removed"), "success");
+  };
+
+  /* 여러 개 고르기 — 찾은 것 전체가 대상(쪽을 넘겨도 고른 것은 남는다) */
+  const sel = useLibrarySelection(filtered, emojiKey);
+  const pick = useDragSelect(sel);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const bulkResult = useBulkResultText();
+  const removeSelected = () => {
+    const targets = sel.selected;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.inline.libraryBulk.deleteConfirm"), { n: targets.length })}
+        confirmText={fillTemplate(t("admin.inline.libraryBulk.deleteN"), { n: targets.length })}
+        danger
+        onConfirm={async () => {
+          setBulkDeleting(true);
+          const { ok, failed } = await runBulk(targets, removeOne);
+          setBulkDeleting(false);
+          const gone = new Set(ok.map(emojiKey));
+          setItems((prev) => (prev ? prev.filter((x) => !gone.has(x.id)) : prev));
+          showToast(bulkResult(ok.length, failed.length), failed.length ? "error" : "success");
+          sel.clear();
+        }}
+      />,
+      { id: "emoji-bulk-delete", header: { title: t("admin.inline.customEmojiManager.title") }, closeButton: true, width: "min(460px, 92vw)" },
+    );
   };
 
   return (
@@ -128,10 +164,33 @@ export default function CustomEmojiManager() {
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("admin.inline.customEmojiManager.noResults") : t("admin.inline.customEmojiManager.empty")}</EmptyState>
         ) : (
-          <div className={styles.grid}>
+          <>
+          <LibraryBulkBar
+            count={sel.count}
+            selectableCount={sel.selectableCount}
+            onSelectAll={sel.selectAll}
+            onClear={sel.clear}
+            onDelete={removeSelected}
+            deleting={bulkDeleting}
+            deleteLabel={t("admin.inline.libraryBulk.deleteN")}
+          />
+          <div className={styles.grid} data-selecting={sel.count > 0 ? "" : undefined}>
             {paged.slice!.map((e) => (
               <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("admin.inline.customEmojiManager.untitled")}</span>} placement="bottom" delay={120}>
-                <div className={styles.tile} tabIndex={0}>
+                <div
+                  className={styles.tile}
+                  tabIndex={0}
+                  data-selected={sel.isSelected(e) ? "" : undefined}
+                  /* 칸을 눌러 · 끌어서 고른다 — 지우기 단추 · 고르기 상자는 제 일 */
+                  {...pick(e)}
+                >
+                  <span className={styles.select}>
+                    <Checkbox
+                      checked={sel.isSelected(e)}
+                      onChange={(v) => sel.toggle(e, v)}
+                      ariaLabel={fillTemplate(t("admin.inline.libraryBulk.select"), { name: e.name || t("admin.inline.customEmojiManager.emoji") })}
+                    />
+                  </span>
                   {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
                   <img src={e.src} alt={e.name} className={styles.img} loading="lazy" />
                   <CloseButton
@@ -144,6 +203,7 @@ export default function CustomEmojiManager() {
               </Tooltip>
             ))}
           </div>
+          </>
         )}
         {paged.totalPages > 1 && (
           <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} showJump={false} />
