@@ -22,6 +22,21 @@ import styles from "./AdminTable.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 
+/** 일괄 단추 줄의 양끝에 더 밀 수 있는지 표시한다 — 흐림(::before · ::after)을 그쪽에만 건다. 상태는 바꾸지 않는다 */
+function markScrollEdges(el: HTMLElement) {
+  el.toggleAttribute("data-more-start", el.scrollLeft > 1);
+  el.toggleAttribute("data-more-end", el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+}
+
+/** 단추 줄이 붙을 때 · 폭이 바뀔 때 다시 잰다 */
+function bulkActionsRef(el: HTMLDivElement | null) {
+  if (!el) return;
+  markScrollEdges(el);
+  const ro = new ResizeObserver(() => markScrollEdges(el));
+  ro.observe(el);
+  return () => ro.disconnect();
+}
+
 /* ── Types ── */
 export interface AdminTableColumn<T> {
   key: string;
@@ -336,7 +351,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           안에 두면 화면 상단에 고정되지 않고 테이블과 같이 움직인다. */}
       {selected.size > 0 && (
         <div className={styles.bulkBar}>
-        <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
+        <span className={styles.bulkCount}>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
+        {/* 좁은 화면은 단추가 한 줄에 다 들어가지 않는다 — 단추 묶음만 가로로 민다(선택 수 · 닫기는 양끝에 남는다) */}
+        <div className={styles.bulkActions} ref={bulkActionsRef} onScroll={(e) => markScrollEdges(e.currentTarget)}>
         {onBulkPublish && (
           <>
             <Button variant="outline" onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</Button>
@@ -363,6 +380,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         {onBulkDelete && (
           <Button variant="outline" tone="danger" onClick={handleBulkDelete}>{labels.delete}</Button>
         )}
+        </div>
         <CloseButton onClick={() => setSelected(new Set())} ariaLabel={t("admin.common.clearSelection")} className={styles.bulkCancelBtn} />
         </div>
       )}
