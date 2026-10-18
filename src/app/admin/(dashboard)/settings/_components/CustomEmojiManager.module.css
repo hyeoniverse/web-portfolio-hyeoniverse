@@ -52,10 +52,19 @@
   left: calc(-1 * var(--spacing-2));
   z-index: 1;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* 설정 화면 안의 체크박스는 줄 높이(md)를 받아 세로로 길어진다 — 바탕이 알약 모양이 되지 않게 상자 크기만 */
+.select > label {
+  min-height: 0;
 }
 
 .tile:hover .select,

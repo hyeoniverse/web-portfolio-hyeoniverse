@@ -91,17 +91,26 @@
   opacity: 1;
 }
 
-/* 고르기 상자 — 왼쪽 위. 올렸을 때 · 고른 칸 · 하나라도 고른 갤러리 · 터치에서 보인다 */
+/* 고르기 상자 — 왼쪽 위. 올렸을 때 · 고른 칸 · 하나라도 고른 갤러리 · 터치에서 보인다.
+   사진 위에서도 보이게 상자 둘레만 동그란 바탕(지름 24px) */
 .select {
   position: absolute;
   top: var(--spacing-4);
   left: var(--spacing-4);
   display: inline-flex;
-  padding: var(--spacing-4);
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* 설정 화면 안의 체크박스는 줄 높이(md)를 받아 세로로 길어진다 — 그러면 바탕이 알약 모양으로 늘었다. 여기서는 상자 크기만 */
+.select > label {
+  min-height: 0;
 }
 
 .item:hover .select,
