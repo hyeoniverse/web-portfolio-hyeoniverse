@@ -30,6 +30,7 @@ import {
   LEXICON_FROM_MAX,
   LEXICON_MAX_ENTRIES,
   LEXICON_TO_MAX,
+  lexiconKey,
   mergeLexicon,
   parseLexiconLines,
   sanitizeLexicon,
@@ -101,7 +102,8 @@ export default function LexiconEditor({ compact = false, initialLang = "ko", foo
   }, [entries, lang, onCountChange]);
 
   const list = entries ?? [];
-  const exists = list.some((e) => e.from === from.trim());
+  /* 대소문자만 다른 표기도 같은 표기다 — 추가하면 그 항목의 읽을 말을 바꾼다 */
+  const exists = list.some((e) => lexiconKey(e.from) === lexiconKey(from));
   const canAdd = !!from.trim() && !!to.trim() && list.length < LEXICON_MAX_ENTRIES && !busy;
   const add = async () => {
     if (!canAdd) return;
@@ -109,7 +111,7 @@ export default function LexiconEditor({ compact = false, initialLang = "ko", foo
     const ok = await commit(next);
     if (!ok) return;
     /* 추가 · 바꾼 항목이 보이게 — 검색을 풀고 그 항목이 있는 쪽으로 */
-    const at = sanitizeLexicon(next).findIndex((e) => e.from === from.trim());
+    const at = sanitizeLexicon(next).findIndex((e) => lexiconKey(e.from) === lexiconKey(from));
     setSearch("");
     setPage(at >= 0 ? Math.floor(at / PAGE_SIZE) + 1 : 1);
     setFrom("");
