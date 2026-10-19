@@ -37,7 +37,7 @@
 
 <sub><b>3,300+</b> 커밋 &nbsp;·&nbsp; <b>980+</b> 머지한 PR &nbsp;·&nbsp; <b>64</b> 트러블슈팅 기록 &nbsp;·&nbsp; <b>97.93%</b> 타입 커버리지 &nbsp;·&nbsp; <b>2026.02 ~</b> 운영 중</sub>
 
-<sub>▶ <a href="docs/images/readme-tour.mp4">50초 둘러보기 영상</a> — 홈 스크롤 · 작업물 레이아웃 · 발표 갤러리 · 자동 번역</sub>
+https://github.com/user-attachments/assets/731ed5f7-725d-421e-8baa-2f43283a342d
 
 <details>
 <summary><kbd>목차</kbd></summary>
