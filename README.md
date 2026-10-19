@@ -31,15 +31,11 @@
 <br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/home-dark.png" />
-  <img src="docs/images/home-light.png" alt="홈 화면" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png" />
+  <img src="docs/images/readme-banner-light.png" alt="hyeoniverse.com 데스크톱 · 모바일 홈" width="100%" />
 </picture>
 
-<sub>GitHub 테마(다크 · 라이트)에 맞춰 같은 홈의 다크 · 라이트 화면이 보입니다.</sub>
-
-</div>
-
-<br />
+<sub><b>3,300+</b> 커밋 &nbsp;·&nbsp; <b>980+</b> 머지한 PR &nbsp;·&nbsp; <b>64</b> 트러블슈팅 기록 &nbsp;·&nbsp; <b>97.93%</b> 타입 커버리지 &nbsp;·&nbsp; <b>2026.02 ~</b> 운영 중</sub>
 
 <p align="center">
   <a href="#-하이라이트">하이라이트</a> ·
@@ -53,6 +49,8 @@
   <a href="#-빠른-시작">빠른 시작</a> ·
   <a href="#-문서">문서</a>
 </p>
+
+</div>
 
 ---
 
@@ -189,6 +187,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ## ✦ 관리자 · CMS
 
+> [!NOTE]
 > 관리자 화면 캡처는 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요, [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작(재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 번역)은 핵심 구간만 `.gif` 로 넣었습니다. 각 절의 **자세히** 를 펼치면 동작 설명이 나옵니다.
 
 ### 대시보드
@@ -412,6 +411,8 @@ flowchart LR
 - **빌드 때 만드는 것.** `prebuild` 가 `supabase/setup.sql` 로 ERD, 라우트 파일로 API 지도, `content/about/*.md` 로 소개 페이지 데이터를 만듭니다. 문서와 화면이 코드에서 떨어져 낡지 않게 하려는 구조입니다([배포](./docs/deploy.md)).
 - **예약 작업.** `pg_cron` 이 예약 발행 · 휴지통 정리 · 오래된 방문 기록의 IP 비우기 · 서비스 기록 정리를 DB 안에서 돌립니다.
 
+---
+
 ## ✦ 구현 포인트
 
 | 주제 | 어떻게 풀었나 | 더 보기 |
@@ -422,6 +423,8 @@ flowchart LR
 | **디자인 시스템 집행** | Raw → Semantic → Component 3층 토큰. 하드코딩 값은 stylelint 가 막고, 규칙 위반 수는 style-ratchet 기준선으로 늘지 못하게 잠근다 | [design-system.md](./docs/design-system.md) |
 | **성능** | LCP 이미지의 우선순위와 스트리밍 공개 지연을 함께 풀고, `:has(:hover)` 처럼 전체 스타일 재계산을 부르는 선택자를 걷어 냈다 | [트러블슈팅 Top 10](./docs/troubleshooting/top10.md) |
 | **다국어** | 화면 글은 한 · 영 사전, 콘텐츠는 한 · 영 칸을 따로 두고 비어 있으면 AI 번역으로 채운다. 공개 화면의 즉석 번역은 캐시해 다시 부르지 않는다 | [features.md](./docs/features.md) |
+
+---
 
 ## ✦ 만든 과정
 
@@ -435,6 +438,10 @@ flowchart LR
 ---
 
 ## ✦ 기술 스택
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,supabase,postgres,threejs,vercel,githubactions,vitest&perline=9" alt="Next.js · React · TypeScript · Supabase · PostgreSQL · Three.js · Vercel · GitHub Actions · Vitest" />
+</p>
 
 | 분류 | 사용 |
 |:---|:---|
@@ -450,40 +457,6 @@ flowchart LR
 | 테스트 | Vitest + Testing Library · Playwright 스모크 |
 
 ---
-
-## ✦ 빠른 시작
-
-```bash
-npm install
-cp .env.example .env.local   # Supabase URL·키 채우기
-npm run dev                  # http://localhost:3000
-```
-
-Supabase 프로젝트가 있어야 글 · 작업물 · 관리자가 돕니다. 테이블 생성 SQL, Storage 버킷, 관리자 계정 만들기, 커버 이미지 · 번역 같은 선택 키까지 **[docs/supabase-setup.md](./docs/supabase-setup.md)** 에 순서대로 정리해 두었습니다.
-
-```bash
-npm run build          # 프로덕션 빌드
-npm test               # 단위 테스트 (Vitest)
-npm run test:smoke     # 스모크 e2e (빌드 산출물 필요)
-npm run audit:full     # typecheck + eslint + stylelint + knip
-npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB 대신 빌드 때 md 에서 만든다)
-```
-
----
-
-## ✦ 문서
-
-| 문서 | 내용 |
-|:---|:---|
-| [기능](./docs/features.md) | 화면별 기능 전체(인터랙션, 작업물, 글, 관리자, 성능, 보안) |
-| [Supabase 세팅](./docs/supabase-setup.md) | 환경변수, 테이블, Storage, 관리자 계정, 커버 이미지 |
-| [배포](./docs/deploy.md) | Vercel, 도메인, 메일, 배포 후 점검 |
-| [테스트](./docs/testing.md) | Vitest, 스모크 e2e, admin 세션 준비 |
-| [디자인 시스템](./docs/design-system.md) · [결정 기록](./docs/design-system-decisions.md) | 토큰 3층, 축별 규칙과 강제 상태, `@layer` (토큰 값은 [자동 생성 표](./docs/tokens.md)) |
-| [트러블슈팅](./docs/troubleshooting.md) | 막혔던 지점과 원인 · 해결 기록 |
-| [컴포넌트](./docs/components.md) · [DB 설계](./docs/db-design.md) · [보안](./docs/security.md) · [사용자 흐름](./docs/user-flow.md) | 영역별 상세 |
-| [편집기 가이드](./docs/editor-guide.md) · [.md 콘텐츠 안내](./docs/md-content-guide.md) | 편집기 사용법과 글 · 작업물 · 소개 `.md` 작성 규칙 |
-| [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [커밋 컨벤션](./docs/commit-convention.md) | 구조 정리 기록, 번들 기준선, 커밋 규칙 |
 
 ## ✦ 프로젝트 구조
 
@@ -520,6 +493,43 @@ docs/                   # 문서 (docs/images: 문서 전용 이미지)
 | `src/lib/ai/health.ts` | AI 공급자 상태 · 자동 끄기 · 대체 순서 |
 | `src/styles/tokens/` | 디자인 토큰 Raw 층 |
 
+---
+
+## ✦ 빠른 시작
+
+```bash
+npm install
+cp .env.example .env.local   # Supabase URL·키 채우기
+npm run dev                  # http://localhost:3000
+```
+
+> [!IMPORTANT]
+> Supabase 프로젝트가 있어야 글 · 작업물 · 관리자가 돕니다. 테이블 생성 SQL, Storage 버킷, 관리자 계정 만들기, 커버 이미지 · 번역 같은 선택 키까지 **[docs/supabase-setup.md](./docs/supabase-setup.md)** 에 순서대로 정리해 두었습니다.
+
+```bash
+npm run build          # 프로덕션 빌드
+npm test               # 단위 테스트 (Vitest)
+npm run test:smoke     # 스모크 e2e (빌드 산출물 필요)
+npm run audit:full     # typecheck + eslint + stylelint + knip
+npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB 대신 빌드 때 md 에서 만든다)
+```
+
+---
+
+## ✦ 문서
+
+| 문서 | 내용 |
+|:---|:---|
+| [기능](./docs/features.md) | 화면별 기능 전체(인터랙션, 작업물, 글, 관리자, 성능, 보안) |
+| [Supabase 세팅](./docs/supabase-setup.md) | 환경변수, 테이블, Storage, 관리자 계정, 커버 이미지 |
+| [배포](./docs/deploy.md) | Vercel, 도메인, 메일, 배포 후 점검 |
+| [테스트](./docs/testing.md) | Vitest, 스모크 e2e, admin 세션 준비 |
+| [디자인 시스템](./docs/design-system.md) · [결정 기록](./docs/design-system-decisions.md) | 토큰 3층, 축별 규칙과 강제 상태, `@layer` (토큰 값은 [자동 생성 표](./docs/tokens.md)) |
+| [트러블슈팅](./docs/troubleshooting.md) | 막혔던 지점과 원인 · 해결 기록 |
+| [컴포넌트](./docs/components.md) · [DB 설계](./docs/db-design.md) · [보안](./docs/security.md) · [사용자 흐름](./docs/user-flow.md) | 영역별 상세 |
+| [편집기 가이드](./docs/editor-guide.md) · [.md 콘텐츠 안내](./docs/md-content-guide.md) | 편집기 사용법과 글 · 작업물 · 소개 `.md` 작성 규칙 |
+| [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [커밋 컨벤션](./docs/commit-convention.md) | 구조 정리 기록, 번들 기준선, 커밋 규칙 |
+
 커밋은 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 를 따릅니다. 타입 목록과 예시는 **[docs/commit-convention.md](./docs/commit-convention.md)** 에 있습니다.
 
 ---
@@ -533,5 +543,7 @@ docs/                   # 문서 (docs/images: 문서 전용 이미지)
 <br />
 
 <sub>✦ Made by <a href="https://www.hyeoniverse.com">HYEONIVERSE</a></sub>
+
+<sub><a href="#readme">↑ 맨 위로</a></sub>
 
 </div>

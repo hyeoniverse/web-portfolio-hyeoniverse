@@ -31,15 +31,11 @@ It holds both the public site and the admin (CMS) used to write and edit everyth
 <br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/home-dark.png" />
-  <img src="docs/images/home-light.png" alt="Home" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png" />
+  <img src="docs/images/readme-banner-light.png" alt="hyeoniverse.com home on desktop and mobile" width="100%" />
 </picture>
 
-<sub>The home page shows in dark or light to match your GitHub theme.</sub>
-
-</div>
-
-<br />
+<sub><b>3,300+</b> commits &nbsp;·&nbsp; <b>980+</b> merged PRs &nbsp;·&nbsp; <b>64</b> troubleshooting write-ups &nbsp;·&nbsp; <b>97.93%</b> type coverage &nbsp;·&nbsp; live since <b>Feb 2026</b></sub>
 
 <p align="center">
   <a href="#-highlights">Highlights</a> ·
@@ -53,6 +49,8 @@ It holds both the public site and the admin (CMS) used to write and edit everyth
   <a href="#-quick-start">Quick start</a> ·
   <a href="#-documentation">Documentation</a>
 </p>
+
+</div>
 
 ---
 
@@ -189,6 +187,7 @@ Tokens and components can be checked live at `/design-system`.
 
 ## ✦ Admin · CMS
 
+> [!NOTE]
 > Admin captures come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session, see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips. Open **Details** under each part for how it works.
 
 ### Dashboard
@@ -412,6 +411,8 @@ flowchart LR
 - **Generated at build time.** `prebuild` builds the ERD from `supabase/setup.sql`, the API map from the route files and the About page data from `content/about/*.md`, so the docs and screens cannot drift away from the code ([Deployment](./docs/en/deploy.md)).
 - **Scheduled jobs.** `pg_cron` runs scheduled publishing, trash purges, clearing IPs from old visit records and service-log cleanup inside the database.
 
+---
+
 ## ✦ Implementation notes
 
 | Topic | How it works | More |
@@ -422,6 +423,8 @@ flowchart LR
 | **Enforcing the design system** | Three token tiers (Raw → Semantic → Component). Stylelint blocks hard-coded values, and the style-ratchet baseline stops the number of rule violations from growing | [design-system.md](./docs/design-system.md) |
 | **Performance** | Fixed the LCP image's priority and the streaming reveal delay together, and removed selectors like `:has(:hover)` that triggered full style recalculation | [Troubleshooting Top 10](./docs/en/troubleshooting/top10.md) |
 | **Two languages** | UI text comes from Korean/English dictionaries; content keeps separate Korean and English fields and fills empty ones with AI translation. On-the-fly translations on the public site are cached and not requested again | [features.md](./docs/en/features.md) |
+
+---
 
 ## ✦ How it was built
 
@@ -435,6 +438,10 @@ flowchart LR
 ---
 
 ## ✦ Tech stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,supabase,postgres,threejs,vercel,githubactions,vitest&perline=9" alt="Next.js · React · TypeScript · Supabase · PostgreSQL · Three.js · Vercel · GitHub Actions · Vitest" />
+</p>
 
 | Area | Used |
 |:---|:---|
@@ -450,40 +457,6 @@ flowchart LR
 | Testing | Vitest + Testing Library · Playwright smoke tests |
 
 ---
-
-## ✦ Quick start
-
-```bash
-npm install
-cp .env.example .env.local   # fill in the Supabase URL and keys
-npm run dev                  # http://localhost:3000
-```
-
-Posts, works and the admin need a Supabase project. The table SQL, storage buckets, creating the admin account and optional keys (cover images, translation and so on) are laid out step by step in **[docs/en/supabase-setup.md](./docs/en/supabase-setup.md)**.
-
-```bash
-npm run build          # production build
-npm test               # unit tests (Vitest)
-npm run test:smoke     # smoke e2e (needs a build)
-npm run audit:full     # typecheck + eslint + stylelint + knip
-npm run sync-all       # sync content/*.md with the database (the About page is built from md at build time, not read from the database)
-```
-
----
-
-## ✦ Documentation
-
-| Document | Contents |
-|:---|:---|
-| [Features](./docs/en/features.md) | Every feature by screen (interaction, works, posts, admin, performance, security) |
-| [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
-| [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
-| [Testing](./docs/en/testing.md) | Vitest, smoke e2e, preparing the admin session |
-| [Design system](./docs/design-system.md) | Three token tiers, per-axis rules with enforcement status, `@layer` (token values in the [generated table](./docs/tokens.md)); decisions in [design-system-decisions.md](./docs/design-system-decisions.md) (Korean) |
-| [Troubleshooting](./docs/en/troubleshooting.md) | What broke, why, and how it was fixed |
-| [Components](./docs/en/components.md) · [DB design](./docs/en/db-design.md) · [Security](./docs/en/security.md) · [User flow](./docs/en/user-flow.md) | Area deep dives |
-| [Editor guide](./docs/en/editor-guide.md) | Using the editor |
-| [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Commit convention](./docs/commit-convention.md) | Structural cleanup notes, bundle baseline, commit rules (Korean) |
 
 ## ✦ Project structure
 
@@ -520,6 +493,43 @@ Good places to start reading:
 | `src/lib/ai/health.ts` | AI provider state · automatic switch-off · fallback order |
 | `src/styles/tokens/` | The raw design-token tier |
 
+---
+
+## ✦ Quick start
+
+```bash
+npm install
+cp .env.example .env.local   # fill in the Supabase URL and keys
+npm run dev                  # http://localhost:3000
+```
+
+> [!IMPORTANT]
+> Posts, works and the admin need a Supabase project. The table SQL, storage buckets, creating the admin account and optional keys (cover images, translation and so on) are laid out step by step in **[docs/en/supabase-setup.md](./docs/en/supabase-setup.md)**.
+
+```bash
+npm run build          # production build
+npm test               # unit tests (Vitest)
+npm run test:smoke     # smoke e2e (needs a build)
+npm run audit:full     # typecheck + eslint + stylelint + knip
+npm run sync-all       # sync content/*.md with the database (the About page is built from md at build time, not read from the database)
+```
+
+---
+
+## ✦ Documentation
+
+| Document | Contents |
+|:---|:---|
+| [Features](./docs/en/features.md) | Every feature by screen (interaction, works, posts, admin, performance, security) |
+| [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
+| [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
+| [Testing](./docs/en/testing.md) | Vitest, smoke e2e, preparing the admin session |
+| [Design system](./docs/design-system.md) | Three token tiers, per-axis rules with enforcement status, `@layer` (token values in the [generated table](./docs/tokens.md)); decisions in [design-system-decisions.md](./docs/design-system-decisions.md) (Korean) |
+| [Troubleshooting](./docs/en/troubleshooting.md) | What broke, why, and how it was fixed |
+| [Components](./docs/en/components.md) · [DB design](./docs/en/db-design.md) · [Security](./docs/en/security.md) · [User flow](./docs/en/user-flow.md) | Area deep dives |
+| [Editor guide](./docs/en/editor-guide.md) | Using the editor |
+| [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Commit convention](./docs/commit-convention.md) | Structural cleanup notes, bundle baseline, commit rules (Korean) |
+
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Types and examples are in **[docs/commit-convention.md](./docs/commit-convention.md)** (Korean).
 
 ---
@@ -533,5 +543,7 @@ Free to use, modify and share, but **not for commercial use**.
 <br />
 
 <sub>✦ Made by <a href="https://www.hyeoniverse.com">HYEONIVERSE</a></sub>
+
+<sub><a href="#readme">↑ Back to top</a></sub>
 
 </div>
