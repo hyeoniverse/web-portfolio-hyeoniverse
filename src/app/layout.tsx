@@ -34,6 +34,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPublicKeys } from "@/lib/getSecret";
 import { baseLanguageOf, normalizeSiteLanguage } from "@/lib/siteLanguage";
 import { readDefaultLangUi } from "@/lib/api/defaultLangUi";
+import { SITE_ORIGIN, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
@@ -53,6 +54,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = cfg.metadata.title || "Hyeoniverse";
   const iconV = faviconVersion(cfg.brand);
   return {
+    /* og:image · canonical 같은 상대 주소의 기준 — 페이지별 canonical 은 lib/seo 의 pageMetadata 가 단다 */
+    metadataBase: new URL(SITE_ORIGIN),
     title: {
       default: siteName,
       template: `${siteName} | %s`,
@@ -67,11 +70,13 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: cfg.metadata.locale,
       siteName,
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: siteName,
       description: cfg.metadata.description,
+      images: [DEFAULT_OG_IMAGE],
     },
     robots: {
       index: true,

@@ -2,12 +2,13 @@ import { getAllSeriesData } from "@/lib/posts";
 import SeriesIndexClient from "./SeriesIndexClient";
 import type { Metadata } from "next";
 import { siteMetaText } from "@/lib/siteMetaText";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
 /* 설명은 사이트 기본 언어로(#1406) */
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Series", description: await siteMetaText("pageMeta.seriesIndex") };
+  return pageMetadata({ title: "Series", description: await siteMetaText("pageMeta.seriesIndex"), path: "/posts/series" });
 }
 
 export default async function SeriesIndexPage() {

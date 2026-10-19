@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getWorks } from "@/lib/getWorks";
 import AboutNext, { type LiveInfo } from "./_components/AboutNext";
+import { pageMetadata } from "@/lib/seo";
+import { siteMetaText } from "@/lib/siteMetaText";
 
-export const metadata: Metadata = { title: "About" };
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "About", description: await siteMetaText("pageMeta.about"), path: "/about" });
+}
 
 export const revalidate = 60;
 

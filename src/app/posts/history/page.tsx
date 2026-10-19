@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { getHistoryData } from "@/lib/posts";
 import HistoryClient from "./HistoryClient";
+import { pageMetadata } from "@/lib/seo";
+import { siteMetaText } from "@/lib/siteMetaText";
 
-export const metadata: Metadata = { title: "History" };
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "History", description: await siteMetaText("pageMeta.history"), path: "/posts/history" });
+}
 
 export const revalidate = 60;
 
