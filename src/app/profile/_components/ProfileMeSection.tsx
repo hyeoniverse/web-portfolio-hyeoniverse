@@ -19,6 +19,7 @@ import type { ProfileData } from "@/types/profile";
 import { formatPeriod } from "@/utils/formatPeriod";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import T from "@/components/ui/T";
+import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
@@ -482,13 +483,18 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
   return (
     <section ref={sectionRef} className={styles.section}>
       {/* 가로 스크롤 전체에 걸쳐 그려지는 배경 장면. 트랙 밖(화면 고정)이라
-          첫 패널부터 끝까지 계속 보이고, 스크롤한 만큼 그려진다. */}
-      <ScrollDrawScene trackRef={trackRef} infinite={!isMobile && infiniteScroll} />
+          첫 패널부터 끝까지 계속 보이고, 스크롤한 만큼 그려진다.
+          좁은 화면은 세로로 내려온 만큼 달리고, 화면 아래에 붙도록(sticky) 트랙 뒤에 둔다 */}
+      {!isMobile && <ScrollDrawScene trackRef={trackRef} infinite={infiniteScroll} />}
       <div ref={trackRef} className={styles.track}>
         {isMobile || !infiniteScroll
           ? panelSet(0)
           : Array.from({ length: REPETITIONS }, (_, i) => panelSet(i))}
       </div>
+      {isMobile && <ScrollDrawScene trackRef={trackRef} infinite={false} vertical />}
+      {/* 좁은 화면은 패널이 세로로 길게 쌓인다(휴대폰에서 화면 열네 장 남짓) — 글 상세와 같은 위 · 아래 단추.
+          가로 스크롤 화면은 위아래가 없어 두지 않는다 */}
+      {isMobile && <ScrollButtons />}
     </section>
   );
 }
