@@ -37,113 +37,58 @@ It holds both the public site and the admin (CMS) used to write and edit everyth
 
 <sub><b>3,300+</b> commits &nbsp;·&nbsp; <b>980+</b> merged PRs &nbsp;·&nbsp; <b>64</b> troubleshooting write-ups &nbsp;·&nbsp; <b>97.93%</b> type coverage &nbsp;·&nbsp; live since <b>Feb 2026</b></sub>
 
-<p align="center">
-  <a href="#-highlights">Highlights</a> ·
-  <a href="#-preview">Preview</a> ·
-  <a href="#-admin--cms">Admin · CMS</a> ·
-  <a href="#-architecture">Architecture</a> ·
-  <a href="#-implementation-notes">Implementation notes</a> ·
-  <a href="#-how-it-was-built">How it was built</a> ·
-  <a href="#-tech-stack">Tech stack</a> ·
-  <a href="#-project-structure">Project structure</a> ·
-  <a href="#-quick-start">Quick start</a> ·
-  <a href="#-documentation">Documentation</a>
-</p>
+<sub>▶ <a href="docs/images/readme-tour.mp4">50-second tour video</a>: home scroll · work layouts · narrated gallery · auto-translation</sub>
+
+<details>
+<summary><kbd>Contents</kbd></summary>
+
+<br />
+
+<sub>01</sub> [Features](#-features) &nbsp;·&nbsp; <sub>02</sub> [Screens](#-screens) &nbsp;·&nbsp; <sub>03</sub> [Admin · CMS](#-admin--cms) &nbsp;·&nbsp; <sub>04</sub> [Architecture](#-architecture) &nbsp;·&nbsp; <sub>05</sub> [Case studies](#-case-studies)<br />
+<sub>06</sub> [How it was built](#-how-it-was-built) &nbsp;·&nbsp; <sub>07</sub> [Tech stack](#-tech-stack) &nbsp;·&nbsp; <sub>08</sub> [Project structure](#-project-structure) &nbsp;·&nbsp; <sub>09</sub> [Quick start](#-quick-start) &nbsp;·&nbsp; <sub>10</sub> [Documentation](#-documentation)
+
+</details>
 
 </div>
 
 ---
 
-## ✦ Highlights
+<sub>01 — FEATURES</sub>
 
-<table>
-  <tr>
-    <td width="33%" valign="top">
-      <img src="public/images/screenshots/pc/works-cylinder-light.png" alt="Works, Cylinder layout" width="100%" />
-      <br /><strong>Six work layouts</strong>
-      <br /><sub>Flow · Grid · Cylinder · Fullscreen · Cinematic · Split, switched in the admin or with <code>?layout=</code>.</sub>
-    </td>
-    <td width="33%" valign="top">
-      <img src="docs/images/post-read-aloud-light.png" alt="Read aloud" width="100%" />
-      <br /><strong>Read aloud</strong>
-      <br /><sub>Browser speech reads from the title to the body block by block and highlights where it is.</sub>
-    </td>
-    <td width="33%" valign="top">
-      <img src="docs/images/highlight-editor.png" alt="Editor and color tools" width="100%" />
-      <br /><strong>Plate.js editor</strong>
-      <br /><sub>Diagram · code playground · math blocks, a floating color toolbar, autosave and revisions.</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="33%" valign="top">
-      <img src="public/images/screenshots/cms/01-gallery-playing-light.gif" alt="Narrated gallery with captions" width="100%" />
-      <br /><strong>Narrated gallery</strong>
-      <br /><sub>Per-slide TTS or recorded narration with captions; PPTX speaker notes become the script.</sub>
-    </td>
-    <td width="33%" valign="top">
-      <img src="public/images/screenshots/cms/08-translate-editor-light.gif" alt="Auto-translation" width="100%" />
-      <br /><strong>AI translation · summary</strong>
-      <br /><sub>One KO/EN switch fills everything from the title to gallery scripts; failing providers fall back in order.</sub>
-    </td>
-    <td width="33%" valign="top">
-      <img src="public/images/screenshots/cms/12-theme-presets-light.png" alt="Theme presets" width="100%" />
-      <br /><strong>Theme · brand</strong>
-      <br /><sub>Five colors retheme the whole site with a live WCAG contrast check; logos are tuned against an unsaved preview.</sub>
-    </td>
-  </tr>
-</table>
+## ✦ Features
 
-| Area | Highlights |
-|:---|:---|
-| **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D (home torus · coffee cup, profile character), direction-aware scroll cascade |
-| **Works** | Six layouts, detail pages, slide gallery (narration · captions) |
-| **Posts** | SSR + ISR, series, banner slider, six list layouts, read aloud, guest comments (markdown + emoji reactions) or giscus |
-| **Admin** | Dashboard · traffic analytics · notifications · service log, Plate.js editor, `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
-| **Security** | Four-tier RLS roles, CSRF origin check (fail-closed in production), 5-attempt login lockout plus email approval for new devices |
-| **Design system** | Three token tiers (Raw → Semantic → Component) plus role tokens, all colours in OKLCH |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-works-dark.gif" />
+  <img src="docs/images/readme-works-light.gif" alt="Switching through the six work layouts" width="100%" />
+</picture>
 
----
+### Six work layouts
 
-## ✦ Preview
+The same list of works can be shown in six arrangements: Flow · Grid · Cylinder · Fullscreen · Cinematic · Split. The default is picked in the admin, and adding `?layout=` to the address switches it on the spot.
 
-### Home
-
-| Dark | Light |
-|:---:|:---:|
-| <img src="docs/images/home-dark.png" alt="Home, dark" width="100%" /> | <img src="docs/images/home-light.png" alt="Home, light" width="100%" /> |
-
-Further down, the home page walks through works and posts as you scroll.
-
-<img src="public/images/screenshots/pc/home-works-dark.png" alt="Home works section" width="100%" />
-
-### Works
-
-Six layouts can be swapped with the `?layout=` query or from the admin: Flow (default) · Grid · Cylinder · Fullscreen · Cinematic · Split.
-
-| Flow | Grid | Cylinder |
-|:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/works-light.png" alt="Works, Flow" width="100%" /> | <img src="public/images/screenshots/pc/works-grid-dark.png" alt="Works, Grid" width="100%" /> | <img src="public/images/screenshots/pc/works-cylinder-light.png" alt="Works, Cylinder" width="100%" /> |
-
-<details>
-<summary><strong>Other layouts and the detail page</strong></summary>
+- Cylinder is a cylinder arrangement drawn with Three.js.
+- Detail pages carry a slide gallery (narration · captions) and related posts and series.
 
 <br />
 
-| Fullscreen | Cinematic | Split |
-|:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/works-fullscreen-dark.png" alt="Works, Fullscreen" width="100%" /> | <img src="public/images/screenshots/pc/works-cinematic-dark.png" alt="Works, Cinematic" width="100%" /> | <img src="public/images/screenshots/pc/works-split-dark.png" alt="Works, Split" width="100%" /> |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-home-dark.gif" />
+  <img src="docs/images/readme-home-light.gif" alt="Scrolling down the home page while the 3D torus follows" width="100%" />
+</picture>
 
-<img src="public/images/screenshots/pc/work-detail-light.png" alt="Work detail" width="100%" />
+### Scroll · 3D interaction
 
-</details>
+Scrolling down the home page moves the 3D torus along with it, and sentences and sections come in one after another in the scroll direction.
 
-### Posts
+- Infinite scroll loop, mouse parallax, StaggerText, direction-aware scroll cascade, Lenis smooth scrolling
+- Three.js 3D: home torus · coffee cup, profile character
 
-| List | Detail |
-|:---:|:---:|
-| <img src="docs/images/posts-light.png" alt="Post list" width="100%" /> | <img src="docs/images/post-detail-light.png" alt="Post detail" width="100%" /> |
+<br />
 
-<sub>The post list and detail were captured with sample posts used for layout checks.</sub>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-readaloud-dark.png" />
+  <img src="docs/images/readme-readaloud-light.png" alt="Read aloud: reading the title, with the control bar at the bottom" width="100%" />
+</picture>
 
 ### Read aloud
 
@@ -155,240 +100,140 @@ The **Listen** button on post and work pages reads the page with browser speech 
 - Small tables are read row by row with their headers; large tables only announce their size and expand row by row when clicked. Images read their alt text and caption.
 - Anything hidden on screen, such as the inside of a closed toggle, is skipped. Each block picks a Korean or English voice on its own.
 
-<img src="docs/images/post-read-aloud-light.png" alt="Read aloud: reading the title, with the control bar at the bottom" width="100%" />
+<br />
 
-<sub>▶ Reading the title. The block being read is highlighted, and the bar at the bottom shows "reading 1/9" with previous · pause · next · speed · stop.</sub>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-editor-dark.png" />
+  <img src="docs/images/readme-editor-light.png" alt="Plate.js editor with the floating colour toolbar" width="100%" />
+</picture>
 
-### Profile · About
-
-| Profile (Three.js) | About |
-|:---:|:---:|
-| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile" width="100%" /> | <img src="docs/images/about-dark.png" alt="About: constellation map" width="100%" /> |
-
-The About page starts from a constellation map. Clicking a star flies into that chapter, and scrolling moves through the chapters in order, from 01 at a glance to 10 FAQ. Its content is built from `content/about/*.md` at build time.
-
-<img src="docs/images/about-chapter-dark.png" alt="About chapter 02: features" width="100%" />
-
-### Editor · design system
+### Plate.js editor
 
 The editor is built on Plate.js. The top toolbar is grouped by scope, and selecting text brings up a floating bar for text and background colours.
 
-| Editor | Colour tools |
-|:---:|:---:|
-| <img src="public/images/screenshots/pc/editor-light.png" alt="Editor" width="100%" /> | <img src="public/images/screenshots/pc/editor-color-light.png" alt="Editor colour tools" width="100%" /> |
-
-Tokens and components can be checked live at `/design-system`.
-
-| Design system | Mobile |
-|:---:|:---:|
-| <img src="docs/images/design-system-light.png" alt="Design system" width="100%" /> | <img src="docs/images/home-mobile-dark.png" alt="Mobile home" width="45%" /> |
-
----
-
-## ✦ Admin · CMS
-
-> [!NOTE]
-> Admin captures come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session, see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips. Open **Details** under each part for how it works.
-
-### Dashboard
-
-| Quick actions · stats | Daily visitors · per-day breakdown |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/17-dashboard-light.png" alt="Admin dashboard: quick actions and stats" width="100%" /> | <img src="public/images/screenshots/cms/18-dashboard-daily-views-light.png" alt="Daily visitors, calendar heatmap and the selected day's panel" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
+- Diagram (React Flow) · code playground (Sandpack) · code (CodeMirror 6) · math (KaTeX) blocks
+- Autosave and revisions: same-device drafts in `localStorage`, continuing on another device through DB revisions
+- `.md` upload (with frontmatter) and export (all · selected · single · series)
 
 <br />
 
-`/admin` opens on a one-page view of the site. At the top sit **quick actions** (new post · new project · settings · reports · notifications, with pending-report and unread counts as badges) and a **service log** strip (calls and failures in the last 24 hours, providers currently switched off). The **stats** panel leads with the visitor count (change vs. the previous 7 days plus a sparkline), with visits, page views, average time on page and the counting start date on one line below, then published and draft projects and posts, and comments. The donut beside it is the category split by views.
-
-**Daily visitors** draws any range you pick (up to 90 days) as a curve. Click a day in the calendar heatmap below and a panel opens with that day's rank, how it compares to the period average, the same weekday and the day before, and the posts read most that day. Further down come **recent activity** (posts · projects · comments), **reports**, **popular** (views · likes · comments per post, engagement, top tags), a **traffic** summary (sources · devices · 30-day visits · new vs. returning · views per visit) and whether each service key is configured.
-
-</details>
-
-### Traffic
-
-| Summary · trend · sources · devices | IP analysis · UTM link builder |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/19-traffic-light.png" alt="Traffic: range, summary, daily trend, sources, devices" width="100%" /> | <img src="public/images/screenshots/cms/20-traffic-ip-utm-light.png" alt="Traffic: IP analysis and UTM link builder" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
-
-<br />
-
-There is one view log, `page_views`. Every page view (including in-site navigation) adds a row, and a repeat view of the same page by the same IP within 30 minutes counts once. A visit is a session that ends after 30 idle minutes, and its first view carries the user agent (device · browser), referrer, country and `utm_*` values. On leaving, the time the page was visible is added as time on page. The site operator (owner · admin) and any address marked **my IP** are not recorded, and crawlers (bots) are flagged and left out of the counts. When today's visits exceed three times the 7-day average, a **traffic spike** notification is created once a day. A scheduled job clears IPs older than 90 days.
-
-On `/admin/traffic` the range (7 · 14 · 30 · 90 days) changes the whole page: visit summary (visits · new · returning · views per visit, bots excluded), daily trend, sources, devices, countries, landing pages, top content, a weekday × hour heatmap, UTM campaigns, views and average time per page, and **visit flow** (bounce rate · entry → next page · exit pages · recent visit paths). **IP analysis** lists masked IPs with days visited, first and latest visit, country and device; marking one as my IP stops recording it and drops what it already contributed. **UTM link builder** composes `utm_source/medium/campaign` from source presets (resume · LinkedIn · X · Kakao · email), so links shared through messengers or PDFs, where no referrer survives, still show up as their own channel.
-
-<img src="public/images/screenshots/cms/29-traffic-flow-light.png" alt="Traffic: views by page and visit flow" width="100%" />
-
-</details>
-
-### Managing posts and works
-
-| Posts: filters · status chips · bulk actions | Works: ordering · GitHub import · trash |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/21-posts-list-light.png" alt="Admin posts list" width="100%" /> | <img src="public/images/screenshots/cms/22-works-list-light.png" alt="Admin works list" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
-
-<br />
-
-The `/admin/posts` and `/admin/works` lists keep search scope (title+body · title · body), sort, category · series · year filters and page size in a glass bar that stays put while you scroll. Clicking a status chip flips **published ↔ unpublished** in place; dragging across the checkbox column selects several rows for **bulk delete** or **bulk category change**. Published rows get a shortcut to the public page, unpublished rows a **preview** rendered exactly like the published page. Posts support **scheduled publishing** (`pg_cron` publishes on time and sends a notification and an email), pinning and a **series** tab (order · export as a set). Works are reordered by drag, by clicking the row number or from the row menu (first · last · position), and a **GitHub repository's README can be imported as a work**.
-
-The **trash** is a soft delete. Ordinary items are purged after 30 days, popular ones (top views · likes) after 90, and every row shows the days left with an **extend (+30 days)** button. Restoring is one click; permanent deletion asks you to retype the title. `.md` files go both ways: **upload** (with frontmatter; new categories are confirmed first) and **export** (all · selected · single · series).
-
-</details>
-
-### Notifications · reports · comments · service log
-
-| Notifications: four tabs, action-needed group | Service log: per-provider successes and failures |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/23-notifications-light.png" alt="Notifications page" width="100%" /> | <img src="public/images/screenshots/cms/24-service-log-light.png" alt="Service log" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
-
-<br />
-
-**Notifications** (`/admin/notifications`) have four tabs (all · comments · system · reports) and cover new comments, replies, likes, comment reports, access requests, new-device logins, traffic spikes and system events (login lockout · sign-out everywhere · AI provider failure · mail failure · cron error · settings changed). Items that need action (access requests · new devices) are grouped separately, and the item you arrived from blinks slowly until your next interaction. The **reports** tab filters pending · resolved · dismissed, jumps to the original comment or deletes it in place. **Comments** (`/admin/comments`) gathers post and work comments in one table, filters active · deleted, bulk-deletes and restores deleted comments.
-
-The **service log** (`/admin/service-log`) lists successes and failures of AI (translation · summary · TTS · covers), image search, Resend mail, the GitHub API, scheduled jobs and contact-form attachments, newest first. The top shows per-provider counts and the last failure cause (no key · quota · billing · server error and so on), the bottom the individual rows, filterable by category · provider · result. The status panel in Settings › Services and the dashboard link in with the filter preset (`?provider=gemini` · `?result=fail`).
-
-<img src="public/images/screenshots/cms/25-comments-light.png" alt="Comment management: posts and works together" width="100%" />
-
-</details>
-
-### Settings
-
-| Library: multi-select · file preview | Appearance: brand preview · logo type |
-|:---:|:---:|
-| <img src="docs/images/settings-library-light.png" alt="Settings Library tab: two uploaded files selected" width="100%" /> | <img src="docs/images/settings-brand-dark.png" alt="Settings › Appearance: brand" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
-
-<br />
-
-`/admin/settings` has six tabs: **General** (personal info · contact · SEO metadata · background music), **Content** (home hero · intro · featured works · marquee · footer · social links · banner, pagination, tags · categories, works intro video, plus a PROFILE sub-tab), **Library** (calendars · polls · custom emojis · cover image history · uploaded files), **Appearance** (design-system preview · theme colours · brand · date-picker style · typography and font upload), **Services** (per-feature provider order · email · comment system and giscus · security · upload formats and size limits · provider status panel · environment variables) and **Account** (auth · email change · password policy, registered devices and **sign out everywhere**, members and roles (owner · admin · author)).
-
-You save a whole tab or one section at a time, with revert and code defaults. Values that cannot be empty (site title · name · the five theme colours · member names, repository details when giscus is selected) are enforced in the UI, the API and the database. When code defaults change, a **conflict list** shows the new value per section so you can take it or keep yours.
-
-In the **Library**, uploaded files · cover image history · comment images · emojis · calendars can be selected several at a time by clicking or dragging across cells, then deleted together. Uploaded files that are still in use are shown as unselectable, and files of any kind, including audio, documents and fonts, can be previewed in place. **Brand**, under Appearance, opens with a preview strip drawn from the unsaved settings: the nav and browser tab (short logo) and the loading screen (full logo). Below it you pick the logo type (image or text) and tune the short logo, full logo and effects part by part.
-
-<img src="public/images/screenshots/cms/27-settings-account-light.png" alt="Settings Account tab" width="100%" />
-
-</details>
-
-### Login and security
-
-<img src="public/images/screenshots/cms/28-login-light.png" alt="Admin login: email · password and GitHub sign-in" width="60%" />
-
-The owner signs in with email and password; invited members **sign in with GitHub**. OAuth only authenticates. The server checks for the owner email, an existing role or an invitation before letting anyone in. Five failed attempts lock the form for 15 minutes with the remaining tries and a countdown shown. An unknown device is signed out automatically and gets an approval link by email (valid 24 hours), and signing out in one tab signs out every open tab.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-gallery-dark.gif" />
+  <img src="docs/images/readme-gallery-light.gif" alt="Narrated gallery with captions following the voice" width="100%" />
+</picture>
 
 ### Narrated gallery
 
-<img src="public/images/screenshots/cms/01-gallery-playing-light.gif" alt="Captions following the narration" width="100%" />
+The slide gallery on work pages can carry **narration and captions** per slide. Captions are cut from the script by character ratio and follow the voice, and the progress bar below fills one step per slide. 🔊 To hear it, [watch the mp4](public/images/screenshots/cms/01-gallery-playing-light.mp4).
 
-<sub>▶ Playing: captions follow the narration and the progress bar fills · 🔊 with sound: [watch the mp4](public/images/screenshots/cms/01-gallery-playing-light.mp4) (27 s, with the TTS audio the gallery actually plays)</sub>
-
-Each slide of a work's gallery can carry **narration and captions**. Playback prefers a prepared audio file (TTS or a recording), falls back to reading the script with browser speech, and otherwise waits four seconds before advancing. Captions are cut from the script by character ratio to follow the audio, and the progress bar below fills one segment per slide. If the browser blocks sound, the gallery first asks "with voice / without voice".
-
-| Script · voice · generate | Preview: lyric highlight |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Gallery narration editor" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="Preview with highlighted script" width="100%" /> |
-
-<details>
-<summary><strong>Details · narration editor · lexicon · recording · PPTX</strong></summary>
+- A prepared voice file (TTS · recording) plays first; without one the script is read with browser speech, and with neither the slide moves on after 4 seconds.
+- In the narration editor you pick a voice and press **Generate voice**. If the chosen provider fails, it falls back through Fish Audio → Google Cloud TTS → Edge.
+- There is a waveform editor for recordings (split · cut · trim silence) and a reading lexicon that maps written forms to how they are read.
+- Dropping a PPTX renders each slide as an image, and each slide's speaker notes become its script.
 
 <br />
 
-In the admin work editor, the **gallery narration editor** is a bench (slide on the left, script on the right) with a thumbnail strip below. Clicking a thumbnail puts that slide on the bench; slides with audio show a speaker badge and slides with only a script show a text badge. The toolbar offers slide navigation, audio history, record, upload a recording, remove audio, edit scripts, translate scripts and the lexicon; on the right you pick a voice (provider · gender · tone) and press **Generate**. Long scripts are chunked at about 600 characters and merged. If the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-translate-dark.gif" />
+  <img src="docs/images/readme-translate-light.gif" alt="Switching to EN and re-translating fills the English fields" width="100%" />
+</picture>
 
-<img src="public/images/screenshots/cms/03-narration-preview-light.gif" alt="Preview: the script filling in as it plays" width="100%" />
+### AI translation · summary
 
-The **pronunciation lexicon** pairs script text with what should be spoken, e.g. `?all=true → "all true condition"`. It applies only when generating audio, longest match first; captions keep the original text. Korean and English scripts have separate dictionaries, and an inline `[text|reading]` in the script wins over the lexicon. Several entries can be pasted at once as `text = reading` lines.
+**Switching the KO/EN toggle to EN** at the top of the editor fills the title · subtitle · description · body · gallery scripts in one go. Translations only land in the form and are kept once you save.
 
-The **recording editor** records from the microphone, then lets you click the waveform to place the cursor or drag a range, and split, cut, copy, paste, delete, keep-only, or trim silence to shape clips (with undo/redo). Clips can be reordered by dragging and pasted into another slide. Finishing uploads a WAV as that slide's audio (up to six minutes).
-
-| Lexicon | Recording editor: range selected, clips split |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="Pronunciation lexicon" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="Recording waveform editor" width="100%" /> |
-
-<img src="public/images/screenshots/cms/05-recording-split-light.gif" alt="Record → select a range → split" width="100%" />
-
-**Drop a PPTX onto the gallery** and each slide is rendered in the browser to a JPEG (max 1600px) and uploaded; each slide's **speaker notes become its script**. The gallery header shows "file — rendering n/N" while it runs, and afterwards every thumbnail carries a script badge. PDFs go through the same path.
-
-| Converting: "rendering n/N" | Done: a slide whose notes became the script |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX conversion progress" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="Gallery thumbnails after conversion" width="100%" /> |
-
-<img src="public/images/screenshots/cms/06-pptx-import-light.gif" alt="Dropping a PPTX and watching slides render in" width="100%" />
-
-</details>
-
-### Auto-translation and AI summary
-
-<img src="public/images/screenshots/cms/08-translate-editor-light.gif" alt="Translating banner, then English fields filling in" width="100%" />
-
-<sub>▶ Switch to EN and press Retranslate › All: the "Translating…" banner appears, then English fields fill in</sub>
-
-Flip the editor's KO/EN switch to **EN** and, when the source has content and every English field is empty, title, subtitle, description, body and gallery scripts are filled in one pass. If some English fields are already filled, the **Retranslate** button next to the switch lets you pick a scope. Translations land in the form only and persist when you save.
-
-| Settings › Services: AI & external services | Public site: translation banner |
-|:---:|:---:|
-| <img src="docs/images/settings-services-light.png" alt="Settings Services tab: per-feature provider status and fallback order" width="100%" /> | <img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="Translation banner: a work without an English body, viewed in EN" width="100%" /> |
-
-<details>
-<summary><strong>Details</strong></summary>
+- Each feature (translation · summary · TTS · covers) has a provider fallback order, and a provider that keeps failing for the same reason is switched off for a while so no requests go to it.
+- On the public site a translation banner appears when the page has no body in the viewer's language, and the AI summary box at the top of detail pages shows Korean and English summaries.
 
 <br />
 
-Providers live in one section, **Settings › Services › AI & external services**. Each feature (AI cover · AI summary · translation · TTS) has an on/off switch, automatic fallback on failure and a fallback order, and every provider row shows its state, this month's usage, a re-enable button and shortcuts to the call log and the provider console. Text provider rows let you pick the model to call; leaving it empty uses the provider's latest alias. A provider that keeps failing for the same reason is paused and shows an "off" badge with the cause (no permission · over quota and so on). The same table sits above the service log page. Which admin notifications are also **emailed** is chosen in the same tab under Notification emails. By default only what needs a person right away (new comments, reports, new-device logins, access requests) is emailed, and bursty operational notifications go out at most once an hour.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-theme-dark.png" />
+  <img src="docs/images/readme-theme-light.png" alt="Theme presets" width="100%" />
+</picture>
 
-On the public site, a **translation banner** appears when the viewed language has no body, and one button fetches an AI translation in place (posts and works alike). The **AI summary** box above the detail shows the Korean/English summary generated at publish time in the viewed language and can be collapsed.
+### Theme · brand
 
-</details>
+Five colours, the accent plus light and dark background and text, retheme the whole site.
 
-### Theme
-
-| Presets | Contrast report |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/12-theme-presets-light.png" alt="Theme presets" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="Contrast report" width="100%" /> |
-
-<details>
-<summary><strong>Details · colour suggestions · presets compared</strong></summary>
+- The 18 presets keep their accents at least ΔE 20 apart, and the current colours can be saved as your own preset.
+- A contrast report (WCAG) counts body · link · button text contrast in light and dark. When the accent is used as text, the site shifts only its lightness to reach 4.5:1.
+- Colour combinations can be drawn from a colour wheel (analogous · complementary · split complementary · triadic · monochrome) or from an uploaded image.
+- The brand section previews the nav · browser tab · loading screen with unsaved settings while you tune the logo.
 
 <br />
 
-**Settings › Appearance › Theme colors** sets five colors: the accent plus light/dark background and text. The 18 presets (Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal · Slate) keep their accents at least ΔE 20 apart, and the current five colors can be saved as your own preset with **+**. Picking colors updates the **WCAG contrast report** for body text, muted text, accent links, accent graphics and button text in both modes, plus the link↔body color difference. When the accent is used as text, the site shifts only its lightness to reach 4.5:1, shown in the table as "auto-corrected".
+#### By area
 
-**Color suggestions** come from the color wheel (analogous · complementary · split · triadic · monochrome) or from an image, whose six dominant colors become candidates. The image is read locally and never uploaded.
+| Area | Highlights |
+|:---|:---|
+| **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D (home torus · coffee cup, profile character), direction-aware scroll cascade |
+| **Works** | Six layouts, detail pages, slide gallery (narration · captions) |
+| **Posts** | SSR + ISR, series, banner slider, six list layouts, read aloud, guest comments (markdown + emoji reactions) or giscus |
+| **Admin** | Dashboard · traffic analytics · notifications · service log, Plate.js editor, `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
+| **Security** | Four-tier RLS roles, CSRF origin check (fail-closed in production), 5-attempt login lockout plus email approval for new devices |
+| **Design system** | Three token tiers (Raw → Semantic → Component) plus role tokens, all colours in OKLCH |
 
-| Color wheel | From an image |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/13-theme-wheel-light.png" alt="Color wheel suggestions" width="100%" /> | <img src="public/images/screenshots/cms/13-theme-from-image-light.png" alt="Colors extracted from an image" width="100%" /> |
-
-The same home page under three presets (Arctic · Rosewood · Meadow, in light and dark). Only the five colors (background, text, accent) change; the neutral scale in between is derived from them by the site.
-
-<img src="public/images/screenshots/cms/14-home-presets-light.png" alt="Home: Arctic · Rosewood · Meadow (light)" width="100%" />
-
-<img src="public/images/screenshots/cms/14-home-presets-dark.png" alt="Home: Arctic · Rosewood · Meadow (dark)" width="100%" />
-
-</details>
-
-### Linking posts and works · SEO check
-
-| Relation picker: post editor | SEO check |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="Relation picker" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO checklist panel" width="100%" /> |
-
-Works link related posts and series; posts link related projects, all through a searchable picker. Chosen chips are drag-sortable and show up in the public detail header. The **SEO check** pill at the editor's bottom right counts six items (title · slug · excerpt of 30+ chars · cover · category · tags) as "5/6", and clicking an item scrolls to that field and flashes it.
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
 
 ---
+
+<sub>02 — SCREENS</sub>
+
+## ✦ Screens
+
+| Home · dark | Home · light |
+|:---:|:---:|
+| <img src="docs/images/home-dark.png" alt="Home, dark" width="100%" /> | <img src="docs/images/home-light.png" alt="Home, light" width="100%" /> |
+
+| Works · Flow | Works · Grid | Works · Cylinder |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/pc/works-light.png" alt="Works, Flow" width="100%" /> | <img src="public/images/screenshots/pc/works-grid-dark.png" alt="Works, Grid" width="100%" /> | <img src="public/images/screenshots/pc/works-cylinder-light.png" alt="Works, Cylinder" width="100%" /> |
+| **Works · Fullscreen** | **Works · Cinematic** | **Works · Split** |
+| <img src="public/images/screenshots/pc/works-fullscreen-dark.png" alt="Works, Fullscreen" width="100%" /> | <img src="public/images/screenshots/pc/works-cinematic-dark.png" alt="Works, Cinematic" width="100%" /> | <img src="public/images/screenshots/pc/works-split-dark.png" alt="Works, Split" width="100%" /> |
+
+| Post list | Post detail |
+|:---:|:---:|
+| <img src="docs/images/posts-light.png" alt="Post list" width="100%" /> | <img src="docs/images/post-detail-light.png" alt="Post detail" width="100%" /> |
+| **Profile (Three.js)** | **About — constellation map** |
+| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile" width="100%" /> | <img src="docs/images/about-dark.png" alt="About: constellation map" width="100%" /> |
+| **Design system** | **Mobile** |
+| <img src="docs/images/design-system-light.png" alt="Design system" width="100%" /> | <img src="docs/images/home-mobile-dark.png" alt="Mobile home" width="45%" /> |
+
+<sub>The post list and detail were captured with sample posts used for layout checks. On the About page, clicking a star on the constellation map flies into that chapter; its content is built from `content/about/*.md` at build time.</sub>
+
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
+---
+
+<sub>03 — ADMIN</sub>
+
+## ✦ Admin · CMS
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-dashboard-dark.png" />
+  <img src="docs/images/readme-dashboard-light.png" alt="Admin dashboard" width="100%" />
+</picture>
+
+`/admin` covers the whole operation, from writing posts and works to visit analytics, notifications, external service status and site settings. How each screen works is written up in **[docs/en/admin.md](./docs/en/admin.md)**.
+
+| Traffic — visit summary · referrers · devices | Post list — filters · status chips · bulk actions |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/19-traffic-light.png" alt="Traffic" width="100%" /> | <img src="public/images/screenshots/cms/21-posts-list-light.png" alt="Admin post list" width="100%" /> |
+| **Notifications — four tabs, action-needed group** | **Service log — success · failure per provider** |
+| <img src="public/images/screenshots/cms/23-notifications-light.png" alt="Notifications" width="100%" /> | <img src="public/images/screenshots/cms/24-service-log-light.png" alt="Service log" width="100%" /> |
+| **Narration editor — script · voice** | **Theme — WCAG contrast report** |
+| <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Narration editor" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="Contrast report" width="100%" /> |
+| **Library — multi-select · file preview** | **Appearance — brand preview** |
+| <img src="docs/images/settings-library-light.png" alt="Settings library" width="100%" /> | <img src="docs/images/settings-brand-dark.png" alt="Settings appearance brand" width="100%" /> |
+| **Login — 5-attempt lockout · new-device email approval** | **SEO check — six items** |
+| <img src="public/images/screenshots/cms/28-login-light.png" alt="Admin login" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO check" width="100%" /> |
+
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
+---
+
+<sub>04 — ARCHITECTURE</sub>
 
 ## ✦ Architecture
 
@@ -411,9 +256,69 @@ flowchart LR
 - **Generated at build time.** `prebuild` builds the ERD from `supabase/setup.sql`, the API map from the route files and the About page data from `content/about/*.md`, so the docs and screens cannot drift away from the code ([Deployment](./docs/en/deploy.md)).
 - **Scheduled jobs.** `pg_cron` runs scheduled publishing, trash purges, clearing IPs from old visit records and service-log cleanup inside the database.
 
+#### The three layers a write request passes
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant P as proxy.ts
+    participant R as Route Handler
+    participant DB as Postgres (RLS)
+    B->>P: POST /api/… (session cookie)
+    P->>P: Is Origin/Referer this site?
+    alt Other origin · no Origin
+        P-->>B: 403
+    end
+    P->>R: Pass (session refreshed)
+    R->>R: requireAuth · requireRole
+    alt Not signed in · role too low
+        R-->>B: 401 · 403
+    end
+    R->>DB: Query with anon key + user session
+    DB->>DB: RLS policies filter row by row
+    DB-->>R: Allowed rows only
+    R-->>B: 200
+```
+
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
 
-## ✦ Implementation notes
+<sub>05 — CASE STUDIES</sub>
+
+## ✦ Case studies
+
+The measurements are recorded with their conditions in each PR description (Korean).
+
+### Admin post list transfer 44 MB → 0.9 MB · [#974](https://github.com/hyeoniverse/web-portfolio-hyeoniverse/pull/974)
+
+- **Problem.** Video cover thumbnails in the list downloaded the whole source file as soon as they entered the screen. One 15 MB cover was requested three times per load, 43 MB in total and most of the list's 44 MB transfer.
+- **Cause.** Fetching only the first frame with `preload="metadata"` and `#t=0.1` is cheap only for mp4 files with the moov atom at the front. Pexels mp4 files keep it at the end, so drawing one frame meant downloading the whole file.
+- **Fix.** Thumbnails now use `preload="none"` with a deterministic gradient instead of a still frame. The video is only fetched and played on hover.
+- **Result.** List transfer 44 MB → 0.9 MB, idle mp4 requests 3 → 0.
+
+### Admin post list LCP 1468 ms → 1088 ms · [#976](https://github.com/hyeoniverse/web-portfolio-hyeoniverse/pull/976)
+
+- **Problem.** The shell (filter bar · title) appeared around 750 ms, but the table rows only showed up around 1.45 s, with an empty skeleton in between.
+- **Cause.** The route entry `page.tsx` was entirely `"use client"`, so hydration → client fetch → render ran in series.
+- **Fix.** The first page of the list is read on the server and shipped in the HTML; it is fetched again only when filters, search or sorting change.
+- **Result.** LCP 1468 ms → 1088 ms (median of 3). The `/api/posts` round trip left the critical path (1 → 0).
+
+### Post detail LCP equal to FCP · [#949](https://github.com/hyeoniverse/web-portfolio-hyeoniverse/pull/949)
+
+- **Problem.** Even with the cover image already downloaded, the post detail LCP came 0.36–0.38 s after FCP.
+- **Cause.** The cover sat inside the Suspense boundary created by `loading.tsx`. React 19.2 reveals a boundary that arrives after the shell has painted only 300 ms after the first paint.
+- **Fix.** The cover is drawn in the detail route's layout, outside the boundary, so it paints with the shell. The layout already ran the same query, so no query was added.
+- **Result.** On slow 4G mobile, LCP matched FCP every time and the LCP median dropped from 1.86 s to 1.49 s.
+
+### Editor accessibility 80 → 96 · [#981](https://github.com/hyeoniverse/web-portfolio-hyeoniverse/pull/981)
+
+- **Problem.** The post editor scored 80 on Lighthouse accessibility, with 77 axe violation nodes.
+- **Cause.** Icon-only toolbar buttons had their labels only as visual tooltips, leaving 54 buttons without a name for screen readers, and the body and code editing areas had no name either. Block handles were 16×22 px, under the 24×24 minimum touch target.
+- **Fix.** Buttons and editing areas got accessible names, and the handles became a 24×24 vertical stack.
+- **Result.** Lighthouse accessibility 80 → 96–97, axe violations 77 → 9 nodes. The remaining nine come from content, such as text colours and heading order chosen by the author.
+
+#### Other implementation notes
 
 | Topic | How it works | More |
 |:---|:---|:---|
@@ -424,9 +329,20 @@ flowchart LR
 | **Performance** | Fixed the LCP image's priority and the streaming reveal delay together, and removed selectors like `:has(:hover)` that triggered full style recalculation | [Troubleshooting Top 10](./docs/en/troubleshooting/top10.md) |
 | **Two languages** | UI text comes from Korean/English dictionaries; content keeps separate Korean and English fields and fills empty ones with AI translation. On-the-fly translations on the public site are cached and not requested again | [features.md](./docs/en/features.md) |
 
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
 
+<sub>06 — PROCESS</sub>
+
 ## ✦ How it was built
+
+<p>
+  <a href="https://github.com/hyeoniverse/web-portfolio-hyeoniverse/actions/workflows/ci.yml"><img src="https://github.com/hyeoniverse/web-portfolio-hyeoniverse/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" /></a>
+  <img src="https://img.shields.io/badge/type--coverage-97.93%25%20locked-3178c6?style=flat-square" alt="type-coverage 97.93%" />
+  <img src="https://img.shields.io/badge/ESLint%20warnings-locked-4b32c3?style=flat-square" alt="ESLint warnings locked" />
+  <img src="https://img.shields.io/badge/commits-Conventional-fe5196?style=flat-square" alt="Conventional Commits" />
+</p>
 
 - **Since February 2026**, built and run by one person: about 3,300 commits, 980+ merged PRs and 490+ closed issues (as of October 2026).
 - **Workflow.** Work starts as an issue, then a branch and a PR. Commits follow Conventional Commits checked by commitlint, and release-please produces versions and the changelog.
@@ -435,7 +351,11 @@ flowchart LR
 - **Refactoring.** When `src` passed 220,000 lines, the first round ran on a one-axis-at-a-time rule (#388): safety-net baseline → quality gates → cross-route performance → structure survey → splitting large files per domain → locking the rules. It finished on 2026-09-10 ([refactoring-guide.md](./docs/refactoring-guide.md), Korean).
 - **Records.** 64 problems are written up as symptom · cause · fix · conclusion in [Troubleshooting](./docs/en/troubleshooting.md). The top ten include a regex that only fails in the browser because of bundle downleveling, CSS invalidation scope, serial LCP gates, a transition cover tied to the route commit, and a static 404 hydration mismatch.
 
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
+
+<sub>07 — STACK</sub>
 
 ## ✦ Tech stack
 
@@ -456,7 +376,11 @@ flowchart LR
 | Integrations | Unsplash · Pexels (covers), DeepL · Google · Gemini · OpenAI · Claude · Groq (translation · summaries), Resend (mail), NanoBanana · Hugging Face (AI images) |
 | Testing | Vitest + Testing Library · Playwright smoke tests |
 
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
+
+<sub>08 — STRUCTURE</sub>
 
 ## ✦ Project structure
 
@@ -493,7 +417,11 @@ Good places to start reading:
 | `src/lib/ai/health.ts` | AI provider state · automatic switch-off · fallback order |
 | `src/styles/tokens/` | The raw design-token tier |
 
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
+
+<sub>09 — QUICK START</sub>
 
 ## ✦ Quick start
 
@@ -514,13 +442,18 @@ npm run audit:full     # typecheck + eslint + stylelint + knip
 npm run sync-all       # sync content/*.md with the database (the About page is built from md at build time, not read from the database)
 ```
 
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+
 ---
+
+<sub>10 — DOCS</sub>
 
 ## ✦ Documentation
 
 | Document | Contents |
 |:---|:---|
 | [Features](./docs/en/features.md) | Every feature by screen (interaction, works, posts, admin, performance, security) |
+| [Admin · CMS](./docs/en/admin.md) | How each admin screen works: dashboard · traffic · content lists · notifications · settings · narration · translation · theme |
 | [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
 | [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
 | [Testing](./docs/en/testing.md) | Vitest, smoke e2e, preparing the admin session |
@@ -531,6 +464,8 @@ npm run sync-all       # sync content/*.md with the database (the About page is 
 | [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Commit convention](./docs/commit-convention.md) | Structural cleanup notes, bundle baseline, commit rules (Korean) |
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Types and examples are in **[docs/commit-convention.md](./docs/commit-convention.md)** (Korean).
+
+<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
 
 ---
 
@@ -543,7 +478,5 @@ Free to use, modify and share, but **not for commercial use**.
 <br />
 
 <sub>✦ Made by <a href="https://www.hyeoniverse.com">HYEONIVERSE</a></sub>
-
-<sub><a href="#readme">↑ Back to top</a></sub>
 
 </div>
