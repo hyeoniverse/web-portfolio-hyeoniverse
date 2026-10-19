@@ -15,11 +15,24 @@ describe("applyLexicon", () => {
   it("여러 번 나오면 모두 바꾼다", () => {
     expect(applyLexicon("RLS 와 RLS", [{ from: "RLS", to: "알엘에스" }])).toBe("알엘에스 와 알엘에스");
   });
+
+  it("철자가 같으면 대소문자가 달라도 같은 말로 읽는다", () => {
+    expect(applyLexicon("RLS, rls, Rls", [{ from: "RLS", to: "알엘에스" }])).toBe("알엘에스, 알엘에스, 알엘에스");
+    expect(applyLexicon("Next.js 와 NEXT.JS", [{ from: "next.js", to: "넥스트 제이에스" }])).toBe("넥스트 제이에스 와 넥스트 제이에스");
+  });
+
+  it("표기 안의 정규식 기호는 글자 그대로 맞춘다", () => {
+    expect(applyLexicon("?ALL=TRUE 와 xall=true", [{ from: "?all=true", to: "올 트루 조건" }])).toBe("올 트루 조건 와 xall=true");
+  });
 });
 
 describe("sanitizeLexicon", () => {
   it("공백을 지우고 빈 표기·중복을 버린다", () => {
     expect(sanitizeLexicon([{ from: " RLS ", to: " 알엘에스 " }, { from: "", to: "x" }, { from: "RLS", to: "중복" }, "bad"])).toEqual([{ from: "RLS", to: "알엘에스" }]);
+  });
+
+  it("대소문자만 다른 표기도 중복으로 보고 앞의 것을 남긴다", () => {
+    expect(sanitizeLexicon([{ from: "RLS", to: "알엘에스" }, { from: "rls", to: "알 엘 에스" }])).toEqual([{ from: "RLS", to: "알엘에스" }]);
   });
 });
 
@@ -39,6 +52,11 @@ describe("parseLexiconLines / mergeLexicon", () => {
       { from: "RLS", to: "알 엘 에스" },
       { from: "API", to: "에이피아이" },
     ]);
+  });
+
+  it("대소문자만 다른 표기는 그 항목의 읽을 말을 바꾼다", async () => {
+    const { mergeLexicon } = await import("@/lib/ttsLexicon");
+    expect(mergeLexicon([{ from: "RLS", to: "알엘에스" }], [{ from: "rls", to: "알 엘 에스" }])).toEqual([{ from: "RLS", to: "알 엘 에스" }]);
   });
 });
 

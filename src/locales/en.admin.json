@@ -965,7 +965,7 @@
         "title": "Pronunciation dictionary",
         "summary": "KO {{ko}} · EN {{en}}",
         "search": "Search",
-        "hint": "Replaces text in scripts with how it should be read when generating TTS audio. Scripts and captions keep the original, and matches are case-sensitive. Changes save immediately; existing audio changes only when regenerated. To read one spot differently, write [ms|milliseconds] in the script — the audio says \"milliseconds\" while captions show \"ms\". Korean and English scripts have separate dictionaries; only the one for the script language is used.",
+        "hint": "Replaces text in scripts with how it should be read when generating TTS audio. Scripts and captions keep the original, and matching ignores case (RLS · rls · Rls read the same). Changes save immediately; existing audio changes only when regenerated. To read one spot differently, write [ms|milliseconds] in the script — the audio says \"milliseconds\" while captions show \"ms\". Korean and English scripts have separate dictionaries; only the one for the script language is used.",
         "add": "Add",
         "paste": "Paste lines",
         "pasteHint": "One entry per line as \"text = reading\". A tab or → also works. An = inside the text is not treated as a separator unless it has spaces around it. Existing text gets the new reading.",

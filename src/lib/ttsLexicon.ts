@@ -6,7 +6,7 @@
  * (site_settings id='tts_lexicon') 모든 작업물의 음성 만들기가 같이 쓴다.
  */
 export interface LexiconEntry {
-  /** 대본에 적힌 표기 — 대소문자까지 그대로 맞춘다 */
+  /** 대본에 적힌 표기 — 대소문자는 가리지 않는다(RLS · rls · Rls 를 같은 말로 읽는다) */
   from: string;
   /** TTS 가 읽을 말 */
   to: string;
@@ -42,22 +42,29 @@ export const LEXICON_MAX_ENTRIES = 200;
 export const LEXICON_FROM_MAX = 60;
 export const LEXICON_TO_MAX = 120;
 
-/** 긴 표기부터 바꾼다 — "?all=true" 를 "all" 보다 먼저 바꿔야 짧은 쪽이 긴 표기 안을 먼저 먹지 않는다 */
+/** 표기 비교 기준 — 철자가 같으면 대소문자가 달라도 같은 표기다 */
+export const lexiconKey = (from: string) => from.trim().toLowerCase();
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** 긴 표기부터 바꾼다 — "?all=true" 를 "all" 보다 먼저 바꿔야 짧은 쪽이 긴 표기 안을 먼저 먹지 않는다.
+ *  대소문자는 가리지 않는다 — 사전에 "RLS" 하나만 있어도 대본의 "rls" · "Rls" 까지 같은 말로 읽는다 */
 export function applyLexicon(text: string, entries: LexiconEntry[]): string {
   const sorted = entries.filter((e) => e.from).sort((a, b) => b.from.length - a.from.length);
   /* 한 번 바꾼 자리를 다른 표기가 다시 바꾸지 않게 자리표시로 먼저 치환한다 */
   const holes: string[] = [];
   let out = text;
   sorted.forEach((e) => {
-    if (!out.includes(e.from)) return;
+    const pattern = new RegExp(escapeRegExp(e.from), "gi");
+    if (!pattern.test(out)) return;
     const mark = `\u0000${holes.length}\u0000`;
     holes.push(e.to);
-    out = out.split(e.from).join(mark);
+    out = out.replace(pattern, mark);
   });
   return out.replace(/\u0000(\d+)\u0000/g, (_, i: string) => holes[Number(i)]);
 }
 
-/** 저장 전에 다듬는다 — 앞뒤 공백을 지우고, 빈 표기·중복 표기·길이 초과를 버린다 */
+/** 저장 전에 다듬는다 — 앞뒤 공백을 지우고, 빈 표기·중복 표기(대소문자만 다른 것 포함, 앞의 것을 남긴다)·길이 초과를 버린다 */
 export function sanitizeLexicon(input: unknown): LexiconEntry[] {
   if (!Array.isArray(input)) return [];
   const seen = new Set<string>();
@@ -65,8 +72,8 @@ export function sanitizeLexicon(input: unknown): LexiconEntry[] {
   for (const raw of input) {
     const from = typeof raw?.from === "string" ? raw.from.trim() : "";
     const to = typeof raw?.to === "string" ? raw.to.trim() : "";
-    if (!from || from.length > LEXICON_FROM_MAX || to.length > LEXICON_TO_MAX || seen.has(from)) continue;
-    seen.add(from);
+    if (!from || from.length > LEXICON_FROM_MAX || to.length > LEXICON_TO_MAX || seen.has(lexiconKey(from))) continue;
+    seen.add(lexiconKey(from));
     out.push({ from, to });
     if (out.length >= LEXICON_MAX_ENTRIES) break;
   }
@@ -86,11 +93,11 @@ export function parseLexiconLines(text: string): LexiconEntry[] {
   return sanitizeLexicon(out);
 }
 
-/** 붙여 넣은 항목을 합친다 — 같은 표기는 새 값으로 바꾸고, 새 표기는 뒤에 붙인다 */
+/** 붙여 넣은 항목을 합친다 — 같은 표기(대소문자 무시)는 새 값으로 바꾸고, 새 표기는 뒤에 붙인다 */
 export function mergeLexicon(base: LexiconEntry[], incoming: LexiconEntry[]): LexiconEntry[] {
   const next = base.map((e) => ({ ...e }));
   for (const e of incoming) {
-    const hit = next.find((b) => b.from === e.from);
+    const hit = next.find((b) => lexiconKey(b.from) === lexiconKey(e.from));
     if (hit) hit.to = e.to;
     else next.push({ ...e });
   }
