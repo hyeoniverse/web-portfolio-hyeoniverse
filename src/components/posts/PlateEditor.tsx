@@ -86,6 +86,7 @@ import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
 import CloseButton from "@/components/ui/CloseButton";
 import Pressable from "@/components/ui/Pressable";
+import { ControlSizeScope } from "@/components/ui/controlSize";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -3314,15 +3315,18 @@ export default function PlateEditor({
   );
   const handleHtmlModeChange = useCallback((htmlMode: boolean) => htmlModeRef.current?.(htmlMode), []);
 
+  /* 편집 화면은 컨트롤 높이를 md 로 묶는다 — 본문 툴바 · 블록 도구는 자체 배치라 범위를 푼다 */
   return (
-    <PlateEditorMemo
-      value={external.html}
-      valueVersion={external.version}
-      onChange={handleChange}
-      onImageUpload={handleImageUpload}
-      editorRef={editorRef}
-      postLang={postLang}
-      onHtmlModeChange={handleHtmlModeChange}
-    />
+    <ControlSizeScope size={null}>
+      <PlateEditorMemo
+        value={external.html}
+        valueVersion={external.version}
+        onChange={handleChange}
+        onImageUpload={handleImageUpload}
+        editorRef={editorRef}
+        postLang={postLang}
+        onHtmlModeChange={handleHtmlModeChange}
+      />
+    </ControlSizeScope>
   );
 }

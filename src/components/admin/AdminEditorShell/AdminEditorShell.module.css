@@ -66,20 +66,20 @@
 }
 
 /* topBar 안의 모든 control (Button / BackLink / LanguageToggle 등) height 통일 —
- * 다양한 size variant (xs/sm) 무시하고 28px 로 일치 */
+ * 편집 화면 전체가 ControlSizeScope md 라 같은 줄의 체크박스 · 언어 토글과 맞춰 32px */
 .topBar button,
 .topBar .saveBtn,
 .topBar .publishBtn {
-  height: 28px;
-  min-height: 28px;
+  height: var(--control-height-md);
+  min-height: var(--control-height-md);
 }
 
 /* icon-only button (Button shape="circle" / "square") 은 정사각 비례 유지 —
  * CSS Modules hash 된 class 가 `*__shape-circle` 패턴이라 attribute selector 로 매칭 */
 .topBar button[class*="shape-circle"],
 .topBar button[class*="shape-square"] {
-  width: 28px;
-  min-width: 28px;
+  width: var(--control-height-md);
+  min-width: var(--control-height-md);
   aspect-ratio: 1 / 1;
   padding: 0;
 }
@@ -146,7 +146,7 @@
    Button 은 components 층이라 층 밖의 이 규칙이 특이도와 상관없이 이긴다. */
 .saveBtn,
 .publishBtn {
-  height: 28px;
+  height: var(--control-height-md);
   padding: 0 var(--spacing-16);
   font-weight: 500;
   text-transform: uppercase;
@@ -172,8 +172,8 @@
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   padding: 0;
-  width: 28px;
-  min-width: 28px;
+  width: var(--control-height-md);
+  min-width: var(--control-height-md);
   aspect-ratio: 1 / 1;
   display: inline-flex;
   align-items: center;
@@ -939,9 +939,9 @@
   min-width: 0;
 }
 
-/* .row 안 input — 다른 폼 컨트롤 (Select trigger / + 버튼) 과 동일한 28px 라인 */
+/* .row 안 input — 다른 폼 컨트롤 (Select trigger / + 버튼) 과 동일한 32px 라인 */
 .row input {
-  height: 28px;
+  height: var(--control-height-md);
   box-sizing: border-box;
   padding: 0 var(--spacing-16);
   line-height: 1;
@@ -987,9 +987,9 @@
 
 .fieldInput {
   width: 100%;
-  /* Select 등 컨트롤(--control-height-sm)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
-  min-height: var(--control-height-sm);
-  height: var(--control-height-sm);
+  /* 편집 화면의 다른 컨트롤(ControlSizeScope md, 32px)과 높이 통일 */
+  min-height: var(--control-height-md);
+  height: var(--control-height-md);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
   border-radius: var(--radius-control);
@@ -1131,7 +1131,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
+  min-height: var(--control-height-md);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-control);
@@ -1189,14 +1189,14 @@
 .bottomBar button,
 .bottomBar .saveBtn,
 .bottomBar .publishBtn {
-  height: 28px;
-  min-height: 28px;
+  height: var(--control-height-md);
+  min-height: var(--control-height-md);
 }
 
 .bottomBar button[class*="shape-circle"],
 .bottomBar button[class*="shape-square"] {
-  width: 28px;
-  min-width: 28px;
+  width: var(--control-height-md);
+  min-width: var(--control-height-md);
   aspect-ratio: 1 / 1;
   padding: 0;
 }

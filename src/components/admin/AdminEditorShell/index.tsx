@@ -24,6 +24,7 @@ import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import Badge from "@/components/ui/Badge";
+import { ControlSizeScope } from "@/components/ui/controlSize";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -508,7 +509,10 @@ export default function AdminEditorShell({
     );
   };
 
+  /* 편집 화면의 단추 · 입력 · 셀렉트 · 세그먼트를 한 높이(md)로 — 파일마다 size 가 달라 28 · 32 가 섞였다.
+     본문 편집기처럼 자체 배치가 있는 부품은 안에서 범위를 푼다 */
   return (
+    <ControlSizeScope size="md">
     <div className={styles.container}>
       {coverSlot}
       {/* topBar 핀 감지용 sentinel — topBar 바로 위(자연 위치) */}
@@ -1062,5 +1066,6 @@ export default function AdminEditorShell({
         </div>
       </div>
     </div>
+    </ControlSizeScope>
   );
 }

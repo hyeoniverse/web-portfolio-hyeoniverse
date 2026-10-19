@@ -1,5 +1,10 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
+/* 안쪽 칸(형식 · 날짜 · 달력 단추) 높이 — 컨트롤 높이 범위(ui/controlSize, md) 안이면 옆 셀렉트 · 입력과 같은 32px */
+.wrapper[data-size="md"] {
+  --_dp-h: var(--control-height-md);
+}
+
 .wrapper {
   /* flex row wrap — 표시형식 / 미리보기 / 날짜 옵션이 가로로 packing.
    * formatRow / preview 의 display:contents 가 자식을 wrapper 의 직접 flex item 으로 통과시킴.
@@ -40,7 +45,7 @@
   display: inline-flex;
   align-items: center;
   /* 묶음(테두리 1+1 포함)이 컨트롤 기본 높이(sm) — 옆 기간 칸 · 단추와 맞춘다 */
-  height: calc(var(--control-height-sm) - 2px);
+  height: calc(var(--_dp-h, var(--control-height-sm)) - 2px);
   padding: 0 var(--control-padding-inline-sm);
   border: none;
   background: transparent;
@@ -107,7 +112,7 @@
 .dateLabel {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
+  height: var(--_dp-h, var(--control-height-sm));
   /* 시작·종료 라벨 폭을 같게 — 줄이 바뀌어도 두 줄의 입력칸·시간 라벨이 같은 자리에서 시작한다 */
   width: 3em;
   flex-shrink: 0;
@@ -154,7 +159,7 @@
 
 .yearInput {
   width: 60px;
-  height: var(--control-height-sm);
+  height: var(--_dp-h, var(--control-height-sm));
   padding: 0 var(--spacing-8);
   border: var(--border-control);
   border-radius: var(--radius-control);
@@ -208,7 +213,7 @@
 .dateTimeLabel {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
+  height: var(--_dp-h, var(--control-height-sm));
   margin-right: var(--spacing-2);
   font: var(--font-label-sm);
   color: var(--text-tertiary);
@@ -228,7 +233,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--control-height-sm);
+  height: var(--_dp-h, var(--control-height-sm));
   font: var(--font-body-md);
   line-height: 1;
   color: var(--text-tertiary);
@@ -257,7 +262,7 @@
 /* 더블클릭 시 자유 입력 input — dropdown trigger 와 같은 visual */
 .partInput {
   width: 48px;
-  height: var(--control-height-sm);
+  height: var(--_dp-h, var(--control-height-sm));
   padding: 0 var(--spacing-8);
   border: var(--border-control);
   border-radius: var(--radius-control);
@@ -358,8 +363,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  width: var(--_dp-h, var(--control-height-sm));
+  height: var(--_dp-h, var(--control-height-sm));
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
