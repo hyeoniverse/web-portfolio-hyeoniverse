@@ -12,8 +12,8 @@ order: 12
 year: 2026
 icon: 🍎
 tech: [React 19, TypeScript, Vite, Milkdown, NestJS, Prisma 7, PostgreSQL 17, pnpm, Turborepo, Vitest, Playwright, Cloudflare Workers, Oracle Cloud, Docker Compose, Cloudflare Tunnel, GitHub Actions]
-description: "Dock 에서 앱을 열고, 창을 끌어 옮기고, 메모 앱에서 블로그를 읽는 macOS 모양의 포트폴리오입니다. 휴대폰으로 열면 iOS 홈 화면이 됩니다. 관리자는 GitHub 로 로그인해 메모 앱에서 바로 글을 쓰고, API 는 무료 Oracle VM 에서 포트를 하나도 열지 않고 운영합니다."
-description_en: "A macOS-style portfolio where you open apps from the Dock, drag windows around, and read the blog in the Notes app. On a phone it becomes an iOS home screen. The admin signs in with GitHub and writes posts right in Notes, and the API runs on a free Oracle VM without a single open port."
+description: "Dock 에서 앱을 열고, 창을 끌어 옮기고, 메모 앱에서 블로그를 읽는 macOS 모양의 포트폴리오입니다. 휴대폰으로 열면 iOS 홈 화면이 됩니다. 관리자는 GitHub 로 로그인해 메모 앱에서 바로 글을 쓰고, API 는 무료 Oracle VM 에서 SSH 외에는 포트를 열지 않고 운영합니다."
+description_en: "A macOS-style portfolio where you open apps from the Dock, drag windows around, and read the blog in the Notes app. On a phone it becomes an iOS home screen. The admin signs in with GitHub and writes posts right in Notes, and the API runs on a free Oracle VM with no open port except SSH."
 role: "1인 개발 · 기획 · 디자인 · 프론트엔드 · 백엔드 · 인프라 · CI/CD"
 role_en: "Solo · Planning · Design · Frontend · Backend · Infrastructure · CI/CD"
 image: /content/works/macfolio/desktop.jpg
@@ -30,12 +30,12 @@ github_url: https://github.com/hyeoniverse/MacFolio
 | 기간 | 2024.08 ~ 2024.12 (원형), 2026.09 ~ 2026.10 (다시 만들기) |
 | 인원 | 1인 |
 | 역할 | 기획, 디자인, 프론트엔드, 백엔드, 인프라, CI/CD |
-| 규모 | 커밋 1,149개, 머지한 PR 214개, 창 안의 앱 19개, 개발기 글 183편 |
+| 규모 | 브라우저 E2E 486개 · 단위 시험 659개, API 경로 64개 권한 고정, 앱 23개(내장 18 · 프로젝트 5), 개발기 201편 (2026.10.19 기준) |
 | 배포 | Cloudflare Workers (프론트엔드), Oracle Cloud VM + Docker Compose + Cloudflare Tunnel (API) |
 | 링크 | [macfolio.hyeoniverse.com](https://macfolio.hyeoniverse.com) · [API 문서](https://macfolio-api.hyeoniverse.com/docs) |
 
 > [!TIP]
-> 보이는 모양은 macOS 그대로, 안쪽은 실제로 운영하는 서비스입니다. API 경로 64개의 권한을 표 하나로 시험에 고정하고, 바깥에 연 포트 없이 무료 서버에서 운영하며, 만든 과정 183편을 사이트 안의 메모 앱에 남겼습니다.
+> 보이는 모양은 macOS 그대로, 안쪽은 실제로 운영하는 서비스입니다. API 경로 64개의 권한을 표 하나로 시험에 고정하고, SSH 외에는 포트를 열지 않은 무료 서버에서 운영하며, 만든 과정 201편을 사이트 안의 메모 앱에 남겼습니다.
 
 ## 개요
 
@@ -105,7 +105,7 @@ MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Do
 
 **원인** 무료 플랫폼은 운영을 숨기는 대신 응답 시간을 잃고, 직접 운영은 공격면이 늘어납니다.
 
-**해결** Oracle Always Free VM 에 Postgres, API, cloudflared 를 compose 로 함께 띄웠습니다. compose 에 `ports` 가 하나도 없고, SSH 말고는 열린 포트가 없습니다. API 이미지는 GitHub Actions 에서 amd64·arm64 로 빌드해 GHCR 에 올리고, 서버는 바꿔 끼우기만 합니다. 헬스 체크가 실패하면 자동으로 되돌리며, 일부러 깨진 이미지를 올려 되돌리기를 훈련했습니다. 매일 DB 를 R2 로 백업하고, 서버 자원·가동을 감시해 메일로 알립니다.
+**해결** Oracle Always Free VM 에 Postgres, API, cloudflared 를 compose 로 함께 띄웠습니다. compose 에 `ports` 가 하나도 없고, 서버에서 열린 포트는 SSH 하나뿐입니다. API 이미지는 GitHub Actions 에서 amd64·arm64 로 빌드해 GHCR 에 올리고, 서버는 바꿔 끼우기만 합니다. 헬스 체크가 실패하면 자동으로 되돌리며, 일부러 깨진 이미지를 올려 되돌리기를 훈련했습니다. 매일 DB 를 R2 로 백업하고, 서버 자원·가동을 감시해 메일로 알립니다.
 
 **결론** 잠들지 않는 서버를 비용 없이 운영하면서, 서버 IP 도 드러나지 않게 했습니다. 하드닝은 문서가 아니라 `ops/audit.sh` 스크립트로 남겨 언제든 다시 점검합니다.
 
@@ -132,7 +132,7 @@ MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Do
 
 브랜치·커밋·PR 규칙을 문서로만 두지 않고 CI 의 `conventions` 검사로 지켰습니다. PR 과 main push 마다 포맷 → 린트 → 타입 체크 → 단위 테스트 → 빌드 → 실제 PostgreSQL 에 붙인 API e2e → 브라우저 E2E 를 차례로 돌리고, `check` 를 통과한 커밋만 Cloudflare Workers 에 배포됩니다. PR 마다 미리보기 주소가 생기고, 미리보기에는 CORS 로 읽기만 열어 관리자 쿠키를 주지 않습니다. Playwright 는 데스크톱 Chrome, iPhone, Android 세 화면에서 가짜 API(`page.route`)로 로그인·글쓰기·게시까지 확인하고, README 와 블로그의 스크린샷도 같은 코드로 찍었습니다.
 
-만드는 과정은 전부 사이트 안의 메모 앱(개발기 폴더)에 183편으로 남겼습니다.
+만드는 과정은 전부 사이트 안의 메모 앱(개발기 폴더)에 201편으로 남겼습니다.
 
 ## 돌아보며
 
