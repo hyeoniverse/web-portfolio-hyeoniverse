@@ -37,7 +37,7 @@ It holds both the public site and the admin (CMS) used to write and edit everyth
 
 <sub><b>3,300+</b> commits &nbsp;·&nbsp; <b>980+</b> merged PRs &nbsp;·&nbsp; <b>64</b> troubleshooting write-ups &nbsp;·&nbsp; <b>97.93%</b> type coverage &nbsp;·&nbsp; live since <b>Feb 2026</b></sub>
 
-<sub>▶ <a href="docs/images/readme-tour.mp4">50-second tour video</a>: home scroll · work layouts · narrated gallery · auto-translation</sub>
+https://github.com/user-attachments/assets/731ed5f7-725d-421e-8baa-2f43283a342d
 
 <details>
 <summary><kbd>Contents</kbd></summary>
