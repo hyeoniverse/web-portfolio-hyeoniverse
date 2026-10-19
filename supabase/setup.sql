@@ -73,6 +73,19 @@
 --   2026_08_22  "Authenticated users have full access" 포괄 정책 제거
 --   2026_08_22  service 전용 정책을 service_role 로 한정
 --   2026_08_25  service_role 전용 정책 제거 — service_role 은 RLS 를 우회하므로 무의미
+--   2026_08_25  스토리지 직접 업로드 정책 제거 · posts/works 4단계 권한 정책 · 권한 클레임 파싱 강화
+--               · anon 쓰기 회수 · can_edit_work 팀원 개방
+--   2026_09_03  series_public_read 복구
+--   2026_09_15  works.is_pinned/view_count/like_count
+--   2026_09_21  works.gallery_notes — 갤러리 장마다의 음성
+--   2026_09_27  traffic_excluded_ips + 방문 IP 90일 보관 pg_cron
+--   2026_09_30  service_logs + 예약 작업 기록 · 휴지통 영구삭제에 calendars 포함
+--   2026_10_09  content_translations(번역 캐시) · demo_usage(라이브 데모 하루 상한)
+--   2026_10_11~12  content_translations.source_type — ui · site_ui · post_meta · work_meta · series_meta
+--   2026_10_13  posts/works.auto_translation — 자동 번역 표식
+--   2026_10_14~17  page_views 로 조회 기록 통일 · visitor_counts · 옛 site_visits/post_views/work_views 삭제
+--   2026_10_18  content_translations.source_type — admin_text
+--   2026_10_19  contact-attachments 버킷(문의 첨부, 비공개 25MB) · posts/works.source_lang + 원문 백업
 --   2026_08_25  스토리지 직접 업로드 정책 제거 (서버 검증 우회 차단)
 --   2026_08_25  posts/works 정책을 4단계 권한 모델에 맞춤
 --   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
@@ -1834,6 +1847,16 @@ VALUES
   ('posts',   'posts',   true)
 ON CONFLICT (id) DO NOTHING;
 
+--   - contact-attachments : 문의 폼 첨부(src/lib/contact/limits.ts CONTACT_BUCKET). 비공개 —
+--               방문자는 서버가 발급한 서명 URL(/api/contact/upload)로 올리고, 메일에는 7일짜리
+--               서명 내려받기 링크가 붙는다. 정책(RLS)은 두지 않는다: 서명 토큰과 service_role 은
+--               정책을 보지 않고, 그 밖의 누구도 읽거나 쓰지 못해야 한다. 크기 상한 25MB 를 버킷에서도 막는다
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('contact-attachments', 'contact-attachments', false, 26214400)
+ON CONFLICT (id) DO UPDATE
+  SET public = false,
+      file_size_limit = EXCLUDED.file_size_limit;
+
 -- 조회만 공개. 업로드 정책은 두지 않는다 —
 --   브라우저 업로드는 서버가 발급한 서명 URL(uploadToSignedUrl)로만 이뤄지고,
 --   그 방식은 RLS 정책을 요구하지 않는다. 서버 업로드는 service_role(BYPASSRLS).
@@ -1859,7 +1882,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 27개 테이블 + 33개 함수 + 5개 pg_cron job 생성됨.
+-- 완료! 총 26개 테이블 + 34개 함수 + 5개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -2148,12 +2171,12 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 54건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 67건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 54건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 67건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -2215,10 +2238,14 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_09_demo_usage',                    'demo_usage 테이블 + demo_take/demo_refund/demo_remaining (라이브 데모 하루 상한) + 7일 보관'),
   ('2026_10_11_content_translations_ui',       'content_translations.source_type 에 ui 추가 — 본문 안 라벨 번역 캐시 (언어마다 한 줄)'),
   ('2026_10_12_content_translations_site',     'content_translations.source_type 에 site_ui · post_meta · work_meta · series_meta 추가 — 사이트 전체 번역 캐시'),
+  ('2026_10_13_auto_translation_mark',         'posts/works.auto_translation — 자동 번역 표식(원문 · 번역 칸 해시)'),
   ('2026_10_14_page_views',                    'page_views — 페이지 조회 기록(30분 중복 제거) + 페이지별 머문 시간'),
   ('2026_10_15_page_views_unify',              'page_views 로 조회 기록 통일 1단계 — 방문 정보 · 방문자 칸, 옛 기록 복사'),
   ('2026_10_16_visitor_counts',                'visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)'),
-  ('2026_10_17_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제')
+  ('2026_10_17_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제'),
+  ('2026_10_18_content_translations_admin_text','content_translations.source_type 에 admin_text 추가 — 관리자 화면 알림 등 시스템 글 번역 캐시'),
+  ('2026_10_19_contact_attachments_bucket',    'contact-attachments 버킷 — 문의 폼 첨부(비공개, 25MB)'),
+  ('2026_10_19_content_source_lang',           '원문 언어(posts · works.source_lang)와 덮어쓰기 전 원문 백업(content_translations post_source · work_source · settings_source)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
