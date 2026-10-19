@@ -4,6 +4,7 @@
  * 사용법:
  *   npx tsx scripts/sync-works.ts          # 수동 실행
  *   npx tsx scripts/sync-works.ts --dry    # 변경 사항만 미리보기 (DB 쓰기 없음)
+ *   npx tsx scripts/sync-works.ts --only macfolio   # 그 파일(macfolio.md · macfolio.json)만 — 쉼표로 여러 개
  *
  * 실행 전 .env.local에 다음 환경변수 필요:
  *   NEXT_PUBLIC_SUPABASE_URL
@@ -40,6 +41,13 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const DRY_RUN = process.argv.includes("--dry");
+/** --only a,b 또는 --only=a,b — 파일 이름(.md 뺀 것)으로 고른다. 없으면 전부 */
+const ONLY = (() => {
+  const i = process.argv.findIndex((a) => a === "--only" || a.startsWith("--only="));
+  if (i < 0) return null;
+  const raw = process.argv[i].includes("=") ? process.argv[i].split("=")[1] : process.argv[i + 1] ?? "";
+  return new Set(raw.split(",").map((s) => s.trim().replace(/\.md$/, "")).filter(Boolean));
+})();
 /**
  * frontmatter 한 줄로 적을 수 없는 칸 — 갤러리(발표 장표)와 장마다의 대본, 역할별 작업 내용, 기술 메모,
  * 팀원, 영문 본문 — 은 같은 이름의 .json(`foo.md` 옆의 `foo.json`)에 둔다. 아래 칸만 받는다.
@@ -71,10 +79,11 @@ async function main() {
   const files = fs
     .readdirSync(CONTENT_DIR)
     .filter((f) => f.endsWith(".md"))
+    .filter((f) => !ONLY || ONLY.has(f.replace(/\.md$/, "")))
     .sort();
 
   if (files.length === 0) {
-    console.log("📂 content/works/ 에 .md 파일 없음 — 건너뜀");
+    console.log(ONLY ? `📂 --only ${[...ONLY].join(",")} 에 맞는 .md 파일 없음 — 건너뜀` : "📂 content/works/ 에 .md 파일 없음 — 건너뜀");
     return;
   }
 

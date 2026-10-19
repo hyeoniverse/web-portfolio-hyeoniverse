@@ -17,75 +17,75 @@
   ],
   "gallery_notes": {
     "/content/works/macfolio/slide-01.jpg": {
-      "script": "안녕하세요. MacFolio 를 소개하겠습니다. MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Dock 에서 앱을 열고, 창을 끌어 옮기고, 메모 앱에서 블로그를 읽습니다. 혼자 기획부터 서버 운영까지 맡았습니다.",
+      "script": "안녕하세요. MacFolio 를 소개하겠습니다. MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. 화면 아래 Dock 에서 앱을 열고, 창을 끌어 옮기고 크기를 바꾸며, 메모 앱을 열면 블로그 글을 읽을 수 있습니다. 휴대폰으로 열면 같은 내용이 iOS 홈 화면 모양으로 바뀝니다. 2024년 8월에 시작해 2026년 10월까지, 기획과 디자인, 프론트엔드와 백엔드, 서버 운영까지 혼자 맡았습니다. 왜 다시 만들었는지, 무엇을 만들었는지, 어떻게 운영하는지 차례로 말씀드리겠습니다.",
       "en": {
-        "script": "Hello. Let me introduce MacFolio, a portfolio that brings the macOS desktop to the web. You open apps from the Dock, drag windows around, and read the blog in the Notes app. I handled everything alone, from planning to running the server."
+        "script": "Hello. Let me introduce MacFolio, a portfolio that brings the macOS desktop to the web. You open apps from the Dock at the bottom, drag and resize windows, and open the Notes app to read the blog. On a phone, the same content turns into an iOS home screen. From August 2024 to October 2026 I handled everything alone: planning, design, frontend, backend and running the server. I'll walk through why I rebuilt it, what I built, and how it runs."
       }
     },
     "/content/works/macfolio/slide-02.jpg": {
-      "script": "처음 만든 2024년의 원형은 보기만 하는 사이트였습니다. Create React App 위에 화면만 있었고, 관리자 비밀번호는 Firebase 에 평문으로 읽히는 상태였습니다. 그래서 2026년 9월, Vite 와 NestJS, PostgreSQL 모노레포로 다시 짰습니다. 목표는 모양은 macOS 그대로, 안쪽은 실제로 운영하는 서비스였습니다.",
+      "script": "처음 만든 2024년의 원형은 보기만 하는 사이트였습니다. Create React App 위에 화면만 모아 둔 형태였는데, CRA 는 2025년 2월에 지원이 끝났습니다. 관리자 비밀번호는 Firebase 에 두었는데, 규칙이 열려 있어 누구나 평문으로 읽을 수 있었습니다. 창과 Dock 은 있었지만 글을 쓰거나 고칠 길이 없는 정적인 모형이었습니다. 그래서 2026년 9월, Vite 와 NestJS, PostgreSQL 모노레포로 처음부터 다시 짰습니다. 목표는 보이는 모양은 macOS 그대로 두고, 안쪽은 실제로 운영하는 서비스로 만드는 것이었습니다. 만든 과정은 모두 사이트 안의 메모 앱, 곧 블로그에 기록했습니다.",
       "en": {
-        "script": "The 2024 prototype was a site you could only look at. It was just screens on Create React App, and the admin password sat in Firebase where anyone could read it in plain text. So in September 2026 I rebuilt it as a Vite, NestJS and PostgreSQL monorepo. The goal: keep the macOS look, but make the inside a service that really runs."
+        "script": "The 2024 prototype was a site you could only look at. It was a collection of screens on Create React App, which was deprecated in February 2025. The admin password sat in Firebase, and because the rules were open, anyone could read it in plain text. It had windows and a Dock, but no way to write or edit anything; it was a static mock-up. So in September 2026 I rebuilt it from scratch as a Vite, NestJS and PostgreSQL monorepo. The goal was to keep the macOS look on the outside and make the inside a service that really runs. The whole process is recorded in the Notes app inside the site, which is the blog."
       }
     },
     "/content/works/macfolio/slide-03.jpg": {
-      "script": "숫자로 보면 이렇습니다. 커밋 천백마흔아홉 개, 머지한 PR 이백열네 개, 창 안의 앱 열아홉 개, 그리고 만든 과정을 적은 개발기 백여든세 편입니다. API 경로 예순네 개의 권한을 시험으로 고정했고, 서버는 SSH 말고 바깥에 연 포트가 없습니다.",
+      "script": "숫자로 보면 이렇습니다. 커밋 천백마흔아홉 개, 머지한 PR 이백열네 개, 창 안에서 여는 앱 열아홉 개, 그리고 만든 과정을 적은 개발기 백여든세 편입니다. 서버는 NestJS 기능 모듈 열한 개로 나뉘어 있고, API 경로 예순네 개의 권한을 표 하나로 고정해 시험합니다. 브라우저 시험은 크롬, 아이폰, 안드로이드 세 화면에서 돌고, 서버는 SSH 말고 바깥에 연 포트가 하나도 없습니다. 쓴 기술은 React 19 와 TypeScript, Vite, 편집기 Milkdown, 서버 NestJS 와 Prisma 7, PostgreSQL 17 이고, pnpm 과 Turborepo 로 묶었습니다. 배포는 Cloudflare Workers 와 Oracle Cloud, Docker Compose, Cloudflare Tunnel, GitHub Actions 로 합니다.",
       "en": {
-        "script": "Here it is in numbers: 1,149 commits, 214 merged pull requests, 19 apps inside windows, and 183 dev-log posts. The permissions of all 64 API routes are pinned by tests, and the server has no open port except SSH."
+        "script": "Here it is in numbers: 1,149 commits, 214 merged pull requests, 19 apps that open in windows, and 183 dev-log posts about how it was built. The server is split into 11 NestJS feature modules, and the permissions of all 64 API routes are pinned in one table and tested. Browser tests run on three screens: Chrome, iPhone and Android, and the server has no open port to the outside except SSH. The stack is React 19, TypeScript and Vite, Milkdown for the editor, NestJS, Prisma 7 and PostgreSQL 17 on the server, tied together with pnpm and Turborepo. Deployment uses Cloudflare Workers, Oracle Cloud, Docker Compose, Cloudflare Tunnel and GitHub Actions."
       }
     },
     "/content/works/macfolio/slide-04.jpg": {
-      "script": "데스크톱에서는 macOS, 휴대폰에서는 iOS 가 됩니다. 앱마다 폴더 하나를 두고, manifest 파일 한 곳이 Dock, Launchpad, 터미널, 모바일 홈 화면의 단일 출처입니다. 창 폭 기준의 컨테이너 쿼리라 창을 줄이면 휴대폰 화면으로 바뀌고, 글과 프로젝트마다 주소가 있습니다.",
+      "script": "데스크톱에서는 macOS, 휴대폰에서는 iOS 가 됩니다. 앱마다 폴더 하나를 두고, manifest 파일 한 곳이 Dock, Launchpad, 터미널의 open 명령, 모바일 홈 화면의 단일 출처입니다. 앱을 하나 더하면 이 네 곳에 한꺼번에 나타납니다. 창은 끌어 옮기고, 크기를 바꾸고, 최소화할 수 있고, 메뉴 막대와 제어 센터, 휴대폰의 스와이프도 갖췄습니다. 레이아웃은 화면 폭이 아니라 창 폭을 기준으로 한 컨테이너 쿼리라, 데스크톱에서 창을 좁히면 그 창 안이 휴대폰 화면으로 바뀝니다. 글과 프로젝트마다 고유한 주소가 있어서, 링크 하나로 그 화면을 바로 열 수 있습니다.",
       "en": {
-        "script": "On desktop it is macOS, on a phone it becomes iOS. Each app is one folder, and a single manifest is the source for the Dock, Launchpad, the terminal and the mobile home screen. Container queries follow the window width, so shrinking a window switches to the phone layout, and every post and project has its own URL."
+        "script": "On desktop it is macOS, and on a phone it becomes iOS. Each app is one folder, and a single manifest file is the source for the Dock, Launchpad, the terminal's open command and the mobile home screen. Adding an app makes it appear in all four places at once. Windows can be dragged, resized and minimized, and there is a menu bar, a Control Center and swipe gestures on the phone. The layout uses container queries based on the window width rather than the screen width, so narrowing a window on the desktop turns its contents into the phone layout. Every post and project has its own URL, so a single link opens that screen directly."
       }
     },
     "/content/works/macfolio/slide-05.jpg": {
-      "script": "메모 앱이 곧 블로그입니다. 관리자로 로그인하면 읽는 화면이 그대로 편집기가 됩니다. 저장은 Markdown 이고, 게시본과 임시 저장을 한 행에 두 벌 두어 게시할 때마다 버전을 남깁니다. 게시한 글에는 제목과 본문이 있어야 한다는 규칙은 DB 의 CHECK 제약으로 한 번 더 지킵니다.",
+      "script": "메모 앱이 곧 블로그입니다. 관리자로 로그인하면 글을 읽던 화면이 그대로 편집기가 되어, 보이는 그대로 고칩니다. 편집기는 Milkdown 과 그 아래의 ProseMirror 위에 만들었습니다. 저장 형식은 Markdown 이라 저장소의 글 파일과 서버의 글이 같은 모양입니다. 한 행에 게시본과 임시 저장을 두 벌 두어서, 고치는 동안에도 방문자는 게시본을 보고, 게시할 때마다 버전 기록이 남고, 예약 게시도 할 수 있습니다. 게시한 글에는 제목과 본문이 있어야 한다는 규칙은 화면만 믿지 않고, DB 의 CHECK 제약으로 한 번 더 지킵니다.",
       "en": {
-        "script": "The Notes app is the blog. Once the admin signs in, the reading view becomes the editor. Posts are stored as Markdown, with the published copy and the draft kept side by side in one row, and every publish leaves a revision. Rules like 'a published post needs a title and body' are enforced again by a database CHECK constraint."
+        "script": "The Notes app is the blog. When the admin signs in, the reading view itself becomes the editor, so posts are edited exactly as they appear. The editor is built on Milkdown and ProseMirror underneath it. Posts are stored as Markdown, so the files in the repository and the posts on the server have the same shape. Each row keeps two copies, the published version and the draft, so visitors keep seeing the published post while it is being edited, every publish leaves a revision, and posts can be scheduled. Rules like 'a published post needs a title and a body' are not left to the screen alone; a database CHECK constraint enforces them again."
       }
     },
     "/content/works/macfolio/slide-06.jpg": {
-      "script": "방문자는 로그인 없이 메시지와 댓글을 남깁니다. 이름은 방문자 쿠키가 정해 주고, 같은 브라우저에서만 내 글을 지울 수 있습니다. 서버에는 토큰과 IP 의 HMAC 만 남기고, 쓰기 경로 서른세 개에 같은 방식의 요청 제한을 걸었습니다.",
+      "script": "방문자는 로그인 없이 메시지와 댓글을 남깁니다. 이름이나 비밀번호를 받지 않고, 방문자 쿠키가 부지런한 판다 같은 이름을 정해 줍니다. 서버에는 원문을 남기지 않습니다. 토큰과 IP 는 HMAC 으로, 세션은 SHA-256 해시로만 저장합니다. 그래서 내가 쓴 글은 같은 브라우저에서만 지울 수 있습니다. 쓰기 경로 서른세 개에는 같은 방식의 요청 제한을 걸었고, 필요하면 Turnstile 로 사람인지 한 번 더 확인합니다.",
       "en": {
-        "script": "Visitors leave messages and comments without signing in. A visitor cookie picks their name, and only the same browser can delete their posts. The server keeps just an HMAC of the token and IP, and all 33 write routes share the same rate limit."
+        "script": "Visitors leave messages and comments without signing in. No name or password is asked; a visitor cookie picks a playful animal name instead. The server never keeps the originals: tokens and IPs are stored only as HMACs, and sessions only as SHA-256 hashes. That is why your own posts can be deleted only from the same browser. All 33 write routes share the same rate limit, and when needed, Turnstile adds a check that the visitor is human."
       }
     },
     "/content/works/macfolio/slide-07.jpg": {
-      "script": "구성은 이렇습니다. 프론트엔드는 Cloudflare Workers, API 는 무료 Oracle VM 의 Docker Compose 입니다. cloudflared 가 먼저 바깥으로 연결하기 때문에 80 번과 443 번 포트를 열지 않고, 같은 사이트의 하위 도메인이라 세션 쿠키도 함께 갑니다.",
+      "script": "구성은 이렇습니다. 프론트엔드는 Cloudflare Workers 의 정적 자산으로 내보내고, API 는 Oracle 의 무료 VM 위에서 Docker Compose 로 NestJS 와 PostgreSQL 17 을 띄웁니다. 서버 안의 cloudflared 가 먼저 바깥으로 터널을 연결하기 때문에, 80 번과 443 번 포트를 열지 않아도 요청이 들어옵니다. 바깥에서 서버로 들어오는 문이 없는 셈입니다. 프론트엔드와 API 가 같은 사이트의 하위 도메인이라, SameSite Lax 세션 쿠키도 함께 갑니다. 코드는 GitHub 에 머지하면 Actions 의 검사를 통과한 커밋만 서버로 배포되고, 사진은 Unsplash 와 Pexels 에서 가져옵니다.",
       "en": {
-        "script": "Here is the architecture. The frontend runs on Cloudflare Workers, and the API on Docker Compose on a free Oracle VM. Because cloudflared connects outward first, ports 80 and 443 stay closed, and since both live under the same site, the session cookie travels along."
+        "script": "Here is the architecture. The frontend ships as static assets on Cloudflare Workers, and the API runs NestJS and PostgreSQL 17 with Docker Compose on a free Oracle VM. Because cloudflared inside the server opens a tunnel outward first, requests come in without opening ports 80 or 443; there is simply no door into the server from outside. The frontend and the API are subdomains of the same site, so the SameSite Lax session cookie travels along. When code is merged on GitHub, only commits that pass the Actions checks are deployed to the server, and photos come from Unsplash and Pexels."
       }
     },
     "/content/works/macfolio/slide-08.jpg": {
-      "script": "편집 버튼을 숨기는 것은 안내일 뿐이고, 권한은 서버가 지킵니다. AdminGuard 가 요청마다 세션을 확인하고, GitHub 의 숫자 ID 로 관리자를 가립니다. API 경로 예순네 개와 가드를 표 하나로 고정해, 가드를 빠뜨리면 시험이 실패합니다.",
+      "script": "편집 버튼을 숨기는 것은 안내일 뿐이고, 권한은 서버가 지킵니다. AdminGuard 가 요청마다 세션을 DB 에서 확인하고, 바뀔 수 있는 이름이 아니라 GitHub 숫자 ID 로 관리자를 가립니다. API 경로 예순네 개와 각 경로의 가드를 표 하나로 고정해서, 새 경로에 가드를 빠뜨리면 시험이 실패합니다. 들어오는 값은 DTO 화이트리스트로 정해진 칸만 받고, CSP 와 iframe sandbox 로 화면을 막고, 로그에서는 비밀 값을 가립니다. 코드와 의존성은 Semgrep, pnpm audit, osv-scanner, gitleaks 로 점검하고, 서버 하드닝은 손으로 하지 않고 스크립트로 적용합니다.",
       "en": {
-        "script": "Hiding the edit button is only a hint; the server enforces permissions. AdminGuard checks the session on every request, and the admin is identified by a numeric GitHub ID. All 64 API routes and their guards are pinned in one table, so a missing guard fails the tests."
+        "script": "Hiding the edit button is only a hint; the server enforces permissions. AdminGuard checks the session against the database on every request, and identifies the admin by a numeric GitHub ID rather than a name that can change. All 64 API routes and their guards are pinned in one table, so leaving a guard off a new route fails the tests. Incoming data is accepted only for whitelisted DTO fields, the screens are locked down with CSP and iframe sandboxing, and secrets are masked in logs. Code and dependencies are checked with Semgrep, pnpm audit, osv-scanner and gitleaks, and server hardening is applied by script, not by hand."
       }
     },
     "/content/works/macfolio/slide-09.jpg": {
-      "script": "기능을 빠르게 붙이며 쌓인 중복은 일곱 단계로 정리했습니다. 타입은 공유 스키마 하나로, 서버 요청은 클라이언트 하나로, 로직은 React 밖의 desktop-core 로 옮겼습니다. 스타일에는 토큰을 붙이고, 린트 경고 백여든다섯 개를 0 으로 만들었습니다.",
+      "script": "기능을 빠르게 붙이며 쌓인 중복은 일곱 단계로 정리했습니다. 타입은 화면이 응답 타입을 손으로 다시 적던 것을 contracts 의 zod 스키마 하나로 모았습니다. 서버 요청은 열두 파일이 각자 fetch 하던 것을 client 하나로 모아, 401 처리를 한 곳에서 합니다. 창과 메모, 음악 로직은 React Context 안에 있던 것을 desktop-core 로 옮겨, React 와 DOM 없이 시험합니다. 스타일은 z-index 스물세 개와 사천백예순여섯 줄이던 메모 CSS 를 토큰 여섯 갈래, 열여섯 파일로 나눴습니다. 린트 경고 백여든다섯 개와 순환 의존 두 개는 0 으로 만들었고, 이제 경고가 하나라도 생기면 CI 가 막습니다.",
       "en": {
-        "script": "The duplication that piled up while shipping fast was cleaned up in seven steps. Types moved to one shared schema, server calls to one client, and logic out of React into desktop-core. Styles got design tokens, and 185 lint warnings went down to zero."
+        "script": "The duplication that piled up while shipping features fast was cleaned up in seven steps. For types, screens that retyped response types by hand now share one zod schema in contracts. For server calls, twelve files that each called fetch now go through one client, with 401 handling in one place. Window, Notes and music logic moved out of React Context into desktop-core, which is tested without React or the DOM. For styles, 23 z-index values and a 4,166-line Notes stylesheet became six groups of tokens across sixteen files. The 185 lint warnings and two circular dependencies went to zero, and now CI blocks any new warning."
       }
     },
     "/content/works/macfolio/slide-10.jpg": {
-      "script": "배포는 검사를 통과한 커밋만 나갑니다. 실제 PostgreSQL 에 붙인 API 시험과, 세 가지 화면의 브라우저 시험을 거칩니다. API 는 헬스 체크가 실패하면 자동으로 되돌리고, 일부러 깨진 이미지를 올려 그 되돌리기를 훈련했습니다.",
+      "script": "배포는 검사를 통과한 커밋만 나갑니다. 포맷, 린트, 타입, 단위 시험, 빌드를 거친 뒤, 실제 PostgreSQL 에 붙인 API 시험과 브라우저 E2E 까지 통과해야 합니다. Playwright 시험은 가짜 API 를 끼워 로그인부터 글쓰기, 게시까지 돌리고, 같은 코드로 스크린샷도 찍습니다. API 는 이미지를 Actions 에서 빌드하고, 서버는 그 이미지를 바꿔 끼우기만 합니다. 헬스 체크가 실패하면 자동으로 되돌리는데, 일부러 깨진 이미지를 올려 이 되돌리기를 훈련했습니다. 그리고 매일 DB 덤프를 R2 에 백업하고, 서버 자원과 가동 상태는 감시 메일로 받습니다.",
       "en": {
-        "script": "Only commits that pass the checks get deployed. They go through API tests against a real PostgreSQL and browser tests on three screens. The API rolls back automatically when the health check fails, and I rehearsed that by deploying a deliberately broken image."
+        "script": "Only commits that pass the checks get deployed. After format, lint, types, unit tests and build, they must also pass API tests against a real PostgreSQL and browser end-to-end tests. The Playwright tests plug in a fake API and run from sign-in through writing to publishing, and the same code takes the screenshots. The API image is built in Actions, and the server only swaps it in. If the health check fails, it rolls back automatically, and I rehearsed that rollback by deploying a deliberately broken image. On top of that, a database dump is backed up to R2 every day, and server resources and uptime are reported by monitoring emails."
       }
     },
     "/content/works/macfolio/slide-11.jpg": {
-      "script": "Create React App 에서 Vite 로 옮기면서 개발 서버 시작은 5.05초에서 0.58초로, 빌드는 6.33초에서 1.88초로 줄었습니다. 설치 패키지도 천사백여 개에서 백칠십한 개가 되었습니다.",
+      "script": "처음 원형은 Create React App 이었고, 이것을 Vite 로 옮겼습니다. 개발 서버 시작은 5.05초에서 0.58초로, 프로덕션 빌드는 6.33초에서 1.88초로 줄었습니다. gzip 으로 압축한 JS 번들은 138.2KB 에서 127.7KB 로, 설치 패키지는 천사백서른여덟 개에서 백일흔한 개가 되었습니다. 옮기는 과정에서 그동안 조용히 깨져 있던 것들도 함께 드러났습니다. 측정 방법과 과정은 개발기에 그대로 남겼습니다.",
       "en": {
-        "script": "Moving from Create React App to Vite cut dev-server startup from 5.05 to 0.58 seconds and the build from 6.33 to 1.88 seconds. Installed packages dropped from about 1,400 to 171."
+        "script": "The original prototype ran on Create React App, and I moved it to Vite. Dev-server startup dropped from 5.05 to 0.58 seconds, and the production build from 6.33 to 1.88 seconds. The gzipped JS bundle went from 138.2 KB to 127.7 KB, and installed packages from 1,438 to 171. The move also surfaced things that had been quietly broken all along. How it was measured, and the whole process, are written up in the dev log."
       }
     },
     "/content/works/macfolio/slide-12.jpg": {
-      "script": "돌아보면, 모형을 서비스로 바꾸는 일은 화면 뒤를 만드는 일이었습니다. 먼저 세고, 같은지 확인하고, 보안 변경은 따로 냈습니다. 만든 과정은 모두 사이트 안에 남겼습니다. 들어 주셔서 감사합니다.",
+      "script": "돌아보면, 모형을 서비스로 바꾸는 일은 화면 뒤를 만드는 일이었습니다. 세 가지를 지켰습니다. 먼저 셌습니다. 공통 부품 후보 아홉 개를 세어 보니 실제로 필요한 것은 셋이었고, 안 쓰는 CSS 는 백오십 개가 아니라 아홉 개였습니다. 같은지 확인했습니다. 리팩터링은 빌드한 CSS 를 바이트 단위로, 화면은 계산된 스타일로 비교했습니다. 보안은 따로 냈습니다. 동작이 바뀌는 PR 은 리팩터링과 섞지 않았습니다. 그리고 만든 과정 백여든세 편을 사이트 안에 남겨, 사이트 자체가 기술 문서가 되게 했습니다. 들어 주셔서 감사합니다.",
       "en": {
-        "script": "Looking back, turning a mock-up into a service meant building what sits behind the screen. I counted first, verified nothing changed, and shipped security changes separately. The whole process is recorded inside the site. Thank you for listening."
+        "script": "Looking back, turning a mock-up into a service meant building what sits behind the screen. I kept to three rules. Count first: of nine candidates for shared components, only three were really needed, and the unused CSS was nine rules, not 150. Verify nothing changed: refactors were compared byte by byte on the built CSS, and screens by their computed styles. Ship security separately: pull requests that change behavior were never mixed with refactoring. And by keeping all 183 posts about the process inside the site, the site itself became the technical documentation. Thank you for listening."
       }
     }
   },
