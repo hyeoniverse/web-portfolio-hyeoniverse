@@ -16,6 +16,15 @@
   pointer-events: none;
 }
 
+/* 좁은 화면 — 세로로 쌓인 패널 뒤에 놓여 화면 아래에 붙는다. 자리를 차지하지 않게 제 높이만큼 끌어올려
+   마지막 패널 위에 겹친다(가로 화면의 absolute 와 같은 효과).
+   본문이 화면 바닥까지 흐르므로 콘텐츠(z 1) 밑에 깐다 — 위에 두면 기차 · 연기가 글자를 덮는다 */
+.wrapVertical {
+  position: sticky;
+  z-index: 0;
+  margin-top: -230px;
+}
+
 .scene {
   display: block;
   width: 100%;

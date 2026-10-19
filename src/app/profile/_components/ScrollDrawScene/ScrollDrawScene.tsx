@@ -62,6 +62,8 @@ interface Spark {
  * 전면에 깔면 글자와 겹쳐서 못 읽는다(창틀 그림을 깔아 봤다가 물렀다).
  *
  * 진행도는 세트의 첫 패널(`data-set-anchor`)이 화면 왼쪽에서 얼마나 멀어졌는지로 잰다.
+ * 좁은 화면(`vertical`)은 패널이 세로로 쌓여 그 값이 움직이지 않는다 — 트랙을 세로로 얼마나 내려왔는지로 재고,
+ * 장면은 화면 아래에 붙어 따라온다(sticky). 섹션 끝에 닿으면 붙은 채로 함께 올라가 푸터를 덮지 않는다.
  * 트랙의 transform 을 직접 읽지 않는 이유는 무한 스크롤 때문이다 — 한 바퀴 돌 때마다
  * 훅이 좌표를 되감으므로 그 값은 기준이 못 된다. 기준점은 콘텐츠와 같이 움직이니 어긋나지 않는다.
  *
@@ -71,11 +73,14 @@ interface Spark {
 export default function ScrollDrawScene({
   trackRef,
   infinite,
+  vertical = false,
   className,
 }: {
   trackRef: React.RefObject<HTMLDivElement | null>;
   /** 무한 스크롤이면 한 세트마다 다시 핀다. */
   infinite: boolean;
+  /** 패널이 세로로 쌓이는 좁은 화면 — 세로 스크롤로 진행도를 잰다. 트랙 뒤에 두어야 아래에 붙는다 */
+  vertical?: boolean;
   className?: string;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -198,6 +203,13 @@ export default function ScrollDrawScene({
 
     let raf = 0;
     const tick = (now: number) => {
+      if (vertical) {
+        /* 트랙 꼭대기가 화면 위로 올라간 만큼 — 트랙 끝이 화면 바닥에 닿을 때 1 */
+        const r = track.getBoundingClientRect();
+        paint(clamp(-r.top / Math.max(1, r.height - window.innerHeight), 0, 1), now);
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       const anchors = [...track.querySelectorAll<HTMLElement>("[data-set-anchor]")];
       if (anchors.length > 0) {
         const lefts = anchors.map((a) => a.getBoundingClientRect().left);
@@ -215,7 +227,7 @@ export default function ScrollDrawScene({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [trackRef, infinite, sparks]);
+  }, [trackRef, infinite, vertical, sparks]);
 
   /* ── 연기 ─────────────────────────────────────────────────────────────
      스크롤과 상관없이 계속 뿜는다. 기차가 멈춰도 굴뚝에서는 연기가 난다 —
@@ -310,7 +322,7 @@ export default function ScrollDrawScene({
   }, [width]);
 
   return (
-    <div ref={wrapRef} className={`${styles.wrap} ${className ?? ""}`} aria-hidden>
+    <div ref={wrapRef} className={`${styles.wrap}${vertical ? ` ${styles.wrapVertical}` : ""} ${className ?? ""}`} aria-hidden>
       {/* 연기는 캔버스로 그린다. SVG 원 몇 개로는 뭉게뭉게가 안 나온다 —
           알갱이 수십 개를 부드러운 얼룩으로 겹쳐야 연기처럼 보인다. */}
       <canvas ref={canvasRef} className={styles.smoke} />
