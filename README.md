@@ -1,3 +1,5 @@
+<a name="readme-top"></a>
+
 <div align="center">
 
 **[English](./README.en.md)** | 한국어
@@ -174,7 +176,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | **보안** | RLS 4단계 권한, CSRF Origin 체크(운영은 fail-closed), 로그인 5회 실패 잠금 + 새 기기 메일 승인 |
 | **디자인 시스템** | 3층 토큰(Raw → Semantic → Component) + 역할 토큰, 전체 색 OKLCH |
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -202,7 +204,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 <sub>글 목록 · 상세 캡처는 레이아웃 확인용 예시 글로 찍었습니다. 소개 페이지는 별자리 지도에서 별을 누르면 그 장으로 가고, 내용은 `content/about/*.md` 에서 빌드 때 만들어집니다.</sub>
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -229,7 +231,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | **로그인 — 5회 실패 잠금 · 새 기기 메일 승인** | **SEO 점검 — 여섯 항목** |
 | <img src="public/images/screenshots/cms/28-login-light.png" alt="관리자 로그인" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO 점검" width="100%" /> |
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -280,7 +282,7 @@ sequenceDiagram
     R-->>B: 200
 ```
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -329,7 +331,7 @@ sequenceDiagram
 | **성능** | LCP 이미지의 우선순위와 스트리밍 공개 지연을 함께 풀고, `:has(:hover)` 처럼 전체 스타일 재계산을 부르는 선택자를 걷어 냈다 | [트러블슈팅 Top 10](./docs/troubleshooting/top10.md) |
 | **다국어** | 화면 글은 한 · 영 사전, 콘텐츠는 한 · 영 칸을 따로 두고 비어 있으면 AI 번역으로 채운다. 공개 화면의 즉석 번역은 캐시해 다시 부르지 않는다 | [features.md](./docs/features.md) |
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -351,7 +353,7 @@ sequenceDiagram
 - **리팩토링.** `src` 가 22만 줄을 넘었을 때 한 번에 한 축만 바꾸는 원칙으로 첫 라운드를 진행했습니다(#388). 안전망 기준선 → 품질 게이트 → 전 라우트 성능 → 구조 조사 → 도메인별 거대 파일 분해 → 규칙 잠금 순서이고, 2026-09-10 에 모두 마쳤습니다([refactoring-guide.md](./docs/refactoring-guide.md)).
 - **기록.** 막혔던 문제는 증상 · 원인 · 해결 · 결론으로 [트러블슈팅](./docs/troubleshooting.md)에 64건 남겼습니다. 대표 10건은 번들 다운레벨링으로 브라우저에서만 죽는 정규식, CSS 무효화 범위, LCP 직렬 관문, 전환 덮개와 경로 커밋, 정적 404 하이드레이션 불일치 등입니다.
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -376,7 +378,7 @@ sequenceDiagram
 | 외부 연동 | Unsplash · Pexels (커버 이미지), DeepL · Google · Gemini · OpenAI · Claude · Groq (번역 · 요약), Resend (메일), NanoBanana · Hugging Face (AI 이미지) |
 | 테스트 | Vitest + Testing Library · Playwright 스모크 |
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -417,7 +419,7 @@ docs/                   # 문서 (docs/images: 문서 전용 이미지)
 | `src/lib/ai/health.ts` | AI 공급자 상태 · 자동 끄기 · 대체 순서 |
 | `src/styles/tokens/` | 디자인 토큰 Raw 층 |
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -442,7 +444,7 @@ npm run audit:full     # typecheck + eslint + stylelint + knip
 npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB 대신 빌드 때 md 에서 만든다)
 ```
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 
@@ -465,7 +467,7 @@ npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB �
 
 커밋은 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 를 따릅니다. 타입 목록과 예시는 **[docs/commit-convention.md](./docs/commit-convention.md)** 에 있습니다.
 
-<div align="right"><sub><a href="#readme">↑ 맨 위로</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
 
 ---
 

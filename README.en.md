@@ -1,3 +1,5 @@
+<a name="readme-top"></a>
+
 <div align="center">
 
 English | **[한국어](./README.md)**
@@ -174,7 +176,7 @@ Five colours, the accent plus light and dark background and text, retheme the wh
 | **Security** | Four-tier RLS roles, CSRF origin check (fail-closed in production), 5-attempt login lockout plus email approval for new devices |
 | **Design system** | Three token tiers (Raw → Semantic → Component) plus role tokens, all colours in OKLCH |
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -202,7 +204,7 @@ Five colours, the accent plus light and dark background and text, retheme the wh
 
 <sub>The post list and detail were captured with sample posts used for layout checks. On the About page, clicking a star on the constellation map flies into that chapter; its content is built from `content/about/*.md` at build time.</sub>
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -229,7 +231,7 @@ Five colours, the accent plus light and dark background and text, retheme the wh
 | **Login — 5-attempt lockout · new-device email approval** | **SEO check — six items** |
 | <img src="public/images/screenshots/cms/28-login-light.png" alt="Admin login" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO check" width="100%" /> |
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -280,7 +282,7 @@ sequenceDiagram
     R-->>B: 200
 ```
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -329,7 +331,7 @@ The measurements are recorded with their conditions in each PR description (Kore
 | **Performance** | Fixed the LCP image's priority and the streaming reveal delay together, and removed selectors like `:has(:hover)` that triggered full style recalculation | [Troubleshooting Top 10](./docs/en/troubleshooting/top10.md) |
 | **Two languages** | UI text comes from Korean/English dictionaries; content keeps separate Korean and English fields and fills empty ones with AI translation. On-the-fly translations on the public site are cached and not requested again | [features.md](./docs/en/features.md) |
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -351,7 +353,7 @@ The measurements are recorded with their conditions in each PR description (Kore
 - **Refactoring.** When `src` passed 220,000 lines, the first round ran on a one-axis-at-a-time rule (#388): safety-net baseline → quality gates → cross-route performance → structure survey → splitting large files per domain → locking the rules. It finished on 2026-09-10 ([refactoring-guide.md](./docs/refactoring-guide.md), Korean).
 - **Records.** 64 problems are written up as symptom · cause · fix · conclusion in [Troubleshooting](./docs/en/troubleshooting.md). The top ten include a regex that only fails in the browser because of bundle downleveling, CSS invalidation scope, serial LCP gates, a transition cover tied to the route commit, and a static 404 hydration mismatch.
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -376,7 +378,7 @@ The measurements are recorded with their conditions in each PR description (Kore
 | Integrations | Unsplash · Pexels (covers), DeepL · Google · Gemini · OpenAI · Claude · Groq (translation · summaries), Resend (mail), NanoBanana · Hugging Face (AI images) |
 | Testing | Vitest + Testing Library · Playwright smoke tests |
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -417,7 +419,7 @@ Good places to start reading:
 | `src/lib/ai/health.ts` | AI provider state · automatic switch-off · fallback order |
 | `src/styles/tokens/` | The raw design-token tier |
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -442,7 +444,7 @@ npm run audit:full     # typecheck + eslint + stylelint + knip
 npm run sync-all       # sync content/*.md with the database (the About page is built from md at build time, not read from the database)
 ```
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
@@ -465,7 +467,7 @@ npm run sync-all       # sync content/*.md with the database (the About page is 
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Types and examples are in **[docs/commit-convention.md](./docs/commit-convention.md)** (Korean).
 
-<div align="right"><sub><a href="#readme">↑ Back to top</a></sub></div>
+<div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
 
 ---
 
