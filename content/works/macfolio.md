@@ -30,12 +30,12 @@ github_url: https://github.com/hyeoniverse/MacFolio
 | 기간 | 2024.08 ~ 2024.12 (원형), 2026.09 ~ 2026.10 (다시 만들기) |
 | 인원 | 1인 |
 | 역할 | 기획, 디자인, 프론트엔드, 백엔드, 인프라, CI/CD |
-| 규모 | 브라우저 E2E 486개 · 단위 시험 659개, API 경로 64개 권한 고정, 앱 23개(내장 18 · 프로젝트 5), 개발기 201편 (2026.10.19 기준) |
+| 규모 | 브라우저 E2E 486개 · 단위 시험 659개, API 경로 64개 권한 고정, 앱 23개(내장 18 · 프로젝트 5), 개발기 200편+ (2026.10.19 기준) |
 | 배포 | Cloudflare Workers (프론트엔드), Oracle Cloud VM + Docker Compose + Cloudflare Tunnel (API) |
 | 링크 | [macfolio.hyeoniverse.com](https://macfolio.hyeoniverse.com) · [API 문서](https://macfolio-api.hyeoniverse.com/docs) |
 
 > [!TIP]
-> 보이는 모양은 macOS 그대로, 안쪽은 실제로 운영하는 서비스입니다. API 경로 64개의 권한을 표 하나로 시험에 고정하고, SSH 외에는 포트를 열지 않은 무료 서버에서 운영하며, 만든 과정 201편을 사이트 안의 메모 앱에 남겼습니다.
+> 보이는 모양은 macOS 그대로, 안쪽은 실제로 운영하는 서비스입니다. API 경로 64개의 권한을 표 하나로 시험에 고정하고, SSH 외에는 포트를 열지 않은 무료 서버에서 운영하며, 만든 과정 200편이 넘는 글을 사이트 안의 메모 앱에 남겼습니다.
 
 ## 개요
 
@@ -132,7 +132,7 @@ MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Do
 
 브랜치·커밋·PR 규칙을 문서로만 두지 않고 CI 의 `conventions` 검사로 지켰습니다. PR 과 main push 마다 포맷 → 린트 → 타입 체크 → 단위 테스트 → 빌드 → 실제 PostgreSQL 에 붙인 API e2e → 브라우저 E2E 를 차례로 돌리고, `check` 를 통과한 커밋만 Cloudflare Workers 에 배포됩니다. PR 마다 미리보기 주소가 생기고, 미리보기에는 CORS 로 읽기만 열어 관리자 쿠키를 주지 않습니다. Playwright 는 데스크톱 Chrome, iPhone, Android 세 화면에서 가짜 API(`page.route`)로 로그인·글쓰기·게시까지 확인하고, README 와 블로그의 스크린샷도 같은 코드로 찍었습니다.
 
-만드는 과정은 전부 사이트 안의 메모 앱(개발기 폴더)에 201편으로 남겼습니다.
+만드는 과정은 전부 사이트 안의 메모 앱(개발기 폴더)에 200편이 넘는 글로 남겼습니다.
 
 ## 돌아보며
 
