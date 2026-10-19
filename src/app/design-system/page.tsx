@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import DesignSystemClient from "./DesignSystemClient";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Design System",
-  description: "Design tokens, components, and visual language reference.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "Design System", description: "Design tokens, components, and visual language reference.", path: "/design-system" });
+}
 
 /**
  * 공개 페이지라 관리자 사전 없이 그린다. 예전에는 전시하는 PeriodPicker 가 라벨을 admin.* 키로 읽어 페이지 전체를

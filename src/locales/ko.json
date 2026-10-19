@@ -1100,6 +1100,11 @@
     "count": "글 {{n}}개"
   },
   "pageMeta": {
+    "posts": "개발 · 학습 · 회고를 기록한 글",
+    "works": "직접 기획하고 만든 작업물 모음",
+    "profile": "프로필 — 소개와 GitHub 활동",
+    "about": "이 사이트를 어떻게 만들었는지 — 기능 · 설계 · 기술 스택",
+    "history": "모든 글을 시간순으로 훑는 아카이브",
     "seriesIndex": "모든 시리즈 목록",
     "tagsIndex": "모든 태그 목록",
     "categoriesIndex": "모든 카테고리 목록",

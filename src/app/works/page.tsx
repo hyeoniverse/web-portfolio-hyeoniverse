@@ -3,9 +3,13 @@ import { Suspense } from "react";
 import { getWorksProjects } from "@/lib/getWorksProjects";
 import WorksSection from "./_components/WorksSection";
 import WorksEmptyState from "./_components/WorksEmptyState/WorksEmptyState";
+import { pageMetadata } from "@/lib/seo";
+import { siteMetaText } from "@/lib/siteMetaText";
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: "Works" };
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "Works", description: await siteMetaText("pageMeta.works"), path: "/works" });
+}
 
 export default async function WorksPage() {
   /* 발행한 작업물이 없으면 GitHub 저장소가 그 자리에 온다 — 배치(flow·cylinder 등)는 같은 것을

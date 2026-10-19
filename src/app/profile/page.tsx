@@ -6,9 +6,13 @@ import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 import BreakpointGuard from "@/components/common/BreakpointGuard";
 
-export const metadata: Metadata = { title: "Profile" };
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "Profile", description: await siteMetaText("pageMeta.profile"), path: "/profile" });
+}
 import ProfileMeSection from "./_components/ProfileMeSection";
 import FloatingObject from "./_components/FloatingObject/FloatingObject";
+import { pageMetadata } from "@/lib/seo";
+import { siteMetaText } from "@/lib/siteMetaText";
 
 export default async function ProfilePage() {
   const [profileData, siteConfig] = await Promise.all([getProfileData(), getSiteConfig()]);

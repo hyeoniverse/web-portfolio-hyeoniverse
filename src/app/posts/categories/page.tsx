@@ -2,12 +2,13 @@ import { getAllCategoriesData } from "@/lib/posts";
 import CategoriesIndexClient from "./CategoriesIndexClient";
 import type { Metadata } from "next";
 import { siteMetaText } from "@/lib/siteMetaText";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
 /* 설명은 사이트 기본 언어로(#1406) */
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Categories", description: await siteMetaText("pageMeta.categoriesIndex") };
+  return pageMetadata({ title: "Categories", description: await siteMetaText("pageMeta.categoriesIndex"), path: "/posts/categories" });
 }
 
 export default async function CategoriesIndexPage() {

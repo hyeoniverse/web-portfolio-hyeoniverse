@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { getInitialPostsData } from "@/lib/posts";
 import PostsPageChrome from "./_components/PostsPageChrome";
 import PostsClient from "./PostsClient";
+import { pageMetadata } from "@/lib/seo";
+import { siteMetaText } from "@/lib/siteMetaText";
 
-export const metadata: Metadata = { title: "Posts" };
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: "Posts", description: await siteMetaText("pageMeta.posts"), path: "/posts" });
+}
 
 export const revalidate = 60;
 

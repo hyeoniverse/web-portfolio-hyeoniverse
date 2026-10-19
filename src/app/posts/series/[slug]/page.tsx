@@ -2,6 +2,7 @@ import { getSeriesPageData, getAllSeriesSlugs } from "@/lib/posts";
 import SeriesDetailClient from "./SeriesDetailClient";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 /* 미리 그려 캐시한다 — 시리즈/글 저장 시 재검증, 시간 기준 갱신은 안전망. (태그 상세 #913 과 같은 결) */
 export const revalidate = 60;
@@ -19,10 +20,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { series } = await getSeriesPageData(decodeURIComponent(slug));
   if (!series) return { title: "Series" };
-  return {
+  return pageMetadata({
     title: series.title,
     description: series.description || `${series.title} 시리즈`,
-  };
+    path: `/posts/series/${encodeURIComponent(decodeURIComponent(slug))}`,
+  });
 }
 
 export default async function SeriesDetailPage({ params }: Props) {

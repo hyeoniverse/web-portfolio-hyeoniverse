@@ -1100,6 +1100,11 @@
     "count": "{{n}} posts"
   },
   "pageMeta": {
+    "posts": "Notes on development, learning and retrospectives",
+    "works": "Projects planned and built from scratch",
+    "profile": "Profile: introduction and GitHub activity",
+    "about": "How this site was built: features, design and tech stack",
+    "history": "An archive of every post in time order",
     "seriesIndex": "All series",
     "tagsIndex": "All tags",
     "categoriesIndex": "All categories",

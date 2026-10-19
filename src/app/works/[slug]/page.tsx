@@ -4,6 +4,7 @@ import { getWorksProjects } from "@/lib/getWorksProjects";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import WorkDetailClient from "./WorkDetailClient";
 import { findProjectIndex } from "./findProjectIndex";
+import { pageMetadata } from "@/lib/seo";
 
 /* 미리 그려 캐시한다(#909). 예전에는 generateStaticParams 가 없어 요청마다 서버에서 그렸다(작업물 조회와 Shiki 코드 칠하기가
    매번 돌았다). 저장하면 작업물 API 가 revalidatePublicWorks 로 바로 새로 그리게 하고, 시간 기준 갱신은 안전망이다 */
@@ -23,7 +24,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const projects = await getWorksProjects();
   const idx = findProjectIndex(projects, slug);
   const project = idx >= 0 ? projects[idx] : undefined;
-  return { title: project?.title.ko || project?.title.en || "Work" };
+  if (!project) return { title: "Work" };
+  return pageMetadata({
+    title: project.title.ko || project.title.en || "Work",
+    description: project.description.ko || project.description.en || project.subtitle.ko || project.subtitle.en || undefined,
+    path: `/works/${encodeURIComponent(project.slug || project.id)}`,
+    image: project.image,
+  });
 }
 
 export default async function WorkDetailPage({ params }: PageProps) {
