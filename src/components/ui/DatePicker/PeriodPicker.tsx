@@ -13,6 +13,7 @@ import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useInControlSizeScope } from "@/components/ui/controlSize";
 
 interface PeriodPickerProps {
   value: DatePeriod;
@@ -371,8 +372,9 @@ export default function PeriodPicker({
     }
   };
 
+  const inScope = useInControlSizeScope();
   return (
-    <div className={`${styles.wrapper} ${className ?? ""}`}>
+    <div className={`${styles.wrapper} ${className ?? ""}`} data-size={inScope ? "md" : undefined}>
       {/* Format selector + range toggle */}
       {(
         <div className={styles.formatRow}>

@@ -36,15 +36,22 @@
   display: block;
 }
 
-/* ── 우상단 hover 컨트롤 ── */
+/* ── 우상단 hover 컨트롤 — 배너 밖(마스크 밖)의 유리판 알약 하나 ── */
 .controls {
   position: absolute;
-  /* 전역 nav(높이 --header-height)와 안 겹치게 그 아래로 */
+  /* 전역 nav(높이 --header-height)와 안 겹치게 그 아래로. wrap 기준이라 오른쪽 끝은 본문 폭 끝과 같다 */
   top: calc(var(--header-height) + var(--spacing-12));
-  /* 페이지·nav 우측 여백(--spacing-page-inline)과 동일하게 — 배너가 page-px 만큼 넘쳐있으므로 그만큼 안쪽으로 */
-  right: var(--spacing-page-inline);
+  right: 0;
+  z-index: 2;
   display: flex;
-  gap: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  background: color-mix(in oklch, var(--bg-primary) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: var(--shadow-raised);
   opacity: 0;
   pointer-events: none;
 }
@@ -53,9 +60,9 @@
   transition: opacity var(--duration-base) var(--ease-standard);
 }
 
-.banner:hover .controls,
+.wrap:hover .controls,
 .controls:focus-within,
-.bannerRepositioning .controls {
+.wrapRepositioning .controls {
   opacity: 1;
   pointer-events: auto;
 }
@@ -96,9 +103,9 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
-  padding: var(--spacing-12);
-  min-width: 240px;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8);
+  width: 280px;
 }
 
 /* shared Button(ghost/sm) 위에 메뉴 레이아웃만 override — full-width + 좌측 정렬 */
@@ -110,10 +117,7 @@
 /* 공통 Input 사용 — border/radius(capsule)/padding 은 컴포넌트가 담당, wrapper 폭만 지정 */
 .urlInput {
   width: 100%;
-}
-
-.urlInput:focus {
-  border-color: var(--text-primary);
+  margin: var(--spacing-4) 0;
 }
 
 .menuDivider {

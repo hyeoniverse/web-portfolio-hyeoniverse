@@ -6,7 +6,7 @@ import {
   Image as ImageIcon,
   Smile,
   Upload,
-  Link2,
+  ArrowRight,
   Trash2,
   Move,
   ZoomIn,
@@ -23,6 +23,7 @@ import Popover from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { ControlSizeScope } from "@/components/ui/controlSize";
 
 interface CoverBannerProps {
   /** 현재 커버 이미지/비디오 URL ("" 면 비어있음) */
@@ -142,7 +143,14 @@ export default function CoverBanner({
     transformOrigin: "center",
   };
 
-  // 커버 변경 / 추가 Popover 내용
+  // 커버 변경 / 추가 Popover 내용 — 올리기, 주소 붙여 넣기(입력 안 적용 단추), 지우기
+  const applyUrl = (close: () => void) => {
+    const url = urlDraft.trim();
+    if (!url) return;
+    onCoverChange(url);
+    setUrlDraft("");
+    close();
+  };
   const coverMenu = ({ close }: { close: () => void }) => (
     <div className={styles.menu}>
       <Button
@@ -156,34 +164,22 @@ export default function CoverBanner({
       >
         {t("editor.cover.upload")}
       </Button>
-      <div className={styles.menuDivider} />
       <Input
         value={urlDraft}
         placeholder={t("editor.cover.urlPlaceholder")}
         onChange={setUrlDraft}
         className={styles.urlInput}
+        clearable={false}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.nativeEvent.isComposing && urlDraft.trim()) {
-            onCoverChange(urlDraft.trim());
-            setUrlDraft("");
-            close();
-          }
+          if (e.key === "Enter" && !e.nativeEvent.isComposing) applyUrl(close);
+        }}
+        trailingAction={{
+          icon: <ArrowRight size={14} strokeWidth={2} />,
+          onClick: () => applyUrl(close),
+          ariaLabel: t("editor.cover.applyUrl"),
+          disabled: !urlDraft.trim(),
         }}
       />
-      <Button
-        variant="ghost"
-        icon={<Link2 size={14} strokeWidth={2} />}
-        className={styles.menuBtn}
-        disabled={!urlDraft.trim()}
-        onClick={() => {
-          if (!urlDraft.trim()) return;
-          onCoverChange(urlDraft.trim());
-          setUrlDraft("");
-          close();
-        }}
-      >
-        {t("editor.cover.applyUrl")}
-      </Button>
       {hasCover && (
         <>
           <div className={styles.menuDivider} />
@@ -205,7 +201,7 @@ export default function CoverBanner({
   );
 
   return (
-    <div className={styles.wrap}>
+    <div className={`${styles.wrap}${reposition ? ` ${styles.wrapRepositioning}` : ""}`}>
       {/* ── 커버 배너 ── */}
       <div
         className={`${styles.banner}${hasCover ? "" : ` ${styles.bannerEmpty}`}${
@@ -244,14 +240,19 @@ export default function CoverBanner({
           <div className={styles.repositionHint}>{t("editor.cover.repositionHint")}</div>
         )}
 
-        {/* hover 컨트롤 (우상단) */}
-        {/* 컨트롤 위 pointerdown 은 배너 드래그(setPointerCapture)로 전파되면 버튼 클릭이 삼켜짐 → 차단 */}
-        <div className={styles.controls} onPointerDown={(e) => e.stopPropagation()}>
+      </div>
+
+      {/* ── hover 컨트롤 (우상단) ──
+          배너 밖에 둔다 — 배너는 아래로 흐려지는 mask 를 쓰는데, mask 가 걸린 조상 안에서는 backdrop-filter 가
+          보이지 않는다. 유리판 알약 하나에 단추를 모아 밝은 커버 · 어두운 커버 어디서나 읽히게 한다.
+          단추는 작은 높이(sm)로 묶는다 — 편집 화면 전체의 md 범위를 여기서만 줄인다 */}
+      <div className={styles.controls}>
+        <ControlSizeScope size="sm">
           {reposition ? (
             /* ── 위치 조정 모드: 줌 +/− + 저장/취소 ── */
             <>
               <Button
-                variant="difference"
+                variant="ghost"
                 shape="circle"
                 soundDisabled
                 icon={<ZoomOut size={15} strokeWidth={2} />}
@@ -260,7 +261,7 @@ export default function CoverBanner({
                 title={t("editor.cover.zoomOut")}
               />
               <Button
-                variant="difference"
+                variant="ghost"
                 shape="circle"
                 soundDisabled
                 icon={<ZoomIn size={15} strokeWidth={2} />}
@@ -269,7 +270,7 @@ export default function CoverBanner({
                 title={t("editor.cover.zoomIn")}
               />
               <Button
-                variant="difference"
+                variant="ghost"
                 shape="capsule"
                 soundDisabled
                 icon={<Check size={15} strokeWidth={2} />}
@@ -278,7 +279,7 @@ export default function CoverBanner({
                 {t("editor.cover.savePosition")}
               </Button>
               <Button
-                variant="difference"
+                variant="ghost"
                 shape="capsule"
                 soundDisabled
                 icon={<X size={15} strokeWidth={2} />}
@@ -295,7 +296,7 @@ export default function CoverBanner({
                 sheetTitle={hasCover ? t("editor.cover.change") : t("editor.cover.add")}
                 trigger={
                   <Button
-                    variant="difference"
+                    variant="ghost"
                     shape="capsule"
                     soundDisabled
                     icon={<ImageIcon size={13} strokeWidth={2} />}
@@ -310,7 +311,7 @@ export default function CoverBanner({
               {/* 커버가 있을 때만 위치 조정 진입 */}
               {hasCover && (
                 <Button
-                  variant="difference"
+                  variant="ghost"
                   shape="capsule"
                   soundDisabled
                   icon={<Move size={13} strokeWidth={2} />}
@@ -321,7 +322,7 @@ export default function CoverBanner({
               )}
             </>
           )}
-        </div>
+        </ControlSizeScope>
       </div>
 
       {/* ── 페이지 이모지 ── */}
