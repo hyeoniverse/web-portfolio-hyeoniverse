@@ -103,14 +103,6 @@ MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Do
 
 ![활동 상태 보기: 방문 · 순방문자 · 앱 열기 · 평균 머문 시간](/content/works/macfolio/activity.jpg)
 
-## 구성
-
-![구성도: Cloudflare Workers, Tunnel, Oracle VM 의 cloudflared · NestJS · PostgreSQL](/content/works/macfolio/architecture.jpg)
-
-- **프론트엔드** React 19 SPA. 창 관리 · 메모 · 음악 로직은 React 와 DOM 없이 시험하는 `packages/desktop-core` 로 떼어 냈습니다.
-- **백엔드** NestJS 기능별 모듈, Prisma 7 + PostgreSQL 17. 모든 입력은 DTO 화이트리스트로 검사하고, 응답 모양은 `@macfolio/contracts` 의 zod 스키마 하나를 화면과 서버가 함께 씁니다.
-- **인프라** 프론트엔드는 Cloudflare Workers 정적 자산, API 는 Oracle Always Free VM 의 Docker Compose. `cloudflared` 가 서버 안에서 바깥으로 먼저 연결하므로 80 · 443 포트를 열지 않고, 같은 사이트의 하위 도메인이라 `SameSite=Lax` 세션 쿠키를 함께 씁니다.
-
 ## 기술 스택
 
 | 영역 | 기술 | 고른 이유 |
@@ -123,6 +115,14 @@ MacFolio 는 macOS 데스크톱을 웹으로 옮긴 포트폴리오입니다. Do
 | 저장소 | pnpm · Turborepo | 앱 두 개와 패키지 두 개를 한 저장소에서 함께 빌드하고 시험합니다 |
 | 시험 | Vitest · Playwright | 단위 시험, 실제 PostgreSQL 에 붙인 API 시험, 세 화면의 브라우저 E2E |
 | 배포 | Cloudflare Workers · Oracle VM · Docker Compose · Cloudflare Tunnel | 비용 없이 운영하고, 서버는 외부에 웹 포트를 열지 않습니다 |
+
+## 구성
+
+![구성도: Cloudflare Workers, Tunnel, Oracle VM 의 cloudflared · NestJS · PostgreSQL](/content/works/macfolio/architecture.jpg)
+
+- **프론트엔드** React 19 SPA. 창 관리 · 메모 · 음악 로직은 React 와 DOM 없이 시험하는 `packages/desktop-core` 로 떼어 냈습니다.
+- **백엔드** NestJS 기능별 모듈, Prisma 7 + PostgreSQL 17. 모든 입력은 DTO 화이트리스트로 검사하고, 응답 모양은 `@macfolio/contracts` 의 zod 스키마 하나를 화면과 서버가 함께 씁니다.
+- **인프라** 프론트엔드는 Cloudflare Workers 정적 자산, API 는 Oracle Always Free VM 의 Docker Compose. `cloudflared` 가 서버 안에서 바깥으로 먼저 연결하므로 80 · 443 포트를 열지 않고, 같은 사이트의 하위 도메인이라 `SameSite=Lax` 세션 쿠키를 함께 씁니다.
 
 ## 프로젝트 구조
 
@@ -172,6 +172,18 @@ MacFolio/
 | 업로드 | DB 에 저장, 10MB 제한, 파일 앞부분으로 형식 확인, 무작위 ID | 백업 누락, 확장자만 바꾼 파일, 주소 추측 |
 | GitHub 연동 | 서버 캐시, 동시 요청 하나로 묶기, 실패하면 마지막 값 | 요청 제한(시간당 60회), GitHub 장애 때 빈 화면 |
 | 배포 | `check` 를 통과한 커밋만 | 시험을 건너뛴 배포 |
+
+## 테스트와 배포
+
+브랜치 · 커밋 · PR 규칙을 문서로만 두지 않고 CI 의 `conventions` 검사로 지켰습니다. PR 과 main push 마다 포맷 → 린트 → 타입 체크 → 단위 시험 → 빌드 → 실제 PostgreSQL 에 붙인 API E2E → 브라우저 E2E 를 차례로 돌리고, `check` 를 통과한 커밋만 Cloudflare Workers 에 배포됩니다. PR 마다 미리보기 주소가 생기고, 미리보기에는 CORS 로 읽기만 열어 관리자 쿠키를 주지 않습니다.
+
+Playwright 는 데스크톱 Chrome, iPhone, Android 세 화면에서 가짜 API(`page.route`)로 로그인 · 글쓰기 · 게시까지 확인하고, README 와 블로그의 스크린샷도 같은 코드로 찍습니다. 2026년 10월 19일 기준 브라우저 E2E 486개, 단위 시험 659개, API E2E 131개입니다.
+
+머지에서 배포까지 15분이 걸렸고, 그중 E2E 가 8~9분이었습니다. E2E 를 6칸으로 나눠 동시에 돌리고, PR 에서 통과한 같은 코드(`HEAD^{tree}` 가 같은 커밋)는 main 에서 다시 돌리지 않도록 했습니다.
+
+보안 점검은 Semgrep(규칙 266개), pnpm audit, osv-scanner, gitleaks 로 합니다. Semgrep 이 찾은 7건 가운데 실제 취약점은 없었고, gitleaks 로 커밋 791개를 훑어 비밀 값이 섞이지 않았는지 확인했습니다. 사이트에는 CSP 등 보안 헤더 5종을 붙이고 위반이 생기면 E2E 가 실패하게 했으며, 업로드한 사진의 EXIF 는 방향 정보만 남기고 지웁니다.
+
+만드는 과정은 모두 사이트 안의 메모 앱(개발기 폴더)에 200편이 넘는 글로 남겼습니다.
 
 ## 기술적 도전
 
@@ -269,6 +281,19 @@ MacFolio/
 
 **결론** 한국어 문장 안의 굵은 글씨가 의도대로 표시됩니다.
 
+## CRA → Vite 마이그레이션
+
+2025년 3월에 빌드 도구를 Vite 로 바꿨고, 2026년 9월 재구축 첫날 남아 있던 CRA 흔적을 정리한 뒤 같은 조건에서 다시 측정했습니다.
+
+| 항목 | CRA | Vite |
+| --- | --- | --- |
+| dev 서버 시작 | 5.05초 | 0.58초 |
+| 프로덕션 빌드 | 6.33초 | 1.88초 |
+| JS 번들 (gzip) | 138.2 KB | 127.7 KB |
+| 설치 패키지 수 | 1,438개 | 171개 |
+
+정리 과정에서 그동안 드러나지 않던 오류 4건도 고쳤습니다. 배포 경로가 CRA 의 `build/` 를 가리키고 있었고, `REACT_APP_` 환경 변수 이름이 남아 있었고, `@vitejs/plugin-react` 설정이 없었고, `react-dom` · `typescript` 가 의존성에서 빠져 있었습니다.
+
 ## 운영과 감시
 
 - **무료 서버 회수 감시** Oracle Always Free VM(1GB)은 7일 동안 CPU p95 · 네트워크 · 메모리 사용률이 모두 20% 미만이면 회수 대상입니다. 1분마다 `/proc` 을 읽어 20% 미만은 위험, 30% 미만은 주의로 판단하고, 위험하면 메일을 보냅니다(같은 알림은 3일에 한 번).
@@ -292,33 +317,8 @@ MacFolio/
 | 나라 | 한국 67% · 미국 33% |
 | 가장 많이 연 앱 | 메모(블로그) 38% · 시스템 설정 · 메일 |
 
-## 테스트와 배포
-
-브랜치 · 커밋 · PR 규칙을 문서로만 두지 않고 CI 의 `conventions` 검사로 지켰습니다. PR 과 main push 마다 포맷 → 린트 → 타입 체크 → 단위 시험 → 빌드 → 실제 PostgreSQL 에 붙인 API E2E → 브라우저 E2E 를 차례로 돌리고, `check` 를 통과한 커밋만 Cloudflare Workers 에 배포됩니다. PR 마다 미리보기 주소가 생기고, 미리보기에는 CORS 로 읽기만 열어 관리자 쿠키를 주지 않습니다.
-
-Playwright 는 데스크톱 Chrome, iPhone, Android 세 화면에서 가짜 API(`page.route`)로 로그인 · 글쓰기 · 게시까지 확인하고, README 와 블로그의 스크린샷도 같은 코드로 찍습니다. 2026년 10월 19일 기준 브라우저 E2E 486개, 단위 시험 659개, API E2E 131개입니다.
-
-머지에서 배포까지 15분이 걸렸고, 그중 E2E 가 8~9분이었습니다. E2E 를 6칸으로 나눠 동시에 돌리고, PR 에서 통과한 같은 코드(`HEAD^{tree}` 가 같은 커밋)는 main 에서 다시 돌리지 않도록 했습니다.
-
-보안 점검은 Semgrep(규칙 266개), pnpm audit, osv-scanner, gitleaks 로 합니다. Semgrep 이 찾은 7건 가운데 실제 취약점은 없었고, gitleaks 로 커밋 791개를 훑어 비밀 값이 섞이지 않았는지 확인했습니다. 사이트에는 CSP 등 보안 헤더 5종을 붙이고 위반이 생기면 E2E 가 실패하게 했으며, 업로드한 사진의 EXIF 는 방향 정보만 남기고 지웁니다.
-
-만드는 과정은 모두 사이트 안의 메모 앱(개발기 폴더)에 200편이 넘는 글로 남겼습니다.
-
-## CRA → Vite 마이그레이션
-
-2025년 3월에 빌드 도구를 Vite 로 바꿨고, 2026년 9월 재구축 첫날 남아 있던 CRA 흔적을 정리한 뒤 같은 조건에서 다시 측정했습니다.
-
-| 항목 | CRA | Vite |
-| --- | --- | --- |
-| dev 서버 시작 | 5.05초 | 0.58초 |
-| 프로덕션 빌드 | 6.33초 | 1.88초 |
-| JS 번들 (gzip) | 138.2 KB | 127.7 KB |
-| 설치 패키지 수 | 1,438개 | 171개 |
-
-정리 과정에서 그동안 드러나지 않던 오류 4건도 고쳤습니다. 배포 경로가 CRA 의 `build/` 를 가리키고 있었고, `REACT_APP_` 환경 변수 이름이 남아 있었고, `@vitejs/plugin-react` 설정이 없었고, `react-dom` · `typescript` 가 의존성에서 빠져 있었습니다.
-
 ## 돌아보며
 
 보기만 하던 모형을 서비스로 바꾸는 일은 화면 뒤를 만드는 일이었습니다. 권한은 서버가 요청마다 확인하고, 데이터 규칙은 DB 제약과 시험이 한 번 더 확인하며, 배포는 검사를 통과한 커밋만 나가도록 구성했습니다.
 
-작업 원칙은 세 가지였습니다. 첫째, 고치기 전에 먼저 셌습니다. 공통 부품 후보 9개 중 실제로 필요한 것은 3개였고, 쓰지 않는 CSS 후보 150개 중 실제로 지운 것은 9개였습니다. 둘째, 리팩터링 뒤에는 결과가 같은지 빌드 결과와 계산된 스타일로 확인했습니다. 셋째, 동작이 바뀌는 보안 변경은 리팩터링과 섞지 않고 따로 냈습니다.
+작업 원칙은 세 가지였습니다. 첫째, 고치기 전에 먼저 측정했습니다. 공통 부품 후보 9개 중 실제로 필요한 것은 3개였고, 쓰지 않는 CSS 후보 150개 중 실제로 지운 것은 9개였습니다. 둘째, 리팩터링 뒤에는 결과가 같은지 빌드 결과와 계산된 스타일로 확인했습니다. 셋째, 동작이 바뀌는 보안 변경은 리팩터링과 섞지 않고 따로 냈습니다.
