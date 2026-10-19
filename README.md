@@ -31,24 +31,26 @@
 <br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/home-dark.png" />
-  <img src="docs/images/home-light.png" alt="홈 화면" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png" />
+  <img src="docs/images/readme-banner-light.png" alt="hyeoniverse.com 데스크톱 · 모바일 홈" width="100%" />
 </picture>
 
-<sub>GitHub 테마(다크 · 라이트)에 맞춰 같은 홈의 다크 · 라이트 화면이 보입니다.</sub>
-
-</div>
-
-<br />
+<sub><b>3,300+</b> 커밋 &nbsp;·&nbsp; <b>980+</b> 머지한 PR &nbsp;·&nbsp; <b>64</b> 트러블슈팅 기록 &nbsp;·&nbsp; <b>97.93%</b> 타입 커버리지 &nbsp;·&nbsp; <b>2026.02 ~</b> 운영 중</sub>
 
 <p align="center">
   <a href="#-하이라이트">하이라이트</a> ·
   <a href="#-미리보기">미리보기</a> ·
   <a href="#-관리자--cms">관리자 · CMS</a> ·
+  <a href="#-아키텍처">아키텍처</a> ·
+  <a href="#-구현-포인트">구현 포인트</a> ·
+  <a href="#-만든-과정">만든 과정</a> ·
   <a href="#-기술-스택">기술 스택</a> ·
+  <a href="#-프로젝트-구조">프로젝트 구조</a> ·
   <a href="#-빠른-시작">빠른 시작</a> ·
   <a href="#-문서">문서</a>
 </p>
+
+</div>
 
 ---
 
@@ -185,6 +187,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ## ✦ 관리자 · CMS
 
+> [!NOTE]
 > 관리자 화면 캡처는 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요, [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작(재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 번역)은 핵심 구간만 `.gif` 로 넣었습니다. 각 절의 **자세히** 를 펼치면 동작 설명이 나옵니다.
 
 ### 대시보드
@@ -387,7 +390,58 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ---
 
+## ✦ 아키텍처
+
+```mermaid
+flowchart LR
+    V["방문자 · 관리자<br/>브라우저"] --> P["proxy.ts<br/>CSRF Origin 확인 · 블로그 주소 · 세션 갱신"]
+    P --> N["Next.js 16 App Router<br/>Server Components · ISR · Route Handlers"]
+    N -->|"anon 키 + 세션"| DB[("Supabase Postgres<br/>RLS 4단계 권한")]
+    N -->|"service role<br/>집계 · 알림 · 기록"| DB
+    N --> ST["Supabase Storage<br/>이미지 · 음성 · 첨부"]
+    N --> EXT["외부 공급자<br/>번역 · 요약 · TTS · 커버 · 메일"]
+    CRON["pg_cron"] -->|"예약 발행 · 휴지통 정리 · 기록 익명화"| DB
+    B["prebuild 생성기"] -.->|"ERD · API 지도 · 소개 콘텐츠"| N
+```
+
+- **렌더링.** 페이지는 서버 컴포넌트가 데이터를 읽어 그리고, 글 · 작업물 상세는 ISR 로 캐시합니다. 클라이언트 컴포넌트는 스크롤 · 3D · 편집기처럼 상호작용이 필요한 곳에만 둡니다.
+- **데이터와 권한.** 공개 읽기와 로그인한 사용자의 요청은 anon 키와 세션으로 보내고, Postgres RLS 가 owner · admin · author · visitor 네 단계로 행을 거릅니다. 방문 집계 · 알림 · 서비스 기록처럼 사이트 전체를 다루는 일만 서버에서 service role 로 처리합니다.
+- **요청 경로.** 모든 요청은 `src/proxy.ts` 를 지납니다. `/api/*` 의 쓰기 요청은 Origin/Referer 가 이 사이트여야 통과하고, 라우트마다 `requireAuth` · `requireRole` 로 권한을 다시 확인합니다([보안](./docs/security.md)).
+- **사이트 설정.** `site_settings` 한 행(jsonb)에 코드 기본값과 **다른 부분(delta)만** 저장합니다. 저장할 때의 기본값도 함께 남겨서, 코드 기본값이 바뀌면 어느 키가 어긋났는지 충돌 리스트로 보여 줍니다(`src/lib/settingsDelta.ts`).
+- **빌드 때 만드는 것.** `prebuild` 가 `supabase/setup.sql` 로 ERD, 라우트 파일로 API 지도, `content/about/*.md` 로 소개 페이지 데이터를 만듭니다. 문서와 화면이 코드에서 떨어져 낡지 않게 하려는 구조입니다([배포](./docs/deploy.md)).
+- **예약 작업.** `pg_cron` 이 예약 발행 · 휴지통 정리 · 오래된 방문 기록의 IP 비우기 · 서비스 기록 정리를 DB 안에서 돌립니다.
+
+---
+
+## ✦ 구현 포인트
+
+| 주제 | 어떻게 풀었나 | 더 보기 |
+|:---|:---|:---|
+| **권한 · 보안** | proxy 의 CSRF Origin 확인 → 라우트 가드 → RLS 세 겹. 로그인 5회 실패 시 15분 잠금, 처음 보는 기기는 메일 승인(24시간) | [security.md](./docs/security.md) |
+| **자동저장** | 같은 기기 초안은 `localStorage`, 다른 기기에서 이어 쓰기는 3초 debounce 로 DB 리비전에 저장. 불러오기 직후의 자동 변경과 10자 미만 변경은 저장하지 않고, 복원은 저장본보다 나중일 때만 적용 | [트러블슈팅 12](./docs/troubleshooting/architecture-data.md) |
+| **AI 공급자 대체** | 기능마다(번역 · 요약 · TTS · 커버) 대체 순서를 두고, 같은 원인으로 이어 실패한 공급자는 자동으로 꺼서 요청을 보내지 않는다. 모든 호출은 서비스 기록에 남는다 | `src/lib/ai/health.ts` |
+| **디자인 시스템 집행** | Raw → Semantic → Component 3층 토큰. 하드코딩 값은 stylelint 가 막고, 규칙 위반 수는 style-ratchet 기준선으로 늘지 못하게 잠근다 | [design-system.md](./docs/design-system.md) |
+| **성능** | LCP 이미지의 우선순위와 스트리밍 공개 지연을 함께 풀고, `:has(:hover)` 처럼 전체 스타일 재계산을 부르는 선택자를 걷어 냈다 | [트러블슈팅 Top 10](./docs/troubleshooting/top10.md) |
+| **다국어** | 화면 글은 한 · 영 사전, 콘텐츠는 한 · 영 칸을 따로 두고 비어 있으면 AI 번역으로 채운다. 공개 화면의 즉석 번역은 캐시해 다시 부르지 않는다 | [features.md](./docs/features.md) |
+
+---
+
+## ✦ 만든 과정
+
+- **2026년 2월부터** 혼자 만들고 운영하고 있습니다. 커밋 3,300여 개, 머지한 PR 980여 개, 닫은 이슈 490여 개입니다(2026-10 기준).
+- **작업 흐름.** 할 일은 이슈로 먼저 열고, 브랜치를 따서 PR 로 올립니다. 커밋은 Conventional Commits 를 commitlint 로 검사하고, 버전과 변경 기록은 release-please 가 만듭니다.
+- **CI.** PR 마다 타입 검사, ESLint(경고 총량 잠금), Stylelint(토큰 규칙), Vitest, knip(미사용 코드 · 미등록 의존성), type-coverage(97.93% 잠금)를 돌립니다. 매주 한 번 감사 워크플로가 미사용 코드 · 오래된 패키지를 이슈로 정리합니다.
+- **테스트.** Vitest 단위 테스트와 Playwright 스모크(데스크톱 · 모바일 · 관리자 · API)를 씁니다([testing.md](./docs/testing.md)).
+- **리팩토링.** `src` 가 22만 줄을 넘었을 때 한 번에 한 축만 바꾸는 원칙으로 첫 라운드를 진행했습니다(#388). 안전망 기준선 → 품질 게이트 → 전 라우트 성능 → 구조 조사 → 도메인별 거대 파일 분해 → 규칙 잠금 순서이고, 2026-09-10 에 모두 마쳤습니다([refactoring-guide.md](./docs/refactoring-guide.md)).
+- **기록.** 막혔던 문제는 증상 · 원인 · 해결 · 결론으로 [트러블슈팅](./docs/troubleshooting.md)에 64건 남겼습니다. 대표 10건은 번들 다운레벨링으로 브라우저에서만 죽는 정규식, CSS 무효화 범위, LCP 직렬 관문, 전환 덮개와 경로 커밋, 정적 404 하이드레이션 불일치 등입니다.
+
+---
+
 ## ✦ 기술 스택
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,supabase,postgres,threejs,vercel,githubactions,vitest&perline=9" alt="Next.js · React · TypeScript · Supabase · PostgreSQL · Three.js · Vercel · GitHub Actions · Vitest" />
+</p>
 
 | 분류 | 사용 |
 |:---|:---|
@@ -404,6 +458,43 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ---
 
+## ✦ 프로젝트 구조
+
+```
+src/
+├─ app/                 # App Router
+│  ├─ (home) works posts about profile privacy design-system   # 공개 화면
+│  ├─ admin/            # 관리자: (auth) 로그인 · (dashboard) 대시보드 · 글 · 작업물 · 설정 · 트래픽 …
+│  └─ api/              # Route Handlers (28개 그룹)
+├─ components/          # 화면별 컴포넌트 + ui/ 공통 컴포넌트(Button · Modal · Select …)
+├─ lib/                 # 서버 · 공용 로직: api/(권한 가드 · 핸들러) · ai/(공급자 상태) · tts · supabase/
+├─ hooks/ stores/ utils/ providers/   # 클라이언트 훅 · 전역 상태 · 테마 · 언어 · 사이트 설정
+├─ styles/              # tokens/(Raw) · globals/(Semantic · Component) · layers.css
+├─ config/              # site.config.ts: 사이트 설정의 코드 기본값
+├─ data/generated/      # prebuild 생성물(ERD · API 지도 · 소개 콘텐츠)
+├─ locales/             # 한 · 영 화면 글
+└─ proxy.ts             # CSRF Origin 확인 · 블로그 주소 라우팅 · 세션 갱신
+content/                # .md 원본: posts · works 는 DB 와 동기화, about 은 빌드 때 페이지 데이터로
+supabase/               # setup.sql(테이블 26개 · RLS · pg_cron) · 마이그레이션
+scripts/                # prebuild 생성기 · 동기화 · 화면 캡처
+e2e/                    # Playwright 스모크
+docs/                   # 문서 (docs/images: 문서 전용 이미지)
+```
+
+처음 읽는다면 이 파일들이 흐름을 잡기 좋습니다.
+
+| 파일 | 내용 |
+|:---|:---|
+| `src/proxy.ts` | 모든 요청이 지나는 곳. CSRF · 블로그 주소 · 세션 |
+| `src/lib/api/requireRole.ts` | 라우트의 권한 확인 |
+| `supabase/setup.sql` | 테이블 · RLS 정책 · 예약 작업 전체 |
+| `src/lib/getSiteConfig.ts` · `src/lib/settingsDelta.ts` | 코드 기본값 + DB 변경분으로 사이트 설정을 만드는 방법 |
+| `src/components/posts/PlateEditor.tsx` · `src/hooks/useEditorAutoSave.ts` | 편집기와 자동저장 |
+| `src/lib/ai/health.ts` | AI 공급자 상태 · 자동 끄기 · 대체 순서 |
+| `src/styles/tokens/` | 디자인 토큰 Raw 층 |
+
+---
+
 ## ✦ 빠른 시작
 
 ```bash
@@ -412,7 +503,8 @@ cp .env.example .env.local   # Supabase URL·키 채우기
 npm run dev                  # http://localhost:3000
 ```
 
-Supabase 프로젝트가 있어야 글 · 작업물 · 관리자가 돕니다. 테이블 생성 SQL, Storage 버킷, 관리자 계정 만들기, 커버 이미지 · 번역 같은 선택 키까지 **[docs/supabase-setup.md](./docs/supabase-setup.md)** 에 순서대로 정리해 두었습니다.
+> [!IMPORTANT]
+> Supabase 프로젝트가 있어야 글 · 작업물 · 관리자가 돕니다. 테이블 생성 SQL, Storage 버킷, 관리자 계정 만들기, 커버 이미지 · 번역 같은 선택 키까지 **[docs/supabase-setup.md](./docs/supabase-setup.md)** 에 순서대로 정리해 두었습니다.
 
 ```bash
 npm run build          # 프로덕션 빌드
@@ -438,29 +530,6 @@ npm run sync-all       # content/*.md ↔ DB 동기화 (소개 페이지는 DB �
 | [편집기 가이드](./docs/editor-guide.md) · [.md 콘텐츠 안내](./docs/md-content-guide.md) | 편집기 사용법과 글 · 작업물 · 소개 `.md` 작성 규칙 |
 | [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [커밋 컨벤션](./docs/commit-convention.md) | 구조 정리 기록, 번들 기준선, 커밋 규칙 |
 
-<details>
-<summary><strong>프로젝트 구조</strong></summary>
-
-<br />
-
-```
-src/
-├─ app/           # App Router: (home) · works · posts · about · profile · privacy · auth · design-system · admin · api
-├─ components/    # 화면별 컴포넌트 + ui/ 공통 컴포넌트
-├─ styles/        # tokens/ (Raw) · globals/ (Semantic · Component) · vendor/ · layers.css
-├─ providers/     # 테마 · 언어 · 스크롤 · 사이트 설정
-├─ config/ constants/ data/ types/
-├─ lib/ hooks/ stores/ utils/
-├─ locales/       # 한국어 · 영어
-└─ proxy.ts       # CSRF Origin 확인 · 블로그 주소 라우팅
-content/          # .md 원본: posts · works 는 sync 스크립트로 DB 와 맞추고, about 은 빌드 때 페이지 데이터로 만든다
-docs/             # 문서 (docs/images: 문서 전용 이미지)
-e2e/ scripts/     # 스모크 테스트 · 동기화와 스크린샷 스크립트
-supabase/         # 마이그레이션 SQL
-```
-
-</details>
-
 커밋은 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 를 따릅니다. 타입 목록과 예시는 **[docs/commit-convention.md](./docs/commit-convention.md)** 에 있습니다.
 
 ---
@@ -474,5 +543,7 @@ supabase/         # 마이그레이션 SQL
 <br />
 
 <sub>✦ Made by <a href="https://www.hyeoniverse.com">HYEONIVERSE</a></sub>
+
+<sub><a href="#readme">↑ 맨 위로</a></sub>
 
 </div>

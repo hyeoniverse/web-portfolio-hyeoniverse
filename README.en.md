@@ -31,24 +31,26 @@ It holds both the public site and the admin (CMS) used to write and edit everyth
 <br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/home-dark.png" />
-  <img src="docs/images/home-light.png" alt="Home" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png" />
+  <img src="docs/images/readme-banner-light.png" alt="hyeoniverse.com home on desktop and mobile" width="100%" />
 </picture>
 
-<sub>The home page shows in dark or light to match your GitHub theme.</sub>
-
-</div>
-
-<br />
+<sub><b>3,300+</b> commits &nbsp;·&nbsp; <b>980+</b> merged PRs &nbsp;·&nbsp; <b>64</b> troubleshooting write-ups &nbsp;·&nbsp; <b>97.93%</b> type coverage &nbsp;·&nbsp; live since <b>Feb 2026</b></sub>
 
 <p align="center">
   <a href="#-highlights">Highlights</a> ·
   <a href="#-preview">Preview</a> ·
   <a href="#-admin--cms">Admin · CMS</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-implementation-notes">Implementation notes</a> ·
+  <a href="#-how-it-was-built">How it was built</a> ·
   <a href="#-tech-stack">Tech stack</a> ·
+  <a href="#-project-structure">Project structure</a> ·
   <a href="#-quick-start">Quick start</a> ·
   <a href="#-documentation">Documentation</a>
 </p>
+
+</div>
 
 ---
 
@@ -185,6 +187,7 @@ Tokens and components can be checked live at `/design-system`.
 
 ## ✦ Admin · CMS
 
+> [!NOTE]
 > Admin captures come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session, see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips. Open **Details** under each part for how it works.
 
 ### Dashboard
@@ -387,7 +390,58 @@ Works link related posts and series; posts link related projects, all through a 
 
 ---
 
+## ✦ Architecture
+
+```mermaid
+flowchart LR
+    V["Visitors · admins<br/>browser"] --> P["proxy.ts<br/>CSRF origin check · blog host · session refresh"]
+    P --> N["Next.js 16 App Router<br/>Server Components · ISR · Route Handlers"]
+    N -->|"anon key + session"| DB[("Supabase Postgres<br/>4-tier RLS roles")]
+    N -->|"service role<br/>aggregates · notifications · logs"| DB
+    N --> ST["Supabase Storage<br/>images · audio · attachments"]
+    N --> EXT["External providers<br/>translation · summary · TTS · covers · mail"]
+    CRON["pg_cron"] -->|"scheduled publish · trash purge · log anonymization"| DB
+    B["prebuild generators"] -.->|"ERD · API map · About content"| N
+```
+
+- **Rendering.** Server components read data and render pages; post and work details are cached with ISR. Client components are used only where interaction is needed, such as scrolling, 3D and the editor.
+- **Data and permissions.** Public reads and signed-in requests go out with the anon key and the session, and Postgres RLS filters rows by four roles: owner · admin · author · visitor. Only site-wide work such as visit aggregates, notifications and the service log runs on the server with the service role.
+- **Request path.** Every request passes `src/proxy.ts`. Write requests to `/api/*` only pass when Origin/Referer is this site, and each route checks permissions again with `requireAuth` · `requireRole` ([Security](./docs/en/security.md)).
+- **Site settings.** A single `site_settings` row (jsonb) stores **only what differs (delta)** from the code defaults. The defaults at save time are stored too, so when code defaults change a conflict list shows which keys diverged (`src/lib/settingsDelta.ts`).
+- **Generated at build time.** `prebuild` builds the ERD from `supabase/setup.sql`, the API map from the route files and the About page data from `content/about/*.md`, so the docs and screens cannot drift away from the code ([Deployment](./docs/en/deploy.md)).
+- **Scheduled jobs.** `pg_cron` runs scheduled publishing, trash purges, clearing IPs from old visit records and service-log cleanup inside the database.
+
+---
+
+## ✦ Implementation notes
+
+| Topic | How it works | More |
+|:---|:---|:---|
+| **Permissions · security** | Three layers: CSRF origin check in the proxy → route guards → RLS. A 15-minute lock after 5 failed logins, email approval (24 h) for unknown devices | [security.md](./docs/en/security.md) |
+| **Autosave** | Same-device drafts in `localStorage`; continuing on another device through DB revisions saved after a 3-second debounce. Automatic changes right after loading and changes under 10 characters are not saved, and a revision is restored only when it is newer than the saved post | [Troubleshooting 12](./docs/en/troubleshooting/architecture-data.md) |
+| **AI provider fallback** | Each feature (translation · summary · TTS · covers) has a fallback order, and a provider that keeps failing for the same reason is switched off so no more requests go to it. Every call is recorded in the service log | `src/lib/ai/health.ts` |
+| **Enforcing the design system** | Three token tiers (Raw → Semantic → Component). Stylelint blocks hard-coded values, and the style-ratchet baseline stops the number of rule violations from growing | [design-system.md](./docs/design-system.md) |
+| **Performance** | Fixed the LCP image's priority and the streaming reveal delay together, and removed selectors like `:has(:hover)` that triggered full style recalculation | [Troubleshooting Top 10](./docs/en/troubleshooting/top10.md) |
+| **Two languages** | UI text comes from Korean/English dictionaries; content keeps separate Korean and English fields and fills empty ones with AI translation. On-the-fly translations on the public site are cached and not requested again | [features.md](./docs/en/features.md) |
+
+---
+
+## ✦ How it was built
+
+- **Since February 2026**, built and run by one person: about 3,300 commits, 980+ merged PRs and 490+ closed issues (as of October 2026).
+- **Workflow.** Work starts as an issue, then a branch and a PR. Commits follow Conventional Commits checked by commitlint, and release-please produces versions and the changelog.
+- **CI.** Every PR runs the typecheck, ESLint (warning count locked), Stylelint (token rules), Vitest, knip (unused code · unlisted dependencies) and type-coverage (locked at 97.93%). A weekly audit workflow files unused code and outdated packages as an issue.
+- **Tests.** Vitest unit tests and Playwright smoke tests (desktop · mobile · admin · API) ([testing.md](./docs/en/testing.md)).
+- **Refactoring.** When `src` passed 220,000 lines, the first round ran on a one-axis-at-a-time rule (#388): safety-net baseline → quality gates → cross-route performance → structure survey → splitting large files per domain → locking the rules. It finished on 2026-09-10 ([refactoring-guide.md](./docs/refactoring-guide.md), Korean).
+- **Records.** 64 problems are written up as symptom · cause · fix · conclusion in [Troubleshooting](./docs/en/troubleshooting.md). The top ten include a regex that only fails in the browser because of bundle downleveling, CSS invalidation scope, serial LCP gates, a transition cover tied to the route commit, and a static 404 hydration mismatch.
+
+---
+
 ## ✦ Tech stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,supabase,postgres,threejs,vercel,githubactions,vitest&perline=9" alt="Next.js · React · TypeScript · Supabase · PostgreSQL · Three.js · Vercel · GitHub Actions · Vitest" />
+</p>
 
 | Area | Used |
 |:---|:---|
@@ -404,6 +458,43 @@ Works link related posts and series; posts link related projects, all through a 
 
 ---
 
+## ✦ Project structure
+
+```
+src/
+├─ app/                 # App Router
+│  ├─ (home) works posts about profile privacy design-system   # public pages
+│  ├─ admin/            # admin: (auth) login · (dashboard) dashboard · posts · works · settings · traffic …
+│  └─ api/              # Route Handlers (28 groups)
+├─ components/          # per-screen components + ui/ shared components (Button · Modal · Select …)
+├─ lib/                 # server · shared logic: api/ (permission guards · handlers) · ai/ (provider state) · tts · supabase/
+├─ hooks/ stores/ utils/ providers/   # client hooks · global state · theme · language · site config
+├─ styles/              # tokens/ (raw) · globals/ (semantic · component) · layers.css
+├─ config/              # site.config.ts: code defaults for site settings
+├─ data/generated/      # prebuild output (ERD · API map · About content)
+├─ locales/             # Korean · English UI text
+└─ proxy.ts             # CSRF origin check · blog host routing · session refresh
+content/                # .md sources: posts · works sync with the database, about is built into page data
+supabase/               # setup.sql (26 tables · RLS · pg_cron) · migrations
+scripts/                # prebuild generators · sync · screenshots
+e2e/                    # Playwright smoke tests
+docs/                   # documentation (docs/images: images used only by the docs)
+```
+
+Good places to start reading:
+
+| File | What it holds |
+|:---|:---|
+| `src/proxy.ts` | Where every request passes: CSRF · blog host · session |
+| `src/lib/api/requireRole.ts` | Route permission checks |
+| `supabase/setup.sql` | All tables · RLS policies · scheduled jobs |
+| `src/lib/getSiteConfig.ts` · `src/lib/settingsDelta.ts` | How site settings are built from code defaults plus the stored delta |
+| `src/components/posts/PlateEditor.tsx` · `src/hooks/useEditorAutoSave.ts` | The editor and autosave |
+| `src/lib/ai/health.ts` | AI provider state · automatic switch-off · fallback order |
+| `src/styles/tokens/` | The raw design-token tier |
+
+---
+
 ## ✦ Quick start
 
 ```bash
@@ -412,7 +503,8 @@ cp .env.example .env.local   # fill in the Supabase URL and keys
 npm run dev                  # http://localhost:3000
 ```
 
-Posts, works and the admin need a Supabase project. The table SQL, storage buckets, creating the admin account and optional keys (cover images, translation and so on) are laid out step by step in **[docs/en/supabase-setup.md](./docs/en/supabase-setup.md)**.
+> [!IMPORTANT]
+> Posts, works and the admin need a Supabase project. The table SQL, storage buckets, creating the admin account and optional keys (cover images, translation and so on) are laid out step by step in **[docs/en/supabase-setup.md](./docs/en/supabase-setup.md)**.
 
 ```bash
 npm run build          # production build
@@ -438,29 +530,6 @@ npm run sync-all       # sync content/*.md with the database (the About page is 
 | [Editor guide](./docs/en/editor-guide.md) | Using the editor |
 | [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Commit convention](./docs/commit-convention.md) | Structural cleanup notes, bundle baseline, commit rules (Korean) |
 
-<details>
-<summary><strong>Project structure</strong></summary>
-
-<br />
-
-```
-src/
-├─ app/           # App Router: (home) · works · posts · about · profile · privacy · auth · design-system · admin · api
-├─ components/    # per-screen components + ui/ shared components
-├─ styles/        # tokens/ (raw) · globals/ (semantic · component) · vendor/ · layers.css
-├─ providers/     # theme · language · scroll · site config
-├─ config/ constants/ data/ types/
-├─ lib/ hooks/ stores/ utils/
-├─ locales/       # Korean · English
-└─ proxy.ts       # CSRF Origin check · blog host routing
-content/          # .md sources: posts · works are synced with the database, about is built into page data at build time
-docs/             # documentation (docs/images: images used only by the docs)
-e2e/ scripts/     # smoke tests · sync and screenshot scripts
-supabase/         # migration SQL
-```
-
-</details>
-
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Types and examples are in **[docs/commit-convention.md](./docs/commit-convention.md)** (Korean).
 
 ---
@@ -474,5 +543,7 @@ Free to use, modify and share, but **not for commercial use**.
 <br />
 
 <sub>✦ Made by <a href="https://www.hyeoniverse.com">HYEONIVERSE</a></sub>
+
+<sub><a href="#readme">↑ Back to top</a></sub>
 
 </div>
