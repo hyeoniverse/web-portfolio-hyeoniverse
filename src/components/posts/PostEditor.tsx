@@ -102,6 +102,7 @@ import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { reportAiResponse } from "@/lib/ai/notifyFailures";
 import { CodedError, errorFromBody, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
+import { pickFiles } from "@/lib/pickFiles";
 import InputBlocker from "@/components/ui/InputBlocker";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
 import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
@@ -678,21 +679,15 @@ export default function PostEditor({ post }: PostEditorProps) {
     return data.url;
   }, [mediaLimits, t]);
 
-  const handleCoverUpload = useCallback(async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,video/mp4,video/webm,video/quicktime";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
+  const handleCoverUpload = useCallback(() => {
+    pickFiles({ accept: "image/*,video/mp4,video/webm,video/quicktime" }, async ([file]) => {
       try {
         updateField("cover_image", await handleImageUpload(file));
       } catch (err) {
         /* 예전에는 잡지 않아 실패해도 아무 표시가 없었다. 사유는 화면 언어로(#862) */
         showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
       }
-    };
-    input.click();
+    });
   }, [handleImageUpload, updateField, t]);
 
   const handleSave = useCallback(

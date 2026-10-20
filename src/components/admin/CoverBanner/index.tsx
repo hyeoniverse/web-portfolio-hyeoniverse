@@ -212,9 +212,12 @@ export default function CoverBanner({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
+        {/* key 를 주소로 — 커버를 바꾸면 요소를 새로 만든다. 사파리는 mask 가 걸린 배너 안의 <img> 가 src 만
+            바뀌면 다시 그리지 않아, 새 커버를 올려도 예전 그림이 남았다 */}
         {hasCover &&
           (isVideoUrl(cover) ? (
             <video
+              key={cover}
               className={styles.media}
               style={mediaStyle}
               src={cover}
@@ -227,6 +230,7 @@ export default function CoverBanner({
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
+              key={cover}
               className={styles.media}
               style={mediaStyle}
               src={cover}
