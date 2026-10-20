@@ -15,7 +15,7 @@ description: "흩어져 있던 프로젝트와 글을 한 곳에서 보여 주�
 description_en: "A personal portfolio that gathers scattered projects and writing in one place and keeps them current. Public pages, the design system, the editor and the admin CMS are all designed and operated by one person."
 role: "기획 · 디자인 · 프론트엔드 · 백엔드 · 배포 전체"
 role_en: "Planning · Design · Frontend · Backend · Deployment"
-image: https://rqebkijkxkvsiyhdtvui.supabase.co/storage/v1/object/public/posts/posts/15eb0c44-3078-4940-9ae8-e09bed5757aa.png
+image: /content/works/hyeoniverse/cover.jpg
 live_url: https://www.hyeoniverse.com
 format: richtext
 ---
