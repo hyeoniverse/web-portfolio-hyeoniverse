@@ -61,6 +61,9 @@ export interface Work {
   image: string;
   /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
   icon: string;
+  /** 커버 세로 위치 % (0~100) · 확대 배율 (1~2.5) — posts 미러. 마이그레이션 전 DB 에는 칸이 없다 */
+  cover_position?: number;
+  cover_zoom?: number;
   /* ── Detail content (single content field) ── */
   content_ko: string;
   content_en: string;
@@ -124,6 +127,9 @@ export interface WorkFormData {
   image: string;
   /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
   icon: string;
+  /** 커버 세로 위치 % (0~100) · 확대 배율 (1~2.5) — 커버 배너의 위치 조정 */
+  cover_position: number;
+  cover_zoom: number;
   content_ko: string;
   content_en: string;
   content_type: "markdown" | "richtext";
@@ -204,6 +210,8 @@ export function workFormToProject(input: WorkFormData): Project {
     tech_notes: form.tech_notes,
     image: form.image,
     icon: form.icon,
+    cover_position: form.cover_position,
+    cover_zoom: form.cover_zoom,
     content_ko: form.content_ko,
     content_en: form.content_en,
     content_type: form.content_type,
@@ -295,6 +303,8 @@ export function workToProject(w: Work): Project {
     tech_notes: w.tech_notes && Object.keys(w.tech_notes).length > 0 ? w.tech_notes : undefined,
     image: w.image,
     icon: w.icon,
+    coverPosition: w.cover_position ?? 50,
+    coverZoom: w.cover_zoom ?? 1,
     // card size (Flow 레이아웃) — sort_order 에서 cycle derive (single source of truth)
     size: getCardSize(w.sort_order),
     content: loc(contentKo, contentEn),

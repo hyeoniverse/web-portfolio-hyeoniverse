@@ -663,6 +663,18 @@ export const schemaTables: ErdTable[] = [
         "required": true
       },
       {
+        "name": "cover_position",
+        "type": "real",
+        "required": true,
+        "defaultValue": "50"
+      },
+      {
+        "name": "cover_zoom",
+        "type": "real",
+        "required": true,
+        "defaultValue": "1"
+      },
+      {
         "name": "content_ko",
         "type": "text",
         "required": true

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
+import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { QUERY_PARAM } from "@/constants";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { createClient } from "@/lib/supabase/server";
@@ -140,7 +141,7 @@ const ALLOWED_FIELDS = new Set([
   "description_ko", "description_en",
   "role_ko", "role_en",
   "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image", "icon",
+  "tech", "tech_notes", "image", "icon", "cover_position", "cover_zoom",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
@@ -187,7 +188,14 @@ export async function POST(request: Request) {
 
   /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 만든다(galleryNotesColumn 참고) */
   const notesDropped = await dropGalleryNotesIfMissing(supabase, filtered);
-  const notesHeaders = notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : undefined;
+  /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
+  const coverDropped = await dropWorkCoverIfMissing(supabase, filtered);
+  const notesHeaders = notesDropped || coverDropped
+    ? {
+        ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
+        ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
+      }
+    : undefined;
 
   /* 원문 칸(ko)이 어느 언어로 쓰였는지(#1425) — 지금 기본 언어 */
   const sourceLang = await currentSourceLang();

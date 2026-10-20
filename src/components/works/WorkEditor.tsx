@@ -17,6 +17,7 @@ import { isOfficeDocUrl, officeDocKind } from "@/lib/officeViewer";
 import { GalleryNarrationPanel, NarrationBadge, useNarrationActions } from "./GalleryNarrationEditor";
 import { useBenchSplit } from "./useBenchSplit";
 import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
+import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -1029,6 +1030,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
+        }
+        /* 커버 위치 · 확대 칸도 같다 — 기본값에서 옮긴 경우에만 알린다 */
+        if (res.headers.get(WORK_COVER_DROPPED_HEADER) && (form.cover_position !== 50 || form.cover_zoom !== 1)) {
+          showToast(tw("coverPositionNotSaved"), "error", 6000);
         }
   
         // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
@@ -2323,6 +2328,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           onUpload={() => handleImageUpload("image")}
           emoji={form.icon || null}
           onEmojiChange={(e) => updateField("icon", e ?? "")}
+          position={form.cover_position}
+          zoom={form.cover_zoom}
+          onPositionChange={(n) => updateField("cover_position", n)}
+          onZoomChange={(n) => updateField("cover_zoom", n)}
         />
       }
     >

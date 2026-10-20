@@ -119,6 +119,8 @@ export default function WorkPreviewPage() {
               tech_notes: w.tech_notes || {},
               image: w.image || "",
               icon: w.icon || "",
+              cover_position: w.cover_position ?? 50,
+              cover_zoom: w.cover_zoom ?? 1,
               content_ko: w.content_ko || "",
               content_en: w.content_en || "",
               content_type: w.content_type || "markdown",
@@ -234,6 +236,8 @@ export default function WorkPreviewPage() {
         </>
       )}
       heroImage={form.image || undefined}
+      heroPosition={form.cover_position}
+      heroZoom={form.cover_zoom}
       heroIcon={form.icon || undefined}
       heroAlt={form.title}
     />
@@ -253,6 +257,8 @@ function PreviewArticle({
   viewLang,
   renderHeader,
   heroImage,
+  heroPosition,
+  heroZoom,
   heroIcon,
   heroAlt,
 }: {
@@ -260,6 +266,8 @@ function PreviewArticle({
   viewLang: "ko" | "en";
   renderHeader: (shown: Project) => React.ReactNode;
   heroImage?: string;
+  heroPosition?: number;
+  heroZoom?: number;
   heroIcon?: string;
   heroAlt: string;
 }) {
@@ -315,6 +323,8 @@ function PreviewArticle({
       onBack={() => window.close()}
       backLabel="Close Preview"
       heroImage={heroImage}
+      heroPosition={heroPosition}
+      heroZoom={heroZoom}
       heroIcon={heroIcon}
       heroAlt={heroAlt}
       headings={headings}

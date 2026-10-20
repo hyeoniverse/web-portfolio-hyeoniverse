@@ -25,6 +25,10 @@ export default async function WorkSlugLayout({ children, params }: { children: R
   if (projectSlug && projectSlug !== slug) redirect(`/works/${projectSlug}`);
 
   // alt 는 서버가 그리는 한국어로 시작하고, 영어 화면이면 페이지가 다시 넘긴다
-  const { image, title } = projects[index];
-  return <DetailShell cover={image ? { image, alt: pickLocalized(title, "ko") } : null}>{children}</DetailShell>;
+  const { image, title, coverPosition, coverZoom } = projects[index];
+  return (
+    <DetailShell cover={image ? { image, alt: pickLocalized(title, "ko"), position: coverPosition, zoom: coverZoom } : null}>
+      {children}
+    </DetailShell>
+  );
 }
