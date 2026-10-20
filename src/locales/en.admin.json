@@ -1861,6 +1861,7 @@
         "narrationSourceTts": "TTS",
         "narrationSourceRecorded": "Recording",
         "narrationNotSaved": "TTS audio wasn’t saved because the database has no column for it yet. Apply supabase/migrations/2026_09_21_works_gallery_notes.sql and save again.",
+        "coverPositionNotSaved": "The cover position and zoom weren’t saved because the database has no column for them yet. Apply supabase/migrations/2026_10_20_works_cover_position.sql and save again.",
         "narrationLexiconManage": "Manage in Settings",
         "additionalInfoSummary": "Tech {{tech}} · Team {{team}} · Links {{links}} · Posts {{posts}}",
         "techHint": "Add the technologies used. Hover an item to add a description.",

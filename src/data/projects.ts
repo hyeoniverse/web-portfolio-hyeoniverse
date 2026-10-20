@@ -71,6 +71,9 @@ export interface Project {
   image: string;
   /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (DB works.icon) */
   icon?: string;
+  /** 상세 커버의 세로 위치 % (0~100) · 확대 배율 (1~2.5) — 없으면 50 · 1 (DB works.cover_position / cover_zoom) */
+  coverPosition?: number;
+  coverZoom?: number;
   size: CardSize;
   /* ── Detail page content (single field with sections as headings) ── */
   content: LocalizedText;

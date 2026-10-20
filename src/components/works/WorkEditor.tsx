@@ -17,6 +17,8 @@ import { isOfficeDocUrl, officeDocKind } from "@/lib/officeViewer";
 import { GalleryNarrationPanel, NarrationBadge, useNarrationActions } from "./GalleryNarrationEditor";
 import { useBenchSplit } from "./useBenchSplit";
 import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
+import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
+import { pickFiles } from "@/lib/pickFiles";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -769,17 +771,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* 고르기 창 */
   const handleImageUpload = useCallback((field: "image" | "gallery") => {
-    const input = document.createElement("input");
-    input.type = "file";
-    /* 갤러리에는 PDF·PPTX 도 받는다 — 쪽마다 그림으로 바꿔 슬라이드처럼 넘겨 보게 한다.
-       옛 .ppt 는 파일째 올라가 읽는 화면에서 문서 뷰어로 열린다 */
-    input.accept = field === "gallery"
-      ? "image/*,video/mp4,video/webm,video/quicktime,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.ppt,application/vnd.ms-powerpoint"
-      : "image/*,video/mp4,video/webm,video/quicktime";
-    input.multiple = field === "gallery";
-    input.onchange = () => { void ingestFiles(Array.from(input.files ?? []), field); };
-    input.click();
-  }, [ingestFiles]);
+    pickFiles({
+      /* 갤러리에는 PDF·PPTX 도 받는다 — 쪽마다 그림으로 바꿔 슬라이드처럼 넘겨 보게 한다.
+         옛 .ppt 는 파일째 올라가 읽는 화면에서 문서 뷰어로 열린다 */
+      accept: field === "gallery"
+        ? "image/*,video/mp4,video/webm,video/quicktime,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.ppt,application/vnd.ms-powerpoint"
+        : "image/*,video/mp4,video/webm,video/quicktime",
+      multiple: field === "gallery",
+    }, (files) => {
+      /* 업로드 흐름이 예상 못 한 곳에서 던지면 아무 표시 없이 끝났다 — 사유를 알린다 */
+      ingestFiles(files, field).catch((err) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error"));
+    });
+  }, [ingestFiles, t]);
 
   /* 밖에서 끌어다 놓기 — 갤러리 영역 전체가 받는다. 칸을 끌어 차례를 바꾸는 것과는 다른 일이라
      "파일이 들어 있는 끌기" 일 때만 받는다 */
@@ -1029,6 +1032,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
+        }
+        /* 커버 위치 · 확대 칸도 같다 — 기본값에서 옮긴 경우에만 알린다 */
+        if (res.headers.get(WORK_COVER_DROPPED_HEADER) && (form.cover_position !== 50 || form.cover_zoom !== 1)) {
+          showToast(tw("coverPositionNotSaved"), "error", 6000);
         }
   
         // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
@@ -2323,6 +2330,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           onUpload={() => handleImageUpload("image")}
           emoji={form.icon || null}
           onEmojiChange={(e) => updateField("icon", e ?? "")}
+          position={form.cover_position}
+          zoom={form.cover_zoom}
+          onPositionChange={(n) => updateField("cover_position", n)}
+          onZoomChange={(n) => updateField("cover_zoom", n)}
         />
       }
     >

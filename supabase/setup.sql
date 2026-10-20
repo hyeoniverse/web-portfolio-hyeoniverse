@@ -86,6 +86,7 @@
 --   2026_10_14~17  page_views 로 조회 기록 통일 · visitor_counts · 옛 site_visits/post_views/work_views 삭제
 --   2026_10_18  content_translations.source_type — admin_text
 --   2026_10_19  contact-attachments 버킷(문의 첨부, 비공개 25MB) · posts/works.source_lang + 원문 백업
+--   2026_10_20  works.cover_position / cover_zoom — 작업물 커버 위치·확대 (posts 미러)
 --   2026_08_25  스토리지 직접 업로드 정책 제거 (서버 검증 우회 차단)
 --   2026_08_25  posts/works 정책을 4단계 권한 모델에 맞춤
 --   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
@@ -656,6 +657,9 @@ CREATE TABLE IF NOT EXISTS works (
   image            text NOT NULL DEFAULT '',
   -- 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단
   icon             text NOT NULL DEFAULT '',
+  -- 커버 세로 위치 %(0~100) · 확대 배율(1~2.5) — 편집기 위치 조정, 상세 커버에 반영
+  cover_position   real NOT NULL DEFAULT 50,
+  cover_zoom       real NOT NULL DEFAULT 1,
   -- Flow 레이아웃 카드 사이즈는 sort_order 에서 cycle derive — 별도 컬럼 없음 (single source of truth)
   content_ko       text NOT NULL DEFAULT '',
   content_en       text NOT NULL DEFAULT '',
@@ -2245,7 +2249,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_17_drop_legacy_views',             'page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 삭제'),
   ('2026_10_18_content_translations_admin_text','content_translations.source_type 에 admin_text 추가 — 관리자 화면 알림 등 시스템 글 번역 캐시'),
   ('2026_10_19_contact_attachments_bucket',    'contact-attachments 버킷 — 문의 폼 첨부(비공개, 25MB)'),
-  ('2026_10_19_content_source_lang',           '원문 언어(posts · works.source_lang)와 덮어쓰기 전 원문 백업(content_translations post_source · work_source · settings_source)')
+  ('2026_10_19_content_source_lang',           '원문 언어(posts · works.source_lang)와 덮어쓰기 전 원문 백업(content_translations post_source · work_source · settings_source)'),
+  ('2026_10_20_works_cover_position',          'works.cover_position/cover_zoom — 작업물 커버 위치·확대 영속화 (posts 미러)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

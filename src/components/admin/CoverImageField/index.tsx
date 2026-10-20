@@ -176,8 +176,10 @@ export default function CoverImageField({
                 onError={markBroken}
               />
             ) : (
+              /* key 를 주소로 — 바꾸면 새로 그린다(CoverBanner 와 같은 이유, 사파리) */
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
+                key={displaySrc}
                 src={displaySrc}
                 alt={label}
                 className={styles.thumb}

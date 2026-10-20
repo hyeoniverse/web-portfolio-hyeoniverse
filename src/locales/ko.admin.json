@@ -1861,6 +1861,7 @@
         "narrationSourceTts": "TTS",
         "narrationSourceRecorded": "녹음",
         "narrationNotSaved": "TTS 음성은 저장되지 않았습니다. DB 에 음성 칸이 없어서입니다. supabase/migrations/2026_09_21_works_gallery_notes.sql 을 적용한 뒤 다시 저장해 주세요.",
+        "coverPositionNotSaved": "커버 위치 · 확대는 저장되지 않았습니다. DB 에 그 칸이 없어서입니다. supabase/migrations/2026_10_20_works_cover_position.sql 을 적용한 뒤 다시 저장해 주세요.",
         "narrationLexiconManage": "설정에서 전체 관리",
         "additionalInfoSummary": "기술 {{tech}} · 팀원 {{team}} · 링크 {{links}} · 관련 글 {{posts}}",
         "techHint": "사용한 기술을 추가합니다. 항목에 마우스를 올리면 설명을 달 수 있습니다.",

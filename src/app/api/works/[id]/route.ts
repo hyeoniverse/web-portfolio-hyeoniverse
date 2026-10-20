@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
+import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
@@ -45,7 +46,7 @@ const ALLOWED_FIELDS = new Set([
   "description_ko", "description_en",
   "role_ko", "role_en",
   "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image", "icon",
+  "tech", "tech_notes", "image", "icon", "cover_position", "cover_zoom",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
@@ -124,7 +125,16 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 저장한다(galleryNotesColumn 참고) */
   const notesDropped = await dropGalleryNotesIfMissing(admin, filtered);
-  const notesHeader = notesDropped ? { headers: { [GALLERY_NOTES_DROPPED_HEADER]: "1" } } : undefined;
+  /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
+  const coverDropped = await dropWorkCoverIfMissing(admin, filtered);
+  const notesHeader = notesDropped || coverDropped
+    ? {
+        headers: {
+          ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
+          ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
+        },
+      }
+    : undefined;
 
   // sort_order 변경 시 — 그 자리에 끼우고 전체를 1..N 으로 다시 매긴다(skipShift=true 인 목록 끌어 놓기 묶음 제외).
   // 기존 0/duplicate 도 자동 정리. 한 요청 안에서 끝내야 한다 — placeWork 주석(#873)
