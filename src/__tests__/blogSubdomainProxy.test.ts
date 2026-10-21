@@ -53,7 +53,7 @@ describe("proxy — 블로그 서브도메인", () => {
     const proxy = await load(false);
     const res = await proxy(req("blog.hyeoniverse.com", "/works?x=1"));
     expect(res.status).toBe(308);
-    expect(res.headers.get("location")).toBe("https://hyeoniverse.com/works?x=1");
+    expect(res.headers.get("location")).toBe("https://www.hyeoniverse.com/works?x=1");
   });
 
   it("스위치가 꺼져 있으면 메인 주소의 /posts 는 그대로 연다", async () => {

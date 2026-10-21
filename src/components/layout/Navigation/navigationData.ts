@@ -74,7 +74,7 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
-/* 블로그(/posts 아래) 메뉴 — 핵심 셋만: Posts(펼치면 Series · Tags · History) · TIL, 끝에 포트폴리오(메인)로 나가는 링크.
+/* 블로그(/posts 아래) 메뉴 — 핵심 셋만: Posts(펼치면 Series · Tags · History) · TIL, 끝에 포트폴리오(메인)의 작업물 목록으로 나가는 링크.
    블로그 주소(blog.hyeoniverse.com)에선 Portfolio 링크에 메인 주소가 붙는다(Navigation · lib/siteHosts) */
 export const blogNavItems: NavItem[] = [
   {
@@ -88,7 +88,7 @@ export const blogNavItems: NavItem[] = [
     ],
   },
   { key: "blog-til", href: "/posts/til", label: "TIL" },
-  { key: "blog-portfolio", href: "/", label: "Portfolio ↗" },
+  { key: "blog-portfolio", href: "/works", label: "Portfolio ↗" },
 ];
 
 /** 화면(공개 사이트 · 블로그 · 관리 화면)마다 네비게이션이 다른 점 — Navigation · MobileMenu 는 라우트를 보지 않고 이 값만 따른다.

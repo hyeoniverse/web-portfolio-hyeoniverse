@@ -9,7 +9,8 @@
  */
 const MAIN_HOSTS = ["hyeoniverse.com", "www.hyeoniverse.com"] as const;
 const BLOG_HOST = "blog.hyeoniverse.com";
-export const MAIN_ORIGIN = "https://hyeoniverse.com";
+/** 메인 주소 — 대표 주소는 www 다(hyeoniverse.com 은 Vercel 이 www 로 308). www 를 바로 써 한 번 더 넘어가지 않게 한다 */
+export const MAIN_ORIGIN = "https://www.hyeoniverse.com";
 export const BLOG_ORIGIN = `https://${BLOG_HOST}`;
 
 /** 요청 Host 헤더(포트 포함일 수 있음) → 호스트 이름(소문자) */
@@ -83,9 +84,18 @@ export function appPathOfHref(href: string): string {
   return appPathOnBlogHost(path);
 }
 
-/** 블로그 주소에서 포트폴리오로 나가는 링크 — 블로그 주소의 `/` 는 블로그 첫 화면이라 메인 주소를 붙여야 포트폴리오로 간다 */
+/** 포트폴리오 화면 — 블로그 주소로 오면 메인 주소로 보낸다(블로그 글 주소와 겹치지 않게 여기 이름은 글 slug 로 쓰지 않는다) */
+const PORTFOLIO_PREFIXES = ["/works", "/profile", "/about", "/privacy", "/design-system"];
+export function isPortfolioPath(pathname: string): boolean {
+  return PORTFOLIO_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+/** 블로그 주소에서 포트폴리오로 나가는 링크 — 블로그 주소의 `/` 는 블로그 첫 화면이라 메인 주소를 붙여야 포트폴리오로 간다.
+ *  /works 같은 포트폴리오 화면도 메인 주소를 바로 붙인다(블로그 주소로 갔다가 proxy 가 다시 보내는 한 번을 줄인다). 그 밖(블로그 · 관리)은 그대로 */
 export function portfolioHref(path: string, onBlogHost: boolean): string {
-  return onBlogHost ? `${MAIN_ORIGIN}${path}` : path;
+  if (!onBlogHost) return path;
+  const pathname = path.split(/[?#]/)[0];
+  return pathname === "/" || isPortfolioPath(pathname) ? `${MAIN_ORIGIN}${path}` : path;
 }
 
 /** 로그인 쿠키를 함께 쓸 도메인 — 메인 · 블로그 주소에서 같은 세션을 보게 `.hyeoniverse.com` 에 둔다.

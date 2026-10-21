@@ -6,7 +6,7 @@ import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
 import { MFA_PAGE, isMfaPath, passesMfa } from "@/lib/auth/mfa";
 import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
 import {
-  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain, isAdminApiRoute, isAdminRoute,
+  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain, isAdminApiRoute, isAdminRoute, isPortfolioPath,
 } from "@/lib/siteHosts";
 
 /**
@@ -57,12 +57,6 @@ const SITE_ORIGIN = toOrigin(process.env.SITE_URL);
 /** 같은 앱으로 보는 주소 — 사이트 주소와 블로그 서브도메인. 블로그 화면에서 보내는 댓글 · 좋아요도 같은 사이트 요청이다 */
 const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, BLOG_ORIGIN].filter(Boolean));
 const BLOG_SUBDOMAIN_REDIRECT = process.env.BLOG_SUBDOMAIN_REDIRECT === "1";
-
-/** 포트폴리오 화면 — 블로그 주소로 오면 메인 주소로 보낸다(블로그 글 주소와 겹치지 않게 여기 이름은 글 slug 로 쓰지 않는다) */
-const PORTFOLIO_PREFIXES = ["/works", "/profile", "/about", "/privacy", "/design-system"];
-function isPortfolioPath(pathname: string): boolean {
-  return PORTFOLIO_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
 
 /**
  * 블로그 서브도메인 · 메인 주소 사이의 이동. 할 일이 없으면 null.
