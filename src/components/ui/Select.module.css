@@ -237,6 +237,12 @@
     transform var(--duration-fast) var(--ease-standard);
 }
 
+/* 편집 화면 안 — 불투명 표면 */
+.dropdownSolid {
+  background: var(--bg-primary);
+  backdrop-filter: none;
+}
+
 .dropdownOpen {
   opacity: 1;
   transform: scaleY(1) translateY(0);

@@ -551,7 +551,8 @@ export default function AdminEditorShell({
     <ControlSizeScope size="md">
     {/* 적는 칸은 밑줄, 고르는 것은 알약(docs/editor-ui.md 2-1) — 안의 Input · Textarea 는 따로 정하지 않으면 밑줄 */}
     <FieldVariantScope variant="underline">
-    <div className={styles.container}>
+    {/* data-solid-popups — 안에서 여는 셀렉트 목록은 불투명(편집 칸이 빽빽해 유리 패널이면 뒤가 비쳐 읽기 어렵다) */}
+    <div className={styles.container} data-solid-popups>
       {coverSlot}
       {/* topBar 핀 감지용 sentinel — topBar 바로 위(자연 위치) */}
       <div ref={topBarSentinelRef} className={styles.topBarSentinel} aria-hidden />
