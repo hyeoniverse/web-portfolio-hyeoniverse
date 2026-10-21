@@ -138,8 +138,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     }, 300);
     return () => { cancelled = true; clearInterval(poll); };
   }, [editorLang, setEditorImages]);
-  /* 추가 정보 — 펼친 항목(요약 카드 아래 편집기). 처음에는 기술 스택을 펼쳐 둔다 */
-  const [extraOpenKey, setExtraOpenKey] = useState<ExtraKey | null>("tech");
+  /* 추가 정보 — 펼친 항목(요약 카드 아래 편집기). 처음에는 맨 앞 카드(팀원)를 펼쳐 둔다 */
+  const [extraOpenKey, setExtraOpenKey] = useState<ExtraKey | null>("team");
   // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
   const [slugManual, setSlugManual] = useState(!!work?.slug);
 
@@ -2189,22 +2189,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const n = form.tech_notes?.[tg];
       return !!(n?.ko?.trim() || n?.en?.trim());
     });
+    /* 카드 순서 — 팀원 · 링크 · 기술 설명 · 관련 글 · 관련 시리즈. 누가 만들었고 어디서 보는지를 먼저 */
     return [
-      {
-        key: "tech",
-        title: tw("techNotes"),
-        // 설명을 단 기술 수 — 기술 목록 자체는 사이드바에 있다
-        count: noted.length,
-        preview: noted.length === 0 ? empty : (
-          <>
-            {noted.slice(0, 10).map((tg) => (
-              <span key={tg} className={styles.extraPreviewChip}>{getTechIcon(tg)}{tg}</span>
-            ))}
-            {noted.length > 10 && <span>+{noted.length - 10}</span>}
-          </>
-        ),
-        body: techSection,
-      },
       {
         key: "team",
         title: tw("teamMembers"),
@@ -2227,6 +2213,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         count: links.length,
         preview: links.length === 0 ? empty : <>{links.map((u) => <span key={u} className={styles.extraPreviewChip}>{host(u)}</span>)}</>,
         body: linksSection,
+      },
+      {
+        key: "tech",
+        title: tw("techNotes"),
+        // 설명을 단 기술 수 — 기술 목록 자체는 사이드바에 있다
+        count: noted.length,
+        preview: noted.length === 0 ? empty : (
+          <>
+            {noted.slice(0, 10).map((tg) => (
+              <span key={tg} className={styles.extraPreviewChip}>{getTechIcon(tg)}{tg}</span>
+            ))}
+            {noted.length > 10 && <span>+{noted.length - 10}</span>}
+          </>
+        ),
+        body: techSection,
       },
       {
         key: "posts",
