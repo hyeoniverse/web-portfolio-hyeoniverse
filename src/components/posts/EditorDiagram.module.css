@@ -84,8 +84,8 @@
   height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-control);
-  background: var(--bg-glass-panel);
-  backdrop-filter: var(--blur-glass);
+  /* 불투명 면 — 확대하면 그림이 단추 밑을 지나가는데, 반투명이면 선과 글자가 비쳐 아이콘이 묻혔다 */
+  background: var(--bg-primary);
   color: var(--text-secondary);
   cursor: pointer;
   transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
