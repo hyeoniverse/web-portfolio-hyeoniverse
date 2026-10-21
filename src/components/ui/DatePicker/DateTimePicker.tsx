@@ -7,6 +7,7 @@ import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { CalendarDays, Clock } from "@/components/icons";
 
 interface DateTimePickerProps {
   /** ISO timestamp 또는 null */
@@ -105,16 +106,19 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
 
   return (
     <div className={`${styles.dateRow}${inline ? ` ${styles.dateRowInline}` : ""}`}>
-      <div className={styles.dateInputs}>
+      {/* 날짜 · 시간 트리거 — 같은 높이 · 같은 모양의 두 칸(날짜는 남은 폭, 시간은 제 폭). 예전에는 인라인 style 로
+          최소 폭 110 · 90 과 작은 여백을 따로 줘 두 칸의 폭 · 높이가 제각각이었고 사이에 · 가 떠 있었다 */}
+      <div className={asText ? styles.dateInputs : styles.dtTriggers}>
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <Pressable
             type="button"
             onClick={asText ? undefined : toggleDate}
             onDoubleClick={asText ? toggleDate : undefined}
             disabled={disabled}
-            className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--spacing-4) var(--spacing-8)" }}
+            className={asText ? styles.pickerText : `${styles.dtTrigger}${validLocal ? "" : ` ${styles.dtTriggerEmpty}`}`}
+            aria-expanded={pickerOpen}
           >
+            {!asText && <CalendarDays size={14} strokeWidth={1.8} className={styles.dtTriggerIcon} aria-hidden />}
             {dateLabel}
           </Pressable>
           {pickerOpen && !inline && (
@@ -130,16 +134,17 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
             />
           )}
         </div>
-        <span className={styles.dateSep}>·</span>
+        {asText && <span className={styles.dateSep}>·</span>}
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <Pressable
             type="button"
             onClick={asText ? undefined : toggleTime}
             onDoubleClick={asText ? toggleTime : undefined}
             disabled={disabled}
-            className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--spacing-4) var(--spacing-8)" }}
+            className={asText ? styles.pickerText : `${styles.dtTrigger}${validLocal ? "" : ` ${styles.dtTriggerEmpty}`}`}
+            aria-expanded={timeOpen}
           >
+            {!asText && <Clock size={14} strokeWidth={1.8} className={styles.dtTriggerIcon} aria-hidden />}
             {validLocal ? time : (language === "ko" ? "시간" : "Time")}
           </Pressable>
           {timeOpen && !inline && (

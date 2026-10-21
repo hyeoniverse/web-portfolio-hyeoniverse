@@ -99,14 +99,17 @@
 .navGroup {
   display: inline-flex;
   align-items: center;
-  /* 아주 좁으면(뒤로 · 확인란 · 언어 전환이 안 들어가면) 줄을 넘긴다 — nowrap 이면 언어 전환이 화면 밖으로 나갔다 */
+  /* 아주 좁으면(뒤로 · 상태 칩 · 확인란이 안 들어가면) 줄을 넘긴다 */
   flex-wrap: wrap;
   gap: var(--spacing-12);
   width: 100%;
   min-width: 0;
 }
 
-/* 발행 상태 chip 은 공통 <StatusBadge> 컴포넌트로 이관됨 */
+/* 발행 상태 chip — 누를 수 있으면 button(상단 바 규칙으로 md), 없으면 span(sm)이라 글마다 높이가 달랐다. 둘 다 md */
+.statusBadge {
+  height: var(--control-height-md);
+}
 
 /* save 묶음 — Preview / SaveDraft / Publish 한 group, no wrap (작은 화면에서도 한 줄 유지) */
 .saveGroup {
@@ -115,31 +118,42 @@
   /* 한 줄에 안 들어가면 오른쪽 정렬로 줄을 넘긴다 — nowrap 이면 오른쪽 정렬 줄에서 왼쪽 화면 밖으로 밀렸다 */
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8);
   min-width: 0;
   max-width: 100%;
 }
 
-.topBarRow:last-child {
-  justify-content: flex-end;
-}
-
+/* 언어 · 아이콘 동작 · 저장 — 오른쪽으로 모은다. 좁으면 .navGroup(width:100%) 다음 줄로 내려가 줄을 넘긴다 */
 .topBarActions {
   display: flex;
-  gap: var(--spacing-4);
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
   align-items: center;
-  /* flex:1 로 row 의 우측 영역 차지 → 안쪽 .actionGroup 의 space-between 가 작동.
-   * (모바일에선 .navGroup width:100% 가 wrap 트리거 → .topBarActions 다음 줄로 떨어짐) */
   flex: 1;
   min-width: 0;
   justify-content: flex-end;
 }
 
-.actionsDivider {
-  display: none;
-  width: 1px;
-  height: 20px;
-  background: var(--border-color-light);
+/* 상단 막대 묶음 사이 세로선 — 세 묶음(언어 · 문서 · 저장) 사이에만, 모두 같은 모양.
+   예전에는 삭제 앞 선은 화면 폭에 따라 보였다 안 보였다 했고, 언어 토글은 묶음 밖에 따로 있었다 */
+.barDivider {
+  align-self: center;
+  height: var(--size-16);
+  margin-inline: var(--spacing-4);
+  border-left: var(--border-light);
+}
+
+/* 묶음 하나 — 앞에 작은 이름(언어 · 문서 · 저장), 이어서 단추 줄 */
+.barGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.barLabel {
+  font: var(--font-label-xs);
+  color: var(--text-tertiary);
 }
 
 /* ── Action Buttons — 다른 form control 들과 동일한 height (--size-32 = 32px) 로 통일.
@@ -149,8 +163,6 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-16);
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 /* ── Split publish button — 발행 + chevron(예약 발행 popover) ── */
@@ -187,17 +199,6 @@
   max-width: 320px;
 }
 
-/* 예약 popover — 배경 blur (.dropdown 의 blur 8px 을 override, (0,2,0)).
-   maxHeight 캡 제거는 Popover 의 maxHeight={false} prop 으로 처리. */
-.scheduleDropdown {
-  backdrop-filter: blur(8px);
-}
-
-/* 안의 모든 텍스트/아이콘 white (difference 블렌드 전) — (0,2,0) 로 내부 컴포넌트 색 강제 */
-.scheduleDropdown .scheduleMenu * {
-  /* color: var(--text-white); */
-}
-
 .scheduleMenu {
   display: flex;
   flex-direction: column;
@@ -211,8 +212,6 @@
   align-items: center;
   gap: var(--spacing-4);
   font: var(--font-label-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--text-secondary);
 }
 
@@ -248,20 +247,23 @@
 }
 
 /* ── Action Group (icon buttons grouped together) ── */
+/* 아이콘 동작 — 테두리 없는 단추를 붙여 한 덩어리로. 번역 · 요약 | 보기 · 되돌리기 · 기록 · 삭제 */
 .actionGroup {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-16);
-  /* 안쪽 두 subgroup (Ai / Edit) 사이 자동 spread — 좌(번역/요약) / 우(되돌리기/저장 기록/삭제) */
-  justify-content: space-between;
-  flex: 1;
+  gap: var(--spacing-4);
 }
 
 .actionGroupAi,
 .actionGroupEdit {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8);
+  gap: var(--spacing-2);
+}
+
+/* 언어 토글 뒤 — 번역 · 요약 단추와 조금 띄운다 */
+.actionGroupAi > :first-child {
+  margin-right: var(--spacing-4);
 }
 
 /* AI 번역/요약 생성 중 — 버튼 아이콘 spinner */
@@ -329,7 +331,9 @@
 }
 
 /* ── Revision History ── */
+/* 기록(🕘 10) — 글자가 든 단추라 기본 좌우 여백이면 옆 아이콘 단추들과 사이가 벌어져 보였다 */
 .revisionBtn {
+  padding-inline: var(--spacing-8);
   color: var(--text-secondary);
 }
 
@@ -359,8 +363,6 @@
   padding: var(--spacing-12) var(--spacing-16);
   font: var(--font-label-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   border-bottom: var(--border-light);
 }
 
@@ -594,8 +596,6 @@
   background: transparent;
   font: var(--font-label-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   padding: 0;
   white-space: nowrap;
   flex-shrink: 0;
@@ -683,7 +683,6 @@
   color: var(--text-secondary);
   font: var(--font-label-xs);
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   margin-bottom: var(--spacing-4);
 }
 
@@ -745,7 +744,6 @@
   color: var(--text-tertiary);
   font: var(--font-body-xs);
   letter-spacing: 0.02em;
-  text-transform: uppercase;
   word-break: break-word;
   padding-top: var(--spacing-2);
   align-self: start;
@@ -961,8 +959,7 @@
   min-height: var(--size-20);
   font: var(--font-label-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  /* 대문자 변환 없이 — 영문 라벨(Slug · GitHub URL)만 대문자로 커져 한글 라벨과 모양이 달랐다 */
 }
 
 /* 라벨 + 보조 hint 가 같은 라인에 위치할 때 사용. 라벨은 좌측, hint 는 우측 부드러운 톤 */
@@ -985,14 +982,16 @@
   text-transform: none;
 }
 
+/* 적는 칸은 밑줄(docs/editor-ui.md 2-1) — 아래 선 하나가 경계(대비 3:1 인 control 색). 초점이면 진해진다 */
 .fieldInput {
   width: 100%;
   /* 편집 화면의 다른 컨트롤(ControlSizeScope md, 32px)과 높이 통일 */
   min-height: var(--control-height-md);
   height: var(--control-height-md);
-  padding: 0 var(--control-padding-inline-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-control);
+  padding: 0;
+  border: none;
+  border-bottom: var(--border-control);
+  border-radius: 0;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -1177,35 +1176,50 @@
   border-bottom: var(--border-light);
 }
 
-/* ── Bottom Bar — 우측 정렬 + width fit. 넘치면 줄바꿈 ── */
-.bottomBar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--spacing-8);
-}
-
-/* bottomBar 안 button height 도 topBar 와 동일 — 페이지 전체에서 control height 일관 */
-.bottomBar button,
-.bottomBar .saveBtn,
-.bottomBar .publishBtn {
-  height: var(--control-height-md);
-  min-height: var(--control-height-md);
-}
-
-.bottomBar button[class*="shape-circle"],
-.bottomBar button[class*="shape-square"] {
-  width: var(--control-height-md);
-  min-width: var(--control-height-md);
-  aspect-ratio: 1 / 1;
-  padding: 0;
-}
-
 /* ── Editor Header ── */
+/* ── 편집 화면 단추(docs/editor-ui.md 2-10) — 칸 옆 · 폼 아래의 작은 동작. 높이 28(sm), 글자 label-sm, 아이콘 14 ──
+   보조(toolBtn): 옅은 테두리 알약 + 먹색 글자. 지우기는 같은 알약에 toolBtnDanger(올리면 강조색).
+   주 동작(toolBtnPrimary): variant="primary"(먹색 바탕)에 크기만 맞춘다.
+   예전에는 회색 글자 단추 · 진한 테두리 알약 · 분홍 글자 단추가 자리마다 섞여 있었다 */
+.toolBtn,
+.toolBtnPrimary {
+  height: var(--control-height-sm);
+  min-height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  gap: var(--spacing-4);
+  font: var(--font-label-sm);
+}
+
+.toolBtn {
+  border: var(--border-light);
+  background: transparent;
+  color: var(--text-primary);
+  backdrop-filter: none;
+}
+
+.toolBtn:hover:not(:disabled) {
+  border-color: var(--border-color-control);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.toolBtnDanger:hover:not(:disabled) {
+  color: var(--text-accent);
+}
+
+/* 본문 편집기 높이 손잡이 — 편집기 바로 아래 붙는다(구획 안 칸 사이 24 를 거둬 편집기 테두리에 닿게) */
+.editorResize {
+  margin-top: calc(var(--spacing-24) * -1);
+}
+
+/* 구획 머리줄 — 이름 아래 전체 폭 가는 선(작업물 · 글 편집기 공통, docs/editor-ui.md 2-4) */
 .editorHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
+  border-bottom: var(--border-light);
 }
 
 /* ── 태블릿 이상(>768) — divider 보이고 간격 넓힘, 입력 칸은 auto-fit 다열 ── */
@@ -1228,20 +1242,12 @@
     gap: var(--spacing-8);
   }
 
-  .actionsDivider {
-    display: block;
-  }
-
   .row {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 
   .titleInput {
     font-size: var(--font-size-headline-xl);
-  }
-
-  .bottomBar {
-    gap: var(--spacing-16);
   }
 }
 
@@ -1259,5 +1265,145 @@
 
   .topBarActions {
     gap: var(--spacing-12);
+  }
+}
+
+/* ── 본문 | 속성 2단 (sidebar 가 있을 때) ──
+   좁은 화면: 본문 한 단 + 오른쪽에서 나오는 서랍. 넓은 화면(>1024): 속성이 본문 옆 열로 붙어 따라온다 */
+.layout {
+  display: block;
+}
+
+.main {
+  min-width: 0;
+}
+
+/* 2단 아래 전체 폭 — 갤러리 · 추가 정보처럼 넓어야 편한 칸. 위 본문 열과 섹션 하나만큼 띄운다 */
+.wide {
+  min-width: 0;
+  margin-top: var(--spacing-64);
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: calc(var(--z-index-nav) + 2);
+  width: min(360px, 88vw);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-20);
+  background: var(--bg-primary);
+  border-left: var(--border-light);
+  box-shadow: var(--shadow-overlay);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    visibility 0s linear var(--duration-base);
+}
+
+.sidebarOpen {
+  transform: none;
+  visibility: visible;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+/* 패널 안에서 넓은 도구(커버 고르기 등, data-wide-tool)가 열리면 서랍이 화면 폭까지 넓어진다 */
+.sidebar:has([data-wide-tool]) {
+  width: min(720px, 100vw);
+}
+
+.sidebarScrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-nav) + 1);
+  background: var(--bg-overlay);
+}
+
+/* 첫 줄(뒤로 · 상태) 오른쪽 끝 — 좁은 화면에서 줄을 하나 더 쓰지 않게 */
+.sidebarToggle {
+  margin-left: auto;
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
+}
+
+.sidebarTitle {
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+/* 페이지 삭제 — 속성 제목 줄 오른쪽. 강조색 글자 · 테두리로 다른 보조 단추와 구별한다 */
+.sidebarDelete {
+  margin-left: auto;
+  border-color: color-mix(in oklch, var(--text-accent) 45%, transparent);
+  color: var(--text-accent);
+}
+
+.sidebarDelete:hover:not(:disabled) {
+  border-color: var(--text-accent);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+
+/* 속성 패널 안의 칸 — 좁은 열이라 한 칸이 한 줄을 다 쓰고, 칸 사이를 조금 좁힌다 */
+.sidebar .row {
+  grid-template-columns: 1fr;
+}
+
+.sidebar .field {
+  margin-bottom: var(--spacing-16);
+}
+
+@media (width > 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--spacing-48);
+    align-items: start;
+    transition: grid-template-columns var(--duration-base) var(--ease-standard);
+  }
+
+  /* 넓은 도구가 열린 동안 — 속성 열을 넓히고 본문 열이 그만큼 물러난다. 닫으면 돌아온다.
+     320px 열에 커버 고르기를 넣으면 탭이 잘리고 조작부가 비좁았다 */
+  .layout:has(> .sidebar [data-wide-tool]) {
+    grid-template-columns: minmax(0, 1fr) 640px;
+  }
+
+  .sidebar:has([data-wide-tool]) {
+    width: auto;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + var(--spacing-80));
+    z-index: auto;
+    width: auto;
+    max-height: calc(100dvh - var(--header-height) - var(--spacing-80) - var(--spacing-24));
+    padding: var(--spacing-16) var(--spacing-4) var(--spacing-16) 0;
+    background: none;
+    border-left: none;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
+
+  .sidebarHead {
+    margin-bottom: var(--spacing-12);
+  }
+
+  .sidebarClose,
+  .sidebarToggle,
+  .sidebarScrim {
+    display: none;
   }
 }

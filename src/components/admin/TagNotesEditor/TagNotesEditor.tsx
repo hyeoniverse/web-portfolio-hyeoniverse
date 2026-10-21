@@ -21,12 +21,15 @@ function GroupToggleButton({
   cancelLabel,
   editLabel,
   onClick,
+  iconOnly = false,
 }: {
   state: "add" | "cancel" | "edit";
   addLabel: string;
   cancelLabel: string;
   editLabel: string;
   onClick: () => void;
+  /** 글자 없이 아이콘만(이름은 툴팁 · 스크린리더) — 항목이 많은 목록에서 줄마다 글자 단추가 늘어서지 않게 */
+  iconOnly?: boolean;
 }) {
   const icon =
     state === "add" ? <Plus size={10} strokeWidth={2.5} />
@@ -35,7 +38,9 @@ function GroupToggleButton({
   const label = state === "add" ? addLabel : state === "cancel" ? cancelLabel : editLabel;
   return (
     <Pressable
-      className={styles.toggleBtn}
+      className={`${styles.toggleBtn}${iconOnly ? ` ${styles.toggleBtnIconOnly}` : ""}`}
+      title={iconOnly ? label : undefined}
+      aria-label={iconOnly ? label : undefined}
       data-cursor="big"
       onMouseDown={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -55,7 +60,7 @@ function GroupToggleButton({
           </motion.span>
         </AnimatePresence>
       </span>
-      <span className={styles.toggleLabelSlot}>
+      {!iconOnly && <span className={styles.toggleLabelSlot}>
         <span className={styles.toggleLabelSizer} aria-hidden>{label}</span>
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -69,7 +74,7 @@ function GroupToggleButton({
             {label}
           </motion.span>
         </AnimatePresence>
-      </span>
+      </span>}
     </Pressable>
   );
 }
@@ -159,6 +164,8 @@ export interface TagNotesEditorProps {
   /** 설명 추가·편집 버튼을 마우스를 올린(또는 초점이 온) 항목에만 보인다 — 항목이 많은 목록에서 줄마다 버튼이 늘어서
    *  복잡해 보일 때. 설명이 있는 항목은 설명 자체가 보이므로 편집 버튼만 숨는다 */
   quietActions?: boolean;
+  /** 설명 추가 · 편집 단추를 아이콘만으로 — 늘 보이지만 글자 단추보다 작다(작업물 기술 스택처럼 항목이 많을 때) */
+  compactActions?: boolean;
   /** true 면 chip 앞에 정렬 순서 번호 (1-based) 표시 — 2열 grid 에서 정렬 방향 명확화. */
   showIndex?: boolean;
   /** showIndex 시 시작 번호 — pagination 글로벌 idx 보여주려면 pageStart 전달. 기본 0. */
@@ -200,6 +207,7 @@ export default function TagNotesEditor({
   disableReorder = false,
   singleColumn = false,
   quietActions = false,
+  compactActions = false,
   showIndex = false,
   startIndex = 0,
   getDisplayIndex,
@@ -339,6 +347,7 @@ export default function TagNotesEditor({
     <div
       className={`${styles.section} ${singleColumn ? styles.sectionSingleCol : ""}`}
       data-quiet={quietActions ? "" : undefined}
+      data-compact={compactActions ? "" : undefined}
       ref={sectionRef}
       // section 전체 cursor 를 grab 으로 일관 — group 사이 gap 영역 통과 시에도 동일 cursor.
       // input/button 처럼 own data-cursor 가진 자식은 innermost 우선 룰로 자동 override
@@ -397,6 +406,8 @@ export default function TagNotesEditor({
               onOpenChange={(o) => { if (!o && activeItem === item) onEditClick?.(item); }}
               placement="bottom-end"
               trigger={btn}
+              /* 불투명 — 유리면 뒤의 칩 글자가 설명 입력칸 사이로 비쳤다 */
+              variant="solid"
               contentClassName={styles.editPopover}
             >
               {({ close }) => renderEditPopover(item, close)}
@@ -405,6 +416,7 @@ export default function TagNotesEditor({
         // entry 있는 chip 의 편집/취소 토글 (capsuleGroup 안 or 팝오버 트리거).
         const entryEditToggle = wrapEdit(
           <GroupToggleButton
+            iconOnly={compactActions}
             /* 팝오버 편집이면 트리거는 계속 '편집' 유지 (취소 중복 방지) */
             state={renderEditPopover ? "edit" : ((editingItem === item || activeItem === item) ? "cancel" : "edit")}
             addLabel={addLabel}
@@ -511,6 +523,7 @@ export default function TagNotesEditor({
                 /* 신규 entry — 단일 + 설명 추가 / 외부 편집 중이면 취소 표시 */
                 wrapEdit(
                   <GroupToggleButton
+                    iconOnly={compactActions}
                     /* 팝오버 편집이면 트리거는 계속 add(+편집) 유지 — 팝오버가 자체 취소/저장을 가지므로
                        트리거까지 '취소'로 바뀌면 취소 버튼이 두 개로 겹쳐 보인다. */
                     state={renderEditPopover ? "add" : (activeItem === item ? "cancel" : "add")}

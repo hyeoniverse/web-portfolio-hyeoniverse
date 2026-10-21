@@ -16,6 +16,7 @@ import { Eraser } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Textarea.module.css";
+import { useFieldVariant } from "./fieldVariant";
 import Pressable from "@/components/ui/Pressable";
 import { useWheelHandoff } from "@/hooks/useWheelHandoff";
 
@@ -95,7 +96,7 @@ function PlainTextarea({
   label,
   value,
   onChange,
-  variant = "capsule",
+  variant: variantProp,
   size = "md",
   className,
   textareaClassName,
@@ -113,6 +114,8 @@ function PlainTextarea({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [typing, markTyping] = useTypingQuiet();
   useWheelHandoff(textareaRef);
+  /* 넘긴 값 > 입력칸 모양 범위(FieldVariantScope) > capsule */
+  const variant = useFieldVariant(variantProp);
   const inputCls = [
     styles.textarea,
     variant === "underline" ? styles.underline : "",
@@ -283,7 +286,7 @@ function EditableTextarea({
   label,
   value,
   onChange,
-  variant = "capsule",
+  variant: variantProp,
   size = "md",
   className,
   textareaClassName,
@@ -316,6 +319,8 @@ function EditableTextarea({
   /* built-in toast throttle — 연속 입력/paste 도배 방지 (ref 타임스탬프) */
   const lastToastRef = useRef(0);
 
+  /* 넘긴 값 > 입력칸 모양 범위(FieldVariantScope) > capsule */
+  const variant = useFieldVariant(variantProp);
   const inputCls = [
     styles.textarea,
     styles.editable,

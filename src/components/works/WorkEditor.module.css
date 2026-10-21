@@ -5,19 +5,42 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-20);
-  margin-top: var(--spacing-20);
+  /* 칸 → 칸 24, 구획 → 구획 64 (docs/editor-ui.md 2-4) */
+  gap: var(--spacing-24);
+  margin-top: var(--spacing-64);
+}
+
+/* 본문 열의 첫 섹션(제목 · 부제 · 설명)은 상단 바 바로 아래 — 위 여백을 줄인다 */
+.section:first-child {
+  margin-top: var(--spacing-8);
+}
+
+/* 속성 패널 — 홈 고정 확인란과 주소 · 기간 · 성격 · 분류 칸을 세로로 */
+.properties {
+  display: flex;
+  flex-direction: column;
+  /* 칸 → 칸 24 (docs/editor-ui.md 2-4) — 예전엔 4 에 칸마다 덧댄 여백이라 4 · 16 · 20 으로 들쭉날쭉했다 */
+  gap: var(--spacing-24);
+}
+
+/* 속성 패널 안 선택칸 — 패널 폭을 다 쓴다. 자연 너비면 성격 · 카테고리 칸이 제각각 짧아 들쭉날쭉했다 */
+.properties .categoryAddRow > :first-child {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.properties .categoryAddRow > :first-child > button {
+  width: 100%;
 }
 
 /* contribRoleGroup 들을 너비 따라 multi-col 로 분배.
    auto-fill: 빈 track 유지 → 1 개일 때도 stretch 하지 않고 일정 너비.
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
 
+/* 섹션 머리 — 속성 패널 제목과 같은 작은 대문자 라벨. 예전 headline 크기는 섹션마다 크기가 달라 보였다 */
 .sectionTitle {
-  font: var(--font-headline-xs);
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font: var(--font-label-md);
+  color: var(--text-secondary);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
 }
@@ -36,13 +59,6 @@
   padding-bottom: 0;
   border-bottom: none;
   flex-shrink: 0;
-}
-
-.sectionTitleHint {
-  font: var(--font-body-xs);
-  color: var(--text-tertiary);
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .sectionTitleError {
@@ -69,10 +85,12 @@
 
 /* Textarea 공통 컴포넌트의 .textarea base style (border-strong) 보다 specificity 높아야
  * override 됨 → compound selector (0,2,0) 사용 */
+/* 적는 칸은 밑줄(docs/editor-ui.md 2-1) — 아래 선 하나가 경계(대비 3:1 인 control 색). 초점이면 진해진다 */
 .section .fieldTextarea {
-  padding: var(--spacing-12);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  padding: var(--spacing-8) 0;
+  border: none;
+  border-bottom: var(--border-control);
+  border-radius: 0;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -83,7 +101,7 @@
 }
 
 .section .fieldTextarea:focus {
-  border: var(--border-strong);
+  border-bottom-color: var(--text-primary);
 }
 
 .fieldTextarea::placeholder {
@@ -97,10 +115,10 @@
   align-items: stretch;
   align-self: flex-start;
   gap: 0;
-  height: 28px;
+  height: var(--control-height-md);
   width: fit-content;
   max-width: 100%;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
@@ -129,9 +147,9 @@
   border: none;
   border-radius: 0;
   border-left: var(--border-light);
-  min-width: 28px;
-  width: 28px;
-  height: 26px;
+  min-width: var(--control-height-md);
+  width: var(--control-height-md);
+  height: calc(var(--control-height-md) - 2px);
 }
 
 /* tech chip 안 brand 아이콘 — 라벨 왼쪽 inline */
@@ -143,7 +161,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-20);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
   gap: var(--spacing-16);
@@ -155,12 +172,13 @@
   gap: var(--spacing-16);
 }
 
+/* 본문 머리의 단추 — 편집 화면의 다른 단추 · 입력과 같은 높이(md) */
 .templateBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
-  padding: 0 var(--control-padding-inline-sm);
-  border: var(--border-default);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-md);
+  border: var(--border-strong);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
@@ -172,137 +190,44 @@
   color: var(--text-primary);
 }
 
-/* 추가 섹션 collapsible (Tech/Team/Gallery/Links/Related 묶음) */
+/* 추가 정보 — 머리(제목 + 보기 전환) 아래에 고른 보기(요약+시트 · 카드 · 표) */
 .extraSections {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-32);
-  margin-bottom: var(--spacing-32);
-  border-top: var(--border-light);
+  gap: var(--spacing-24);
+  margin-top: var(--spacing-64);
+  margin-bottom: var(--spacing-64);
 }
 
-/* 머리 — 제목 · 요약(무엇이 몇 개 들었는지) · 펼치기. 상자 없이 한 줄 */
-.extraHead {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-16);
-  width: 100%;
-  padding: var(--spacing-20) 0;
-  text-align: left;
-  cursor: pointer;
-}
-
-.extraHeadTitle {
-  font: var(--font-headline-xs);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.extraHeadSummary {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  font: var(--font-body-sm);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-tertiary);
+/* 요약 카드의 미리보기 — 기술 · 팀원 · 링크는 작은 칩, 관련 글은 제목 줄 */
+.extraPreviewChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--bg-tertiary);
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
-.extraHeadChevron {
+/* 미리보기 칩 안의 팀원 얼굴 — 원본 크기로 커지지 않게 */
+.extraPreviewChip img,
+.extraPreviewAvatar {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
-  align-self: center;
-  color: var(--text-tertiary);
-  transition: transform var(--duration-base) var(--ease-standard);
+  border-radius: var(--radius-full);
+  object-fit: cover;
 }
 
-.extraSections[data-open] .extraHeadChevron {
-  transform: rotate(90deg);
-}
-
-.extraHead:hover .extraHeadTitle,
-.extraHead:hover .extraHeadChevron {
-  color: var(--text-accent);
-}
-
-.extraSectionsContent {
-  /* 왼쪽 제목 칸(200px)을 둘 자리가 있는지는 이 상자 폭으로 본다(3.11-3) */
-  container: work-extra / inline-size;
-  display: flex;
-  flex-direction: column;
+.extraPreviewLine {
+  display: block;
+  width: 100%;
   overflow: hidden;
-  max-height: 0;
-  clip-path: inset(0 0 100% 0);
-  transition:
-    max-height var(--duration-base) var(--ease-standard),
-    clip-path var(--duration-base) var(--ease-standard);
-}
-
-.extraSectionsContentOpen {
-  max-height: var(--_extra-height, 4000px);
-  clip-path: inset(0);
-}
-
-/* 항목마다 한 줄 — 왼쪽 열에 제목과 짧은 설명, 오른쪽에 입력. 항목 사이는 가는 선.
-   격자로 나누면 오른쪽 항목들이 같은 줄에 겹쳤다(팀원 목록과 추가 카드). 오른쪽은 평소처럼 위에서 아래로 쌓고,
-   왼쪽 제목·설명만 왼쪽 여백 자리에 띄운다 */
-.extraSectionsContent > .section {
-  position: relative;
-  min-height: 140px;
-  margin-top: 0;
-  padding: var(--spacing-24) 0 var(--spacing-24) calc(200px + var(--spacing-32));
-  border-top: var(--border-light);
-}
-
-.extraSectionsContent > .section > :is(.sectionTitle, .sectionTitleRow) {
-  position: absolute;
-  top: var(--spacing-24);
-  left: 0;
-  width: 200px;
-}
-
-.extraSectionsContent > .section > .extraHint {
-  position: absolute;
-  top: calc(var(--spacing-24) + var(--spacing-24));
-  left: 0;
-  width: 200px;
-}
-
-/* 왼쪽 열의 제목 — 밑줄 없이 작게 */
-.extraSectionsContent > .section .sectionTitle {
-  padding-bottom: 0;
-  border-bottom: none;
-  font-size: var(--font-size-body-md);
-}
-
-.extraSectionsContent > .section > .sectionTitleRow {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-2);
-}
-
-.extraHint {
-  grid-row: 2;
-  grid-column: 1;
-}
-
-/* 오른쪽 열의 첫 입력이 제목과 같은 줄에서 시작하게 */
-.extraSectionsContent > .section > :is(.sectionTitle, .sectionTitleRow) ~ :not(.extraHint):not(.sectionTitle):not(.sectionTitleRow) {
-  grid-row: 1 / span 20;
-}
-
-/* 왼쪽 열의 제목 — 밑줄 없이 작게 */
-.extraSectionsContent > .section .sectionTitle {
-  padding-bottom: 0;
-  border-bottom: none;
-  font-size: var(--font-size-body-md);
-}
-
-.extraSectionsContent > .section > .sectionTitleRow {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .extraHint {
@@ -310,27 +235,11 @@
   font: var(--font-body-sm);
   line-height: 1.55;
   color: var(--text-tertiary);
-  /* 설명은 한 줄이어도 글머리 — 관리자 화면의 설명 목록(sectionHintList)과 같은 모양. 글머리는 왼쪽 여백에 걸린다 */
-  display: list-item;
-  margin-left: var(--spacing-20);
-  list-style: disc;
 }
 
 /* 관련 글·시리즈 — RelationPicker 의 .wrap(층 밖, 0,1,0) 을 이기려고 .section 을 붙인다. 다른 항목처럼 입력 한 줄 + 칩 줄만. 기본 바깥 여백(다음 칸과의 거리)은 여기서는 항목 여백이 맡는다 */
 .section > .relationPicker {
   margin-bottom: 0;
-}
-
-@container work-extra (width < 760px) {
-  .extraSectionsContent > .section {
-    min-height: 0;
-    padding-left: 0;
-  }
-
-  .extraSectionsContent > .section > :is(.sectionTitle, .sectionTitleRow, .extraHint) {
-    position: static;
-    width: auto;
-  }
 }
 
 /* Posts 의 .editorWrap 과 동일 — vertical resizable, 78vh 시작 높이 */
@@ -344,9 +253,8 @@
   gap: var(--spacing-8);
   height: 78vh;
   min-height: 320px;
-  resize: vertical;
+  /* 높이는 아래 손잡이(ResizeHandle)로 바꾼다 — CSS resize 손잡이는 둥근 모서리에 잘려 보였다 */
   overflow: hidden;
-  margin-bottom: var(--spacing-24);
 }
 
 .editorBlock > * {
@@ -458,11 +366,11 @@
   pointer-events: none;
 }
 
-/* 직접 입력 input — Select trigger / + Button 과 동일한 28px (디테일 페이지 통일 높이) */
+/* 직접 입력 input — Select trigger / + Button 과 같은 높이(편집 화면 md) */
 .customCategoryInput {
   flex: 1;
   min-width: 0;
-  height: 28px;
+  height: var(--control-height-md);
   box-sizing: border-box;
 }
 
@@ -472,12 +380,12 @@
   padding: 0 var(--spacing-16) 0 var(--spacing-40);
 }
 
-/* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.
+/* 직접 입력 + Button override — 옆 입력칸과 같은 높이(md)의 정사각.
  * Button 은 components 층이라 층 밖의 이 규칙이 이긴다 */
 .categoryAddBtnSized {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  min-width: var(--control-height-md);
 }
 
 .subtitleInput {
@@ -533,6 +441,7 @@
   display: grid;
   /* 좁은 화면은 위아래로 쌓는다 — 고른 장, 대본, 썸네일 줄 순. 높이는 내용만큼 */
   grid-template-columns: minmax(0, 1fr);
+  /* 상자 대신 위아래 전체 폭 선(docs/editor-ui.md 1 · 2-2) — 안쪽 칸 사이도 선으로만 나눈다 */
   border-top: var(--border-light);
   border-bottom: var(--border-light);
 }
@@ -743,7 +652,6 @@
   letter-spacing: 0.04em;
   color: var(--text-white);
   mix-blend-mode: difference;
-  text-transform: uppercase;
 }
 
 .galleryMetaName {
@@ -875,30 +783,6 @@
   color: var(--text-primary);
 }
 
-/* ── Team Members ── */
-/* form / list 위의 작은 sub label — section 안 sub-section 구분용 */
-.memberSubLabel {
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-/* label + 추가 버튼 한 줄 — label 좌측, 버튼 우측 */
-.memberSubLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-}
-
-/* label row + form 묶음 — section gap 보다 작은 gap 으로 그룹 형성 */
-.memberFormBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
-
 /* list label + list 묶음 — formBlock 과 동일 패턴 */
 .memberListBlock {
   display: flex;
@@ -911,174 +795,6 @@
   margin: 0;
   font: var(--font-body-sm);
   line-height: 1.6;
-  color: var(--text-tertiary);
-}
-
-/* form — 카드와 통합된 외형 (border + radius + padding). 입력 가능한 빈 카드 형태 */
-
-/* form 첫 row — [avatar | name input | role select]. memberCard 의 chip-row 와 동일 구조 */
-
-/* avatar 가 더블클릭 가능할 때 — cursor + hover overlay.
- * overflow: visible 은 .memberAvatar 와 묶은 (0,2,0) 으로, 뒤에 정의된 .memberAvatar 의 hidden 을 이긴다 (+ 뱃지가 밖으로 나가야 함) */
-.memberAvatar.memberAvatarUploadable {
-  cursor: pointer;
-  position: relative;
-  overflow: visible;
-}
-
-.memberAvatarUploadable:hover::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: color-mix(in oklch, var(--bg-black) 30%, transparent);
-  border-radius: var(--radius-full);
-  pointer-events: none;
-}
-
-/* placeholder 사람 icon — tertiary 톤 */
-.memberAvatarPlaceholder {
-  color: var(--text-tertiary);
-}
-
-/* + 뱃지 — avatar 우하단 겹침. 작은 원형 버튼 */
-.memberAvatarAddBadge {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-full);
-  background: var(--bg-accent-solid);
-  color: var(--text-on-accent);
-  cursor: pointer;
-  /* hover 시 avatar 의 dim overlay (::after) 위에 위치 — z-index 로 stacking 우선 */
-  z-index: 1;
-}
-
-.memberAvatarAddBadge:hover {
-  background: var(--bg-accent-light);
-}
-
-.memberFormRow {
-  display: grid;
-  grid-template-columns: var(--grid-columns-2);
-  gap: var(--spacing-8);
-  align-items: start;
-}
-
-.memberFormRow input {
-  flex: 1;
-  /* 입력칸·combobox·Select 모두 기본 크기(sm) 높이로 */
-  height: var(--control-height-sm);
-  box-sizing: border-box;
-  padding: 0 var(--spacing-16);
-  line-height: 1;
-}
-
-/* Select (RoleMultiPicker.selectNode) 가 .memberFormRow 의 직계 flex item — input 과 1:1 */
-.memberFormRow .roleSelect {
-  flex: 1;
-  min-width: 0;
-  width: auto;
-}
-
-/* combobox input 도 root 너비 채우기 — 안 그러면 chevron (root 기준 absolute) 이 input border 밖에 표시됨 */
-.memberFormRow .roleSelect > input {
-  width: 100%;
-}
-
-/* 편집 모드 — 카드 옅은 accent 배경, border 제거, 좌우 padding 으로 background 영역 확보.
-   .memberCard(0,1,0) 가 뒤에 정의되어 있어 두 클래스(0,2,0)로 이긴다 */
-.memberCard.memberCardEditing {
-  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
-  border: none;
-  padding: var(--card-padding-md);
-}
-
-/* 편집 + close 묶음 — 우측 cluster, 위쪽 정렬 */
-.memberHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin-left: auto;
-}
-
-/* 편집 button (Pencil / X) — CloseButton md 와 동일 사이즈 (button-h-sm = 28px) */
-.memberHeaderEditBtn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* 컨트롤 기본 높이(sm) */
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
-  border: none;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
-}
-
-.memberHeaderEditBtn:hover {
-  color: var(--text-accent);
-  background: var(--bg-tertiary);
-}
-
-/* edit 모드 일 때 — Save + Cancel 버튼 묶음 */
-.memberFormActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-}
-
-/* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
-.memberList {
-  display: grid;
-  /* 칸 최소 360 — 화면이 그보다 좁으면 화면 폭(카드가 화면 밖으로 나갔다) */
-  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
-  height: auto;
-  gap: 0 var(--spacing-24);
-  border-top: none;
-  border-bottom: none;
-}
-
-/* add-mode card — saved card 와 같은 외형이지만 inputs/버튼 포함. header row 가 4-칸 grid */
-/* add-mode card — 단독 카드 (saved list 의 hairline / padding 영향 없음). 컴팩트 column stack.
- * .memberCard 가 뒤에 정의되어 padding 을 덮어쓰는 것을 두 클래스(0,2,0)로 이긴다 */
-.memberCard.memberCardAdd {
-  padding: 0;
-  gap: var(--spacing-12);
-  /* 사진 폭만큼 들이는 들여쓰기는 카드 폭으로 정한다(3.11-3) */
-  container: member-add / inline-size;
-}
-
-/* 헤더 row — [avatar | 이름 칸]. 이름 칸 위에 라벨이 붙어 사진은 입력칸 줄에 맞춘다 */
-.memberCardAdd .memberHeaderRow {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--spacing-16);
-  align-items: end;
-}
-
-/* 새 팀원 칸 하나 — 라벨 + 입력 */
-.memberField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  min-width: 0;
-}
-
-.memberFieldOptional {
-  margin-left: var(--spacing-4);
-  font-weight: 400;
   color: var(--text-tertiary);
 }
 
@@ -1095,297 +811,48 @@
   color: var(--text-tertiary);
 }
 
-/* 사진·이름 줄 아래 나머지(이메일·링크, 멤버 연결, 역할, 작업 내용)는 사진 폭만큼 들여 이름 칸과 같은 선에서 시작한다 */
-.memberCardAdd > :not(.memberHeaderRow):not(input) {
-  margin-left: calc(44px + var(--spacing-16));
+/* 팀원 카드의 단추 — 같은 줄 입력칸과 같은 높이(md). Button 은 components 층이라 이 규칙이 이긴다 */
+/* 팀원 목록 — 한 사람에 한 줄(TeamMemberRow) */
+.memberRows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border-top: var(--border-light);
 }
 
-@container member-add (width < 540px) {
-  .memberCardAdd > :not(.memberHeaderRow):not(input) {
-    margin-left: 0;
+/* 링크 — 한 줄에 [아이콘 · 이름 | 주소]. 좁으면 이름이 위로 */
+.linkRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.linkRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-16);
+}
+
+.linkRowLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+
+@media (width > 768px) {
+  .linkRow {
+    grid-template-columns: 160px minmax(0, 1fr);
   }
 }
 
-/* role select — 자체 row (full-width). Select.root 의 fit-content override */
-/* role row — TagNotesEditor section 의 1 column 너비 만큼 (minmax(320px, 1fr) 한 칸) */
-.memberRoleRow {
-  display: block;
-  width: 100%;
-  max-width: 320px;
-}
-
-.memberRoleRow > .roleSelect {
-  width: 100%;
-}
-.memberRoleRow > .roleSelect > input,
-.memberRoleRow > .roleSelect > button {
-  width: 100%;
-}
-
-/* 역할 선택 — 아래 add-card 의 28px 고정이 이 칸에만 걸려 옆의 이메일·링크 칸(32px)보다 낮아 보였다.
-   같은 줄의 칸들과 같은 높이로 (add-card 규칙보다 세게) */
-.memberCardAdd .memberRoleRow > .roleSelect > input,
-.memberCardAdd .memberRoleRow > .roleSelect > button {
-  height: var(--control-height-sm);
-}
-
-/* add-card 안 모든 입력칸 — 기본 크기(sm) 높이로 맞춘다 (file input 은 hidden 이라 제외) */
-.memberCardAdd input:not([type="file"]) {
-  height: var(--control-height-sm);
-  box-sizing: border-box;
-  padding: 0 var(--spacing-16);
-  line-height: 1;
-}
-
-/* ListItem 의 base .item 은 hairline divider (border-bottom) 패턴.
-/* 미사용 .memberItem 클래스 제거됨 — visual container 는 .memberHeader 가 담당 */
-
-/* avatar — Instagram-스타일: 큰 원형 (44px). 좌측 시각 anchor */
-.memberAvatar {
-  flex-shrink: 0;
-  align-self: flex-start;
-  aspect-ratio: 1;
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  background: var(--bg-tertiary);
-}
-
-.memberAvatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-
-.memberAvatarInitial {
-  font: var(--font-body-lg);
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-/* 정보 영역 — stacked: name / role / email / url 각각 한 줄씩 세로 stack */
-.memberInfo {
-  flex: 1;
-  min-width: 0;
-  align-self: flex-start;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-/* display 요소 (span / anchor) 는 full-width — 더블클릭 hit area 넓어짐 */
-.memberInfo > span,
-.memberInfo > a {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-}
-
-/* input 은 fit-content — display 영역과 다르게 컴팩트 */
-.memberInfo > input {
-  align-self: flex-start;
-  max-width: 100%;
-}
-
-/* inline edit input — fit-to-content 너비 (display 영역은 full-width, input 만 컴팩트).
- * memberItemName/Role/Url 보다 CSS 에서 먼저 정의 → 함께 적용 시 typography class 가 font 속성 override.
- * input 의 기본 brower font 만 reset 하고 font 자체는 typography class 가 담당. */
-.memberInlineEdit {
-  appearance: none;
-  border: none;
-  outline-color: transparent;
-  padding: 0;
-  margin: 0;
-  background: var(--bg-accent-subtle);
-  border-radius: var(--radius-control);
-  font: var(--font-body-sm);
-  line-height: 1.3;
-  color: var(--text-primary);
-  width: auto;
-  min-width: 80px;
-  max-width: 100%;
-  box-sizing: content-box;
-  field-sizing: content;
-}
-
-.memberInlineEdit:focus {
-  background: var(--bg-accent-light);
-}
-
-/* Instagram-style: name 강조 (md, weight 600) */
-.memberItemName {
-  font: var(--font-title-sm);
-  line-height: 1.3;
-  color: var(--text-primary);
-}
-
-/* role — subtitle 같은 톤 (작고 muted) */
-.memberItemRole {
-  font: var(--font-body-sm);
-  line-height: 1.3;
-  color: var(--text-tertiary);
-}
-
-.memberItemUrl {
-  font: var(--font-body-sm);
-  line-height: 1.3;
-  color: var(--text-tertiary);
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-}
-
-/* 사진 첨부 버튼 — 28px 로 input/+ 버튼 라인 맞춤. Button 은 components 층이라 이 규칙이 이긴다 */
-.avatarUploadBtn {
-  height: 28px;
-  min-height: 28px;
-  padding: 0 var(--spacing-16);
-  font-size: var(--font-size-body-sm);
-  border: var(--border-light);
-}
-
-/* ── Team Member Card — Instagram followers-list 스타일.
- * Border 없음, 자체 카드보다 list-row 느낌. 마지막 아이템 빼고 hairline divider */
-.memberCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  padding: var(--card-padding-md);
-  border: none;
-  border-radius: 0;
-  box-sizing: border-box;
-}
-
-/* hairline divider — 마지막 카드 제외. spacing-xs 보다 깔끔한 list 느낌 */
-.memberList .memberCard:not(:last-child) {
+/* 편집 중인 팀원 — 목록 줄 자리의 폼(모양은 TeamMemberForm) */
+.memberEditItem {
+  list-style: none;
   border-bottom: var(--border-light);
-}
-
-/* 작업 표시 (read-only) — memberHeaderRow 의 sibling, memberHeader 안에서 full-width.
- * 각 역할별 그룹: [memberItemRole 스타일 label] + [ul]. */
-.memberContribsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-/* 작업 ul — 들여쓰기 + 좌측 vertical hairline 으로 role 과 시각적 grouping (카드 없이) */
-.memberContribsList {
-  list-style: disc;
-  margin: 0 0 0 var(--spacing-12);
-  padding-left: var(--spacing-20);
-  border-left: var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-  font: var(--font-body-sm);
-  line-height: 1.5;
-  color: var(--text-primary);
-}
-
-/* close 버튼 — actions wrapper 안. align 은 wrapper 가 담당 */
-.memberHeaderActionBtn {
-  /* nothing — wrapper 가 flex-start + margin-left: auto 처리 */
-}
-
-/* contribs wrap — role group 들 column stack */
-.memberContribsWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
-
-/* role 마다 토글 버튼 — chevron + role label. 클릭 시 해당 role 의 작업 ul 펼침/접힘.
- * width: 100% 로 row 전체 클릭 가능하게 */
-.memberContribsToggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  color: inherit;
-  text-align: left;
-}
-
-.memberContribsChevron {
-  color: var(--text-tertiary);
-  transition: transform var(--duration-fast) var(--ease-standard);
-  flex-shrink: 0;
-}
-
-.memberContribsToggleOpen .memberContribsChevron {
-  transform: rotate(90deg);
-}
-
-.memberContribsToggle:hover .memberContribsChevron {
-  color: var(--text-secondary);
-}
-
-/* role label — text cursor + flex: 1 로 chevron 옆 남은 공간 모두 차지 (더블클릭 hit area 확장) */
-.memberContribsToggle .memberItemRole {
-  flex: 1;
-  text-align: left;
-}
-
-/* role 편집 모드 input — display 의 flex: 1 stretch 차단, fit-content */
-.memberContribsToggle .memberInlineEdit {
-  flex: 0 0 auto;
-}
-
-/* 작업 item span (display) — full width 로 더블클릭 hit area 확장.
- * input (편집 모드) 은 memberInlineEdit 의 field-sizing: content 로 fit */
-.memberContribsList li > span {
-  display: block;
-  width: 100%;
-}
-
-/* memberHeader — 카드 본체 (border + radius + padding 으로 시각 컨테이너).
- * 안에 chip-row (.memberHeaderRow) + role 별 contrib groups 가 column 으로 stack */
-/* chip-row — 카드 안 top row (avatar + info + edit + remove) */
-.memberHeaderRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-16);
-}
-
-/* dragging 시 opacity 낮춤 */
-
-/* 기여 항목 ul — form 과 card 양쪽에서 공용. 왼쪽 padding 0 (form 에는 avatar 없음). */
-
-/* dragging 상태 — opacity 낮춰서 시각적 피드백 */
-
-/* 기여 항목 입력 row — input + 추가 버튼. bullet 없음 */
-
-/* ── 팀원 ↔ 사이트 멤버 연결 ─────────────────────────────── */
-/* 연결한 계정은 이 작업물의 편집자가 된다 — 권한을 다루는 자리라 눈에 띄게 둔다. */
-.memberLinkRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-.memberLinkLabel {
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.memberLinkChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
 }
 
 .memberLinkChipAvatar {
@@ -1408,27 +875,3 @@
   color: var(--text-accent);
 }
 
-/* 이름 + 연결 배지 한 줄 — 위의 .memberInfo > span(0,1,1) 이 display:block 으로 덮어 gap 이 먹지 않았다.
-   부모를 붙여 (0,2,0) 으로 이긴다 */
-.memberInfo > .memberNameRow {
-  display: flex;
-  align-items: center;
-  /* 이름과 연결됨 배지 사이는 넉넉히, 줄이 넘어가면 위아래는 좁게 */
-  gap: var(--spacing-4) var(--spacing-12);
-  flex-wrap: wrap;
-}
-
-
-/* 새 팀원 자기소개 KO·EN 두 칸 — 좁으면 위아래로 */
-.memberBioPair {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--spacing-8);
-}
-
-.memberBioCol {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  min-width: 0;
-}

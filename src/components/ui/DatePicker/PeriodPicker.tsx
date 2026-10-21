@@ -25,7 +25,7 @@ interface PeriodPickerProps {
   maxDate?: Date;
   /** 이 시점 이전은 선택 불가. Date 객체 */
   minDate?: Date;
-  /** 고를 수 있는 형식 — 기본은 전부(연도 · 연.월 · 연.월.일 · 연.월.일.시). 프로필 경력처럼 시각이 필요 없는 곳은 줄인다 */
+  /** 고를 수 있는 형식 — 기본은 연도 · 연.월 · 연.월.일. 시각까지 필요한 곳만 "dateTime"(연.월.일.시)을 넣어 넘긴다 */
   formats?: DatePeriod["format"][];
 }
 
@@ -38,6 +38,9 @@ const FORMAT_OPTIONS: { value: Format; label: LocalizedText }[] = [
   { value: "date", label: { ko: "연.월.일", en: "Y.M.D" } },
   { value: "dateTime", label: { ko: "연.월.일.시", en: "Y.M.D.h" } },
 ];
+
+/** formats 를 주지 않았을 때 — 기간 표시에 시각은 거의 쓰지 않아 연.월.일.시는 옵션으로만 */
+const DEFAULT_FORMATS: Format[] = ["year", "yearMonth", "date"];
 
 /** 날짜까지만 보는 달력에 넘길 형식 — 시각 형식은 날짜 달력을 쓴다 */
 const calendarFormat = (f: Format): "year" | "yearMonth" | "date" => (f === "dateTime" ? "date" : f);
@@ -322,7 +325,7 @@ export default function PeriodPicker({
   showPreview = true,
   minDate,
   maxDate,
-  formats,
+  formats = DEFAULT_FORMATS,
 }: PeriodPickerProps) {
   const { t, language } = useLanguage();
 
@@ -380,7 +383,7 @@ export default function PeriodPicker({
         <div className={styles.formatRow}>
           <span className={styles.formatLabel}>{t("common.periodFormat")}</span>
           <div className={styles.formatSegment}>
-            {FORMAT_OPTIONS.filter((opt) => !formats || formats.includes(opt.value) || opt.value === safeValue.format).map((opt) => (
+            {FORMAT_OPTIONS.filter((opt) => formats.includes(opt.value) || opt.value === safeValue.format).map((opt) => (
               <Pressable
                 key={opt.value}
                 type="button"

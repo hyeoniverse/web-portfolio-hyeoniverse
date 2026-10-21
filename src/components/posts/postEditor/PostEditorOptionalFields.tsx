@@ -151,8 +151,8 @@ export default function PostEditorOptionalFields({
             />
           </Pressable>
 
-          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
-          <div style={{ padding: "0 var(--spacing-16) var(--spacing-16)" }}>
+          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여 — 속성 패널 안에서는 좌우를 뺀다) */}
+          <div className={styles.optionalAlways}>
             <div className={es.row}>
               <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>

@@ -1,0 +1,225 @@
+/* ── 작업물 편집기 — 추가 정보: 요약 카드 한 줄 + 아래로 펼치는 편집기 ── */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* 안쪽 편집기(WorkEditor 의 각 섹션) — 카드가 제목을 대신하니 섹션 제목은 숨기고 위 여백을 없앤다 */
+.body > :global(*) {
+  margin-top: 0;
+}
+
+.body > :global(*) > h2 {
+  display: none;
+}
+
+/* 요약 카드 — 바탕 없이 위쪽 가는 선과 글자만. 고른 카드는 위 선이 진해진다 */
+.summary {
+  display: grid;
+  /* auto-fit — 카드 다섯 장이 줄을 다 채운다(auto-fill 이면 빈 칸이 남았다) */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-16);
+}
+
+.summaryCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-height: 104px;
+  padding: var(--spacing-12) var(--spacing-24) var(--spacing-12) 0;
+  border-top: var(--border-light);
+  background: none;
+  text-align: left;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.summaryCard:hover {
+  border-top-color: var(--border-color-control);
+}
+
+.summaryCardActive,
+.summaryCardActive:hover {
+  border-top: var(--border-width-2) solid var(--text-primary);
+}
+
+.summaryTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-8);
+}
+
+.summaryTitle {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+
+.summaryCount {
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.summaryPreview {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  min-width: 0;
+  /* 칩 두 줄까지 — 세 번째 줄이 반쯤 잘려 보이지 않게 두 줄 높이로 자른다 */
+  max-height: calc(var(--spacing-24) * 2 + var(--spacing-2));
+  overflow: hidden;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.summaryChevron {
+  position: absolute;
+  top: var(--spacing-16);
+  right: 0;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.summaryCardActive .summaryChevron {
+  transform: rotate(180deg);
+  color: var(--text-primary);
+}
+
+/* 펼친 편집기 — 카드 줄 아래 전체 폭 */
+.panel {
+  min-width: 0;
+  padding-top: var(--spacing-8);
+}
+
+.empty {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+/* ── 기술 스택 행 (TechTable) — 좁은 화면: [손잡이 · 이름 | 삭제] 아래로 KO · EN. 넓은 화면(>768): 한 줄 ── */
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: var(--spacing-16) minmax(0, 1fr) var(--control-height-md);
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-light);
+}
+
+.tableRow > :nth-child(3),
+.tableRow > :nth-child(4) {
+  grid-column: 2 / -1;
+}
+
+.tableRow > :nth-child(5) {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.tableRowDragging {
+  opacity: 0.4;
+}
+
+/* 끌어 놓을 자리 — 그 줄 위에 강조 선 */
+.tableRowOver {
+  border-top: var(--border-width-2) solid var(--text-accent);
+}
+
+.tableHead {
+  display: none;
+  padding-bottom: var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+.tableGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+}
+
+.tableName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}
+
+.tableName > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 행 안 입력 — 평소엔 테두리 없이 글처럼, 올리거나 초점이 오면 칸이 드러난다 */
+.tableInput {
+  width: 100%;
+  height: var(--control-height-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-12);
+  border: var(--border-width-1) solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  outline-color: transparent;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.tableInput:hover {
+  border-color: var(--border-color-light);
+}
+
+.tableInput:focus {
+  border-color: var(--border-color-control);
+}
+
+.tableInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.tableRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border-radius: var(--radius-full);
+  color: var(--text-tertiary);
+}
+
+.tableRemove:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+@media (width > 768px) {
+  .tableRow {
+    grid-template-columns: var(--spacing-16) minmax(160px, 1.2fr) minmax(0, 2fr) minmax(0, 2fr) var(--control-height-md);
+    gap: var(--spacing-12);
+    padding: var(--spacing-4) 0;
+  }
+
+  .tableRow > :nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .tableHead {
+    display: grid;
+  }
+}

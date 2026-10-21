@@ -4,6 +4,7 @@ import { useScopedSize } from "@/components/ui/controlSize";
 import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { Eraser, Eye, EyeOff, Plus } from "@/components/icons";
 import styles from "./Input.module.css";
+import { useFieldVariant } from "./fieldVariant";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -48,7 +49,7 @@ export default function Input({
   inlineLabel,
   value,
   onChange,
-  variant = "capsule",
+  variant: variantProp,
   size: sizeProp = "md",
   className,
   error = false,
@@ -87,6 +88,8 @@ export default function Input({
     }
   };
 
+  /* 넘긴 값 > 입력칸 모양 범위(FieldVariantScope) > capsule */
+  const variant = useFieldVariant(variantProp);
   const inputCls = [
     styles.input,
     variant === "underline" ? styles.underline : "",

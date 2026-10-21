@@ -227,7 +227,8 @@ export default function CoverImagePicker({
   }
 
   return (
-    <div className={`${styles.picker}${closing ? ` ${styles.pickerClosing}` : ""}`}>
+    /* data-wide-tool — 편집 화면의 속성 패널 안에서 열리면 패널이 넓어진다(AdminEditorShell 의 .layout:has) */
+    <div className={`${styles.picker}${closing ? ` ${styles.pickerClosing}` : ""}`} data-wide-tool>
       {pickerBody}
     </div>
   );

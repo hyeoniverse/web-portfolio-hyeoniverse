@@ -553,7 +553,13 @@ export default function Select({
           autoFocus={userEditing}
           defaultValue={startBlank ? "" : value}
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
-          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
+          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다.
+             input 의 자연 너비는 size(기본 20자)라, 글자 수 상한이 있으면 그 글자 수 + 좌우 여백만 —
+             편집기 도구 막대의 글자 크기 · 줄 간격 칸이 비어 있을 때 300px 로 늘어나 막대가 세 줄이 됐다.
+             size 속성은 사파리가 가장 넓은 글자로 재 5자에도 128px 이 돼서 ch 로 직접 준다 */
+          style={editableInputProps?.maxLength
+            ? { width: `calc(${editableInputProps.maxLength + 1}ch + var(--spacing-12) + var(--spacing-16))` }
+            : undefined}
           maxLength={editableInputProps?.maxLength}
           placeholder={editableInputProps?.placeholder ?? placeholder}
           disabled={disabled}

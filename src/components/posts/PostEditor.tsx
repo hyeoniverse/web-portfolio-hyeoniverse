@@ -25,6 +25,7 @@ import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import { findCategoryNode, toCategoryOptions, flattenCategories } from "@/lib/categoryTree";
 import Checkbox from "@/components/ui/Checkbox";
+import ResizeHandle from "@/components/ui/ResizeHandle";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 
@@ -319,6 +320,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const te = useCallback((key: string) => t(`admin.posts.editor.${key}`), [t]);
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
+  // 본문 편집기 높이 — 아래 손잡이로 바꾼다
+  const editorWrapRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
 
   /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + 상호작용 전까지 blink. */
@@ -1056,6 +1059,26 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         </div>
 
+      </div>
+
+    </div>
+  ), [metaForm, te, titleFieldError, titleKey, updateField]);
+
+  /* 상단 고정 — 속성 패널 맨 위에 선다 */
+  const pinToggle = useMemo(() => (
+    <Checkbox
+      checked={metaForm.is_pinned}
+      onChange={(v) => updateField("is_pinned", v)}
+      shape="square"
+      label={te("pinLabel")}
+    />
+  ), [metaForm.is_pinned, te, updateField]);
+
+  /* 속성 패널 — 주소 · 분류 · 작성자와 선택 입력(시리즈 · 태그 · 요약 …). 본문 옆 열(넓은 화면) 또는 서랍(좁은 화면) */
+  const propertiesSection = useMemo(() => (
+    <div className={styles.properties}>
+      {pinToggle}
+
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
             <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
@@ -1088,6 +1111,8 @@ export default function PostEditor({ post }: PostEditorProps) {
               return (
                 <>
                   <Select
+                    /* 속성 패널 폭을 다 쓴다 — 다른 칸(slug)과 끝을 맞춘다 */
+                    width="full"
                     value={selectValue}
                     options={[
                       { value: "__custom__", label: te("customCategory") },
@@ -1175,8 +1200,6 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
         </div>
 
-      </div>
-
       {/* ── 선택 입력 (접기/펼치기) ── */}
       <PostEditorOptionalFields
         form={metaForm}
@@ -1211,11 +1234,11 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
     </div>
   ), [
-    hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
+    pinToggle, hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
     handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
-    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te, titleFieldError,
+    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te,
     editorLang, generatingSummary, handleGenerateSummary, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
-    titleKey, updateField,
+    updateField,
   ]);
 
   const editorHeader = useMemo(() => (
@@ -1326,15 +1349,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     />
   ), [handleCoverUpload, metaForm.cover_image, metaForm.cover_position, metaForm.cover_zoom, metaForm.icon, updateField]);
 
-  const pinToggle = useMemo(() => (
-    <Checkbox
-      checked={metaForm.is_pinned}
-      onChange={(v) => updateField("is_pinned", v)}
-      shape="square"
-      label={te("pinLabel")}
-    />
-  ), [metaForm.is_pinned, te, updateField]);
-
   return (
     <>
     <AdminEditorShell
@@ -1402,7 +1416,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
         };
       }}
-      topBarFirstRowExtra={pinToggle}
+      sidebar={propertiesSection}
       coverSlot={coverBanner}
     >
       {presenceOthers > 0 && (
@@ -1418,7 +1432,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       <div className={styles.editorSection}>
         {editorHeader}
 
-        <div className={styles.editorWrap} data-required="content">
+        <div ref={editorWrapRef} className={styles.editorWrap} data-required="content">
           <Editor
             key={editorLang}
             value={form[contentKey]}
@@ -1436,6 +1450,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             onHtmlModeChange={setEditorHtmlMode}
           />
         </div>
+        <ResizeHandle targetRef={editorWrapRef} label={t("admin.common.resizeEditor")} className={es.editorResize} />
       </div>
 
       {/* ── 첨부 이미지 패널 (richtext 단일) ── */}

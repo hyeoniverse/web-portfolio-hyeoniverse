@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
-import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2, ExternalLink } from "@/components/icons";
+import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2, ExternalLink, PanelRight, X } from "@/components/icons";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -25,6 +25,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import Badge from "@/components/ui/Badge";
 import { ControlSizeScope } from "@/components/ui/controlSize";
+import { FieldVariantScope } from "@/components/ui/fieldVariant";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -67,14 +68,23 @@ export default function AdminEditorShell({
   topBarSecondRowLeft,
   topBarFirstRowExtra,
   coverSlot,
+  sidebar,
+  wide,
   scheduledAt,
   onScheduledChange,
   minScheduledDate,
   children,
 }: AdminEditorShellProps) {
   const { t } = useLanguage();
-  const [showScheduleTop, setShowScheduleTop] = useState(false);
-  const [showScheduleBottom, setShowScheduleBottom] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
+  /* 좁은 화면에서 속성 서랍이 열렸는가 — 넓은 화면에서는 패널이 늘 보여 쓰지 않는다 */
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSidebarOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sidebarOpen]);
   const hasSchedule = !!scheduledAt;
   const canSchedule = !!onScheduledChange;
   const publishLabel = hasSchedule
@@ -154,6 +164,8 @@ export default function AdminEditorShell({
             onOpenChange={setOpen}
             placement={schedulePlacement}
             contentClassName={styles.scheduleDropdown}
+            /* 불투명 — 유리(기본)면 뒤의 속성 패널 글자가 날짜 · 시간 칸 사이로 비쳤다 */
+            variant="solid"
             maxHeight={false}
             sheetTitle={labels.scheduledAt ?? "Schedule"}
             trigger={
@@ -511,8 +523,34 @@ export default function AdminEditorShell({
 
   /* 편집 화면의 단추 · 입력 · 셀렉트 · 세그먼트를 한 높이(md)로 — 파일마다 size 가 달라 28 · 32 가 섞였다.
      본문 편집기처럼 자체 배치가 있는 부품은 안에서 범위를 푼다 */
+  /* 삭제 — 이름을 적어 확인하게 하는 경우(deleteTargetName)는 확인 창을 먼저 */
+  const requestDelete = () => {
+    if (!deleteTargetName) {
+      onDelete?.();
+      return;
+    }
+    openModal(
+      <ModalPrompt
+        hint={labels.deleteConfirmInput}
+        placeholder={deleteTargetName}
+        validate={(v) => v === deleteTargetName}
+        confirmText={labels.delete}
+        danger
+        onConfirm={() => onDelete?.()}
+      />,
+      {
+        id: "delete-confirm",
+        closeButton: false,
+        width: "400px",
+        header: { title: `\u201C${deleteTargetName}\u201D` },
+      },
+    );
+  };
+
   return (
     <ControlSizeScope size="md">
+    {/* 적는 칸은 밑줄, 고르는 것은 알약(docs/editor-ui.md 2-1) — 안의 Input · Textarea 는 따로 정하지 않으면 밑줄 */}
+    <FieldVariantScope variant="underline">
     <div className={styles.container}>
       {coverSlot}
       {/* topBar 핀 감지용 sentinel — topBar 바로 위(자연 위치) */}
@@ -522,15 +560,57 @@ export default function AdminEditorShell({
           topBarPinned ? ` ${styles.topBarPinned}` : ""
         }`}
       >
+        {/* 한 줄 — 왼쪽: 뒤로 · 발행 상태 / 가운데: 언어 · 아이콘 동작 / 오른쪽: 저장 묶음.
+            예전에는 두 줄(아래에 상태 칩 · 저장)에 맨 아래 저장 바까지 있어 같은 단추가 세 군데였다 */}
         <div className={styles.topBarRow}>
-        {/* ── 왼쪽: BackLink + extra(Checkbox) + LanguageToggle 한 묶음 ── */}
         <div className={styles.navGroup}>
           <BackLink href={backHref} label={backLabel} />
+          <StatusBadge
+            className={styles.statusBadge}
+            variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}
+            /* 목록의 칩처럼 눌러서 발행/미발행을 바꾼다(#1116). 예약 대기 칩은 누르지 않는다 — 누르면 예약을 건너뛰고 바로 발행된다 */
+            onClick={onTogglePublished && (published || !hasSchedule) ? onTogglePublished : undefined}
+            title={onTogglePublished && (published || !hasSchedule) ? t(published ? "admin.posts.clickToUnpublish" : "admin.posts.clickToPublish") : undefined}
+            disabled={saving}
+          >
+            {/* 편집 화면 문구라 관리자 화면 언어를 따른다(편집 중인 글의 언어 탭이 아니라) */}
+            {t(published ? "admin.common.statusPublished" : hasSchedule ? "admin.common.statusScheduled" : "admin.common.statusDraft")}
+          </StatusBadge>
+          {/* 공개 글 보기(↗) — 발행 상태 바로 옆 */}
+          {viewHref && (
+            <Tooltip content={labels.view ?? "View"} placement="bottom">
+              <Button
+                variant="ghost"
+                shape="circle"
+                href={viewHref}
+                external
+                soundDisabled
+                aria-label={labels.view ?? "View"}
+                icon={<ExternalLink size={14} />}
+              />
+            </Tooltip>
+          )}
+          {topBarSecondRowLeft}
           {topBarFirstRowExtra}
-          <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
+          {/* 속성 패널 여닫기 — 패널이 옆에 서지 못하는 좁은 화면에서만 보인다(CSS). 첫 줄 오른쪽 끝 */}
+          {sidebar && (
+            <Button
+              variant="ghost"
+              className={styles.sidebarToggle}
+              onClick={() => setSidebarOpen((v) => !v)}
+              aria-expanded={sidebarOpen}
+              aria-controls="editor-properties"
+              soundDisabled
+              icon={<PanelRight size={14} />}
+            >
+              {t("admin.common.editorProperties")}
+            </Button>
+          )}
         </div>
 
-        {/* ── 오른쪽: 상태 banner + icon action group (retranslate / summary / revert / revisions / delete) ── */}
+        {/* ── 오른쪽: 상태 알림 + 두 묶음, 사이에 세로선 하나
+               언어 [KO|EN · 번역 · 요약] │ 저장 [기록 · 되돌리기(고쳤을 때) · 미리보기 · 임시저장 · 저장]
+               보기(↗)는 왼쪽 발행 상태 옆, 삭제는 속성 패널 맨 아래로 나눴다 ── */}
         <div className={styles.topBarActions}>
           {(status || error) && (
             <span className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
@@ -539,7 +619,11 @@ export default function AdminEditorShell({
             </span>
           )}
           <div className={styles.actionGroup}>
+            {/* 1. 언어 — 편집 언어와 그 언어를 다루는 AI(번역 · 요약) */}
+            <div className={styles.barGroup}>
+            <span className={styles.barLabel}>{t("admin.common.barGroupLang")}</span>
             <div className={styles.actionGroupAi}>
+            <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} size="sm" />
             {(onRetranslate || retranslateDisabled) && retranslateOptions && (
               <Popover
                 open={showRetranslate}
@@ -550,7 +634,7 @@ export default function AdminEditorShell({
                 trigger={
                   <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       shape="circle"
                       className={styles.retranslateBtn}
                       aria-label={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")}
@@ -592,7 +676,7 @@ export default function AdminEditorShell({
             {(onGenerateSummary || aiSummaryDisabled) && (
               <Tooltip content={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")} placement="bottom">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   shape="circle"
                   aria-label={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")}
                   onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
@@ -603,469 +687,445 @@ export default function AdminEditorShell({
               </Tooltip>
             )}
             </div>
-            <div className={styles.actionGroupEdit}>
-            {/* 발행글이면 공개 글 보기(↗) — 히스토리·복원·삭제와 같은 아이콘 액션 묶음 */}
-            {viewHref && (
-              <Tooltip content={labels.view ?? "View"} placement="bottom">
-                <Button
-                  variant="outline"
-                  shape="circle"
-                  href={viewHref}
-                  external
-                  soundDisabled
-                  aria-label={labels.view ?? "View"}
-                  icon={<ExternalLink size={14} />}
-                />
-              </Tooltip>
-            )}
-            {onRevert && (
-              <Tooltip content={labels.revert ?? "Revert"} placement="bottom">
-                <Button
-                  variant="outline"
-                  shape="circle"
-                  className={styles.revertBtn}
-                  aria-label={labels.revert ?? "Revert"}
-                  onClick={onRevert}
-                  disabled={saving || !isDirty}
-                  soundDisabled
-                  icon={<RotateCcw size={14} />}
-                />
-              </Tooltip>
-            )}
-            {revisions && (
-              <Popover
-                open={showRevisions}
-                onOpenChange={(next) => {
-                  setShowRevisions(next);
-                  if (next) {
-                    setViewingRevision(null);
-                    setIsSelectMode(false);
-                    setSelectedRevisions(new Set());
+            </div>
+          </div>
+          <span className={styles.barDivider} aria-hidden="true" />
+          {/* 3. 저장 — 미리보기 · 임시저장 · 저장 */}
+          <div className={styles.barGroup}>
+            <span className={styles.barLabel}>{t("admin.common.barGroupSave")}</span>
+            <div className={styles.saveGroup}>
+              {/* 기록 — 저장해 온 판들 */}
+              {revisions && (
+                <Popover
+                  open={showRevisions}
+                  onOpenChange={(next) => {
+                    setShowRevisions(next);
+                    if (next) {
+                      setViewingRevision(null);
+                      setIsSelectMode(false);
+                      setSelectedRevisions(new Set());
+                    }
+                  }}
+                  placement="bottom-end"
+                  contentRef={dropdownRef}
+                  contentClassName={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`}
+                  sheetTitle={labels.revisionHistory ?? "History"}
+                  trigger={
+                    <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
+                      <Button
+                        variant="ghost"
+                        className={styles.revisionBtn}
+                        soundDisabled
+                      >
+                        <Clock size={14} />
+                        <span className={styles.revisionBadge}>{revisions.length}</span>
+                      </Button>
+                    </Tooltip>
                   }
-                }}
-                placement="bottom-end"
-                contentRef={dropdownRef}
-                contentClassName={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`}
-                sheetTitle={labels.revisionHistory ?? "History"}
-                trigger={
-                  <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
-                    <Button
-                      variant="outline"
-                      className={styles.revisionBtn}
-                      soundDisabled
-                    >
-                      <Clock size={14} />
-                      <span className={styles.revisionBadge}>{revisions.length}</span>
-                    </Button>
-                  </Tooltip>
-                }
-              >
-                <div data-lenis-prevent>
-                    {revisions.length === 0 ? (
-                      <div className={styles.revisionEmpty}>{t("admin.common.noRevisions")}</div>
-                    ) : viewingRevision !== null && revisions[viewingRevision] ? (
-                      /* ── Detail view (clip-path reveal) ── */
-                      <div className={styles.revisionDetail}>
-                        <div className={styles.revisionDetailHeader}>
-                          {/* Row 1 (sticky) — back + timestamp | restore/delete */}
-                          <div className={`${styles.revisionDetailHeaderRow} ${styles.revisionDetailHeaderRowSticky}`}>
-                            <div className={styles.revisionDetailHeaderLeft}>
-                              <Pressable noTapScale
-                                className={styles.revisionBackBtn}
-                                onClick={() => setViewingRevision(null)}
-                              >
-                                <ChevronLeft size={14} />
-                                {labels.revisionHistory ?? "History"}
-                              </Pressable>
-                              <span className={styles.revisionTime}>
-                                {formatTime(revisions[viewingRevision].timestamp)}
-                              </span>
-                            </div>
-                            <div className={styles.revisionDetailActions}>
-                              <Tooltip content={labels.restore ?? "Restore"} placement="bottom">
+                >
+                  <div data-lenis-prevent>
+                      {revisions.length === 0 ? (
+                        <div className={styles.revisionEmpty}>{t("admin.common.noRevisions")}</div>
+                      ) : viewingRevision !== null && revisions[viewingRevision] ? (
+                        /* ── Detail view (clip-path reveal) ── */
+                        <div className={styles.revisionDetail}>
+                          <div className={styles.revisionDetailHeader}>
+                            {/* Row 1 (sticky) — back + timestamp | restore/delete */}
+                            <div className={`${styles.revisionDetailHeaderRow} ${styles.revisionDetailHeaderRowSticky}`}>
+                              <div className={styles.revisionDetailHeaderLeft}>
                                 <Pressable noTapScale
-                                  className={styles.revisionIconBtn}
-                                  onClick={() => {
-                                    onRestoreRevision?.(viewingRevision);
-                                    setShowRevisions(false);
-                                    setViewingRevision(null);
-                                  }}
-                                  aria-label={labels.restore ?? "Restore"}
+                                  className={styles.revisionBackBtn}
+                                  onClick={() => setViewingRevision(null)}
                                 >
-                                  <Undo2 size={12} />
+                                  <ChevronLeft size={14} />
+                                  {labels.revisionHistory ?? "History"}
                                 </Pressable>
-                              </Tooltip>
-                              {onDeleteRevision && (
-                                <Tooltip content={labels.delete} placement="bottom">
+                                <span className={styles.revisionTime}>
+                                  {formatTime(revisions[viewingRevision].timestamp)}
+                                </span>
+                              </div>
+                              <div className={styles.revisionDetailActions}>
+                                <Tooltip content={labels.restore ?? "Restore"} placement="bottom">
                                   <Pressable noTapScale
                                     className={styles.revisionIconBtn}
-                                    aria-label={labels.delete}
-                                    onClick={async () => {
-                                      openModal(
-                                        <ModalPrompt
-                                          hint={t("admin.common.deleteLogPrompt")}
-                                          placeholder={t("admin.common.deleteLogConfirm")}
-                                          validate={(v) => v === t("admin.common.deleteLogConfirm")}
-                                          confirmText={t("admin.common.delete")}
-                                          danger
-                                          onConfirm={async () => {
-                                            const ok = await onDeleteRevision(viewingRevision);
-                                            if (ok) {
-                                              setViewingRevision(null);
-                                              if (revisions && revisions.length <= 1) setShowRevisions(false);
-                                            }
-                                          }}
-                                        />,
-                                        { id: "rev-delete", header: { title: t("admin.common.deleteLog") }, closeButton: true, width: "400px" },
-                                      );
+                                    onClick={() => {
+                                      onRestoreRevision?.(viewingRevision);
+                                      setShowRevisions(false);
+                                      setViewingRevision(null);
                                     }}
+                                    aria-label={labels.restore ?? "Restore"}
                                   >
-                                    <Trash2 size={12} />
+                                    <Undo2 size={12} />
                                   </Pressable>
                                 </Tooltip>
-                              )}
-                            </div>
-                          </div>
-                          {/* Row 2 — 동일 배지 | lang toggle */}
-                          <div className={styles.revisionDetailHeaderRow}>
-                            {(() => {
-                              if (detailLoading || !currentSnapshot || !revisionDetail) return <span />;
-                              const revTitle = revisionDetail.title ?? revisions[viewingRevision].title ?? "";
-                              const sameTitle = revTitle === currentSnapshot.title;
-                              const sameSubtitle = (revisionDetail.subtitle ?? "") === (currentSnapshot.subtitle ?? "");
-                              const sameExcerpt = (revisionDetail.excerpt ?? "") === (currentSnapshot.excerpt ?? "");
-                              const sameContent = (revisionDetail.content ?? "") === (currentSnapshot.content ?? "");
-                              const sameMeta = JSON.stringify(revisionDetail.meta ?? {}) === JSON.stringify(currentSnapshot.meta ?? {});
-                              if (!(sameTitle && sameSubtitle && sameExcerpt && sameContent && sameMeta)) return <span />;
-                              return (
-                                <Badge tone="success" uppercase dot>
-                                  {t("admin.common.sameAsCurrent")}
-                                </Badge>
-                              );
-                            })()}
-                            <LanguageToggle lang={revisionLang} onLangChange={setRevisionLang} size="sm" />
-                          </div>
-                        </div>
-                        {detailLoading ? (
-                          <div className={styles.revisionDetailSkeleton}>
-                            <SkeletonLine width="80px" height={12} />
-                            <SkeletonLine width="60%" height={16} />
-                            <SkeletonLine width="40%" height={12} />
-                            <SkeletonLine width="100%" height={80} />
-                            <SkeletonLine width="90%" height={80} />
-                          </div>
-                        ) : (
-                        <>
-                        {/* Title + 부제목 + 설명 — label | value grid (meta groups 와 동일 패턴) */}
-                        {(() => {
-                          const labels = revisionDetail?.headerLabels ?? currentSnapshot?.headerLabels ?? {};
-                          const titleLabel = labels.title ?? t("admin.inline.adminEditorShell.title");
-                          const subtitleLabel = labels.subtitle ?? t("admin.inline.adminEditorShell.subtitle");
-                          const excerptLabel = labels.excerpt ?? t("admin.inline.adminEditorShell.description");
-                          const oldT = currentSnapshot?.title ?? "";
-                          const newT = revisionDetail?.title ?? revisions[viewingRevision].title ?? "";
-                          const oldS = currentSnapshot?.subtitle ?? "";
-                          const newS = revisionDetail?.subtitle ?? "";
-                          const oldE = currentSnapshot?.excerpt ?? "";
-                          const newE = revisionDetail?.excerpt ?? "";
-                          const rows: { label: string; old: string; new: string; valueClass: string; emphasize?: boolean }[] = [
-                            { label: titleLabel, old: oldT, new: newT || "(untitled)", valueClass: styles.revisionDetailTitle, emphasize: true },
-                          ];
-                          if (oldS || newS) rows.push({ label: subtitleLabel, old: oldS, new: newS, valueClass: styles.revisionDetailSubtitle });
-                          if (oldE || newE) rows.push({ label: excerptLabel, old: oldE, new: newE, valueClass: styles.revisionDetailExcerpt });
-                          return (
-                            <ul className={styles.revisionDetailMeta}>
-                              {rows.map((row) => {
-                                const same = !currentSnapshot || row.old === row.new;
-                                return (
-                                  <li key={row.label} className={styles.revisionMetaItem}>
-                                    <span className={styles.revisionMetaKey}>{row.label}</span>
-                                    <span className={row.valueClass}>
-                                      {row.emphasize ? (
-                                        <strong>
-                                          {same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
-                                            <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
-                                          ))}
-                                        </strong>
-                                      ) : (
-                                        same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
-                                          <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
-                                        ))
-                                      )}
-                                    </span>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          );
-                        })()}
-                        {(() => {
-                          // primary meta — content 위, 중요 정보
-                          const primary = (revisionDetail?.meta ?? []).filter((g) => !g.secondary);
-                          if (primary.length === 0) return null;
-                          return (
-                            <div className={styles.revisionMetaSection}>
-                              {primary.map(renderMetaGroup)}
-                            </div>
-                          );
-                        })()}
-                        {(() => {
-                          const revContent = revisionDetail?.content ?? "";
-                          const curContent = currentSnapshot?.content ?? "";
-                          if (!revContent && !curContent) return null;
-                          if (!currentSnapshot || revContent === curContent) {
-                            return revContent ? (
-                              <div className={styles.revisionDetailContent}>{revContent}</div>
-                            ) : null;
-                          }
-                          const diff = lineDiff(curContent, revContent);
-                          return (
-                            <div className={styles.revisionDetailContent}>
-                              {diff.map((line, idx) => (
-                                <div
-                                  key={idx}
-                                  className={
-                                    line.type === "add" ? styles.diffAdd :
-                                    line.type === "del" ? styles.diffDel : ""
-                                  }
-                                >
-                                  <span className={styles.diffPrefix}>
-                                    {line.type === "add" ? "+" : line.type === "del" ? "−" : " "}
-                                  </span>
-                                  {line.text || "\u00A0"}
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                        {(() => {
-                          // secondary meta — content 아래, 중요도 낮은 보조 정보
-                          const secondary = (revisionDetail?.meta ?? []).filter((g) => g.secondary);
-                          if (secondary.length === 0) return null;
-                          return (
-                            <div className={`${styles.revisionMetaSection} ${styles.revisionMetaSecondary}`}>
-                              {secondary.map(renderMetaGroup)}
-                            </div>
-                          );
-                        })()}
-                        </>
-                        )}
-                      </div>
-                    ) : (
-                      /* ── List view ── */
-                      <div className={styles.revisionListView}>
-                        <div className={styles.revisionHeader}>
-                          {isSelectMode ? (
-                            <>
-                              <Checkbox
-                                shape="square"
-                                checked={selectedRevisions.size === revisions.length && revisions.length > 0}
-                                indeterminate={selectedRevisions.size > 0 && selectedRevisions.size < revisions.length}
-                                onChange={(checked) => {
-                                  if (checked) {
-                                    setSelectedRevisions(new Set(revisions.map((_, i) => i)));
-                                  } else {
-                                    setSelectedRevisions(new Set());
-                                  }
-                                }}
-                                label={selectedRevisions.size > 0 ? fillTemplate(t("admin.common.selectedItems"), { count: selectedRevisions.size }) : t("admin.common.selectAll")}
-                                className={styles.revisionSelectAll}
-                              />
-                              <div className={styles.revisionSelectActions}>
-                                {selectedRevisions.size > 0 && (
-                                  <Pressable noTapScale
-                                    className={styles.revisionDeleteSelectedBtn}
-                                    onClick={async () => {
-                                      if (!onDeleteRevision) return;
-                                      const count = String(selectedRevisions.size);
-                                      openModal(
-                                        <ModalPrompt
-                                          hint={fillTemplate(t("admin.common.bulkDeletePrompt"), { count })}
-                                          placeholder={count}
-                                          validate={(v) => v === count}
-                                          confirmText={t("admin.common.delete")}
-                                          danger
-                                          onConfirm={async () => {
-                                            const indices = Array.from(selectedRevisions);
-                                            await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
-                                            setSelectedRevisions(new Set());
-                                            setIsSelectMode(false);
-                                            if (revisions.length <= indices.length) setShowRevisions(false);
-                                          }}
-                                        />,
-                                        { id: "bulk-rev-delete", header: { title: fillTemplate(t("admin.common.deleteCount"), { n: count }) }, closeButton: true, width: "400px" },
-                                      );
-                                    }}
-                                  >
-                                    {t("admin.common.delete")}
-                                  </Pressable>
+                                {onDeleteRevision && (
+                                  <Tooltip content={labels.delete} placement="bottom">
+                                    <Pressable noTapScale
+                                      className={styles.revisionIconBtn}
+                                      aria-label={labels.delete}
+                                      onClick={async () => {
+                                        openModal(
+                                          <ModalPrompt
+                                            hint={t("admin.common.deleteLogPrompt")}
+                                            placeholder={t("admin.common.deleteLogConfirm")}
+                                            validate={(v) => v === t("admin.common.deleteLogConfirm")}
+                                            confirmText={t("admin.common.delete")}
+                                            danger
+                                            onConfirm={async () => {
+                                              const ok = await onDeleteRevision(viewingRevision);
+                                              if (ok) {
+                                                setViewingRevision(null);
+                                                if (revisions && revisions.length <= 1) setShowRevisions(false);
+                                              }
+                                            }}
+                                          />,
+                                          { id: "rev-delete", header: { title: t("admin.common.deleteLog") }, closeButton: true, width: "400px" },
+                                        );
+                                      }}
+                                    >
+                                      <Trash2 size={12} />
+                                    </Pressable>
+                                  </Tooltip>
                                 )}
-                                <Pressable noTapScale
-                                  className={styles.revisionSelectCancel}
-                                  onClick={() => {
-                                    setIsSelectMode(false);
-                                    setSelectedRevisions(new Set());
-                                  }}
-                                >
-                                  {t("admin.common.cancel")}
-                                </Pressable>
                               </div>
-                            </>
+                            </div>
+                            {/* Row 2 — 동일 배지 | lang toggle */}
+                            <div className={styles.revisionDetailHeaderRow}>
+                              {(() => {
+                                if (detailLoading || !currentSnapshot || !revisionDetail) return <span />;
+                                const revTitle = revisionDetail.title ?? revisions[viewingRevision].title ?? "";
+                                const sameTitle = revTitle === currentSnapshot.title;
+                                const sameSubtitle = (revisionDetail.subtitle ?? "") === (currentSnapshot.subtitle ?? "");
+                                const sameExcerpt = (revisionDetail.excerpt ?? "") === (currentSnapshot.excerpt ?? "");
+                                const sameContent = (revisionDetail.content ?? "") === (currentSnapshot.content ?? "");
+                                const sameMeta = JSON.stringify(revisionDetail.meta ?? {}) === JSON.stringify(currentSnapshot.meta ?? {});
+                                if (!(sameTitle && sameSubtitle && sameExcerpt && sameContent && sameMeta)) return <span />;
+                                return (
+                                  <Badge tone="success" uppercase dot>
+                                    {t("admin.common.sameAsCurrent")}
+                                  </Badge>
+                                );
+                              })()}
+                              <LanguageToggle lang={revisionLang} onLangChange={setRevisionLang} size="sm" />
+                            </div>
+                          </div>
+                          {detailLoading ? (
+                            <div className={styles.revisionDetailSkeleton}>
+                              <SkeletonLine width="80px" height={12} />
+                              <SkeletonLine width="60%" height={16} />
+                              <SkeletonLine width="40%" height={12} />
+                              <SkeletonLine width="100%" height={80} />
+                              <SkeletonLine width="90%" height={80} />
+                            </div>
                           ) : (
-                            <>
-                              <span>{labels.revisionHistory ?? "History"}</span>
-                              {onDeleteRevision && (
-                                <Pressable noTapScale
-                                  className={styles.revisionSelectToggle}
-                                  onClick={() => setIsSelectMode(true)}
-                                >
-                                  {t("admin.common.select")}
-                                </Pressable>
-                              )}
-                            </>
+                          <>
+                          {/* Title + 부제목 + 설명 — label | value grid (meta groups 와 동일 패턴) */}
+                          {(() => {
+                            const labels = revisionDetail?.headerLabels ?? currentSnapshot?.headerLabels ?? {};
+                            const titleLabel = labels.title ?? t("admin.inline.adminEditorShell.title");
+                            const subtitleLabel = labels.subtitle ?? t("admin.inline.adminEditorShell.subtitle");
+                            const excerptLabel = labels.excerpt ?? t("admin.inline.adminEditorShell.description");
+                            const oldT = currentSnapshot?.title ?? "";
+                            const newT = revisionDetail?.title ?? revisions[viewingRevision].title ?? "";
+                            const oldS = currentSnapshot?.subtitle ?? "";
+                            const newS = revisionDetail?.subtitle ?? "";
+                            const oldE = currentSnapshot?.excerpt ?? "";
+                            const newE = revisionDetail?.excerpt ?? "";
+                            const rows: { label: string; old: string; new: string; valueClass: string; emphasize?: boolean }[] = [
+                              { label: titleLabel, old: oldT, new: newT || "(untitled)", valueClass: styles.revisionDetailTitle, emphasize: true },
+                            ];
+                            if (oldS || newS) rows.push({ label: subtitleLabel, old: oldS, new: newS, valueClass: styles.revisionDetailSubtitle });
+                            if (oldE || newE) rows.push({ label: excerptLabel, old: oldE, new: newE, valueClass: styles.revisionDetailExcerpt });
+                            return (
+                              <ul className={styles.revisionDetailMeta}>
+                                {rows.map((row) => {
+                                  const same = !currentSnapshot || row.old === row.new;
+                                  return (
+                                    <li key={row.label} className={styles.revisionMetaItem}>
+                                      <span className={styles.revisionMetaKey}>{row.label}</span>
+                                      <span className={row.valueClass}>
+                                        {row.emphasize ? (
+                                          <strong>
+                                            {same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
+                                              <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                                            ))}
+                                          </strong>
+                                        ) : (
+                                          same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
+                                            <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                                          ))
+                                        )}
+                                      </span>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            );
+                          })()}
+                          {(() => {
+                            // primary meta — content 위, 중요 정보
+                            const primary = (revisionDetail?.meta ?? []).filter((g) => !g.secondary);
+                            if (primary.length === 0) return null;
+                            return (
+                              <div className={styles.revisionMetaSection}>
+                                {primary.map(renderMetaGroup)}
+                              </div>
+                            );
+                          })()}
+                          {(() => {
+                            const revContent = revisionDetail?.content ?? "";
+                            const curContent = currentSnapshot?.content ?? "";
+                            if (!revContent && !curContent) return null;
+                            if (!currentSnapshot || revContent === curContent) {
+                              return revContent ? (
+                                <div className={styles.revisionDetailContent}>{revContent}</div>
+                              ) : null;
+                            }
+                            const diff = lineDiff(curContent, revContent);
+                            return (
+                              <div className={styles.revisionDetailContent}>
+                                {diff.map((line, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={
+                                      line.type === "add" ? styles.diffAdd :
+                                      line.type === "del" ? styles.diffDel : ""
+                                    }
+                                  >
+                                    <span className={styles.diffPrefix}>
+                                      {line.type === "add" ? "+" : line.type === "del" ? "−" : " "}
+                                    </span>
+                                    {line.text || "\u00A0"}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                          {(() => {
+                            // secondary meta — content 아래, 중요도 낮은 보조 정보
+                            const secondary = (revisionDetail?.meta ?? []).filter((g) => g.secondary);
+                            if (secondary.length === 0) return null;
+                            return (
+                              <div className={`${styles.revisionMetaSection} ${styles.revisionMetaSecondary}`}>
+                                {secondary.map(renderMetaGroup)}
+                              </div>
+                            );
+                          })()}
+                          </>
                           )}
                         </div>
-                        {revisions.map((rev, i) => (
-                          <div
-                            key={`${rev.timestamp}-${i}`}
-                            className={`${styles.revisionItem} ${isSelectMode && selectedRevisions.has(i) ? styles.revisionItemSelected : ""}`}
-                            data-clickable
-                            onClick={() => {
-                              if (isSelectMode) {
-                                setSelectedRevisions((prev) => {
-                                  const next = new Set(prev);
-                                  if (next.has(i)) next.delete(i);
-                                  else next.add(i);
-                                  return next;
-                                });
-                              } else {
-                                setViewingRevision(i);
-                              }
-                            }}
-                            onMouseDown={(e) => {
-                              if (!isSelectMode || e.button !== 0) return;
-                              e.preventDefault();
-                              revDragStart.current = i;
-                              revDragAdding.current = !selectedRevisions.has(i);
-                            }}
-                            onMouseEnter={() => {
-                              if (revDragStart.current === null || revDragStart.current === i) return;
-                              const start = Math.min(revDragStart.current, i);
-                              const end = Math.max(revDragStart.current, i);
-                              setSelectedRevisions((prev) => {
-                                const next = new Set(prev);
-                                for (let j = start; j <= end; j++) {
-                                  if (revDragAdding.current) next.add(j);
-                                  else next.delete(j);
-                                }
-                                return next;
-                              });
-                            }}
-                            onMouseUp={() => { revDragStart.current = null; }}
-                          >
+                      ) : (
+                        /* ── List view ── */
+                        <div className={styles.revisionListView}>
+                          <div className={styles.revisionHeader}>
                             {isSelectMode ? (
-                              <span onClick={(e) => e.stopPropagation()}>
+                              <>
                                 <Checkbox
                                   shape="square"
-                                  checked={selectedRevisions.has(i)}
+                                  checked={selectedRevisions.size === revisions.length && revisions.length > 0}
+                                  indeterminate={selectedRevisions.size > 0 && selectedRevisions.size < revisions.length}
                                   onChange={(checked) => {
-                                    setSelectedRevisions((prev) => {
-                                      const next = new Set(prev);
-                                      if (checked) next.add(i);
-                                      else next.delete(i);
-                                      return next;
-                                    });
+                                    if (checked) {
+                                      setSelectedRevisions(new Set(revisions.map((_, i) => i)));
+                                    } else {
+                                      setSelectedRevisions(new Set());
+                                    }
                                   }}
+                                  label={selectedRevisions.size > 0 ? fillTemplate(t("admin.common.selectedItems"), { count: selectedRevisions.size }) : t("admin.common.selectAll")}
+                                  className={styles.revisionSelectAll}
                                 />
-                              </span>
-                            ) : null}
-                            <span className={styles.revisionTime}>{formatTime(rev.timestamp)}</span>
-                            <span className={styles.revisionTitle}>
-                              {rev.title || "(untitled)"}
-                            </span>
-                            {!isSelectMode && (
-                              <ChevronRight className={styles.revisionChevron} size={12} />
+                                <div className={styles.revisionSelectActions}>
+                                  {selectedRevisions.size > 0 && (
+                                    <Pressable noTapScale
+                                      className={styles.revisionDeleteSelectedBtn}
+                                      onClick={async () => {
+                                        if (!onDeleteRevision) return;
+                                        const count = String(selectedRevisions.size);
+                                        openModal(
+                                          <ModalPrompt
+                                            hint={fillTemplate(t("admin.common.bulkDeletePrompt"), { count })}
+                                            placeholder={count}
+                                            validate={(v) => v === count}
+                                            confirmText={t("admin.common.delete")}
+                                            danger
+                                            onConfirm={async () => {
+                                              const indices = Array.from(selectedRevisions);
+                                              await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
+                                              setSelectedRevisions(new Set());
+                                              setIsSelectMode(false);
+                                              if (revisions.length <= indices.length) setShowRevisions(false);
+                                            }}
+                                          />,
+                                          { id: "bulk-rev-delete", header: { title: fillTemplate(t("admin.common.deleteCount"), { n: count }) }, closeButton: true, width: "400px" },
+                                        );
+                                      }}
+                                    >
+                                      {t("admin.common.delete")}
+                                    </Pressable>
+                                  )}
+                                  <Pressable noTapScale
+                                    className={styles.revisionSelectCancel}
+                                    onClick={() => {
+                                      setIsSelectMode(false);
+                                      setSelectedRevisions(new Set());
+                                    }}
+                                  >
+                                    {t("admin.common.cancel")}
+                                  </Pressable>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <span>{labels.revisionHistory ?? "History"}</span>
+                                {onDeleteRevision && (
+                                  <Pressable noTapScale
+                                    className={styles.revisionSelectToggle}
+                                    onClick={() => setIsSelectMode(true)}
+                                  >
+                                    {t("admin.common.select")}
+                                  </Pressable>
+                                )}
+                              </>
                             )}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                </div>
-              </Popover>
-            )}
-            {isEdit && onDelete && (
-              <>
-                <div className={styles.actionsDivider} />
-                <Tooltip content={labels.delete} placement="bottom">
+                          {revisions.map((rev, i) => (
+                            <div
+                              key={`${rev.timestamp}-${i}`}
+                              className={`${styles.revisionItem} ${isSelectMode && selectedRevisions.has(i) ? styles.revisionItemSelected : ""}`}
+                              data-clickable
+                              onClick={() => {
+                                if (isSelectMode) {
+                                  setSelectedRevisions((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has(i)) next.delete(i);
+                                    else next.add(i);
+                                    return next;
+                                  });
+                                } else {
+                                  setViewingRevision(i);
+                                }
+                              }}
+                              onMouseDown={(e) => {
+                                if (!isSelectMode || e.button !== 0) return;
+                                e.preventDefault();
+                                revDragStart.current = i;
+                                revDragAdding.current = !selectedRevisions.has(i);
+                              }}
+                              onMouseEnter={() => {
+                                if (revDragStart.current === null || revDragStart.current === i) return;
+                                const start = Math.min(revDragStart.current, i);
+                                const end = Math.max(revDragStart.current, i);
+                                setSelectedRevisions((prev) => {
+                                  const next = new Set(prev);
+                                  for (let j = start; j <= end; j++) {
+                                    if (revDragAdding.current) next.add(j);
+                                    else next.delete(j);
+                                  }
+                                  return next;
+                                });
+                              }}
+                              onMouseUp={() => { revDragStart.current = null; }}
+                            >
+                              {isSelectMode ? (
+                                <span onClick={(e) => e.stopPropagation()}>
+                                  <Checkbox
+                                    shape="square"
+                                    checked={selectedRevisions.has(i)}
+                                    onChange={(checked) => {
+                                      setSelectedRevisions((prev) => {
+                                        const next = new Set(prev);
+                                        if (checked) next.add(i);
+                                        else next.delete(i);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </span>
+                              ) : null}
+                              <span className={styles.revisionTime}>{formatTime(rev.timestamp)}</span>
+                              <span className={styles.revisionTitle}>
+                                {rev.title || "(untitled)"}
+                              </span>
+                              {!isSelectMode && (
+                                <ChevronRight className={styles.revisionChevron} size={12} />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                </Popover>
+              )}
+              {/* 되돌리기 — 고친 내용이 있을 때만(저장 전 상태로) */}
+              {onRevert && isDirty && (
+                <Tooltip content={labels.revert ?? "Revert"} placement="bottom">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     shape="circle"
-                    onClick={() => {
-                      if (!deleteTargetName) {
-                        onDelete?.();
-                        return;
-                      }
-                      openModal(
-                        <ModalPrompt
-                          hint={labels.deleteConfirmInput}
-                          placeholder={deleteTargetName}
-                          validate={(v) => v === deleteTargetName}
-                          confirmText={labels.delete}
-                          danger
-                          onConfirm={() => onDelete?.()}
-                        />,
-                        {
-                          id: "delete-confirm",
-                          closeButton: false,
-                          width: "400px",
-                          header: { title: `\u201C${deleteTargetName}\u201D` },
-                        },
-                      );
-                    }}
-                    disabled={deleting}
-                    aria-label={labels.delete}
+                    className={styles.revertBtn}
+                    aria-label={labels.revert ?? "Revert"}
+                    onClick={onRevert}
+                    disabled={saving}
                     soundDisabled
-                    icon={<Trash2 size={14} />}
+                    icon={<RotateCcw size={14} />}
                   />
                 </Tooltip>
-              </>
-            )}
+              )}
+              {!sidebar && isEdit && onDelete && (
+                <Tooltip content={labels.delete} placement="bottom">
+                  <Button variant="ghost" shape="circle" onClick={requestDelete} disabled={deleting} aria-label={labels.delete} soundDisabled icon={<Trash2 size={14} />} />
+                </Tooltip>
+              )}
+              {renderSaveGroup(showSchedule, setShowSchedule)}
             </div>
           </div>
         </div>
         </div>
-
-        {/* ── 둘째 줄: 저장 그룹 ── */}
-        <div className={styles.topBarRow}>
-          {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
-          <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
-            <StatusBadge
-              variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}
-              /* 목록의 칩처럼 눌러서 발행/미발행을 바꾼다(#1116). 예약 대기 칩은 누르지 않는다 — 누르면 예약을 건너뛰고 바로 발행된다 */
-              onClick={onTogglePublished && (published || !hasSchedule) ? onTogglePublished : undefined}
-              title={onTogglePublished && (published || !hasSchedule) ? t(published ? "admin.posts.clickToUnpublish" : "admin.posts.clickToPublish") : undefined}
-              disabled={saving}
-            >
-              {/* 편집 화면 문구라 관리자 화면 언어를 따른다(편집 중인 글의 언어 탭이 아니라) */}
-              {t(published ? "admin.common.statusPublished" : hasSchedule ? "admin.common.statusScheduled" : "admin.common.statusDraft")}
-            </StatusBadge>
-            {topBarSecondRowLeft}
-          </div>
-          <div className={styles.saveGroup}>
-            {renderSaveGroup(showScheduleTop, setShowScheduleTop)}
-          </div>
-        </div>
       </div>
 
-      {children}
-
-      {/* ── Bottom Bar: 미리보기 / 임시저장 / 저장 ── */}
-      <div className={styles.bottomBar}>
-        <div className={styles.saveGroup}>
-          {renderSaveGroup(showScheduleBottom, setShowScheduleBottom, "top-end")}
+      {sidebar ? (
+        <div className={styles.layout}>
+          <div className={styles.main}>{children}</div>
+          {/* 넓은 화면: 본문 옆에 붙어 따라오는 열. 좁은 화면: 오른쪽에서 나오는 서랍 */}
+          <aside
+            id="editor-properties"
+            className={`${styles.sidebar}${sidebarOpen ? ` ${styles.sidebarOpen}` : ""}`}
+            aria-label={t("admin.common.editorProperties")}
+            data-lenis-prevent
+          >
+            <div className={styles.sidebarHead}>
+              <span className={styles.sidebarTitle}>{t("admin.common.editorProperties")}</span>
+              {/* 페이지 삭제 — 패널을 열면 바로 보이는 제목 줄 오른쪽. 패널 맨 아래는 끝까지 내려야 보여 찾기 어려웠다 */}
+              {isEdit && onDelete && (
+                <Button
+                  variant="ghost"
+                  className={`${styles.toolBtn} ${styles.sidebarDelete}`}
+                  onClick={requestDelete}
+                  disabled={deleting}
+                  soundDisabled
+                  icon={<Trash2 size={14} />}
+                >
+                  {t("admin.common.deletePage")}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                shape="circle"
+                className={styles.sidebarClose}
+                onClick={() => setSidebarOpen(false)}
+                aria-label={t("admin.common.editorPropertiesClose")}
+                soundDisabled
+                icon={<X size={14} />}
+              />
+            </div>
+            {sidebar}
+          </aside>
+          {sidebarOpen && <div className={styles.sidebarScrim} onClick={() => setSidebarOpen(false)} aria-hidden />}
         </div>
-      </div>
+      ) : children}
+      {sidebar && wide && <div className={styles.wide}>{wide}</div>}
     </div>
+    </FieldVariantScope>
     </ControlSizeScope>
   );
 }

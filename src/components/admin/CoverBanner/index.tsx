@@ -19,7 +19,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import Popover from "@/components/ui/Popover";
+import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -153,55 +153,54 @@ export default function CoverBanner({
   };
   const coverMenu = ({ close }: { close: () => void }) => (
     <div className={styles.menu}>
-      <Button
-        variant="ghost"
+      <MenuItem
         icon={<Upload size={14} strokeWidth={2} />}
-        className={styles.menuBtn}
+        label={t("editor.cover.upload")}
         onClick={() => {
           onUpload();
           close();
         }}
-      >
-        {t("editor.cover.upload")}
-      </Button>
-      <Input
-        value={urlDraft}
-        placeholder={t("editor.cover.urlPlaceholder")}
-        onChange={setUrlDraft}
-        className={styles.urlInput}
-        clearable={false}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.nativeEvent.isComposing) applyUrl(close);
-        }}
-        trailingAction={{
-          icon: <ArrowRight size={14} strokeWidth={2} />,
-          onClick: () => applyUrl(close),
-          ariaLabel: t("editor.cover.applyUrl"),
-          disabled: !urlDraft.trim(),
-        }}
       />
+      {/* 주소 붙여 넣기 — 메뉴 항목과 같은 들여쓰기로 */}
+      <div className={styles.urlRow}>
+        <Input
+          variant="capsule"
+          value={urlDraft}
+          placeholder={t("editor.cover.urlPlaceholder")}
+          onChange={setUrlDraft}
+          className={styles.urlInput}
+          clearable={false}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) applyUrl(close);
+          }}
+          trailingAction={{
+            icon: <ArrowRight size={14} strokeWidth={2} />,
+            onClick: () => applyUrl(close),
+            ariaLabel: t("editor.cover.applyUrl"),
+            disabled: !urlDraft.trim(),
+          }}
+        />
+      </div>
       {hasCover && (
         <>
-          <div className={styles.menuDivider} />
-          <Button
-            variant="ghost"
-            tone="danger"
+          <MenuDivider />
+          <MenuItem
+            className={styles.menuDanger}
             icon={<Trash2 size={14} strokeWidth={2} />}
-            className={styles.menuBtn}
+            label={t("editor.cover.remove")}
             onClick={() => {
               onCoverChange("");
               close();
             }}
-          >
-            {t("editor.cover.remove")}
-          </Button>
+          />
         </>
       )}
     </div>
   );
 
   return (
-    <div className={`${styles.wrap}${reposition ? ` ${styles.wrapRepositioning}` : ""}`}>
+    /* 커버가 없으면 "커버 추가" 단추를 늘 보인다 — 빈 띠 위에 hover 해야만 나타나면 찾을 수 없다 */
+    <div className={`${styles.wrap}${reposition ? ` ${styles.wrapRepositioning}` : ""}${hasCover ? "" : ` ${styles.wrapEmpty}`}`}>
       {/* ── 커버 배너 ── */}
       <div
         className={`${styles.banner}${hasCover ? "" : ` ${styles.bannerEmpty}`}${
@@ -246,7 +245,7 @@ export default function CoverBanner({
 
       </div>
 
-      {/* ── hover 컨트롤 (우상단) ──
+      {/* ── 커버 단추 (오른쪽 아래, hover · 빈 커버면 늘) ──
           배너 밖에 둔다 — 배너는 아래로 흐려지는 mask 를 쓰는데, mask 가 걸린 조상 안에서는 backdrop-filter 가
           보이지 않는다. 유리판 알약 하나에 단추를 모아 밝은 커버 · 어두운 커버 어디서나 읽히게 한다.
           단추는 작은 높이(sm)로 묶는다 — 편집 화면 전체의 md 범위를 여기서만 줄인다 */}
@@ -259,7 +258,8 @@ export default function CoverBanner({
                 variant="ghost"
                 shape="circle"
                 soundDisabled
-                icon={<ZoomOut size={15} strokeWidth={2} />}
+                className={`${styles.ctrlBtn} ${styles.ctrlBtnIcon}`}
+                icon={<ZoomOut size={14} strokeWidth={2} />}
                 onClick={zoomOut}
                 disabled={zoom <= ZOOM_MIN}
                 title={t("editor.cover.zoomOut")}
@@ -268,7 +268,8 @@ export default function CoverBanner({
                 variant="ghost"
                 shape="circle"
                 soundDisabled
-                icon={<ZoomIn size={15} strokeWidth={2} />}
+                className={`${styles.ctrlBtn} ${styles.ctrlBtnIcon}`}
+                icon={<ZoomIn size={14} strokeWidth={2} />}
                 onClick={zoomIn}
                 disabled={zoom >= ZOOM_MAX}
                 title={t("editor.cover.zoomIn")}
@@ -277,7 +278,8 @@ export default function CoverBanner({
                 variant="ghost"
                 shape="capsule"
                 soundDisabled
-                icon={<Check size={15} strokeWidth={2} />}
+                className={`${styles.ctrlBtn} ${styles.ctrlBtnPrimary}`}
+                icon={<Check size={14} strokeWidth={2} />}
                 onClick={saveReposition}
               >
                 {t("editor.cover.savePosition")}
@@ -286,7 +288,8 @@ export default function CoverBanner({
                 variant="ghost"
                 shape="capsule"
                 soundDisabled
-                icon={<X size={15} strokeWidth={2} />}
+                className={styles.ctrlBtn}
+                icon={<X size={14} strokeWidth={2} />}
                 onClick={cancelReposition}
               >
                 {t("editor.cover.cancel")}
@@ -297,13 +300,17 @@ export default function CoverBanner({
             <>
               <Popover
                 placement="bottom-end"
+                /* 불투명 패널 · 공용 메뉴 여백 — 반투명(glass)이면 뒤의 상단 막대 단추가 비쳐 겹쳐 보였다 */
+                variant="solid"
+                menu
                 sheetTitle={hasCover ? t("editor.cover.change") : t("editor.cover.add")}
                 trigger={
                   <Button
                     variant="ghost"
                     shape="capsule"
                     soundDisabled
-                    icon={<ImageIcon size={13} strokeWidth={2} />}
+                    className={styles.ctrlBtn}
+                    icon={<ImageIcon size={14} strokeWidth={2} />}
                   >
                     {hasCover ? t("editor.cover.change") : t("editor.cover.add")}
                   </Button>
@@ -318,7 +325,8 @@ export default function CoverBanner({
                   variant="ghost"
                   shape="capsule"
                   soundDisabled
-                  icon={<Move size={13} strokeWidth={2} />}
+                  className={styles.ctrlBtn}
+                  icon={<Move size={14} strokeWidth={2} />}
                   onClick={enterReposition}
                 >
                   {t("editor.cover.reposition")}

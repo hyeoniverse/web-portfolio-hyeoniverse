@@ -20,9 +20,6 @@ import SkillList from "./ProfileSkillList";
 import skillStyles from "./ProfileSkill.module.css";
 import Pressable from "@/components/ui/Pressable";
 
-/** 경력 · 학력 · 자격 · 수상의 기간 — 시각(연.월.일.시)은 필요 없어 뺀다. 이미 그 형식으로 저장된 항목은 그 칸만 보인다 */
-const PROFILE_PERIOD_FORMATS: DatePeriod["format"][] = ["year", "yearMonth", "date"];
-
 export { profileDefaults };
 
 export type ProfileExpandState = {
@@ -373,7 +370,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               </div>
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-                <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={item.period} onChange={(v: DatePeriod) => updateTimeline(key, i, "period", v)} />
+                <PeriodPicker value={item.period} onChange={(v: DatePeriod) => updateTimeline(key, i, "period", v)} />
               </div>
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
@@ -557,7 +554,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
+              <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.issuer" /></label>
@@ -611,7 +608,7 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
+              <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.organization" /></label>

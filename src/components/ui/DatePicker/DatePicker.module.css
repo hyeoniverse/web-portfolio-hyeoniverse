@@ -36,7 +36,7 @@
 .formatSegment {
   display: flex;
   width: fit-content;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   overflow: hidden;
 }
@@ -188,6 +188,55 @@
 }
 .pickerText:hover {
   background: var(--bg-tertiary-alt);
+}
+
+/* 날짜 · 시간 트리거(DateTimePicker) — 두 칸을 한 줄에: 날짜는 남은 폭, 시간은 제 폭 */
+.dtTriggers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+.dtTriggers > .pickerAnchor {
+  min-width: 0;
+}
+
+/* 셀렉트 트리거와 같은 모양 — 아이콘 + 값, 높이는 컨트롤 높이(범위 안이면 md) */
+.dtTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  height: var(--_dp-h, var(--control-height-md));
+  padding: 0 var(--spacing-16) 0 var(--spacing-12);
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+  background: transparent;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: left;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.dtTrigger:hover:not(:disabled),
+.dtTrigger[aria-expanded="true"] {
+  border-color: var(--text-primary);
+}
+
+.dtTrigger:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.dtTriggerEmpty {
+  color: var(--text-tertiary);
+}
+
+.dtTriggerIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
 }
 
 .yearInput:disabled {

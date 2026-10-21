@@ -129,12 +129,13 @@ function Block({ block: b }: { block: SummaryBlock }) {
 }
 
 /** 저장된 요약을 그린다 — 고정인 제목 한 줄(이모지) · 키워드 칩 사이에 모델이 고른 블록들. 예전 줄글은 문단 그대로.
- *  compact 는 편집기 칸처럼 좁은 자리용(글자 한 단계 작게) */
-export function SummaryBody({ summary, compact, lang }: { summary: DisplaySummary; compact?: boolean; lang?: string }) {
+ *  compact 는 편집기 칸처럼 좁은 자리용(글자 한 단계 작게).
+ *  flat 은 편집 화면용 — 수치 카드 · 안내 상자의 테두리 · 바탕을 걷고 선과 글자만 남긴다(docs/editor-ui.md 2-2) */
+export function SummaryBody({ summary, compact, flat, lang }: { summary: DisplaySummary; compact?: boolean; flat?: boolean; lang?: string }) {
   if (!summary) return null;
   if (summary.kind === "text") return <p className={styles.text} lang={lang}>{summary.text}</p>;
   return (
-    <div className={`${styles.structured} ${compact ? styles.compact : ""}`} lang={lang}>
+    <div className={`${styles.structured} ${compact ? styles.compact : ""} ${flat ? styles.flat : ""}`} lang={lang}>
       {summary.tldr && (
         <p className={styles.tldr}>
           {summary.emoji && <span className={styles.tldrEmoji} aria-hidden>{summary.emoji}</span>}

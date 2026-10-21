@@ -111,15 +111,12 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-12);
-  background: var(--bg-secondary);
   border-bottom: var(--border-light);
 }
 
 .imagePanelLabel {
-  font: var(--font-label-xs);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
   user-select: none;
   flex-shrink: 0;
 }
@@ -286,7 +283,6 @@
   gap: var(--spacing-8);
   padding: var(--spacing-8) var(--spacing-12);
   border-top: var(--border-light);
-  background: var(--bg-secondary);
 }
 
 /* 첨부 버튼: outline variant 의 border-strong 보다 가벼운 border-default 사용

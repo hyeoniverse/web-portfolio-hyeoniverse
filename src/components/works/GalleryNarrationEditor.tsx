@@ -66,6 +66,8 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
   /* 음성을 만드는 중인 장과 진행(조각 몇 개 중 몇 개) */
   const [busy, setBusy] = useState<ReadonlyMap<string, { done: number; total: number }>>(new Map());
   const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
+  /* 지금 만드는 일을 멈추는 신호 — 한 장이든 여러 장이든 한 번에 하나. 멈추면 진행 중 요청을 끊고 만든 조각은 지운다 */
+  const abortRef = useRef<AbortController | null>(null);
   /* 갤러리 아래에 크게 열어 둔 장 — 주소로 들고 있는다(차례를 바꿔도 같은 장이 열려 있게) */
   const [openUrl, setOpenUrl] = useState<string | null>(null);
   /* 지금 펼친 장 — 음성을 다 만든 시점(비동기 뒤)에 그 장을 아직 보고 있는지 알려고 */
@@ -93,11 +95,14 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
         return next;
       });
 
-    const post = (path: string, payload: unknown) => tryRequest(path, {
+    const post = (path: string, payload: unknown, signal?: AbortSignal) => tryRequest(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal,
     });
+    /* 멈췄는지 — 멈춘 뒤의 실패는 실패로 알리지 않는다 */
+    const stopped = () => !!abortRef.current?.signal.aborted;
 
     /* 지금 음성을 이력에 남긴다 — 바꾸거나 지우기 전에. 이력 기능 전에 만든 음성도 이렇게 들어온다 */
     const rememberCurrent = (url: string) => {
@@ -132,8 +137,11 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
         let retry = false;
         setRowBusy(url, { done: 0, total: chunks.length });
         for (const chunk of chunks) {
-          const res = await post("/api/works/tts", provider ? { text: chunk, voice, lang, provider } : { text: chunk, voice, lang, skip });
+          /* 조각 사이에서 멈췄으면 만든 조각을 지우고 끝낸다 */
+          if (stopped()) return fail(new Error("stopped"));
+          const res = await post("/api/works/tts", provider ? { text: chunk, voice, lang, provider } : { text: chunk, voice, lang, skip }, abortRef.current?.signal);
           if (!(res instanceof Response)) {
+            if (stopped()) return fail(res);
             /* 첫 조각이 실패했으면 서버가 남은 제공자를 다 해 본 것이다 */
             if (!provider) return fail(res);
             discard();
@@ -154,6 +162,7 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
         if (!retry) break;
       }
       let audio = parts[0];
+      if (stopped()) return fail(new Error("stopped"));
       if (parts.length > 1) {
         const res = await post("/api/works/tts/merge", { urls: parts });
         if (!(res instanceof Response)) return fail(res);
@@ -172,8 +181,12 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
     };
 
     const generateOne = async (url: string) => {
+      abortRef.current = new AbortController();
       const res = await generate(url, notes[url]?.script?.trim() ?? "");
-      if (res instanceof Error) showToast(errorText(res, t, tw("narrationFailed")), "error");
+      const wasStopped = stopped();
+      abortRef.current = null;
+      if (wasStopped) showToast(tw("narrationStopped"), "info");
+      else if (res instanceof Error) showToast(errorText(res, t, tw("narrationFailed")), "error");
       /* 한 장을 만들었으면 바로 들려준다 — 만드는 동안 다른 장으로 옮겼으면 들려주지 않는다(장을 옮기면 멈추는 규칙과 같게).
          처음 연 장(openUrl 없음)은 목록의 첫 장이다 */
       else if ((openUrlRef.current ?? gallery[0]) === url) togglePreview(res);
@@ -188,9 +201,12 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
       const todo = targets.filter((u) => replace || !notes[u]?.audio);
       if (bulk || todo.length === 0) return;
       setBulk({ done: 0, total: todo.length });
+      abortRef.current = new AbortController();
       let done = 0;
       for (const url of todo) {
+        if (stopped()) break;
         const err = await generate(url, notes[url]?.script?.trim() ?? "");
+        if (stopped()) break;
         if (err instanceof Error) {
           /* 실패하면 멈춘다 — 같은 원인으로 남은 장도 실패할 가능성이 크고, 남은 장은 읽는 화면에서 브라우저가 읽는다 */
           showToast(errorText(err, t, tw("narrationFailed")), "error");
@@ -199,9 +215,15 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
         done++;
         setBulk({ done, total: todo.length });
       }
+      const wasStopped = stopped();
+      abortRef.current = null;
       setBulk(null);
-      if (done > 0) showToast(fillTemplate(tw("narrationDone"), { n: done }), "success");
+      if (wasStopped) showToast(fillTemplate(tw("narrationStoppedMany"), { n: done }), "info");
+      else if (done > 0) showToast(fillTemplate(tw("narrationDone"), { n: done }), "success");
     };
+
+    /** 지금 만드는 일을 멈춘다 — 진행 중 요청을 끊고, 끝낸 장은 그대로 둔다 */
+    const stopGenerating = () => { abortRef.current?.abort(); };
 
     /* 녹음 파일을 올려 이 장의 음성으로 — 파일로 올리든 마이크로 녹음하든 같은 길 */
     const putRecording = async (url: string, file: Blob, name?: string) => {
@@ -320,7 +342,7 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
     const openIndex = openUrl ? gallery.indexOf(openUrl) : -1;
 
     return {
-      voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio,
+      voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, stopGenerating, uploadRecording, clearAudio,
       recording, take, recorderRef, startRecording, togglePause, stopRecording, finishRecording, cancelRecording, restoreHistory, pasteScripts, update, notes,
       openUrl, openIndex, focusTick,
       open: (url: string | null, focusScript = true) => {
@@ -1031,6 +1053,18 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
           </div>
         )}
       </Popover>
+      {/* 만드는 동안만 — 멈추기. 여러 장이면 지금 장까지 끊고 끝낸 장은 남긴다 */}
+      {working && (
+        <Button
+          variant="outline"
+          className={styles.generateStop}
+          onClick={actions.stopGenerating}
+          soundDisabled
+          icon={<Square size={12} strokeWidth={2.5} />}
+        >
+          {tw("narrationStop")}
+        </Button>
+      )}
     </span>
   );
 }

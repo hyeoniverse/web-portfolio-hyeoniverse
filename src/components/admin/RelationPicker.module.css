@@ -13,7 +13,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
   transition: border-color var(--duration-fast) var(--ease-standard);
@@ -27,13 +27,14 @@
   border-color: var(--border-color-accent-strong);
 }
 
-/* 테두리까지 합쳐 다른 입력칸(--control-height-sm)과 같은 높이 */
+/* 테두리까지 합쳐 다른 입력칸과 같은 높이 — 편집 화면은 모든 칸이 md(ControlSizeScope)라 md 로.
+   예전 sm 은 같은 화면의 다른 칸(32px)보다 낮아 보였다 */
 .inputAreaTop {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
   padding: 0 0 0 var(--spacing-16);
-  height: calc(var(--control-height-sm) - 2px);
+  height: calc(var(--control-height-md) - 2px);
   cursor: text;
 }
 
