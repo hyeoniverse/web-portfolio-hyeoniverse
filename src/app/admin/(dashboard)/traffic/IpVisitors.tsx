@@ -78,6 +78,17 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
         </div>
       )}
 
+      {excludedIps.length > 0 && (
+        <div className={styles.ipExcluded}>
+          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.excludedIps")}</span>
+          {excludedIps.map((e) => (
+            <Chip key={e.key} onRemove={() => toggle({ key: e.key }, false, e.key)}>
+              <span className={styles.ipMasked}>{e.masked}</span>
+            </Chip>
+          ))}
+        </div>
+      )}
+
       {ipVisitors.length === 0 ? (
         <p className={styles.muted}>
           {t("admin.inline.ipVisitors.empty")}
@@ -158,16 +169,6 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
         </List>
       )}
 
-      {excludedIps.length > 0 && (
-        <div className={styles.ipExcluded}>
-          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.excludedIps")}</span>
-          {excludedIps.map((e) => (
-            <Chip key={e.key} onRemove={() => toggle({ key: e.key }, false, e.key)}>
-              <span className={styles.ipMasked}>{e.masked}</span>
-            </Chip>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
