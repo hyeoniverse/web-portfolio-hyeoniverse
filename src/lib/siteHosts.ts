@@ -25,9 +25,20 @@ export function isMainHost(host: string | null | undefined): boolean {
   return (MAIN_HOSTS as readonly string[]).includes(hostnameOf(host));
 }
 
+/** 관리 화면 경로인가 — "/admin" 이거나 "/admin/…". 접두어만 보면 블로그 짧은 주소의 글
+ *  (blog.hyeoniverse.com/admin-two-factor-totp 처럼 슬러그가 admin 으로 시작)이 관리 화면으로 잡혀 로그인으로 보내졌다 */
+export function isAdminRoute(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+/** 관리 API 경로인가 — "/api/admin" 이거나 "/api/admin/…" */
+export function isAdminApiRoute(pathname: string): boolean {
+  return pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+}
+
 /** 블로그 주소에서도 앱 경로 그대로 여는 곳 — API · 관리 화면 · 로그인 콜백 */
 export function passThroughOnBlogHost(pathname: string): boolean {
-  return pathname.startsWith("/api/") || pathname.startsWith("/admin") || pathname.startsWith("/auth/");
+  return pathname.startsWith("/api/") || isAdminRoute(pathname) || pathname.startsWith("/auth/");
 }
 
 function isPostsPath(path: string): boolean {
