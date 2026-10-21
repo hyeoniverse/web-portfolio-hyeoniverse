@@ -138,33 +138,9 @@
   min-width: 0;
 }
 
-/* 연·월·일 칸 너비는 공용 Select 가 정한다 — 옵션 · 안내 글(YYYY · MM) · 글자 수 자리 중 가장 긴 것으로 단추와
-   입력 모드가 같은 폭이라, 값을 넣거나 눌러도 칸이 들썩이지 않는다. 예전에는 여기서 76 · 96px 로 못 박아
-   비어 있는 칸의 안내 글 "MM" 이 칸보다 넓어 잘렸다 */
-.datePart {
-  flex: none;
-}
-
-/* 연·월·일 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
+/* 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
 .dateInputs > * {
   flex: 0 0 auto;
-}
-
-.yearInput {
-  width: 60px;
-  height: var(--_dp-h, var(--control-height-sm));
-  padding: 0 var(--spacing-8);
-  border: var(--border-control);
-  border-radius: var(--radius-control);
-  background: transparent;
-  font: var(--font-body-md);
-  color: var(--text-primary);
-  text-align: center;
-  outline-color: transparent;
-}
-
-.yearInput:focus {
-  border-color: var(--text-primary);
 }
 
 /* textEdit 모드 — 값이 있을 때 테두리 없는 텍스트로 표시 (더블클릭으로 편집) */
@@ -232,8 +208,29 @@
   color: var(--text-tertiary);
 }
 
-.yearInput:disabled {
-  opacity: var(--opacity-disabled);
+/* 날짜 칸 — 이어서 적는 글 하나. 폭은 형식의 안내 글(YYYY.MM.DD …)만큼, 숫자는 고정폭이라 값이 바뀌어도 칸이 들썩이지 않는다 */
+.dateText {
+  flex: none;
+}
+
+.dateText input {
+  font-variant-numeric: tabular-nums;
+}
+
+.dateText_year {
+  width: calc(5ch + var(--spacing-32));
+}
+
+.dateText_yearMonth {
+  width: calc(8ch + var(--spacing-32));
+}
+
+.dateText_date {
+  width: calc(11ch + var(--spacing-32));
+}
+
+.dateText_dateTime {
+  width: calc(17ch + var(--spacing-32));
 }
 
 /* 날짜 묶음·시각 묶음 — 안에서는 줄을 바꾸지 않는다 */
@@ -249,26 +246,6 @@
   .dateGroup {
     gap: var(--spacing-4);
   }
-}
-
-/* 날짜와 시각 사이 — "시간" 라벨. 시작·종료 라벨과 같은 모양, 앞쪽을 조금 더 띄운다 */
-.dateTimeLabel {
-  display: inline-flex;
-  align-items: center;
-  height: var(--_dp-h, var(--control-height-sm));
-  margin-right: var(--spacing-2);
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-}
-
-/* 연·월·일 사이 점 — 글자 "·" 는 점이 글자 칸 왼쪽에 그려져 왼쪽 칸에 붙어 보였다. 가운데 점을 직접 그린다 */
-.dateDot {
-  flex-shrink: 0;
-  width: 3px;
-  height: 3px;
-  margin-inline: var(--spacing-2);
-  border-radius: var(--radius-full);
-  background: var(--text-tertiary);
 }
 
 .dateSep {

@@ -937,11 +937,12 @@
   min-width: 0;
 }
 
-/* .row 안 input — 다른 폼 컨트롤 (Select trigger / + 버튼) 과 동일한 32px 라인 */
+/* .row 안 input — 다른 폼 컨트롤 (Select trigger / + 버튼) 과 동일한 32px 라인.
+   좌우 여백은 각 입력 부품(Input 의 알약 · 밑줄, Select 입력칸)이 정한다 — 여기서 16 을 주면 층 밖 규칙이라
+   밑줄 칸의 왼쪽 0 을 덮어, 날짜 칸 글자가 다른 칸보다 들여 쓰였다 */
 .row input {
   height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-16);
   line-height: 1;
 }
 

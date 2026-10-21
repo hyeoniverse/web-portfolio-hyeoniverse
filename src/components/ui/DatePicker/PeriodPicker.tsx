@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { LocalizedText } from "@/types/common";
-import type { SelectOption } from "@/types";
 import { Calendar, Clock } from "@/components/icons";
 import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
 import Checkbox from "@/components/ui/Checkbox";
-import Select from "@/components/ui/Select";
+import Input from "@/components/ui/Input";
+import { formatTypedDate, parseTypedDate, TYPED_DATE_PLACEHOLDER } from "@/utils/parseTypedDate";
 import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
@@ -45,49 +45,66 @@ const DEFAULT_FORMATS: Format[] = ["year", "yearMonth", "date"];
 /** 날짜까지만 보는 달력에 넘길 형식 — 시각 형식은 날짜 달력을 쓴다 */
 const calendarFormat = (f: Format): "year" | "yearMonth" | "date" => (f === "dateTime" ? "date" : f);
 
-/** 해당 월의 최대 일수 (윤년 미고려, 2월=29) */
-function daysInMonth(month: number): number {
-  if (month === 2) return 29;
-  if ([4, 6, 9, 11].includes(month)) return 30;
-  return 31;
-}
-
-/** year/month/day 입력 — 공통 Select (editable=true) 사용.
- *  기본 dropdown, 더블클릭 시 자유 입력 input 으로 전환. */
-function DatePart({
+/** 날짜 칸 — 이어서 적는 글 하나("19990827" · "990827" · "1999-08-27" …). 평소엔 형식대로("1999.08.27") 보이고,
+ *  형식 끝까지 적는 순간 · Enter · 칸을 벗어날 때 적용한다. 못 읽는 글이면 테두리로 알리고 Esc 로 되돌린다.
+ *  예전에는 연 · 월 · 일 셀렉트를 하나씩 눌러 골라야 했다 */
+function DateTextField({
   value,
-  options,
+  format,
   onChange,
   disabled,
-  maxLength,
-  placeholder,
+  minDate,
+  maxDate,
+  label,
 }: {
   value: string;
-  options: SelectOption[];
+  format: Format;
   onChange: (v: string) => void;
   disabled?: boolean;
-  maxLength: number;
-  placeholder?: string;
+  minDate?: Date;
+  maxDate?: Date;
+  label: string;
 }) {
+  // null — 적는 중이 아님(저장 값을 형식대로 보여 준다)
+  const [draft, setDraft] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState(false);
+  // Esc 로 되돌린 직후의 blur 는 적용하지 않는다 — 화면에 남은 못 읽는 글로 다시 오류가 났다
+  const skipBlurRef = useRef(false);
+  const parse = (raw: string) => parseTypedDate(raw, format, { min: minDate, max: maxDate });
+  const commit = (raw: string) => {
+    const r = parse(raw);
+    if (!r) { setInvalid(true); return; }
+    setInvalid(false);
+    if (r.value !== value) onChange(r.value);
+    setDraft(null);
+  };
   return (
-    <Select
-      className={styles.datePart}
-      value={value}
-      options={options}
-      onChange={onChange}
-      disabled={disabled}
-      /* 기본(32) — 프로필·작업물 편집기의 이웃 입력칸이 전부 md 라 sm 이면 이 줄만 낮아 보인다 */
-      width="min"
-      editable
-      editableInputProps={{
-        maxLength,
-        placeholder,
-        // year (maxLength=4) 는 padding 없이, month/day (maxLength=2) 는 0 padding
-        sanitize: (raw) => {
-          const v = raw.replace(/\D/g, "").slice(0, maxLength);
-          return maxLength === 2 && v ? v.padStart(2, "0") : v;
-        },
+    <Input
+      className={`${styles.dateText} ${styles[`dateText_${format}`]}`}
+      value={draft ?? formatTypedDate(value)}
+      onChange={(v) => {
+        setDraft(v);
+        setInvalid(false);
+        const r = parse(v);
+        if (r?.complete && r.value !== value) onChange(r.value);
       }}
+      onFocus={() => setDraft(formatTypedDate(value))}
+      onBlur={(e) => {
+        if (skipBlurRef.current) { skipBlurRef.current = false; return; }
+        commit(e.currentTarget.value);
+      }}
+      onKeyDown={(e) => {
+        if (e.nativeEvent.isComposing) return;
+        if (e.key === "Enter") { e.preventDefault(); commit(e.currentTarget.value); }
+        else if (e.key === "Escape") { skipBlurRef.current = true; setDraft(null); setInvalid(false); e.currentTarget.blur(); }
+      }}
+      placeholder={TYPED_DATE_PLACEHOLDER[format]}
+      error={invalid}
+      aria-invalid={invalid || undefined}
+      aria-label={label}
+      clearable={false}
+      disabled={disabled}
+      autoComplete="off"
     />
   );
 }
@@ -141,34 +158,9 @@ function DateInputRow({
   minDate?: Date;
   maxDate?: Date;
 }) {
-  const { t } = useLanguage();
   const { year, month, day, hour, minute } = parseDateStr(dateStr);
-  const maxDay = daysInMonth(Number(month) || 1);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
-
-  // 현재 선택된 year/month 기준으로 month/day 의 cap 계산 (min/maxDate 가 같은 year/month 일 때만 조여짐)
-  const numericYear = Number(year);
-  const numericMonth = Number(month);
-  const minYear = minDate?.getFullYear();
-  const minMonth = minDate ? minDate.getMonth() + 1 : undefined;
-  const minDay = minDate?.getDate();
-  const maxYear = maxDate?.getFullYear();
-  const maxMonth = maxDate ? maxDate.getMonth() + 1 : undefined;
-  const maxDayOfBoundMonth = maxDate?.getDate();
-  const monthMinCap = minYear !== undefined && numericYear === minYear ? minMonth : undefined;
-  const monthMaxCap = maxYear !== undefined && numericYear === maxYear ? maxMonth : undefined;
-  const dayMinCap = (minYear !== undefined && numericYear === minYear && minMonth === numericMonth) ? minDay : undefined;
-  const dayMaxCap = (maxYear !== undefined && numericYear === maxYear && maxMonth === numericMonth) ? maxDayOfBoundMonth : undefined;
-
-  const update = (part: "year" | "month" | "day" | "hour" | "minute", val: string) => {
-    const y = part === "year" ? val : year;
-    const m = part === "month" ? val : month;
-    const d = part === "day" ? val : day;
-    const h = part === "hour" ? val : hour;
-    const mi = part === "minute" ? val : minute;
-    onChange(buildDateStr(y, m, d, format, h, mi));
-  };
 
   return (
     /* 시각까지 적는 형식은 줄이 길어 시작·종료를 나란히 두지 않는다 — 한 줄 전체를 써서 폭이 정말 모자랄 때만 줄을 바꾼다 */
@@ -177,64 +169,15 @@ function DateInputRow({
       <div className={styles.dateInputs}>
         {/* 날짜 묶음(연·월·일·달력)과 시각 묶음(시간·시·분·시계)은 각각 한 덩어리 — 줄이 모자라면 묶음 단위로 내린다 */}
         <span className={styles.dateGroup}>
-        <DatePart
-          value={year}
-          options={(() => {
-            const cur = new Date().getFullYear();
-            const hi = maxYear !== undefined ? Math.min(cur + 5, maxYear) : cur + 5;
-            const lo = minYear !== undefined ? Math.max(cur - 30, minYear) : cur - 30;
-            const len = Math.max(1, hi - lo + 1);
-            // 최신 → 과거 순으로 정렬
-            return Array.from({ length: len }, (_, i) => {
-              const y = String(hi - i);
-              return { value: y, label: y };
-            });
-          })()}
-          onChange={(v) => update("year", v)}
+        <DateTextField
+          value={dateStr}
+          format={format}
+          onChange={onChange}
           disabled={disabled}
-          maxLength={4}
-          placeholder="YYYY"
+          minDate={minDate}
+          maxDate={maxDate}
+          label={label}
         />
-        {(format === "yearMonth" || format === "date" || format === "dateTime") && (
-          <>
-            <span className={styles.dateDot} aria-hidden />
-            <DatePart
-              value={month}
-              options={(() => {
-                const lo = monthMinCap ?? 1;
-                const hi = monthMaxCap ?? 12;
-                return Array.from({ length: Math.max(0, hi - lo + 1) }, (_, i) => {
-                  const v = String(lo + i).padStart(2, "0");
-                  return { value: v, label: v };
-                });
-              })()}
-              onChange={(v) => update("month", v)}
-              disabled={disabled}
-              maxLength={2}
-              placeholder="MM"
-            />
-          </>
-        )}
-        {(format === "date" || format === "dateTime") && (
-          <>
-            <span className={styles.dateDot} aria-hidden />
-            <DatePart
-              value={day}
-              options={(() => {
-                const lo = dayMinCap ?? 1;
-                const hi = Math.min(maxDay, dayMaxCap ?? maxDay);
-                return Array.from({ length: Math.max(0, hi - lo + 1) }, (_, i) => {
-                  const v = String(lo + i).padStart(2, "0");
-                  return { value: v, label: v };
-                });
-              })()}
-              onChange={(v) => update("day", v)}
-              disabled={disabled}
-              maxLength={2}
-              placeholder="DD"
-            />
-          </>
-        )}
         {/* 날짜 달력 — 시각 형식이면 날짜 칸 바로 뒤, 아니면 줄 끝 */}
         <div className={styles.pickerAnchor}>
           <Pressable
@@ -263,33 +206,9 @@ function DateInputRow({
           )}
         </div>
         </span>
-        {/* 시각 — 날짜 뒤에 한 칸 띄워 시:분. 분은 1분 단위, 직접 입력(더블클릭)도 된다 */}
+        {/* 시각 — 날짜 칸에 이어 적거나("1999.08.27 14:30") 시계로 고른다 */}
         {format === "dateTime" && (
           <span className={styles.dateGroup}>
-            <span className={styles.dateTimeLabel}>{t("common.periodTime")}</span>
-            <DatePart
-              value={hour}
-              options={Array.from({ length: 24 }, (_, i) => {
-                const v = String(i).padStart(2, "0");
-                return { value: v, label: v };
-              })}
-              onChange={(v) => update("hour", v)}
-              disabled={disabled || !day}
-              maxLength={2}
-              placeholder="HH"
-            />
-            <span className={styles.dateSep} aria-hidden>:</span>
-            <DatePart
-              value={minute}
-              options={Array.from({ length: 60 }, (_, i) => {
-                const v = String(i).padStart(2, "0");
-                return { value: v, label: v };
-              })}
-              onChange={(v) => update("minute", v)}
-              disabled={disabled || !day}
-              maxLength={2}
-              placeholder="mm"
-            />
             {/* 시각 선택 — 시·분 스피너(1분 단위) */}
             <div className={styles.pickerAnchor}>
               <Pressable
