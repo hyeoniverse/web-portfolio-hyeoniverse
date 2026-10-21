@@ -44,6 +44,21 @@ if (!Prism.languages.bash) {
   Prism.languages.console = Prism.languages.bash;
 }
 
+/* mermaid — 리더의 다이어그램 블록이 "코드" 보기에서 쓴다(ReaderMermaid). Prism 번들에 없어 읽히는 데 필요한 만큼만.
+   다이어그램 종류 · 문장 키워드 · 방향 · 문자열 · 화살표 라벨 · 화살표 · 주석 */
+if (!Prism.languages.mermaid) {
+  Prism.languages.mermaid = {
+    comment: /%%.*/,
+    string: { pattern: /"[^"\n]*"/, greedy: true },
+    // 화살표 위 라벨 -->|통과| — 문자열처럼 읽힌다
+    "attr-value": { pattern: /\|[^|\n]*\|/, greedy: true },
+    keyword: /\b(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|gantt|pie|journey|gitGraph|mindmap|timeline|quadrantChart|subgraph|end|direction|participant|actor|as|Note|note|over|left of|right of|loop|alt|else|opt|par|and|rect|critical|break|activate|deactivate|autonumber|title|section|class|classDef|style|linkStyle|click)\b/,
+    builtin: /\b(?:TB|TD|BT|RL|LR)\b/,
+    operator: /<<?-{1,2}>?|--?>>|--?[x)>]|-\.+->?|==+>|-{3,}|={3,}|-->|->/,
+    punctuation: /[[\](){}:;,]/,
+  };
+}
+
 /** 사용자 입력(``` 뒤 문자열)을 안전한 alias 로 — 속성 주입 방지 */
 export const normalizeLangAlias = (raw: string | undefined): string =>
   (raw ?? "")
