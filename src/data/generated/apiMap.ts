@@ -41,6 +41,7 @@ export const apiMap: ApiMap = {
     "page_view_stats",
     "page_view_totals",
     "publish_scheduled",
+    "rate_limit_hit",
     "record_page_duration",
     "record_page_view",
     "visitor_counts"
@@ -176,7 +177,9 @@ export const apiMap: ApiMap = {
         "site_settings",
         "works"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
       "services": [
         "ai",
         "translate",
@@ -305,7 +308,9 @@ export const apiMap: ApiMap = {
         "site_settings",
         "works"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
       "services": [
         "ai",
         "translate"
@@ -434,7 +439,9 @@ export const apiMap: ApiMap = {
         "posts",
         "site_settings"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
       "services": [
         "storage",
         "mail"
@@ -666,7 +673,9 @@ export const apiMap: ApiMap = {
         "work_comments",
         "works"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
       "services": [
         "mail"
       ],
@@ -818,7 +827,9 @@ export const apiMap: ApiMap = {
       "tables": [
         "site_settings"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
       "services": [
         "storage"
       ],
@@ -1562,6 +1573,7 @@ export const apiMap: ApiMap = {
       ],
       "rpcs": [
         "publish_scheduled",
+        "rate_limit_hit",
         "record_page_duration",
         "record_page_view",
         "visitor_counts"

@@ -1,7 +1,7 @@
 import { jsonError } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
-import { createMissLimiter } from "@/lib/api/contentTranslate";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import { SITE_UI_SOURCE_ID } from "@/lib/api/siteTranslate";
 import { serveSiteUiKeys } from "@/lib/api/siteUiTranslate";
 import { parseSiteUiKeys, siteUiSource } from "@/lib/siteTranslation";
@@ -11,7 +11,7 @@ import en from "@/locales/en.json";
 export const maxDuration = 60;
 
 /* 화면마다 한 번씩 물으므로 요청 수 상한은 넉넉히 — 캐시에 있는 글은 세지 않아, 한 언어의 비용은 사전 크기를 넘지 않는다 */
-const takeMiss = createMissLimiter(30, 300);
+const takeMiss = createMissLimiter("site-translate-ui", 30, 300);
 const texts = new Map(siteUiSource(en));
 
 /**

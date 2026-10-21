@@ -2,7 +2,7 @@ import { jsonError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
-import { createMissLimiter } from "@/lib/api/contentTranslate";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import { ADMIN_UI_SOURCE_ID } from "@/lib/api/siteTranslate";
 import { serveSiteUiKeys } from "@/lib/api/siteUiTranslate";
 import { parseSiteUiKeys, siteUiSource } from "@/lib/siteTranslation";
@@ -11,7 +11,7 @@ import enAdmin from "@/locales/en.admin.json";
 /* 한 화면의 글(많아야 수백 개)을 잘게 나눠 나란히 보낸다 */
 export const maxDuration = 60;
 
-const takeMiss = createMissLimiter(30, 300);
+const takeMiss = createMissLimiter("admin-site-ui", 30, 300);
 const texts = new Map(siteUiSource(enAdmin));
 
 /**

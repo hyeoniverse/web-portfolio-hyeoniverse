@@ -1,4 +1,5 @@
 import { jsonOk } from "@/lib/api/response";
+import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getSecret } from "@/lib/getSecret";
@@ -13,7 +14,7 @@ import {
   CONTACT_BUCKET,
   FIELD_MAX,
   clientIp,
-  createRateLimiter,
+  CONTACT_LIMITS,
 } from "@/lib/contact/limits";
 
 /**
@@ -30,7 +31,6 @@ import {
  */
 
 /** IP 당 10분에 5번 */
-const allow = createRateLimiter(5, 10 * 60 * 1000);
 
 type Body = {
   name?: unknown;
@@ -46,7 +46,7 @@ const fail = (reason: string, status = 400) => Response.json({ ok: false, reason
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  if (!allow(ip)) return fail("rate_limited", 429);
+  if (!(await hitRateLimit("contact-send", rateLimitKey(ip), ...CONTACT_LIMITS))) return fail("rate_limited", 429);
 
   const body = (await request.json().catch(() => null)) as Body | null;
   if (!body) return fail("invalid");

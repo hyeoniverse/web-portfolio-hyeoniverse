@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   const { data: comments, error } = await admin
     .from("work_comments")
-    .select("id, work_id, nickname, content, is_admin, is_deleted, created_at")
+    .select("id, work_id, nickname, content, is_admin, created_at")
     .eq("is_deleted", false)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -25,27 +25,32 @@ export async function GET(request: Request) {
     return NextResponse.json([]);
   }
 
+  /* 공개 위젯 — 발행 중인 작업물만 짚는다(comments/recent 와 같다). 필터가 없어 비공개 · 휴지통
+     작업물의 제목과 그 댓글이 그대로 나갔다. */
   const workIds = [...new Set(comments.map((c) => c.work_id))];
   const { data: works } = await admin
     .from("works")
     .select("id, title")
-    .in("id", workIds);
+    .in("id", workIds)
+    .eq("published", true)
+    .is("deleted_at", null);
 
   const workMap = new Map(
     (works ?? []).map((w) => [w.id, { title: w.title }]),
   );
 
-  const result = comments.map((c) => {
+  const result = comments.flatMap((c) => {
     const work = workMap.get(c.work_id);
-    return {
+    if (!work) return [];
+    return [{
       id: c.id,
       work_id: c.work_id,
       nickname: c.nickname,
       content: c.content.length > 60 ? c.content.slice(0, 60) + "…" : c.content,
       is_admin: c.is_admin,
       created_at: c.created_at,
-      work_title: work?.title ?? "",
-    };
+      work_title: work.title,
+    }];
   });
 
   return NextResponse.json(result);

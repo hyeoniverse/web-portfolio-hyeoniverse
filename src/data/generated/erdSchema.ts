@@ -1285,6 +1285,36 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
+    "name": "rate_limits",
+    "columns": [
+      {
+        "name": "bucket",
+        "type": "text",
+        "required": true,
+        "pk": true
+      },
+      {
+        "name": "key",
+        "type": "text",
+        "required": true,
+        "pk": true
+      },
+      {
+        "name": "window_start",
+        "type": "timestamptz",
+        "required": true,
+        "pk": true,
+        "indexed": true
+      },
+      {
+        "name": "count",
+        "type": "int",
+        "required": true,
+        "defaultValue": "0"
+      }
+    ]
+  },
+  {
     "name": "comment_reports",
     "columns": [
       {

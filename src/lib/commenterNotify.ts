@@ -6,6 +6,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MAIL_FROM } from "@/constants";
 import { logMail } from "@/lib/mail/log";
+import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
+import { NOTIFY_MAIL_LIMIT } from "@/lib/api/commentLimits";
 
 interface NotifyCommenterOptions {
   table: "comments" | "work_comments";
@@ -27,9 +29,10 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
       .eq("id", opts.parentId)
       .single();
 
-    console.log("[notifyCommenter] parent:", opts.parentId, "notify_email:", parent?.notify_email ?? "없음");
-
     if (!parent?.notify_email) return;
+
+    // 받는 사람마다 하루 발송 상한 — 남의 댓글에 답글을 쏟아 그 주소로 메일 폭탄을 보내지 못하게
+    if (!(await hitRateLimit("notify-mail", rateLimitKey(parent.notify_email.toLowerCase()), NOTIFY_MAIL_LIMIT))) return;
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

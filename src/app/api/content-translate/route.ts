@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { clampTitle } from "@/lib/postConstants";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
@@ -11,7 +12,6 @@ import {
   type ContentFields,
   type ContentSource,
   applyMetaTranslations,
-  createMissLimiter,
   isFreshCache,
   metaPieces,
   postSource,
@@ -35,7 +35,7 @@ import {
 /* 본문이 긴 글은 공급자 체인을 몇 번 돌 수 있다 */
 export const maxDuration = 60;
 
-const takeMiss = createMissLimiter();
+const takeMiss = createMissLimiter("content-translate");
 
 /**
  * POST /api/content-translate  { type: "post" | "work", id, lang }
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ fields: cached.fields as ContentFields, ...(ui && { ui }), lang, cached: true });
   }
 
-  if (!takeMiss(ip)) return jsonError("Too many requests", 429);
+  if (!(await takeMiss(ip))) return jsonError("Too many requests", 429);
   const tag = `[content-translate ${type} ${lang}]`;
 
   /* 짧은 칸(제목·요약·부제목·설명)과 정보 칸의 글 조각은 평문 한 번에, 본문은 richtext 면 HTML 로 따로 —
@@ -171,7 +171,7 @@ async function uiLabels(
   admin: ReturnType<typeof createAdminClient>,
   lang: string,
   providers: Provider[],
-  mayMiss: () => boolean,
+  mayMiss: () => boolean | Promise<boolean>,
 ): Promise<Partial<BodyLabels> | null> {
   const source = bodyLabelSource();
   const hash = uiLabelsHash(source);
@@ -183,7 +183,7 @@ async function uiLabels(
       .maybeSingle();
     const cachedUi = (cached?.fields as { ui?: Partial<BodyLabels> } | null)?.ui;
     if (cached?.source_hash === hash && cachedUi) return cachedUi;
-    if (!mayMiss()) return null;
+    if (!(await mayMiss())) return null;
 
     const tag = `[content-translate ui ${lang}]`;
     const res = await translateWithFallback(providers, source.map(([, text]) => text), "en", lang, tag);

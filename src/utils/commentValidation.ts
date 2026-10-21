@@ -55,7 +55,8 @@ export function validatePassword(raw: unknown): { valid: boolean; value: string;
 
   const trimmed = raw.trim();
 
-  if (trimmed.length < 2) {
+  // 2자면 조합이 수천 개라 시도 제한이 있어도 금방 뚫린다 — 4자로
+  if (trimmed.length < 4) {
     return { valid: false, value: "", error: "PASSWORD_TOO_SHORT" };
   }
 

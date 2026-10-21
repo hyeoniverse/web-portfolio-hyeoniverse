@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeNextPath } from "@/utils/safeNextPath";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPendingInvite, consumeInvite } from "@/lib/api/authorInvites";
@@ -16,8 +17,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   // open redirect 방지 — 사이트 내부 경로만 허용
-  const nextParam = searchParams.get("next") || "/admin";
-  const next = nextParam.startsWith("/") ? nextParam : "/admin";
+  const next = safeNextPath(searchParams.get("next")) ?? "/admin";
 
   const fail = (reason: string) =>
     NextResponse.redirect(`${origin}/admin/login?error=oauth&reason=${encodeURIComponent(reason)}`);

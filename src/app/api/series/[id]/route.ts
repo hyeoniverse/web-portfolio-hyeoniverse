@@ -123,8 +123,13 @@ export async function DELETE(request: Request, context: RouteContext) {
   const deletePosts = searchParams.get("deletePosts") === "true";
 
   if (deletePosts) {
-    // 하위 포스트도 soft delete
-    await supabase.from("posts").update({ deleted_at: new Date().toISOString(), series_id: null, series_order: 0 }).eq("series_id", id);
+    /* 하위 포스트도 휴지통으로 — 글 하나 지우기(DELETE /api/posts/[id])와 같게 비공개로 내리고 30일 뒤 영구 삭제.
+       published 를 그대로 두면 휴지통 글이 공개 목록 · anon 읽기로 계속 보였다 */
+    const purgeAfter = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    await supabase
+      .from("posts")
+      .update({ deleted_at: new Date().toISOString(), purge_after: purgeAfter, published: false, series_id: null, series_order: 0 })
+      .eq("series_id", id);
   } else {
     // 소속 포스트의 series_id를 null로 초기화
     await supabase.from("posts").update({ series_id: null, series_order: 0 }).eq("series_id", id);

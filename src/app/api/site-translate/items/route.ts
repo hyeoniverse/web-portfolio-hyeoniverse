@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { clampTitle } from "@/lib/postConstants";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
-import { createMissLimiter } from "@/lib/api/contentTranslate";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import {
   LIST_META_SELECT,
   type ListMetaSource,
@@ -18,7 +18,7 @@ import { type Provider, buildProviderList, translateWithFallback } from "@/lib/a
 export const maxDuration = 30;
 
 /* 목록은 화면마다 한 번씩 부른다 — 상세보다 넉넉히. 캐시에 없는 항목이 하나라도 있는 요청만 센다 */
-const takeMiss = createMissLimiter(20, 120);
+const takeMiss = createMissLimiter("site-translate-items", 20, 120);
 
 const TABLE: Record<ListItemType, "posts" | "works" | "series"> = { post: "posts", work: "works", series: "series" };
 
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   /* 상한이면 캐시에 있던 것만 — 나머지 카드는 원문 */
-  if (!takeMiss(ip)) {
+  if (!(await takeMiss(ip))) {
     return Object.keys(items).length
       ? NextResponse.json({ lang, items, partial: true })
       : jsonError("Too many requests", 429);

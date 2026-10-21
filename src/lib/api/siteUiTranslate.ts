@@ -26,7 +26,7 @@ interface SiteUiOpts {
   lang: string;
   config: Awaited<ReturnType<typeof getSiteConfig>>;
   tag: string;
-  onMiss?: () => boolean;
+  onMiss?: () => boolean | Promise<boolean>;
 }
 
 type SiteUiError = { status: NonNullable<Parameters<typeof jsonError>[1]>; code?: ApiErrorCode; message: string };
@@ -62,7 +62,7 @@ export async function translateSiteUiKeys(opts: SiteUiOpts & { keys: string[] })
     else miss.push(k);
   }
   if (!miss.length) return { strings: hit, failed: [] };
-  if (onMiss && !onMiss()) return { error: { status: 429, message: "Too many requests" } };
+  if (onMiss && !(await onMiss())) return { error: { status: 429, message: "Too many requests" } };
 
   const providers = buildProviderList((config?.translation?.provider as Provider) ?? "deepl", config?.translation?.fallback);
   const sources = miss.map((k) => texts.get(k) as string);

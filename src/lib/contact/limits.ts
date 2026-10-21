@@ -1,3 +1,5 @@
+import type { RateLimitRule } from "@/lib/api/rateLimit";
+
 /**
  * 문의 폼 공통 값 — 입력 길이 · 첨부 버킷 · IP 별 횟수 제한. 서버 전용.
  */
@@ -16,21 +18,8 @@ export function clientIp(request: Request): string {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 }
 
-/**
- * IP 별 횟수 제한(창 안에서 limit 번). 서버 인스턴스마다 따로 세는 가벼운 1차 방어다 — 진짜 문지기는 reCAPTCHA.
- * 테스트가 새로 시작할 수 있게 만드는 함수로 둔다.
- */
-export function createRateLimiter(limit: number, windowMs: number) {
-  const hits = new Map<string, number[]>();
-  return (ip: string, now = Date.now()): boolean => {
-    const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
-    if (recent.length >= limit) {
-      hits.set(ip, recent);
-      return false;
-    }
-    recent.push(now);
-    hits.set(ip, recent);
-    if (hits.size > 5000) hits.clear();
-    return true;
-  };
-}
+/** IP 별 횟수 제한 — 1차 방어(진짜 문지기는 reCAPTCHA). 공유 DB 에서 센다(lib/api/rateLimit) */
+export const CONTACT_LIMITS: RateLimitRule[] = [
+  { windowSec: 600, max: 5 },
+  { windowSec: 86400, max: 20 },
+];
