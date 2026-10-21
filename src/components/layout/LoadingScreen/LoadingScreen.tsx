@@ -33,6 +33,29 @@ export default function LoadingScreen() {
     }
   }, [isLoading]);
 
+  /* 로딩 중엔 페이지가 스크롤되지 않게 — 덮개 뒤로 페이지가 움직이면 가운데 로고(nav)가 따라 숨거나 밀려
+     덮개가 움직이는 것처럼 보였다. 덮개는 Lenis 바깥이라, window 캡처 단계에서 휠 · 터치 이동 · 스크롤 키를
+     먼저 받아 막는다(브라우저 기본 스크롤도 Lenis 도 못 받는다). 스크롤바를 숨기면 폭이 들썩여 쓰지 않는다 */
+  const blockScroll = isLoading && visible && !shouldSkipLoading;
+  useEffect(() => {
+    if (!blockScroll) return;
+    const SCROLL_KEYS = new Set([" ", "PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End"]);
+    const stop = (e: Event) => {
+      if (e instanceof KeyboardEvent && !SCROLL_KEYS.has(e.key)) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    const opts = { capture: true, passive: false } as const;
+    window.addEventListener("wheel", stop, opts);
+    window.addEventListener("touchmove", stop, opts);
+    window.addEventListener("keydown", stop, opts);
+    return () => {
+      window.removeEventListener("wheel", stop, opts);
+      window.removeEventListener("touchmove", stop, opts);
+      window.removeEventListener("keydown", stop, opts);
+    };
+  }, [blockScroll]);
+
   /* top layer(popover, 3.10-1). nav 의 로고가 이 위에서 가운데 → 제자리로 움직여야 해서 nav 도 그 동안 top layer 에 올라온다(Navigation.tsx keepOnTop) */
   const popoverRef = usePopoverRef<HTMLDivElement>();
 
