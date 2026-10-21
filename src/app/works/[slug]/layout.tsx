@@ -3,6 +3,7 @@ import { getWorksProjects } from "@/lib/getWorksProjects";
 import { findProjectIndex } from "./findProjectIndex";
 import DetailShell from "@/components/layout/DetailLayout/DetailShell";
 import { pickLocalized } from "@/types/common";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /**
  * 작업물이 있는지 로딩 화면(loading.tsx)보다 먼저 확인한다(#891).
@@ -26,8 +27,10 @@ export default async function WorkSlugLayout({ children, params }: { children: R
 
   // alt 는 서버가 그리는 한국어로 시작하고, 영어 화면이면 페이지가 다시 넘긴다
   const { image, title, coverPosition, coverZoom } = projects[index];
+  /* 랜딩 페이지 형태(설정 works.detailStyle)면 커버를 따로 그리지 않는다 — 랜딩이 머리 아래에 대표 화면으로 보인다 */
+  const landing = (await getSiteConfig()).works?.detailStyle === "landing";
   return (
-    <DetailShell cover={image ? { image, alt: pickLocalized(title, "ko"), position: coverPosition, zoom: coverZoom } : null}>
+    <DetailShell cover={image && !landing ? { image, alt: pickLocalized(title, "ko"), position: coverPosition, zoom: coverZoom } : null}>
       {children}
     </DetailShell>
   );

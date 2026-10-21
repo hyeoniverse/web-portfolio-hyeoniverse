@@ -259,6 +259,20 @@
     "periodPreview": "Preview"
   },
   "workDetail": {
+    "landing": {
+      "glance": "At a glance",
+      "features": "Key features",
+      "about": "About",
+      "gallery": "Screens",
+      "timeline": "Timeline",
+      "role": "My role",
+      "specs": "Tech specs",
+      "factPeriod": "Period",
+      "factTech": "Technologies",
+      "factTeam": "People",
+      "github": "View on GitHub",
+      "visit": "Open site"
+    },
     "back": "Works",
     "editWork": "Edit this work (new tab)",
     "editRepoWork": "Bring the repository in and edit",

@@ -1,0 +1,157 @@
+/* ── 작업물 편집기 — 랜딩 페이지 카드(LandingEditor) ── */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+}
+
+.hint {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+/* 한 줄 소개 | 소개 문단 — 태블릿 이하는 한 칸 */
+.grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-24);
+  align-items: start;
+}
+
+/* 목록 묶음 — 머리(라벨 · 안내) · 줄들 · 추가 */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.groupHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-4) var(--spacing-12);
+}
+
+.groupHead h3 {
+  margin: 0;
+}
+
+.groupHint {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.rows,
+.subRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.subRows {
+  padding-left: var(--spacing-16);
+  border-left: var(--border-light);
+}
+
+/* 한 줄 — 칸들 | 위 · 아래 · 지우기 */
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.rowFields {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+/* 기능 · 챕터 — 칸을 세로로 쌓고 위 선으로 나눈다 */
+.rowBlock {
+  padding-top: var(--spacing-12);
+  border-top: var(--border-light);
+}
+
+.rowBlock > .rowFields {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.short {
+  flex: 0 0 160px;
+  min-width: 0;
+}
+
+.chapterTitle {
+  font: var(--font-title-sm);
+}
+
+.rowActions {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-4);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-full);
+  color: var(--text-tertiary);
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.iconBtn:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.iconBtn:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+/* 이미지 — 미리보기 · 주소 · 올리기 */
+.image {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.image > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.imageThumb {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-xl);
+  height: var(--control-height-md);
+  border-radius: var(--radius-surface);
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  object-fit: cover;
+}
+
+.imageError {
+  flex-basis: 100%;
+  font: var(--font-body-xs);
+  color: var(--text-error);
+}
+
+@media (width > 1024px) {
+  .grid2 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+}

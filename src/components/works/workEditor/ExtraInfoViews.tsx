@@ -11,7 +11,7 @@ import styles from "./ExtraInfoViews.module.css";
  * 요약 카드 한 줄(제목 · 개수 · 미리보기)을 두고, 카드를 누르면 그 아래에 그 항목의 편집기가 펼쳐진다.
  * 다시 누르거나 다른 카드를 누르면 바뀐다. 모달이 아니라 제자리라 본문을 보면서 고칠 수 있다.
  */
-export type ExtraKey = "tech" | "team" | "links" | "posts" | "series";
+export type ExtraKey = "tech" | "team" | "links" | "posts" | "series" | "landing";
 
 export interface ExtraItem<K extends string = ExtraKey> {
   key: K;

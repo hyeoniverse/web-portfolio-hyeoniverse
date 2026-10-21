@@ -19,6 +19,8 @@ import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { pickFiles } from "@/lib/pickFiles";
 import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workEditor/ExtraInfoViews";
+import LandingEditor from "./workEditor/LandingEditor";
+import { landingFilledCount } from "@/types/workLanding";
 import { TechTable } from "./workEditor/TechTable";
 import { TeamMemberRow } from "./workEditor/TeamMemberRow";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
@@ -2147,6 +2149,27 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     </div>
   ), [allSeries, form.related_series_ids, language, tw, updateField]);
 
+  /* 랜딩 페이지 — 편집 중인 언어의 칸. 설정이 게시물 형태면 그 사실을 알린다 */
+  const landingKey = editorLang === "en" ? "landing_en" : "landing_ko";
+  const landing = form[landingKey];
+  const landingMode = ownerSiteConfig.works?.detailStyle === "landing";
+  const landingSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("landing")}</h2>
+      <LandingEditor
+        value={landing}
+        onChange={(next) => updateField(landingKey, next)}
+        tw={tw}
+        modeHint={landingMode ? undefined : (
+          <p className={styles.extraHint}>
+            {tw("landingModeOff")}{" "}
+            <a href="/admin/settings?tab=content&sub=works" target="_blank" rel="noopener noreferrer">{tw("landingModeLink")}</a>
+          </p>
+        )}
+      />
+    </div>
+  ), [landing, landingKey, landingMode, tw, updateField]);
+
   /* 추가 정보 항목 — 제목 · 개수 · 미리보기 · 편집기. 세 보기가 같이 쓴다 */
   const extraItems = useMemo<ExtraItem[]>(() => {
     const empty = <ExtraEmpty>{tw("extraEmpty")}</ExtraEmpty>;
@@ -2207,8 +2230,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         preview: series.length === 0 ? empty : <>{series.slice(0, 3).map((x) => <span key={x.id} className={styles.extraPreviewLine}>{titleOf(x)}</span>)}</>,
         body: relatedSeriesSection,
       },
+      {
+        key: "landing",
+        title: tw("landing"),
+        count: landingFilledCount(landing),
+        preview: landingFilledCount(landing) === 0 ? empty : (
+          <span className={styles.extraPreviewLine}>{landing.tagline || landing.highlights[0]?.title || landing.chapters[0]?.title || tw("landingFilled")}</span>
+        ),
+        body: landingSection,
+      },
     ];
   }, [
+    landing, landingSection,
     allPosts, allSeries, editorLang, form.github_url, form.live_url, form.related_post_ids, form.related_series_ids,
     form.team_members, form.tech, language, linksSection, relatedPostsSection, relatedSeriesSection,
     teamSection, techSection, tw,

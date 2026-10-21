@@ -1,4 +1,5 @@
 import type { Work, WorkFormData } from "@/types/work";
+import { EMPTY_LANDING, normalizeLanding } from "@/types/workLanding";
 
 /** legacy 3-section work (overview/challenge/solution) 를 단일 마크다운 content 로 직렬화 */
 function assembleContent(work: Work, lang: "ko" | "en"): string {
@@ -63,6 +64,8 @@ export function workToFormData(work: Work): WorkFormData {
     is_pinned: work.is_pinned ?? false,
     scheduled_at: work.scheduled_at ?? null,
     related_post_ids: [],
+    landing_ko: normalizeLanding(work.landing_ko),
+    landing_en: normalizeLanding(work.landing_en),
   };
 }
 
@@ -104,6 +107,8 @@ export const defaultForm: WorkFormData = {
   is_pinned: false,
   scheduled_at: null,
   related_post_ids: [],
+  landing_ko: EMPTY_LANDING,
+  landing_en: EMPTY_LANDING,
 };
 
 /** 소유자(본인) 계정에 연결된 팀원의 author_id — resolvePostAuthors 의 OWNER_AUTHOR_ID 와 같다 */

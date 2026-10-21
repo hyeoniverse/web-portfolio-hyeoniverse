@@ -15,6 +15,7 @@ import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
 import { WorkArticleBody } from "@/components/works/WorkArticleBody";
 import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
+import { WorkLanding } from "@/components/works/landing/WorkLanding";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
@@ -42,6 +43,8 @@ export default function WorkDetailClient({
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 제거됨. */
   const translationEnabled = siteConfig?.translation?.enabled !== false;
+  /* 상세 형태 — 설정(works.detailStyle)이 landing 이면 랜딩 페이지로. 커버는 레이아웃도 같은 값을 보고 그리지 않는다 */
+  const landingMode = siteConfig?.works?.detailStyle === "landing";
   const isRichtext = savedProject.contentType === "richtext";
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
@@ -119,7 +122,7 @@ export default function WorkDetailClient({
       heroInShell
       heroAlt={pickLocalized(project.title, language)}
       heroIcon={project.icon}
-      headings={headings}
+      headings={landingMode ? [] : headings}
       header={
         <WorkArticleHeader
           project={project}
@@ -136,7 +139,8 @@ export default function WorkDetailClient({
           relatedSeries={relatedSeries}
         />
       }
-      afterContent={
+      /* 랜딩 페이지는 화면 · 팀을 제 안에서 그린다 */
+      afterContent={landingMode ? undefined : (
         <>
           {/* 갤러리는 글 칼럼보다 넓은 이 자리에 — 슬라이드가 작게 보이면 읽을 수가 없다 */}
           <TranslatingRegion active={contentTr.translating}>
@@ -144,7 +148,7 @@ export default function WorkDetailClient({
           </TranslatingRegion>
           <WorkArticleTeam project={project} viewLang={viewLang} />
         </>
-      }
+      )}
       likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       adjacentConfig={{
         prev: prevProject ? {
@@ -163,6 +167,11 @@ export default function WorkDetailClient({
       }}
       commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
+      landing={landingMode ? (
+        <TranslatingRegion active={contentTr.translating}>
+          <WorkLanding project={project} viewLang={viewLang} />
+        </TranslatingRegion>
+      ) : undefined}
     >
       {contentTr.targetLang ? (
         <ContentTranslateBanner

@@ -259,6 +259,20 @@
     "periodPreview": "미리보기"
   },
   "workDetail": {
+    "landing": {
+      "glance": "한눈에 보기",
+      "features": "주요 기능",
+      "about": "소개",
+      "gallery": "화면",
+      "timeline": "진행 과정",
+      "role": "맡은 일",
+      "specs": "기술 사양",
+      "factPeriod": "기간",
+      "factTech": "사용한 기술",
+      "factTeam": "함께한 사람",
+      "github": "GitHub에서 보기",
+      "visit": "사이트 열기"
+    },
     "back": "Works",
     "editWork": "이 작품 편집 (새 탭)",
     "editRepoWork": "저장소를 작업물로 들여 편집",

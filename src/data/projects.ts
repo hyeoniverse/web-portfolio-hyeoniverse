@@ -1,3 +1,4 @@
+import type { WorkLanding } from "@/types/workLanding";
 // 작품 페이지 프로젝트 데이터
 
 import type { LocalizedText } from "@/types/common";
@@ -90,6 +91,8 @@ export interface Project {
   external?: boolean;
   /** 조회수(DB works.view_count) — 상세 헤더에 표시. 정적 fallback · 저장소 자료는 세지 않아 없다 */
   viewCount?: number;
+  /** 랜딩 페이지 내용(DB works.landing_ko / landing_en) — 상세를 랜딩 페이지로 그릴 때. 없으면 다른 칸으로 채운다 */
+  landing?: { ko: WorkLanding; en: WorkLanding };
 }
 
 export const projects: Project[] = [
