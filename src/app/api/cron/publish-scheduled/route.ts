@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isAuthorizedCron } from "@/lib/api/cronAuth";
 
 /**
  * GET /api/cron/publish-scheduled
@@ -8,19 +9,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * `publish_scheduled()` RPC 를 실행해 scheduled_at <= now() 인 posts/works 를
  * 일괄로 published=true 로 flip 한다.
  *
- * 보안: Vercel Cron 은 자동으로 헤더 `x-vercel-cron: 1` 을 붙임.
- * 그 외 경로에서 호출 시 CRON_SECRET 환경변수와 비교.
+ * 보안: `Authorization: Bearer ${CRON_SECRET}` 만 받는다(lib/api/cronAuth).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const isVercelCron = request.headers.get("x-vercel-cron") === "1";
-
-  if (!isVercelCron) {
-    if (!secret || authHeader !== `Bearer ${secret}`) {
-      return jsonError("Unauthorized", 401);
-    }
-  }
+  if (!isAuthorizedCron(request)) return jsonError("Unauthorized", 401);
 
   const admin = createAdminClient();
   const { data, error } = await admin.rpc("publish_scheduled");
