@@ -18,6 +18,8 @@ interface SeoCheckData {
   slug?: string;
   excerpt?: string;
   cover?: string;
+  /** 커버가 없을 때 공유 카드를 제목으로 자동으로 그리는가(글) — 그러면 커버 항목은 통과로 본다 */
+  autoCover?: boolean;
   category?: string;
   tagsCount?: number;
 }
@@ -65,8 +67,8 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
     },
     {
       id: "cover",
-      label: t("admin.seoChecklist.cover"),
-      ok: !!data.cover,
+      label: !data.cover && data.autoCover ? t("admin.seoChecklist.coverAuto") : t("admin.seoChecklist.cover"),
+      ok: !!data.cover || !!data.autoCover,
     },
     {
       id: "category",

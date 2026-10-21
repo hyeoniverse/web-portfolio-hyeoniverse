@@ -50,6 +50,13 @@ const nextConfig: NextConfig = {
       process.env.VERCEL_ENV === "production" && process.env.BLOG_SUBDOMAIN_REDIRECT === "1" ? "1" : "",
   },
   productionBrowserSourceMaps: true,
+  /* 글 공유 카드(app/og/posts/[slug])가 런타임에 읽는 글꼴 — readFile 경로는 추적되지 않아 배포 묶음에 직접 넣는다(lib/og/postCard) */
+  outputFileTracingIncludes: {
+    "/og/posts/*": [
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Medium.woff",
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
+    ],
+  },
   experimental: {
     inlineCss: false,
     optimizePackageImports: [

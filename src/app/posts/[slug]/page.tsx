@@ -4,7 +4,7 @@ import { getPostBySlug, getAllPostSlugs } from "@/lib/posts";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import { getPostRelatedWorks } from "@/lib/postRelatedWorks";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { pageMetadata, ogImageOf, jsonLd, SITE_ORIGIN } from "@/lib/seo";
+import { pageMetadata, ogImageOf, jsonLd, postCardImagePath, SITE_ORIGIN } from "@/lib/seo";
 import PostDetailClient from "./PostDetailClient";
 
 export const revalidate = 300;
@@ -28,6 +28,8 @@ export async function generateMetadata({
     description: post.excerpt || post.excerpt_en || undefined,
     path: `/posts/${encodeURIComponent(post.slug)}`,
     image: post.cover_image,
+    // 커버가 없으면 제목으로 그린 카드(app/og/posts/[slug]) — 사이트 기본 그림보다 글마다 알아볼 수 있게
+    fallbackImage: { url: postCardImagePath(post.slug, post.updated_at), alt: post.title || post.title_en },
     type: "article",
     publishedTime: post.created_at,
     modifiedTime: post.updated_at,
@@ -64,7 +66,7 @@ export default async function PostDetailPage({
     description: post.excerpt || post.excerpt_en || undefined,
     datePublished: post.created_at,
     dateModified: post.updated_at,
-    image: cover ? new URL(cover, SITE_ORIGIN).href : undefined,
+    image: new URL(cover ?? postCardImagePath(post.slug, post.updated_at), SITE_ORIGIN).href,
     keywords: post.tags?.length ? post.tags.join(", ") : undefined,
     url,
     mainEntityOfPage: url,

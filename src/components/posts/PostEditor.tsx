@@ -1327,6 +1327,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         slug: metaForm.slug,
         excerpt: metaForm[excerptKey] || metaForm.excerpt,
         cover: metaForm.cover_image,
+        autoCover: true,
         category: metaForm.category,
         tagsCount: metaForm.tags?.length ?? 0,
       }}

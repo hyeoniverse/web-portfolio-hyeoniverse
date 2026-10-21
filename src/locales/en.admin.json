@@ -8,6 +8,7 @@
       "excerpt": "Description",
       "excerptShort": "30+ chars recommended",
       "cover": "Cover image",
+      "coverAuto": "Cover image (auto title card)",
       "category": "Category",
       "tags": "Tags",
       "completed": "Completed",
