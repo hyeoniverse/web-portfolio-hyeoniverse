@@ -8,12 +8,13 @@
   gap: var(--spacing-8);
 }
 
-/* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인 */
+/* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인. 높이는 컨트롤(28px)에 맞춘다 — 옆 칸 머리 줄과 같은 높이 */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-16);
+  min-height: var(--control-height-sm);
 }
 
 /* 컨트롤 그룹 — 위치 input + 맨앞/맨뒤 jump */
@@ -25,7 +26,7 @@
 
 .pos {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacing-4);
   font: var(--font-code-sm);
   font-variant-numeric: tabular-nums;
@@ -34,8 +35,8 @@
 
 .posInput {
   width: var(--size-48);
-  /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-20 = 20px) */
-  height: var(--size-20);
+  /* 맨앞/맨뒤 묶음(.jumps) · 편집기 머리 줄 단추와 같은 높이(28px). .row input 같은 바깥 규칙이 높이를 바꾸지 않게 0,2,0 은 아래에서 */
+  height: var(--control-height-sm);
   box-sizing: border-box;
   border: var(--border-light);
   border-radius: var(--radius-control);
@@ -57,6 +58,10 @@
   margin: 0;
 }
 
+.pos .posInput {
+  height: var(--control-height-sm);
+}
+
 .posInput:focus {
   border-color: var(--text-primary);
 }
@@ -66,11 +71,11 @@
   color: var(--text-tertiary);
 }
 
-/* 맨앞/맨뒤 buttons — 단일 capsule group (border 공유, divider 로 분리). 높이 컴팩트 */
+/* 맨앞/맨뒤 buttons — 단일 capsule group (border 공유, divider 로 분리). 위치 칸과 같은 28px */
 .jumps {
   display: inline-flex;
   align-items: stretch;
-  height: var(--size-20);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-control);
   overflow: hidden;
@@ -80,7 +85,7 @@
   padding: 0 var(--spacing-12);
   border: none;
   background: transparent;
-  font: var(--font-label-xs);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   white-space: nowrap;
   cursor: pointer;
@@ -132,9 +137,13 @@
   border-top: var(--border-light);
 }
 
+/* 현재 글 줄 — 줄 어디를 잡아도 끈다(pointer). 터치에서도 스크롤 대신 끌기, 끄는 동안 글자가 선택되지 않게 */
 .itemCurrent {
   background: var(--bg-accent-subtle);
   color: var(--text-primary);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .itemDragging {
@@ -191,15 +200,26 @@
   flex-shrink: 0;
 }
 
+/* 제목 줄 — 글자(.titleText)가 남는 폭을 다 써 '현재' 칩(.titleBadge)은 늘 오른쪽 끝. 모자라면 글자만 줄어들며 말줄임.
+   예전엔 줄 전체를 잘라 칩이 밀려 사라졌다 */
 .title {
   flex: 1;
   min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
+}
+
+.titleText {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.titleBadge {
+  flex-shrink: 0;
 }
 
 
@@ -216,10 +236,10 @@
   gap: var(--spacing-8);
 }
 
-/* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
+/* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override — 머리 줄 컨트롤과 같은 28px */
 .pagination [class*="pageBtn"] {
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   font: var(--font-body-xs);
 }
 

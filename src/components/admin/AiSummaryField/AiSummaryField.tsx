@@ -31,15 +31,11 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
   const actionLabel = ta(summary ? "regenerate" : "generate");
   return (
     <div className={`${es.field} ${styles.root}`}>
-      {/* 다른 칸과 같은 라벨(아이콘 없음) */}
-      <label className={es.fieldLabel}>{ta("label")}</label>
-      <div className={styles.box} data-empty={summary ? undefined : ""} lang={lang}>
-        {summary ? <SummaryBody summary={summary} flat /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
-      </div>
-      {/* 다시 만들기 — 요약 아래. 편집기의 다른 머리 단추(템플릿 넣기)와 같은 외곽선 단추.
-          누르면 옵션 팝오버(말투 · 분량 · 추가 지시, 고급)가 열리고 거기서 만든다 */}
-      {onRegenerate && (
-        <div className={styles.actions}>
+      {/* 다른 칸과 같은 라벨(아이콘 없음). 다시 만들기는 라벨 줄 오른쪽 — 요약 아래에 따로 두면 줄 하나를 더 쓰고,
+          요약이 길면 단추가 아래로 밀려 찾기 어려웠다. 누르면 옵션 팝오버(말투 · 분량 · 추가 지시, 고급)가 열린다 */}
+      <div className={es.fieldLabelRow}>
+        <label className={es.fieldLabel}>{ta("label")}</label>
+        {onRegenerate && (
           <Popover
             open={open}
             onOpenChange={setOpen}
@@ -49,7 +45,7 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
             sheetTitle={ta("options.title")}
             trigger={
               <Tooltip content={disabled && disabledReason ? disabledReason : actionLabel} disabled={open}>
-                <Button variant="outline" shape="capsule" loading={busy} disabled={disabled} soundDisabled>
+                <Button variant="outline" shape="capsule" size="sm" loading={busy} disabled={disabled} soundDisabled>
                   {actionLabel}
                 </Button>
               </Tooltip>
@@ -57,8 +53,11 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
           >
             {({ close }) => <AiSummaryOptions submitLabel={actionLabel} onSubmit={(o) => { close(); onRegenerate(o); }} />}
           </Popover>
-        </div>
-      )}
+        )}
+      </div>
+      <div className={styles.box} data-empty={summary ? undefined : ""} lang={lang}>
+        {summary ? <SummaryBody summary={summary} flat /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
+      </div>
     </div>
   );
 }

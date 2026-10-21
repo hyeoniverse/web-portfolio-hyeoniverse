@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { GripVertical } from "@/components/icons";
 import Pagination from "@/components/ui/Pagination";
@@ -76,7 +76,9 @@ export default function SortOrderDragList({
     merged.push({ id: CURRENT_KEY, title: currentTitle, isCurrent: true });
   }
 
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  /* 끌기 — 움직이는 줄은 늘 '현재 글' 하나라 끄는 중인지만 들고, 놓을 자리(overIdx)는 포인터 아래 줄의 data-sort-idx 로 찾는다.
+     HTML5 드래그 앤 드롭은 놓아도 순서가 바뀌지 않는 경우가 있어(브라우저 · 커서 효과의 dragstart 가로채기) RelationPicker 처럼 pointer 로 한다 */
+  const [dragging, setDragging] = useState(false);
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -136,10 +138,50 @@ export default function SortOrderDragList({
     apply(fromIdx, toIdx);
   };
 
+  /* 놓을 때는 마지막 렌더의 목록으로 계산한다 — 끄는 동안 가장자리 넘김(아래)이 현재 글 자리를 옮길 수 있다 */
+  const latestRef = useRef({ merged, apply });
+  useLayoutEffect(() => { latestRef.current = { merged, apply }; });
+  const curIdx = merged.findIndex((m) => m.id === CURRENT_KEY);
+
+  const rowIdxAt = (x: number, y: number): number | null => {
+    const row = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-sort-idx]");
+    const n = row ? Number(row.dataset.sortIdx) : NaN;
+    return Number.isNaN(n) ? null : n;
+  };
+
+  const onHandlePointerDown = (e: ReactPointerEvent) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    setDragging(true);
+    setOverIdx(null);
+    let last: number | null = null;
+    const onMove = (ev: PointerEvent) => {
+      const n = rowIdxAt(ev.clientX, ev.clientY);
+      if (n !== null && n !== last) { last = n; setOverIdx(n); }
+    };
+    const onUp = (ev: PointerEvent) => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+      document.body.style.cursor = "";
+      setDragging(false);
+      setOverIdx(null);
+      if (ev.type === "pointercancel") return;
+      const to = rowIdxAt(ev.clientX, ev.clientY) ?? last;
+      const { merged: m, apply: run } = latestRef.current;
+      const from = m.findIndex((it) => it.id === CURRENT_KEY);
+      if (to !== null && from >= 0) run(from, to);
+    };
+    document.body.style.cursor = "grabbing";
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+  };
+
   // 드래그 중 edge 감지 — list 위/아래 60px 영역 hover 시 current 를 인접 페이지의 첫/끝 위치로 이동
   useEffect(() => {
-    if (dragIdx === null) return;
-    const onDocDrag = (e: DragEvent) => {
+    if (!dragging) return;
+    const onDocDrag = (e: PointerEvent) => {
       const rect = listRef.current?.getBoundingClientRect();
       if (!rect) return;
       const EDGE = 60;
@@ -173,13 +215,13 @@ export default function SortOrderDragList({
       };
       edgeTimerRef.current = setTimeout(fire, 500);
     };
-    document.addEventListener("dragover", onDocDrag);
+    document.addEventListener("pointermove", onDocDrag);
     return () => {
-      document.removeEventListener("dragover", onDocDrag);
+      document.removeEventListener("pointermove", onDocDrag);
       stopEdgeJump();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dragIdx, page, totalPages, cur, merged.length, pageSize]);
+  }, [dragging, page, totalPages, cur, merged.length, pageSize]);
 
   return (
     <div className={`${styles.wrap} ${className ?? ""}`}>
@@ -225,31 +267,16 @@ export default function SortOrderDragList({
       <div ref={listRef} className={styles.list}>
         {visible.map((item, vIdx) => {
           const idx = visibleStart + vIdx;
-          const isDragging = dragIdx === idx;
-          const showAbove = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx > idx;
-          const showBelow = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx < idx;
+          const isDragging = dragging && item.isCurrent;
+          const showAbove = dragging && overIdx === idx && idx < curIdx;
+          const showBelow = dragging && overIdx === idx && idx > curIdx;
           return (
             <div
               key={item.id}
               className={`${styles.item} ${item.isCurrent ? styles.itemCurrent : ""} ${isDragging ? styles.itemDragging : ""} ${showAbove ? styles.itemDropAbove : ""} ${showBelow ? styles.itemDropBelow : ""}`}
-              draggable={item.isCurrent}
-              onDragStart={(e) => {
-                if (!item.isCurrent) { e.preventDefault(); return; }
-                setDragIdx(idx);
-                e.dataTransfer.effectAllowed = "move";
-              }}
-              onDragOver={(e) => {
-                if (dragIdx === null) return;
-                e.preventDefault();
-                if (overIdx !== idx) setOverIdx(idx);
-              }}
-              onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragIdx !== null) apply(dragIdx, idx);
-                setDragIdx(null);
-                setOverIdx(null);
-              }}
+              data-sort-idx={idx}
+              /* 현재 글 줄 어디를 잡아도 끈다 — 손잡이(12px)만 잡게 하면 맞히기 어려웠다 */
+              onPointerDown={item.isCurrent ? onHandlePointerDown : undefined}
             >
               <span className={styles.lead}>
                 {item.isCurrent ? (
@@ -266,21 +293,26 @@ export default function SortOrderDragList({
                 )}
                 <span className={styles.num}>{idx + 1}</span>
               </span>
+              {/* 제목만 줄어들며 말줄임 — '현재' 칩은 줄지 않아 공간이 모자라도 잘리지 않는다 */}
               <span className={styles.title}>
-                {item.isCurrent ? <strong>{item.title}</strong> : item.title}
-                {item.isCurrent && <Badge variant="solid" tone="accent">{currentTag}</Badge>}
+                <span className={styles.titleText} title={item.title}>
+                  {item.isCurrent ? <strong>{item.title}</strong> : item.title}
+                </span>
+                {item.isCurrent && <Badge variant="solid" tone="accent" className={styles.titleBadge}>{currentTag}</Badge>}
               </span>
             </div>
           );
         })}
       </div>
-      {/* 페이지네이션 — 페이지 1개여도 항상 노출 (Pagination 컴포넌트가 자체 처리) */}
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={setPage}
-        className={styles.pagination}
-      />
+      {/* 페이지네이션 — 넘길 페이지가 있을 때만. 한 페이지에 다 보이면 단추 줄만 남아 자리를 차지했다 */}
+      {totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={setPage}
+          className={styles.pagination}
+        />
+      )}
     </div>
   );
 }

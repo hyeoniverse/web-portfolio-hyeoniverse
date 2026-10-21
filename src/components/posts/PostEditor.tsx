@@ -38,7 +38,12 @@ import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
 import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
-import PostEditorOptionalFields from "./postEditor/PostEditorOptionalFields";
+import { PostEditorSeoFields, PostGithubField, PostRelatedWorksField, PostSeriesField } from "./postEditor/PostEditorOptionalFields";
+import { ExtraEmpty, ExtraSummary, type ExtraItem } from "@/components/works/workEditor/ExtraInfoViews";
+import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
+
+/** 본문 아래 추가 정보 카드 */
+type PostExtraKey = "authors" | "github" | "series" | "works";
 import { usePostRevisions } from "./postEditor/usePostRevisions";
 import { useTemplateInsert } from "./postEditor/useTemplateInsert";
 import SeoChecklist from "@/components/admin/SeoChecklist";
@@ -318,51 +323,23 @@ export default function PostEditor({ post }: PostEditorProps) {
   /* 편집 화면 문구는 관리자 화면 언어를 따른다. 예전에는 편집 중인 글의 언어 탭(KO/EN)을 따라, 영어 화면에서
      한국어 글을 고치면 라벨·단추가 한국어로 나왔다. 글의 언어는 KO/EN 탭이 보여 준다. */
   const te = useCallback((key: string) => t(`admin.posts.editor.${key}`), [t]);
-  const [optionalOpen, setOptionalOpen] = useState(false);
-  const optionalInnerRef = useRef<HTMLDivElement>(null);
   // 본문 편집기 높이 — 아래 손잡이로 바꾼다
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const optionalContentRef = useRef<HTMLDivElement>(null);
 
   /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + 상호작용 전까지 blink. */
   // 컴포넌트 unmount 시 blink 리스너 정리
   useEffect(() => () => clearSeoFlash(), []);
 
+  /* SEO 칸은 모두 사이드바(제목만 본문 위)에 늘 펼쳐져 있어 바로 데려간다 — 예전엔 접힌 "선택 입력"을 먼저 펼쳤다 */
   const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
-    // category 는 titleGroup 으로 옮겨졌으므로 optional 펼침 불필요
-    const inOptional = id === "excerpt" || id === "cover" || id === "tags";
-    if (inOptional) setOptionalOpen(true);
-    const scrollAndHighlight = () => {
-      const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      const input = el.querySelector<HTMLElement>("input, textarea, select, button");
-      input?.focus({ preventScroll: true });
-      // 이동한 필드를 상호작용 전까지 blink
-      flashSeoField(el);
-    };
-    if (inOptional) requestAnimationFrame(() => requestAnimationFrame(scrollAndHighlight));
-    else scrollAndHighlight();
+    const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const input = el.querySelector<HTMLElement>("input, textarea, select, button");
+    input?.focus({ preventScroll: true });
+    // 이동한 필드를 상호작용 전까지 blink
+    flashSeoField(el);
   }, []);
-
-  useEffect(() => {
-    const inner = optionalInnerRef.current;
-    const content = optionalContentRef.current;
-    if (!inner || !content) return;
-    const update = () => {
-      if (optionalOpen) {
-        // box-sizing: border-box 라서 max-height 가 padding 까지 포함하는 총 높이.
-        // inner.scrollHeight 만 쓰면 padding-bottom 만큼 마지막 항목이 잘림 → 명시적으로 더해줌.
-        const cs = getComputedStyle(content);
-        const pad = parseFloat(cs.paddingTop || "0") + parseFloat(cs.paddingBottom || "0");
-        content.style.setProperty("--_content-height", `${inner.scrollHeight + pad}px`);
-      }
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, [optionalOpen]);
 
   // 에디터 ref + 첨부 이미지
   const plateRef = useRef<PlateEditorHandle>(null);
@@ -1061,8 +1038,24 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       </div>
 
+      {/* AI 요약 — 글 머리에 보이는 요약 상자라 본문 위에 둔다(작업물 편집기와 같다). 요약(excerpt)과 다른 값이고,
+          손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
+      <div className={es.field}>
+        <AiSummaryField
+          value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
+          lang={editorLang}
+          onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
+          busy={generatingSummary}
+          disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
+          disabledReason={te("generateSummaryDisabled")}
+        />
+      </div>
+
     </div>
-  ), [metaForm, te, titleFieldError, titleKey, updateField]);
+  ), [
+    metaForm, te, titleFieldError, titleKey, updateField,
+    editorLang, savedSummary, isEdit, hasSavedId, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
+  ]);
 
   /* 상단 고정 — 속성 패널 맨 위에 선다 */
   const pinToggle = useMemo(() => (
@@ -1074,9 +1067,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     />
   ), [metaForm.is_pinned, te, updateField]);
 
-  /* 속성 패널 — 주소 · 분류 · 작성자와 선택 입력(시리즈 · 태그 · 요약 …). 본문 옆 열(넓은 화면) 또는 서랍(좁은 화면) */
+  /* 속성 패널 — 검색 · 공유에 쓰이는 칸만(SEO 점검 항목: 주소 · 분류 · 요약 · 태그 · 커버). 본문 옆 열(넓은 화면) 또는 서랍(좁은 화면).
+     그 밖(고정 · 작성자 · 시리즈 · 관련 프로젝트 · AI 요약 · GitHub)은 본문 아래 extraSection */
   const propertiesSection = useMemo(() => (
     <div className={styles.properties}>
+      {/* 상단 고정 — 목록 노출 설정이라 속성 패널 맨 위에 */}
       {pinToggle}
 
         <div className={es.row}>
@@ -1145,7 +1140,27 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
         </div>
 
-        {/* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */}
+      <PostEditorSeoFields
+        form={metaForm}
+        setForm={setForm}
+        updateField={updateField}
+        te={te}
+        tagDescriptions={tagDescriptions}
+        allTagSuggestions={allTagSuggestions}
+        excerptKey={excerptKey}
+        tag={tag}
+        onCoverUpload={handleCoverUpload}
+      />
+    </div>
+  ), [
+    allTagSuggestions, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo, handleCoverUpload,
+    isManagedCat, language, metaForm, pinToggle, setForm, showErrors, tag, tagDescriptions, te, updateField,
+  ]);
+
+  /* 본문 아래 "추가 정보" — 작업물 편집기와 같은 요약 카드(ExtraSummary). 카드를 누르면 그 편집기가 아래에 펼쳐진다.
+     검색 · 공유에 쓰이지 않는 글 속성: 작성자 · GitHub · 시리즈 · 관련 프로젝트 (AI 요약은 본문 위 metaSection) */
+  /* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */
+  const authorsField = (
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
@@ -1199,47 +1214,81 @@ export default function PostEditor({ post }: PostEditorProps) {
             </div>
           </div>
         </div>
+  );
 
-      {/* ── 선택 입력 (접기/펼치기) ── */}
-      <PostEditorOptionalFields
-        form={metaForm}
-        setForm={setForm}
-        updateField={updateField}
-        te={te}
-        tagDescriptions={tagDescriptions}
-        post={post}
-        series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
-        onReorderSeriesPosts={queueSeriesOrder}
-        allWorks={allWorks}
-        allTagSuggestions={allTagSuggestions}
-        categories={categories}
-        excerptKey={excerptKey}
-        aiSummary={{
-          value: editorLang === "ko" ? savedSummary.ko : savedSummary.en,
-          lang: editorLang,
-          onRegenerate: (isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined,
-          busy: generatingSummary,
-          disabled: !serviceStatus.loading && !serviceStatus.aiSummary,
-          disabledReason: te("generateSummaryDisabled"),
-        }}
-        tag={tag}
-        optionalOpen={optionalOpen}
-        setOptionalOpen={setOptionalOpen}
-        optionalInnerRef={optionalInnerRef}
-        optionalContentRef={optionalContentRef}
-        seriesSelectMode={seriesSelectMode}
-        setSeriesSelectMode={setSeriesSelectMode}
-        onSeriesCreated={handleSeriesCreated}
-        onCoverUpload={handleCoverUpload}
-      />
-    </div>
-  ), [
-    pinToggle, hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
-    handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
-    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te,
-    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
+  const extraItems = useMemo<ExtraItem<PostExtraKey>[]>(() => {
+    const empty = <ExtraEmpty>{te("extraEmpty")}</ExtraEmpty>;
+    const host = (u: string) => { try { return new URL(u).host.replace(/^www\./, ""); } catch { return u; } };
+    const ids = metaForm.author_ids ?? [];
+    // 미할당이면 기본 작성자(첫 칩)가 리더뷰에 나온다 — 편집 칩과 같은 규칙
+    const authors = ids.length ? authorChips.filter((a) => ids.includes(a.id)) : authorChips.slice(0, 1);
+    const seriesRow = seriesList.find((x) => x.id === metaForm.series_id);
+    const works = allWorks.filter((w) => (metaForm.related_work_ids ?? []).includes(w.id));
+    return [
+      {
+        key: "authors",
+        title: te("authors"),
+        count: authors.length,
+        preview: authors.length === 0 ? empty : (
+          <>
+            {authors.slice(0, 4).map((a) => (
+              <span key={a.id} className={styles.extraPreviewChip}>
+                <AuthorAvatar value={a.avatar} name={a.name} size={18} className={styles.extraPreviewAvatar} />
+                <span className={styles.extraPreviewChipText}>{a.name}</span>
+              </span>
+            ))}
+          </>
+        ),
+        body: authorsField,
+      },
+      {
+        key: "github",
+        title: te("github"),
+        count: metaForm.github_url?.trim() ? 1 : 0,
+        preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}><span className={styles.extraPreviewChipText}>{host(metaForm.github_url)}</span></span> : empty,
+        body: <PostGithubField form={metaForm} updateField={updateField} />,
+      },
+      {
+        key: "series",
+        title: te("series"),
+        count: seriesRow ? 1 : 0,
+        preview: !seriesRow ? empty : (
+          <>
+            <span className={styles.extraPreviewLine}>{seriesRow.title}</span>
+            <span className={styles.extraPreviewChip}>{te("seriesPosition").replace("{{n}}", String(metaForm.series_order || 1))}</span>
+          </>
+        ),
+        body: (
+          <PostSeriesField
+            form={metaForm}
+            updateField={updateField}
+            te={te}
+            categories={categories}
+            post={post}
+            series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
+            onReorderSeriesPosts={queueSeriesOrder}
+            seriesSelectMode={seriesSelectMode}
+            setSeriesSelectMode={setSeriesSelectMode}
+            onSeriesCreated={handleSeriesCreated}
+          />
+        ),
+      },
+      {
+        key: "works",
+        title: te("relatedWorks"),
+        count: works.length,
+        preview: works.length === 0 ? empty : <>{works.slice(0, 3).map((w) => <span key={w.id} className={styles.extraPreviewLine}>{w.title}</span>)}</>,
+        body: <PostRelatedWorksField form={metaForm} updateField={updateField} te={te} allWorks={allWorks} />,
+      },
+    ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- authorsField 는 아래 값들로만 바뀐다
+  }, [
+    hasSavedId, allWorks, authorChips, categories, language, metaForm, post, queueSeriesOrder,
+    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, te, editorLang, generatingSummary,
+    handleGenerateSummary, handleSeriesCreated, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
     updateField,
   ]);
+  const [extraOpenKey, setExtraOpenKey] = useState<PostExtraKey | null>(null);
 
   const editorHeader = useMemo(() => (
     <div className={es.editorHeader}>
@@ -1418,6 +1467,13 @@ export default function PostEditor({ post }: PostEditorProps) {
         };
       }}
       sidebar={propertiesSection}
+      wide={
+        /* 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다(작업물 편집기와 같다) */
+        <div className={styles.extraSections}>
+          <h2 className={styles.extraTitle}>{te("additionalInfo")}</h2>
+          <ExtraSummary items={extraItems} open={extraOpenKey} onOpenChange={setExtraOpenKey} />
+        </div>
+      }
       coverSlot={coverBanner}
     >
       {presenceOthers > 0 && (
@@ -1456,6 +1512,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       {/* ── 첨부 이미지 패널 (richtext 단일) ── */}
       {imagesSection}
+
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (wrapper 불필요) */}
       {seoChecklist}
