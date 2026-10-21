@@ -1388,7 +1388,10 @@
     z-index: auto;
     width: auto;
     max-height: calc(100dvh - var(--header-height) - var(--spacing-80) - var(--spacing-24));
-    padding: var(--spacing-16) var(--spacing-4) var(--spacing-16) 0;
+    /* 안쪽 스크롤 상자라 밖으로 그려지는 hover 링 · 초점 테두리가 잘린다 — 양옆에 여백을 두고
+       같은 만큼 바깥으로 넓혀 칸 위치는 그대로(예전엔 왼쪽 여백이 0 이라 체크박스 링 왼쪽이 잘렸다) */
+    margin-inline: calc(var(--spacing-4) * -1);
+    padding: var(--spacing-16) var(--spacing-4);
     background: none;
     border-left: none;
     box-shadow: none;
