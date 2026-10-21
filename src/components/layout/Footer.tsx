@@ -1,6 +1,7 @@
 "use client";
 
-import { blogHref } from "@/lib/siteHosts";
+import { blogHref, portfolioHref } from "@/lib/siteHosts";
+import { useIsBlogHost } from "@/hooks/useIsBlogHost";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
@@ -40,6 +41,9 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   /* ── Sliding indicator ── */
   const linksRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  /* 블로그 주소(blog.hyeoniverse.com)에선 `/` 가 블로그 첫 화면이라, 포트폴리오 링크(Home · Works …)에 메인 주소를 붙인다 */
+  const onBlogHost = useIsBlogHost();
+  const site = (path: string) => portfolioHref(path, onBlogHost);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
@@ -192,9 +196,9 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
             </div>
             <div className={styles.bottomRight}>
               <div className={styles.visits}>
-                <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
+                <Link href={site("/privacy")} className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
-                <Link href="/design-system" target="_blank" prefetch={false} className={styles.adminLink}>Design System</Link>
+                <Link href={site("/design-system")} target="_blank" prefetch={false} className={styles.adminLink}>Design System</Link>
                 <span className={styles.divider}>✧</span>
                 {/* full variant 와 같게 — 로그아웃 상태에서도 들어갈 자리는 남겨 둔다 */}
                 {isAuthenticated ? (
@@ -229,19 +233,19 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/admin/works" ref={setLinkRef("/admin/works")} onMouseEnter={() => setHoveredLink("/admin/works")} className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
                   <Link href="/admin/posts" ref={setLinkRef("/admin/posts")} onMouseEnter={() => setHoveredLink("/admin/posts")} className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
                   <span className={styles.divider}>✧</span>
-                  <Link href="/design-system" target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
-                  <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")}>Home</Link>
+                  <Link href={site("/design-system")} target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href={site("/")} ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")}>Home</Link>
                 </>
               ) : (
                 <>
-                  <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")} className={pathname === "/" ? styles.activeLink : ""}>Home</Link>
-                  <Link href="/works" ref={setLinkRef("/works")} onMouseEnter={() => setHoveredLink("/works")} className={pathname.startsWith("/works") ? styles.activeLink : ""}>Works</Link>
+                  <Link href={site("/")} ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")} className={pathname === "/" ? styles.activeLink : ""}>Home</Link>
+                  <Link href={site("/works")} ref={setLinkRef("/works")} onMouseEnter={() => setHoveredLink("/works")} className={pathname.startsWith("/works") ? styles.activeLink : ""}>Works</Link>
                   <Link href={blogHref("/posts")} ref={setLinkRef("/posts")} onMouseEnter={() => setHoveredLink("/posts")} className={pathname.startsWith("/posts") ? styles.activeLink : ""}>Posts</Link>
-                  <Link href="/profile" ref={setLinkRef("/profile")} onMouseEnter={() => setHoveredLink("/profile")} className={pathname.startsWith("/profile") ? styles.activeLink : ""}>Profile</Link>
-                  <Link href="/about" ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
+                  <Link href={site("/profile")} ref={setLinkRef("/profile")} onMouseEnter={() => setHoveredLink("/profile")} className={pathname.startsWith("/profile") ? styles.activeLink : ""}>Profile</Link>
+                  <Link href={site("/about")} ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
                   <span className={styles.divider}>✧</span>
-                  <Link href="/privacy" ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
-                  <Link href="/design-system" target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href={site("/privacy")} ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
+                  <Link href={site("/design-system")} target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                   <span className={styles.divider}>✧</span>
                   {isAuthenticated ? (
                     <Link href="/admin" prefetch={false} ref={setLinkRef("/admin")} onMouseEnter={() => setHoveredLink("/admin")}>Admin</Link>
