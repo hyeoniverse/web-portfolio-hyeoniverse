@@ -274,13 +274,15 @@ export default function SortOrderDragList({
           );
         })}
       </div>
-      {/* 페이지네이션 — 페이지 1개여도 항상 노출 (Pagination 컴포넌트가 자체 처리) */}
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={setPage}
-        className={styles.pagination}
-      />
+      {/* 페이지네이션 — 넘길 페이지가 있을 때만. 한 페이지에 다 보이면 단추 줄만 남아 자리를 차지했다 */}
+      {totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={setPage}
+          className={styles.pagination}
+        />
+      )}
     </div>
   );
 }

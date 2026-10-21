@@ -234,13 +234,13 @@ export function PostSeriesField({
   );
   const seriesPosition = seriesOthers.filter((o) => o.sort_order < (form.series_order ?? 0)).length + 1;
 
-  /* 한 줄로 쌓는다 — 예전 es.row(넓으면 여러 칸)는 시리즈를 고르면 선택 칸 옆에 순서 목록이 붙어 오른쪽 끝이 잘렸다 */
+  /* 넓으면 두 칸(선택 | 순서), 좁으면 위아래. 두 칸의 머리 줄(라벨 + 28px 단추)이 같은 높이라 나란히 맞는다.
+     시리즈를 고르기 전에는 선택 칸 하나만 — 순서 칸이 생기면 옆으로 붙는다 */
   return (
-      <div className={styles.extraStack}>
+      <div className={styles.seriesGrid}>
         <div className={es.field}>
-          {/* 카드 제목이 '시리즈' 라 라벨 대신 안내 한 줄 — 작업물 편집기의 관련 글 · 시리즈와 같은 모양 */}
-          <div className={es.fieldLabelRow}>
-            <p className={styles.extraHint}>{te("seriesHint")}</p>
+          <div className={styles.seriesHead}>
+            <label className={es.fieldLabel}>{te("seriesSelect")}</label>
             <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
               {te("seriesManage")}
               <ExternalLink size={12} />
@@ -294,11 +294,14 @@ export function PostSeriesField({
               </motion.div>
             )}
           </AnimatePresence>
+          <p className={styles.extraHint}>{te("seriesHint")}</p>
         </div>
         {form.series_id ? (
           series.seriesPostsLoading ? (
             <div className={es.field} style={{ opacity: 0.5 }}>
-              <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+              <div className={styles.seriesHead}>
+                <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+              </div>
               <div className={styles.seriesOrderSkeleton}>
                 {[1, 2, 3].map((i) => (
                   <span key={i} className={styles.seriesOrderSkeletonRow} />

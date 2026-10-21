@@ -72,8 +72,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  /* 접근성 최소 터치 타깃 24px(WCAG 2.5.8) — 라벨 라인보다 살짝 크지만 클릭 영역 확보 */
-  height: var(--size-24);
+  /* 편집기 머리 줄 단추는 28px(sm) 하나로 — AI 요약 '다시 만들기' · 시리즈 순서의 위치 칸 · 맨 앞/맨 뒤와 같은 높이 */
+  height: var(--control-height-sm);
+  flex-shrink: 0;
   padding: 0 var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-control);
@@ -209,16 +210,22 @@
   color: var(--text-tertiary);
 }
 
-.extraHint + .manageLink {
-  flex-shrink: 0;
+/* 시리즈 — 넓으면 두 칸(선택 | 순서), 좁으면 위아래. 칸이 하나(시리즈 고르기 전)면 그 칸이 줄을 다 쓴다 */
+.seriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--spacing-24) var(--spacing-40);
+  align-items: start;
+  min-width: 0;
 }
 
-/* 시리즈 — 안내 · 선택 칸 아래에 순서 목록 */
-.extraStack {
+/* 두 칸의 머리 줄 — 라벨 + 오른쪽 단추(28px). 높이를 단추에 맞춰 두 칸이 같은 줄에 선다(순서 칸은 SortOrderDragList 의 .header) */
+.seriesHead {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  min-height: var(--control-height-sm);
 }
 
 /* 관련 프로젝트 — RelationPicker 의 .wrap 바깥 여백(다음 칸과의 거리)은 여기서는 카드 여백이 맡는다 */
