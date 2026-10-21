@@ -95,6 +95,8 @@ const DEFS = {
   mermaidPanRight: { ko: "오른쪽으로 이동", en: "Pan right" },
   mermaidFullscreen: { ko: "크게 보기", en: "Fullscreen" },
   mermaidExitFullscreen: { ko: "크게 보기 닫기", en: "Exit fullscreen" },
+  /* 목차 블록 머리 — readerExtras/toc */
+  tocTitle: { ko: "목차", en: "Contents" },
   /* 투표 — readerExtras/poll · pollResultView */
   pollHeadTitle: { ko: "제목", en: "Title" },
   pollHeadSubtitle: { ko: "부제목", en: "Subtitle" },

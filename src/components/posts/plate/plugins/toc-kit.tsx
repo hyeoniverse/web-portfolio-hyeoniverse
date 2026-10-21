@@ -19,6 +19,8 @@ function TocElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const state = useTocElementState();
   const { headingList } = state;
+  // 들여쓰기는 글의 가장 높은 단계를 0 으로 — 리더(readerExtras/toc)와 같은 기준
+  const top = headingList.length ? Math.min(...headingList.map((h) => h.depth)) : 1;
 
   // 항목 클릭 → 해당 heading 으로 스크롤. @platejs/toc 기본은 스크롤 컨테이너 판정을 놓치면 window(전체 페이지)를
   // 스크롤한다 → 여기선 에디터 스크롤 컨테이너([data-slate-editor], overflow-y:auto)만 직접 스크롤(페이지 고정).
@@ -37,6 +39,7 @@ function TocElement(props: PlateElementProps) {
   return (
     <PlateElement {...props}>
       <div className={styles.toc} contentEditable={false}>
+        <p className={styles.tocTitle}>{t("editor.toc")}</p>
         {headingList.length === 0 ? (
           <div className={styles.tocEmpty}>{t("editor.tocEmpty")}</div>
         ) : (
@@ -45,6 +48,7 @@ function TocElement(props: PlateElementProps) {
               key={h.id}
               className={styles.tocItem}
               data-depth={h.depth}
+              data-level={h.depth - top}
               onClick={() => scrollToHeading(h)}
             >
               {h.title}

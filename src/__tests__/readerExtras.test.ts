@@ -37,6 +37,9 @@ describe("enhanceReaderExtras", () => {
     const links = Array.from(nav!.querySelectorAll("a"));
     expect(links.map((a) => a.textContent)).toEqual(["첫 번째 장", "Nested Section", "이미 id 있음"]);
     expect(links.map((a) => a.dataset.depth)).toEqual(["2", "3", "2"]);
+    // 들여쓰기 단계는 글의 가장 높은 단계(h2)를 0 으로 센다
+    expect(links.map((a) => a.dataset.level)).toEqual(["0", "1", "0"]);
+    expect(nav!.querySelector(".reader-toc-title")?.textContent).toBeTruthy();
     // 이미 있던 id 는 건드리지 않는다
     expect(links[2].getAttribute("href")).toBe("#keep-me");
     // 없던 id 는 slug 로 채운다
