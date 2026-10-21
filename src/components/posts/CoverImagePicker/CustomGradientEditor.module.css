@@ -10,7 +10,8 @@
  * 넓은 화면: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack */
 .customGradient {
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* 두 열 다 줄어들 수 있게(minmax 0) — 미리보기 열이 제 폭을 고집하면 좁은 시트에서 조작부가 넘쳤다 */
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   grid-template-areas:
     "preview group"
     "scheme  scheme"
@@ -19,6 +20,18 @@
   row-gap: var(--spacing-16);
   padding: var(--spacing-12);
   align-items: start;
+}
+
+/* 아주 좁은 칸(모바일 시트) — 미리보기 위, 조작부 아래 전체 폭. 나란히 두면 조작부가 172px 로 눌려 슬라이더 값이 넘쳤다 */
+@container (width <= 440px) {
+  .customGradient {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "preview"
+      "group"
+      "scheme"
+      "stops";
+  }
 }
 
 @media (width > 768px) {
@@ -69,7 +82,10 @@
   position: relative;
   flex-shrink: 0;
   width: calc(var(--preview-h) * 16 / 9);
-  height: var(--preview-h);
+  /* 좁은 화면(모바일 시트)에서는 16:9 를 지킨 채 줄어든다 — 못 박은 폭이면 옆 조작부가 시트 밖으로 밀렸다 */
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   background: var(--bg-primary);
   border-radius: var(--radius-surface);
   overflow: hidden;

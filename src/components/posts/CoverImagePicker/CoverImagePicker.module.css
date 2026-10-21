@@ -82,107 +82,83 @@
   flex-shrink: 0;
 }
 
-/* ── Header (tabs + close) ── */
+/* 머리 — 회색 판 없이 글자 탭, 고른 탭만 아래 2px 먹선(원칙: 탭은 밑줄). 오른쪽 끝에 이력 · 닫기.
+   예전에는 회색 판 위에 묶음 알약 탭과 따로 선 이력 알약이 섞여 있었다 */
 .header {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-12);
+  align-items: stretch;
+  gap: var(--spacing-16);
+  min-height: var(--size-48);
+  padding: 0 var(--spacing-8) 0 var(--spacing-16);
   border-bottom: var(--border-light);
-  background: var(--bg-tertiary);
-}
-
-/* close 버튼은 가장 우측 — Tooltip 이 .closeBtn 을 <span> 으로 감싸서
- * .closeBtn 자체에 margin-left:auto 는 효과 없음 (flex item 은 wrapping span).
- * .header 의 마지막 직접 자식 (= Tooltip span) 에 적용해야 우측 push 됨 */
-.header > :last-child {
-  margin-left: auto;
 }
 
 .tabs {
   display: flex;
-  border: var(--border-default);
-  border-radius: var(--radius-control);
-  overflow: hidden;
+  align-items: stretch;
+  gap: var(--spacing-20);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.tab {
-  padding: var(--spacing-4) var(--spacing-16);
-  border: none;
-  background: transparent;
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-
-  white-space: nowrap;
-}
-
-/* 탭 사이 세로 구분선 — 첫 탭 제외 */
-.tabs .tab + .tab {
-  border-left: var(--border-default);
-}
-
-.tabs .tab:hover {
-  color: var(--text-primary);
-}
-
-.tabActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-/* 독립 history 탭 — capsule 그룹과 분리. count 배지 inline */
+.tab,
 .historyTab {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  padding: var(--spacing-4) var(--spacing-16);
-  border: var(--border-default);
-  border-radius: var(--radius-control);
+  padding: 0;
+  /* 고른 탭의 밑줄이 머리 아래 선 위에 겹친다 */
+  margin-bottom: calc(var(--border-width-1) * -1);
+  border: none;
+  border-bottom: var(--border-width-2) solid transparent;
   background: transparent;
   font: var(--font-label-sm);
   color: var(--text-tertiary);
-  cursor: pointer;
   white-space: nowrap;
-  transition:
-    color var(--duration-fast) var(--ease-standard),
-    background var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard);
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
-.header .historyTab:hover {
+.tab:hover,
+.historyTab:hover {
   color: var(--text-primary);
-  border-color: var(--text-primary);
 }
 
+.tabActive,
 .historyTabActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  border-color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
-.header .historyTabActive:hover {
-  color: var(--bg-primary);
+/* 오른쪽 끝 — 이력 · 닫기 */
+.headerEnd {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-8);
+  margin-left: auto;
 }
 
-.tabs .tabActive:hover {
-  color: var(--bg-primary);
+.headerEnd > :last-child {
+  align-self: center;
 }
 
 .closeBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: none;
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   cursor: pointer;
-  --close-size: 12px;
+  --close-size: 14px;
 }
 
 .header .closeBtn:hover {
+  background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
@@ -755,33 +731,15 @@
   z-index: 2;
 }
 
-/* 탭 옆 카운트 배지 (history 탭) */
+/* 탭 옆 개수 — 바탕 없는 옅은 숫자(목록 화면의 "갤러리 18" 처럼). 고른 탭이면 탭 글자색을 따른다 */
 .tabCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: var(--spacing-8);
-  min-width: 16px;
-  height: 14px;
-  padding: 0 var(--spacing-4);
-  border-radius: var(--radius-control);
-  background: var(--bg-tertiary);
-  font: var(--font-code-xs);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
-/* tabActive 또는 historyTabActive — 어느 쪽이든 active 시 흰 원형 + 어두운 숫자 */
-.tabActive .tabCount,
 .historyTabActive .tabCount {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* 이력 탭 inactive — 검정 배경 + 흰 숫자 (이력 강조). active 일 땐 위 rule 이 우선 */
-.historyTab:not(.historyTabActive) .tabCount {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  color: var(--text-secondary);
 }
 
 /* 인접 버튼 사이 세로 divider — useBtn↔retryBtn / retryBtn↔retryBtn 모두 */
