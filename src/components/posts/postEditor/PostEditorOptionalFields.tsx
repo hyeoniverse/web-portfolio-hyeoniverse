@@ -237,8 +237,9 @@ export function PostSeriesField({
   return (
       <div className={es.row}>
         <div className={es.field}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-            <label className={es.fieldLabel}>{te("series")}</label>
+          {/* 카드 제목이 '시리즈' 라 라벨 대신 안내 한 줄 — 작업물 편집기의 관련 글 · 시리즈와 같은 모양 */}
+          <div className={es.fieldLabelRow}>
+            <p className={styles.extraHint}>{te("seriesHint")}</p>
             <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
               {te("seriesManage")}
               <ExternalLink size={12} />
@@ -340,13 +341,10 @@ export function PostRelatedWorksField({
 }) {
   return (
         <div className={es.field}>
-          <div className={es.fieldLabelRow}>
-            <label className={es.fieldLabel}>{te("relatedWorks")}</label>
-            {(form.related_work_ids ?? []).length === 0 && (
-              <span className={es.fieldHint}>{te("relatedWorksEmpty")}</span>
-            )}
-          </div>
+          {/* 카드 제목 · 개수가 위에 있어 라벨 · '선택 없음' 대신 안내 한 줄 — 작업물 편집기의 관련 글과 같은 모양 */}
+          <p className={styles.extraHint}>{te("relatedWorksHint")}</p>
           <RelationPicker
+            className={styles.relationPicker}
             items={allWorks}
             selectedIds={form.related_work_ids ?? []}
             onChange={(ids) => updateField("related_work_ids", ids)}
@@ -358,6 +356,7 @@ export function PostRelatedWorksField({
             searchPlaceholder={te("relatedWorksSearch")}
             searchInputPlaceholder={te("relatedWorksSearchInput")}
             noResultsText={te("relatedWorksNoResults")}
+            emptyText={te("relatedWorksEmpty")}
           />
         </div>
   );

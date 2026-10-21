@@ -202,6 +202,22 @@
   -webkit-line-clamp: 2;
 }
 
+/* 펼친 카드의 안내 한 줄 — 작업물 편집기의 .extraHint 와 같다. 시리즈는 오른쪽에 '관리' 링크가 붙는다 */
+.extraHint {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.extraHint + .manageLink {
+  flex-shrink: 0;
+}
+
+/* 관련 프로젝트 — RelationPicker 의 .wrap 바깥 여백(다음 칸과의 거리)은 여기서는 카드 여백이 맡는다 */
+.extraHint ~ .relationPicker {
+  margin-bottom: 0;
+}
+
 /* ── Number input with custom spinner ── */
 
 /* ── Series order — 실제 list UI 는 SortOrderDragList 컴포넌트가 담당.
