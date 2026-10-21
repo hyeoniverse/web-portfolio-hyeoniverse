@@ -100,7 +100,7 @@ The sign-in screen is `/admin/login`. Members use GitHub OAuth, and the owner ca
 - **Saving**: autosave with revision history, diff and revert, a conflict check when the same post is edited in two tabs, scheduled publishing.
 - **Settings (`/admin/settings`)**: six tabs, General · Content · Library · Appearance · Services · Account. Only the owner opens the five tabs other than Account. What each tab holds is in the table in [Supabase setup](./supabase-setup.md#5-admin-login).
 - **Members**: The owner invites authors and editors by email. Authors can edit only their own posts and the works that list them as team members.
-- **Security**: 15-minute lock after 5 failures, mail approval for unknown devices, sign out of all devices.
+- **Security**: 15-minute lock after 5 failures, mandatory two-factor authentication (authenticator app) with an owner-only require switch, notices for unknown devices, sign out of all devices.
 
 ## Design system (`/design-system`)
 

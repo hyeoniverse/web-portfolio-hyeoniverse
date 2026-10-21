@@ -82,7 +82,8 @@ Set `OWNER_EMAIL` before the first sign-in. When the owner signs in for the firs
 | `custom_emojis` | Custom icons uploaded in the emoji picker |
 | `cover_image_history` | Cover image selection history (per user, RLS) |
 | `admin_login_attempts` | Admin sign-in failure count (5 failures -> 15-minute lock) |
-| `admin_known_devices` | Approved admin device fingerprints (unknown devices get a mail approval valid for 24 hours) |
+| `admin_known_devices` | Record of device fingerprints admins signed in from (a new device triggers a notice email and admin notification, it is not blocked) |
+| `security_settings` | One-row security settings (`mfa_required` — require two-factor authentication, default true). Read only through `mfa_required()` |
 | `applied_migrations` | Applied migration log (notifies on first apply) |
 | `author_invites` | Email author invites (`email` PK, `author_id`, `permission_level` 1=author / 2=editor, `consumed_at`) |
 | `service_logs` | Success/failure log of AI, external services, mail, GitHub, and scheduled jobs (kept 90 days) |
@@ -94,6 +95,8 @@ The older `site_visits` · `post_views` · `work_views` tables were merged into 
 > Uses `IF NOT EXISTS`, so existing tables are skipped. Columns missing from an existing deployed DB (commenter_hash, updated_at, etc.) are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
 
 **setup.sql vs. migrations**: `custom_emojis` is created only by `setup.sql`. No migration file creates it. The post title length CHECKs (`posts_title_len` / `posts_title_en_len`, 120 chars) exist in both, but `setup.sql` adds them as `NOT VALID` and does not check existing rows, while `2026_07_13_posts_title_len.sql` checks existing rows immediately. For a fresh setup, running `setup.sql` once is enough.
+
+**Two-factor migration (existing DBs):** `2026_10_22_rls_require_aal2.sql` narrows RLS role checks to aal2 (authenticator-verified) sessions and creates `security_settings` · `mfa_required()`. A fresh setup already has it in `setup.sql`. On an existing DB keep the order: deploy the code → every admin account enrolls an authenticator at `/admin/mfa` → run this file in the SQL Editor. Running it before enrolling leaves aal1 sessions without a role, so admin data disappears. Details in [security.md](./security.md#three-layers-enforcing-two-factor-authentication).
 
 **Manual migrations (optional):** The two files below rewrite data, so they are not applied automatically. Run them yourself in the SQL Editor only when needed.
 
@@ -148,7 +151,9 @@ The sign-in screen is `/admin/login`. The **Login** link in the footer goes ther
 
 1. Go to `/admin/login`
 2. Enter the email/password created in Supabase
-3. On success it goes to the `next` address, or `/admin/settings` without `next`. On an unknown device it sends an approval mail and stops the sign-in.
+3. On success it goes to the `next` address, or `/admin/settings` without `next`. An unknown device only gets a notice mail; it is not blocked.
+
+**Two-factor authentication** (required for every role): a session from a password or GitHub sign-in is aal1, so the proxy sends it to `/admin/mfa`. The first time, you enroll an authenticator app (TOTP) via QR code; after that you only enter the 6-digit code. Once verified the session is aal2 and you continue to the original address. Supabase TOTP MFA is free on every plan and enabled by default, so nothing needs configuring in the dashboard (the paid phone/SMS MFA is not used).
 
 **Adding members (email invite)**: When the owner invites a member by email from Settings › **Account**, an `author_invites` row is created and a Resend notice mail is sent. When the invitee signs in with GitHub under the same email, they get author or editor permission. The owner manages the member list, roles, and permissions on the same tab.
 
@@ -287,13 +292,13 @@ The block below lists the sign-in paths and the path into the admin screens, in 
 
 /admin/login (form submit — owner fallback)
   -> POST /api/admin/auth
-    -> lockout check (admin_login_attempts) -> signInWithPassword()
-    -> unknown device -> signOut() + approval mail (202)
-    -> set session cookie
+    -> per-IP limit (20 per 10 min) -> lockout check (admin_login_attempts, lowercased email) -> signInWithPassword()
+    -> record device (new device -> notice mail + admin notification)
+    -> set session cookie (aal1)
   -> go to next (default /admin/settings) with a full page load (window.location.assign)
 
 Accessing /admin/*
-  -> proxy: no signed-in user -> /admin/login, page above the user's permission -> /admin/posts
+  -> proxy: no signed-in user -> /admin/login, aal1 session -> /admin/mfa?next=…, page above the user's permission -> /admin/posts
   -> Dashboard layout: no user from getUser() -> /admin/denied
   -> server helpers re-check the app_metadata role
   -> AdminAuthSync subscribes to onAuthStateChange -> SIGNED_OUT in another tab -> /admin/login

@@ -69,9 +69,8 @@ npm run test:smoke
 `admin` · `api-auth` 프로젝트는 로그인 세션이 필요하다.
 
 1. `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` 를 넣는다. 소유자(`OWNER_EMAIL`) 계정을 쓴다. 새로 만든 계정은 `app_metadata` 에 역할이 없어 관리자 화면에 들어가지 못한다.
-2. `npm run test:smoke:admin` 을 실행한다. 첫 실행은 새 기기 승인 대기로 실패한다.
-3. Supabase Table Editor → `admin_known_devices` 에서 방금 생긴 행의 `approved` 를 `true` 로 바꾼다. 승인 메일의 링크가 하는 일이 이것이라 메일을 받을 필요는 없다.
-4. 다시 실행하면 통과하고, 세션이 `e2e/.auth/admin.json` 에 저장된다. 이 파일에는 인증 토큰이 있어 `.gitignore` 에 들어 있다.
+2. 비밀번호 로그인만으로 만든 세션은 aal1 이라 관리 화면이 `/admin/mfa` 로 넘어간다. 설정 › 계정 › **인증 앱 추가**로 e2e 전용 인증 앱을 하나 더 등록하고, QR 아래의 키를 `.env.local` 의 `E2E_TOTP_SECRET` 에 넣는다. 셋업이 그 키로 6자리 코드를 계산해 넣는다(RFC 6238). 이 키는 인증 앱 그 자체라 `.env.local` 밖으로 내보내지 않고, 쓰지 않게 되면 설정에서 그 앱을 지운다.
+3. `npm run test:smoke:admin` 을 실행하면 세션이 `e2e/.auth/admin.json` 에 저장된다. 이 파일에는 인증 토큰이 있어 `.gitignore` 에 들어 있다.
 
 ## 커밋 전 검사
 
