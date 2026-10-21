@@ -548,41 +548,48 @@ export default function Select({
           <ChevronRight className={`${styles.arrow} ${styles.arrowCombobox} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
         </>
       ) : editable && editing ? (
-        <input
-          type="text"
-          autoFocus={userEditing}
-          defaultValue={startBlank ? "" : value}
-          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
-          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다.
-             input 의 자연 너비는 size(기본 20자)라, 글자 수 상한이 있으면 그 글자 수 + 좌우 여백만 —
-             편집기 도구 막대의 글자 크기 · 줄 간격 칸이 비어 있을 때 300px 로 늘어나 막대가 세 줄이 됐다.
-             size 속성은 사파리가 가장 넓은 글자로 재 5자에도 128px 이 돼서 ch 로 직접 준다 */
-          style={editableInputProps?.maxLength
-            ? { width: `calc(${editableInputProps.maxLength + 1}ch + var(--spacing-12) + var(--spacing-16))` }
-            : undefined}
-          maxLength={editableInputProps?.maxLength}
-          placeholder={editableInputProps?.placeholder ?? placeholder}
-          disabled={disabled}
-          onBlur={(e) => {
-            const raw = e.target.value;
-            // 빈 시작에서 아무것도 안 치고 떠나면 취소 — 기존 값 유지
-            if (startBlank && raw.trim() === "") { stopEditing(); return; }
-            const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
-            onChange(v);
-            stopEditing();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const raw = e.currentTarget.value;
-              if (startBlank && raw.trim() === "") { stopEditing(); return; }
-              const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
-              onChange(v);
-              stopEditing();
-            } else if (e.key === "Escape") {
-              stopEditing();
-            }
-          }}
-        />
+        /* 입력 모드 — 단추와 같은 상자 · 같은 폭 계산(옵션 글자를 겹쳐 쌓은 sizer)을 쓰고, 입력칸은 값 자리에 겹쳐 놓는다.
+           예전에는 단추 대신 input 하나를 그려 폭이 따로(글자 수 ch 계산) 잡혀, 누를 때마다 · 빈 칸일 때 폭이 달라졌다 */
+        <span className={`${styles.trigger} ${styles.triggerEditing} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}>
+          <span className={styles.valueStack}>
+            <input
+              type="text"
+              className={styles.editInput}
+              autoFocus={userEditing}
+              defaultValue={startBlank ? "" : value}
+              maxLength={editableInputProps?.maxLength}
+              placeholder={editableInputProps?.placeholder ?? placeholder}
+              disabled={disabled}
+              onBlur={(e) => {
+                const raw = e.target.value;
+                // 빈 시작에서 아무것도 안 치고 떠나면 취소 — 기존 값 유지
+                if (startBlank && raw.trim() === "") { stopEditing(); return; }
+                const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
+                onChange(v);
+                stopEditing();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const raw = e.currentTarget.value;
+                  if (startBlank && raw.trim() === "") { stopEditing(); return; }
+                  const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
+                  onChange(v);
+                  stopEditing();
+                } else if (e.key === "Escape") {
+                  stopEditing();
+                }
+              }}
+            />
+            {options.length > 0
+              ? options.map((o, i) => (
+                  <span key={i} className={styles.sizer} aria-hidden>{o.label}</span>
+                ))
+              : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
+            <span className={styles.sizer} aria-hidden>{editableInputProps?.placeholder ?? placeholder ?? ""}</span>
+            {editableInputProps?.maxLength ? <span className={styles.sizer} aria-hidden>{"0".repeat(editableInputProps.maxLength)}</span> : null}
+          </span>
+          <ChevronRight className={styles.arrow} size={12} strokeWidth={2.5} aria-hidden />
+        </span>
       ) : (
         <Pressable
           type="button"
@@ -624,6 +631,13 @@ export default function Select({
                   <span key={i} className={styles.sizer} aria-hidden>{o.label}</span>
                 ))
               : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
+            {/* 직접 입력 칸 — 입력 모드의 안내 문구까지 폭에 넣는다(입력 모드와 같은 폭) */}
+            {editable && (
+              <span className={styles.sizer} aria-hidden>{editableInputProps?.placeholder ?? placeholder ?? ""}</span>
+            )}
+            {editable && editableInputProps?.maxLength ? (
+              <span className={styles.sizer} aria-hidden>{"0".repeat(editableInputProps.maxLength)}</span>
+            ) : null}
           </span>
           <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
         </Pressable>
