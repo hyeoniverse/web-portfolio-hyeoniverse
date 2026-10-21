@@ -71,7 +71,7 @@ function DatePart({
 }) {
   return (
     <Select
-      className={`${styles.datePart} ${maxLength === 4 ? styles.datePartYear : ""}`}
+      className={styles.datePart}
       value={value}
       options={options}
       onChange={onChange}

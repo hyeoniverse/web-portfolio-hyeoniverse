@@ -70,6 +70,9 @@
 .dateRows {
   /* flex item 이 다음 줄로 떨어지도록 width 100% */
   flex-basis: 100%;
+  /* 줄 배치는 화면이 아니라 이 칸의 폭으로 정한다 — 넓은 화면의 좁은 속성 패널에서도 화면 기준(>480)으로 한 줄에 우겨져
+     연 · 월 · 일 · 달력 단추가 패널 밖으로 넘쳐 잘렸다 */
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-12) var(--spacing-16);
@@ -93,7 +96,8 @@
   flex: 1 1 auto;
 }
 
-@media (width > 480px) {
+/* 라벨 옆에 연 · 월 · 일 · 달력 묶음(약 330px)이 들어갈 만큼 넓을 때만 한 줄 */
+@container (width > 400px) {
   .dateRow {
     flex-wrap: nowrap;
     min-width: 280px;
@@ -134,22 +138,11 @@
   min-width: 0;
 }
 
-/* 연·월·일 칸의 너비를 값과 무관하게 고정한다 — 내용에 맞춰 늘면 값을 넣는 순간 칸이 들썩이고,
-   옆 칸까지 밀린다. 안내 글(YYYY·MM)과 값(2024·03) 어느 쪽이 들어와도 같은 너비다 */
+/* 연·월·일 칸 너비는 공용 Select 가 정한다 — 옵션 · 안내 글(YYYY · MM) · 글자 수 자리 중 가장 긴 것으로 단추와
+   입력 모드가 같은 폭이라, 값을 넣거나 눌러도 칸이 들썩이지 않는다. 예전에는 여기서 76 · 96px 로 못 박아
+   비어 있는 칸의 안내 글 "MM" 이 칸보다 넓어 잘렸다 */
 .datePart {
-  width: 76px;
-}
-
-.datePartYear {
-  width: 96px;
-}
-
-/* 칸 안의 단추·입력은 칸 폭을 넘지 않는다 — 빈 칸은 입력 모드(input)로 시작하는데 input 기본 폭이 칸보다 넓어
-   옆 칸과 겹쳤고, 단추도 글자 폭만큼 칸 밖으로 3~4px 삐져나와 옆 구분점이 한쪽에 붙어 보였다 */
-.datePart.datePart input,
-.datePart.datePart button {
-  width: 100%;
-  min-width: 0;
+  flex: none;
 }
 
 /* 연·월·일 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
@@ -252,7 +245,7 @@
   gap: var(--spacing-2);
 }
 
-@media (width > 480px) {
+@container (width > 400px) {
   .dateGroup {
     gap: var(--spacing-4);
   }
