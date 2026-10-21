@@ -26,6 +26,8 @@
   font: var(--font-body-md);
   color: var(--text-secondary);
   text-align: center;
+  /* 한국어 안내문이 "찍 / 은" 처럼 단어 가운데서 줄이 바뀌지 않게 */
+  word-break: keep-all;
 }
 
 /* QR — 인증 앱이 읽기 쉽게 흰 바탕 고정(어두운 테마에서도) */
