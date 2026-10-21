@@ -54,7 +54,8 @@ if (!Prism.languages.mermaid) {
     "attr-value": { pattern: /\|[^|\n]*\|/, greedy: true },
     keyword: /\b(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|gantt|pie|journey|gitGraph|mindmap|timeline|quadrantChart|subgraph|end|direction|participant|actor|as|Note|note|over|left of|right of|loop|alt|else|opt|par|and|rect|critical|break|activate|deactivate|autonumber|title|section|class|classDef|style|linkStyle|click)\b/,
     builtin: /\b(?:TB|TD|BT|RL|LR)\b/,
-    operator: /<<?-{1,2}>?|--?>>|--?[x)>]|-\.+->?|==+>|-{3,}|={3,}|-->|->/,
+    // 화살표는 반복 표기로만 적는다 — "-->" 를 그대로 쓰면 CodeQL 이 HTML 주석 끝을 거르는 필터로 읽는다(js/bad-tag-filter)
+    operator: /<<?-{1,2}>?|-{1,2}>>|-{1,2}[x)>]|-\.+->?|={2,}>|-{3,}|={3,}/,
     punctuation: /[[\](){}:;,]/,
   };
 }

@@ -13,4 +13,11 @@ describe("mermaid 하이라이트", () => {
     expect(html).toContain('<span class="token attr-value">|통과|</span>');
     expect(html).toContain('<span class="token operator">--></span>');
   });
+
+  it("여러 화살표 모양을 연산자로 칠한다", () => {
+    for (const arrow of ["->", "-->", "->>", "-->>", "--x", "--)", "==>", "-.->", "---", "<--"]) {
+      const { html } = highlightCode(`A ${arrow} B`, "mermaid");
+      expect(html, arrow).toContain('<span class="token operator">');
+    }
+  });
 });
