@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { requireOwner } from "@/lib/api/requireRole";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { getUserRole } from "@/lib/api/roles";
 import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
-import { getMfaState } from "@/lib/auth/mfa";
+import { getMfaState, isMfaRequired } from "@/lib/auth/mfa";
 
 /**
  * 2단계 인증(OTP 앱) 등록 · 확인 — /admin/mfa 화면이 부른다(lib/auth/mfa).
@@ -12,6 +14,7 @@ import { getMfaState } from "@/lib/auth/mfa";
  * GET    — 지금 상태와 등록된 인증 앱
  * POST   — { action: "enroll" } QR · 비밀값 발급 / { action: "verify", factorId, code } 코드 확인 → 세션이 aal2 로 오른다
  * DELETE — { factorId } 인증 앱 지우기(aal2 세션만, 마지막 하나는 지울 수 없다)
+ * PUT    — { required } 사이트 전체 2단계 인증 강제 켜기 · 끄기(소유자 · aal2 세션만)
  */
 
 async function currentMember() {
@@ -31,10 +34,14 @@ async function verifiedFactors(supabase: Awaited<ReturnType<typeof createClient>
 export async function GET() {
   const auth = await currentMember();
   if ("error" in auth) return auth.error;
-  const state = await getMfaState(auth.supabase);
-  const factors = await verifiedFactors(auth.supabase);
+  const [state, factors, required] = await Promise.all([
+    getMfaState(auth.supabase),
+    verifiedFactors(auth.supabase),
+    isMfaRequired(auth.supabase),
+  ]);
   return jsonOk({
     verified: state.verified,
+    required,
     factors: factors.map((f) => ({ id: f.id, name: f.friendly_name ?? "", createdAt: f.created_at })),
   });
 }
@@ -98,4 +105,27 @@ export async function DELETE(request: Request) {
   const { error } = await supabase.auth.mfa.unenroll({ factorId });
   if (error) return jsonServerError(error, "DELETE /api/admin/auth/mfa");
   return jsonOk({ success: true });
+}
+
+export async function PUT(request: Request) {
+  // 끄기 · 켜기는 소유자만, 그것도 OTP 확인을 거친 세션만 — 비밀번호만 훔친 세션이 강제를 끄지 못하게(requireAuth 가 aal2 를 본다)
+  const { user, error: authError } = await requireOwner();
+  if (authError) return authError;
+  const body = (await request.json().catch(() => ({}))) as { required?: unknown };
+  if (typeof body.required !== "boolean") return jsonError("required must be a boolean");
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("security_settings")
+    .upsert({ id: 1, mfa_required: body.required, updated_at: new Date().toISOString() });
+  if (error) return jsonServerError(error, "PUT /api/admin/auth/mfa");
+
+  const { notifyAdmin } = await import("@/lib/adminNotify");
+  await notifyAdmin({
+    type: "config_changed",
+    title: body.required ? "2단계 인증 강제를 켰습니다" : "2단계 인증 강제를 껐습니다",
+    message: `${user.email ?? user.id} 가 사이트 전체 2단계 인증 강제를 ${body.required ? "켰습니다" : "껐습니다"}.`,
+    metadata: { user_id: user.id, mfa_required: body.required },
+  });
+  return jsonOk({ required: body.required });
 }

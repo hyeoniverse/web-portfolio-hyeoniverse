@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
    메일 링크 로그인은 /admin(대시보드)으로 들어오므로, 작성자는 대시보드를 그리기 전에 여기서 돌려보낸다. */
 
 type FakeUser = { id: string; email: string; app_metadata: Record<string, unknown> };
-const state: { user: FakeUser | null; refreshed: boolean; aal: "aal1" | "aal2" } = { user: null, refreshed: false, aal: "aal2" };
+const state: { user: FakeUser | null; refreshed: boolean; aal: "aal1" | "aal2"; mfaRequired: boolean } = { user: null, refreshed: false, aal: "aal2", mfaRequired: true };
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: (_url: string, _key: string, opts: { cookies: { setAll: (c: { name: string; value: string; options: object }[]) => void } }) => ({
@@ -20,6 +20,7 @@ vi.mock("@supabase/ssr", () => ({
         getAuthenticatorAssuranceLevel: async () => ({ data: { currentLevel: state.aal, nextLevel: "aal2" }, error: null }),
       },
     },
+    rpc: async (fn: string) => (fn === "mfa_required" ? { data: state.mfaRequired, error: null } : { data: null, error: { message: "unknown" } }),
   }),
 }));
 
@@ -35,7 +36,7 @@ const open = (path: string) =>
   proxy(new NextRequest(`http://localhost${path}`, { headers: { cookie: "sb-test-auth-token=old" } }));
 const passedThrough = (res: Response) => res.headers.get("x-middleware-next") === "1";
 
-beforeEach(() => { state.user = null; state.refreshed = false; state.aal = "aal2"; });
+beforeEach(() => { state.user = null; state.refreshed = false; state.aal = "aal2"; state.mfaRequired = true; });
 
 describe("proxy — 관리자 화면 권한", () => {
   it("작성자가 대시보드·알림·신고로 들어오면 글 목록으로 보낸다", async () => {
@@ -92,6 +93,14 @@ describe("proxy — 2단계 인증", () => {
     const res = await open("/api/admin/dashboard");
     expect(res.status).toBe(403);
     expect((await res.json()).code).toBe("MFA_REQUIRED");
+  });
+
+  it("소유자가 강제를 끄면 aal1 도 통과한다", async () => {
+    state.user = owner;
+    state.aal = "aal1";
+    state.mfaRequired = false;
+    expect(passedThrough(await open("/admin/posts"))).toBe(true);
+    expect(passedThrough(await open("/api/admin/dashboard"))).toBe(true);
   });
 
   it("등록 · 확인 화면과 그 API 는 aal1 로도 연다", async () => {

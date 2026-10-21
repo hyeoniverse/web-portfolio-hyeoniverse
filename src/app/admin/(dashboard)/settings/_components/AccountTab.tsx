@@ -27,6 +27,7 @@ import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { useDialogRef } from "@/hooks/useTopLayer";
 import Badge from "@/components/ui/Badge";
+import { Switch } from "@/components/ui/Switch";
 import { showToast } from "@/stores/toastStore";
 
 interface DeviceRow {
@@ -78,18 +79,56 @@ export default function AccountTab({
 
   const [mfaFactors, setMfaFactors] = useState<{ id: string; name: string; createdAt: string }[]>([]);
   const [mfaLoading, setMfaLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(true);
+  const [mfaRequiredSaving, setMfaRequiredSaving] = useState(false);
 
   const fetchMfa = useCallback(async () => {
     setMfaLoading(true);
     try {
       const res = await fetch("/api/admin/auth/mfa");
       const data = await res.json();
-      if (res.ok) setMfaFactors(data.factors ?? []);
+      if (res.ok) {
+        setMfaFactors(data.factors ?? []);
+        setMfaRequired(data.required !== false);
+      }
     } catch {
       setMfaFactors([]);
     }
     setMfaLoading(false);
   }, []);
+
+  /* 사이트 전체 2단계 인증 강제 — 소유자만. 끄면 비밀번호(또는 GitHub)만으로 관리 화면에 들어온다 */
+  const saveMfaRequired = useCallback(async (required: boolean) => {
+    setMfaRequiredSaving(true);
+    try {
+      const res = await fetch("/api/admin/auth/mfa", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ required }),
+      });
+      if (!res.ok) throw await errorFromResponse(res);
+      setMfaRequired(required);
+    } catch (e) {
+      showToast(errorText(e, t, t("admin.login.errorOccurred")), "error");
+    }
+    setMfaRequiredSaving(false);
+  }, [t]);
+
+  const handleMfaRequiredChange = useCallback(
+    (required: boolean) => {
+      if (required) return saveMfaRequired(true);
+      openModal(
+        <ModalConfirm
+          desc={t("admin.settings.mfaRequiredOffDesc")}
+          confirmText={t("admin.settings.mfaRequiredOff")}
+          danger
+          onConfirm={() => saveMfaRequired(false)}
+        />,
+        { id: "mfa-required-off", header: { title: t("admin.settings.mfaRequiredOffTitle") }, closeButton: true, width: "420px" },
+      );
+    },
+    [t, openModal, saveMfaRequired],
+  );
 
   useEffect(() => {
     fetchMfa();
@@ -401,6 +440,20 @@ export default function AccountTab({
         <ul className={shared.sectionHintList}>
           <li><T k="admin.settings.signOutAllHint" /></li>
         </ul>
+
+        {/* 사이트 전체 강제 여부 — 소유자만 바꾼다(security_settings) */}
+        {isOwner && (
+          <div className={shared.fields}>
+            <FieldRow label={<T k="admin.settings.mfaRequiredLabel" />} hint={<T k="admin.settings.mfaRequiredHint" />}>
+              <Switch
+                showStateText
+                checked={mfaRequired}
+                disabled={mfaLoading || mfaRequiredSaving}
+                onCheckedChange={handleMfaRequiredChange}
+              />
+            </FieldRow>
+          </div>
+        )}
 
         {/* 2단계 인증 앱 — 관리 화면 · API 는 이 앱의 코드로 확인한 세션만 받는다(lib/auth/mfa) */}
         <div className={styles.devicesWrap}>

@@ -2,14 +2,14 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 202,
+  "total": 203,
   "routeFiles": 140,
   "access": {
     "public": 70,
     "signed-in": 61,
     "author": 28,
     "admin": 16,
-    "owner": 25,
+    "owner": 26,
     "cron": 2
   },
   "tables": [
@@ -30,6 +30,7 @@ export const apiMap: ApiMap = {
     "post_work_relations",
     "posts",
     "revisions",
+    "security_settings",
     "series",
     "series_work_relations",
     "site_settings",
@@ -38,6 +39,7 @@ export const apiMap: ApiMap = {
     "works"
   ],
   "rpcs": [
+    "mfa_required",
     "page_view_stats",
     "page_view_totals",
     "publish_scheduled",
@@ -364,6 +366,11 @@ export const apiMap: ApiMap = {
           "access": "public"
         },
         {
+          "method": "PUT",
+          "path": "/api/admin/auth/mfa",
+          "access": "owner"
+        },
+        {
           "method": "DELETE",
           "path": "/api/admin/auth/mfa",
           "access": "signed-in"
@@ -373,9 +380,11 @@ export const apiMap: ApiMap = {
         "admin_known_devices",
         "admin_login_attempts",
         "admin_notifications",
+        "security_settings",
         "site_settings"
       ],
       "rpcs": [
+        "mfa_required",
         "rate_limit_hit"
       ],
       "services": [
@@ -386,7 +395,7 @@ export const apiMap: ApiMap = {
         "signed-in": 4,
         "author": 0,
         "admin": 0,
-        "owner": 0,
+        "owner": 1,
         "cron": 0
       }
     },

@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { getUserRole } from "@/lib/api/roles";
 import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
-import { MFA_PAGE, getMfaState, isMfaPath } from "@/lib/auth/mfa";
+import { MFA_PAGE, isMfaPath, passesMfa } from "@/lib/auth/mfa";
 import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
 import {
   BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain,
@@ -289,7 +289,7 @@ export async function proxy(request: NextRequest) {
     // 권한이 모자란 화면은 그리기 전에 보낸다(#883). 메일 링크 로그인은 /admin(대시보드)으로 들어오는데, 작성자는 그동안
     // 대시보드를 불러와 403 을 받은 뒤에야 글 목록으로 넘어갔고, 알림·신고는 빈 목록으로 보였다
     // OTP 확인을 거치지 않은 세션(aal1) — 화면은 등록 · 확인 화면으로, API 는 403(lib/auth/mfa)
-    if (!isMfaPath(pathname) && !(await getMfaState(supabase)).verified) {
+    if (!isMfaPath(pathname) && !(await passesMfa(supabase))) {
       if (isAdminApi(pathname)) return rejectApi(403, "Two-factor authentication required", "MFA_REQUIRED");
       const next = `${pathname}${request.nextUrl.search}`;
       return redirectKeepingSession(request, `${MFA_PAGE}?next=${encodeURIComponent(next)}`, supabaseResponse);

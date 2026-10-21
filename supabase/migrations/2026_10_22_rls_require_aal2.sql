@@ -4,13 +4,34 @@
 -- 이 값은 JWT 의 app_metadata 에서 나와서, 비밀번호만으로 만든 세션(aal1)도 같은 역할을 가졌다.
 -- 앱은 이제 OTP 확인(aal2) 전 세션을 관리 화면 · API 에서 막지만(lib/auth/mfa), 세션 토큰으로
 -- PostgREST(/rest/v1)에 직접 오면 정책만 남는다 — 그래서 정책도 aal2 세션의 역할만 인정한다.
--- aal1 세션은 익명 방문자와 같은 공개 정책만 받는다.
+-- aal1 세션은 익명 방문자와 같은 공개 정책만 받는다. 소유자가 2단계 인증 강제를 끄면(security_settings) aal1 도 역할을 받는다.
 --
 -- 적용 전: 관리하는 모든 계정이 /admin/mfa 에서 인증 앱을 등록해 둔다(등록 화면은 DB 를 쓰지 않아 이 마이그레이션과 무관하다).
 -- 인증 앱을 잃어버리면(복구): SQL Editor 에서 delete from auth.mfa_factors where user_id = '<사용자 id>'; → 다시 로그인해 새로 등록.
 
+-- 2단계 인증 강제 여부 — 소유자가 설정 › 계정 에서 끄고 켠다(기본 켜짐). 한 줄짜리 표.
+-- 서버(service_role)만 쓴다. 정책과 앱은 아래 mfa_required() 로만 읽는다.
+CREATE TABLE IF NOT EXISTS public.security_settings (
+  id           int         PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  mfa_required boolean     NOT NULL DEFAULT true,
+  updated_at   timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO public.security_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+ALTER TABLE public.security_settings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.security_settings FROM anon, authenticated;
+
+-- 줄이 없으면 켜진 것으로(fail-closed). 정책 안에서 요청자 권한으로 불리므로 DEFINER 로 표를 읽는다
+CREATE OR REPLACE FUNCTION public.mfa_required() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  SELECT coalesce((SELECT mfa_required FROM public.security_settings WHERE id = 1), true);
+$$;
+REVOKE ALL ON FUNCTION public.mfa_required() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.mfa_required() TO anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION app_claims() RETURNS jsonb LANGUAGE sql STABLE AS $$
-  SELECT CASE WHEN auth.jwt() ->> 'aal' = 'aal2'
+  SELECT CASE WHEN auth.jwt() ->> 'aal' = 'aal2' OR NOT public.mfa_required()
               THEN coalesce(auth.jwt() -> 'app_metadata', '{}'::jsonb)
               ELSE '{}'::jsonb END;
 $$;

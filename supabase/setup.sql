@@ -304,8 +304,30 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_post_number ON posts (post_number);
 --         app_metadata.role='owner' 를 박은 뒤부터 정책도 owner 를 인식한다.
 -- ────────────────────────────────────────────────────────────
 --   2단계 인증(aal2) 세션의 클레임만 인정한다 — 비밀번호만으로 만든 aal1 세션은 공개 정책만 받는다(2026_10_22_rls_require_aal2).
+--   소유자가 2단계 인증 강제를 끄면(security_settings.mfa_required) aal1 도 역할을 받는다.
+-- 2단계 인증 강제 여부 — 소유자가 설정 › 계정 에서 끄고 켠다(기본 켜짐). 한 줄짜리 표.
+-- 서버(service_role)만 쓴다. 정책과 앱은 아래 mfa_required() 로만 읽는다.
+CREATE TABLE IF NOT EXISTS public.security_settings (
+  id           int         PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  mfa_required boolean     NOT NULL DEFAULT true,
+  updated_at   timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO public.security_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+ALTER TABLE public.security_settings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.security_settings FROM anon, authenticated;
+
+-- 줄이 없으면 켜진 것으로(fail-closed). 정책 안에서 요청자 권한으로 불리므로 DEFINER 로 표를 읽는다
+CREATE OR REPLACE FUNCTION public.mfa_required() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  SELECT coalesce((SELECT mfa_required FROM public.security_settings WHERE id = 1), true);
+$$;
+REVOKE ALL ON FUNCTION public.mfa_required() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.mfa_required() TO anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION app_claims() RETURNS jsonb LANGUAGE sql STABLE AS $$
-  SELECT CASE WHEN auth.jwt() ->> 'aal' = 'aal2'
+  SELECT CASE WHEN auth.jwt() ->> 'aal' = 'aal2' OR NOT public.mfa_required()
               THEN coalesce(auth.jwt() -> 'app_metadata', '{}'::jsonb)
               ELSE '{}'::jsonb END;
 $$;

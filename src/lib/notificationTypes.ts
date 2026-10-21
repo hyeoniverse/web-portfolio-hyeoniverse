@@ -7,12 +7,11 @@
  *
  * 여기 있는 타입은 **관리자가 승인·거절 같은 결정을 내려야 하는 것**들이다.
  *   access_request  권한 요청 — 알림 상세에서 바로 부여·거절한다
- *   device_login    새 기기 로그인 시도 — 승인 메일을 확인해야 한다
  *
  * login_lockout · ai_failure · email_failure 처럼 알아 두면 되는 것은 넣지 않는다.
  * 신고(report)는 이미 전용 탭(ReportsList)에 처리 화면이 있어 묻히지 않는다.
  */
-const ACTION_TYPES = ["access_request", "device_login"] as const;
+const ACTION_TYPES = ["access_request"] as const;
 
 const ACTION_TYPE_SET: ReadonlySet<string> = new Set(ACTION_TYPES);
 
