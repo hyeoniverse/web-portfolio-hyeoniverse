@@ -33,30 +33,12 @@
   gap: var(--spacing-12);
 }
 
-/* 속성 패널 — 상단 고정 확인란과 주소 · 분류 · 작성자 칸, 선택 입력 묶음을 세로로 */
+/* 속성 패널 — SEO 칸(주소 · 분류 · 요약 · 태그 · 커버)을 세로로 */
 .properties {
   display: flex;
   flex-direction: column;
   /* 칸 → 칸 24 (docs/editor-ui.md 2-4) — 예전엔 4 에 칸마다 덧댄 여백이라 4 · 16 · 20 으로 들쭉날쭉했다 */
   gap: var(--spacing-24);
-}
-
-/* 속성 패널 안의 선택 입력 — 상자 대신 위 구분선 하나. 패널 안에 둥근 테두리 상자가 또 있으면 칸들과 모양이 달라 보였고,
-   접혀 있어도 안쪽 여백만큼 빈 자리가 남았다 */
-.properties .optionalSection {
-  border: none;
-  border-top: var(--border-light);
-  border-radius: 0;
-}
-
-.properties .optionalToggle,
-.properties .optionalContent,
-.properties .optionalAlways {
-  padding-inline: 0;
-}
-
-.properties .optionalContent:not(.optionalContentOpen) {
-  padding-block: 0;
 }
 
 /* 적는 칸은 밑줄(docs/editor-ui.md 2-1) — 아래 선 하나가 경계(대비 3:1 인 control 색). 초점이면 진해진다 */
@@ -169,34 +151,20 @@
   color: var(--text-tertiary);
 }
 
-/* ── Optional fields (collapsible) ── */
-.optionalSection {
+/* ── 본문 아래 글 속성 — 검색 · 공유에 쓰이지 않는 칸(고정 · 작성자 · 시리즈 · 관련 프로젝트 · GitHub · AI 요약).
+   사이드바에는 SEO 칸만 둔다. 본문과는 위 구분선 하나로 나눈다 ── */
+.extraSection {
   display: flex;
   flex-direction: column;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-32);
+  border-top: var(--border-light);
 }
 
-.optionalToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--row-padding-lg);
-  border: none;
-  background: transparent;
-  font: var(--font-label-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-/* 접어도 늘 보이는 칸(시리즈) */
-.optionalAlways {
-  padding: 0 var(--spacing-16) var(--spacing-16);
-}
-
-.optionalSection .optionalToggle:hover {
-  color: var(--text-secondary);
+.extraTitle {
+  margin: 0;
+  font: var(--font-title-sm);
+  color: var(--text-primary);
 }
 
 /* ── Number input with custom spinner ── */
@@ -220,27 +188,6 @@
 .seriesOrderSkeletonRow:nth-child(1) { width: 70%; }
 .seriesOrderSkeletonRow:nth-child(2) { width: 90%; }
 .seriesOrderSkeletonRow:nth-child(3) { width: 60%; }
-
-.optionalContent {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 0;
-  clip-path: inset(0 0 100% 0);
-  padding: var(--row-padding-sm);
-  transition: max-height var(--duration-base) var(--ease-standard), clip-path var(--duration-base) var(--ease-standard);
-}
-
-.optionalContentOpen {
-  max-height: var(--_content-height, 500px);
-  clip-path: inset(0);
-  gap: var(--spacing-16);
-  padding-bottom: var(--spacing-16);
-}
-
-.optionalSection .optionalContentOpen {
-  max-height: var(--_content-height, 500px);
-}
 
 /* Pin toggle */
 

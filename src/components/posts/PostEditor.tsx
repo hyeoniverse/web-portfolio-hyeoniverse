@@ -38,7 +38,7 @@ import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
 import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
-import PostEditorOptionalFields from "./postEditor/PostEditorOptionalFields";
+import { PostEditorExtraFields, PostEditorSeoFields } from "./postEditor/PostEditorOptionalFields";
 import { usePostRevisions } from "./postEditor/usePostRevisions";
 import { useTemplateInsert } from "./postEditor/useTemplateInsert";
 import SeoChecklist from "@/components/admin/SeoChecklist";
@@ -318,51 +318,23 @@ export default function PostEditor({ post }: PostEditorProps) {
   /* 편집 화면 문구는 관리자 화면 언어를 따른다. 예전에는 편집 중인 글의 언어 탭(KO/EN)을 따라, 영어 화면에서
      한국어 글을 고치면 라벨·단추가 한국어로 나왔다. 글의 언어는 KO/EN 탭이 보여 준다. */
   const te = useCallback((key: string) => t(`admin.posts.editor.${key}`), [t]);
-  const [optionalOpen, setOptionalOpen] = useState(false);
-  const optionalInnerRef = useRef<HTMLDivElement>(null);
   // 본문 편집기 높이 — 아래 손잡이로 바꾼다
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const optionalContentRef = useRef<HTMLDivElement>(null);
 
   /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + 상호작용 전까지 blink. */
   // 컴포넌트 unmount 시 blink 리스너 정리
   useEffect(() => () => clearSeoFlash(), []);
 
+  /* SEO 칸은 모두 사이드바(제목만 본문 위)에 늘 펼쳐져 있어 바로 데려간다 — 예전엔 접힌 "선택 입력"을 먼저 펼쳤다 */
   const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
-    // category 는 titleGroup 으로 옮겨졌으므로 optional 펼침 불필요
-    const inOptional = id === "excerpt" || id === "cover" || id === "tags";
-    if (inOptional) setOptionalOpen(true);
-    const scrollAndHighlight = () => {
-      const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      const input = el.querySelector<HTMLElement>("input, textarea, select, button");
-      input?.focus({ preventScroll: true });
-      // 이동한 필드를 상호작용 전까지 blink
-      flashSeoField(el);
-    };
-    if (inOptional) requestAnimationFrame(() => requestAnimationFrame(scrollAndHighlight));
-    else scrollAndHighlight();
+    const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const input = el.querySelector<HTMLElement>("input, textarea, select, button");
+    input?.focus({ preventScroll: true });
+    // 이동한 필드를 상호작용 전까지 blink
+    flashSeoField(el);
   }, []);
-
-  useEffect(() => {
-    const inner = optionalInnerRef.current;
-    const content = optionalContentRef.current;
-    if (!inner || !content) return;
-    const update = () => {
-      if (optionalOpen) {
-        // box-sizing: border-box 라서 max-height 가 padding 까지 포함하는 총 높이.
-        // inner.scrollHeight 만 쓰면 padding-bottom 만큼 마지막 항목이 잘림 → 명시적으로 더해줌.
-        const cs = getComputedStyle(content);
-        const pad = parseFloat(cs.paddingTop || "0") + parseFloat(cs.paddingBottom || "0");
-        content.style.setProperty("--_content-height", `${inner.scrollHeight + pad}px`);
-      }
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, [optionalOpen]);
 
   // 에디터 ref + 첨부 이미지
   const plateRef = useRef<PlateEditorHandle>(null);
@@ -1074,10 +1046,10 @@ export default function PostEditor({ post }: PostEditorProps) {
     />
   ), [metaForm.is_pinned, te, updateField]);
 
-  /* 속성 패널 — 주소 · 분류 · 작성자와 선택 입력(시리즈 · 태그 · 요약 …). 본문 옆 열(넓은 화면) 또는 서랍(좁은 화면) */
+  /* 속성 패널 — 검색 · 공유에 쓰이는 칸만(SEO 점검 항목: 주소 · 분류 · 요약 · 태그 · 커버). 본문 옆 열(넓은 화면) 또는 서랍(좁은 화면).
+     그 밖(고정 · 작성자 · 시리즈 · 관련 프로젝트 · AI 요약 · GitHub)은 본문 아래 extraSection */
   const propertiesSection = useMemo(() => (
     <div className={styles.properties}>
-      {pinToggle}
 
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
@@ -1145,6 +1117,28 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
         </div>
 
+      <PostEditorSeoFields
+        form={metaForm}
+        setForm={setForm}
+        updateField={updateField}
+        te={te}
+        tagDescriptions={tagDescriptions}
+        allTagSuggestions={allTagSuggestions}
+        excerptKey={excerptKey}
+        tag={tag}
+        onCoverUpload={handleCoverUpload}
+      />
+    </div>
+  ), [
+    allTagSuggestions, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo, handleCoverUpload,
+    isManagedCat, language, metaForm, setForm, showErrors, tag, tagDescriptions, te, updateField,
+  ]);
+
+  /* 본문 아래 — 검색 · 공유에 쓰이지 않는 글 속성. 고정 · 작성자 · 시리즈 · 관련 프로젝트 · GitHub · AI 요약 */
+  const extraSection = useMemo(() => (
+    <section className={styles.extraSection} aria-label={te("optionalFields")}>
+      <h2 className={styles.extraTitle}>{te("optionalFields")}</h2>
+      {pinToggle}
         {/* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */}
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }}>
@@ -1199,21 +1193,12 @@ export default function PostEditor({ post }: PostEditorProps) {
             </div>
           </div>
         </div>
-
-      {/* ── 선택 입력 (접기/펼치기) ── */}
-      <PostEditorOptionalFields
+      <PostEditorExtraFields
         form={metaForm}
-        setForm={setForm}
         updateField={updateField}
         te={te}
-        tagDescriptions={tagDescriptions}
-        post={post}
-        series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
-        onReorderSeriesPosts={queueSeriesOrder}
         allWorks={allWorks}
-        allTagSuggestions={allTagSuggestions}
         categories={categories}
-        excerptKey={excerptKey}
         aiSummary={{
           value: editorLang === "ko" ? savedSummary.ko : savedSummary.en,
           lang: editorLang,
@@ -1222,22 +1207,18 @@ export default function PostEditor({ post }: PostEditorProps) {
           disabled: !serviceStatus.loading && !serviceStatus.aiSummary,
           disabledReason: te("generateSummaryDisabled"),
         }}
-        tag={tag}
-        optionalOpen={optionalOpen}
-        setOptionalOpen={setOptionalOpen}
-        optionalInnerRef={optionalInnerRef}
-        optionalContentRef={optionalContentRef}
+        post={post}
+        series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
+        onReorderSeriesPosts={queueSeriesOrder}
         seriesSelectMode={seriesSelectMode}
         setSeriesSelectMode={setSeriesSelectMode}
         onSeriesCreated={handleSeriesCreated}
-        onCoverUpload={handleCoverUpload}
       />
-    </div>
+    </section>
   ), [
-    pinToggle, hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
-    handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
-    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te,
-    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
+    pinToggle, hasSavedId, allWorks, authorChips, categories, language, metaForm, post, queueSeriesOrder,
+    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, te, editorLang, generatingSummary,
+    handleGenerateSummary, handleSeriesCreated, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
     updateField,
   ]);
 
@@ -1455,6 +1436,9 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       {/* ── 첨부 이미지 패널 (richtext 단일) ── */}
       {imagesSection}
+
+      {/* ── 글 속성 중 검색 · 공유에 쓰이지 않는 것 (시리즈 · 작성자 …) ── */}
+      {extraSection}
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (wrapper 불필요) */}
       {seoChecklist}
