@@ -34,10 +34,14 @@ flowchart TD
   login --> pw["비밀번호 (소유자)"]
   gh --> cb{"/auth/callback<br/>소유자 · 역할 보유 · 초대?"}
   cb -->|아니오| deny["계정 삭제 · 로그인 화면"]
-  cb -->|예| dash
-  pw --> dev{"승인된 기기?"}
-  dev -->|아니오| mail["승인 메일 · 다시 로그인"]
-  dev -->|예| settings
+  cb -->|예| mfa
+  pw --> mfa{"/admin/mfa<br/>2단계 인증 (OTP 앱)"}
+  mfa -->|"처음"| enroll["QR 코드로 등록 → 6자리 코드"]
+  mfa -->|"등록됨"| code["6자리 코드"]
+  enroll --> next["next 주소로"]
+  code --> next
+  next --> dash
+  next --> settings
   dash["대시보드 /admin<br/>트래픽 · 알림 · 신고 · 댓글 · 서비스 기록"]
   dash --> plist["글 /admin/posts"]
   dash --> wlist["작업물 /admin/works"]
@@ -49,7 +53,7 @@ flowchart TD
   tabs --> invite["계정 탭: 멤버 초대 (소유자)"]
 ```
 
-- GitHub 로그인은 `next` 주소(기본 `/admin`)로, 비밀번호 로그인은 `next` 가 없으면 `/admin/settings` 로 간다.
+- 어느 로그인이든 관리 화면에 들어가기 전에 2단계 인증을 거친다(설정 › 계정 › 보안에서 소유자가 강제를 끈 경우 제외). GitHub 로그인은 `next` 주소(기본 `/admin`)로, 비밀번호 로그인은 `next` 가 없으면 `/admin/settings` 로 간다.
 - 저자(권한 1)가 관리자 전용 화면(대시보드 · 알림 · 신고 · 댓글)을 열면 proxy 가 `/admin/posts` 로 보낸다. 서비스 기록은 소유자만 연다.
 - 설정의 여섯 탭 중 계정 탭을 뺀 다섯 탭은 소유자만 연다. 탭 내용은 [Supabase 세팅](./supabase-setup.md#5-admin-로그인-방법)에 있다.
 - 편집기는 자동 저장과 리비전 기록을 남기고, 미발행 글을 저장하면 지금 발행할지 묻는다.

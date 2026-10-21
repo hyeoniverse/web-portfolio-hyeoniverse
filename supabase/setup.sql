@@ -303,8 +303,36 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_post_number ON posts (post_number);
 --   주의: SQL 은 OWNER_EMAIL env 를 못 읽는다. 최초 로그인의 ensureOwnerRole 이
 --         app_metadata.role='owner' 를 박은 뒤부터 정책도 owner 를 인식한다.
 -- ────────────────────────────────────────────────────────────
+--   2단계 인증(aal2) 세션의 클레임만 인정한다 — 비밀번호만으로 만든 aal1 세션은 공개 정책만 받는다(2026_10_22_rls_require_aal2).
+--   소유자가 2단계 인증 강제를 끄면(security_settings.mfa_required) aal1 도 역할을 받는다.
+-- 2단계 인증 강제 여부 — 소유자가 설정 › 계정 에서 끄고 켠다(기본 켜짐). 한 줄짜리 표.
+-- 서버(service_role)만 쓴다. 정책과 앱은 아래 mfa_required() 로만 읽는다.
+CREATE TABLE IF NOT EXISTS public.security_settings (
+  id           int         PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  mfa_required boolean     NOT NULL DEFAULT true,
+  updated_at   timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO public.security_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+ALTER TABLE public.security_settings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.security_settings FROM anon, authenticated;
+
+-- 줄이 없으면 켜진 것으로(fail-closed). 정책 안에서 요청자 권한으로 불리므로 DEFINER 로 표를 읽는다
+CREATE OR REPLACE FUNCTION public.mfa_required() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  SELECT coalesce((SELECT mfa_required FROM public.security_settings WHERE id = 1), true);
+$$;
+REVOKE ALL ON FUNCTION public.mfa_required() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.mfa_required() TO anon, authenticated, service_role;
+
+CREATE OR REPLACE FUNCTION app_claims() RETURNS jsonb LANGUAGE sql STABLE AS $$
+  SELECT CASE WHEN auth.jwt() ->> 'aal' = 'aal2' OR NOT public.mfa_required()
+              THEN coalesce(auth.jwt() -> 'app_metadata', '{}'::jsonb)
+              ELSE '{}'::jsonb END;
+$$;
 CREATE OR REPLACE FUNCTION app_role() RETURNS text LANGUAGE sql STABLE AS $$
-  SELECT coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '');
+  SELECT coalesce(app_claims() ->> 'role', '');
 $$;
 CREATE OR REPLACE FUNCTION app_level() RETURNS int LANGUAGE sql STABLE AS $$
   SELECT CASE jsonb_typeof(claim)
@@ -315,13 +343,13 @@ CREATE OR REPLACE FUNCTION app_level() RETURNS int LANGUAGE sql STABLE AS $$
              CASE WHEN n = trunc(n) AND n BETWEEN 1 AND 2 THEN n::int ELSE 0 END
            ELSE 0
          END
-  FROM (SELECT auth.jwt() -> 'app_metadata' -> 'permission_level' AS claim) s,
+  FROM (SELECT app_claims() -> 'permission_level' AS claim) s,
   LATERAL (SELECT CASE WHEN jsonb_typeof(claim) = 'number'
                        THEN (claim #>> '{}')::numeric END AS n) t;
 $$;
 CREATE OR REPLACE FUNCTION app_author_id() RETURNS text LANGUAGE sql STABLE AS $$
   SELECT CASE WHEN jsonb_typeof(claim) = 'string' THEN claim #>> '{}' END
-  FROM (SELECT auth.jwt() -> 'app_metadata' -> 'author_id' AS claim) s;
+  FROM (SELECT app_claims() -> 'author_id' AS claim) s;
 $$;
 /* 권한 4단계 — owner / admin(level>=2) / author(level 1) / visitor(로그인 없음).
    is_admin 을 role IN ('owner','author') 로 두면 자기 글만 쓰는 저자까지 관리자가 된다. */
@@ -1844,8 +1872,8 @@ ALTER TABLE cover_image_history ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users manage own cover history" ON cover_image_history;
 CREATE POLICY "Users manage own cover history"
   ON cover_image_history FOR ALL
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING (auth.uid() = user_id AND is_member())
+  WITH CHECK (auth.uid() = user_id AND is_member());
 
 
 -- ────────────────────────────────────────────────────────────
@@ -2326,7 +2354,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_19_content_source_lang',           '원문 언어(posts · works.source_lang)와 덮어쓰기 전 원문 백업(content_translations post_source · work_source · settings_source)'),
   ('2026_10_20_works_cover_position',          'works.cover_position/cover_zoom — 작업물 커버 위치·확대 영속화 (posts 미러)'),
   ('2026_10_21_revoke_definer_functions',      'SECURITY DEFINER 함수(vault · 메일 · 예약 작업)의 anon · authenticated 실행 권한 회수 + search_path 고정'),
-  ('2026_10_21_b_rate_limits_public_read',     'rate_limits 공유 속도 제한 + 휴지통 글 · 캘린더 · 관계 테이블 공개 읽기 조이기 + 버킷 목록 정책 제거')
+  ('2026_10_21_b_rate_limits_public_read',     'rate_limits 공유 속도 제한 + 휴지통 글 · 캘린더 · 관계 테이블 공개 읽기 조이기 + 버킷 목록 정책 제거'),
+  ('2026_10_22_rls_require_aal2',              '정책의 역할 판정(app_role · app_level · app_author_id)을 2단계 인증(aal2) 세션에서만')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

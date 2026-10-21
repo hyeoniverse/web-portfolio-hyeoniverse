@@ -11,42 +11,64 @@ flowchart TD
   req["브라우저 요청"] --> proxy{"proxy<br/>src/proxy.ts"}
   proxy -->|"/api/* 의 POST · PATCH · PUT · DELETE<br/>Origin/Referer 가 SITE_URL · 블로그 주소가 아니다"| r403["403"]
   proxy -->|"/admin/* · /api/admin/*<br/>로그인한 사용자가 없다"| rlogin["화면: /admin/login<br/>API: 401"]
+  proxy -->|"aal1 세션 (2단계 인증 전)"| rmfa["화면: /admin/mfa<br/>API: 403 MFA_REQUIRED"]
   proxy -->|"작성자가 관리자 전용 화면을 연다"| rposts["/admin/posts 로 보냄"]
   proxy -->|통과| route{"라우트 가드<br/>requireAuth · requireRole · requireOwner · requirePostAccess"}
   route -->|"세션이 없다"| r401["401"]
+  route -->|"aal1 세션"| r403m["403 MFA_REQUIRED"]
   route -->|"app_metadata 의 역할 · 레벨이 모자란다"| r403b["403"]
   route -->|통과| client{"Supabase 쿼리"}
-  client -->|"세션 클라이언트"| rls["RLS 정책<br/>app_role() · app_level() · app_author_id()<br/>= JWT 의 app_metadata"]
+  client -->|"세션 클라이언트"| rls["RLS 정책<br/>app_role() · app_level() · app_author_id()<br/>= JWT 의 app_metadata (aal2 일 때만)"]
   client -->|"service_role (서버 전용)"| bypass["RLS 우회<br/>집계 · 판정 조회 · 공개 쓰기"]
   rls --> db[("Postgres")]
   bypass --> db
 ```
 
-- proxy 는 `/api/*` 쓰기 요청의 출처를 본다. localhost 에서 온 요청과 개발 모드는 통과시킨다. 배포 환경에서 `SITE_URL` 이 비어 있으면 모두 막는다.
+- proxy 는 `/api/*` 쓰기 요청의 출처를 본다. localhost Origin 은 Vercel production 이 아닐 때만 통과시킨다. 배포 환경에서 `SITE_URL` 이 비어 있으면 모두 막는다.
 - 라우트 가드는 매 요청 `app_metadata` 를 다시 읽는다. 클라이언트가 보낸 역할 값은 쓰지 않는다.
-- RLS 헬퍼(`app_role` · `app_level` · `app_author_id`)는 `supabase/setup.sql` 에 있다. `is_admin()` 은 owner 이거나 권한 레벨 2 이상, `can_edit_post()` 는 owner · 레벨 2 이상 · 글의 `author_ids` 에 든 저자, `can_edit_work()` 는 관리자 · `team_members` 에 든 저자다.
+- RLS 헬퍼(`app_role` · `app_level` · `app_author_id`)는 `supabase/setup.sql` 에 있고, `app_claims()` 를 거쳐 aal2 세션의 클레임만 읽는다(2단계 인증 강제를 끄면 aal1 도). `is_admin()` 은 owner 이거나 권한 레벨 2 이상, `can_edit_post()` 는 owner · 레벨 2 이상 · 글의 `author_ids` 에 든 저자, `can_edit_work()` 는 관리자 · `team_members` 에 든 저자다.
 
 ### 관리자 비밀번호 로그인
 
-`POST /api/admin/auth` 는 비밀번호가 맞아도 처음 보는 기기면 세션을 바로 거둔다.
+비밀번호(또는 GitHub)로 만든 세션은 `aal1` 이다. 관리 화면 · API 는 인증 앱 코드까지 확인한 `aal2` 세션만 받는다.
 
 ```mermaid
 flowchart TD
-  start["POST /api/admin/auth"] --> lock{"잠금 중인가<br/>admin_login_attempts"}
+  start["POST /api/admin/auth"] --> ip{"IP 당 10분 20회 넘었나"}
+  ip -->|예| r429["429 AUTH_RATE_LIMITED"]
+  ip -->|아니오| lock{"잠금 중인가<br/>admin_login_attempts (소문자 이메일)"}
   lock -->|예| r423["423 남은 시간"]
   lock -->|아니오| pw{"signInWithPassword"}
   pw -->|실패| fail["실패 횟수 +1<br/>5회째면 15분 잠금"]
-  fail --> r401["401 남은 시도 · 423"]
+  fail --> r401["401 invalid_credentials · 423"]
   pw -->|성공| clear["실패 기록 삭제"]
-  clear --> dev{"기기 지문<br/>admin_known_devices"}
-  dev -->|승인된 기기| ok["200 로그인"]
-  dev -->|처음 보는 기기| out["signOut + 승인 메일<br/>(토큰 24시간 유효)"]
-  out --> r202["202 device_pending"]
-  r202 -. 메일 링크 .-> approve["/api/admin/auth/approve-device<br/>approved = true"]
-  approve -. 다시 로그인 .-> start
+  clear --> dev["기기 기록 admin_known_devices<br/>처음 보는 기기면 알림 메일 · 관리자 알림 (막지 않음)"]
+  dev --> aal1["200 — aal1 세션"]
+  aal1 --> proxy{"proxy: /admin/* 요청"}
+  proxy -->|aal1| mfa["/admin/mfa?next=경로"]
+  mfa -->|"인증 앱 없음"| enroll["QR 코드로 등록 → 6자리 코드"]
+  mfa -->|"등록돼 있음"| verify["6자리 코드 확인"]
+  enroll --> aal2["aal2 세션 → next 로 이동"]
+  verify --> aal2
 ```
 
-기기 지문은 UA 에서 브라우저 · OS · 기기 종류만 뽑아 해시한 값이다. 브라우저가 자동 업데이트돼도 같은 기기로 본다. GitHub OAuth 로그인은 이 경로를 거치지 않고 `/auth/callback` 의 인가 게이트를 지난다(아래).
+실패는 이유와 상관없이 모두 같은 `invalid_credentials` 로 답해 계정이 있는지 드러나지 않는다. 기기 지문은 UA 에서 브라우저 · OS · 기기 종류만 뽑아 해시한 값이고, 이제는 기록과 알림용일 뿐 로그인을 막지 않는다. GitHub OAuth 로그인은 `/auth/callback` 의 인가 게이트(아래)를 지나고, 기기 기록도 남긴다. 두 경로 모두 `aal1` 이라 같은 2단계 인증을 거친다.
+
+#### 2단계 인증을 강제하는 세 겹
+
+예전의 새 기기 메일 승인은 우리 로그인 API 안에서만 확인해, Supabase Auth 에 직접 로그인(`/auth/v1/token`)하거나 GitHub 로 들어오면 건너뛸 수 있었다. 지금은 요청마다 세션 등급을 본다(`src/lib/auth/mfa.ts`).
+
+| 겹 | 동작 |
+|----|------|
+| proxy(`src/proxy.ts`) | `/admin/*` 화면의 aal1 세션은 `/admin/mfa?next=<경로>` 로, `/api/admin/*` 은 403 `MFA_REQUIRED`. `/admin/mfa` 와 `/api/admin/auth/mfa` 만 예외 |
+| `requireAuth` | 나머지 관리 API 도 aal1 이면 403 `MFA_REQUIRED` |
+| RLS | `app_role()` · `app_level()` · `app_author_id()` 가 `app_claims()` 로 클레임을 읽고, `app_claims()` 는 JWT 의 `aal` 이 `aal2` 일 때만 `app_metadata` 를 돌려준다. aal1 세션은 익명 방문자처럼 공개 정책만 받는다. `cover_image_history` 정책은 `is_member()` 도 요구한다 (`2026_10_22_rls_require_aal2.sql`) |
+
+`/api/admin/auth/mfa` 는 상태 조회(GET), 등록(`{action:"enroll"}` — 확인 안 된 요소를 지우고 QR · 시크릿을 돌려줌), 확인(`{action:"verify", factorId, code}` — 계정당 10분 10회), 삭제(DELETE, aal2 만, 마지막 하나는 `MFA_LAST_FACTOR` 로 거부), 강제 설정 변경(PUT `{required}`)을 맡는다. 설정 › 계정 › 보안에서 인증 앱을 추가 · 삭제하고(`/admin/mfa?add=1`), 휴대폰과 비밀번호 관리자에 하나씩 두 개를 등록해 두기를 권한다.
+
+**2단계 인증 강제 스위치:** 같은 화면의 "2단계 인증 강제"(기본 켜짐)는 aal2 세션의 소유자만 바꿀 수 있다. 값은 한 행짜리 `security_settings`(`id = 1`, `mfa_required`) 에 있고, SECURITY DEFINER 함수 `mfa_required()` 가 읽는다(행이 없으면 true). 앱은 `rpc("mfa_required")` 로 읽고 오류가 나면 강제로 본다(fail-closed). 끄면 세 겹 모두 aal1 세션을 받는다. 켜 두기를 권한다.
+
+**인증 앱을 모두 잃었을 때:** Supabase SQL Editor 에서 `delete from auth.mfa_factors where user_id = '<user id>';` 를 실행한 뒤 다시 로그인해 새로 등록한다.
 
 | 보안 레이어 | 구현 방식 | 적용 범위 |
 |------------|-----------|----------|
@@ -58,7 +80,7 @@ flowchart TD
 | **RLS** | JWT(`app_metadata`) 를 읽는 정책 헬퍼로 역할별 접근 판정 + anon 쓰기 GRANT 회수 + Storage 직접 업로드 정책 제거 (아래) | 모든 테이블, Storage |
 | **경로 보호** | proxy 가 로그인 여부와 화면별 권한을 먼저 보고, Dashboard layout 이 세션을 다시 확인한다(없으면 접근 거부 페이지) | `/admin/*` |
 | **CSRF Origin 검증** | proxy(`src/proxy.ts`)가 모든 `/api/*` POST/PATCH/PUT/DELETE 의 Origin/Referer 를 `SITE_URL` · 블로그 주소의 origin 과 대조한다. 불일치하거나 해석할 수 없으면 403(fail-closed). GET 은 건너뛴다 | 모든 API 쓰기 요청 |
-| **로그인 보호** | 5회 실패 시 15분 잠금(`admin_login_attempts`) + 처음 보는 기기는 이메일 승인 전 로그인 거부(`admin_known_devices`, UA fingerprint + 24시간 토큰) + 전기기 로그아웃 | `/api/admin/auth` |
+| **로그인 보호** | 5회 실패 시 15분 잠금(`admin_login_attempts`) + IP 당 10분 20회 제한 + 2단계 인증(OTP 앱, aal2 세션만 허용) + 새 기기 알림(`admin_known_devices`) + 전기기 로그아웃 | `/api/admin/auth`, `/admin/*`, `/api/admin/*`, RLS |
 | **역할 기반 인가** | owner(전권) / admin(모든 글 + 중재) / author(자기 글만) / visitor(공개만) 4단계 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
 | **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단. 단 `OWNER_EMAIL` 미설정 시엔 삭제하지 않고 설정 에러만 표시(부트스트랩 락아웃 방지) | GitHub OAuth 로그인 |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래). 조회 기록은 같은 IP · 경로를 30분에 한 번만 센다(`record_page_view`) | 좋아요, 투표, 댓글 반응, 조회 기록 |
@@ -157,8 +179,11 @@ proxy(`src/proxy.ts`)가 모든 `/api/*` 의 POST/PATCH/PUT/DELETE 에서 Origin
 
 | 장치 | 동작 |
 |------|------|
-| 실패 잠금 | 5회 실패 시 15분 잠금(`admin_login_attempts`). 잠금 시간이 지나면 다음 시도에서 자동 해제, 성공 시 row 삭제 |
-| 새 기기 승인 | UA 를 파싱한 브라우저+OS+기기만 해시한 fingerprint(`admin_known_devices`) — 버전 변동을 무시해 브라우저 자동 업데이트로 중복 row 가 생기지 않습니다. 처음 보는 fingerprint 면 승인 토큰(24시간 유효)을 발급해 이메일로 보내고, 승인 전에는 올바른 비밀번호여도 로그인이 거부됩니다 |
+| 실패 잠금 | 5회 실패 시 15분 잠금(`admin_login_attempts`, 키는 소문자로 맞춘 이메일). 잠금 시간이 지나면 다음 시도에서 자동 해제, 성공 시 row 삭제. 실패 응답은 모두 `invalid_credentials` 로 같다 |
+| IP 제한 | 같은 IP 는 10분에 20회까지, 넘으면 429 `AUTH_RATE_LIMITED` |
+| 2단계 인증 | 비밀번호 로그인은 aal1 세션까지만 만든다. 인증 앱 코드를 확인해야 aal2 가 되고, proxy · `requireAuth` · RLS 가 aal2 만 받는다(위 "2단계 인증을 강제하는 세 겹") |
+| 새 기기 알림 | UA 를 파싱한 브라우저+OS+기기만 해시한 fingerprint(`admin_known_devices`) — 버전 변동을 무시해 브라우저 자동 업데이트로 중복 row 가 생기지 않습니다. 처음 보는 기기면 알림 메일과 관리자 알림을 보내지만 로그인을 막지는 않습니다. GitHub 로그인도 기록됩니다 |
+| 로그아웃 | `DELETE /api/admin/auth` 는 이 브라우저만 로그아웃(`scope: "local"`) |
 | 전기기 로그아웃 | `signOut({ scope: "global" })` — Supabase 가 auth 상태를 탭 간 브로드캐스트해 열린 모든 탭이 즉시 로그인 화면으로 이동합니다 |
 
 **RLS — service-role 우회에서 정책 기반 인가로:**

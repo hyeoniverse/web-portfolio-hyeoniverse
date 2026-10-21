@@ -82,7 +82,8 @@ API 키도 같은 화면(설정 › 서비스 › 환경 변수)에 저장할 �
 | `custom_emojis` | 이모지 선택기에 올린 커스텀 아이콘 |
 | `cover_image_history` | 커버 이미지 선택 이력 (사용자별, RLS) |
 | `admin_login_attempts` | 관리자 로그인 실패 횟수 (5회 실패 → 15분 잠금) |
-| `admin_known_devices` | 승인된 관리자 기기 지문 (미등록 기기는 24시간 유효한 메일 승인) |
+| `admin_known_devices` | 관리자가 로그인한 기기 지문 기록 (처음 보는 기기는 알림 메일 · 관리자 알림, 막지는 않음) |
+| `security_settings` | 한 줄짜리 보안 설정 (`mfa_required` — 2단계 인증 강제, 기본 true). `mfa_required()` 로만 읽는다 |
 | `applied_migrations` | 적용된 마이그레이션 기록 (처음 적용될 때 알림) |
 | `author_invites` | 이메일 저자 초대 (`email` PK, `author_id`, `permission_level` 1=저자 / 2=편집자, `consumed_at`) |
 | `service_logs` | AI · 외부 서비스 · 메일 · GitHub · 예약 작업의 성공/실패 기록 (90일 보관) |
@@ -94,6 +95,8 @@ API 키도 같은 화면(설정 › 서비스 › 환경 변수)에 저장할 �
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
 **setup.sql 과 migrations 의 차이**: `custom_emojis` 는 `setup.sql` 에서만 만들어지고, 이 테이블을 만드는 마이그레이션 파일은 없다. 글 제목 길이 CHECK(`posts_title_len` / `posts_title_en_len`, 120자)는 두 곳에 다 있지만 `setup.sql` 은 `NOT VALID` 로 걸어 기존 행을 검사하지 않고, `2026_07_13_posts_title_len.sql` 은 기존 행까지 바로 검사한다. 새로 세팅할 때는 `setup.sql` 한 번이면 된다.
+
+**2단계 인증 마이그레이션 (기존 DB):** `2026_10_22_rls_require_aal2.sql` 은 RLS 의 역할 판정을 aal2(인증 앱 확인) 세션으로 좁히고 `security_settings` · `mfa_required()` 를 만든다. 새로 세팅하면 `setup.sql` 에 이미 들어 있다. 기존 DB 는 순서를 지킨다: 코드 배포 → 관리하는 모든 계정이 `/admin/mfa` 에서 인증 앱 등록 → SQL Editor 에서 이 파일 실행. 등록 전에 실행하면 aal1 세션은 역할을 잃어 관리 데이터가 보이지 않는다. 자세한 동작은 [security.md](./security.md#2단계-인증을-강제하는-세-겹).
 
 **수동 실행 마이그레이션 (선택):** 아래 두 파일은 데이터를 다시 쓰는 스크립트라 자동으로 적용되지 않는다. 필요할 때만 SQL Editor 에서 직접 실행한다.
 
@@ -148,7 +151,9 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 1. `/admin/login` 접속
 2. Supabase에서 생성한 이메일/비밀번호 입력
-3. 성공하면 `next` 주소로, `next` 가 없으면 `/admin/settings` 로 간다. 처음 보는 기기면 승인 메일을 보내고 로그인을 멈춘다.
+3. 성공하면 `next` 주소로, `next` 가 없으면 `/admin/settings` 로 간다. 처음 보는 기기면 알림 메일만 보내고 막지는 않는다.
+
+**2단계 인증** (모든 역할 필수): 비밀번호나 GitHub 로그인 뒤의 세션은 aal1 이라, proxy 가 `/admin/mfa` 로 보낸다. 처음이면 QR 코드로 인증 앱(TOTP)을 등록하고, 그다음부터는 6자리 코드만 넣는다. 확인되면 aal2 세션이 되어 원래 가려던 주소로 간다. Supabase 의 TOTP MFA 는 모든 플랜에서 무료이고 기본으로 켜져 있어 대시보드에서 따로 설정할 것이 없다(유료인 전화 · SMS MFA 는 쓰지 않는다).
 
 **멤버 추가 (이메일 초대)**: 소유자가 설정 › **계정** 탭에서 이메일로 멤버를 초대하면 `author_invites` 행이 생기고 Resend 안내 메일이 나간다. 초대받은 사람이 같은 이메일의 GitHub 로 로그인하면 저자 또는 편집자 권한을 얻는다. 소유자가 같은 탭에서 멤버 목록 · 역할 · 권한을 관리한다.
 
@@ -287,13 +292,13 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 /admin/login (폼 제출 — 소유자 폴백)
   → POST /api/admin/auth
-    → 잠금 확인(admin_login_attempts) → signInWithPassword()
-    → 처음 보는 기기면 signOut() + 승인 메일 (202)
-    → 세션 쿠키 설정
+    → IP 제한(10분 20회) → 잠금 확인(admin_login_attempts, 소문자 이메일) → signInWithPassword()
+    → 기기 기록 (처음 보는 기기면 알림 메일 · 관리자 알림)
+    → 세션 쿠키 설정 (aal1)
   → next 주소로 (기본 /admin/settings), 전체 페이지 이동(window.location.assign)
 
 /admin/* 접속 시
-  → proxy: 로그인한 사용자가 없으면 /admin/login, 권한이 모자란 화면이면 /admin/posts
+  → proxy: 로그인한 사용자가 없으면 /admin/login, aal1 세션이면 /admin/mfa?next=…, 권한이 모자란 화면이면 /admin/posts
   → Dashboard layout: getUser() 가 없으면 /admin/denied
   → 서버 헬퍼가 app_metadata 역할을 다시 확인
   → AdminAuthSync 가 onAuthStateChange 구독 → 다른 탭에서 SIGNED_OUT 시 /admin/login

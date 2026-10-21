@@ -1408,7 +1408,11 @@
     top: calc(var(--header-height) + var(--spacing-80));
     z-index: auto;
     width: auto;
-    max-height: calc(100dvh - var(--header-height) - var(--spacing-80) - var(--spacing-24));
+    /* 위에 붙었을 때의 높이와 지금 화면에 남은 높이(--_sidebar-room, index.tsx) 중 작은 쪽 — 열 아래가 화면 밖으로 나가지 않게 */
+    max-height: min(
+      calc(100dvh - var(--header-height) - var(--spacing-80) - var(--spacing-24)),
+      var(--_sidebar-room, 100dvh)
+    );
     /* 안쪽 스크롤 상자라 밖으로 그려지는 hover 링 · 초점 테두리가 잘린다 — 양옆에 여백을 두고
        같은 만큼 바깥으로 넓혀 칸 위치는 그대로(예전엔 왼쪽 여백이 0 이라 체크박스 링 왼쪽이 잘렸다) */
     margin-inline: calc(var(--spacing-8) * -1);

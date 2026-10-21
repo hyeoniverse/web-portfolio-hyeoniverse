@@ -25,7 +25,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [rememberEmail, setRememberEmail] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setInfo("");
     setLoading(true);
 
     if (rememberEmail) {
@@ -99,16 +97,11 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 새 기기 — 이메일 승인 필요 (status 202)
-      if (data.status === "device_pending") {
-        setInfo(t("admin.login.devicePending"));
-        return;
-      }
-
       /* 클라 네비(router.push)로는 방금 설정된 세션 쿠키가 (dashboard)/layout 의 getUser()
          에 즉시 안 잡혀 새로고침이 필요했다. 풀 네비게이션으로 새 쿠키가 실린 서버 렌더에
          진입한다 — GitHub OAuth 의 /auth/callback 리다이렉트와 같은 방식.
-         ?next= 가 있으면 그리로(Footer 로그인은 /admin), 없으면 기존대로 설정 화면. */
+         ?next= 가 있으면 그리로(Footer 로그인은 /admin), 없으면 기존대로 설정 화면.
+         OTP 확인 전 세션이라 proxy 가 2단계 인증 화면(/admin/mfa?next=…)으로 먼저 보낸다. */
       const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
       window.location.assign(next ?? "/admin/settings");
       return;
@@ -187,7 +180,6 @@ export default function AdminLoginPage() {
         {/* 메시지 — 버튼 아래. 비어있어도 자리 차지해서 form 높이 안 흔들리게 */}
         <div className={styles.messageRow}>
           {error && <p className={styles.error}>{error}</p>}
-          {!error && info && <p className={styles.info}>{info}</p>}
         </div>
       </form>
     </div>

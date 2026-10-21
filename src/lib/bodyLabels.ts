@@ -85,6 +85,16 @@ const DEFS = {
   mermaidDiagram: common("mermaidDiagram"),
   mermaidCode: common("mermaidCode"),
   mermaidSplit: common("mermaidSplit"),
+  /* mermaid 그림 컨트롤(GitHub 과 같은 이동 · 확대 · 원위치 · 크게 보기) — MermaidPreview */
+  mermaidZoomIn: { ko: "확대", en: "Zoom in" },
+  mermaidZoomOut: { ko: "축소", en: "Zoom out" },
+  mermaidReset: { ko: "원래 크기로", en: "Reset view" },
+  mermaidPanUp: { ko: "위로 이동", en: "Pan up" },
+  mermaidPanDown: { ko: "아래로 이동", en: "Pan down" },
+  mermaidPanLeft: { ko: "왼쪽으로 이동", en: "Pan left" },
+  mermaidPanRight: { ko: "오른쪽으로 이동", en: "Pan right" },
+  mermaidFullscreen: { ko: "크게 보기", en: "Fullscreen" },
+  mermaidExitFullscreen: { ko: "크게 보기 닫기", en: "Exit fullscreen" },
   /* 목차 블록 머리 — readerExtras/toc */
   tocTitle: { ko: "목차", en: "Contents" },
   /* 투표 — readerExtras/poll · pollResultView */

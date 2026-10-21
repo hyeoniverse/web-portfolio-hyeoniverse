@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--spacing-128) - var(--spacing-128) - var(--footer-height));
+  padding: var(--spacing-24);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  width: 100%;
+  max-width: 380px;
+}
+
+.title {
+  font: var(--font-headline-xl);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.desc {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  text-align: center;
+  /* 한국어 안내문이 "찍 / 은" 처럼 단어 가운데서 줄이 바뀌지 않게 */
+  word-break: keep-all;
+}
+
+/* QR — 인증 앱이 읽기 쉽게 흰 바탕 고정(어두운 테마에서도) */
+.qr {
+  align-self: center;
+  width: 200px;
+  height: 200px;
+  padding: var(--spacing-8);
+  background: var(--bg-white);
+  border-radius: var(--radius-surface);
+}
+
+.secret {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.secretValue {
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  word-break: break-all;
+  user-select: all;
+}
+
+.messageRow {
+  min-height: calc(var(--line-height-160) * var(--font-size-body-md) * 2);
+}
+
+.error {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-accent);
+}
+
+.signOut {
+  align-self: center;
+}

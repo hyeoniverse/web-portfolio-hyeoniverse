@@ -46,10 +46,7 @@ test.describe("비로그인 — 필수 파라미터 누락", () => {
     test(`GET ${path} → 400 + { error }`, async ({ request }) => {
       const res = await request.get(path);
       expect(res.status(), `${path} 는 파라미터가 없으면 400 이어야 한다`).toBe(400);
-      // approve-device 는 HTML 을 돌려주므로 본문 모양은 보지 않는다.
-      if (path !== "/api/admin/auth/approve-device") {
-        await checkShape(res, { kind: "error" }, path);
-      }
+      await checkShape(res, { kind: "error" }, path);
     });
   }
 });

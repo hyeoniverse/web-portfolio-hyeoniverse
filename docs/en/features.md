@@ -96,11 +96,11 @@ The sign-in screen is `/admin/login`. Members use GitHub OAuth, and the owner ca
 - **Notifications · reports · comment management**: system notifications such as new comments, sign-ins, and failed external calls; report handling (resolve, dismiss, delete); bulk management of post and work comments.
 - **Service log (`/admin/service-log`, owner only)**: successes and failures of AI, mail, GitHub, and scheduled job calls.
 - **Post · work lists**: instant publish toggle, bulk selection, reordering, trash (restore, extend the deadline), `.md` upload and export ([md-content-guide.md](../md-content-guide.md), Korean).
-- **Editor**: Markdown ↔ Rich Text switch, slash menu, poll · tabs · calendar · diagram · code playground · mermaid blocks, auto translation, cover image picker (presets, repository images, Unsplash, Pexels, AI, history), SEO check, preview. Syntax and shortcuts are in [editor-guide.md](./editor-guide.md).
+- **Editor**: Markdown ↔ Rich Text switch, slash menu, poll · tabs · calendar · diagram · code playground · mermaid blocks, auto translation, cover image picker (presets, repository images, Unsplash, Pexels, AI, history), auto-generated share card (title card) for posts without a cover, SEO check, preview. Syntax and shortcuts are in [editor-guide.md](./editor-guide.md).
 - **Saving**: autosave with revision history, diff and revert, a conflict check when the same post is edited in two tabs, scheduled publishing.
 - **Settings (`/admin/settings`)**: six tabs, General · Content · Library · Appearance · Services · Account. Only the owner opens the five tabs other than Account. What each tab holds is in the table in [Supabase setup](./supabase-setup.md#5-admin-login).
 - **Members**: The owner invites authors and editors by email. Authors can edit only their own posts and the works that list them as team members.
-- **Security**: 15-minute lock after 5 failures, mail approval for unknown devices, sign out of all devices.
+- **Security**: 15-minute lock after 5 failures, mandatory two-factor authentication (authenticator app) with an owner-only require switch, notices for unknown devices, sign out of all devices.
 
 ## Design system (`/design-system`)
 

@@ -295,6 +295,30 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
+    "name": "security_settings",
+    "columns": [
+      {
+        "name": "id",
+        "type": "int",
+        "pk": true,
+        "required": true,
+        "defaultValue": "1"
+      },
+      {
+        "name": "mfa_required",
+        "type": "boolean",
+        "required": true,
+        "defaultValue": "true"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "required": true,
+        "defaultValue": "now()"
+      }
+    ]
+  },
+  {
     "name": "comments",
     "columns": [
       {

@@ -34,10 +34,14 @@ flowchart TD
   login --> pw["Password (owner)"]
   gh --> cb{"/auth/callback<br/>owner · has role · invited?"}
   cb -->|no| deny["account deleted · back to sign-in"]
-  cb -->|yes| dash
-  pw --> dev{"approved device?"}
-  dev -->|no| mail["approval mail · sign in again"]
-  dev -->|yes| settings
+  cb -->|yes| mfa
+  pw --> mfa{"/admin/mfa<br/>two-factor (authenticator app)"}
+  mfa -->|"first time"| enroll["enroll via QR code → 6-digit code"]
+  mfa -->|"enrolled"| code["6-digit code"]
+  enroll --> next["to the next address"]
+  code --> next
+  next --> dash
+  next --> settings
   dash["Dashboard /admin<br/>traffic · notifications · reports · comments · service log"]
   dash --> plist["Posts /admin/posts"]
   dash --> wlist["Works /admin/works"]
@@ -49,7 +53,7 @@ flowchart TD
   tabs --> invite["Account tab: invite members (owner)"]
 ```
 
-- GitHub sign-in goes to the `next` address (default `/admin`). Password sign-in goes to `/admin/settings` when there is no `next`.
+- Either sign-in passes two-factor authentication before reaching admin pages (unless the owner turned off the requirement in Settings › Account › Security). GitHub sign-in goes to the `next` address (default `/admin`). Password sign-in goes to `/admin/settings` when there is no `next`.
 - When an author (level 1) opens an admin-only screen (dashboard, notifications, reports, comments), the proxy sends them to `/admin/posts`. Only the owner opens the service log.
 - Of the six settings tabs, only the owner opens the five other than Account. What each tab holds is in [Supabase setup](./supabase-setup.md#5-admin-login).
 - The editor autosaves and keeps revision history, and saving an unpublished post asks whether to publish now.

@@ -6,6 +6,8 @@ import { getPendingInvite, consumeInvite } from "@/lib/api/authorInvites";
 import { ensureOwnerRole } from "@/lib/api/ownerBootstrap";
 import { ensureAuthorProfile } from "@/lib/api/ensureAuthorProfile";
 import { getUserRole } from "@/lib/api/roles";
+import { recordDevice, sendNewDeviceEmail } from "@/lib/auth/knownDevices";
+import { getIp } from "@/utils/getIp";
 
 /**
  * OAuth(GitHub 등) 콜백 — provider 리다이렉트가 `?code=` 를 들고 돌아오면 세션으로 교환한다.
@@ -84,6 +86,14 @@ export async function GET(request: Request) {
     try {
       if (await ensureAuthorProfile(admin, user)) await supabase.auth.refreshSession();
     } catch { /* 프로필 생성 실패해도 로그인 자체는 진행 */ }
+
+    // 기기 기록 · 새 기기 알림 — 비밀번호 로그인(/api/admin/auth)과 같게. 막는 일은 2단계 인증(proxy → /admin/mfa)
+    try {
+      const userAgent = request.headers.get("user-agent") ?? "";
+      const ip = getIp(request);
+      const device = await recordDevice({ userId: user.id, userAgent, ip });
+      if (device.isNew) await sendNewDeviceEmail({ to: user.email, userAgent, ip });
+    } catch { /* 기록 실패해도 로그인 자체는 진행 */ }
   }
 
   return NextResponse.redirect(`${origin}${next}`);

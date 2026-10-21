@@ -11,42 +11,64 @@ flowchart TD
   req["Browser request"] --> proxy{"proxy<br/>src/proxy.ts"}
   proxy -->|"POST · PATCH · PUT · DELETE on /api/*<br/>Origin/Referer is not SITE_URL or the blog host"| r403["403"]
   proxy -->|"/admin/* · /api/admin/*<br/>no signed-in user"| rlogin["Page: /admin/login<br/>API: 401"]
+  proxy -->|"aal1 session (before 2FA)"| rmfa["Page: /admin/mfa<br/>API: 403 MFA_REQUIRED"]
   proxy -->|"an author opens an admin-only page"| rposts["redirect to /admin/posts"]
   proxy -->|pass| route{"Route guard<br/>requireAuth · requireRole · requireOwner · requirePostAccess"}
   route -->|"no session"| r401["401"]
+  route -->|"aal1 session"| r403m["403 MFA_REQUIRED"]
   route -->|"role · level in app_metadata too low"| r403b["403"]
   route -->|pass| client{"Supabase query"}
-  client -->|"session client"| rls["RLS policies<br/>app_role() · app_level() · app_author_id()<br/>= app_metadata in the JWT"]
+  client -->|"session client"| rls["RLS policies<br/>app_role() · app_level() · app_author_id()<br/>= app_metadata in the JWT (aal2 only)"]
   client -->|"service_role (server only)"| bypass["bypasses RLS<br/>aggregates · access lookups · public writes"]
   rls --> db[("Postgres")]
   bypass --> db
 ```
 
-- The proxy checks the origin of write requests to `/api/*`. Requests from localhost and dev mode pass. In a deployed environment with an empty `SITE_URL`, all of them are blocked.
+- The proxy checks the origin of write requests to `/api/*`. A localhost Origin passes only outside Vercel production. In a deployed environment with an empty `SITE_URL`, all of them are blocked.
 - Route guards re-read `app_metadata` on every request. Role values sent by the client are never used.
-- The RLS helpers (`app_role` · `app_level` · `app_author_id`) live in `supabase/setup.sql`. `is_admin()` means owner or permission level 2+, `can_edit_post()` means owner, level 2+, or an author listed in the post's `author_ids`, and `can_edit_work()` means an admin or an author listed in `team_members`.
+- The RLS helpers (`app_role` · `app_level` · `app_author_id`) live in `supabase/setup.sql` and read claims through `app_claims()`, which only returns them for an aal2 session (or aal1 too when require-2FA is off). `is_admin()` means owner or permission level 2+, `can_edit_post()` means owner, level 2+, or an author listed in the post's `author_ids`, and `can_edit_work()` means an admin or an author listed in `team_members`.
 
 ### Admin password sign-in
 
-`POST /api/admin/auth` revokes the session right away on an unknown device, even with the right password.
+A session made with a password (or GitHub) is `aal1`. Admin pages and APIs only accept an `aal2` session, one that has also been verified with an authenticator code.
 
 ```mermaid
 flowchart TD
-  start["POST /api/admin/auth"] --> lock{"Locked?<br/>admin_login_attempts"}
+  start["POST /api/admin/auth"] --> ip{"over 20 per 10 min from this IP?"}
+  ip -->|yes| r429["429 AUTH_RATE_LIMITED"]
+  ip -->|no| lock{"Locked?<br/>admin_login_attempts (lowercased email)"}
   lock -->|yes| r423["423 with remaining time"]
   lock -->|no| pw{"signInWithPassword"}
   pw -->|fail| fail["failure count +1<br/>5th failure locks for 15 minutes"]
-  fail --> r401["401 attempts left · 423"]
+  fail --> r401["401 invalid_credentials · 423"]
   pw -->|success| clear["clear failure record"]
-  clear --> dev{"device fingerprint<br/>admin_known_devices"}
-  dev -->|approved device| ok["200 signed in"]
-  dev -->|unknown device| out["signOut + approval mail<br/>(token valid 24 hours)"]
-  out --> r202["202 device_pending"]
-  r202 -. mail link .-> approve["/api/admin/auth/approve-device<br/>approved = true"]
-  approve -. sign in again .-> start
+  clear --> dev["record device in admin_known_devices<br/>new device: notice mail + admin notification (not blocked)"]
+  dev --> aal1["200 — aal1 session"]
+  aal1 --> proxy{"proxy: /admin/* request"}
+  proxy -->|aal1| mfa["/admin/mfa?next=path"]
+  mfa -->|"no authenticator yet"| enroll["enroll via QR code → 6-digit code"]
+  mfa -->|"already enrolled"| verify["verify 6-digit code"]
+  enroll --> aal2["aal2 session → go to next"]
+  verify --> aal2
 ```
 
-The device fingerprint hashes only the browser, OS, and device type parsed from the UA. A browser auto-update is still the same device. GitHub OAuth sign-in does not take this path. It goes through the authorization gate in `/auth/callback` (below).
+Every failure gets the same `invalid_credentials` reason, so the response never reveals whether an account exists. The device fingerprint hashes only the browser, OS, and device type parsed from the UA, and is now only a history and notification record; it never blocks a sign-in. GitHub OAuth sign-in goes through the authorization gate in `/auth/callback` (below) and is recorded too. Both paths end at `aal1` and go through the same two-factor step.
+
+#### Three layers enforcing two-factor authentication
+
+The old new-device email approval only ran inside our login API, so signing in directly against Supabase Auth (`/auth/v1/token`) or through GitHub skipped it. Now every request checks the session level (`src/lib/auth/mfa.ts`).
+
+| Layer | Behavior |
+|----|------|
+| proxy (`src/proxy.ts`) | An aal1 session on an `/admin/*` page is redirected to `/admin/mfa?next=<path>`; `/api/admin/*` returns 403 `MFA_REQUIRED`. Only `/admin/mfa` and `/api/admin/auth/mfa` are exempt |
+| `requireAuth` | Every other admin API also returns 403 `MFA_REQUIRED` for aal1 |
+| RLS | `app_role()` · `app_level()` · `app_author_id()` read claims through `app_claims()`, which returns `app_metadata` only when the JWT `aal` claim is `aal2`. An aal1 session gets only public policies, like an anonymous visitor. The `cover_image_history` policy also requires `is_member()` (`2026_10_22_rls_require_aal2.sql`) |
+
+`/api/admin/auth/mfa` handles status (GET), enrollment (`{action:"enroll"}` — clears unverified factors and returns the QR code and secret), verification (`{action:"verify", factorId, code}` — 10 per 10 minutes per account), removal (DELETE, aal2 only, the last factor is refused with `MFA_LAST_FACTOR`) and the require switch (PUT `{required}`). Settings › Account › Security lists authenticator apps to add (`/admin/mfa?add=1`) or remove, and recommends registering two (phone + password manager).
+
+**Require-2FA switch:** "Require two-factor authentication" on the same screen (on by default) can only be changed by an owner with an aal2 session. The value lives in the one-row `security_settings` table (`id = 1`, `mfa_required`), read by the SECURITY DEFINER function `mfa_required()` (a missing row means true). The app reads it with `rpc("mfa_required")` and treats errors as required (fail-closed). When off, all three layers accept aal1 sessions. Keeping it on is recommended.
+
+**If every authenticator is lost:** run `delete from auth.mfa_factors where user_id = '<user id>';` in the Supabase SQL Editor, then sign in and enroll again.
 
 | Security Layer | Implementation | Scope |
 |------------|-----------|----------|
@@ -58,7 +80,7 @@ The device fingerprint hashes only the browser, OS, and device type parsed from 
 | **RLS** | Policy helpers reading the JWT (`app_metadata`) decide access per role + anon write GRANTs revoked + direct Storage upload policy removed (below) | All tables, Storage |
 | **Route Protection** | The proxy checks sign-in and per-page permission first, then the Dashboard layout checks the session again (access denied page if missing) | `/admin/*` |
 | **CSRF origin check** | The proxy (`src/proxy.ts`) compares Origin/Referer on every `/api/*` POST/PATCH/PUT/DELETE against the origins of `SITE_URL` and the blog host. A mismatch or an unparsable value means 403 (fail-closed). GET is skipped | All API write requests |
-| **Login protection** | 15-minute lockout after 5 failures (`admin_login_attempts`) + logins from unseen devices are denied until approved by email (`admin_known_devices`, UA fingerprint + 24-hour token) + sign-out-everywhere | `/api/admin/auth` |
+| **Login protection** | 15-minute lockout after 5 failures (`admin_login_attempts`) + 20 attempts per 10 minutes per IP + two-factor authentication (authenticator app, aal2 sessions only) + new-device notices (`admin_known_devices`) + sign-out-everywhere | `/api/admin/auth`, `/admin/*`, `/api/admin/*`, RLS |
 | **Role-based authorization** | Four tiers: owner (full control) / admin (all posts + moderation) / author (own posts only) / visitor (public only) + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
 | **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account. When `OWNER_EMAIL` is unset, the account is kept and only a config error is shown (prevents bootstrap lockout) | GitHub OAuth login |
 | **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below). The view log counts the same IP and path once per 30 minutes (`record_page_view`) | Likes, votes, comment reactions, view log |
@@ -157,8 +179,11 @@ The comparison base is normalized with `new URL(SITE_URL).origin`. Request Origi
 
 | Mechanism | Behavior |
 |-----------|----------|
-| Failure lockout | 15-minute lockout after 5 failures (`admin_login_attempts`). Auto-released on the next attempt once the window passes; the row is deleted on success |
-| New-device approval | The fingerprint hashes only the parsed browser+OS+device from the UA (`admin_known_devices`) — version changes are ignored, so browser auto-updates do not create duplicate rows. An unseen fingerprint gets an approval token (valid 24 hours) sent by email, and until approved, login is denied even with the correct password |
+| Failure lockout | 15-minute lockout after 5 failures (`admin_login_attempts`, keyed by the lowercased email). Auto-released on the next attempt once the window passes; the row is deleted on success. Every failure returns the same `invalid_credentials` |
+| Per-IP limit | 20 attempts per 10 minutes from one IP, then 429 `AUTH_RATE_LIMITED` |
+| Two-factor authentication | A password sign-in only produces an aal1 session. Verifying an authenticator code makes it aal2, and the proxy, `requireAuth` and RLS accept only aal2 (see "Three layers enforcing two-factor authentication" above) |
+| New-device notice | The fingerprint hashes only the parsed browser+OS+device from the UA (`admin_known_devices`) — version changes are ignored, so browser auto-updates do not create duplicate rows. An unseen device triggers a notice email and an admin notification but is not blocked. GitHub sign-ins are recorded too |
+| Sign out | `DELETE /api/admin/auth` signs out this browser only (`scope: "local"`) |
 | Sign out everywhere | `signOut({ scope: "global" })` — Supabase broadcasts auth state across tabs, so every open tab drops to the login screen immediately |
 
 **RLS — from service-role bypass to policy-based authorization:**

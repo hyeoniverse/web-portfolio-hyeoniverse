@@ -69,9 +69,8 @@ The config is [`playwright.config.ts`](../../playwright.config.ts), and the spec
 The `admin` · `api-auth` projects need a signed-in session.
 
 1. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local`. Use the owner (`OWNER_EMAIL`) account. A newly created account has no role in `app_metadata` and cannot enter the admin screens.
-2. Run `npm run test:smoke:admin`. The first run fails while waiting for new-device approval.
-3. In Supabase Table Editor → `admin_known_devices`, set `approved` to `true` on the row just created. That is all the approval mail link does, so receiving the mail is not needed.
-4. Run it again. It passes and the session is saved to `e2e/.auth/admin.json`. The file holds auth tokens and is in `.gitignore`.
+2. A session from a password sign-in alone is aal1, so admin pages redirect to `/admin/mfa`. In Settings › Account, use **Add authenticator** to register one more authenticator just for e2e, and put the key shown under the QR code into `E2E_TOTP_SECRET` in `.env.local`. The setup computes the 6-digit code from it (RFC 6238). The key is the authenticator itself, so keep it inside `.env.local` and remove that authenticator in settings once you stop using it.
+3. Run `npm run test:smoke:admin`. The session is saved to `e2e/.auth/admin.json`. The file holds auth tokens and is in `.gitignore`.
 
 ## Pre-commit checks
 

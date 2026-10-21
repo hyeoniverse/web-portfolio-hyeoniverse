@@ -44,7 +44,6 @@ export const PUBLIC_OK: ApiRoute[] = [
 
 /** 공개지만 필수 파라미터가 없으면 400 을 주는 라우트. */
 export const PUBLIC_NEEDS_PARAM: string[] = [
-  "/api/admin/auth/approve-device",
   "/api/comment-reactions",
   "/api/comments",
   "/api/work-comments",
@@ -54,6 +53,7 @@ export const PUBLIC_NEEDS_PARAM: string[] = [
 export const PROTECTED_GET: string[] = [
   "/api/admin/account",
   "/api/admin/auth/devices",
+  "/api/admin/auth/mfa",
   "/api/admin/authors/context",
   "/api/admin/authors/github-profile",
   "/api/admin/authors/invite",

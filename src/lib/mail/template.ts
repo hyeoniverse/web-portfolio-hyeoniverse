@@ -1,4 +1,4 @@
-/** 공통 이메일 레이아웃 — approve-device 페이지와 동일 분위기.
+/** 공통 이메일 레이아웃 — 오류 화면(app/error.tsx)과 같은 분위기.
  *  Google Fonts (Space Grotesk + Instrument Serif), 다크/라이트 자동.
  *  capsule 버튼, 가운데 정렬 카드형 (이메일 컨테이너 안). */
 

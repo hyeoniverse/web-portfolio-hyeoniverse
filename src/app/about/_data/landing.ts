@@ -30,7 +30,7 @@ export const trust = {
       points: [
         { ko: "RLS 로 DB 가 권한 판정", en: "RLS decides permissions in the database" },
         { ko: "쓰기 요청 Origin 확인(운영 fail-closed)", en: "Origin check on writes (fail-closed in production)" },
-        { ko: "로그인 5회 실패 잠금 · 새 기기 메일 승인", en: "Lockout after 5 failures · new-device email approval" },
+        { ko: "로그인 5회 실패 잠금 · 2단계 인증(OTP 앱)", en: "Lockout after 5 failures · two-factor auth (OTP app)" },
       ],
     },
     {

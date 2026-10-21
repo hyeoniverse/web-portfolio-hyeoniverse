@@ -2,14 +2,14 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 200,
+  "total": 203,
   "routeFiles": 140,
   "access": {
-    "public": 69,
-    "signed-in": 60,
+    "public": 70,
+    "signed-in": 61,
     "author": 28,
     "admin": 16,
-    "owner": 25,
+    "owner": 26,
     "cron": 2
   },
   "tables": [
@@ -30,6 +30,7 @@ export const apiMap: ApiMap = {
     "post_work_relations",
     "posts",
     "revisions",
+    "security_settings",
     "series",
     "series_work_relations",
     "site_settings",
@@ -38,6 +39,7 @@ export const apiMap: ApiMap = {
     "works"
   ],
   "rpcs": [
+    "mfa_required",
     "page_view_stats",
     "page_view_totals",
     "publish_scheduled",
@@ -321,6 +323,79 @@ export const apiMap: ApiMap = {
         "author": 8,
         "admin": 0,
         "owner": 0,
+        "cron": 0
+      }
+    },
+    {
+      "key": "admin/auth",
+      "files": 5,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/admin/auth",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/admin/auth",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/api/admin/auth/devices",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/admin/auth/devices/[id]",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/auth/logout-all",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/api/admin/auth/mfa",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/auth/mfa",
+          "access": "public"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/admin/auth/mfa",
+          "access": "owner"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/admin/auth/mfa",
+          "access": "signed-in"
+        }
+      ],
+      "tables": [
+        "admin_known_devices",
+        "admin_login_attempts",
+        "admin_notifications",
+        "security_settings",
+        "site_settings"
+      ],
+      "rpcs": [
+        "mfa_required",
+        "rate_limit_hit"
+      ],
+      "services": [
+        "mail"
+      ],
+      "access": {
+        "public": 4,
+        "signed-in": 4,
+        "author": 0,
+        "admin": 0,
+        "owner": 1,
         "cron": 0
       }
     },
@@ -682,60 +757,6 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 6,
         "signed-in": 1,
-        "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "admin/auth",
-      "files": 5,
-      "endpoints": [
-        {
-          "method": "POST",
-          "path": "/api/admin/auth",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/admin/auth",
-          "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/admin/auth/approve-device",
-          "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/admin/auth/devices",
-          "access": "signed-in"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/admin/auth/devices/[id]",
-          "access": "signed-in"
-        },
-        {
-          "method": "POST",
-          "path": "/api/admin/auth/logout-all",
-          "access": "signed-in"
-        }
-      ],
-      "tables": [
-        "admin_known_devices",
-        "admin_login_attempts",
-        "admin_notifications",
-        "site_settings"
-      ],
-      "rpcs": [],
-      "services": [
-        "mail"
-      ],
-      "access": {
-        "public": 3,
-        "signed-in": 3,
         "author": 0,
         "admin": 0,
         "owner": 0,
@@ -1563,6 +1584,7 @@ export const apiMap: ApiMap = {
         }
       ],
       "tables": [
+        "admin_known_devices",
         "admin_notifications",
         "author_invites",
         "calendars",
@@ -1588,6 +1610,7 @@ export const apiMap: ApiMap = {
         "translate",
         "tts",
         "storage",
+        "mail",
         "github",
         "weather",
         "fonts"
