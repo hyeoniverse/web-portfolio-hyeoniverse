@@ -1,0 +1,25 @@
+/* 높이 조절 손잡이 — 대상 바로 아래 붙는 얇은 띠, 가운데에 짧은 막대. 올리거나 초점이 오면 막대가 진해진다 */
+@layer components {
+  .handle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--spacing-16);
+    cursor: ns-resize;
+    touch-action: none;
+    border-radius: var(--radius-control);
+  }
+
+  .grip {
+    width: var(--size-40);
+    height: var(--size-4);
+    border-radius: var(--radius-full);
+    background: var(--border-color-control);
+    transition: background var(--duration-fast) var(--ease-standard);
+  }
+
+  .handle:hover .grip,
+  .handle:focus-visible .grip {
+    background: var(--text-primary);
+  }
+}

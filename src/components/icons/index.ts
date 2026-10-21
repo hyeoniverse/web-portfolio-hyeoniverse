@@ -151,6 +151,7 @@ export {
   Palette,
   PanelLeft,
   PanelLeftClose,
+  PanelRight,
   PanelTop,
   Paperclip,
   Pause,

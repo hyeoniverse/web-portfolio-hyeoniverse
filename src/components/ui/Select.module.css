@@ -119,6 +119,37 @@
   pointer-events: none;
 }
 
+/* 입력 모드 — 단추와 같은 상자. 초점은 상자 테두리로 */
+.triggerEditing {
+  cursor: text;
+}
+
+.triggerEditing:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* 입력칸은 폭 계산에서 뺀다(자기 기본 폭 20자를 끌어들이지 않게) — 폭은 옆의 sizer 들이 정하고 입력칸은 그 자리를 채운다 */
+.triggerEditing .valueStack {
+  position: relative;
+}
+
+.editInput {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  outline-color: transparent;
+}
+
+.editInput::placeholder {
+  color: var(--text-tertiary);
+}
+
 .arrow {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -204,6 +235,12 @@
   transition:
     opacity var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
+}
+
+/* 편집 화면 안 — 불투명 표면 */
+.dropdownSolid {
+  background: var(--bg-primary);
+  backdrop-filter: none;
 }
 
 .dropdownOpen {

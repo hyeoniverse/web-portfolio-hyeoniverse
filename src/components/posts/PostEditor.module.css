@@ -17,13 +17,13 @@
 .presenceBanner svg { flex-shrink: 0; }
 
 /* Meta fields — open, breathing */
+/* 본문 열 머리 — 제목 하나. 주소 · 분류 같은 칸은 속성 패널로 옮겨, 예전 아래 테두리는 제목 밑줄과 겹쳤다 */
 .meta {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  padding-bottom: var(--spacing-24);
-  margin-bottom: var(--spacing-24);
-  border-bottom: var(--border-light);
+  /* 제목 → 본문은 묶음 → 묶음 40 (docs/editor-ui.md 2-4) */
+  margin: var(--spacing-8) 0 var(--spacing-40);
 }
 
 /* title + slug + 예약 발행 묶음 — meta 의 spacing-xl gap 보다 작게 (관련 필드라 가까이) */
@@ -33,10 +33,38 @@
   gap: var(--spacing-12);
 }
 
+/* 속성 패널 — 상단 고정 확인란과 주소 · 분류 · 작성자 칸, 선택 입력 묶음을 세로로 */
+.properties {
+  display: flex;
+  flex-direction: column;
+  /* 칸 → 칸 24 (docs/editor-ui.md 2-4) — 예전엔 4 에 칸마다 덧댄 여백이라 4 · 16 · 20 으로 들쭉날쭉했다 */
+  gap: var(--spacing-24);
+}
+
+/* 속성 패널 안의 선택 입력 — 상자 대신 위 구분선 하나. 패널 안에 둥근 테두리 상자가 또 있으면 칸들과 모양이 달라 보였고,
+   접혀 있어도 안쪽 여백만큼 빈 자리가 남았다 */
+.properties .optionalSection {
+  border: none;
+  border-top: var(--border-light);
+  border-radius: 0;
+}
+
+.properties .optionalToggle,
+.properties .optionalContent,
+.properties .optionalAlways {
+  padding-inline: 0;
+}
+
+.properties .optionalContent:not(.optionalContentOpen) {
+  padding-block: 0;
+}
+
+/* 적는 칸은 밑줄(docs/editor-ui.md 2-1) — 아래 선 하나가 경계(대비 3:1 인 control 색). 초점이면 진해진다 */
 .excerptInput {
-  padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  padding: var(--spacing-8) 0;
+  border: none;
+  border-bottom: var(--border-control);
+  border-radius: 0;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -159,9 +187,12 @@
   background: transparent;
   font: var(--font-label-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   cursor: pointer;
+}
+
+/* 접어도 늘 보이는 칸(시리즈) */
+.optionalAlways {
+  padding: 0 var(--spacing-16) var(--spacing-16);
 }
 
 .optionalSection .optionalToggle:hover {
@@ -221,7 +252,7 @@
   align-items: stretch;
   width: fit-content;
   max-width: 100%;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   overflow: hidden;
   /* 아래 태그 설명(TagNotesEditor)과 간격 확보 */
@@ -350,8 +381,8 @@
 .editorSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
-  margin-bottom: var(--spacing-24);
+  /* 머리줄 → 편집기 → 첨부 패널, 칸 → 칸 24 */
+  gap: var(--spacing-24);
 }
 
 /* ── Editor wrap (resizable) ── */
@@ -362,10 +393,9 @@
   z-index: 0;
   display: flex;
   flex-direction: column;
-  /* 기본 높이 — 한 화면에서 본문이 충분히 보이게. 아래 모서리로 끌어 바꿀 수 있다 */
+  /* 기본 높이 — 한 화면에서 본문이 충분히 보이게. 아래 손잡이(ResizeHandle)로 끌어 바꾼다 */
   height: 78vh;
   min-height: 320px;
-  resize: vertical;
   overflow: hidden;
   opacity: 1;
   transition: opacity var(--duration-fast) var(--ease-standard);
@@ -420,9 +450,7 @@
 
 /* 첨부 이미지 패널 — 에디터 섹션 아래 별개 영역 */
 .attachedImagesSection {
-  padding-bottom: var(--spacing-24);
-  margin-bottom: var(--spacing-24);
-  border-bottom: var(--border-light);
+  min-width: 0;
 }
 
 /* SEO 체크리스트 [data-seo] label 스타일은 PostEditor.global.css 로 이동
@@ -437,8 +465,6 @@
 .editorLabel {
   font: var(--font-label-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .editorLabelError {
@@ -450,12 +476,13 @@
   margin-left: var(--spacing-4);
 }
 
+/* 본문 머리의 단추 — 편집 화면의 다른 단추 · 입력과 같은 높이(md) */
 .templateBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-sm);
-  padding: 0 var(--control-padding-inline-sm);
-  border: var(--border-light);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-md);
+  border: var(--border-strong);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
@@ -469,11 +496,11 @@
 }
 
 .editorHelpBtn {
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   flex-shrink: 0;
   border-radius: var(--radius-full);
-  border: var(--border-light);
+  border: var(--border-strong);
   background: transparent;
   font: var(--font-label-sm);
   color: var(--text-primary);

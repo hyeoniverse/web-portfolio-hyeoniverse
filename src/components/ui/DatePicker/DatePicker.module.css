@@ -36,7 +36,7 @@
 .formatSegment {
   display: flex;
   width: fit-content;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   overflow: hidden;
 }
@@ -70,6 +70,9 @@
 .dateRows {
   /* flex item 이 다음 줄로 떨어지도록 width 100% */
   flex-basis: 100%;
+  /* 줄 배치는 화면이 아니라 이 칸의 폭으로 정한다 — 넓은 화면의 좁은 속성 패널에서도 화면 기준(>480)으로 한 줄에 우겨져
+     연 · 월 · 일 · 달력 단추가 패널 밖으로 넘쳐 잘렸다 */
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-12) var(--spacing-16);
@@ -93,7 +96,8 @@
   flex: 1 1 auto;
 }
 
-@media (width > 480px) {
+/* 라벨 옆에 연 · 월 · 일 · 달력 묶음(약 330px)이 들어갈 만큼 넓을 때만 한 줄 */
+@container (width > 400px) {
   .dateRow {
     flex-wrap: nowrap;
     min-width: 280px;
@@ -134,44 +138,9 @@
   min-width: 0;
 }
 
-/* 연·월·일 칸의 너비를 값과 무관하게 고정한다 — 내용에 맞춰 늘면 값을 넣는 순간 칸이 들썩이고,
-   옆 칸까지 밀린다. 안내 글(YYYY·MM)과 값(2024·03) 어느 쪽이 들어와도 같은 너비다 */
-.datePart {
-  width: 76px;
-}
-
-.datePartYear {
-  width: 96px;
-}
-
-/* 칸 안의 단추·입력은 칸 폭을 넘지 않는다 — 빈 칸은 입력 모드(input)로 시작하는데 input 기본 폭이 칸보다 넓어
-   옆 칸과 겹쳤고, 단추도 글자 폭만큼 칸 밖으로 3~4px 삐져나와 옆 구분점이 한쪽에 붙어 보였다 */
-.datePart.datePart input,
-.datePart.datePart button {
-  width: 100%;
-  min-width: 0;
-}
-
-/* 연·월·일 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
+/* 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
 .dateInputs > * {
   flex: 0 0 auto;
-}
-
-.yearInput {
-  width: 60px;
-  height: var(--_dp-h, var(--control-height-sm));
-  padding: 0 var(--spacing-8);
-  border: var(--border-control);
-  border-radius: var(--radius-control);
-  background: transparent;
-  font: var(--font-body-md);
-  color: var(--text-primary);
-  text-align: center;
-  outline-color: transparent;
-}
-
-.yearInput:focus {
-  border-color: var(--text-primary);
 }
 
 /* textEdit 모드 — 값이 있을 때 테두리 없는 텍스트로 표시 (더블클릭으로 편집) */
@@ -190,8 +159,132 @@
   background: var(--bg-tertiary-alt);
 }
 
-.yearInput:disabled {
+/* 날짜 · 시간 트리거(DateTimePicker) — 두 칸을 한 줄에: 날짜는 남은 폭, 시간은 제 폭 */
+.dtTriggers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+.dtTriggers > .pickerAnchor {
+  min-width: 0;
+}
+
+/* 셀렉트 트리거와 같은 모양 — 아이콘 + 값, 높이는 컨트롤 높이(범위 안이면 md) */
+.dtTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  height: var(--_dp-h, var(--control-height-md));
+  padding: 0 var(--spacing-16) 0 var(--spacing-12);
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+  background: transparent;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: left;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.dtTrigger:hover:not(:disabled),
+.dtTrigger[aria-expanded="true"] {
+  border-color: var(--text-primary);
+}
+
+.dtTrigger:disabled {
   opacity: var(--opacity-disabled);
+}
+
+.dtTriggerEmpty {
+  color: var(--text-tertiary);
+}
+
+.dtTriggerIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+/* 날짜 칸 — 이어서 적는 글 하나 + 그 뒤에 겹친 입력 틀(남은 YYYY.MM.DD). 편집 화면은 밑줄, 그 밖은 알약.
+   폭은 형식의 틀만큼, 숫자는 고정폭이라 값이 바뀌어도 칸이 들썩이지 않는다 */
+.dateField {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: var(--_dp-h, var(--control-height-md));
+  box-sizing: border-box;
+  border-bottom: var(--border-control);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.dateField[data-variant="capsule"] {
+  padding: 0 var(--spacing-16);
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+}
+
+.dateField:focus-within {
+  border-color: var(--text-primary);
+}
+
+.dateField[data-invalid] {
+  border-color: var(--text-accent);
+}
+
+.dateField[data-disabled] {
+  opacity: var(--opacity-disabled);
+}
+
+.dateFieldInput,
+.dateFieldMask {
+  font: var(--font-body-md);
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+
+.dateFieldInput {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  outline-color: transparent;
+}
+
+/* 틀 — 입력 글자와 같은 자리 · 같은 글꼴로 겹쳐, 적은 글 뒤에 남은 틀만 옅게 보인다 */
+.dateFieldMask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: inherit;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.dateFieldTyped {
+  visibility: hidden;
+}
+
+.dateText_year {
+  width: calc(5ch + var(--spacing-32));
+}
+
+.dateText_yearMonth {
+  width: calc(8ch + var(--spacing-32));
+}
+
+.dateText_date {
+  width: calc(11ch + var(--spacing-32));
+}
+
+.dateText_dateTime {
+  width: calc(17ch + var(--spacing-32));
 }
 
 /* 날짜 묶음·시각 묶음 — 안에서는 줄을 바꾸지 않는다 */
@@ -203,30 +296,10 @@
   gap: var(--spacing-2);
 }
 
-@media (width > 480px) {
+@container (width > 400px) {
   .dateGroup {
     gap: var(--spacing-4);
   }
-}
-
-/* 날짜와 시각 사이 — "시간" 라벨. 시작·종료 라벨과 같은 모양, 앞쪽을 조금 더 띄운다 */
-.dateTimeLabel {
-  display: inline-flex;
-  align-items: center;
-  height: var(--_dp-h, var(--control-height-sm));
-  margin-right: var(--spacing-2);
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-}
-
-/* 연·월·일 사이 점 — 글자 "·" 는 점이 글자 칸 왼쪽에 그려져 왼쪽 칸에 붙어 보였다. 가운데 점을 직접 그린다 */
-.dateDot {
-  flex-shrink: 0;
-  width: 3px;
-  height: 3px;
-  margin-inline: var(--spacing-2);
-  border-radius: var(--radius-full);
-  background: var(--text-tertiary);
 }
 
 .dateSep {

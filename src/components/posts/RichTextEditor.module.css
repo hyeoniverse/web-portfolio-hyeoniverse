@@ -24,7 +24,10 @@
   padding: var(--spacing-4);
   border: none;
   border-radius: 0;
-  background: var(--bg-tertiary);
+  /* 종이 바탕 그대로(docs/editor-ui.md 2-2) — 회색 판을 깔면 테두리 상자 안에 면이 한 겹 더 생겼다.
+     붙어 있는 막대가 본문 위로 지나가니 투명이 아니라 바탕색으로 덮는다 */
+  background: var(--bg-primary);
+  /* 아래 선은 두지 않는다 — 본문(편집 영역)의 위 선이 경계다. 둘 다 있으면 2px 로 굵어 보였다 */
   overflow: visible;
   position: relative;
   z-index: var(--z-index-float); /* 페이지에 붙은 툴바 — 편집 내용 위(3.10-2) */
@@ -1319,9 +1322,10 @@
   border: none;
   border-top: var(--border-light);
   border-radius: 0;
-  background: var(--bg-tertiary);
+  /* 종이 바탕 그대로 — 도구 막대와 같이 회색 판을 걷었다(docs/editor-ui.md 2-2) */
+  background: var(--bg-primary);
   font: var(--font-code-xs);
-  /* 글자·단어 수 — bg-tertiary 위에서 muted(neutral-600)는 WCAG AA(4.5:1) 미달이라 secondary 로 */
+  /* 글자·단어 수 — 작은 고정폭 글자라 muted 보다 한 단계 진한 secondary 로 */
   color: var(--text-secondary);
 }
 /* 상태 줄의 공백 포함 체크박스 — 줄 왼쪽 끝(수치는 오른쪽 그대로), 수치와 같은 크기로 */

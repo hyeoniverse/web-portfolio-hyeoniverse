@@ -106,8 +106,15 @@ export interface AdminEditorShellProps {
   aiSummaryDisabled?: boolean;
   /** lang 마다 다른 라벨/필드를 갖는 현재 snapshot 빌더. revisionLang 변경 시 즉시 재계산. */
   getCurrentSnapshot?: (lang: "ko" | "en") => { title: string; subtitle?: string; excerpt?: string; content?: string; meta?: RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } };
+  /** 상단 바 왼쪽, 발행 상태 칩 옆에 붙는 것 */
   topBarSecondRowLeft?: ReactNode;
+  /** 상단 바 왼쪽, 뒤로 가기 옆에 붙는 것 */
   topBarFirstRowExtra?: ReactNode;
+  /** 오른쪽 속성 패널 — slug · 분류 같은 칸. 있으면 본문 | 속성 2단이 되고, 좁은 화면에서는 상단 바의
+   *  "속성" 단추로 여는 서랍이 된다. 없으면 지금처럼 한 단 */
+  sidebar?: ReactNode;
+  /** 2단 아래 전체 폭 — 갤러리 · 팀원처럼 넓어야 편한 칸. sidebar 가 있을 때만 의미가 있다 */
+  wide?: ReactNode;
   /** 커버 배너 — topBar 위 최상단(전역 nav 바로 아래)에 렌더. 이게 있으면 페이지가 커버를 지나 스크롤되며 topBar 가 sticky 로 붙음. */
   coverSlot?: ReactNode;
   /** 예약 발행 값 — ISO string 또는 null. */

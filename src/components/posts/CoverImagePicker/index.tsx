@@ -14,6 +14,7 @@ import PexelsTab from "./PexelsTab";
 import AIGenerateTab from "./AIGenerateTab";
 import HistoryTab from "./HistoryTab";
 import { useHistory, type HistorySource } from "./useHistory";
+import { Clock } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
@@ -110,7 +111,7 @@ export default function CoverImagePicker({
         </div>
       )}
       <div className={styles.header}>
-        {/* preset / unsplash / ai 만 capsule 그룹 — history 는 독립 버튼 */}
+        {/* 고르는 곳 탭 — 고른 것만 밑줄 */}
         <div className={styles.tabs}>
           {tabs.filter((t) => t.key !== "history").map((tab) => (
             <Pressable noTapScale
@@ -122,20 +123,25 @@ export default function CoverImagePicker({
             </Pressable>
           ))}
         </div>
-        <Pressable noTapScale
-          className={`${styles.historyTab} ${activeTab === "history" ? styles.historyTabActive : ""}`}
-          onClick={() => setActiveTab("history")}
-        >
-          {tc("history")}
-          {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
-        </Pressable>
-        {/* 모바일은 bottom sheet — 위 grabber + backdrop 탭으로 닫는 게 기본 제스처라 X 는 군더더기다.
-            (Modal / Popover 의 bottom sheet 와 같은 규칙) */}
-        {!isMobile && (
-          <Tooltip content={tc("close")} placement="bottom">
-            <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
-          </Tooltip>
-        )}
+        {/* 오른쪽 끝 — 이력(같은 탭 모양) · 닫기 */}
+        <div className={styles.headerEnd}>
+          <Pressable noTapScale
+            className={`${styles.historyTab} ${activeTab === "history" ? styles.historyTabActive : ""}`}
+            onClick={() => setActiveTab("history")}
+            aria-pressed={activeTab === "history"}
+          >
+            <Clock size={14} strokeWidth={2} aria-hidden />
+            {tc("history")}
+            {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
+          </Pressable>
+          {/* 모바일은 bottom sheet — 위 grabber + backdrop 탭으로 닫는 게 기본 제스처라 X 는 군더더기다.
+              (Modal / Popover 의 bottom sheet 와 같은 규칙) */}
+          {!isMobile && (
+            <Tooltip content={tc("close")} placement="bottom">
+              <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
+            </Tooltip>
+          )}
+        </div>
       </div>
 
       <div className={styles.body} data-lenis-prevent>
@@ -227,7 +233,8 @@ export default function CoverImagePicker({
   }
 
   return (
-    <div className={`${styles.picker}${closing ? ` ${styles.pickerClosing}` : ""}`}>
+    /* data-wide-tool — 편집 화면의 속성 패널 안에서 열리면 패널이 넓어진다(AdminEditorShell 의 .layout:has) */
+    <div className={`${styles.picker}${closing ? ` ${styles.pickerClosing}` : ""}`} data-wide-tool>
       {pickerBody}
     </div>
   );

@@ -17,7 +17,8 @@ interface TimePickerPopoverProps {
   minuteStep?: number;
   /** trigger 아래 inline 으로 펼침 (absolute popover 대신). */
   inline?: boolean;
-  /** absolute 대신 portal(fixed)로 띄워 overflow 컨테이너(모달 스크롤 등)에 잘리지 않게. */
+  /** 맨 위 층(fixed)에 띄워 스크롤 상자(속성 패널 · 모달 등)에 잘리지 않게 — 기본 켜짐. false 면 trigger 아래 absolute.
+   *  예전 기본(absolute)은 좁은 속성 패널 안에서 판 오른쪽이 잘렸다 */
   portal?: boolean;
   /** spinner 초기 표시 형식 — 기본 "24" */
   defaultFormat?: "24" | "12";
@@ -25,7 +26,7 @@ interface TimePickerPopoverProps {
 
 /** 시:분 picker popover — DatePickerPopover와 동일 패턴 */
 export default function TimePickerPopover({
-  hour, minute, onSelect, onClose, minuteStep, inline = false, portal = false, defaultFormat,
+  hour, minute, onSelect, onClose, minuteStep, inline = false, portal = true, defaultFormat,
 }: TimePickerPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
   /* 포털 틀은 top layer(3.10-1) — 붙는 순간 띄운다. 좌표 측정보다 먼저라 숨은 채로 재지 않는다 */

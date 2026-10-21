@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
+import { splitRoleList } from "@/utils/teamRoles";
 // 역할 프리셋 — Select combobox 의 옵션. 직접 입력으로 자유로운 텍스트도 가능
 export const ROLE_PRESETS_KO = ["기획", "디자인", "프론트엔드", "백엔드", "풀스택", "데이터", "PM", "QA", "DevOps", "모바일"];
 
@@ -31,7 +32,7 @@ export function useRoleMultiPicker({
   const { t } = useLanguage();
   const [input, setInput] = useState("");
   const tokens = useMemo(
-    () => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []),
+    () => splitRoleList(value),
     [value],
   );
   const setTokens = useCallback((next: string[]) => onChange(next.join(", ")), [onChange]);

@@ -19,7 +19,7 @@ import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
 import { CHECKER_BG } from "../presets";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette, Clock } from "@/components/icons";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, Eraser, Quote, Code2, Link, ImageIcon, Video, Paperclip, Music, Table, Minus, Film, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette, Clock } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { DEFAULT_CALLOUT } from "../calloutTypes";
 import { AlignIcon } from "../icons";
@@ -37,6 +37,8 @@ import { readToolbarState, type TextStyleStore, type ToolbarMark } from "../hook
 import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger, _emojiPickerTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { ControlSizeScope } from "@/components/ui/controlSize";
+import { FieldVariantScope } from "@/components/ui/fieldVariant";
 
 interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -153,6 +155,11 @@ export default React.memo(function MainToolbar({
   const currentFontSizeNum = (state.markFontSize || domText.fontSize).replace("px", "");
 
   return (
+    /* 도구 막대 안은 한 높이(sm, 28px) — 편집 화면 전체가 md 범위라 글자 크기 · 줄 간격 · 목록 셀렉트만 32px 로
+       커져 28px 단추들과 줄이 어긋났다 */
+    <ControlSizeScope size="sm">
+    {/* 본문 도구 막대의 칸(링크 주소 등)은 편집 화면의 밑줄 범위를 따르지 않고 제 모양 그대로 */}
+    <FieldVariantScope variant={null}>
     <div className={styles.toolbar} data-editor-toolbar>
       {/* Undo / Redo */}
       <TBtn square onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>
@@ -162,6 +169,7 @@ export default React.memo(function MainToolbar({
         <Redo2 size={14} />
       </TBtn>
       <TBtn
+        square
         onClick={() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const m = (editor as any).getMarks();
@@ -172,7 +180,7 @@ export default React.memo(function MainToolbar({
         }}
         tooltip={t("editor.clearFormat")}
       >
-        Clear
+        <Eraser size={14} />
       </TBtn>
       <div className={styles.divider} />
 
@@ -459,20 +467,21 @@ export default React.memo(function MainToolbar({
         <SquareCheck size={14} strokeWidth={1.5} />
       </TBtn>
 
-      <TBtn active={blockType === "blockquote"} onClick={() => editor.tf.toggleBlock("blockquote")} tooltip={`${t("editor.blockquote")}\n${kb("⌘⇧B")}`}>Quote</TBtn>
-      <TBtn active={blockType === "code_block"} onClick={() => toggleCodeBlock(editor)} tooltip={`${t("editor.codeBlock")}\n${kb("⌘⌥C")}`}>Code</TBtn>
+      <TBtn active={blockType === "blockquote"} onClick={() => editor.tf.toggleBlock("blockquote")} tooltip={`${t("editor.blockquote")}\n${kb("⌘⇧B")}`} square><Quote size={14} /></TBtn>
+      <TBtn active={blockType === "code_block"} onClick={() => toggleCodeBlock(editor)} tooltip={`${t("editor.codeBlock")}\n${kb("⌘⌥C")}`} square><Code2 size={14} /></TBtn>
       <div className={styles.divider} />
 
       {/* Insert */}
       <TBtn
+        square
         active={showLinkInput}
         onClick={onToggleLinkInput}
         tooltip={`${t("editor.insertLink")}\n${kb("⌘K")}`}
       >
-        Link
+        <Link size={14} />
       </TBtn>
-      <TBtn onClick={onAddImage} tooltip={t("editor.insertImage")}>Image</TBtn>
-      <TBtn onClick={() => {
+      <TBtn square onClick={onAddImage} tooltip={t("editor.insertImage")}><ImageIcon size={14} /></TBtn>
+      <TBtn square onClick={() => {
         // 동영상 파일 업로드 → media_embed(video url) 삽입 (SlashMenu 와 동일)
         const fn = _imageUploadFn.current;
         if (!fn) return;
@@ -485,12 +494,12 @@ export default React.memo(function MainToolbar({
           try { const url = await fn(f); if (url) editor.tf.insertNodes({ type: "media_embed", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
         };
         input.click();
-      }} tooltip={t("editor.insertVideo")}>Video</TBtn>
-      <TBtn onClick={onAddFile} tooltip={t("editor.insertFile")}>File</TBtn>
-      <TBtn onClick={onAddAudio} tooltip={t("editor.insertAudio")}>Audio</TBtn>
+      }} tooltip={t("editor.insertVideo")}><Video size={14} /></TBtn>
+      <TBtn square onClick={onAddFile} tooltip={t("editor.insertFile")}><Paperclip size={14} /></TBtn>
+      <TBtn square onClick={onAddAudio} tooltip={t("editor.insertAudio")}><Music size={14} /></TBtn>
       <div className={styles.divider} />
       {/* 삽입 · 구조 — 표/레이아웃/블록 */}
-      <TBtn active={blockType === "table"} onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")}>Table</TBtn>
+      <TBtn active={blockType === "table"} onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")} square><Table size={14} /></TBtn>
       {([2, 3, 4] as const).map((cols) => (
         <TBtn
           square
@@ -544,7 +553,7 @@ export default React.memo(function MainToolbar({
           <ColumnLayoutIcon cols={cols} />
         </TBtn>
       ))}
-      <TBtn onClick={() => editor.tf.insertNodes({ type: "hr", children: [{ text: "" }] })} tooltip={t("editor.insertHr")}>HR</TBtn>
+      <TBtn onClick={() => editor.tf.insertNodes({ type: "hr", children: [{ text: "" }] })} tooltip={t("editor.insertHr")} square><Minus size={14} /></TBtn>
       <TBtn
         square
         onClick={() => {
@@ -687,11 +696,12 @@ export default React.memo(function MainToolbar({
         <ListTree size={14} />
       </TBtn>
       <TBtn
+        square
         active={showEmbedInput}
         onClick={onToggleEmbedInput}
         tooltip={`${t("editor.insertEmbed")}\nYouTube · Spotify · X`}
       >
-        Embed
+        <Film size={14} />
       </TBtn>
       <TBtn active={mathEditing} tooltip={t("editor.insertMath")} onClick={onInsertMath}>∑</TBtn>
       <TBtn square tooltip={language === "ko" ? "각주" : "Footnote"} onClick={() => {
@@ -720,5 +730,7 @@ export default React.memo(function MainToolbar({
         <FootnoteIcon />
       </TBtn>
     </div>
+    </FieldVariantScope>
+    </ControlSizeScope>
   );
 });

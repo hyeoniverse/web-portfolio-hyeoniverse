@@ -10,7 +10,8 @@
  * 넓은 화면: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack */
 .customGradient {
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* 두 열 다 줄어들 수 있게(minmax 0) — 미리보기 열이 제 폭을 고집하면 좁은 시트에서 조작부가 넘쳤다 */
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   grid-template-areas:
     "preview group"
     "scheme  scheme"
@@ -21,13 +22,25 @@
   align-items: start;
 }
 
+/* 아주 좁은 칸(모바일 시트) — 미리보기 위, 조작부 아래 전체 폭. 나란히 두면 조작부가 172px 로 눌려 슬라이더 값이 넘쳤다 */
+@container (width <= 440px) {
+  .customGradient {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "preview"
+      "group"
+      "scheme"
+      "stops";
+  }
+}
+
 @media (width > 768px) {
   .customGradient {
     grid-template-areas:
       "preview scheme"
       "preview stops"
       "preview group";
-    column-gap: var(--spacing-24);
+    column-gap: var(--spacing-16);
   }
 
   /* 컨테이너 폭 부족 시 (admin/settings 처럼 좁은 column 안에 embed 됐을 때 등) — 줄바꿈 레이아웃 */
@@ -60,17 +73,28 @@
   grid-area: group;
 }
 
-/* preview — 컴팩트 사이즈 (작은 16:9 카드) + radius 2xl */
+/* preview — 컴팩트 사이즈 (작은 16:9 카드) + radius 2xl.
+   폭을 높이에서 직접 계산해 둔다 — aspect-ratio 에만 맡기면 사파리(레티나)가 안의 canvas 의 내부 해상도 폭(2배)을
+   열 폭 계산에 넣어, 미리보기 열이 실제 카드보다 훨씬 넓어지고 조작부가 오른쪽으로 밀려 비좁아졌다 */
 .customGradientPreview {
+  --preview-h: 100px;
+
+  position: relative;
   flex-shrink: 0;
-  height: 100px;
+  width: calc(var(--preview-h) * 16 / 9);
+  /* 좁은 화면(모바일 시트)에서는 16:9 를 지킨 채 줄어든다 — 못 박은 폭이면 옆 조작부가 시트 밖으로 밀렸다 */
+  max-width: 100%;
+  height: auto;
   aspect-ratio: 16 / 9;
   background: var(--bg-primary);
   border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
+/* canvas 는 크기 계산에서 빼고 카드를 채운다 */
 .customGradientPreview canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
@@ -218,8 +242,8 @@
   border-radius: var(--radius-control);
   border: var(--border-light);
   cursor: copy;
-  /* handle 들이 bar 아래에 표시될 공간 + 추가 여백 확보 */
-  margin-bottom: var(--spacing-32);
+  /* handle 들이 bar 아래에 표시될 공간 — 손잡이 높이만큼만(예전 32 는 아래 줄과 너무 벌어졌다) */
+  margin-bottom: var(--spacing-24);
 }
 
 /* handle = bar 아래에 absolute (top: 100%), pos% left, 화살표 위로 향함 */

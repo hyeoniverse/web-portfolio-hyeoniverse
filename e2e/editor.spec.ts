@@ -115,10 +115,10 @@ async function focusCell(page: Page, cell: Locator) {
     .toBe(true);
 }
 
-/** 본문 도구 모음의 Table 단추로 3×3 표(머리글 포함)를 넣는다. */
+/** 본문 도구 모음의 표 단추로 3×3 표(머리글 포함)를 넣는다. 아이콘 단추라 이름은 툴팁 문구(관리자 화면 언어)다 */
 async function insertTable(page: Page) {
   const editor = await openEditor(page);
-  await page.getByRole("button", { name: "Table", exact: true }).click();
+  await page.getByRole("button", { name: /^(표 삽입|Insert Table)$/ }).click();
   const table = editor.locator("table").first();
   await expect(table, "표가 그려져야 한다").toBeVisible({ timeout: 10_000 });
   return { editor, table };
@@ -185,7 +185,8 @@ test.describe("코드 블록 하이라이트", () => {
     await page.route("**/*", (route) =>
       ["GET", "HEAD", "OPTIONS"].includes(route.request().method()) ? route.continue() : route.abort());
     const editor = await openEditor(page);
-    await page.getByRole("button", { name: "Code", exact: true }).click();
+    // 코드 블록 단추 — 아이콘 단추라 이름은 툴팁 문구(+ 단축키)다
+    await page.getByRole("button", { name: /^(코드 블록|Code Block)(,|$)/ }).click();
     await page.keyboard.type("procedure Hello is begin null; end Hello;");
     const keywords = editor.locator('[class*="hljs-keyword"]');
     await expect(keywords, "언어를 고르기 전에는 글자만 있다").toHaveCount(0);

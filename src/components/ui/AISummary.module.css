@@ -370,3 +370,24 @@
   color: var(--text-tertiary);
 }
 }
+
+/* ── 편집 화면(flat) — 상자 안에 상자를 두지 않는다. 수치는 위 가는 선 아래 "라벨 / 값", 안내는 바탕 없이 아이콘과 글 ── */
+.flat .metrics {
+  gap: var(--spacing-24);
+}
+
+.flat .metric {
+  padding: var(--spacing-8) 0 0;
+  border: none;
+  border-top: var(--border-light);
+  border-radius: 0;
+}
+
+.flat .callout {
+  padding: 0;
+  background: none;
+}
+
+.flat .calloutIcon {
+  color: var(--text-tertiary);
+}

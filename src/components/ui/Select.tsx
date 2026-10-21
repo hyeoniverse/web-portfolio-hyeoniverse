@@ -152,8 +152,7 @@ export default function Select({
   // 선택 항목을 trigger 에 정렬(native select 처럼) + 뷰포트 밖으로 안 나가게 clamp 한 최종 top / maxHeight
   const [dropTop, setDropTop] = useState<number | null>(null);
   const [dropMaxH, setDropMaxH] = useState<number | undefined>(undefined);
-  /** editable 더블클릭 감지용 — 첫 click 을 setTimeout 으로 지연, 두번째 click 오면 cancel + editing */
-  const clickTimerRef = useRef<number | null>(null);
+  const [solidSurface, setSolidSurface] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -171,6 +170,8 @@ export default function Select({
   // trigger 위치 기반으로 dropdown 좌표 계산
   const updatePosition = useCallback(() => {
     if (!ref.current) return;
+    /* 편집 화면(data-solid-popups) 안에서 열리면 불투명 목록 — 유리 패널이면 뒤의 단추 · 라벨이 비쳐 목록이 깨져 보였다 */
+    setSolidSurface(!!ref.current.closest("[data-solid-popups]"));
     const rect = ref.current.getBoundingClientRect();
     if (bubble) {
       // 오른쪽 말풍선 — trigger 세로 중심에 정렬(항목 수 무관 화살표 중앙) + 꼬리 위치 동적 계산.
@@ -202,8 +203,12 @@ export default function Select({
   useEffect(() => {
     if (!visible) return;
     const onResize = () => updatePosition();
+    /* 칸을 품은 쪽(페이지 · 패널)이 스크롤될 때만 닫는다 — 입력칸 자체의 스크롤(초점 · 전체 선택 때 난다)이나
+       목록 안 스크롤에 닫히면, 직접 입력 칸을 누르자마자 목록이 닫혔다 */
     const onScroll = (e: Event) => {
-      if (dropdownRef.current && dropdownRef.current.contains(e.target as Node)) return;
+      const target = e.target;
+      const scrolledAncestor = target === document || (target instanceof Node && !!ref.current && target.contains(ref.current) && target !== ref.current);
+      if (!scrolledAncestor) return;
       setOpen(false);
     };
     window.addEventListener("scroll", onScroll, true);
@@ -235,7 +240,8 @@ export default function Select({
     const naturalH = dropdown.offsetHeight; // CSS max-height 로 이미 cap 된 값
     const dropH = Math.min(naturalH, availH);
     // 선택 항목이 있으면 그 center 를 trigger center 에 맞춤 (compact 뿐 아니라 모든 variant)
-    const activeEl = dropAlign === "below"
+    /* 직접 입력 중이면 늘 칸 아래로 — 선택 항목을 칸 위에 겹치면 치고 있는 입력칸이 가려진다 */
+    const activeEl = dropAlign === "below" || editing
       ? null
       : (dropdown.querySelector("[data-active]") as HTMLElement | null);
     // active 항목의 실제 스크롤 컨테이너 — FontPicker 처럼 dropdown 안에 검색창/헤더 + 자체 overflow 영역(.list)이 있을 수 있다.
@@ -266,11 +272,13 @@ export default function Select({
       top = triggerRect.top + triggerRect.height / 2 - activeCenterInDrop;
     } else {
       top = triggerRect.bottom; // active 없음(또는 dropAlign=below) → 트리거 아래로
+      // 아래 자리가 모자라면 트리거 위로 — 화면 안으로 끌어올리다 트리거를 덮지 않게(직접 입력 중엔 입력칸이 가려졌다)
+      if (top + dropH + MARGIN > vh && triggerRect.top - dropH >= MARGIN) top = triggerRect.top - dropH;
     }
     top = Math.max(MARGIN, Math.min(top, vh - dropH - MARGIN)); // 위·아래 뷰포트 안으로
     setDropTop(top);
     setDropMaxH(naturalH > availH ? availH : undefined);
-  }, [visible, value, options, variant, bubble, dropAlign]);
+  }, [visible, value, options, variant, bubble, dropAlign, editing]);
 
   const handleTransitionEnd = () => {
     if (!open) setVisible(false);
@@ -340,8 +348,10 @@ export default function Select({
         className={`${styles.option} ${isActive ? styles.optionActive : ""} ${isHovered ? styles.optionActive : ""} ${opt.selected ? styles.optionSelected : ""}`}
         data-active={isActive ? "" : undefined}
         onMouseEnter={() => combobox && setActiveIdx(i)}
-        onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
+        /* 직접 입력 중이면 입력칸 초점을 지킨다 — blur 로 친 값이 먼저 저장된 뒤 고른 값으로 덮이는 깜빡임을 막는다 */
+        onMouseDown={preserveFocus || editing ? (e) => e.preventDefault() : undefined}
         onClick={() => {
+          if (editing) stopEditing();
           if (combobox === "split") {
             onChange(opt.value);
           } else if (combobox) {
@@ -398,7 +408,8 @@ export default function Select({
   // editable: 프리셋 목록 맨 위에 "직접 입력" 항목 (다른 옵션과 동일 스타일) —
   // 클릭하면 트리거가 입력 모드로 바뀌어 프리셋 밖 값을 타이핑. (트리거 더블클릭으로도 동일.)
   const split = combobox === "split";
-  const dropdownContent = (editable || split) && !hasChildren ? (
+  // 분할형만 "직접 입력" 항목을 둔다 — 직접 입력 셀렉트(editable)는 칸을 누르면 바로 입력칸이 된다
+  const dropdownContent = split && !hasChildren ? (
     <>
       <Pressable
         type="button"
@@ -548,35 +559,54 @@ export default function Select({
           <ChevronRight className={`${styles.arrow} ${styles.arrowCombobox} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
         </>
       ) : editable && editing ? (
-        <input
-          type="text"
-          autoFocus={userEditing}
-          defaultValue={startBlank ? "" : value}
-          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
-          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
-          maxLength={editableInputProps?.maxLength}
-          placeholder={editableInputProps?.placeholder ?? placeholder}
-          disabled={disabled}
-          onBlur={(e) => {
-            const raw = e.target.value;
-            // 빈 시작에서 아무것도 안 치고 떠나면 취소 — 기존 값 유지
-            if (startBlank && raw.trim() === "") { stopEditing(); return; }
-            const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
-            onChange(v);
-            stopEditing();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const raw = e.currentTarget.value;
-              if (startBlank && raw.trim() === "") { stopEditing(); return; }
-              const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
-              onChange(v);
-              stopEditing();
-            } else if (e.key === "Escape") {
-              stopEditing();
-            }
-          }}
-        />
+        /* 입력 모드 — 단추와 같은 상자 · 같은 폭 계산(옵션 글자를 겹쳐 쌓은 sizer)을 쓰고, 입력칸은 값 자리에 겹쳐 놓는다.
+           예전에는 단추 대신 input 하나를 그려 폭이 따로(글자 수 ch 계산) 잡혀, 누를 때마다 · 빈 칸일 때 폭이 달라졌다 */
+        <span className={`${styles.trigger} ${styles.triggerEditing} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}>
+          <span className={styles.valueStack}>
+            <input
+              type="text"
+              className={styles.editInput}
+              /* 여백은 단추 상자가 맡는다 — 쓰는 화면의 입력칸 규칙(층 밖)이 padding 을 덮어 글자가 밀리지 않게 인라인으로 고정 */
+              style={{ padding: 0, height: "100%", minHeight: 0 }}
+              /* 누른 뒤에만 초점 — 칸을 보이게 하려 패널을 스크롤하지 않게(preventScroll) */
+              ref={(el) => { if (el && userEditing && document.activeElement !== el) el.focus({ preventScroll: true }); }}
+              defaultValue={startBlank ? "" : value}
+              maxLength={editableInputProps?.maxLength}
+              placeholder={editableInputProps?.placeholder ?? placeholder}
+              disabled={disabled}
+              onFocus={(e) => { e.currentTarget.select(); setOpen(true); }}
+              onBlur={(e) => {
+                const raw = e.target.value;
+                // 빈 시작에서 아무것도 안 치고 떠나면 취소 — 기존 값 유지
+                if (startBlank && raw.trim() === "") { stopEditing(); return; }
+                const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
+                onChange(v);
+                stopEditing();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const raw = e.currentTarget.value;
+                  if (startBlank && raw.trim() === "") { stopEditing(); return; }
+                  const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
+                  onChange(v);
+                  stopEditing();
+                  setOpen(false);
+                } else if (e.key === "Escape") {
+                  stopEditing();
+                  setOpen(false);
+                }
+              }}
+            />
+            {options.length > 0
+              ? options.map((o, i) => (
+                  <span key={i} className={styles.sizer} aria-hidden>{o.label}</span>
+                ))
+              : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
+            <span className={styles.sizer} aria-hidden>{editableInputProps?.placeholder ?? placeholder ?? ""}</span>
+            {editableInputProps?.maxLength ? <span className={styles.sizer} aria-hidden>{"0".repeat(editableInputProps.maxLength + 1)}</span> : null}
+          </span>
+          <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} aria-hidden />
+        </span>
       ) : (
         <Pressable
           type="button"
@@ -586,21 +616,12 @@ export default function Select({
           onClick={() => {
             if (disabled) return;
             if (!editable) { setOpen(!open); return; }
-            // 더블클릭 감지 위해 single click 을 250ms 지연. 그 안에 두번째 click 오면 editing 진입.
-            if (clickTimerRef.current !== null) {
-              window.clearTimeout(clickTimerRef.current);
-              clickTimerRef.current = null;
-              setOpen(false);
-              startEditing();
-              return;
-            }
-            clickTimerRef.current = window.setTimeout(() => {
-              clickTimerRef.current = null;
-              setOpen((o) => !o);
-            }, 250);
+            /* 직접 입력 셀렉트 — 누르면 바로 입력칸(글자 전체 선택)이 되고 목록도 함께 열린다. 바로 적거나 목록에서 고른다.
+               예전에는 두 번 누르거나 목록의 "직접 입력"을 골라야 적을 수 있었다 */
+            startEditing();
+            setOpen(true);
           }}
           disabled={disabled}
-          title={editable ? t("common.selectCustomHint") : undefined}
         >
           <span className={styles.valueStack}>
             <span className={styles.value}>
@@ -618,6 +639,14 @@ export default function Select({
                   <span key={i} className={styles.sizer} aria-hidden>{o.label}</span>
                 ))
               : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
+            {/* 직접 입력 칸 — 입력 모드의 안내 문구까지 폭에 넣는다(입력 모드와 같은 폭) */}
+            {editable && (
+              <span className={styles.sizer} aria-hidden>{editableInputProps?.placeholder ?? placeholder ?? ""}</span>
+            )}
+            {/* 글자 수 상한 + 1자 — 입력 중 커서 자리까지(꽉 맞으면 전체 선택 때 글자가 옆으로 밀려 끝자리만 보였다) */}
+            {editable && editableInputProps?.maxLength ? (
+              <span className={styles.sizer} aria-hidden>{"0".repeat(editableInputProps.maxLength + 1)}</span>
+            ) : null}
           </span>
           <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
         </Pressable>
@@ -627,7 +656,7 @@ export default function Select({
           ref={topDropdownRef}
           popover="manual"
           id={listboxId}
-          className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
+          className={`${styles.dropdown} ${solidSurface ? styles.dropdownSolid : ""} ${showCheck ? styles.dropdownChecked : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
           // 부모 popover(공통 Popover)의 outside-click 이 이 dropdown 클릭을 "바깥"으로 보고 닫는 것 방지 —

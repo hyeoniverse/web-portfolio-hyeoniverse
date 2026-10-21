@@ -15,8 +15,9 @@
   white-space: nowrap;
 }
 
+/* 음성이 있다는 안내 — 보조 글자색. 강조색은 대본이 바뀌어 음성이 낡았을 때(data-stale)만 */
 .status[data-audio] {
-  color: var(--text-accent);
+  color: var(--text-secondary);
 }
 
 .status[data-stale] {
@@ -43,8 +44,11 @@
   pointer-events: none;
 }
 
+/* 음성 있음 — 먹색. 강조색은 "음성이 대본보다 낡음"(아래 data-stale)에만 쓴다(docs/editor-ui.md 2-7).
+   예전엔 음성이 있는 장마다 마젠타 점이라 썸네일 줄 전체가 강조색으로 덮였다 */
 .badgeMark[data-kind="audio"] {
-  background: var(--text-accent);
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .badgeMark[data-stale] {
@@ -70,7 +74,8 @@
   min-height: 0;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: var(--bg-black);
+  /* 그림 둘레 빈자리 — 검은 띠가 무거워 보여 옅은 바탕으로 */
+  background: var(--bg-secondary);
 }
 
 .paneMedia img,
@@ -365,6 +370,13 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: stretch;
+}
+
+/* 만드는 동안의 멈추기 — 분할 버튼과 떨어진 따로 캡슐 */
+.generateSplit .generateStop {
+  margin-left: var(--spacing-8);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-12);
 }
 
 /* 두 쪽의 맞닿는 모서리는 각지게, 바깥 모서리만 캡슐 */

@@ -14,47 +14,51 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-8);
-  justify-content: space-between;
+  gap: var(--spacing-8) var(--spacing-16);
+  /* 단추는 라벨 바로 옆 — 넓은 칸에서 양 끝으로 벌어지면 어느 칸의 단추인지 멀어 보였다 */
+  justify-content: flex-start;
 }
 
-/* 라벨 옆 inline 버튼 그룹 — border 없이 컴팩트 */
-.inlineActions {
+/* 커버 동작 묶음 — 테두리 하나짜리 알약 안에 아이콘 단추 셋, 사이는 가는 선 */
+.iconGroup {
   display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-4);
-}
-
-/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
-/* 높이·여백·글자 크기는 Button 의 size 에 맡긴다 — 여기서 다시 정하면 같은 줄의 다른 단추들과
-   크기가 어긋난다(갤러리·이미지 패널의 xs 와 같아야 한다) */
-.inlineBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  border: none;
+  flex: none;
+  align-items: stretch;
+  height: var(--control-height-sm);
+  border: var(--border-light);
   border-radius: var(--radius-control);
-  background: transparent;
-  font-family: var(--font-family-body);
-  font-weight: 500;
+  overflow: hidden;
+}
+
+.iconGroup > * + * {
+  border-left: var(--border-light);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-36);
+  height: 100%;
   color: var(--text-secondary);
-  cursor: pointer;
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
-.field .inlineBtn:hover {
+.iconBtn:hover,
+.iconBtn[data-active] {
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
-.inlineBtnRemove {
+.iconBtnDanger:hover {
+  background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
 
-.field .inlineBtnRemove:hover {
-  background: var(--bg-accent-subtle);
-  color: var(--text-accent);
+/* 좁은 칸(fill) — 팔레트 줄 오른쪽 끝 */
+.actionsEnd {
+  grid-column: -2;
+  justify-self: end;
 }
 
 /* 썸네일 + 추출된 팔레트 가로 배치 */
@@ -182,23 +186,6 @@
 
 /* 버튼 안 텍스트 swap 애니메이션 wrapper */
 /* 커버 선택 ↔ 닫기 — 두 라벨이 같은 칸(1/1)에 겹친다. 폭은 긴 쪽이 잡는다 */
-.toggleLabels {
-  display: inline-grid;
-  justify-items: center;
-}
-
-.toggleLabel {
-  grid-area: 1 / 1;
-  transition:
-    opacity var(--duration-fast) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard);
-}
-
-.toggleLabel[data-shown="false"] {
-  opacity: 0;
-  transform: translateY(4px);
-}
-
 /* URL paste input (옵션) */
 .urlInput {
   margin-top: var(--spacing-8);
@@ -215,3 +202,100 @@
   margin-left: var(--spacing-20);
   list-style: disc;
 }
+
+/* 좁은 열(fill) — 썸네일이 열 폭을 다 쓰고, 팔레트 · 단추 줄은 그 아래 */
+/* 1행 썸네일, 2행 [팔레트 ……… 동작 묶음] — 열이 넓어져도(커버 고르기를 열면) 팔레트가 썸네일 옆으로 올라가지 않게 */
+.field[data-fill] .previewRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  /* 동작 묶음이 썸네일 오른쪽 끝에 맞도록 줄 폭을 썸네일 최대 폭과 같게 */
+  max-width: 360px;
+}
+
+.field[data-fill] .previewBtn {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.field[data-fill] .thumb {
+  width: 100%;
+  height: auto;
+}
+
+/* 최근에 지운 커버 — 작은 16:9 썸네일 줄, 누르면 되돌린다 */
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+
+.recentLabel {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.recentList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.recentItem {
+  display: inline-flex;
+  width: var(--size-72);
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.recentItem:hover {
+  border-color: var(--text-primary);
+}
+
+.recentThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.field[data-fill] .palette {
+  justify-self: start;
+  align-self: center;
+}
+
+/* 커버 고르기 창이 열린 동안(좁은 칸) — 고르기 창이 주인공이라 썸네일은 작게 왼쪽, 오른쪽에 팔레트 · 동작 묶음을 세로로.
+   예전엔 넓어진 열에서 썸네일(360) 아래로 팔레트 · 단추 줄이 따로 떨어져 고르기 창을 밀어냈다 */
+.field[data-picker-open] .previewRow {
+  grid-template-columns: 200px auto;
+  /* 둘째 줄이 남은 높이를 받아, 동작 묶음이 팔레트 바로 아래 붙는다 */
+  grid-template-rows: auto 1fr;
+  row-gap: var(--spacing-8);
+  align-content: start;
+  justify-content: start;
+  column-gap: var(--spacing-16);
+  max-width: none;
+}
+
+.field[data-picker-open] .previewBtn {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.field[data-picker-open] .palette {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.field[data-picker-open] .actionsEnd {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  justify-self: start;
+}
+

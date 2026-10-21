@@ -2,12 +2,13 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useImageFallback } from "@/hooks/useImageFallback";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
-import { Upload, ImageIcon, Trash2, Palette, Copy } from "@/components/icons";
+import { Upload, ImageIcon, Trash2, Palette, Copy, X } from "@/components/icons";
+import Tooltip from "@/components/ui/Tooltip";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
-import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { extractPalette } from "./extractPalette";
@@ -44,6 +45,20 @@ interface CoverImageFieldProps {
   thumbHeight?: number;
   /** 깨진 이미지 fallback — default true */
   enablePlaceholderFallback?: boolean;
+  /** 좁은 열(속성 패널)용 — 썸네일이 열 폭을 다 쓰고(16:9), 단추 줄은 썸네일 아래로 */
+  fill?: boolean;
+}
+
+/* 최근에 지운 커버 — 지운 뒤에도 빈 칸에서 눌러 되돌린다. 브라우저에만, 편집 화면 전체가 같이 쓴다 */
+const RECENT_KEY = "admin.recentCovers";
+const RECENT_MAX = 4;
+function readRecent(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    return Array.isArray(v) ? v.filter((u): u is string => typeof u === "string").slice(0, RECENT_MAX) : [];
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -71,8 +86,21 @@ export default function CoverImageField({
   hasError,
   thumbHeight = 100,
   enablePlaceholderFallback = true,
+  fill = false,
 }: CoverImageFieldProps) {
   const { t } = useLanguage();
+  const mounted = useHasMounted();
+  const [recent, setRecent] = useState<string[]>(() => (typeof window === "undefined" ? [] : readRecent()));
+  /* 지우기 — 지운 주소를 최근 커버 맨 앞에 둔다(같은 주소는 한 번만) */
+  const remove = () => {
+    if (value) {
+      const next = [value, ...recent.filter((u) => u !== value)].slice(0, RECENT_MAX);
+      setRecent(next);
+      try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* 저장 못 해도 이번 화면에서는 되돌릴 수 있다 */ }
+    }
+    onChange("");
+  };
+  const recentShown = recent.filter((u) => u !== value);
   // 로드 실패 추적 — value 변경 리셋까지 공용 훅이 담당
   const { broken: imgErrored, markBroken } = useImageFallback(value);
 
@@ -108,59 +136,43 @@ export default function CoverImageField({
   const buttonText = isInteractive ? closeLabel : chooseLabel;
   const displaySrc = enablePlaceholderFallback && imgErrored ? IMAGE_FALLBACK_SRC : value;
 
-  // 라벨 라인의 inline 액션 버튼들 — 공통 Button (ghost) + className 으로 현재 크기 유지
+  /* 커버 동작 — 아이콘 셋(업로드 · 고르기/닫기 · 제거)을 테두리 하나짜리 알약에 담는다. 이름은 말풍선으로.
+     예전에는 글자 단추 셋이 따로 서서 칸 아래가 단추 줄로 무거웠다 */
   const inlineActions = (
-    <div className={styles.inlineActions}>
-      <Button
-        variant="ghost"
-        className={styles.inlineBtn}
-        onClick={onUpload}
-        title={uploadLabel}
-        icon={<Upload size={12} strokeWidth={2} />}
-      >
-        {uploadLabel}
-      </Button>
-      <Button
-        variant="ghost"
-        className={styles.inlineBtn}
-        onClick={onPickerToggle}
-        title={buttonText}
-        icon={<ImageIcon size={12} strokeWidth={2} />}
-      >
-        {/* 두 라벨을 한 칸에 겹쳐 두고 보이는 쪽만 바꾼다 — 긴 쪽이 폭을 잡아서, 열고 닫을 때 단추 폭이
-            바뀌며 옆 단추가 밀리지 않는다. 예전에는 글자를 갈아 끼워 폭이 커졌다 줄었다 했다 */}
-        <span className={styles.toggleLabels}>
-          <span className={styles.toggleLabel} data-shown={!isInteractive} aria-hidden={isInteractive}>{chooseLabel}</span>
-          <span className={styles.toggleLabel} data-shown={isInteractive} aria-hidden={!isInteractive}>{closeLabel}</span>
-        </span>
-      </Button>
+    <div className={styles.iconGroup} role="group" aria-label={label}>
+      <Tooltip content={uploadLabel} placement="bottom">
+        <Pressable className={styles.iconBtn} onClick={onUpload} aria-label={uploadLabel}>
+          <Upload size={14} strokeWidth={2} />
+        </Pressable>
+      </Tooltip>
+      <Tooltip content={buttonText} placement="bottom">
+        <Pressable className={styles.iconBtn} onClick={onPickerToggle} aria-label={buttonText} aria-pressed={isInteractive} data-active={isInteractive || undefined}>
+          {isInteractive ? <X size={14} strokeWidth={2} /> : <ImageIcon size={14} strokeWidth={2} />}
+        </Pressable>
+      </Tooltip>
       {value && (
-        <Button
-          variant="ghost"
-          className={`${styles.inlineBtn} ${styles.inlineBtnRemove}`}
-          onClick={() => onChange("")}
-          title={removeLabel}
-          icon={<Trash2 size={12} strokeWidth={2} />}
-        >
-          {removeLabel}
-        </Button>
+        <Tooltip content={removeLabel} placement="bottom">
+          <Pressable className={`${styles.iconBtn} ${styles.iconBtnDanger}`} onClick={remove} aria-label={removeLabel}>
+            <Trash2 size={14} strokeWidth={2} />
+          </Pressable>
+        </Tooltip>
       )}
     </div>
   );
 
   return (
-    <div className={styles.field} data-seo={seoId}>
+    <div className={styles.field} data-seo={seoId} data-fill={fill || undefined} data-picker-open={(fill && isInteractive) || undefined}>
       <div className={styles.labelRow}>
         <label className={`${es.fieldLabel}${hasError ? ` ${es.fieldLabelError}` : ""}`}>
           {label}
         </label>
-        {inlineActions}
+        {!fill && inlineActions}
       </div>
       {value && (
         <div className={styles.previewRow}>
           <Pressable noTapScale
             className={styles.previewBtn}
-            style={{ height: thumbHeight }}
+            style={fill ? undefined : { height: thumbHeight }}
             onClick={onPickerToggle}
             title={chooseLabel}
           >
@@ -214,6 +226,7 @@ export default function CoverImageField({
           {paletteLoading && palette.length === 0 && (
             <span className={styles.paletteLoading}>extracting…</span>
           )}
+          {fill && <div className={styles.actionsEnd}>{inlineActions}</div>}
         </div>
       )}
       {!value && urlInputPlaceholder !== undefined && (
@@ -225,6 +238,31 @@ export default function CoverImageField({
         />
       )}
       {!value && hint && <div className={styles.hint}>{hint}</div>}
+      {/* 비었을 때 — 최근에 지운 커버. 맨 앞이 방금 지운 것, 누르면 그대로 되돌아온다 */}
+      {!value && mounted && recentShown.length > 0 && (
+        <div className={styles.recent}>
+          <span className={styles.recentLabel}>{t("admin.common.recentCovers")}</span>
+          <div className={styles.recentList}>
+            {recentShown.map((u) => (
+              <Pressable
+                key={u}
+                className={styles.recentItem}
+                onClick={() => onChange(u)}
+                title={t("admin.common.restoreCover")}
+                aria-label={t("admin.common.restoreCover")}
+              >
+                {isVideoUrl(u) ? (
+                  <video src={u} className={styles.recentThumb} muted playsInline preload="metadata" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={u} alt="" className={styles.recentThumb} loading="lazy" />
+                )}
+              </Pressable>
+            ))}
+          </div>
+        </div>
+      )}
+      {fill && !value && inlineActions}
     </div>
   );
 }

@@ -33,16 +33,23 @@ describe("편집 가능한 Select", () => {
     expect(document.body.textContent).toContain("16px");
   });
 
-  it("더블클릭으로 편집에 들어가면 입력칸에 포커스를 준다", () => {
-    vi.useFakeTimers();
+  it("한 번 누르면 바로 입력칸이 되어 포커스를 받고 목록도 열린다", () => {
     renderSelect("16");
     const trigger = document.body.querySelector("button") as HTMLButtonElement;
-    fireEvent.click(trigger);
-    fireEvent.click(trigger);
-    act(() => { vi.runAllTimers(); });
-    const input = document.body.querySelector("input[type=text]");
+    act(() => { fireEvent.click(trigger); });
+    const input = document.body.querySelector("input[type=text]") as HTMLInputElement | null;
     expect(input).not.toBeNull();
     expect(document.activeElement).toBe(input);
-    vi.useRealTimers();
+    expect(document.body.querySelector("[popover]")).not.toBeNull();
+  });
+
+  it("입력칸에 적고 Enter 를 누르면 그 값으로 바뀐다", () => {
+    const onChange = vi.fn();
+    renderSelect("16", onChange);
+    act(() => { fireEvent.click(document.body.querySelector("button") as HTMLButtonElement); });
+    const input = document.body.querySelector("input[type=text]") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "18" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith("18");
   });
 });

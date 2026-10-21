@@ -25,12 +25,13 @@ interface DatePickerPopoverProps {
   inline?: boolean;
   /** 사이트 설정과 무관하게 렌더 모드 강제 (예: 연/월 이동은 항상 spinner) */
   forceMode?: "spinner" | "calendar";
-  /** absolute 대신 portal(fixed)로 띄워 overflow 컨테이너(모달 스크롤 등)에 잘리지 않게. */
+  /** 맨 위 층(fixed)에 띄워 스크롤 상자(속성 패널 · 모달 등)에 잘리지 않게 — 기본 켜짐. false 면 trigger 아래 absolute.
+   *  예전 기본(absolute)은 좁은 속성 패널 안에서 판 오른쪽이 잘렸다 */
   portal?: boolean;
 }
 
 export default function DatePickerPopover({
-  year, month, day, format, onSelect, onClose, minDate, maxDate, inline = false, forceMode, portal = false,
+  year, month, day, format, onSelect, onClose, minDate, maxDate, inline = false, forceMode, portal = true,
 }: DatePickerPopoverProps) {
   const { language } = useLanguage();
   const { datePickerStyle } = useSiteConfig();
