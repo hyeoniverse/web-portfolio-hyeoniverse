@@ -5,13 +5,13 @@ import { requireAuth } from "@/lib/api/requireAuth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
-import { createMissLimiter } from "@/lib/api/contentTranslate";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import { type Provider, buildProviderList, translateWithFallback } from "@/lib/api/translationProviders";
 import { ADMIN_TEXTS_MAX, ADMIN_TEXT_MAX_CHARS, adminTextSourceLang } from "@/lib/adminTextsShared";
 
 export const maxDuration = 30;
 
-const takeMiss = createMissLimiter();
+const takeMiss = createMissLimiter("admin-site-texts");
 
 const hashOf = (text: string) => createHash("sha256").update(text).digest("hex").slice(0, 32);
 const uuidOf = (h: string) => `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     else missing.push(t);
   }
   if (!missing.length) return NextResponse.json({ lang, translations: out });
-  if (!takeMiss(user.id)) return NextResponse.json({ lang, translations: out, rateLimited: true });
+  if (!(await takeMiss(user.id))) return NextResponse.json({ lang, translations: out, rateLimited: true });
 
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const providers = buildProviderList(primary, config?.translation?.fallback);

@@ -7,6 +7,8 @@ import { notifyCommenter } from "@/lib/commenterNotify";
 import { isValidUUID, sanitizeContent, validatePassword, validateEmail, validateNickname } from "@/utils/commentValidation";
 import { jsonOk, jsonError, jsonServerError } from "./response";
 import { getUserRole, isSiteStaff } from "./roles";
+import { hitRateLimit, ipRateKey } from "./rateLimit";
+import { COMMENT_CREATE_LIMITS, COMMENT_PASSWORD_LIMITS } from "./commentLimits";
 
 interface CommentHandlerOptions {
   table: "comments" | "work_comments";
@@ -132,6 +134,11 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
          빈 값 분기를 남겨 두면 validatePassword 가 다시 느슨해질 때 그 상태가 조용히 부활한다. */
       const pwResult = validatePassword(password);
       if (!pwResult.valid) return jsonError(pwResult.error!);
+
+      // 익명 작성은 IP 마다 횟수 제한 — 도배 · 답글 알림 메일 남용을 막는다(운영자 댓글은 위에서 빠졌다)
+      if (!(await hitRateLimit("comment-create", ipRateKey(request), ...COMMENT_CREATE_LIMITS))) {
+        return jsonError("Too many comments", 429, { code: "RATE_LIMITED" });
+      }
 
       if (commenter_id) {
         const identity = getIdentity(commenter_id, targetId);
@@ -272,6 +279,9 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
         return jsonError("Password required — contact admin to edit this comment", 403, { code: "COMMENT_NO_PASSWORD" });
       }
       if (!password) return jsonError("Password required", 401, { code: "COMMENT_PASSWORD_REQUIRED" });
+      if (!(await hitRateLimit("comment-password", ipRateKey(request, id), ...COMMENT_PASSWORD_LIMITS))) {
+        return jsonError("Too many attempts", 429, { code: "RATE_LIMITED" });
+      }
       const authorized = await bcrypt.compare(password, comment.password_hash);
       if (!authorized) return jsonError("Not authorized", 403, { code: "COMMENT_PASSWORD_WRONG" });
 

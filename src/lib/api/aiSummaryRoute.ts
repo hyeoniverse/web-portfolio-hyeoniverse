@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { hitRateLimit, ipRateKey } from "./rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 import { jsonError } from "@/lib/api/response";
@@ -32,15 +33,13 @@ export interface SummaryTable {
   logPrefix: string;
 }
 
-const PUBLIC_WINDOW_MS = 60 * 1000;
-const publicHits = new Map<string, number>();
-/** 공개 요청의 IP 당 분당 1회 — 같은 사람이 연타해도 공급자 호출은 한 번 */
-function publicRateLimited(ip: string): boolean {
-  const now = Date.now();
-  for (const [k, t] of publicHits) if (now - t > PUBLIC_WINDOW_MS) publicHits.delete(k);
-  if (publicHits.has(ip)) return true;
-  publicHits.set(ip, now);
-  return false;
+/** 공개 요청 — IP 당 분당 1회(같은 사람이 연타해도 공급자 호출은 한 번) · 하루 20회, 전체 하루 200회 */
+async function publicRateLimited(request: Request): Promise<boolean> {
+  const [mine, all] = await Promise.all([
+    hitRateLimit("ai-summary", ipRateKey(request), { windowSec: 60, max: 1 }, { windowSec: 86400, max: 20 }),
+    hitRateLimit("ai-summary:all", "all", { windowSec: 86400, max: 200 }),
+  ]);
+  return !(mine && all);
 }
 
 /** 사이트 기본 옵션(설정 › 서비스 › AI 자동 요약) — 발행 때 자동 요약 · 방문자 첫 생성 · 옵션 없이 온 편집기 요청이 쓴다 */
@@ -73,8 +72,7 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
 
   if (isPublic) {
     /* 방문자 — 발행된 글의 빈 요약만, 분당 1회 */
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    if (publicRateLimited(ip)) return jsonError("Too many requests", 429);
+    if (await publicRateLimited(request)) return jsonError("Too many requests", 429);
     const admin = createAdminClient();
     const { data: row } = await admin.from(t.table).select(select).eq("id", id).eq("published", true).is("deleted_at", null).single();
     if (!row) return jsonError("Not found", 404);

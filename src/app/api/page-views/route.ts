@@ -3,6 +3,7 @@ import { loadExcludedIps } from "@/lib/api/ipAnalytics";
 import { isStaffViewer } from "@/lib/api/staffViewer";
 import { jsonOk } from "@/lib/api/response";
 import { HUMAN_VISITS_FILTER, isTrafficSpike, kstDateStr } from "@/lib/api/dashboardAggregates";
+import { hitRateLimit, ipRateKey } from "@/lib/api/rateLimit";
 import { getIp } from "@/utils/getIp";
 import { parseUserAgent } from "@/utils/uaParser";
 import { isSessionId, normalizePagePath, parseUtm, referrerHost } from "@/lib/pageViews";
@@ -32,6 +33,10 @@ export async function POST(request: Request) {
   if (!path) return jsonOk({ id: null, skipped: "path" });
 
   if (await isStaffViewer()) return jsonOk({ id: null, skipped: "admin" });
+  // 스크립트가 조회를 부풀리거나 행을 쏟지 못하게 — 사람이 넘기 어려운 상한(10분 120번)
+  if (!(await hitRateLimit("page-view", ipRateKey(request), { windowSec: 600, max: 120 }))) {
+    return jsonOk({ id: null, skipped: "rate" });
+  }
 
   const ip = getIp(request);
   const admin = createAdminClient();

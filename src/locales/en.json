@@ -314,7 +314,7 @@
     "hintContent": "Please enter your comment",
     "hintContentTooLong": "Content exceeds 2000 characters",
     "hintPassword": "Please enter a password",
-    "hintPasswordTooShort": "Password must be at least 2 characters",
+    "hintPasswordTooShort": "Password must be at least 4 characters",
     "hintPasswordTooLong": "Password is too long",
     "hintNicknameTooLong": "Nickname must be 50 characters or less",
     "hintSubmitFailed": "Failed to post comment",
@@ -1075,6 +1075,7 @@
     "COMMENT_PASSWORD_REQUIRED": "Please enter the password.",
     "COMMENT_PASSWORD_WRONG": "The password is incorrect.",
     "COMMENT_ALREADY_REMOVED": "This comment has already been removed.",
+    "RATE_LIMITED": "Too many requests. Please try again in a moment.",
     "TTS_DISABLED": "TTS is turned off. Turn it on in Settings › Services › TTS."
   },
   "readAloud": {

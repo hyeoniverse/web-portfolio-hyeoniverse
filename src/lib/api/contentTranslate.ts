@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import { isContentMissing } from "@/lib/contentLang";
 
 /**
- * 상세 화면 "다른 언어로 읽기"(/api/content-translate)의 순수한 부분 — 원문 고르기 · 해시 · 요청 상한.
+ * 상세 화면 "다른 언어로 읽기"(/api/content-translate)의 순수한 부분 — 원문 고르기 · 해시.
  * 라우트에서 떼어 둔 것은 테스트하려고다(DB · 공급자 없이).
  */
 
@@ -279,37 +279,6 @@ export function applyMetaTranslations(meta: ContentMeta, tr: Map<string, string>
     (out as Record<string, unknown>)[k] = r.ok ? r.value : v;
   }
   return { meta: out, complete };
-}
-
-/**
- * 캐시에 없어 공급자를 부르는 요청의 상한 — 메모리 안(인스턴스마다), aiSummaryRoute 의 방식과 같다.
- * 캐시에 있는 번역은 세지 않는다 — 공급자 비용이 들지 않는다.
- *   IP 당     10분에 5번 — 한 사람이 언어를 몇 개 바꿔 보는 정도는 된다
- *   전체      10분에 60번 — 여러 IP 로 돌려도 비용이 묶이게
- */
-const MISS_WINDOW_MS = 10 * 60 * 1000;
-const MISS_LIMIT_PER_IP = 5;
-const MISS_LIMIT_GLOBAL = 60;
-
-export function createMissLimiter(perIp = MISS_LIMIT_PER_IP, global = MISS_LIMIT_GLOBAL, windowMs = MISS_WINDOW_MS) {
-  const hits = new Map<string, number[]>();
-  let all: number[] = [];
-  /** 하나 더 불러도 되면 세고 true, 넘었으면 세지 않고 false */
-  return function take(ip: string, now = Date.now()): boolean {
-    const fresh = (ts: number[]) => ts.filter((t) => now - t < windowMs);
-    all = fresh(all);
-    for (const [k, ts] of hits) {
-      const f = fresh(ts);
-      if (f.length) hits.set(k, f);
-      else hits.delete(k);
-    }
-    const mine = hits.get(ip) ?? [];
-    if (mine.length >= perIp || all.length >= global) return false;
-    mine.push(now);
-    hits.set(ip, mine);
-    all.push(now);
-    return true;
-  };
 }
 
 /* ── 본문 안 라벨(lib/bodyLabels) ──

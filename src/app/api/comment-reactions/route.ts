@@ -4,6 +4,7 @@ import { isValidUUID } from "@/utils/commentValidation";
 import { getIp } from "@/utils/getIp";
 import { isReactionEmoji } from "@/utils/commentReactions";
 import { jsonOk, jsonError, jsonServerError } from "@/lib/api/response";
+import { hitRateLimit, ipRateKey } from "@/lib/api/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,9 @@ export async function POST(request: Request) {
     if (comment_type !== "post" && comment_type !== "work") return jsonError("Invalid comment_type");
     if (!isValidUUID(comment_id)) return jsonError("Invalid comment_id");
     if (!isReactionEmoji(emoji)) return jsonError("Invalid emoji");
+    if (!(await hitRateLimit("comment-reaction", ipRateKey(request), { windowSec: 600, max: 60 }))) {
+      return jsonError("Too many requests", 429, { code: "RATE_LIMITED" });
+    }
 
     const reactorHash = getReactorHash(request);
     const admin = createAdminClient();

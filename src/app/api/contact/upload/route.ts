@@ -1,9 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { logService } from "@/lib/serviceLog";
 import { verifyRecaptcha } from "@/lib/contact/recaptcha";
 import { issueTicket } from "@/lib/contact/ticket";
-import { CONTACT_BUCKET, clientIp, createRateLimiter } from "@/lib/contact/limits";
+import { CONTACT_BUCKET, clientIp, CONTACT_LIMITS } from "@/lib/contact/limits";
 
 /**
  * POST /api/contact/upload — 문의 폼 첨부를 올릴 서명 URL 발급(공개). 파일 바이트는 브라우저가 서명 URL 로 비공개 버킷에
@@ -14,7 +15,6 @@ import { CONTACT_BUCKET, clientIp, createRateLimiter } from "@/lib/contact/limit
  * 돌려주는 것: { ok, path, token, ticket? } — ticket 은 보내기(/api/contact)에서 reCAPTCHA 를 대신한다(lib/contact/ticket).
  */
 
-const allow = createRateLimiter(5, 10 * 60 * 1000);
 const BLOCKED_EXT = new Set([
   "exe", "bat", "cmd", "com", "msi", "scr", "pif", "sh", "bash", "csh", "ksh",
   "vbs", "vbe", "js", "jse", "wsf", "wsh", "ps1", "dll", "sys", "drv", "html", "htm", "svg",
@@ -30,7 +30,7 @@ function safeName(fileName: string): string {
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  if (!allow(ip)) return fail("rate_limited", 429);
+  if (!(await hitRateLimit("contact-upload", rateLimitKey(ip), ...CONTACT_LIMITS))) return fail("rate_limited", 429);
 
   const body = (await request.json().catch(() => null)) as { fileName?: unknown; size?: unknown; recaptchaToken?: unknown } | null;
   const fileName = typeof body?.fileName === "string" ? body.fileName : "";

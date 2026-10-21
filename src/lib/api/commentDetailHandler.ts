@@ -5,6 +5,8 @@ import { isValidUUID } from "@/utils/commentValidation";
 import { requireAuth } from "./requireAuth";
 import { jsonOk, jsonError, jsonServerError } from "./response";
 import { getUserRole, isSiteStaff } from "./roles";
+import { hitRateLimit, ipRateKey } from "./rateLimit";
+import { COMMENT_PASSWORD_LIMITS } from "./commentLimits";
 
 interface CommentDetailHandlerOptions {
   table: "comments" | "work_comments";
@@ -144,6 +146,9 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
       return jsonError("Password required — contact admin to delete this comment", 403, { code: "COMMENT_NO_PASSWORD" });
     }
     if (!password) return jsonError("Password required", 401, { code: "COMMENT_PASSWORD_REQUIRED" });
+    if (!(await hitRateLimit("comment-password", ipRateKey(request, id), ...COMMENT_PASSWORD_LIMITS))) {
+      return jsonError("Too many attempts", 429, { code: "RATE_LIMITED" });
+    }
     const authorized = await bcrypt.compare(password, comment.password_hash);
     if (!authorized) return jsonError("Not authorized", 403, { code: "COMMENT_PASSWORD_WRONG" });
 

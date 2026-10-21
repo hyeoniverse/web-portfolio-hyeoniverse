@@ -12,15 +12,18 @@ export interface ContentRow {
   html: string[];
 }
 
-/** marker 가 든 글·프로젝트 (marker 는 ilike 패턴 조각, 예: "data-poll-id=") */
-export async function fetchContentRows(supabase: SupabaseClient, marker: string): Promise<{ posts: ContentRow[]; works: ContentRow[] }> {
+/** marker 가 든 글·프로젝트 (marker 는 ilike 패턴 조각, 예: "data-poll-id="). publishedOnly 면 공개된 것만 */
+export async function fetchContentRows(supabase: SupabaseClient, marker: string, opts: { publishedOnly?: boolean } = {}): Promise<{ posts: ContentRow[]; works: ContentRow[] }> {
   const like = `%${marker}%`;
-  const [posts, works] = await Promise.all([
-    supabase.from("posts").select("id, title, slug, content, content_en").is("deleted_at", null)
-      .or(`content.ilike.${like},content_en.ilike.${like}`),
-    supabase.from("works").select(`id, title, slug, ${WORK_HTML_COLS.join(", ")}`).is("deleted_at", null)
-      .or(WORK_HTML_COLS.map((c) => `${c}.ilike.${like}`).join(",")),
-  ]);
+  let postsQ = supabase.from("posts").select("id, title, slug, content, content_en").is("deleted_at", null)
+    .or(`content.ilike.${like},content_en.ilike.${like}`);
+  let worksQ = supabase.from("works").select(`id, title, slug, ${WORK_HTML_COLS.join(", ")}`).is("deleted_at", null)
+    .or(WORK_HTML_COLS.map((c) => `${c}.ilike.${like}`).join(","));
+  if (opts.publishedOnly) {
+    postsQ = postsQ.eq("published", true);
+    worksQ = worksQ.eq("published", true);
+  }
+  const [posts, works] = await Promise.all([postsQ, worksQ]);
   if (posts.error) throw posts.error;
   if (works.error) throw works.error;
   type Row = Record<string, unknown>;

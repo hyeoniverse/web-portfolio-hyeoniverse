@@ -8,7 +8,7 @@ import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 import { normalizeTranslationLang } from "@/lib/translationLanguages";
 import { isForeignSiteLanguage, normalizeSiteLanguage } from "@/lib/siteLanguage";
-import { createMissLimiter } from "@/lib/api/contentTranslate";
+import { createMissLimiter } from "@/lib/api/rateLimit";
 import { SITE_ABOUT_SOURCE_ID, SITE_CONTENT_SOURCE_ID } from "@/lib/api/siteTranslate";
 import { aboutSource } from "@/data/generated/aboutDict";
 import { acceptContentString, siteContentHash, siteContentSource, sourceLangOf } from "@/lib/siteContent";
@@ -17,7 +17,7 @@ import { type Provider, buildProviderList, translateWithFallback, translationFai
 
 export const maxDuration = 60;
 
-const takeMiss = createMissLimiter();
+const takeMiss = createMissLimiter("site-translate-content");
 const PARALLEL = 3;
 
 /**
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!takeMiss(ip)) return NextResponse.json({ lang, hash, strings, complete: false, cached: true, rateLimited: true });
+  if (!(await takeMiss(ip))) return NextResponse.json({ lang, hash, strings, complete: false, cached: true, rateLimited: true });
 
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const providers = buildProviderList(primary, config?.translation?.fallback);

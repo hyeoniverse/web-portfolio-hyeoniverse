@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidUUID } from "@/utils/commentValidation";
 import { getIp } from "@/utils/getIp";
 import { jsonOk, jsonError, jsonServerError } from "./response";
+import { hitRateLimit, ipRateKey } from "./rateLimit";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -47,6 +48,10 @@ export function createLikeHandlers({ targetType, countSyncTable }: LikeHandlerOp
     try {
       const { id } = await context.params;
       if (!isValidUUID(id)) return jsonError("Invalid id");
+      // 누를 때마다 like_count 를 다시 세어 쓴다 — 연타 · 스크립트로 DB 쓰기를 쏟지 못하게
+      if (!(await hitRateLimit("like", ipRateKey(request), { windowSec: 600, max: 60 }))) {
+        return jsonError("Too many requests", 429, { code: "RATE_LIMITED" });
+      }
 
       const ip = getIp(request);
       const admin = createAdminClient();

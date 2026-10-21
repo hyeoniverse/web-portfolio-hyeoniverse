@@ -3,7 +3,6 @@ import { describe, it, expect } from "vitest";
 import {
   CONTENT_TRANSLATION_VERSION,
   applyMetaTranslations,
-  createMissLimiter,
   isFreshCache,
   metaPieces,
   postSource,
@@ -54,24 +53,6 @@ describe("sourceHash", () => {
     const c = postSource({ title: "제목", excerpt: "요약", content: "본문 고침" })!;
     expect(sourceHash(a)).toBe(sourceHash(b));
     expect(sourceHash(a)).not.toBe(sourceHash(c));
-  });
-});
-
-describe("createMissLimiter", () => {
-  it("IP 당 상한 · 창이 지나면 풀린다", () => {
-    const take = createMissLimiter(2, 100, 1000);
-    expect(take("a", 0)).toBe(true);
-    expect(take("a", 10)).toBe(true);
-    expect(take("a", 20)).toBe(false);
-    expect(take("b", 20)).toBe(true);
-    expect(take("a", 1010)).toBe(true);
-  });
-
-  it("전체 상한", () => {
-    const take = createMissLimiter(5, 2, 1000);
-    expect(take("a", 0)).toBe(true);
-    expect(take("b", 0)).toBe(true);
-    expect(take("c", 0)).toBe(false);
   });
 });
 

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { createMissLimiter } from "@/lib/api/rateLimit";
+import { getIp } from "@/utils/getIp";
 import {
   type Provider,
   buildProviderList,
@@ -11,6 +13,13 @@ import {
 
 const MAX_LENGTH = 2000;
 
+/* 같은 댓글을 여러 방문자가 번역하면 공급자를 매번 불렀다 — 인스턴스 안에서라도 결과를 잠시 들고 있는다 */
+const CACHE_MAX = 500;
+const cache = new Map<string, string>();
+
+/* 캐시에 없어 공급자를 부를 때만 센다 — IP 마다 10분 20번, 전체 10분 200번 */
+const takeMiss = createMissLimiter("comment-translate", 20, 200);
+
 /**
  * POST /api/translate — 댓글 번역 (공개 경로, 댓글의 "번역" 버튼이 호출)
  *
@@ -19,7 +28,7 @@ const MAX_LENGTH = 2000;
  *
  * 지금은 번역할 댓글을 id 로 지정하고 본문은 서버가 DB 에서 읽는다. 호출자가 내용을 정할 수
  * 없으므로, 남용하더라도 이 사이트에 실제로 달린 댓글을 번역하는 범위를 넘지 못한다.
- * 인증을 요구할 수는 없다 — 방문자가 쓰는 기능이다.
+ * 인증을 요구할 수는 없다 — 방문자가 쓰는 기능이다. 대신 공급자 호출 횟수를 IP · 전체로 묶는다.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
@@ -53,13 +62,22 @@ export async function POST(request: Request) {
     return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
   }
 
+  const source = text.slice(0, MAX_LENGTH);
+  const cacheKey = `${targetLang}\u0000${source}`;
+  const hit = cache.get(cacheKey);
+  if (hit !== undefined) return NextResponse.json({ translation: hit });
+
+  if (!(await takeMiss(getIp(request)))) {
+    return jsonError("Too many requests", 429, { code: "RATE_LIMITED" });
+  }
+
   const config = await getSiteConfig();
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const sourceLang = targetLang === "ko" ? "en" : "ko";
   const providerList = buildProviderList(primary, config?.translation?.fallback);
 
   const result = await translateWithFallback(
-    providerList, [text.slice(0, MAX_LENGTH)], sourceLang, targetLang, "[translate]",
+    providerList, [source], sourceLang, targetLang, "[translate]",
   );
 
   /* 방문자 경로 — 공급자별 원인(failures)은 싣지 않는다. 상태는 서버가 남기고 관리자 화면에 보인다 */
@@ -73,5 +91,8 @@ export async function POST(request: Request) {
     return jsonError("Translation failed", 502, { code: "TRANSLATION_FAILED" });
   }
 
-  return NextResponse.json({ translation: result.translations[0] });
+  const translation = result.translations[0];
+  if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
+  cache.set(cacheKey, translation);
+  return NextResponse.json({ translation });
 }

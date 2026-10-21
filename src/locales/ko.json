@@ -314,7 +314,7 @@
     "hintContent": "내용을 입력해주세요",
     "hintContentTooLong": "내용이 2000자를 초과했습니다",
     "hintPassword": "비밀번호를 입력해주세요",
-    "hintPasswordTooShort": "비밀번호는 2자 이상이어야 합니다",
+    "hintPasswordTooShort": "비밀번호는 4자 이상이어야 합니다",
     "hintPasswordTooLong": "비밀번호가 너무 깁니다",
     "hintNicknameTooLong": "닉네임은 50자 이하여야 합니다",
     "hintSubmitFailed": "댓글 등록에 실패했습니다",
@@ -1075,6 +1075,7 @@
     "COMMENT_PASSWORD_REQUIRED": "비밀번호를 입력해 주세요.",
     "COMMENT_PASSWORD_WRONG": "비밀번호가 맞지 않습니다.",
     "COMMENT_ALREADY_REMOVED": "이미 지워진 댓글입니다.",
+    "RATE_LIMITED": "요청이 너무 잦습니다. 잠시 뒤 다시 시도해 주세요.",
     "TTS_DISABLED": "TTS 가 꺼져 있습니다. 설정 › 서비스 › TTS 에서 켜 주세요."
   },
   "readAloud": {
