@@ -43,7 +43,7 @@ import { ExtraEmpty, ExtraSummary, type ExtraItem } from "@/components/works/wor
 import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 
 /** 본문 아래 추가 정보 카드 */
-type PostExtraKey = "authors" | "series" | "works" | "github";
+type PostExtraKey = "authors" | "github" | "series" | "works";
 import { usePostRevisions } from "./postEditor/usePostRevisions";
 import { useTemplateInsert } from "./postEditor/useTemplateInsert";
 import SeoChecklist from "@/components/admin/SeoChecklist";
@@ -1158,7 +1158,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   ]);
 
   /* 본문 아래 "추가 정보" — 작업물 편집기와 같은 요약 카드(ExtraSummary). 카드를 누르면 그 편집기가 아래에 펼쳐진다.
-     검색 · 공유에 쓰이지 않는 글 속성: 작성자 · 시리즈 · 관련 프로젝트 · GitHub (AI 요약은 본문 위 metaSection) */
+     검색 · 공유에 쓰이지 않는 글 속성: 작성자 · GitHub · 시리즈 · 관련 프로젝트 (AI 요약은 본문 위 metaSection) */
   /* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */
   const authorsField = (
         <div className={es.row}>
@@ -1242,6 +1242,13 @@ export default function PostEditor({ post }: PostEditorProps) {
         body: authorsField,
       },
       {
+        key: "github",
+        title: te("github"),
+        count: metaForm.github_url?.trim() ? 1 : 0,
+        preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}>{host(metaForm.github_url)}</span> : empty,
+        body: <PostGithubField form={metaForm} updateField={updateField} />,
+      },
+      {
         key: "series",
         title: te("series"),
         count: seriesRow ? 1 : 0,
@@ -1272,13 +1279,6 @@ export default function PostEditor({ post }: PostEditorProps) {
         count: works.length,
         preview: works.length === 0 ? empty : <>{works.slice(0, 3).map((w) => <span key={w.id} className={styles.extraPreviewLine}>{w.title}</span>)}</>,
         body: <PostRelatedWorksField form={metaForm} updateField={updateField} te={te} allWorks={allWorks} />,
-      },
-      {
-        key: "github",
-        title: te("github"),
-        count: metaForm.github_url?.trim() ? 1 : 0,
-        preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}>{host(metaForm.github_url)}</span> : empty,
-        body: <PostGithubField form={metaForm} updateField={updateField} />,
       },
     ];
   // eslint-disable-next-line react-hooks/exhaustive-deps -- authorsField 는 아래 값들로만 바뀐다

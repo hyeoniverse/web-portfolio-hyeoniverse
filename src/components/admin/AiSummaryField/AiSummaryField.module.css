@@ -4,14 +4,6 @@
   margin: var(--spacing-16) 0 var(--spacing-24);
 }
 
-/* 요약 아래 단추 줄 */
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-8);
-}
-
 .box {
   padding: var(--spacing-4) 0;
 }
