@@ -8,6 +8,7 @@
       "excerpt": "요약",
       "excerptShort": "30자 이상 권장",
       "cover": "커버 이미지",
+      "coverAutoHint": "없으면 제목 카드로 대신 공유됩니다",
       "category": "카테고리",
       "tags": "태그",
       "completed": "완료",
