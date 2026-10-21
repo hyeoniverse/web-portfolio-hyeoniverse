@@ -15,7 +15,7 @@ import { NOTIFY_EMAIL_DEDUPED, NOTIFY_EMAIL_DEDUPE_MS, NOTIFY_EMAIL_DEFAULT } fr
 
 /** 알림 type 분류
  *  - 댓글계: comment / reply / like / report
- *  - 보안:   device_login (새 기기 시도) / device_approved (승인 완료) / login_lockout (5회 실패)
+ *  - 보안:   device_login (새 기기 로그인) / device_approved (옛 승인 기록) / login_lockout (5회 실패)
  *            / signout_all (전체 로그아웃 실행)
  *  - 운영:   ai_failure (AI fallback chain 전부 실패) / email_failure (Resend 발송 실패)
  *            / cron_error (cron job exception). UI 시스템 탭 (= 댓글/신고 외 모든 type) 에 자동 표시.

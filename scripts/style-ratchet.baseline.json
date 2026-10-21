@@ -138,7 +138,7 @@
     "src/app/(home)/_sections/WorksSection/WorksSection.module.css": 3,
     "src/app/about/_panels/panels/codeHighlights/LiveDemos.module.css": 2,
     "src/app/about/_panels/panels/CodeHighlightsPanel.module.css": 5,
-    "src/app/admin/(auth)/login/Login.module.css": 2,
+    "src/app/admin/(auth)/login/Login.module.css": 1,
     "src/app/admin/(dashboard)/_components/CalendarHeatmap.module.css": 2,
     "src/app/admin/(dashboard)/_components/DailyViewsChart.module.css": 2,
     "src/app/admin/(dashboard)/_components/DayDetailPanel.module.css": 1,

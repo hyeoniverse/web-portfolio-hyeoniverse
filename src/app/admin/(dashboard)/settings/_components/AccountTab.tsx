@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { useRouter } from "next/navigation";
-import { Monitor, Smartphone, Tablet, Check, Trash2 } from "@/components/icons";
+import { Monitor, Smartphone, Tablet, Check, Trash2, Key } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
@@ -27,6 +27,8 @@ import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { useDialogRef } from "@/hooks/useTopLayer";
 import Badge from "@/components/ui/Badge";
+import { Switch } from "@/components/ui/Switch";
+import { showToast } from "@/stores/toastStore";
 
 interface DeviceRow {
   id: string;
@@ -74,6 +76,87 @@ export default function AccountTab({
   const [signingOutAll, setSigningOutAll] = useState(false);
   const [devices, setDevices] = useState<DeviceRow[]>([]);
   const [devicesLoading, setDevicesLoading] = useState(true);
+
+  const [mfaFactors, setMfaFactors] = useState<{ id: string; name: string; createdAt: string }[]>([]);
+  const [mfaLoading, setMfaLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(true);
+  const [mfaRequiredSaving, setMfaRequiredSaving] = useState(false);
+
+  const fetchMfa = useCallback(async () => {
+    setMfaLoading(true);
+    try {
+      const res = await fetch("/api/admin/auth/mfa");
+      const data = await res.json();
+      if (res.ok) {
+        setMfaFactors(data.factors ?? []);
+        setMfaRequired(data.required !== false);
+      }
+    } catch {
+      setMfaFactors([]);
+    }
+    setMfaLoading(false);
+  }, []);
+
+  /* 사이트 전체 2단계 인증 강제 — 소유자만. 끄면 비밀번호(또는 GitHub)만으로 관리 화면에 들어온다 */
+  const saveMfaRequired = useCallback(async (required: boolean) => {
+    setMfaRequiredSaving(true);
+    try {
+      const res = await fetch("/api/admin/auth/mfa", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ required }),
+      });
+      if (!res.ok) throw await errorFromResponse(res);
+      setMfaRequired(required);
+    } catch (e) {
+      showToast(errorText(e, t, t("admin.login.errorOccurred")), "error");
+    }
+    setMfaRequiredSaving(false);
+  }, [t]);
+
+  const handleMfaRequiredChange = useCallback(
+    (required: boolean) => {
+      if (required) return saveMfaRequired(true);
+      openModal(
+        <ModalConfirm
+          desc={t("admin.settings.mfaRequiredOffDesc")}
+          confirmText={t("admin.settings.mfaRequiredOff")}
+          danger
+          onConfirm={() => saveMfaRequired(false)}
+        />,
+        { id: "mfa-required-off", header: { title: t("admin.settings.mfaRequiredOffTitle") }, closeButton: true, width: "420px" },
+      );
+    },
+    [t, openModal, saveMfaRequired],
+  );
+
+  useEffect(() => {
+    fetchMfa();
+  }, [fetchMfa]);
+
+  /* 인증 앱 지우기 — 마지막 하나는 서버가 거절한다(MFA_LAST_FACTOR) */
+  const handleRemoveFactor = useCallback(
+    (factorId: string) => {
+      openModal(
+        <ModalConfirm
+          desc={t("admin.settings.mfaRemoveDesc")}
+          confirmText={t("admin.settings.mfaRemove")}
+          danger
+          onConfirm={async () => {
+            const res = await fetch("/api/admin/auth/mfa", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ factorId }),
+            });
+            if (!res.ok) showToast(errorText(await res.json().catch(() => ({})), t, t("admin.login.errorOccurred")), "error");
+            fetchMfa();
+          }}
+        />,
+        { id: "remove-mfa", header: { title: t("admin.settings.mfaRemoveTitle") }, closeButton: true, width: "420px" },
+      );
+    },
+    [t, openModal, fetchMfa],
+  );
 
   const fetchDevices = useCallback(async () => {
     setDevicesLoading(true);
@@ -358,7 +441,65 @@ export default function AccountTab({
           <li><T k="admin.settings.signOutAllHint" /></li>
         </ul>
 
-        {/* 등록된 기기 목록 — admin_known_devices */}
+        {/* 사이트 전체 강제 여부 — 소유자만 바꾼다(security_settings) */}
+        {isOwner && (
+          <div className={shared.fields}>
+            <FieldRow label={<T k="admin.settings.mfaRequiredLabel" />} hint={<T k="admin.settings.mfaRequiredHint" />}>
+              <Switch
+                showStateText
+                checked={mfaRequired}
+                disabled={mfaLoading || mfaRequiredSaving}
+                onCheckedChange={handleMfaRequiredChange}
+              />
+            </FieldRow>
+          </div>
+        )}
+
+        {/* 2단계 인증 앱 — 관리 화면 · API 는 이 앱의 코드로 확인한 세션만 받는다(lib/auth/mfa) */}
+        <div className={styles.devicesWrap}>
+          <div className={styles.devicesHeader}>
+            <span className={styles.devicesTitle}>
+              <T k="admin.settings.mfaTitle" />
+            </span>
+            <span className={styles.devicesCount}>{mfaFactors.length}</span>
+          </div>
+          {mfaLoading ? (
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
+          ) : mfaFactors.length === 0 ? (
+            <EmptyState size="xs" pad="none"><T k="admin.settings.mfaEmpty" /></EmptyState>
+          ) : (
+            <ul className={styles.devicesList}>
+              {mfaFactors.map((f) => (
+                <li key={f.id} className={styles.deviceRow}>
+                  <span className={styles.deviceIcon}><Key size={16} strokeWidth={1.6} /></span>
+                  <div className={styles.deviceInfo}>
+                    <div className={styles.deviceName}>{f.name || f.id.slice(0, 8)}</div>
+                    <div className={styles.deviceMeta}>
+                      <span>{fillTemplate(t("admin.settings.mfaAddedAt"), { when: formatRelative(f.createdAt) })}</span>
+                    </div>
+                  </div>
+                  <Pressable
+                    className={styles.deviceRevokeBtn}
+                    onClick={() => handleRemoveFactor(f.id)}
+                    aria-label={t("admin.settings.mfaRemove")}
+                    title={t("admin.settings.mfaRemove")}
+                  >
+                    <Trash2 size={13} strokeWidth={1.6} />
+                  </Pressable>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className={shared.sectionHint}><T k="admin.settings.mfaHint" /></p>
+          <Button
+            variant="outline"
+            onClick={() => window.location.assign(`/admin/mfa?add=1&next=${encodeURIComponent("/admin/settings?tab=account")}`)}
+          >
+            <T k="admin.settings.mfaAdd" />
+          </Button>
+        </div>
+
+        {/* 로그인한 기기 목록 — admin_known_devices */}
         <div className={styles.devicesWrap}>
           <div className={styles.devicesHeader}>
             <span className={styles.devicesTitle}>

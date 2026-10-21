@@ -51,14 +51,6 @@
   color: var(--text-accent);
 }
 
-/* device_pending 같은 안내성 메시지 — 에러 아님 */
-.info {
-  margin: 0;
-  font: var(--font-body-md);
-  line-height: var(--line-height-135);
-  color: var(--text-secondary);
-}
-
 /* Wave animation */
 .wave {
   display: inline-flex;

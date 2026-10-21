@@ -39,7 +39,7 @@ flowchart LR
   dns["Cloudflare DNS<br/>@ · www CNAME (DNS only)"] --> app
   app -->|"compares write-request Origin<br/>with SITE_URL (src/proxy.ts)"| app
   app --> supa["Supabase<br/>DB · Auth · Storage"]
-  app -->|"From: noreply@(SITE_URL host)<br/>(src/constants/mail.ts)"| resend["Resend<br/>alerts · device approval · invites"]
+  app -->|"From: noreply@(SITE_URL host)<br/>(src/constants/mail.ts)"| resend["Resend<br/>alerts · new-device notices · invites"]
   supa -->|"pg_cron · pg_net<br/>scheduled publish · trash notices"| resend
 ```
 
@@ -70,7 +70,7 @@ Optional:
   EMAILJS_PRIVATE_KEY          # Private key for calling EmailJS from the server (/api/contact)
   NEXT_PUBLIC_RECAPTCHA_SITE_KEY   # Contact form reCAPTCHA — public site key
   RECAPTCHA_SECRET_KEY         # Contact form reCAPTCHA — server-side secret. With reCAPTCHA on and this empty, the form will not send
-  RESEND_API_KEY               # Admin alerts, new-device approval, comment replies, author invites
+  RESEND_API_KEY               # Admin alerts, new-device notices, comment replies, author invites
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
   PEXELS_API_KEY               # Cover Image — Pexels (Unsplash fallback)
   HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
@@ -161,17 +161,19 @@ On Hobby, Web Analytics is free up to 50,000 events per month and Speed Insights
 
 ### 7. First sign-in
 
-An unrecognized device has to clear an email approval first. The sign-in succeeds, the session is revoked immediately, and an approval link is mailed out.
+Admin pages only open for a session that passed two-factor authentication (authenticator app). After signing in you land on `/admin/mfa`, enroll an authenticator via QR code and enter the 6-digit code. Registering two (phone + password manager) is recommended. Supabase TOTP MFA is free on every plan and enabled by default.
 
-- If the mail is nowhere to be seen, **check the spam folder** — before domain verification that is where it lands.
-- If it never shows up, flip `approved` to `true` on the matching row in Supabase **Table Editor → `admin_known_devices`**.
+- An unrecognized device is not blocked; it only gets a notice mail. If the mail is nowhere to be seen, **check the spam folder**.
+- When deploying onto an existing DB, keep the order: deploy the code → every admin account enrolls at `/admin/mfa` → run `supabase/migrations/2026_10_22_rls_require_aal2.sql` in the SQL Editor ([supabase-setup.md](./supabase-setup.md#2-create-database-tables)).
+- If every authenticator is lost, run `delete from auth.mfa_factors where user_id = '<user id>';` in the SQL Editor, then sign in and enroll again.
 
 ### Post-deploy checks
 
 - [ ] The site loads on both `@` and `www`
 - [ ] A post saves after signing in to admin (403 → check `SITE_URL`)
 - [ ] The contact form and comments submit (same CSRF check)
-- [ ] The new-device approval mail reaches the inbox
+- [ ] After sign-in, enrolling and verifying an authenticator at `/admin/mfa` works
+- [ ] The new-device notice mail reaches the inbox
 - [ ] Data shows up on the Analytics and Speed Insights tabs
 
 ### Common dead ends
@@ -183,7 +185,7 @@ An unrecognized device has to clear an email approval first. The sign-in succeed
 | Site unreachable after connecting the domain | Only one of `@` / `www` has a record | Add both |
 | Still unreachable after fixing it | The "no such host" answer is cached (up to 30 min) | Flush DNS, or check from another network |
 | Vercel shows DNS Change Recommended | Legacy record values | Swap in the values Vercel shows |
-| Cannot sign in | Device waiting for approval | Check the approval mail, spam folder included |
+| Keeps returning to `/admin/mfa` after sign-in | Two-factor step not done yet (aal1 session) | Enter the authenticator's 6-digit code. If the app is lost, see the recovery step in section 7 |
 | Only the scheduled-publish mail is missing | Vault `notify_from` is an unverified domain | Point it at the verified domain |
 
 ### Other Platforms

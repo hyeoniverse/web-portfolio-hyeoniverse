@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { getUserRole } from "./roles";
+import { passesMfa } from "@/lib/auth/mfa";
 
 /**
  * API 라우트에서 인증된 사용자를 요구하는 헬퍼.
@@ -30,6 +31,11 @@ export async function requireAuth(): Promise<
   const role = getUserRole(user);
   if (!role.isOwner && role.role === null) {
     return { error: NextResponse.json({ error: "Forbidden", code: "NO_ROLE" }, { status: 403 }) };
+  }
+
+  /* OTP 확인을 거친 세션(aal2)만 — 비밀번호가 새도 인증 앱 없이는 관리 API 를 못 쓰게(lib/auth/mfa). 소유자가 강제를 끄면 통과 */
+  if (!(await passesMfa(supabase))) {
+    return { error: NextResponse.json({ error: "Two-factor authentication required", code: "MFA_REQUIRED" }, { status: 403 }) };
   }
 
   await syncStaleClaims(supabase, user);

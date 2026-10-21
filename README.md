@@ -173,7 +173,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | **작업물** | 여섯 가지 레이아웃, 상세 페이지, 슬라이드 갤러리(음성 · 자막) |
 | **글** | SSR + ISR, 시리즈, 배너 슬라이더, 여섯 가지 목록 레이아웃, 읽어 주기, 게스트 댓글(마크다운 + 이모지 반응) 또는 giscus |
 | **관리자** | 대시보드 · 트래픽 분석 · 알림 · 서비스 호출 기록, Plate.js 편집기, `.md` 동기화, AI 번역 · 요약, 발표 갤러리 음성(TTS · 녹음 · PPTX 발표자 노트), 테마 프리셋 + WCAG 대비 점검, 리비전 히스토리, 멤버 초대와 역할 |
-| **보안** | RLS 4단계 권한, CSRF Origin 체크(운영은 fail-closed), 로그인 5회 실패 잠금 + 새 기기 메일 승인 |
+| **보안** | RLS 4단계 권한, CSRF Origin 체크(운영은 fail-closed), 로그인 5회 실패 잠금 + 2단계 인증(OTP 앱) 필수 |
 | **디자인 시스템** | 3층 토큰(Raw → Semantic → Component) + 역할 토큰, 전체 색 OKLCH |
 
 <div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
@@ -228,7 +228,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="갤러리 음성 편집기" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="대비 점검 표" width="100%" /> |
 | **라이브러리 — 여러 개 고르기 · 파일 미리보기** | **외관 — 브랜드 미리보기** |
 | <img src="docs/images/settings-library-light.png" alt="설정 라이브러리" width="100%" /> | <img src="docs/images/settings-brand-dark.png" alt="설정 외관 브랜드" width="100%" /> |
-| **로그인 — 5회 실패 잠금 · 새 기기 메일 승인** | **SEO 점검 — 여섯 항목** |
+| **로그인 — 5회 실패 잠금 · 2단계 인증** | **SEO 점검 — 여섯 항목** |
 | <img src="public/images/screenshots/cms/28-login-light.png" alt="관리자 로그인" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO 점검" width="100%" /> |
 
 <div align="right"><sub><a href="#readme-top">↑ 맨 위로</a></sub></div>
@@ -324,7 +324,7 @@ sequenceDiagram
 
 | 주제 | 어떻게 풀었나 | 더 보기 |
 |:---|:---|:---|
-| **권한 · 보안** | proxy 의 CSRF Origin 확인 → 라우트 가드 → RLS 세 겹. 로그인 5회 실패 시 15분 잠금, 처음 보는 기기는 메일 승인(24시간) | [security.md](./docs/security.md) |
+| **권한 · 보안** | proxy 의 CSRF Origin 확인 → 라우트 가드 → RLS 세 겹. 로그인 5회 실패 시 15분 잠금, 관리 화면 · API · RLS 모두 2단계 인증(aal2) 세션만 허용 | [security.md](./docs/security.md) |
 | **자동저장** | 같은 기기 초안은 `localStorage`, 다른 기기에서 이어 쓰기는 3초 debounce 로 DB 리비전에 저장. 불러오기 직후의 자동 변경과 10자 미만 변경은 저장하지 않고, 복원은 저장본보다 나중일 때만 적용 | [트러블슈팅 12](./docs/troubleshooting/architecture-data.md) |
 | **AI 공급자 대체** | 기능마다(번역 · 요약 · TTS · 커버) 대체 순서를 두고, 같은 원인으로 이어 실패한 공급자는 자동으로 꺼서 요청을 보내지 않는다. 모든 호출은 서비스 기록에 남는다 | `src/lib/ai/health.ts` |
 | **디자인 시스템 집행** | Raw → Semantic → Component 3층 토큰. 하드코딩 값은 stylelint 가 막고, 규칙 위반 수는 style-ratchet 기준선으로 늘지 못하게 잠근다 | [design-system.md](./docs/design-system.md) |

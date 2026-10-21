@@ -39,7 +39,7 @@ flowchart LR
   dns["Cloudflare DNS<br/>@ · www CNAME (DNS only)"] --> app
   app -->|"쓰기 요청의 Origin 을<br/>SITE_URL 과 대조 (src/proxy.ts)"| app
   app --> supa["Supabase<br/>DB · Auth · Storage"]
-  app -->|"From: noreply@(SITE_URL 의 도메인)<br/>(src/constants/mail.ts)"| resend["Resend<br/>알림 · 기기 승인 · 초대 메일"]
+  app -->|"From: noreply@(SITE_URL 의 도메인)<br/>(src/constants/mail.ts)"| resend["Resend<br/>알림 · 새 기기 알림 · 초대 메일"]
   supa -->|"pg_cron · pg_net<br/>예약 발행 · 휴지통 알림"| resend
 ```
 
@@ -70,7 +70,7 @@ flowchart LR
   EMAILJS_PRIVATE_KEY          # EmailJS 를 서버(/api/contact)에서 부를 때의 비공개 키
   NEXT_PUBLIC_RECAPTCHA_SITE_KEY   # 문의 폼 reCAPTCHA — 공개 site key
   RECAPTCHA_SECRET_KEY         # 문의 폼 reCAPTCHA — 서버 검증용 비밀 키. reCAPTCHA 를 켰는데 비어 있으면 폼이 보내지지 않는다
-  RESEND_API_KEY               # 관리자 알림 · 새 기기 승인 · 댓글 답글 · 작성자 초대 메일
+  RESEND_API_KEY               # 관리자 알림 · 새 기기 알림 · 댓글 답글 · 작성자 초대 메일
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
   PEXELS_API_KEY               # Cover Image — Pexels (Unsplash 대안)
   HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
@@ -160,17 +160,19 @@ Hobby 플랜에서 Web Analytics 는 월 5만 이벤트, Speed Insights 는 최�
 
 ### 7. 첫 로그인
 
-처음 보는 기기는 승인 메일을 거쳐야 들어갈 수 있습니다. 로그인은 성공해도 세션이 곧바로 회수되고 승인 링크가 메일로 갑니다.
+관리 화면은 2단계 인증(OTP 앱)을 거친 세션만 엽니다. 로그인하면 `/admin/mfa` 로 넘어가 QR 코드로 인증 앱을 등록하고 6자리 코드를 넣습니다. 휴대폰과 비밀번호 관리자에 하나씩, 두 개를 등록해 두기를 권합니다. Supabase 의 TOTP MFA 는 모든 플랜에서 무료이고 기본으로 켜져 있습니다.
 
-- 메일이 보이지 않으면 **스팸함**을 확인합니다. 도메인 인증 전에는 특히 스팸으로 갑니다.
-- 메일을 끝내 못 찾으면 Supabase **Table Editor → `admin_known_devices`** 에서 해당 행의 `approved` 를 `true` 로 바꾸면 들어갈 수 있습니다.
+- 처음 보는 기기는 막지 않고 알림 메일만 보냅니다. 메일이 보이지 않으면 **스팸함**을 확인합니다.
+- 기존 DB 에 배포할 때는 순서를 지킵니다: 코드 배포 → 관리하는 모든 계정이 `/admin/mfa` 에서 등록 → SQL Editor 에서 `supabase/migrations/2026_10_22_rls_require_aal2.sql` 실행([supabase-setup.md](./supabase-setup.md#2-데이터베이스-테이블-생성)).
+- 인증 앱을 모두 잃었으면 SQL Editor 에서 `delete from auth.mfa_factors where user_id = '<user id>';` 를 실행하고 다시 로그인해 등록합니다.
 
 ### 배포 후 점검
 
 - [ ] 사이트가 열리는가 (`@` 와 `www` 양쪽)
 - [ ] admin 로그인 후 글이 저장되는가 (403 이면 `SITE_URL` 확인)
 - [ ] 문의 폼 전송과 댓글 작성이 되는가 (같은 CSRF 검사를 지납니다)
-- [ ] 새 기기 승인 메일이 받은편지함으로 오는가
+- [ ] 로그인 뒤 `/admin/mfa` 에서 인증 앱 등록 · 코드 확인이 되는가
+- [ ] 새 기기 알림 메일이 받은편지함으로 오는가
 - [ ] Analytics · Speed Insights 탭에 데이터가 들어오는가
 
 ### 자주 막히는 곳
@@ -182,7 +184,7 @@ Hobby 플랜에서 Web Analytics 는 월 5만 이벤트, Speed Insights 는 최�
 | 도메인 연결 후 사이트가 안 열림 | `@` 나 `www` 중 한쪽 레코드가 없음 | 두 개 모두 등록 |
 | 고쳤는데도 계속 안 열림 | "없는 주소" 응답이 캐시에 남음(최대 30분) | DNS 캐시 비우기 또는 다른 회선에서 확인 |
 | Vercel 에 DNS Change Recommended 표시 | 예전 레코드 값을 사용 중 | Vercel 이 보여주는 새 값으로 교체 |
-| 로그인이 되지 않음 | 새 기기 승인 대기 | 승인 메일(스팸함 포함) 확인 |
+| 로그인 뒤 계속 `/admin/mfa` 로 돌아감 | 2단계 인증을 아직 거치지 않음(aal1 세션) | 인증 앱의 6자리 코드 입력. 앱을 잃었으면 위 7번의 복구 방법 |
 | 예약 발행 알림 메일만 오지 않음 | Vault 의 `notify_from` 이 인증되지 않은 도메인 | 인증된 도메인 주소로 변경 |
 
 ### 기타 플랫폼

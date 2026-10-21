@@ -173,7 +173,7 @@ Five colours, the accent plus light and dark background and text, retheme the wh
 | **Works** | Six layouts, detail pages, slide gallery (narration · captions) |
 | **Posts** | SSR + ISR, series, banner slider, six list layouts, read aloud, guest comments (markdown + emoji reactions) or giscus |
 | **Admin** | Dashboard · traffic analytics · notifications · service log, Plate.js editor, `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
-| **Security** | Four-tier RLS roles, CSRF origin check (fail-closed in production), 5-attempt login lockout plus email approval for new devices |
+| **Security** | Four-tier RLS roles, CSRF origin check (fail-closed in production), 5-attempt login lockout plus mandatory two-factor authentication (authenticator app) |
 | **Design system** | Three token tiers (Raw → Semantic → Component) plus role tokens, all colours in OKLCH |
 
 <div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
@@ -228,7 +228,7 @@ Five colours, the accent plus light and dark background and text, retheme the wh
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Narration editor" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="Contrast report" width="100%" /> |
 | **Library — multi-select · file preview** | **Appearance — brand preview** |
 | <img src="docs/images/settings-library-light.png" alt="Settings library" width="100%" /> | <img src="docs/images/settings-brand-dark.png" alt="Settings appearance brand" width="100%" /> |
-| **Login — 5-attempt lockout · new-device email approval** | **SEO check — six items** |
+| **Login — 5-attempt lockout · two-factor authentication** | **SEO check — six items** |
 | <img src="public/images/screenshots/cms/28-login-light.png" alt="Admin login" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO check" width="100%" /> |
 
 <div align="right"><sub><a href="#readme-top">↑ Back to top</a></sub></div>
@@ -324,7 +324,7 @@ The measurements are recorded with their conditions in each PR description (Kore
 
 | Topic | How it works | More |
 |:---|:---|:---|
-| **Permissions · security** | Three layers: CSRF origin check in the proxy → route guards → RLS. A 15-minute lock after 5 failed logins, email approval (24 h) for unknown devices | [security.md](./docs/en/security.md) |
+| **Permissions · security** | Three layers: CSRF origin check in the proxy → route guards → RLS. A 15-minute lock after 5 failed logins; admin pages, APIs and RLS accept only two-factor (aal2) sessions | [security.md](./docs/en/security.md) |
 | **Autosave** | Same-device drafts in `localStorage`; continuing on another device through DB revisions saved after a 3-second debounce. Automatic changes right after loading and changes under 10 characters are not saved, and a revision is restored only when it is newer than the saved post | [Troubleshooting 12](./docs/en/troubleshooting/architecture-data.md) |
 | **AI provider fallback** | Each feature (translation · summary · TTS · covers) has a fallback order, and a provider that keeps failing for the same reason is switched off so no more requests go to it. Every call is recorded in the service log | `src/lib/ai/health.ts` |
 | **Enforcing the design system** | Three token tiers (Raw → Semantic → Component). Stylelint blocks hard-coded values, and the style-ratchet baseline stops the number of rule violations from growing | [design-system.md](./docs/design-system.md) |
