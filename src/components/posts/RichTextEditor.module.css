@@ -446,7 +446,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  margin: 0 0 var(--spacing-8);
+  /* 머리는 별 줄기 왼쪽 끝에 맞춘다 — 항목처럼 들여 쓰면 머리가 목록 안으로 파고들어 보였다 */
+  margin: 0 0 var(--spacing-8) calc(-1 * (var(--_toc-rail) + var(--spacing-12)));
   font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
