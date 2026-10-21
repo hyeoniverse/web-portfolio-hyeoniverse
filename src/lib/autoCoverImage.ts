@@ -2,7 +2,7 @@
  * Auto cover image — 키워드 기반 Unsplash/Pexels 검색으로 cover URL 자동 배정.
  *
  * 사용 시점:
- *  - 글 발행 시 (cover_image 가 비어 있을 때만)
+ *  - 글을 처음 발행할 때 (cover_image 가 비어 있을 때만 — 이미 공개된 글에서 비운 커버는 그대로, shouldAutoAssignCover)
  *  - admin 일괄 마이그레이션 (기존 published + cover-less 글들 일괄 처리)
  *
  * 정책:
@@ -113,4 +113,18 @@ export function extractKeywordsFromPost(post: {
   if (keywords.length === 0) keywords.push("abstract");
 
   return keywords;
+}
+
+/**
+ * 저장할 때 커버를 자동으로 채울지 — 비공개 → 공개로 **처음** 바뀌고, 들어온 값과 저장된 값 모두 비어 있을 때만.
+ * 이미 공개된 글에서 커버를 비우고 저장하면 그대로 둔다(예전엔 저장할 때마다 새 사진이 다시 들어왔다).
+ */
+export function shouldAutoAssignCover({ incomingCover, current }: {
+  incomingCover: unknown;
+  current: { cover_image?: string | null; published?: boolean | null } | null | undefined;
+}): boolean {
+  if (current?.published === true) return false;
+  const incoming = typeof incomingCover === "string" ? incomingCover : undefined;
+  const effective = incoming !== undefined ? incoming : (current?.cover_image ?? "");
+  return !effective;
 }
