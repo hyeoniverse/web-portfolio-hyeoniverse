@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import Button from "@/components/ui/Button";
-import { ChevronDown } from "@/components/icons";
+import { ChevronRight } from "@/components/icons";
 import Chip from "@/components/ui/Chip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
@@ -152,7 +152,7 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               {/* 펼침 표시 — 글자 · 폭이 열고 닫을 때 바뀌지 않게 아이콘만 돌린다 */}
               <span className={styles.ipPaths}>
                 {fillTemplate(t("admin.inline.ipVisitors.paths"), { n: v.journeys.length })}
-                <ChevronDown
+                <ChevronRight
                   size={14}
                   aria-hidden
                   className={`${styles.ipChevron} ${openKey === v.key ? styles.ipChevronOpen : ""}`}
