@@ -6,15 +6,15 @@ import Pressable from "@/components/ui/Pressable";
 import styles from "./ExtraInfoViews.module.css";
 
 /**
- * 작업물 편집기 — 추가 정보(기술 · 팀원 · 링크 · 관련 글 · 관련 시리즈).
+ * 편집기 추가 정보 — 작업물(기술 · 팀원 · 링크 · 관련 글 · 관련 시리즈)과 글(작성자 · 시리즈 · 관련 프로젝트 · GitHub · AI 요약)이 함께 쓴다.
  *
  * 요약 카드 한 줄(제목 · 개수 · 미리보기)을 두고, 카드를 누르면 그 아래에 그 항목의 편집기가 펼쳐진다.
  * 다시 누르거나 다른 카드를 누르면 바뀐다. 모달이 아니라 제자리라 본문을 보면서 고칠 수 있다.
  */
 export type ExtraKey = "tech" | "team" | "links" | "posts" | "series";
 
-export interface ExtraItem {
-  key: ExtraKey;
+export interface ExtraItem<K extends string = ExtraKey> {
+  key: K;
   title: string;
   count: number;
   /** 요약 카드에 보일 짧은 미리보기 */
@@ -23,15 +23,15 @@ export interface ExtraItem {
   body: ReactNode;
 }
 
-export function ExtraSummary({
+export function ExtraSummary<K extends string = ExtraKey>({
   items,
   open,
   onOpenChange,
 }: {
-  items: ExtraItem[];
+  items: ExtraItem<K>[];
   /** 펼친 항목 — 부모가 쥔다(SEO 체크리스트가 기술 칸을 열 수 있게) */
-  open: ExtraKey | null;
-  onOpenChange: (key: ExtraKey | null) => void;
+  open: K | null;
+  onOpenChange: (key: K | null) => void;
 }) {
   const current = items.find((it) => it.key === open) ?? null;
   return (

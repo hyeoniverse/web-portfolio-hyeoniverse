@@ -12,8 +12,6 @@ import CoverImagePicker from "../CoverImagePicker";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
-import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
-import type { SummaryOptions } from "@/lib/ai/summary";
 import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 import type { BilingualCategory } from "@/hooks/useCategories";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
@@ -22,7 +20,8 @@ import styles from "../PostEditor.module.css";
 
 /* 글 속성은 둘로 나뉜다.
    - PostEditorSeoFields: 검색 · 공유에 쓰이는 칸(요약 · 태그 · 커버) — 속성 사이드바. SEO 점검 항목과 같은 칸만 둔다
-   - PostEditorExtraFields: 그 밖(시리즈 · 관련 프로젝트 · AI 요약 · GitHub URL) — 본문 에디터 아래
+   - 그 밖(작성자 · 시리즈 · 관련 프로젝트 · GitHub URL · AI 요약)은 본문 아래 "추가 정보" 요약 카드(ExtraSummary — 작업물 편집기와 같다).
+     PostSeriesField · PostRelatedWorksField · PostGithubField 가 카드를 펼쳤을 때의 편집기다
    예전엔 둘이 사이드바 한 곳에 접힌 "선택 입력"으로 섞여 있어, SEO 에 필요한 칸을 찾으려면 펼쳐서 훑어야 했다. */
 
 type UpdateField = <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
@@ -196,14 +195,14 @@ export function PostEditorSeoFields({
   );
 }
 
-/** 본문 아래 — 시리즈 · 관련 프로젝트 · AI 요약 · GitHub URL */
-export function PostEditorExtraFields({
+/** 본문 아래 "추가 정보" 카드의 편집기들 — PostEditor 가 ExtraSummary(작업물 편집기와 같은 요약 카드)에 하나씩 싣는다 */
+
+/** 시리즈 + 이 글의 순서 */
+export function PostSeriesField({
   form,
   updateField,
   te,
-  allWorks,
   categories,
-  aiSummary,
   post,
   series,
   seriesSelectMode,
@@ -214,10 +213,7 @@ export function PostEditorExtraFields({
   form: PostMetaForm;
   updateField: UpdateField;
   te: (key: string) => string;
-  allWorks: Array<{ id: string; title: string; year: string; image: string; published: boolean; categories_ko?: string[] }>;
   categories: BilingualCategory[];
-  /** AI 요약 칸 — 저장된 요약과 다시 만들기(설명(excerpt)과 다른 값) */
-  aiSummary: { value: string; lang: "ko" | "en"; onRegenerate?: (options: SummaryOptions) => void; busy?: boolean; disabled?: boolean; disabledReason?: string };
   post?: Post | null;
   /** 시리즈 목록과 선택한 시리즈의 글 — 부모가 usePostSeries 로 들고 있다 */
   series: Pick<ReturnType<typeof usePostSeries>, "seriesList" | "seriesPosts" | "setSeriesPosts" | "seriesPostsLoading">;
@@ -239,8 +235,6 @@ export function PostEditorExtraFields({
   const seriesPosition = seriesOthers.filter((o) => o.sort_order < (form.series_order ?? 0)).length + 1;
 
   return (
-    <>
-      {/* 시리즈 + 순서 */}
       <div className={es.row}>
         <div className={es.field}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
@@ -329,9 +323,22 @@ export function PostEditorExtraFields({
           )
         ) : null}
       </div>
+  );
+}
 
-      {/* 관련 프로젝트 + GitHub URL */}
-      <div className={es.row}>
+/** 관련 프로젝트 */
+export function PostRelatedWorksField({
+  form,
+  updateField,
+  te,
+  allWorks,
+}: {
+  form: PostMetaForm;
+  updateField: UpdateField;
+  te: (key: string) => string;
+  allWorks: Array<{ id: string; title: string; year: string; image: string; published: boolean; categories_ko?: string[] }>;
+}) {
+  return (
         <div className={es.field}>
           <div className={es.fieldLabelRow}>
             <label className={es.fieldLabel}>{te("relatedWorks")}</label>
@@ -353,6 +360,12 @@ export function PostEditorExtraFields({
             noResultsText={te("relatedWorksNoResults")}
           />
         </div>
+  );
+}
+
+/** GitHub URL */
+export function PostGithubField({ form, updateField }: { form: PostMetaForm; updateField: UpdateField }) {
+  return (
         <div className={es.field}>
           <label className={es.fieldLabel}>GitHub URL</label>
           <input
@@ -363,12 +376,5 @@ export function PostEditorExtraFields({
             placeholder="https://github.com/..."
           />
         </div>
-      </div>
-
-      {/* AI 요약 — 설명(excerpt)과 다른 값. 손으로 쓰지 않고 다시 만들기로만 바뀐다. 검색 · 공유에는 쓰지 않아 본문 아래에 */}
-      <div className={es.field}>
-        <AiSummaryField {...aiSummary} />
-      </div>
-    </>
   );
 }
