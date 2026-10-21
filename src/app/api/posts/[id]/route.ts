@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { getPopularPostIds } from "@/lib/popularity";
-import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverImage";
+import { fetchAutoCoverImage, extractKeywordsFromPost, shouldAutoAssignCover } from "@/lib/autoCoverImage";
 import { POST_COLUMNS, staleAutoTranslationPatch } from "@/lib/api/autoTranslationMark";
 
 interface RouteContext {
@@ -69,19 +69,18 @@ export async function PATCH(request: Request, context: RouteContext) {
     await ensurePostCategory(body.category as string);
   }
 
-  /* 발행 자동 cover 배정: published=true 로 전환(또는 이미 published) 인데 cover_image 가 비어 있으면
-     키워드 기반으로 Unsplash/Pexels 검색해서 cover_image 자동 채움. 한 번 채워지면 다시 호출 안 함. */
+  /* 발행 자동 cover 배정: 비공개 → 공개로 **처음 바뀔 때만**, cover_image 가 비어 있으면
+     키워드 기반으로 Unsplash/Pexels 검색해서 cover_image 자동 채움.
+     예전엔 이미 공개된 글도 커버가 비면 저장할 때마다 다시 채워, 커버를 지우고 저장해도 새 사진이 계속 들어왔다.
+     공개된 글에서 비운 커버는 사용자가 고른 상태로 둔다(공유 카드는 제목 카드가 대신한다). */
   if (body.published === true) {
     const { data: cur } = await supabase
       .from("posts")
-      .select("cover_image, tags, category, title, title_en")
+      .select("cover_image, tags, category, title, title_en, published")
       .eq("id", id)
       .maybeSingle();
 
-    const incomingCover = typeof body.cover_image === "string" ? body.cover_image : undefined;
-    const effectiveCover = incomingCover !== undefined ? incomingCover : (cur?.cover_image ?? "");
-
-    if (!effectiveCover) {
+    if (shouldAutoAssignCover({ incomingCover: body.cover_image, current: cur })) {
       try {
         const merged = {
           tags: (body.tags as string[]) ?? cur?.tags ?? [],
