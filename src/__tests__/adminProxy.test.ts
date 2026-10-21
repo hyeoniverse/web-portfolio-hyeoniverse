@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
    메일 링크 로그인은 /admin(대시보드)으로 들어오므로, 작성자는 대시보드를 그리기 전에 여기서 돌려보낸다. */
 
 type FakeUser = { id: string; email: string; app_metadata: Record<string, unknown> };
-const state: { user: FakeUser | null; refreshed: boolean } = { user: null, refreshed: false };
+const state: { user: FakeUser | null; refreshed: boolean; aal: "aal1" | "aal2" } = { user: null, refreshed: false, aal: "aal2" };
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: (_url: string, _key: string, opts: { cookies: { setAll: (c: { name: string; value: string; options: object }[]) => void } }) => ({
@@ -15,6 +15,9 @@ vi.mock("@supabase/ssr", () => ({
         // 토큰을 새로 받은 경우를 흉내 낸다 — 새 토큰 쿠키가 응답에 실린다
         if (state.refreshed) opts.cookies.setAll([{ name: "sb-test-auth-token", value: "fresh", options: { path: "/" } }]);
         return { data: { user: state.user } };
+      },
+      mfa: {
+        getAuthenticatorAssuranceLevel: async () => ({ data: { currentLevel: state.aal, nextLevel: "aal2" }, error: null }),
       },
     },
   }),
@@ -32,7 +35,7 @@ const open = (path: string) =>
   proxy(new NextRequest(`http://localhost${path}`, { headers: { cookie: "sb-test-auth-token=old" } }));
 const passedThrough = (res: Response) => res.headers.get("x-middleware-next") === "1";
 
-beforeEach(() => { state.user = null; state.refreshed = false; });
+beforeEach(() => { state.user = null; state.refreshed = false; state.aal = "aal2"; });
 
 describe("proxy — 관리자 화면 권한", () => {
   it("작성자가 대시보드·알림·신고로 들어오면 글 목록으로 보낸다", async () => {
@@ -68,6 +71,34 @@ describe("proxy — 관리자 화면 권한", () => {
     const res = await open("/admin");
     expect(res.status).toBe(307);
     expect(res.headers.get("set-cookie") ?? "").toContain("sb-test-auth-token=fresh");
+  });
+});
+
+/* 2단계 인증 — 비밀번호(또는 GitHub)만 거친 aal1 세션은 관리 화면 대신 /admin/mfa 로, 관리 API 는 403 */
+describe("proxy — 2단계 인증", () => {
+  it("aal1 세션은 화면을 /admin/mfa?next= 로 보낸다", async () => {
+    state.user = owner;
+    state.aal = "aal1";
+    const res = await open("/admin/posts?tab=draft");
+    expect(res.status).toBe(307);
+    const url = new URL(res.headers.get("location") ?? "");
+    expect(url.pathname).toBe("/admin/mfa");
+    expect(url.searchParams.get("next")).toBe("/admin/posts?tab=draft");
+  });
+
+  it("aal1 세션의 관리 API 는 403 MFA_REQUIRED", async () => {
+    state.user = owner;
+    state.aal = "aal1";
+    const res = await open("/api/admin/dashboard");
+    expect(res.status).toBe(403);
+    expect((await res.json()).code).toBe("MFA_REQUIRED");
+  });
+
+  it("등록 · 확인 화면과 그 API 는 aal1 로도 연다", async () => {
+    state.user = owner;
+    state.aal = "aal1";
+    expect(passedThrough(await open("/admin/mfa"))).toBe(true);
+    expect(passedThrough(await open("/api/admin/auth/mfa"))).toBe(true);
   });
 });
 

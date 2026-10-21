@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { useRouter } from "next/navigation";
-import { Monitor, Smartphone, Tablet, Check, Trash2 } from "@/components/icons";
+import { Monitor, Smartphone, Tablet, Check, Trash2, Key } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useModalStore } from "@/stores/modalStore";
@@ -27,6 +27,7 @@ import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import { useDialogRef } from "@/hooks/useTopLayer";
 import Badge from "@/components/ui/Badge";
+import { showToast } from "@/stores/toastStore";
 
 interface DeviceRow {
   id: string;
@@ -74,6 +75,49 @@ export default function AccountTab({
   const [signingOutAll, setSigningOutAll] = useState(false);
   const [devices, setDevices] = useState<DeviceRow[]>([]);
   const [devicesLoading, setDevicesLoading] = useState(true);
+
+  const [mfaFactors, setMfaFactors] = useState<{ id: string; name: string; createdAt: string }[]>([]);
+  const [mfaLoading, setMfaLoading] = useState(true);
+
+  const fetchMfa = useCallback(async () => {
+    setMfaLoading(true);
+    try {
+      const res = await fetch("/api/admin/auth/mfa");
+      const data = await res.json();
+      if (res.ok) setMfaFactors(data.factors ?? []);
+    } catch {
+      setMfaFactors([]);
+    }
+    setMfaLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchMfa();
+  }, [fetchMfa]);
+
+  /* 인증 앱 지우기 — 마지막 하나는 서버가 거절한다(MFA_LAST_FACTOR) */
+  const handleRemoveFactor = useCallback(
+    (factorId: string) => {
+      openModal(
+        <ModalConfirm
+          desc={t("admin.settings.mfaRemoveDesc")}
+          confirmText={t("admin.settings.mfaRemove")}
+          danger
+          onConfirm={async () => {
+            const res = await fetch("/api/admin/auth/mfa", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ factorId }),
+            });
+            if (!res.ok) showToast(errorText(await res.json().catch(() => ({})), t, t("admin.login.errorOccurred")), "error");
+            fetchMfa();
+          }}
+        />,
+        { id: "remove-mfa", header: { title: t("admin.settings.mfaRemoveTitle") }, closeButton: true, width: "420px" },
+      );
+    },
+    [t, openModal, fetchMfa],
+  );
 
   const fetchDevices = useCallback(async () => {
     setDevicesLoading(true);
@@ -358,7 +402,51 @@ export default function AccountTab({
           <li><T k="admin.settings.signOutAllHint" /></li>
         </ul>
 
-        {/* 등록된 기기 목록 — admin_known_devices */}
+        {/* 2단계 인증 앱 — 관리 화면 · API 는 이 앱의 코드로 확인한 세션만 받는다(lib/auth/mfa) */}
+        <div className={styles.devicesWrap}>
+          <div className={styles.devicesHeader}>
+            <span className={styles.devicesTitle}>
+              <T k="admin.settings.mfaTitle" />
+            </span>
+            <span className={styles.devicesCount}>{mfaFactors.length}</span>
+          </div>
+          {mfaLoading ? (
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
+          ) : mfaFactors.length === 0 ? (
+            <EmptyState size="xs" pad="none"><T k="admin.settings.mfaEmpty" /></EmptyState>
+          ) : (
+            <ul className={styles.devicesList}>
+              {mfaFactors.map((f) => (
+                <li key={f.id} className={styles.deviceRow}>
+                  <span className={styles.deviceIcon}><Key size={16} strokeWidth={1.6} /></span>
+                  <div className={styles.deviceInfo}>
+                    <div className={styles.deviceName}>{f.name || f.id.slice(0, 8)}</div>
+                    <div className={styles.deviceMeta}>
+                      <span>{fillTemplate(t("admin.settings.mfaAddedAt"), { when: formatRelative(f.createdAt) })}</span>
+                    </div>
+                  </div>
+                  <Pressable
+                    className={styles.deviceRevokeBtn}
+                    onClick={() => handleRemoveFactor(f.id)}
+                    aria-label={t("admin.settings.mfaRemove")}
+                    title={t("admin.settings.mfaRemove")}
+                  >
+                    <Trash2 size={13} strokeWidth={1.6} />
+                  </Pressable>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className={shared.sectionHint}><T k="admin.settings.mfaHint" /></p>
+          <Button
+            variant="outline"
+            onClick={() => window.location.assign(`/admin/mfa?add=1&next=${encodeURIComponent("/admin/settings?tab=account")}`)}
+          >
+            <T k="admin.settings.mfaAdd" />
+          </Button>
+        </div>
+
+        {/* 로그인한 기기 목록 — admin_known_devices */}
         <div className={styles.devicesWrap}>
           <div className={styles.devicesHeader}>
             <span className={styles.devicesTitle}>

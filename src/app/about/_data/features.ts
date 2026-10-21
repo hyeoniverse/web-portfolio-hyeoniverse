@@ -252,14 +252,14 @@ export const adminItems: FeatureItem[] = [
   {
     title: { ko: "설정 · 계정 · 보안", en: "Settings, accounts and security" },
     body: {
-      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 라이브러리 탭은 달력(쓰인 글 · 프로젝트 표시) · 투표 · 커스텀 이모지(두 이모지를 섞는 이모지 조합 포함) · 커버 기록 · 올린 파일을 한 페이지에 모읍니다. 로고는 올린 이미지와 기본 로고 중에 고르고, 짧은 로고 · 긴 로고 · 로딩 화면 · 파비콘을 따로 정하며, 밑 배경 밝기에 맞춰 색이 바뀝니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 처음 보는 기기는 이메일 승인을 거칩니다.",
-      en: "Six settings tabs, with required values guarded at UI, API and DB. The library tab gathers calendars (with the posts and projects that use them), polls, custom emojis (including Emoji Kitchen mixes), cover history and uploaded files. The logo can be an uploaded image or the default one, with separate short and long logos, loading-screen logo and favicon, and it adapts to the brightness behind it. Members sign in with GitHub; five failures lock for 15 minutes, and new devices need email approval.",
+      ko: "설정은 여섯 탭이고, 비울 수 없는 값은 UI · API · DB 세 겹에서 막습니다. 라이브러리 탭은 달력(쓰인 글 · 프로젝트 표시) · 투표 · 커스텀 이모지(두 이모지를 섞는 이모지 조합 포함) · 커버 기록 · 올린 파일을 한 페이지에 모읍니다. 로고는 올린 이미지와 기본 로고 중에 고르고, 짧은 로고 · 긴 로고 · 로딩 화면 · 파비콘을 따로 정하며, 밑 배경 밝기에 맞춰 색이 바뀝니다. 초대받은 멤버는 GitHub로 로그인하고, 5회 틀리면 15분 잠기며, 관리 화면은 인증 앱 코드(2단계 인증)를 거친 세션만 엽니다.",
+      en: "Six settings tabs, with required values guarded at UI, API and DB. The library tab gathers calendars (with the posts and projects that use them), polls, custom emojis (including Emoji Kitchen mixes), cover history and uploaded files. The logo can be an uploaded image or the default one, with separate short and long logos, loading-screen logo and favicon, and it adapts to the brightness behind it. Members sign in with GitHub; five failures lock for 15 minutes, and the admin opens only to sessions verified with an authenticator app (2FA).",
     },
     points: [
       { ko: "세 겹 검증", en: "Three-layer validation" },
       { ko: "브랜드 로고 · 파비콘", en: "Brand logo · favicon" },
       { ko: "멤버와 역할", en: "Members and roles" },
-      { ko: "새 기기 메일 승인", en: "New-device approval" },
+      { ko: "2단계 인증(OTP 앱)", en: "Two-factor auth (OTP app)" },
     ],
     shots: [
       { label: { ko: "라이브러리", en: "Library" }, src: `${CMS}/26-settings-library-light.png` },
