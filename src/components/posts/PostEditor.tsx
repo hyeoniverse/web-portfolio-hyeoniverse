@@ -43,7 +43,7 @@ import { ExtraEmpty, ExtraSummary, type ExtraItem } from "@/components/works/wor
 import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 
 /** 본문 아래 추가 정보 카드 */
-type PostExtraKey = "authors" | "series" | "works" | "github" | "summary";
+type PostExtraKey = "authors" | "series" | "works" | "github";
 import { usePostRevisions } from "./postEditor/usePostRevisions";
 import { useTemplateInsert } from "./postEditor/useTemplateInsert";
 import SeoChecklist from "@/components/admin/SeoChecklist";
@@ -1038,8 +1038,24 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       </div>
 
+      {/* AI 요약 — 글 머리에 보이는 요약 상자라 본문 위에 둔다(작업물 편집기와 같다). 요약(excerpt)과 다른 값이고,
+          손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
+      <div className={es.field}>
+        <AiSummaryField
+          value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
+          lang={editorLang}
+          onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
+          busy={generatingSummary}
+          disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
+          disabledReason={te("generateSummaryDisabled")}
+        />
+      </div>
+
     </div>
-  ), [metaForm, te, titleFieldError, titleKey, updateField]);
+  ), [
+    metaForm, te, titleFieldError, titleKey, updateField,
+    editorLang, savedSummary, isEdit, hasSavedId, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
+  ]);
 
   /* 상단 고정 — 속성 패널 맨 위에 선다 */
   const pinToggle = useMemo(() => (
@@ -1142,7 +1158,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   ]);
 
   /* 본문 아래 "추가 정보" — 작업물 편집기와 같은 요약 카드(ExtraSummary). 카드를 누르면 그 편집기가 아래에 펼쳐진다.
-     검색 · 공유에 쓰이지 않는 글 속성: 작성자 · 시리즈 · 관련 프로젝트 · GitHub · AI 요약 */
+     검색 · 공유에 쓰이지 않는 글 속성: 작성자 · 시리즈 · 관련 프로젝트 · GitHub (AI 요약은 본문 위 metaSection) */
   /* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */
   const authorsField = (
         <div className={es.row}>
@@ -1208,7 +1224,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     const authors = ids.length ? authorChips.filter((a) => ids.includes(a.id)) : authorChips.slice(0, 1);
     const seriesRow = seriesList.find((x) => x.id === metaForm.series_id);
     const works = allWorks.filter((w) => (metaForm.related_work_ids ?? []).includes(w.id));
-    const summary = editorLang === "ko" ? savedSummary.ko : savedSummary.en;
     return [
       {
         key: "authors",
@@ -1264,22 +1279,6 @@ export default function PostEditor({ post }: PostEditorProps) {
         count: metaForm.github_url?.trim() ? 1 : 0,
         preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}>{host(metaForm.github_url)}</span> : empty,
         body: <PostGithubField form={metaForm} updateField={updateField} />,
-      },
-      {
-        key: "summary",
-        title: te("aiSummaryTitle"),
-        count: summary ? 1 : 0,
-        preview: summary ? <span className={styles.extraPreviewText}>{summary}</span> : empty,
-        body: (
-          <AiSummaryField
-            value={summary}
-            lang={editorLang}
-            onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
-            busy={generatingSummary}
-            disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
-            disabledReason={te("generateSummaryDisabled")}
-          />
-        ),
       },
     ];
   // eslint-disable-next-line react-hooks/exhaustive-deps -- authorsField 는 아래 값들로만 바뀐다
