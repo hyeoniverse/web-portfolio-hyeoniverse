@@ -1601,6 +1601,25 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
+-- 위 SECURITY DEFINER 함수들은 pg_cron(소유자) · service_role 만 부른다 — anon · authenticated 실행 권한을 거둔다.
+-- 거두지 않으면 PostgREST(/rest/v1/rpc)로 공개 anon 키만으로 실행된다(_get_vault_secret 은 Vault 비밀값을 그대로 돌려준다).
+-- 2026_10_21_revoke_definer_functions.sql 과 같다
+REVOKE ALL ON FUNCTION public._get_vault_secret(text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public._send_admin_email(text, text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.log_migration_applied(text, text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.publish_scheduled() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.purge_trash_scheduled() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.safe_publish_scheduled() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.safe_purge_trash_scheduled() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.publish_scheduled() TO service_role;
+ALTER FUNCTION public._get_vault_secret(text) SET search_path = public, pg_temp;
+ALTER FUNCTION public._send_admin_email(text, text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.log_migration_applied(text, text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.publish_scheduled() SET search_path = public, pg_temp;
+ALTER FUNCTION public.purge_trash_scheduled() SET search_path = public, pg_temp;
+ALTER FUNCTION public.safe_publish_scheduled() SET search_path = public, pg_temp;
+ALTER FUNCTION public.safe_purge_trash_scheduled() SET search_path = public, pg_temp;
+
 -- 방문 IP 보관 기한 (#1169) — retention_days 가 지난 기록의 원문 IP 를 지운다.
 --   page_views: IP 는 30분 중복 확인 · 머문 시간 본인 확인에만 쓰이므로 NULL 로 비운다(조회수 · 방문 정보는 그대로).
 --   (이름은 옛 site_visits 시절 그대로 — cron 작업 · 기록과 맞춘다)
