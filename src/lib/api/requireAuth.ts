@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { getUserRole } from "./roles";
 
 /**
  * API 라우트에서 인증된 사용자를 요구하는 헬퍼.
@@ -21,6 +22,14 @@ export async function requireAuth(): Promise<
 
   if (!user) {
     return { error: NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 }) };
+  }
+
+  /* 역할 없는 계정은 받지 않는다 — Supabase 가입이 열려 있으면 사이트(초대 확인 콜백)를 거치지 않고
+     Auth 에 직접 가입해 역할 없는 세션을 만들 수 있다. 예전엔 "로그인했는가"만 봐서 그런 계정이
+     댓글 관리 · 유료 AI 호출 · 자산 업로드 같은 관리 API 를 썼다. 초대받은 사람은 콜백에서 역할을 받는다 */
+  const role = getUserRole(user);
+  if (!role.isOwner && role.role === null) {
+    return { error: NextResponse.json({ error: "Forbidden", code: "NO_ROLE" }, { status: 403 }) };
   }
 
   await syncStaleClaims(supabase, user);

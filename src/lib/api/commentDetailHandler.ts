@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { isValidUUID } from "@/utils/commentValidation";
 import { requireAuth } from "./requireAuth";
 import { jsonOk, jsonError, jsonServerError } from "./response";
+import { getUserRole, isSiteStaff } from "./roles";
 
 interface CommentDetailHandlerOptions {
   table: "comments" | "work_comments";
@@ -106,7 +107,8 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
+    // 운영자(owner · admin)만 관리자 삭제 — 아니면 아래 비밀번호 확인으로(로그인만 보면 누구나 남의 댓글을 지웠다)
+    if (isSiteStaff(getUserRole(user))) {
       // 이미 admin 삭제된 tombstone이면 완전 삭제
       const { data: existing } = await admin
         .from(table)

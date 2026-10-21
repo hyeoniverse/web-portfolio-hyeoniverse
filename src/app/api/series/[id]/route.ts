@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { SERIES_TITLE_MAX } from "@/types/post";
 import { topPostCategory } from "@/lib/seriesCategory";
+import { getUserRole } from "@/lib/api/roles";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -27,7 +28,8 @@ export async function GET(_request: Request, context: RouteContext) {
   // 비공개면 auth 필요
   if (!series.published) {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return jsonError("Series not found", 404, { code: "SERIES_NOT_FOUND" });
+    const role = getUserRole(user);
+    if (!role.isOwner && role.role === null) return jsonError("Series not found", 404, { code: "SERIES_NOT_FOUND" });
   }
 
   const { data: posts } = await supabase

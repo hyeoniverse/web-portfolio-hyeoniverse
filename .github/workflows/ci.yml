@@ -9,6 +9,10 @@ on:
 # 같은 PR 에 새로 푸시하면 앞선 실행은 취소한다 — 결과를 아무도 보지 않는 실행이 Actions 사용량만 쓴다.
 # (9/16~9/23 에 모든 실행이 러너를 받지 못하고 몇 초 만에 실패했다. 사용량 한도에 걸린 것으로 보인다.)
 # master 푸시는 커밋마다 결과가 남아야 해서 취소하지 않는다.
+# 검사만 한다 — 저장소 읽기 권한만(기본 토큰 권한에 기대지 않는다)
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -33,6 +37,10 @@ jobs:
       # --no-audit --no-fund: CI 에서 쓰지 않는 메타데이터 왕복을 줄인다.
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
+
+      # 배포물에 들어가는 의존성(dev 제외)의 high 이상 취약점 — 있으면 실패. 고칠 땐 npm audit fix(--force 없이)부터
+      - name: npm audit (운영 의존성 high 이상)
+        run: npm audit --omit=dev --audit-level=high
 
       - name: TypeScript typecheck
         run: npm run typecheck

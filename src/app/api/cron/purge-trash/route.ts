@@ -1,22 +1,15 @@
 import { NextResponse } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isAuthorizedCron } from "@/lib/api/cronAuth";
 
 /**
  * GET /api/cron/purge-trash
  * Vercel Cron 이 daily 호출. purge_after < NOW() 인 posts/works 를 hard delete.
- * 보안: x-vercel-cron 헤더 또는 CRON_SECRET Authorization 헤더.
+ * 보안: `Authorization: Bearer ${CRON_SECRET}` 만 받는다(lib/api/cronAuth).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const isVercelCron = request.headers.get("x-vercel-cron") === "1";
-
-  if (!isVercelCron) {
-    if (!secret || authHeader !== `Bearer ${secret}`) {
-      return jsonError("Unauthorized", 401);
-    }
-  }
+  if (!isAuthorizedCron(request)) return jsonError("Unauthorized", 401);
 
   const admin = createAdminClient();
   const now = new Date().toISOString();

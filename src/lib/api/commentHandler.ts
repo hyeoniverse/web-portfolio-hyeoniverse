@@ -6,6 +6,7 @@ import { notifyAdmin } from "@/lib/adminNotify";
 import { notifyCommenter } from "@/lib/commenterNotify";
 import { isValidUUID, sanitizeContent, validatePassword, validateEmail, validateNickname } from "@/utils/commentValidation";
 import { jsonOk, jsonError, jsonServerError } from "./response";
+import { getUserRole, isSiteStaff } from "./roles";
 
 interface CommentHandlerOptions {
   table: "comments" | "work_comments";
@@ -82,7 +83,8 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       if (clientIsAdmin) {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return jsonError("Not authorized", 403, { code: "UNAUTHORIZED" });
+        // 운영자(owner · admin)만 — 로그인만 확인하면 역할 없는 계정도 "Admin" 으로 댓글을 썼다
+        if (!isSiteStaff(getUserRole(user))) return jsonError("Not authorized", 403, { code: "UNAUTHORIZED" });
 
         const { data, error } = await adminDb
           .from(table)
@@ -242,10 +244,10 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
       const adminDb = createAdminClient();
 
-      // Admin: authorize via Supabase session
+      // Admin: authorize via Supabase session — 운영자만. 아니면 아래 비밀번호 확인으로
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (isSiteStaff(getUserRole(user))) {
         const { data, error } = await adminDb
           .from(table)
           .update({ content: patchContent.value, updated_at: new Date().toISOString() })

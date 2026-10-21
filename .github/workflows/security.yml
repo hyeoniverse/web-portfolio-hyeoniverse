@@ -1,0 +1,73 @@
+name: Security
+
+# 보안 자동 점검 — 코드 분석(CodeQL) · 비밀값 유출(gitleaks) · PR 의존성 리뷰.
+# 의존성 취약점(npm audit)은 ci.yml 의 검사 단계에 있다.
+# 사용량을 아끼려고 무거운 CodeQL 은 PR · master 푸시 · 주 1회만 돈다.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # 매주 월요일 10:00 KST (UTC 01:00) — 새로 알려진 취약 패턴 · 전체 커밋 기록 비밀값 검사
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: CodeQL (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write # 결과를 Security 탭(code scanning)에 올린다
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          # 기본 쿼리 + 보안 확장(security-extended) — XSS · 주입 · SSRF · 열린 리다이렉트 등
+          queries: security-extended
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
+
+  gitleaks:
+    name: gitleaks (비밀값 유출)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # 전체 기록 — 푸시 · PR 은 새 커밋만, 주간 · 수동 실행은 전체를 본다(액션이 이벤트에 따라 범위를 고른다)
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 결과 요약을 PR 코멘트로 남기지 않는다(공개 저장소라 찾은 위치가 코멘트로 드러나지 않게)
+          GITLEAKS_ENABLE_COMMENTS: "false"
+
+  dependency-review:
+    name: 의존성 리뷰 (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      # PR 이 high 이상 취약점이 있는 패키지를 새로 들이면 막는다
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          # 배포물에 들어가는 의존성만 막는다 — 개발 도구(빌드 · 테스트)는 경고만
+          fail-on-scopes: runtime
