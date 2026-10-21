@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import type { TeamMember } from "@/types/work";
+import { cleanContributions } from "@/utils/teamRoles";
 
 export function useTeamMembers(
   currentMembers: TeamMember[],
@@ -41,14 +42,9 @@ export function useTeamMembers(
   // form state → TeamMember 객체 (add / save 둘 다 공용)
   const buildMember = useCallback((): TeamMember | null => {
     if (!memberName.trim()) return null;
-    const koRoles = memberRoleKo.split(",").map((r) => r.trim()).filter(Boolean);
-    const enRoles = memberRoleEn.split(",").map((r) => r.trim()).filter(Boolean);
-    const prunedKo = Object.fromEntries(
-      Object.entries(memberContribsKo).filter(([k, v]) => koRoles.includes(k) && v.length > 0),
-    );
-    const prunedEn = Object.fromEntries(
-      Object.entries(memberContribsEn).filter(([k, v]) => enRoles.includes(k) && v.length > 0),
-    );
+    // 빈 줄 · 빈 묶음만 뺀다 — 역할 목록에 없는 묶음("품질 · 보안")도 공개 화면에 보이는 내용이라 남긴다
+    const prunedKo = cleanContributions(memberContribsKo);
+    const prunedEn = cleanContributions(memberContribsEn);
     return {
       author_id: memberAuthorId || undefined,
       name: memberName.trim(),
