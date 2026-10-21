@@ -213,6 +213,14 @@
   flex-shrink: 0;
 }
 
+/* 시리즈 — 안내 · 선택 칸 아래에 순서 목록 */
+.extraStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+}
+
 /* 관련 프로젝트 — RelationPicker 의 .wrap 바깥 여백(다음 칸과의 거리)은 여기서는 카드 여백이 맡는다 */
 .extraHint ~ .relationPicker {
   margin-bottom: 0;

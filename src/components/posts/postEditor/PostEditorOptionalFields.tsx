@@ -234,8 +234,9 @@ export function PostSeriesField({
   );
   const seriesPosition = seriesOthers.filter((o) => o.sort_order < (form.series_order ?? 0)).length + 1;
 
+  /* 한 줄로 쌓는다 — 예전 es.row(넓으면 여러 칸)는 시리즈를 고르면 선택 칸 옆에 순서 목록이 붙어 오른쪽 끝이 잘렸다 */
   return (
-      <div className={es.row}>
+      <div className={styles.extraStack}>
         <div className={es.field}>
           {/* 카드 제목이 '시리즈' 라 라벨 대신 안내 한 줄 — 작업물 편집기의 관련 글 · 시리즈와 같은 모양 */}
           <div className={es.fieldLabelRow}>
