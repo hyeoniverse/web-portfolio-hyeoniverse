@@ -98,6 +98,32 @@ export default function AdminEditorShell({
     Array.from(el.children).forEach((c) => ro.observe(c));
     return () => { el.removeEventListener("scroll", update); ro.disconnect(); };
   }, [sidebar]);
+  /* 넓은 화면의 속성 열 높이 — 지금 화면에서 실제로 남은 높이까지만(--_sidebar-room).
+     높이 상한이 "위에 붙었을 때" 기준이라, 페이지 맨 위처럼 열이 아직 아래에서 시작하면 아래쪽이 화면 밖으로 나갔다.
+     열 안 스크롤은 끝에서 페이지로 넘어가지 않아(overscroll-behavior: contain) 그 부분은 페이지를 내리기 전까지 볼 수 없었다 */
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el) return;
+    const wide = window.matchMedia("(width > 1024px)");
+    let frame = 0;
+    const fit = () => {
+      frame = 0;
+      if (!wide.matches) { el.style.removeProperty("--_sidebar-room"); return; }
+      const room = window.innerHeight - el.getBoundingClientRect().top - 24;
+      el.style.setProperty("--_sidebar-room", `${Math.max(240, Math.round(room))}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(fit); };
+    fit();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    wide.addEventListener("change", schedule);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      wide.removeEventListener("change", schedule);
+    };
+  }, [sidebar]);
   useEffect(() => {
     if (!sidebarOpen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSidebarOpen(false); };
