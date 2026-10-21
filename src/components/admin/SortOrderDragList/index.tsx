@@ -266,9 +266,12 @@ export default function SortOrderDragList({
                 )}
                 <span className={styles.num}>{idx + 1}</span>
               </span>
+              {/* 제목만 줄어들며 말줄임 — '현재' 칩은 줄지 않아 공간이 모자라도 잘리지 않는다 */}
               <span className={styles.title}>
-                {item.isCurrent ? <strong>{item.title}</strong> : item.title}
-                {item.isCurrent && <Badge variant="solid" tone="accent">{currentTag}</Badge>}
+                <span className={styles.titleText} title={item.title}>
+                  {item.isCurrent ? <strong>{item.title}</strong> : item.title}
+                </span>
+                {item.isCurrent && <Badge variant="solid" tone="accent" className={styles.titleBadge}>{currentTag}</Badge>}
               </span>
             </div>
           );

@@ -1234,7 +1234,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             {authors.slice(0, 4).map((a) => (
               <span key={a.id} className={styles.extraPreviewChip}>
                 <AuthorAvatar value={a.avatar} name={a.name} size={18} className={styles.extraPreviewAvatar} />
-                {a.name}
+                <span className={styles.extraPreviewChipText}>{a.name}</span>
               </span>
             ))}
           </>
@@ -1245,7 +1245,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         key: "github",
         title: te("github"),
         count: metaForm.github_url?.trim() ? 1 : 0,
-        preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}>{host(metaForm.github_url)}</span> : empty,
+        preview: metaForm.github_url?.trim() ? <span className={styles.extraPreviewChip}><span className={styles.extraPreviewChipText}>{host(metaForm.github_url)}</span></span> : empty,
         body: <PostGithubField form={metaForm} updateField={updateField} />,
       },
       {

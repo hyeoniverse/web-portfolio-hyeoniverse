@@ -178,6 +178,15 @@
   font: var(--font-body-xs);
   color: var(--text-secondary);
   white-space: nowrap;
+  /* 카드보다 넓어지지 않게 — 긴 이름 · 주소는 글자(.extraPreviewChipText)만 말줄임 */
+  max-width: 100%;
+  min-width: 0;
+}
+
+.extraPreviewChipText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .extraPreviewAvatar {

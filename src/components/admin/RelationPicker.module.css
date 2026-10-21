@@ -149,7 +149,9 @@
   border: none;
   font: var(--font-body-sm);
   color: var(--text-primary);
-  max-width: 240px;
+  /* 줄보다 넓어지지 않게 — 좁으면 제목(.chipLabelText)만 줄어든다 */
+  max-width: min(240px, 100%);
+  min-width: 0;
   user-select: none;
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
@@ -234,13 +236,19 @@
   flex-shrink: 0;
 }
 
+/* 제목 + Draft 칩 — 제목만 줄어들며 말줄임, Draft 칩 · 앞의 번호 · 뒤의 지우기 단추는 줄지 않는다 */
 .chipLabel {
   display: inline-flex;
+  flex: 0 1 auto;
   align-items: center;
   gap: var(--spacing-4);
-  overflow: hidden;
+  min-width: 0;
   white-space: nowrap;
-  max-width: 220px;
+}
+
+.chipLabel > :not(.chipLabelText),
+.chip > :not(.chipLabel) {
+  flex-shrink: 0;
 }
 
 .chipLabelText {
