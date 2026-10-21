@@ -175,3 +175,13 @@ describe("proxy — CSRF origin 검사", () => {
     }
   });
 });
+
+/* 블로그 주소의 짧은 경로 — 슬러그가 admin 으로 시작해도 관리 화면이 아니라 글이다(로그인으로 보내지던 버그) */
+describe("proxy — 블로그 주소의 admin 으로 시작하는 글", () => {
+  it("로그인으로 보내지 않고 /posts/<슬러그> 로 그린다", async () => {
+    state.user = null;
+    const res = await proxy(new NextRequest("https://blog.hyeoniverse.com/admin-two-factor-totp", { headers: { host: "blog.hyeoniverse.com" } }));
+    expect(res.headers.get("location") ?? "").not.toContain("/admin/login");
+    expect(res.headers.get("x-middleware-rewrite") ?? "").toContain("/posts/admin-two-factor-totp");
+  });
+});

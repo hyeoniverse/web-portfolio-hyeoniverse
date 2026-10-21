@@ -6,7 +6,7 @@ import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
 import { MFA_PAGE, isMfaPath, passesMfa } from "@/lib/auth/mfa";
 import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
 import {
-  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain,
+  BLOG_ORIGIN, MAIN_ORIGIN, appPathOnBlogHost, blogPathOf, isBlogHost, isMainHost, passThroughOnBlogHost, sharedCookieDomain, isAdminApiRoute, isAdminRoute,
 } from "@/lib/siteHosts";
 
 /**
@@ -90,7 +90,7 @@ function routeBlogHost(request: NextRequest): NextResponse | null {
 const MUTATION_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
 
 function isAdminPath(pathname: string): boolean {
-  return pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
+  return isAdminRoute(pathname) || isAdminApiRoute(pathname);
 }
 
 /** 인증 가드 제외 경로 — 비로그인 사용자가 접근 가능해야 하는 admin 영역.
@@ -106,7 +106,7 @@ function isAdminAuthPublic(pathname: string): boolean {
 }
 
 function isAdminApi(pathname: string): boolean {
-  return pathname.startsWith("/api/admin");
+  return isAdminApiRoute(pathname);
 }
 
 function isApi(pathname: string): boolean {
