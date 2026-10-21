@@ -5,7 +5,7 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-/* 콘텐츠 보안 정책 — 지금은 관찰 모드(Report-Only)라 막지 않고 브라우저 콘솔에 위반만 남긴다.
+/* 콘텐츠 보안 정책 — 지금은 관찰 모드(Report-Only)라 막지 않고 위반만 보고한다(/api/csp-report → 서버 로그).
    쓰는 외부 출처: Supabase(데이터 · 저장소 · 실시간), reCAPTCHA(문의), giscus(댓글), unpkg(본문 도구),
    Vercel(분석 · 미리보기 툴바), Google Fonts · jsDelivr(글꼴), YouTube · Vimeo(본문 영상), Office 뷰어(라이브러리 미리보기).
    본문 이미지는 외부 주소가 많아 https 전체를 연다. 위반이 잦아들면 Content-Security-Policy 로 바꾼다 */
@@ -23,6 +23,9 @@ const CSP = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
+  // 위반 보고 — Safari 는 보고 주소가 없으면 관찰 모드 정책을 아예 쓰지 않는다. report-uri(Safari · Firefox) · report-to(Chrome) 둘 다
+  "report-uri /api/csp-report",
+  "report-to csp",
 ].join("; ");
 
 const SECURITY_HEADERS = [
@@ -33,6 +36,7 @@ const SECURITY_HEADERS = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()" },
   // 소개 페이지가 /works 를 iframe 으로 띄운다 — 같은 출처는 허용
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Reporting-Endpoints", value: 'csp="/api/csp-report"' },
   { key: "Content-Security-Policy-Report-Only", value: CSP },
 ];
 

@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 199,
-  "routeFiles": 139,
+  "total": 200,
+  "routeFiles": 140,
   "access": {
-    "public": 68,
+    "public": 69,
     "signed-in": 60,
     "author": 28,
     "admin": 16,
@@ -1383,7 +1383,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 26,
+      "files": 27,
       "folded": [
         "auth",
         "brand-symbol-font",
@@ -1391,6 +1391,7 @@ export const apiMap: ApiMap = {
         "comment-reactions",
         "content-translate",
         "cron",
+        "csp-report",
         "custom-emojis",
         "favicon",
         "fonts",
@@ -1439,6 +1440,11 @@ export const apiMap: ApiMap = {
           "method": "GET",
           "path": "/api/cron/purge-trash",
           "access": "cron"
+        },
+        {
+          "method": "POST",
+          "path": "/api/csp-report",
+          "access": "public"
         },
         {
           "method": "GET",
@@ -1587,7 +1593,7 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 22,
+        "public": 23,
         "signed-in": 5,
         "author": 1,
         "admin": 0,
