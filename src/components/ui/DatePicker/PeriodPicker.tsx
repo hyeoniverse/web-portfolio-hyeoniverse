@@ -7,7 +7,7 @@ import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
 import Checkbox from "@/components/ui/Checkbox";
-import Input from "@/components/ui/Input";
+import { useFieldVariant } from "@/components/ui/fieldVariant";
 import { autoFormatTypedDate, formatTypedDate, parseTypedDate, TYPED_DATE_PLACEHOLDER } from "@/utils/parseTypedDate";
 import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
@@ -46,6 +46,7 @@ const DEFAULT_FORMATS: Format[] = ["year", "yearMonth", "date"];
 const calendarFormat = (f: Format): "year" | "yearMonth" | "date" => (f === "dateTime" ? "date" : f);
 
 /** 날짜 칸 — 이어서 적는 글 하나("19990827" · "990827" · "1999-08-27" …). 평소엔 형식대로("1999.08.27") 보이고,
+ *  칸 안에 입력 틀(YYYY.MM.DD)이 옅게 보이고 적는 대로 그 자리가 채워진다 — 안내 글 없이도 무엇을 적을지 보인다.
  *  형식 끝까지 적는 순간 · Enter · 칸을 벗어날 때 적용한다. 못 읽는 글이면 테두리로 알리고 Esc 로 되돌린다.
  *  예전에는 연 · 월 · 일 셀렉트를 하나씩 눌러 골라야 했다 */
 function DateTextField({
@@ -68,6 +69,8 @@ function DateTextField({
   // null — 적는 중이 아님(저장 값을 형식대로 보여 준다)
   const [draft, setDraft] = useState<string | null>(null);
   const [invalid, setInvalid] = useState(false);
+  // 편집 화면은 밑줄, 그 밖은 알약 — 다른 입력칸과 같은 모양(FieldVariantScope)
+  const variant = useFieldVariant(undefined);
   // Esc 로 되돌린 직후의 blur 는 적용하지 않는다 — 화면에 남은 못 읽는 글로 다시 오류가 났다
   const skipBlurRef = useRef(false);
   const parse = (raw: string) => parseTypedDate(raw, format, { min: minDate, max: maxDate });
@@ -78,39 +81,55 @@ function DateTextField({
     if (r.value !== value) onChange(r.value);
     setDraft(null);
   };
+  const shown = draft ?? formatTypedDate(value);
+  const mask = TYPED_DATE_PLACEHOLDER[format];
+  /* 입력 틀 — 적은 자리 뒤로 남은 틀(YYYY.MM.DD 의 나머지)을 옅게 겹쳐 보인다. 적은 글이 틀 모양(자동으로 넣은 점)일 때만 */
+  const showMask = shown.length < mask.length && (shown === "" || autoFormatTypedDate(shown, format) === shown);
   return (
-    <Input
-      className={`${styles.dateText} ${styles[`dateText_${format}`]}`}
-      value={draft ?? formatTypedDate(value)}
-      onChange={(typed) => {
-        // 숫자만 쳐도 구분자를 넣어 보여 준다("19990827" → "1999.08.27")
-        const v = autoFormatTypedDate(typed, format);
-        setDraft(v);
-        setInvalid(false);
-        const r = parse(v);
-        // 적는 도중엔 마지막 조각이 두 자리 찬 뒤에만 바로 적용 — "1999.08.2" 를 2일로 읽어 먼저 바꾸지 않게.
-        // 한 자리로 끝낼 때는 Enter · 칸을 벗어날 때 적용된다
-        const lastPart = v.split(/\D+/).filter(Boolean).pop() ?? "";
-        if (r?.complete && lastPart.length >= 2 && r.value !== value) onChange(r.value);
-      }}
-      onFocus={() => setDraft(formatTypedDate(value))}
-      onBlur={(e) => {
-        if (skipBlurRef.current) { skipBlurRef.current = false; return; }
-        commit(e.currentTarget.value);
-      }}
-      onKeyDown={(e) => {
-        if (e.nativeEvent.isComposing) return;
-        if (e.key === "Enter") { e.preventDefault(); commit(e.currentTarget.value); }
-        else if (e.key === "Escape") { skipBlurRef.current = true; setDraft(null); setInvalid(false); e.currentTarget.blur(); }
-      }}
-      placeholder={TYPED_DATE_PLACEHOLDER[format]}
-      error={invalid}
-      aria-invalid={invalid || undefined}
-      aria-label={label}
-      clearable={false}
-      disabled={disabled}
-      autoComplete="off"
-    />
+    <span
+      className={`${styles.dateField} ${styles[`dateText_${format}`]}`}
+      data-variant={variant}
+      data-invalid={invalid || undefined}
+      data-disabled={disabled || undefined}
+    >
+      <input
+        className={styles.dateFieldInput}
+        type="text"
+        inputMode="numeric"
+        value={shown}
+        onChange={(e) => {
+          // 숫자만 쳐도 구분자를 넣어 보여 준다("19990827" → "1999.08.27")
+          const v = autoFormatTypedDate(e.target.value, format);
+          setDraft(v);
+          setInvalid(false);
+          const r = parse(v);
+          // 적는 도중엔 마지막 조각이 두 자리 찬 뒤에만 바로 적용 — "1999.08.2" 를 2일로 읽어 먼저 바꾸지 않게.
+          // 한 자리로 끝낼 때는 Enter · 칸을 벗어날 때 적용된다
+          const lastPart = v.split(/\D+/).filter(Boolean).pop() ?? "";
+          if (r?.complete && lastPart.length >= 2 && r.value !== value) onChange(r.value);
+        }}
+        onFocus={() => setDraft(formatTypedDate(value))}
+        onBlur={(e) => {
+          if (skipBlurRef.current) { skipBlurRef.current = false; return; }
+          commit(e.currentTarget.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.nativeEvent.isComposing) return;
+          if (e.key === "Enter") { e.preventDefault(); commit(e.currentTarget.value); }
+          else if (e.key === "Escape") { skipBlurRef.current = true; setDraft(null); setInvalid(false); e.currentTarget.blur(); }
+        }}
+        aria-invalid={invalid || undefined}
+        aria-label={`${label} (${mask})`}
+        disabled={disabled}
+        autoComplete="off"
+      />
+      {showMask && (
+        <span className={styles.dateFieldMask} aria-hidden>
+          <span className={styles.dateFieldTyped}>{shown}</span>
+          {mask.slice(shown.length)}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -367,10 +386,6 @@ export default function PeriodPicker({
           />
         )}
       </div>
-      {/* 날짜 칸에 초점이 있을 때만 — 어떻게 적어도 되는지(CSS :focus-within) */}
-      {safeValue.format !== "year" && (
-        <p className={styles.dateHint}>{t(safeValue.format === "yearMonth" ? "common.periodTypeHintMonth" : "common.periodTypeHint")}</p>
-      )}
     </div>
   );
 }

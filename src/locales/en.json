@@ -252,8 +252,6 @@
     "likeFailed": "Couldn’t update your like. Please try again.",
     "periodStart": "Start",
     "periodTime": "Time",
-    "periodTypeHint": "Type it straight, e.g. 19990827 · 990827 · 1999-08-27",
-    "periodTypeHintMonth": "Type it straight, e.g. 199908 · 9908 · 1999-08",
     "periodEnd": "End",
     "periodOngoing": "Ongoing",
     "periodFormat": "Format",
