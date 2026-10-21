@@ -1369,6 +1369,69 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     handleImageUpload, showCoverPicker, showErrors, tw, updateField,
   ]);
 
+  const techAddRow = useMemo(() => (
+    <div className={styles.techInputRow}>
+      {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
+       *  - 그룹 + 아이콘 표시, 이미 추가된 항목은 옅은 accent 배경 + ✓
+       *  - Enter 또는 dropdown 클릭 시 추가 (alias 정규화 + 중복 toast) */}
+      <Select
+        combobox
+        value=""
+        onChange={() => {}}
+        inputValue={tech.input}
+        onInputChange={tech.setInput}
+        onAdd={addTechs}
+        options={TECH_PRESETS.map((p) => {
+          const added = form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === p.name.toLowerCase());
+          return {
+            value: p.name,
+            label: p.name,
+            group: p.group,
+            icon: getTechIcon(p.name),
+            selected: added,
+            trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
+            // 한국어 alias 도 매칭 (예: "리액트" 입력 시 React 추천)
+            searchTerms: getTechAliases(p.name),
+          };
+        })}
+        placeholder={tw("techPlaceholder")}
+      />
+      <Button
+        variant="outline"
+        shape="circle"
+        className={styles.categoryAddBtnSized}
+        onClick={() => addTechs(tech.input)}
+        disabled={!tech.input.trim()}
+        aria-label={tw("techAdd")}
+        icon={<Plus size={14} strokeWidth={2} />}
+      />
+    </div>
+  ), [addTechs, form.tech, tech, tw]);
+
+  /* 기술 스택 — 속성 사이드바. SEO 체크리스트의 "태그" 항목이 여기로 옮겨 온다(id) */
+  const techListField = useMemo(() => (
+    <div className={es.field} id="work-tech">
+      <label className={es.fieldLabel}>{tw("techStack")}</label>
+      {techAddRow}
+      <TechTable
+        variant="list"
+        items={form.tech}
+        notes={form.tech_notes ?? {}}
+        onItemsChange={(next) => updateField("tech", next)}
+        onNotesChange={(next) => updateField("tech_notes", next)}
+        labels={{
+          tech: tw("techTableTech"),
+          ko: tw("techTableKo"),
+          en: tw("techTableEn"),
+          placeholder: tw("techNotePlaceholder"),
+          remove: tw("techRemove"),
+          empty: tw("techEmpty"),
+          drag: t("admin.common.dragToReorder"),
+        }}
+      />
+    </div>
+  ), [form.tech, form.tech_notes, t, techAddRow, tw, updateField]);
+
   const propertiesSection = useMemo(() => (
     <div className={styles.properties}>
       {pinToggle}
@@ -1497,9 +1560,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
+      {techListField}
+
       {coverField}
     </div>
   ), [
+    techListField,
     coverField, srcBadge, categoryCustomMode, editorLang, form.categories_en, form.categories_ko,
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, pinToggle, primaryLang,
@@ -1836,55 +1902,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   ]);
 
   /* 기술 추가 줄 — 프리셋 추천 combobox + ＋. 기본 보기와 표 보기가 같이 쓴다 */
-  const techAddRow = useMemo(() => (
-    <div className={styles.techInputRow}>
-      {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
-       *  - 그룹 + 아이콘 표시, 이미 추가된 항목은 옅은 accent 배경 + ✓
-       *  - Enter 또는 dropdown 클릭 시 추가 (alias 정규화 + 중복 toast) */}
-      <Select
-        combobox
-        value=""
-        onChange={() => {}}
-        inputValue={tech.input}
-        onInputChange={tech.setInput}
-        onAdd={addTechs}
-        options={TECH_PRESETS.map((p) => {
-          const added = form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === p.name.toLowerCase());
-          return {
-            value: p.name,
-            label: p.name,
-            group: p.group,
-            icon: getTechIcon(p.name),
-            selected: added,
-            trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
-            // 한국어 alias 도 매칭 (예: "리액트" 입력 시 React 추천)
-            searchTerms: getTechAliases(p.name),
-          };
-        })}
-        placeholder={tw("techPlaceholder")}
-      />
-      <Button
-        variant="outline"
-        shape="circle"
-        className={styles.categoryAddBtnSized}
-        onClick={() => addTechs(tech.input)}
-        disabled={!tech.input.trim()}
-        aria-label={tw("techAdd")}
-        icon={<Plus size={14} strokeWidth={2} />}
-      />
-    </div>
-  ), [addTechs, form.tech, tech, tw]);
 
   /* Tech Stack */
+  /* 기술 설명 — 추가 정보 카드. 기술 목록(추가 · 순서 · 빼기)은 SEO "태그" 라 속성 사이드바(techListField)에 있다 */
   const techSection = useMemo(() => (
-    /* id — SEO 체크리스트의 "태그" 항목이 여기로 옮겨 온다 */
-    <div className={styles.section} id="work-tech">
-      <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
-      <p className={styles.extraHint}>{tw("techHint")}</p>
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("techNotes")}</h2>
+      <p className={styles.extraHint}>{tw("techNotesHint")}</p>
       <div className={es.field}>
-        {techAddRow}
-        {/* 기술별 한 줄 — [손잡이 | 로고 · 이름 | 설명 KO | 설명 EN | 빼기]. 설명은 줄에서 바로 고친다 */}
+        {/* 기술별 한 줄 — [로고 · 이름 | 설명 KO | 설명 EN]. 설명은 줄에서 바로 고친다 */}
         <TechTable
+          variant="notes"
           items={form.tech}
           notes={form.tech_notes ?? {}}
           onItemsChange={(next) => updateField("tech", next)}
@@ -1901,7 +1929,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         />
       </div>
     </div>
-  ), [form.tech, form.tech_notes, t, techAddRow, tw, updateField]);
+  ), [form.tech, form.tech_notes, t, tw, updateField]);
+
+
 
   /* Team Members */
   const teamSection = useMemo(() => {
@@ -2155,17 +2185,22 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     const titleOf = (x: { title: string; title_en?: string }) => (language === "en" && x.title_en ? x.title_en : x.title);
     const posts = allPosts.filter((p) => (form.related_post_ids ?? []).includes(p.id));
     const series = allSeries.filter((x) => (form.related_series_ids ?? []).includes(x.id));
+    const noted = form.tech.filter((tg) => {
+      const n = form.tech_notes?.[tg];
+      return !!(n?.ko?.trim() || n?.en?.trim());
+    });
     return [
       {
         key: "tech",
-        title: tw("techStack"),
-        count: form.tech.length,
-        preview: form.tech.length === 0 ? empty : (
+        title: tw("techNotes"),
+        // 설명을 단 기술 수 — 기술 목록 자체는 사이드바에 있다
+        count: noted.length,
+        preview: noted.length === 0 ? empty : (
           <>
-            {form.tech.slice(0, 10).map((tg) => (
+            {noted.slice(0, 10).map((tg) => (
               <span key={tg} className={styles.extraPreviewChip}>{getTechIcon(tg)}{tg}</span>
             ))}
-            {form.tech.length > 10 && <span>+{form.tech.length - 10}</span>}
+            {noted.length > 10 && <span>+{noted.length - 10}</span>}
           </>
         ),
         body: techSection,
@@ -2209,6 +2244,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       },
     ];
   }, [
+    form.tech_notes,
     allPosts, allSeries, editorLang, form.github_url, form.live_url, form.related_post_ids, form.related_series_ids,
     form.team_members, form.tech, language, linksSection, relatedPostsSection, relatedSeriesSection,
     teamSection, techSection, tw,
@@ -2398,16 +2434,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }}
         onItemClick={(id: SeoCheckId) => {
           const fieldId = id === "excerpt" ? "work-description" : id === "cover" ? "work-image" : id === "tags" ? "work-tech" : `work-${id}`;
-          if (id === "tags" && extraOpenKey !== "tech") {
-            /* 기술 칸은 추가 정보의 펼친 항목일 때만 그려진다 — 펼치고 다음 프레임에 다시 찾는다 */
-            setExtraOpenKey("tech");
-            requestAnimationFrame(() => {
-              const el2 = document.getElementById(fieldId);
-              el2?.scrollIntoView({ behavior: "smooth", block: "center" });
-              if (el2) flashSeoField(el2);
-            });
-            return;
-          }
+          // 기술 스택은 속성 사이드바에 늘 있다 — 예전처럼 추가 정보 카드를 먼저 펼칠 필요가 없다
           const el = document.getElementById(fieldId);
           if (!el) return;
           el.scrollIntoView({ behavior: "smooth", block: "center" });

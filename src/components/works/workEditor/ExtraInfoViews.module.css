@@ -207,6 +207,26 @@
   color: var(--text-primary);
 }
 
+/* 사이드바 목록 — [손잡이 | 로고 · 이름 | 삭제] 한 줄, 화면 폭과 상관없이 */
+.tableList .tableRow {
+  padding: var(--spacing-2) 0;
+}
+
+.tableList .tableRow > :nth-child(3) {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+/* 설명 표 — [로고 · 이름 | KO | EN]. 좁은 화면은 이름 아래로 KO · EN */
+.tableNotes .tableRow {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.tableNotes .tableRow > :nth-child(n) {
+  grid-column: auto;
+  grid-row: auto;
+}
+
 @media (width > 768px) {
   .tableRow {
     grid-template-columns: var(--spacing-16) minmax(160px, 1.2fr) minmax(0, 2fr) minmax(0, 2fr) var(--control-height-md);
@@ -221,5 +241,14 @@
 
   .tableHead {
     display: grid;
+  }
+
+  .tableList .tableRow {
+    grid-template-columns: var(--spacing-16) minmax(0, 1fr) var(--control-height-md);
+    padding: var(--spacing-2) 0;
+  }
+
+  .tableNotes .tableRow {
+    grid-template-columns: minmax(140px, 1fr) minmax(0, 2fr) minmax(0, 2fr);
   }
 }
