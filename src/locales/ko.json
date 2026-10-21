@@ -252,6 +252,8 @@
     "likeFailed": "좋아요를 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
     "periodStart": "시작",
     "periodTime": "시간",
+    "periodTypeHint": "19990827 · 990827 · 1999-08-27 처럼 이어서 적을 수 있어요",
+    "periodTypeHintMonth": "199908 · 9908 · 1999-08 처럼 이어서 적을 수 있어요",
     "periodEnd": "종료",
     "periodOngoing": "진행 중",
     "periodFormat": "표시 형식",

@@ -8,7 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
 import Checkbox from "@/components/ui/Checkbox";
 import Input from "@/components/ui/Input";
-import { formatTypedDate, parseTypedDate, TYPED_DATE_PLACEHOLDER } from "@/utils/parseTypedDate";
+import { autoFormatTypedDate, formatTypedDate, parseTypedDate, TYPED_DATE_PLACEHOLDER } from "@/utils/parseTypedDate";
 import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
@@ -82,11 +82,16 @@ function DateTextField({
     <Input
       className={`${styles.dateText} ${styles[`dateText_${format}`]}`}
       value={draft ?? formatTypedDate(value)}
-      onChange={(v) => {
+      onChange={(typed) => {
+        // 숫자만 쳐도 구분자를 넣어 보여 준다("19990827" → "1999.08.27")
+        const v = autoFormatTypedDate(typed, format);
         setDraft(v);
         setInvalid(false);
         const r = parse(v);
-        if (r?.complete && r.value !== value) onChange(r.value);
+        // 적는 도중엔 마지막 조각이 두 자리 찬 뒤에만 바로 적용 — "1999.08.2" 를 2일로 읽어 먼저 바꾸지 않게.
+        // 한 자리로 끝낼 때는 Enter · 칸을 벗어날 때 적용된다
+        const lastPart = v.split(/\D+/).filter(Boolean).pop() ?? "";
+        if (r?.complete && lastPart.length >= 2 && r.value !== value) onChange(r.value);
       }}
       onFocus={() => setDraft(formatTypedDate(value))}
       onBlur={(e) => {
@@ -362,6 +367,10 @@ export default function PeriodPicker({
           />
         )}
       </div>
+      {/* 날짜 칸에 초점이 있을 때만 — 어떻게 적어도 되는지(CSS :focus-within) */}
+      {safeValue.format !== "year" && (
+        <p className={styles.dateHint}>{t(safeValue.format === "yearMonth" ? "common.periodTypeHintMonth" : "common.periodTypeHint")}</p>
+      )}
     </div>
   );
 }

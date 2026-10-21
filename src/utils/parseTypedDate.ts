@@ -103,3 +103,38 @@ export const TYPED_DATE_PLACEHOLDER: Record<TypedDateFormat, string> = {
   date: "YYYY.MM.DD",
   dateTime: "YYYY.MM.DD HH:mm",
 };
+
+/**
+ * 적는 동안 구분자를 넣는다 — 숫자만 쳐도 "1999" → "1999.08" → "1999.08.27"(→ " 14:30").
+ * 네 자리 연도(19 · 20 으로 시작)는 치는 대로, 두 자리 연도("990827")는 자리가 다 차면 한 번에 바꾼다.
+ * 사용자가 "-" · "/" 같은 구분자를 직접 넣었으면 건드리지 않는다.
+ */
+export function autoFormatTypedDate(raw: string, format: TypedDateFormat, now: Date = new Date()): string {
+  if (format === "year") return raw.replace(/\D/g, "").slice(0, 4);
+  // 우리가 넣은 모양(점 · 공백 · 콜론)만 있을 때만 숫자열로 보고 다시 맞춘다
+  if (!/^[\d.\s:]*$/.test(raw)) return raw;
+  const d = raw.replace(/\D/g, "");
+  if (!d) return "";
+  const max = format === "yearMonth" ? 6 : format === "date" ? 8 : 12;
+  if (/^(19|20)/.test(d) || d.length > 6) {
+    const s = d.slice(0, max);
+    let out = s.slice(0, 4);
+    if (s.length > 4) out += `.${s.slice(4, 6)}`;
+    if (s.length > 6) out += `.${s.slice(6, 8)}`;
+    if (s.length > 8) out += ` ${s.slice(8, 10)}`;
+    if (s.length > 10) out += `:${s.slice(10, 12)}`;
+    return out;
+  }
+  // 두 자리 연도 — 자리가 다 차면(연.월 4자리 · 연.월.일 6자리) 네 자리 연도로 바꿔 보인다
+  const full = format === "yearMonth" ? 4 : 6;
+  if (d.length === full) {
+    if (format === "yearMonth") {
+      const year = expandYear(Number(d.slice(0, 2)), now);
+      const m = Number(d.slice(2));
+      return m >= 1 && m <= 12 ? `${year}.${pad(m)}` : d;
+    }
+    const r = parseTypedDate(d, format, { now });
+    return r ? formatTypedDate(r.value) : d;
+  }
+  return d;
+}

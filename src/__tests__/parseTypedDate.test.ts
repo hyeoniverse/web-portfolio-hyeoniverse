@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTypedDate, parseTypedDate } from "@/utils/parseTypedDate";
+import { autoFormatTypedDate, formatTypedDate, parseTypedDate } from "@/utils/parseTypedDate";
 
 const now = new Date(2026, 9, 21);
 const p = (raw: string, f: Parameters<typeof parseTypedDate>[1], o = {}) => parseTypedDate(raw, f, { now, ...o });
@@ -49,5 +49,28 @@ describe("formatTypedDate", () => {
     expect(formatTypedDate("1999-08-27")).toBe("1999.08.27");
     expect(formatTypedDate("1999-08-27T14:30")).toBe("1999.08.27 14:30");
     expect(formatTypedDate("")).toBe("");
+  });
+});
+
+describe("autoFormatTypedDate", () => {
+  const a = (raw: string, f: Parameters<typeof autoFormatTypedDate>[1]) => autoFormatTypedDate(raw, f, now);
+  it("네 자리 연도는 치는 대로 점을 넣는다", () => {
+    expect(["1", "199", "1999", "19990", "199908", "1999082", "19990827"].map((r) => a(r, "date")))
+      .toEqual(["1", "199", "1999", "1999.0", "1999.08", "1999.08.2", "1999.08.27"]);
+    expect(a("1999.08" + "2", "date")).toBe("1999.08.2");
+    expect(a("199908271430", "dateTime")).toBe("1999.08.27 14:30");
+    expect(a("19990827", "yearMonth")).toBe("1999.08");
+  });
+
+  it("두 자리 연도는 자리가 다 차면 한 번에 바꾼다", () => {
+    expect(a("9908", "date")).toBe("9908");
+    expect(a("990827", "date")).toBe("1999.08.27");
+    expect(a("9908", "yearMonth")).toBe("1999.08");
+  });
+
+  it("지울 때 끝에 남은 점은 걷고, 사용자가 넣은 구분자는 그대로 둔다", () => {
+    expect(a("1999.08.", "date")).toBe("1999.08");
+    expect(a("1999-8-2", "date")).toBe("1999-8-2");
+    expect(a("1999/08", "date")).toBe("1999/08");
   });
 });

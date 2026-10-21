@@ -233,6 +233,19 @@
   width: calc(17ch + var(--spacing-32));
 }
 
+/* 적는 법 안내 — 날짜 칸에 초점이 있을 때만 줄 아래에 */
+.dateHint {
+  display: none;
+  flex-basis: 100%;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.dateRows:focus-within + .dateHint {
+  display: block;
+}
+
 /* 날짜 묶음·시각 묶음 — 안에서는 줄을 바꾸지 않는다 */
 .dateGroup {
   display: inline-flex;
