@@ -1963,7 +1963,7 @@
         },
         "memberListEmpty": "No members yet. Add one below.",
         "relatedPostsHint": "Posts to read with this project. They appear as links in the detail page's info grid. Drag chips to reorder.",
-        "relatedSeriesHint": "Series about this project. They appear as links in the detail page's info grid.",
+        "relatedSeriesHint": "Series about this project. They appear as links in the detail page's info grid. Linking a series also adds its posts to related posts.",
         "memberLinkedBadge": "Site member",
         "memberLinkedTitle": "Linked to {{name}}, who can edit this project.",
         "memberEmailLabel": "Email",
