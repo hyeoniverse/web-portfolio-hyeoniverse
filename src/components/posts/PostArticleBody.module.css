@@ -219,21 +219,39 @@
   text-decoration: none;
 }
 
-.prose sup[data-footnote-ref]::before { content: "["; }
-.prose sup[data-footnote-ref]::after { content: "]"; }
+/* 대괄호는 저장된 글자에 이미 있다(<sup …>[1]</sup>, plateSerializer · postProcessMarkedHtml) — CSS 로 또 붙이면 [[1]] 이 됐다 */
+.prose sup[data-footnote-ref] {
+  cursor: pointer;
+}
 
 .prose sup[data-footnote-ref]:hover {
   text-decoration: underline;
 }
 
 
+/* 각주 목록 — 번호는 data-footnote-content 값으로 앞에 그린다(예전엔 번호가 없어 본문의 [n] 과 짝을 찾을 수 없었다) */
 .prose div[data-footnote-content] {
-  font: var(--font-body-md);
+  position: relative;
+  padding-left: 2em;
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   margin: var(--spacing-4) 0;
   border-top: var(--border-default);
   margin-top: var(--spacing-48);
   padding-top: var(--spacing-16);
+}
+
+.prose div[data-footnote-content]::before {
+  content: attr(data-footnote-content) ".";
+  position: absolute;
+  left: 0;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 첫 각주는 위 구분선 아래 여백(padding-top)만큼 번호도 내린다 */
+.prose div[data-footnote-content]:not(div[data-footnote-content] + div[data-footnote-content])::before {
+  top: var(--spacing-16);
 }
 
 .prose div[data-footnote-content] + div[data-footnote-content] {
@@ -362,28 +380,38 @@
   height: auto;
 }
 
-/* 본문 내 목차(TOC) */
+/* 본문 내 목차(TOC) — 면 없이 왼쪽 선 하나 + "목차" 머리. 예전엔 회색 면 상자에 단계 차이가 8px 뿐이라 무겁고 위계가 안 보였다.
+   들여쓰기는 글의 가장 높은 단계를 0 으로 센 data-level(readerExtras/toc) */
 .prose :global(.reader-toc) {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
-  margin: var(--spacing-20) 0;
-  padding: var(--spacing-8) var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: var(--bg-secondary);
+  gap: var(--spacing-2);
+  margin: var(--spacing-32) 0;
+  padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-20);
+  border-left: var(--border-width-2) solid var(--border-color-light);
+}
+
+.prose :global(.reader-toc-title) {
+  margin: 0 0 var(--spacing-8);
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
 }
 
 .prose :global(.reader-toc) a {
+  width: fit-content;
+  padding: var(--spacing-2) 0;
   color: var(--text-secondary);
   text-decoration: none;
   font: var(--font-body-md);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .prose :global(.reader-toc) a:hover { color: var(--text-accent); }
-.prose :global(.reader-toc) a[data-depth="2"] { padding-left: var(--spacing-16); }
-.prose :global(.reader-toc) a[data-depth="3"] { padding-left: var(--spacing-24); }
-.prose :global(.reader-toc) a[data-depth="4"] { padding-left: var(--spacing-32); }
+.prose :global(.reader-toc) a[data-level="1"] { padding-left: var(--spacing-20); font: var(--font-body-sm); color: var(--text-tertiary); }
+.prose :global(.reader-toc) a[data-level="2"] { padding-left: var(--spacing-40); font: var(--font-body-sm); color: var(--text-tertiary); }
+.prose :global(.reader-toc) a[data-level="1"]:hover,
+.prose :global(.reader-toc) a[data-level="2"]:hover { color: var(--text-accent); }
 
 /* 넘치는 표를 담는 스크롤 상자 — readerExtras 가 감싼다(.tbl-freeze 와 같은 스크롤바 모양) */
 .prose :global(.tbl-scroll) {

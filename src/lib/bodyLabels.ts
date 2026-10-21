@@ -85,6 +85,8 @@ const DEFS = {
   mermaidDiagram: common("mermaidDiagram"),
   mermaidCode: common("mermaidCode"),
   mermaidSplit: common("mermaidSplit"),
+  /* 목차 블록 머리 — readerExtras/toc */
+  tocTitle: { ko: "목차", en: "Contents" },
   /* 투표 — readerExtras/poll · pollResultView */
   pollHeadTitle: { ko: "제목", en: "Title" },
   pollHeadSubtitle: { ko: "부제목", en: "Subtitle" },
