@@ -3009,8 +3009,7 @@
         "empty": "No IP visits in this period.",
         "mine": "Mine",
         "excludedIps": "Excluded IPs",
-        "showPaths": "Paths {{n}}",
-        "hidePaths": "Hide"
+        "paths": "Paths {{n}}"
       },
       "commentImageManager": {
         "title": "Comment Image Cleanup",

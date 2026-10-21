@@ -84,6 +84,11 @@
   padding-top: var(--spacing-12);
 }
 
+/* 패널 마지막 줄 — 아래 구분선에 칩이 닿지 않게 띄운다 */
+.ipExcluded {
+  padding-bottom: var(--spacing-12);
+}
+
 .ipCurrentLabel {
   font: var(--font-body-sm);
   color: var(--text-tertiary);
@@ -108,7 +113,7 @@
 @media (width > 768px) {
   .ipRow {
     /* 날짜 칸도 폭을 잡아 둔다 — auto 면 기간 길이 따라 막대 끝이 행마다 어긋난다 */
-    grid-template-columns: 180px 1fr 136px auto auto;
+    grid-template-columns: 180px 1fr 136px auto 72px;
   }
 }
 
@@ -145,4 +150,37 @@
   padding-inline-start: var(--spacing-12);
   border-inline-start: var(--border-light);
   margin-block: var(--spacing-4) var(--spacing-12);
+}
+
+/* 경로가 있는 IP 행 — 행 전체가 활동 경로 열기 */
+.ipRowToggle {
+  cursor: pointer;
+}
+
+.ipRowToggle:hover {
+  background: var(--bg-secondary);
+}
+
+.ipRowToggle:focus-visible {
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+/* 경로 수 + 펼침 아이콘 — 폭을 고정해 열고 닫아도 행이 흔들리지 않는다 */
+.ipPaths {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-4);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.ipChevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.ipChevronOpen {
+  transform: rotate(180deg);
 }

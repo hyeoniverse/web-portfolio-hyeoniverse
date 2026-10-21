@@ -3009,8 +3009,7 @@
         "empty": "기간 내 IP 방문 기록이 없습니다.",
         "mine": "내 IP",
         "excludedIps": "집계에서 제외된 IP",
-        "showPaths": "경로 {{n}}",
-        "hidePaths": "접기"
+        "paths": "경로 {{n}}"
       },
       "commentImageManager": {
         "title": "댓글 이미지 정리",
