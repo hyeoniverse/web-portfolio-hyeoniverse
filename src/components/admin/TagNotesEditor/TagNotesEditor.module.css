@@ -104,10 +104,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 컨트롤 기본 높이(sm) */
-  height: var(--control-height-sm);
+  /* 줄 오른쪽 단추는 모두 같은 높이(xs) — 혼자 있는 "설명 추가"(예전 sm 28px)와 캡슐 안 "편집 · 취소"(20px)가 달랐다 */
+  height: var(--control-height-xs);
   width: fit-content;
-  padding: 0 var(--spacing-12);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
@@ -120,7 +120,7 @@
 
 /* 아이콘만 — 칩 높이의 정사각 */
 .toggleBtnIconOnly {
-  width: var(--control-height-sm);
+  width: var(--control-height-xs);
   padding: 0;
 }
 
@@ -372,7 +372,8 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   overflow: hidden;
-  height: 20px;
+  height: var(--control-height-xs);
+  box-sizing: border-box;
 }
 
 /* standalone + 설명 추가 — capsule 분리, 단독 ghost 캡슐 */
@@ -380,7 +381,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  height: 20px;
+  height: var(--control-height-xs);
   padding: 0 var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-control);
