@@ -20,6 +20,7 @@ import VisitsTrend from "../_components/VisitsTrend";
 import { countryName, flagEmoji } from "../_components/countryDisplay";
 import UtmBuilder, { UtmHelpButton } from "./UtmBuilder";
 import IpVisitors from "./IpVisitors";
+import JourneyList from "./JourneyList";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import Link from "next/link";
 import { formatDwell } from "@/utils/format";
@@ -339,35 +340,7 @@ export default function AdminTrafficPage() {
                   <PanelTitle>
                     <T k="admin.dashboard.recentJourneys" />
                   </PanelTitle>
-                  <List>
-                    {/* 옛 방문 기록에서 옮긴 줄은 시각이 그날 0시라 시각 · 경로가 겹칠 수 있다 — 순서로 열쇠를 만든다 */}
-                    {data.journeys.recent.map((j, i) => (
-                      <ListItem key={`${j.startedAt}-${i}`} layout="column">
-                        <span className={styles.journeyMeta}>
-                          {[
-                            new Date(j.startedAt).toLocaleString(language === "ko" ? "ko-KR" : "en-US", {
-                              timeZone: "Asia/Seoul",
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }),
-                            j.referrer,
-                            j.device,
-                          ].filter(Boolean).join(" · ")}
-                        </span>
-                        <span className={styles.journeySteps}>
-                          {j.steps.map((step, i) => (
-                            <span key={i}>
-                              {i > 0 && " → "}
-                              {step.path}
-                              {step.ms != null && <span className={styles.journeyDwell}> ({formatDwell(step.ms, language)})</span>}
-                            </span>
-                          ))}
-                        </span>
-                      </ListItem>
-                    ))}
-                  </List>
+                  <JourneyList journeys={data.journeys.recent} />
                 </>
               )}
             </Panel>
@@ -485,6 +458,63 @@ export default function AdminTrafficPage() {
                   </List>
                 )}
               </Panel>
+            </Panel>
+
+            {/* ── 유입 검색어 — 검색 엔진이 referrer 에 검색어를 실어 준 방문만 셀 수 있다 ── */}
+            <Panel className={styles.panelCell}>
+              <PanelTitle>
+                <T k="admin.dashboard.searchTermsTitle" />
+              </PanelTitle>
+              {data.searchTerms.searchVisits === 0 ? (
+                <p className={styles.muted}>
+                  <T k="admin.dashboard.noSearchVisits" />
+                </p>
+              ) : (
+                <>
+                  <div className={styles.trafficSummary}>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.searchVisits" />
+                      </span>
+                      <span className={styles.trafficStatValue}>{data.searchTerms.searchVisits.toLocaleString()}</span>
+                    </span>
+                    <span className={styles.trafficStat}>
+                      <span className={styles.trafficStatLabel}>
+                        <T k="admin.dashboard.searchWithTerm" />
+                      </span>
+                      <span className={styles.trafficStatValue}>{data.searchTerms.withTerm.toLocaleString()}</span>
+                    </span>
+                  </div>
+                  {data.searchTerms.top.length === 0 ? (
+                    <p className={styles.muted}>
+                      <T k="admin.dashboard.noSearchTerms" />
+                    </p>
+                  ) : (
+                    <List>
+                      {data.searchTerms.top.map((s) => (
+                        <ListItem key={s.term} layout="grid" className={styles.referrerRow}>
+                          <span className={styles.referrerSource} title={s.engines.join(", ")}>
+                            {s.term}
+                          </span>
+                          <div className={styles.bar} aria-hidden>
+                            <div
+                              className={`${styles.barFill} ${styles.barFillSoft}`}
+                              style={{ width: `${Math.round((s.count / data.searchTerms.top[0].count) * 100)}%` }}
+                            />
+                          </div>
+                          <span className={styles.referrerMeta}>
+                            <span className={styles.referrerPct}>{s.pct}%</span>
+                            <span className={styles.referrerCount}>{s.count.toLocaleString()}</span>
+                          </span>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                  <p className={styles.muted}>
+                    <T k="admin.dashboard.searchTermsNote" />
+                  </p>
+                </>
+              )}
             </Panel>
 
             {/* ── IP 분석 — 마스킹된 IP 별 재방문 + 내 IP 제외 ── */}

@@ -108,7 +108,7 @@
 @media (width > 768px) {
   .ipRow {
     /* 날짜 칸도 폭을 잡아 둔다 — auto 면 기간 길이 따라 막대 끝이 행마다 어긋난다 */
-    grid-template-columns: 180px 1fr 136px auto;
+    grid-template-columns: 180px 1fr 136px auto auto;
   }
 }
 
@@ -138,4 +138,11 @@
 
 .journeyDwell {
   color: var(--text-tertiary);
+}
+
+/* IP 별 활동 경로 — 행 아래에 펼친다 */
+.ipJourneys {
+  padding-inline-start: var(--spacing-12);
+  border-inline-start: var(--border-light);
+  margin-block: var(--spacing-4) var(--spacing-12);
 }

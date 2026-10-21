@@ -6,7 +6,7 @@ import { HUMAN_VISITS_FILTER, isTrafficSpike, kstDateStr } from "@/lib/api/dashb
 import { hitRateLimit, ipRateKey } from "@/lib/api/rateLimit";
 import { getIp } from "@/utils/getIp";
 import { parseUserAgent } from "@/utils/uaParser";
-import { isSessionId, normalizePagePath, parseUtm, referrerHost } from "@/lib/pageViews";
+import { isSessionId, normalizePagePath, parseUtm, referrerHost, searchTerm } from "@/lib/pageViews";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // GET /api/page-views — 오늘 · 전체 방문자 수(푸터). 대시보드 맨 위 숫자와 같은 기준 — 사람 수(방문자 id, 옛 기록은 IP),
@@ -55,6 +55,8 @@ export async function POST(request: Request) {
     country: /^[A-Z]{2}$/.test(countryRaw) ? countryRaw : null,
     // 유입 — 요청의 Referer 는 지금 페이지라 늘 자기 사이트였다. 브라우저가 document.referrer 를 실어 보낸다
     referrer: referrerHost(body?.referrer, new URL(request.url).hostname),
+    // 유입 검색어 — 검색 엔진이 referrer 에 검색어를 실어 준 경우만(네이버 · 다음 · 빙 등. 구글은 떼어 보낸다)
+    search_term: searchTerm(body?.referrer),
     ...parseUtm(body?.search),
   };
 

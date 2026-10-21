@@ -148,7 +148,14 @@ export interface VisitJourneys {
   /** 방문의 마지막 페이지 (상위 10) */
   exitPages: Array<{ path: string; count: number; pct: number }>;
   /** 최근 방문 10개의 이동 경로 — 페이지마다 머문 시간(못 잰 페이지는 null) */
-  recent: Array<{ startedAt: string; referrer: string | null; device: string | null; steps: Array<{ path: string; ms: number | null }> }>;
+  recent: Array<{
+    startedAt: string;
+    referrer: string | null;
+    /** 유입 검색어 — 검색 엔진이 referrer 에 실어 준 경우만 */
+    searchTerm: string | null;
+    device: string | null;
+    steps: Array<{ path: string; ms: number | null }>;
+  }>;
 }
 
 /** GET /api/admin/traffic — 트래픽 전용 페이지 데이터(#1161). 대시보드는 이 중 간략 세트만 보여준다. */
@@ -208,7 +215,17 @@ export interface TrafficData {
     device: string | null;
     os: string | null;
     browser: string | null;
+    /** 기간 내 이 IP 의 최근 방문 경로(최근 순, 최대 10) */
+    journeys: VisitJourneys["recent"];
   }>;
+  /** 검색 유입의 검색어 — 검색 엔진이 referrer 에 검색어를 실어 준 방문만 셀 수 있다 */
+  searchTerms: {
+    /** 검색 채널 방문 수 · 그중 검색어를 알 수 있는 방문 수 */
+    searchVisits: number;
+    withTerm: number;
+    /** 검색어 상위 20 — 비율은 검색어를 아는 방문 기준, engines 는 들어온 검색 엔진 호스트 */
+    top: Array<{ term: string; count: number; pct: number; engines: string[] }>;
+  };
   /** 지금 이 페이지를 연 요청의 IP — '내 IP 로 등록' 용. 알 수 없으면 null */
   currentIp: { key: string; masked: string; excluded: boolean } | null;
   /** '내 IP' 로 지정돼 집계에서 빠지는 IP */

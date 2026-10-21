@@ -255,3 +255,16 @@ describe("analyzeJourneys", () => {
     expect(analyzeJourneys([])).toEqual({ sessions: 0, bounceRate: 0, nextPages: [], exitPages: [], recent: [] });
   });
 });
+
+describe("searchTerm", () => {
+  it("검색 엔진 referrer 에서 검색어를 꺼낸다", async () => {
+    const { searchTerm } = await import("@/lib/pageViews");
+    expect(searchTerm("https://search.naver.com/search.naver?where=nexearch&query=%ED%98%84%EC%9D%B4%EB%B2%84%EC%8A%A4")).toBe("현이버스");
+    expect(searchTerm("https://search.daum.net/search?w=tot&q=next.js+blog")).toBe("next.js blog");
+    expect(searchTerm("https://www.bing.com/search?q=hello")).toBe("hello");
+    expect(searchTerm("https://www.google.co.kr/search?q=react")).toBe("react");
+    expect(searchTerm("https://www.google.com/")).toBeNull();
+    expect(searchTerm("https://github.com/?q=x")).toBeNull();
+    expect(searchTerm("not a url")).toBeNull();
+  });
+});

@@ -132,7 +132,13 @@
       "exitPages": "나간 페이지",
       "recentJourneys": "최근 방문 경로",
       "noJourneys": "이 기간에 경로가 기록된 방문이 없습니다.",
-      "noNextPages": "두 페이지 이상 본 방문이 아직 없습니다."
+      "noNextPages": "두 페이지 이상 본 방문이 아직 없습니다.",
+      "searchTermsTitle": "유입 검색어",
+      "noSearchVisits": "기간 내 검색 엔진에서 들어온 방문이 없습니다.",
+      "searchVisits": "검색 유입",
+      "searchWithTerm": "검색어 확인",
+      "noSearchTerms": "검색어가 잡힌 방문이 아직 없습니다.",
+      "searchTermsNote": "검색 엔진이 주소에 검색어를 실어 준 방문만 셀 수 있습니다(네이버 · 다음 · 빙 등). 구글은 검색어를 보내지 않으므로 Search Console 에서 확인하세요."
     },
     "notifications": {
       "title": "알림",
@@ -3002,7 +3008,9 @@
         "markMine": "내 IP 로 등록",
         "empty": "기간 내 IP 방문 기록이 없습니다.",
         "mine": "내 IP",
-        "excludedIps": "집계에서 제외된 IP"
+        "excludedIps": "집계에서 제외된 IP",
+        "showPaths": "경로 {{n}}",
+        "hidePaths": "접기"
       },
       "commentImageManager": {
         "title": "댓글 이미지 정리",

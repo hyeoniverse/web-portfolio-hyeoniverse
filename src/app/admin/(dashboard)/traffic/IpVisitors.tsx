@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -8,6 +8,7 @@ import { fillTemplate } from "@/utils/format";
 import { sendAction } from "@/lib/sendAction";
 import type { TrafficData } from "@/types";
 import { List, ListItem } from "../components";
+import JourneyList from "./JourneyList";
 import { countryName, flagEmoji } from "../_components/countryDisplay";
 import dashStyles from "../Dashboard.module.css";
 import local from "./Traffic.module.css";
@@ -24,6 +25,8 @@ type Props = Pick<TrafficData, "ipVisitors" | "currentIp" | "excludedIps"> & {
 export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChanged }: Props) {
   const { t, language } = useLanguage();
   const [pending, setPending] = useState<string | null>(null);
+  // 활동 경로를 펼친 IP 의 키
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   const toggle = async (target: { key: string } | { current: true }, exclude: boolean, pendingId: string) => {
     setPending(pendingId);
@@ -80,7 +83,8 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
       ) : (
         <List>
           {ipVisitors.map((v) => (
-            <ListItem key={v.key} layout="grid" className={styles.ipRow}>
+            <Fragment key={v.key}>
+            <ListItem layout="grid" className={styles.ipRow}>
               <span className={styles.ipIdentity}>
                 <span className={styles.ipMasked}>{v.masked}</span>
                 <span className={styles.utmDetail}>
@@ -114,7 +118,23 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               >
                 {t("admin.inline.ipVisitors.mine")}
               </Button>
+              <Button
+                variant="ghost"
+                disabled={v.journeys.length === 0}
+                aria-expanded={openKey === v.key}
+                onClick={() => setOpenKey((k) => (k === v.key ? null : v.key))}
+              >
+                {fillTemplate(t(openKey === v.key ? "admin.inline.ipVisitors.hidePaths" : "admin.inline.ipVisitors.showPaths"), {
+                  n: v.journeys.length,
+                })}
+              </Button>
             </ListItem>
+            {openKey === v.key && (
+              <div className={styles.ipJourneys}>
+                <JourneyList journeys={v.journeys} />
+              </div>
+            )}
+            </Fragment>
           ))}
         </List>
       )}

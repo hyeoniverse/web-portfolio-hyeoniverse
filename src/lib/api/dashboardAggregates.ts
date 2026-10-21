@@ -163,6 +163,7 @@ export type AnalyticsVisitRow = VisitRow & {
   utm_source?: string | null;
   utm_medium?: string | null;
   utm_campaign?: string | null;
+  search_term?: string | null;
 };
 
 export type Channel = "search" | "social" | "community" | "dev" | "direct" | "other";
@@ -244,6 +245,39 @@ export function aggregateChannels(rows: AnalyticsVisitRow[]): ChannelStat[] {
       };
     })
     .sort((a, b) => b.count - a.count);
+}
+
+/** 검색 유입의 검색어 — 검색 채널 방문 중 검색어를 아는 것만 센다(대소문자 · 공백 차이는 한 검색어로). */
+export function aggregateSearchTerms(rows: AnalyticsVisitRow[], limit = 20): {
+  searchVisits: number;
+  withTerm: number;
+  top: Array<{ term: string; count: number; pct: number; engines: string[] }>;
+} {
+  const byTerm = new Map<string, { term: string; count: number; engines: Map<string, number> }>();
+  let searchVisits = 0;
+  let withTerm = 0;
+  for (const v of rows) {
+    if (classifyChannel(v.referrer) !== "search") continue;
+    searchVisits += 1;
+    const term = v.search_term?.trim();
+    if (!term) continue;
+    withTerm += 1;
+    const key = term.toLowerCase().replace(/\s+/g, " ");
+    const entry = byTerm.get(key) ?? { term, count: 0, engines: new Map<string, number>() };
+    entry.count += 1;
+    tally(entry.engines, v.referrer ?? "");
+    byTerm.set(key, entry);
+  }
+  const top = [...byTerm.values()]
+    .sort((a, b) => b.count - a.count || (a.term < b.term ? -1 : 1))
+    .slice(0, limit)
+    .map((e) => ({
+      term: e.term,
+      count: e.count,
+      pct: Math.round((e.count / withTerm) * 100),
+      engines: [...e.engines.entries()].sort((a, b) => b[1] - a[1]).map(([h]) => h),
+    }));
+  return { searchVisits, withTerm, top };
 }
 
 /** 국가별 방문 상위 — country 는 ISO alpha-2, 없는 행(마이그레이션 전·로컬)은 제외. */

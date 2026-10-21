@@ -132,7 +132,13 @@
       "exitPages": "Exit pages",
       "recentJourneys": "Recent visit paths",
       "noJourneys": "No visits with recorded paths in this period.",
-      "noNextPages": "No visits with more than one page yet."
+      "noNextPages": "No visits with more than one page yet.",
+      "searchTermsTitle": "Search keywords",
+      "noSearchVisits": "No visits from search engines in this period.",
+      "searchVisits": "Search visits",
+      "searchWithTerm": "With keyword",
+      "noSearchTerms": "No visits with a known keyword yet.",
+      "searchTermsNote": "Only counted when the search engine passes the query in the referrer (Naver, Daum, Bing, etc.). Google doesn't — check Search Console for it."
     },
     "notifications": {
       "title": "Notifications",
@@ -3002,7 +3008,9 @@
         "markMine": "Mark as mine",
         "empty": "No IP visits in this period.",
         "mine": "Mine",
-        "excludedIps": "Excluded IPs"
+        "excludedIps": "Excluded IPs",
+        "showPaths": "Paths {{n}}",
+        "hidePaths": "Hide"
       },
       "commentImageManager": {
         "title": "Comment Image Cleanup",

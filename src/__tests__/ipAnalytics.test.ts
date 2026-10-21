@@ -62,6 +62,23 @@ describe("aggregateIpVisitors", () => {
   });
 
   it("limit 만큼만 돌려준다", () => {
-    expect(aggregateIpVisitors(rows, 2)).toHaveLength(2);
+    expect(aggregateIpVisitors(rows, [], 2)).toHaveLength(2);
+  });
+
+  it("IP 마다 최근 방문 경로를 붙인다", () => {
+    const j = (ip: string, session: string, path: string, at: string, landing = false) => ({
+      ip, session_id: session, path, viewed_at: `2026-10-01T${at}:00Z`, duration_ms: null,
+      is_landing: landing, referrer: landing ? "search.naver.com" : null, device_kind: "mobile",
+      search_term: landing ? "포트폴리오" : null,
+    });
+    const out = aggregateIpVisitors(rows, [
+      j("1.1.1.1", "s1", "/", "01:00", true),
+      j("1.1.1.1", "s1", "/posts/a", "01:01"),
+      j("1.1.1.1", "s2", "/about", "02:00", true),
+      j("9.9.9.9", "s9", "/", "03:00", true), // 상위에 없는 IP 는 무시
+    ]);
+    const top = out.find((v) => v.key === ipKey("1.1.1.1"))!;
+    expect(top.journeys.map((x) => x.steps.map((s) => s.path))).toEqual([["/about"], ["/", "/posts/a"]]);
+    expect(top.journeys[1]).toMatchObject({ referrer: "search.naver.com", searchTerm: "포트폴리오" });
   });
 });

@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { groupSessions, toJourney, type Journey, type JourneyRow } from "./visitJourneys";
 
 /* IP 분석(#1169) — 원문 IP 는 서버 밖으로 내보내지 않는다.
    화면에는 마스킹 값을, 행 식별에는 HMAC 키를 쓴다. 키로 '내 IP' 를 지정하면 서버가 원문을 되찾는다. */
@@ -49,10 +50,16 @@ export type IpVisitor = {
   device: string | null;
   os: string | null;
   browser: string | null;
+  /** 이 IP 의 최근 방문 경로 — 최근 순 */
+  journeys: Journey[];
 };
 
-/** IP 별 방문 — 방문 일수 많은 순, 같으면 최근 방문 순. 익명화·봇·알 수 없는 IP 는 뺀다 */
-export function aggregateIpVisitors(rows: IpVisitRow[], limit = 20): IpVisitor[] {
+/** IP 마다 보여 줄 최근 방문 경로 수 */
+const IP_JOURNEYS = 10;
+
+/** IP 별 방문 — 방문 일수 많은 순, 같으면 최근 방문 순. 익명화·봇·알 수 없는 IP 는 뺀다.
+ *  journeyRows(기간 내 조회 줄)를 주면 IP 마다 최근 방문의 이동 경로를 붙인다 */
+export function aggregateIpVisitors(rows: IpVisitRow[], journeyRows: JourneyRow[] = [], limit = 20): IpVisitor[] {
   const byIp = new Map<string, { rows: IpVisitRow[]; masked: string }>();
   for (const r of rows) {
     if (!r.ip || !r.date) continue;
@@ -76,10 +83,30 @@ export function aggregateIpVisitors(rows: IpVisitRow[], limit = 20): IpVisitor[]
       device: latest.device_kind ?? null,
       os: latest.os ?? null,
       browser: latest.browser ?? null,
+      journeys: [],
     });
   }
   visitors.sort((a, b) => b.days - a.days || (a.lastDate < b.lastDate ? 1 : a.lastDate > b.lastDate ? -1 : 0));
-  return visitors.slice(0, limit);
+  const top = visitors.slice(0, limit);
+
+  // 상위 IP 의 조회 줄만 방문마다 묶는다 — 키는 원문 IP 로 맞추고 응답엔 경로만 싣는다
+  const byKey = new Map(top.map((v) => [v.key, v]));
+  const rowsByIp = new Map<string, JourneyRow[]>();
+  for (const r of journeyRows) {
+    if (!r.ip || !byIp.has(r.ip)) continue;
+    const list = rowsByIp.get(r.ip) ?? [];
+    list.push(r);
+    rowsByIp.set(r.ip, list);
+  }
+  for (const [ip, list] of rowsByIp) {
+    const visitor = byKey.get(ipKey(ip));
+    if (!visitor) continue;
+    visitor.journeys = groupSessions(list)
+      .sort((a, b) => (a[0].viewed_at < b[0].viewed_at ? 1 : a[0].viewed_at > b[0].viewed_at ? -1 : 0))
+      .slice(0, IP_JOURNEYS)
+      .map(toJourney);
+  }
+  return top;
 }
 
 /* 제외 목록 — 방문마다 조회하지 않게 잠깐 캐시한다. 추가·삭제 API 는 invalidate 를 부른다 */
