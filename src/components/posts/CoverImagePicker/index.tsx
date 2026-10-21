@@ -14,6 +14,7 @@ import PexelsTab from "./PexelsTab";
 import AIGenerateTab from "./AIGenerateTab";
 import HistoryTab from "./HistoryTab";
 import { useHistory, type HistorySource } from "./useHistory";
+import { Clock } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
@@ -127,7 +128,9 @@ export default function CoverImagePicker({
           <Pressable noTapScale
             className={`${styles.historyTab} ${activeTab === "history" ? styles.historyTabActive : ""}`}
             onClick={() => setActiveTab("history")}
+            aria-pressed={activeTab === "history"}
           >
+            <Clock size={14} strokeWidth={2} aria-hidden />
             {tc("history")}
             {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
           </Pressable>
