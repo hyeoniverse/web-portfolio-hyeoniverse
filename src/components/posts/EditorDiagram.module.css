@@ -31,6 +31,101 @@
   height: auto;
 }
 
+/* ── 그림 컨트롤(리더) — GitHub 의 mermaid 보기처럼 이동 · 확대 · 원위치 · 크게 보기 ──
+   그림은 캔버스 transform 으로 움직이고, 칸은 넘친 부분을 자른다. 단추는 칸에 마우스를 올리거나 포커스가 들어오면 보인다 */
+.mermaidPannable {
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.mermaidPannable[data-dragging] {
+  cursor: grabbing;
+}
+
+.mermaidPannable .mermaidCanvas {
+  transform-origin: center;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.mermaidPannable[data-dragging] .mermaidCanvas {
+  transition: none;
+}
+
+/* 크게 보기 — 화면 전체에 사이트 배경으로 */
+.mermaidPannable:fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.mermaidPad {
+  position: absolute;
+  right: var(--spacing-12);
+  bottom: var(--spacing-12);
+  display: grid;
+  grid-template-areas:
+    ".    up    in"
+    "left reset right"
+    ".    down  out";
+  grid-template-columns: repeat(3, var(--control-height-sm));
+  grid-auto-rows: var(--control-height-sm);
+  gap: var(--spacing-4);
+}
+
+.mermaidPadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mermaidPadBtn:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+}
+
+.mermaidFullscreenBtn {
+  position: absolute;
+  top: var(--spacing-12);
+  right: var(--spacing-12);
+}
+
+/* 단추는 쓸 때만 — 읽는 동안 그림을 가리지 않게 */
+.mermaidPad,
+.mermaidFullscreenBtn {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mermaidPannable:hover .mermaidPad,
+.mermaidPannable:hover .mermaidFullscreenBtn,
+.mermaidPannable:focus-within .mermaidPad,
+.mermaidPannable:focus-within .mermaidFullscreenBtn,
+.mermaidPannable:fullscreen .mermaidPad,
+.mermaidPannable:fullscreen .mermaidFullscreenBtn {
+  opacity: 1;
+}
+
+/* 마우스가 없는 기기는 늘 보인다 */
+@media (hover: none) {
+  .mermaidPad,
+  .mermaidFullscreenBtn {
+    opacity: 1;
+  }
+}
+
 /* ── 리더 mermaid — 본문 코드블록과 같은 창(.code-block-wrap, globals/_hljs.css) ──
    창 · 바 · 캡슐 컨트롤은 전역 코드블록 규칙을 그대로 쓰고, 여기서는 그림용으로 다른 것만 덮는다 */
 .readerMermaid {

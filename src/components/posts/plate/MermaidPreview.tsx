@@ -2,7 +2,27 @@
 
 // mermaid 코드 → 다이어그램 SVG 미리보기 (동적 import). 에디터·리더 공용.
 import React from "react";
+import Pressable from "@/components/ui/Pressable";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Maximize2, Minimize2, RotateCcw, ZoomIn, ZoomOut } from "@/components/icons";
 import styles from "../EditorDiagram.module.css";
+
+/** 그림 컨트롤 이름 — 넘기면 GitHub 과 같은 이동 · 확대 · 원위치 · 크게 보기 단추를 단다(리더) */
+export interface MermaidControlLabels {
+  zoomIn: string;
+  zoomOut: string;
+  reset: string;
+  panUp: string;
+  panDown: string;
+  panLeft: string;
+  panRight: string;
+  fullscreen: string;
+  exitFullscreen: string;
+}
+
+const PAN_STEP = 60;
+const ZOOM_STEP = 1.25;
+const MIN_SCALE = 0.4;
+const MAX_SCALE = 4;
 
 /* 사이트 테마(html[data-theme]) — 리더의 다이어그램은 React 트리 밖 island 로 마운트돼 ThemeProvider 를 못 쓴다.
    속성을 직접 지켜보다가 바뀌면 다시 그린다 */
@@ -97,8 +117,52 @@ function themeVariables() {
   };
 }
 
-export default function MermaidPreview({ code, split }: { code: string; split?: boolean }) {
+export default function MermaidPreview({ code, split, controls }: { code: string; split?: boolean; controls?: MermaidControlLabels }) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+  /* 이동 · 확대 — 캔버스에 transform 으로 건다. 그림을 다시 그리지 않아 가볍다 */
+  const [view, setView] = React.useState({ x: 0, y: 0, scale: 1 });
+  const [fullscreen, setFullscreen] = React.useState(false);
+  const canFullscreen = React.useSyncExternalStore(
+    () => () => {},
+    () => !!document.fullscreenEnabled,
+    () => false,
+  );
+
+  React.useEffect(() => {
+    if (!controls) return;
+    const onChange = () => setFullscreen(document.fullscreenElement === viewportRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, [controls]);
+
+  const pan = (dx: number, dy: number) => setView((v) => ({ ...v, x: v.x + dx, y: v.y + dy }));
+  const zoom = (factor: number) =>
+    setView((v) => ({ ...v, scale: Math.min(MAX_SCALE, Math.max(MIN_SCALE, v.scale * factor)) }));
+  const reset = () => setView({ x: 0, y: 0, scale: 1 });
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void viewportRef.current?.requestFullscreen();
+  };
+
+  /* 끌어서 이동 — 단추 위에서 시작한 누름은 단추 몫 */
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!controls || e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
+    const start = { px: e.clientX, py: e.clientY, x: view.x, y: view.y };
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+    target.dataset.dragging = "";
+    const onMove = (ev: PointerEvent) => setView((v) => ({ ...v, x: start.x + ev.clientX - start.px, y: start.y + ev.clientY - start.py }));
+    const onUp = () => {
+      delete target.dataset.dragging;
+      target.removeEventListener("pointermove", onMove);
+      target.removeEventListener("pointerup", onUp);
+      target.removeEventListener("pointercancel", onUp);
+    };
+    target.addEventListener("pointermove", onMove);
+    target.addEventListener("pointerup", onUp);
+    target.addEventListener("pointercancel", onUp);
+  };
   const [error, setError] = React.useState<string | null>(null);
   const theme = useDocumentTheme();
 
@@ -132,7 +196,8 @@ export default function MermaidPreview({ code, split }: { code: string; split?: 
              그 아래면 글자를 읽을 수 없다. 넘치는 만큼은 감싼 칸(.mermaidPreview)이 가로로 스크롤한다 */
           const el = ref.current.querySelector("svg");
           const natural = el?.viewBox.baseVal.width ?? 0;
-          if (el && natural > 0) el.style.minWidth = `${Math.round(natural * 0.8)}px`;
+          // 컨트롤이 있으면 칸에 맞춰 두고 확대 단추로 키운다 — 스크롤과 끌어 이동이 겹치지 않게
+          if (el && natural > 0 && !controls) el.style.minWidth = `${Math.round(natural * 0.8)}px`;
           setError(null);
         }
       } catch (e) {
@@ -151,12 +216,56 @@ export default function MermaidPreview({ code, split }: { code: string; split?: 
       }
     })();
     return () => { cancelled = true; };
-  }, [code, theme]);
+  }, [code, theme, controls]);
+
+  const btn = (label: string, onClick: () => void, icon: React.ReactNode, area: string) => (
+    <Pressable className={styles.mermaidPadBtn} style={{ gridArea: area }} onClick={onClick} aria-label={label} title={label}>
+      {icon}
+    </Pressable>
+  );
 
   return (
-    <div contentEditable={false} className={`${styles.mermaidPreview}${split ? ` ${styles.mermaidPreviewSplit}` : ""}`}>
+    <div
+      ref={viewportRef}
+      contentEditable={false}
+      className={`${styles.mermaidPreview}${split ? ` ${styles.mermaidPreviewSplit}` : ""}${controls ? ` ${styles.mermaidPannable}` : ""}`}
+      onPointerDown={controls ? onPointerDown : undefined}
+      onDoubleClick={controls ? reset : undefined}
+    >
       {/* 캔버스는 폭을 꽉 채운다 — 폭이 없으면 svg 의 width:100% 가 브라우저 기본값(300px)으로 풀려 그림이 쪼그라들었다 */}
-      {error ? <div className={styles.mermaidError}>{error}</div> : <div ref={ref} className={styles.mermaidCanvas} />}
+      {error ? (
+        <div className={styles.mermaidError}>{error}</div>
+      ) : (
+        <div
+          ref={ref}
+          className={styles.mermaidCanvas}
+          style={controls ? { transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})` } : undefined}
+        />
+      )}
+      {controls && !error && (
+        <>
+          {canFullscreen && (
+            <Pressable
+              className={`${styles.mermaidPadBtn} ${styles.mermaidFullscreenBtn}`}
+              onClick={toggleFullscreen}
+              aria-label={fullscreen ? controls.exitFullscreen : controls.fullscreen}
+              title={fullscreen ? controls.exitFullscreen : controls.fullscreen}
+            >
+              {fullscreen ? <Minimize2 size={14} strokeWidth={1.8} /> : <Maximize2 size={14} strokeWidth={1.8} />}
+            </Pressable>
+          )}
+          {/* GitHub 과 같은 3×3 — 가운데 원위치, 상하좌우 이동, 오른쪽 위 · 아래 확대 · 축소 */}
+          <div className={styles.mermaidPad}>
+            {btn(controls.panUp, () => pan(0, PAN_STEP), <ArrowUp size={14} strokeWidth={1.8} />, "up")}
+            {btn(controls.zoomIn, () => zoom(ZOOM_STEP), <ZoomIn size={14} strokeWidth={1.8} />, "in")}
+            {btn(controls.panLeft, () => pan(PAN_STEP, 0), <ArrowLeft size={14} strokeWidth={1.8} />, "left")}
+            {btn(controls.reset, reset, <RotateCcw size={14} strokeWidth={1.8} />, "reset")}
+            {btn(controls.panRight, () => pan(-PAN_STEP, 0), <ArrowRight size={14} strokeWidth={1.8} />, "right")}
+            {btn(controls.panDown, () => pan(0, -PAN_STEP), <ArrowDown size={14} strokeWidth={1.8} />, "down")}
+            {btn(controls.zoomOut, () => zoom(1 / ZOOM_STEP), <ZoomOut size={14} strokeWidth={1.8} />, "out")}
+          </div>
+        </>
+      )}
     </div>
   );
 }

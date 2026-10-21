@@ -6,15 +6,17 @@
 import React, { useMemo, useRef, useState } from "react";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import { highlightCode } from "@/utils/prismHighlight";
-import MermaidPreview from "./MermaidPreview";
+import MermaidPreview, { type MermaidControlLabels } from "./MermaidPreview";
 import Pressable from "@/components/ui/Pressable";
 import styles from "../EditorDiagram.module.css";
 
 type View = "diagram" | "code" | "split";
 
-export default function ReaderMermaid({ code, labels }: {
+export default function ReaderMermaid({ code, labels, controls }: {
   code: string;
   labels: { diagram: string; code: string; split: string; copyCode: string; copied: string };
+  /** 그림 이동 · 확대 컨트롤 이름(GitHub 과 같은 단추) */
+  controls?: MermaidControlLabels;
 }) {
   const [view, setView] = useState<View>("diagram");
   const [copied, setCopied] = useState(false);
@@ -96,7 +98,7 @@ export default function ReaderMermaid({ code, labels }: {
               <span className={styles.graphSplitHandleBar} />
             </div>
           )}
-          {showGraph && <MermaidPreview code={code} split={isSplit} />}
+          {showGraph && <MermaidPreview code={code} split={isSplit} controls={controls} />}
         </div>
       </div>
     </div>

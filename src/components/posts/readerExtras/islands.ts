@@ -27,6 +27,17 @@ export function renderIslands({ el, labels, body, cleanups, isCancelled }: Reade
       r.render(ReactMod.createElement(mod.default, {
         code: src,
         labels: { diagram: labels.diagram, code: labels.code, split: labels.split, copyCode: labels.copyCode, copied: labels.copied },
+        controls: {
+          zoomIn: body.mermaidZoomIn,
+          zoomOut: body.mermaidZoomOut,
+          reset: body.mermaidReset,
+          panUp: body.mermaidPanUp,
+          panDown: body.mermaidPanDown,
+          panLeft: body.mermaidPanLeft,
+          panRight: body.mermaidPanRight,
+          fullscreen: body.mermaidFullscreen,
+          exitFullscreen: body.mermaidExitFullscreen,
+        },
       }));
     }).catch(() => { /* noop */ });
     // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
