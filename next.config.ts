@@ -5,6 +5,37 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+/* 콘텐츠 보안 정책 — 지금은 관찰 모드(Report-Only)라 막지 않고 브라우저 콘솔에 위반만 남긴다.
+   쓰는 외부 출처: Supabase(데이터 · 저장소 · 실시간), reCAPTCHA(문의), giscus(댓글), unpkg(본문 도구),
+   Vercel(분석 · 미리보기 툴바), Google Fonts · jsDelivr(글꼴), YouTube · Vimeo(본문 영상), Office 뷰어(라이브러리 미리보기).
+   본문 이미지는 외부 주소가 많아 https 전체를 연다. 위반이 잦아들면 Content-Security-Policy 로 바꾼다 */
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://giscus.app https://unpkg.com https://va.vercel-scripts.com https://vercel.live",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://giscus.app",
+  "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' data: blob: https:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://unpkg.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://vercel.live",
+  "frame-src 'self' blob: https://www.google.com https://giscus.app https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://view.officeapps.live.com https://*.supabase.co https://vercel.live",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join("; ");
+
+const SECURITY_HEADERS = [
+  { key: "Strict-Transport-Security", value: "max-age=63072000" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // 마이크는 슬라이드 음성 녹음(lib/micRecorder)이 쓴다 — 이 사이트에서만
+  { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()" },
+  // 소개 페이지가 /works 를 iframe 으로 띄운다 — 같은 출처는 허용
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Content-Security-Policy-Report-Only", value: CSP },
+];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
@@ -107,6 +138,13 @@ const nextConfig: NextConfig = {
   /* 브라우저가 링크 없이 바로 찾는 아이콘 주소 — 사파리는 HTML 의 아이콘을 못 쓰면 /favicon.ico 를, 즐겨찾기 ·
      홈 화면은 /apple-touch-icon.png 를 찾는다. 없으면 사이트 이름 첫 글자(H)를 대신 그린다.
      설정에서 만든 아이콘(/api/favicon/[file])을 그대로 내준다 */
+  async headers() {
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      // 관리 화면은 어디에도 끼워 넣지 못하게(클릭재킹) — 같은 키는 뒤의 값이 이긴다
+      { source: "/admin/:path*", headers: [{ key: "X-Frame-Options", value: "DENY" }] },
+    ];
+  },
   async rewrites() {
     return [
       { source: "/favicon.ico", destination: "/api/favicon/ico" },

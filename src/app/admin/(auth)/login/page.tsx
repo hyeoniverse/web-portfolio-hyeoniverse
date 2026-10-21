@@ -9,14 +9,9 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
 import T from "@/components/ui/T";
+import { safeNextPath } from "@/utils/safeNextPath";
 import styles from "./Login.module.css";
 
-/* ?next= — 로그인 후 이동할 곳을 호출한 쪽(Footer 등)이 지정한다. 오픈 리다이렉트 방지로
-   같은 출처의 절대 경로만 허용한다("/…", 단 "//evil.com" 같은 프로토콜 상대 URL 은 제외). */
-function safeNextPath(raw: string | null): string | null {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
-  return raw;
-}
 
 export default function AdminLoginPage() {
   const { t } = useLanguage();
