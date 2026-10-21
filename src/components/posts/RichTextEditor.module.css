@@ -429,15 +429,16 @@
   white-space: nowrap;
 }
 
-/* 목차(TOC) 블록 — 리더(.reader-toc)와 같은 모양: 왼쪽 선 하나 + "목차" 머리, 단계는 글의 가장 높은 단계를 0 으로(data-level).
+/* 목차(TOC) 블록 — 리더(.reader-toc)와 같은 별자리: 항목마다 별, 별과 별을 잇는 선, 단계는 글의 가장 높은 단계를 0 으로(data-level).
    margin: 다른 블록과 같은 --prose-block-gap 간격(tint 겹침 방지). .slate-toc 는 .prose-content 규칙에 없어 자체 지정. */
 .toc {
+  --_toc-star: 14px;
+  --_toc-gap: var(--spacing-4);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--_toc-gap);
   margin: var(--prose-block-gap) 0;
-  padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-20);
-  border-left: var(--border-width-2) solid var(--border-color-light);
+  padding-left: calc(var(--_toc-star) + var(--spacing-12));
 }
 .tocTitle {
   margin: 0 0 var(--spacing-8);
@@ -450,8 +451,8 @@
   color: var(--text-tertiary);
 }
 
-/* TOC 항목 — 리더와 같은 조용한 글자(밑줄 없음), 마우스를 올리면 accent */
 .tocItem {
+  position: relative;
   border: none;
   background: transparent;
   padding: var(--spacing-2) 0;
@@ -463,12 +464,69 @@
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
+/* 별 — 뒤 면을 깔아 지나가는 선을 가린다 */
+.tocItem::before {
+  content: "✦";
+  position: absolute;
+  z-index: 1;
+  /* 글자 줄의 시각적 가운데(본문 글꼴은 아래로 여백이 조금 더 있다) */
+  top: calc(50% - var(--spacing-2));
+  left: calc(-1 * (var(--_toc-star) + var(--spacing-12)));
+  width: var(--_toc-star);
+  height: var(--_toc-star);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  color: var(--text-accent-alt);
+  font: var(--font-body-xs);
+  transform: translateY(-50%);
+  transition: transform var(--duration-base) var(--ease-spring), text-shadow var(--duration-base) var(--ease-standard);
+}
+
+/* 별을 잇는 선 — 이 별 가운데에서 다음 별 가운데까지 */
+.tocItem::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - var(--spacing-2));
+  left: calc(-1 * (var(--_toc-star) / 2 + var(--spacing-12)));
+  width: var(--border-width-1);
+  height: calc(100% + var(--_toc-gap));
+  background: var(--border-color-light);
+}
+
+.tocItem:last-child::after {
+  display: none;
+}
+
 .tocItem:hover {
   color: var(--text-accent);
 }
 
-.tocItem[data-level="1"] { padding-left: var(--spacing-20); font: var(--font-body-sm); color: var(--text-tertiary); }
-.tocItem[data-level="2"] { padding-left: var(--spacing-40); font: var(--font-body-sm); color: var(--text-tertiary); }
+.tocItem:hover::before {
+  transform: translateY(-50%) rotate(45deg) scale(1.25);
+  text-shadow: 0 0 8px var(--text-accent-alt);
+}
+
+.tocItem[data-level="1"],
+.tocItem[data-level="2"] {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+.tocItem[data-level="1"] { margin-left: var(--spacing-16); }
+.tocItem[data-level="2"] { margin-left: var(--spacing-32); }
+
+/* 하위 단계 별은 ✧ — 들여쓴 만큼 되돌려 같은 줄기에 앉힌다 */
+.tocItem[data-level="1"]::before,
+.tocItem[data-level="2"]::before {
+  content: "✧";
+  color: var(--text-tertiary);
+}
+.tocItem[data-level="1"]::before,
+.tocItem[data-level="1"]::after { margin-left: calc(-1 * var(--spacing-16)); }
+.tocItem[data-level="2"]::before,
+.tocItem[data-level="2"]::after { margin-left: calc(-1 * var(--spacing-32)); }
+
 .tocItem[data-level="1"]:hover,
 .tocItem[data-level="2"]:hover { color: var(--text-accent); }
 

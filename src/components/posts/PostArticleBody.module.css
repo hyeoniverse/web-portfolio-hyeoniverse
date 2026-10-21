@@ -380,15 +380,17 @@
   height: auto;
 }
 
-/* 본문 내 목차(TOC) — 면 없이 왼쪽 선 하나 + "목차" 머리. 예전엔 회색 면 상자에 단계 차이가 8px 뿐이라 무겁고 위계가 안 보였다.
-   들여쓰기는 글의 가장 높은 단계를 0 으로 센 data-level(readerExtras/toc) */
+/* 본문 내 목차(TOC) — 별자리: 항목마다 별 하나, 별과 별을 가는 선으로 잇는다(사이트의 ✦ 로고 · TIL 별자리와 같은 모티프).
+   큰 단계는 액센트 ✦, 하위 단계는 작은 ✧ + 들여쓰기. 단계는 글의 가장 높은 단계를 0 으로 센 data-level(readerExtras/toc).
+   별은 모두 같은 세로줄(별자리 줄기)에 앉고, 선은 각 별 가운데에서 다음 별 가운데까지 그린다 */
 .prose :global(.reader-toc) {
+  --_toc-star: 14px;
+  --_toc-gap: var(--spacing-4);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--_toc-gap);
   margin: var(--spacing-32) 0;
-  padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-20);
-  border-left: var(--border-width-2) solid var(--border-color-light);
+  padding-left: calc(var(--_toc-star) + var(--spacing-12));
 }
 
 .prose :global(.reader-toc-title) {
@@ -399,6 +401,7 @@
 }
 
 .prose :global(.reader-toc) a {
+  position: relative;
   width: fit-content;
   padding: var(--spacing-2) 0;
   color: var(--text-secondary);
@@ -407,11 +410,80 @@
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
-.prose :global(.reader-toc) a:hover { color: var(--text-accent); }
-.prose :global(.reader-toc) a[data-level="1"] { padding-left: var(--spacing-20); font: var(--font-body-sm); color: var(--text-tertiary); }
-.prose :global(.reader-toc) a[data-level="2"] { padding-left: var(--spacing-40); font: var(--font-body-sm); color: var(--text-tertiary); }
+/* 별 — 줄기 위에 앉는다. 뒤 면을 깔아 지나가는 선을 가린다 */
+.prose :global(.reader-toc) a::before {
+  content: "✦";
+  position: absolute;
+  z-index: 1;
+  /* 글자 줄의 시각적 가운데(본문 글꼴은 아래로 여백이 조금 더 있다) */
+  top: calc(50% - var(--spacing-2));
+  left: calc(-1 * (var(--_toc-star) + var(--spacing-12)));
+  width: var(--_toc-star);
+  height: var(--_toc-star);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  color: var(--text-accent-alt);
+  font: var(--font-body-xs);
+  transform: translateY(-50%);
+  transition: transform var(--duration-base) var(--ease-spring), text-shadow var(--duration-base) var(--ease-standard);
+}
+
+/* 별을 잇는 선 — 이 별 가운데에서 다음 별 가운데까지 */
+.prose :global(.reader-toc) a::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - var(--spacing-2));
+  left: calc(-1 * (var(--_toc-star) / 2 + var(--spacing-12)));
+  width: var(--border-width-1);
+  height: calc(100% + var(--_toc-gap));
+  background: var(--border-color-light);
+}
+
+.prose :global(.reader-toc) a:last-of-type::after {
+  display: none;
+}
+
+.prose :global(.reader-toc) a:hover {
+  color: var(--text-accent);
+}
+
+.prose :global(.reader-toc) a:hover::before {
+  transform: translateY(-50%) rotate(45deg) scale(1.25);
+  text-shadow: 0 0 8px var(--text-accent-alt);
+}
+
+.prose :global(.reader-toc) a[data-level="1"],
+.prose :global(.reader-toc) a[data-level="2"] {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.prose :global(.reader-toc) a[data-level="1"] { margin-left: var(--spacing-16); }
+.prose :global(.reader-toc) a[data-level="2"] { margin-left: var(--spacing-32); }
+
+/* 하위 단계 별은 작은 ✧ — 들여쓴 만큼 되돌려 같은 줄기에 앉힌다 */
+.prose :global(.reader-toc) a[data-level="1"]::before,
+.prose :global(.reader-toc) a[data-level="2"]::before {
+  content: "✧";
+  color: var(--text-tertiary);
+}
+
+.prose :global(.reader-toc) a[data-level="1"]::before,
+.prose :global(.reader-toc) a[data-level="1"]::after {
+  margin-left: calc(-1 * var(--spacing-16));
+}
+
+.prose :global(.reader-toc) a[data-level="2"]::before,
+.prose :global(.reader-toc) a[data-level="2"]::after {
+  margin-left: calc(-1 * var(--spacing-32));
+}
+
 .prose :global(.reader-toc) a[data-level="1"]:hover,
-.prose :global(.reader-toc) a[data-level="2"]:hover { color: var(--text-accent); }
+.prose :global(.reader-toc) a[data-level="2"]:hover {
+  color: var(--text-accent);
+}
 
 /* 넘치는 표를 담는 스크롤 상자 — readerExtras 가 감싼다(.tbl-freeze 와 같은 스크롤바 모양) */
 .prose :global(.tbl-scroll) {
