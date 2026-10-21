@@ -137,9 +137,13 @@
   border-top: var(--border-light);
 }
 
+/* 현재 글 줄 — 줄 어디를 잡아도 끈다(pointer). 터치에서도 스크롤 대신 끌기, 끄는 동안 글자가 선택되지 않게 */
 .itemCurrent {
   background: var(--bg-accent-subtle);
   color: var(--text-primary);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .itemDragging {
@@ -196,7 +200,8 @@
   flex-shrink: 0;
 }
 
-/* 제목 줄 — 글자(.titleText)만 줄어들며 말줄임, '현재' 칩(.titleBadge)은 그대로. 예전엔 줄 전체를 잘라 칩이 밀려 사라졌다 */
+/* 제목 줄 — 글자(.titleText)가 남는 폭을 다 써 '현재' 칩(.titleBadge)은 늘 오른쪽 끝. 모자라면 글자만 줄어들며 말줄임.
+   예전엔 줄 전체를 잘라 칩이 밀려 사라졌다 */
 .title {
   flex: 1;
   min-width: 0;
@@ -206,7 +211,7 @@
 }
 
 .titleText {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
