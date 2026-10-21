@@ -161,7 +161,7 @@ export default function CoverImageField({
   );
 
   return (
-    <div className={styles.field} data-seo={seoId} data-fill={fill || undefined}>
+    <div className={styles.field} data-seo={seoId} data-fill={fill || undefined} data-picker-open={(fill && isInteractive) || undefined}>
       <div className={styles.labelRow}>
         <label className={`${es.fieldLabel}${hasError ? ` ${es.fieldLabelError}` : ""}`}>
           {label}

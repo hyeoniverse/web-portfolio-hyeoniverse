@@ -231,6 +231,8 @@
   display: grid;
   grid-template-columns: var(--grid-columns-3);
   gap: 0;
+  /* 위 묶음 제목 · 설명과 썸네일 사이 선 — 칸 사이 선(오른쪽 · 아래)만 있어 제목 줄과 썸네일이 붙어 보였다 */
+  border-top: var(--border-light);
 }
 
 .presetItem {
@@ -403,6 +405,8 @@
   display: grid;
   grid-template-columns: var(--grid-columns-2);
   gap: 0;
+  /* 위 검색 · 제목 줄과 썸네일 사이 선(presetGrid 와 같은 이유) */
+  border-top: var(--border-light);
 }
 
 .unsplashItem {

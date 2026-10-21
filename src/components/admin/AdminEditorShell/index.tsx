@@ -79,6 +79,25 @@ export default function AdminEditorShell({
   const [showSchedule, setShowSchedule] = useState(false);
   /* 좁은 화면에서 속성 서랍이 열렸는가 — 넓은 화면에서는 패널이 늘 보여 쓰지 않는다 */
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  /* 속성 패널 스크롤 표시 — 위 · 아래로 더 있으면 그 가장자리를 흐리게(data-more-above · data-more-below).
+     다시 그리지 않게 DOM 속성만 바꾼다 */
+  const sidebarRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el) return;
+    const update = () => {
+      const above = el.scrollTop > 1;
+      const below = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+      el.toggleAttribute("data-more-above", above);
+      el.toggleAttribute("data-more-below", below);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    Array.from(el.children).forEach((c) => ro.observe(c));
+    return () => { el.removeEventListener("scroll", update); ro.disconnect(); };
+  }, [sidebar]);
   useEffect(() => {
     if (!sidebarOpen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSidebarOpen(false); };
@@ -1089,6 +1108,7 @@ export default function AdminEditorShell({
           <div className={styles.main}>{children}</div>
           {/* 넓은 화면: 본문 옆에 붙어 따라오는 열. 좁은 화면: 오른쪽에서 나오는 서랍 */}
           <aside
+            ref={sidebarRef}
             id="editor-properties"
             className={`${styles.sidebar}${sidebarOpen ? ` ${styles.sidebarOpen}` : ""}`}
             aria-label={t("admin.common.editorProperties")}

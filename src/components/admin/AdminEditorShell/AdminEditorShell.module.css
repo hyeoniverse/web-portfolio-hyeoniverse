@@ -1342,6 +1342,25 @@
   letter-spacing: 0.04em;
 }
 
+/* 스크롤 표시 — 위 · 아래로 더 있으면 그 가장자리 48px 를 흐리게 */
+.sidebar[data-more-below] {
+  mask-image: linear-gradient(to bottom, var(--bg-primary) calc(100% - var(--spacing-48)), transparent);
+}
+
+.sidebar[data-more-above] {
+  mask-image: linear-gradient(to bottom, transparent, var(--bg-primary) var(--spacing-48));
+}
+
+.sidebar[data-more-above][data-more-below] {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--bg-primary) var(--spacing-48),
+    var(--bg-primary) calc(100% - var(--spacing-48)),
+    transparent
+  );
+}
+
 /* 페이지 삭제 — 속성 제목 줄 오른쪽. 강조색 글자 · 테두리로 다른 보조 단추와 구별한다 */
 .sidebarDelete {
   margin-left: auto;

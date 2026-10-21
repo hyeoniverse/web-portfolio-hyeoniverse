@@ -267,3 +267,35 @@
   justify-self: start;
   align-self: center;
 }
+
+/* 커버 고르기 창이 열린 동안(좁은 칸) — 고르기 창이 주인공이라 썸네일은 작게 왼쪽, 오른쪽에 팔레트 · 동작 묶음을 세로로.
+   예전엔 넓어진 열에서 썸네일(360) 아래로 팔레트 · 단추 줄이 따로 떨어져 고르기 창을 밀어냈다 */
+.field[data-picker-open] .previewRow {
+  grid-template-columns: 200px auto;
+  /* 둘째 줄이 남은 높이를 받아, 동작 묶음이 팔레트 바로 아래 붙는다 */
+  grid-template-rows: auto 1fr;
+  row-gap: var(--spacing-8);
+  align-content: start;
+  justify-content: start;
+  column-gap: var(--spacing-16);
+  max-width: none;
+}
+
+.field[data-picker-open] .previewBtn {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.field[data-picker-open] .palette {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.field[data-picker-open] .actionsEnd {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  justify-self: start;
+}
+
