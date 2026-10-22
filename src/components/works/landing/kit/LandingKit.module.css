@@ -310,7 +310,7 @@
   perspective: 1800px;
 }
 
-/* 뒤에 깔리는 것 — 네 갈래 별 · 큰 윤곽 글자 두 줄, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
+/* 뒤에 깔리는 것 — 네 갈래 별, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
 .phoneBackdrop {
   position: absolute;
   inset: 0;
@@ -348,25 +348,6 @@
   width: 3vmin;
   opacity: 0.7;
   transform: translate(calc(var(--p, 0) * 14vw), calc(var(--p, 0) * 10dvh)) rotate(calc(var(--p, 0) * 90deg));
-}
-
-/* 장식 줄 — 휴대폰 뒤 큰 윤곽 글자 두 줄. 스크롤에 맞춰 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흐른다.
-   휴대폰이 입체라 배경은 납작한 선 글자로 둔다 */
-.phoneDeco {
-  position: absolute;
-  top: 18%;
-  left: 0;
-  margin: 0;
-  font: var(--font-display-xl);
-  color: transparent;
-  white-space: nowrap;
-  -webkit-text-stroke: var(--border-width-1) color-mix(in srgb, var(--text-accent) 35%, transparent);
-  transform: translateX(calc(var(--p, 0) * -50%));
-}
-
-.phoneDecoReverse {
-  top: 46%;
-  transform: translateX(calc((var(--p, 0) - 1) * 50%));
 }
 
 /* 주소 줄 — 휴대폰 아래 한 줄로 늘어선 주소. 움직임은 PhoneFlip 이 지금 화면의 주소가 가운데에 오게 transform 으로 준다 */
@@ -449,8 +430,58 @@
   backface-visibility: hidden;
 }
 
-.phoneFaceBack {
+/* 뒷면 — 실제 휴대폰 뒤처럼 무광 유리. 가로축으로 뒤집어 붙인다 */
+.phoneBack {
+  padding: 0;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--text-white) 28%, var(--bg-black)), color-mix(in srgb, var(--text-white) 12%, var(--bg-black)) 60%, color-mix(in srgb, var(--text-white) 22%, var(--bg-black)));
   transform: rotateX(180deg) translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
+}
+
+/* 카메라 섬 — 가로축으로 뒤집혀 있어 이 면의 아래쪽이 몸통의 위쪽이다. 렌즈 셋(삼각 배치) · 플래시 */
+.phoneCamera {
+  position: absolute;
+  bottom: 4%;
+  left: 6%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8%;
+  width: 40%;
+  aspect-ratio: 1;
+  padding: 7%;
+  border-radius: calc(var(--radius-surface) * 1.6);
+  background-color: color-mix(in srgb, var(--text-white) 18%, var(--bg-black));
+  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--text-white) 25%, transparent);
+}
+
+.phoneCamera i {
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--text-white) 30%, var(--bg-black)), var(--bg-black) 55%);
+  box-shadow: 0 0 0 calc(var(--border-width-1) * 3) color-mix(in srgb, var(--text-white) 35%, var(--bg-black));
+}
+
+.phoneCamera i:nth-child(3) {
+  grid-column: 1;
+}
+
+.phoneCamera b {
+  justify-self: center;
+  align-self: center;
+  width: 30%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-white) 70%, var(--bg-black));
+}
+
+/* 가운데 별 표시 */
+.phoneLogo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14%;
+  aspect-ratio: 1;
+  background-color: color-mix(in srgb, var(--text-white) 45%, var(--bg-black));
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+  transform: translate(-50%, -50%);
 }
 
 .phoneScreen {

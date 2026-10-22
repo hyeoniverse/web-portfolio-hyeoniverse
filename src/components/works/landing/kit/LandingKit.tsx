@@ -331,31 +331,30 @@ const PHONE_SLICES = 14;
 
 /**
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
- * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 반 바퀴마다 다음 화면이 보인다 —
- * 앞 · 뒷면 두 장만 두고 보이지 않는 쪽에 다음 화면을 넣어 둔다. 한 번 구르는 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다.
- * 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에 와서 채워진다. 뒤로는 큰 윤곽 글자 두 줄이 반대로 흐르고,
- * 네 갈래 별 몇 개가 천천히 돈다(휴대폰이 입체라 배경은 납작하게)
+ * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 앞면만 화면이고 뒷면은 실제 휴대폰 뒷면
+ * (카메라 · 별 표시)이다. 한 바퀴 구를 때마다 다음 화면 — 뒷면이 보이는 동안 앞면의 화면을 갈아 끼운다.
+ * 한 바퀴 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다. 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에서 채워진다.
+ * 뒤로는 네 갈래 별 몇 개가 천천히 돈다(휴대폰이 입체라 배경은 납작하게, 글자 줄은 주소 줄 하나만)
  */
-export function PhoneFlip({ items, words }: { items: { src: string; alt: string; route: string }[]; words: string[] }) {
+export function PhoneFlip({ items }: { items: { src: string; alt: string; route: string }[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
-  const [seg, setSeg] = useState(0);
   const [current, setCurrent] = useState(0);
-  const flips = Math.max(1, items.length - 1);
+  const turns = Math.max(1, items.length - 1);
   usePinnedProgress(rootRef, (p) => {
     const root = rootRef.current;
     if (!root) return;
-    const x = Math.min(flips - 1e-4, p * flips);
+    const x = Math.min(turns - 1e-4, p * turns);
     const i = Math.floor(x);
     const f = x - i;
     const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
     const eased = t * t * (3 - 2 * t);
-    root.style.setProperty("--rx", `${(i + eased) * -180}deg`);
+    root.style.setProperty("--rx", `${(i + eased) * -360}deg`);
     /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
     root.style.setProperty("--ry", `${Math.sin(p * Math.PI * 3) * 14}deg`);
     root.style.setProperty("--rz", `${Math.sin(p * Math.PI * 5) * 6}deg`);
     root.style.setProperty("--bob", `${Math.sin(p * Math.PI * 4) * 2.5}dvh`);
-    root.style.setProperty("--spin", String(Math.abs(Math.sin(eased * Math.PI))));
+    root.style.setProperty("--spin", String(Math.abs(Math.sin(eased * Math.PI * 2))));
     /* 주소 줄 — 화면 i 의 주소 가운데가 화면 가운데에 오도록, 구르는 동안 i+1 의 주소로 옮겨 간다 */
     const row = wordsRef.current;
     if (row) {
@@ -368,24 +367,17 @@ export function PhoneFlip({ items, words }: { items: { src: string; alt: string;
         row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * eased)}px, 0, 0)`;
       }
     }
-    setSeg(i);
+    /* 반 바퀴(뒷면이 보일 때)를 넘기면 다음 화면 */
     setCurrent(eased < 0.5 ? i : i + 1);
   });
-  /* 이 구간의 출발 화면은 seg, 도착 화면은 seg + 1 — 짝수 구간은 앞면에서 출발한다 */
-  const front = items[seg % 2 === 0 ? seg : seg + 1];
-  const back = items[seg % 2 === 0 ? seg + 1 : seg];
-  /* 장식 줄 — 사이트의 갈래 이름을 두 벌 이어, 스크롤에 맞춰 두 줄이 반대로 흐른다 */
-  const line = words.join(" · ");
-  const deco = `${line} · ${line}`;
+  const screen = items[current];
   return (
-    <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: flips } as CSSProperties}>
+    <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
         <div className={styles.phoneBackdrop} aria-hidden>
           <span className={`${styles.phoneSpark} ${styles.phoneSparkA}`} />
           <span className={`${styles.phoneSpark} ${styles.phoneSparkB}`} />
           <span className={`${styles.phoneSpark} ${styles.phoneSparkC}`} />
-          <p className={styles.phoneDeco}>{deco}</p>
-          <p className={`${styles.phoneDeco} ${styles.phoneDecoReverse}`}>{deco}</p>
           <div ref={wordsRef} className={styles.phoneWords}>
             {items.map((it, k) => (
               <span key={k} className={`${styles.phoneWord} ${k === current ? styles.phoneWordOn : ""}`}>{it.route}</span>
@@ -398,15 +390,20 @@ export function PhoneFlip({ items, words }: { items: { src: string; alt: string;
             <span key={k} className={styles.phoneSlice} style={{ ["--k" as string]: k } as CSSProperties} aria-hidden />
           ))}
           <span className={styles.phoneButtons} aria-hidden />
-          {[front, back].map((it, k) => (
-            <div key={k} className={`${styles.phoneFace} ${k ? styles.phoneFaceBack : ""}`}>
-              <div className={styles.phoneScreen}>
-                {it && <Image src={it.src} alt={it.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />}
-                <span className={styles.phoneIsland} aria-hidden />
-                <span className={styles.phoneGlare} aria-hidden />
-              </div>
+          <div className={styles.phoneFace}>
+            <div className={styles.phoneScreen}>
+              {screen && <Image src={screen.src} alt={screen.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />}
+              <span className={styles.phoneIsland} aria-hidden />
+              <span className={styles.phoneGlare} aria-hidden />
             </div>
-          ))}
+          </div>
+          {/* 뒷면 — 무광 유리 · 카메라 섬(렌즈 셋 · 플래시) · 가운데 별. 가로축으로 뒤집혀 붙어 있어 위아래가 바뀐 자리에 둔다 */}
+          <div className={`${styles.phoneFace} ${styles.phoneBack}`} aria-hidden>
+            <span className={styles.phoneCamera}>
+              <i /><i /><i /><b />
+            </span>
+            <span className={styles.phoneLogo} />
+          </div>
         </div>
       </div>
     </div>
