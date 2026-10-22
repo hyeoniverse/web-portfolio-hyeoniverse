@@ -15,7 +15,8 @@ import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
 import { WorkArticleBody } from "@/components/works/WorkArticleBody";
 import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
-import { WorkLanding } from "@/components/works/landing/WorkLanding";
+import { LandingPage } from "@/components/works/landing/LandingPage";
+import { hasLandingPage } from "@/components/works/landing/registry";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
@@ -43,8 +44,10 @@ export default function WorkDetailClient({
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 제거됨. */
   const translationEnabled = siteConfig?.translation?.enabled !== false;
-  /* 상세 형태 — 설정(works.detailStyle)이 landing 이면 랜딩 페이지로. 커버는 레이아웃도 같은 값을 보고 그리지 않는다 */
-  const landingMode = siteConfig?.works?.detailStyle === "landing";
+  /* 상세 형태 — 설정(works.detailStyle)이 landing 이고 전용 랜딩 페이지가 있는 작업물이면 랜딩으로(없으면 게시물 형태).
+     커버는 레이아웃도 같은 값을 보고 그리지 않는다 */
+  const landingSlug = siteConfig?.works?.detailStyle === "landing" && hasLandingPage(savedProject.slug) ? savedProject.slug : null;
+  const landingMode = landingSlug !== null;
   const isRichtext = savedProject.contentType === "richtext";
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
@@ -170,7 +173,8 @@ export default function WorkDetailClient({
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
       landing={landingMode ? (
         <TranslatingRegion active={contentTr.translating}>
-          <WorkLanding
+          <LandingPage
+            slug={landingSlug!}
             project={project}
             viewLang={viewLang}
             next={nextProject ? { href: `/works/${nextProject.slug || nextProject.id}`, title: pickLocalized(nextProject.title, language) } : null}

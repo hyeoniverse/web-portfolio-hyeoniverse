@@ -699,16 +699,6 @@ export const schemaTables: ErdTable[] = [
         "defaultValue": "1"
       },
       {
-        "name": "landing_ko",
-        "type": "jsonb",
-        "required": true
-      },
-      {
-        "name": "landing_en",
-        "type": "jsonb",
-        "required": true
-      },
-      {
         "name": "content_ko",
         "type": "text",
         "required": true

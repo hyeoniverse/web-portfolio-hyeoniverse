@@ -1,0 +1,174 @@
+/* ── HYEONIVERSE 랜딩 — 코드로 그린 장면 ──
+   첫 장면은 사이트 홈을 다시 그렸다. 크기는 무대 폭 기준(cqi) — 무대가 커지고 작아져도 같은 구도. */
+
+.home {
+  --_float: 7s;
+
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+/* 위 막대 */
+.homeBar {
+  position: absolute;
+  top: 4cqi;
+  left: 6cqi;
+  right: 6cqi;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: var(--font-label-sm);
+}
+
+.homeLogo {
+  color: var(--text-accent);
+}
+
+.homeNav {
+  display: inline-flex;
+  gap: 4cqi;
+}
+
+.homeNav i {
+  font-style: normal;
+  letter-spacing: 0.06em;
+}
+
+.homeCta {
+  padding: 0.6cqi 1.6cqi;
+  border: var(--border-light);
+  border-radius: var(--radius-full);
+}
+
+/* 세리프 세 줄 — 한 줄씩 아래에서 올라온다 */
+.homeHeadline {
+  position: absolute;
+  left: 9cqi;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font: var(--font-display-lg);
+  letter-spacing: -0.02em;
+  transform: translateY(-46%);
+}
+
+.homeHeadline > span {
+  display: block;
+  animation: lineRise var(--duration-slower) var(--ease-enter) both;
+  animation-delay: calc(300ms + var(--d, 0) * 140ms);
+}
+
+.homeHeadline em {
+  font-style: normal;
+  color: var(--text-accent);
+}
+
+@keyframes lineRise {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 떠다니는 토러스 — 반사광이 도는 고리 */
+.torus {
+  position: absolute;
+  top: 22%;
+  left: 54%;
+  width: 15cqi;
+  aspect-ratio: 1.25;
+  border-radius: var(--radius-full);
+  background:
+    radial-gradient(closest-side, transparent 52%, color-mix(in srgb, var(--text-primary) 35%, transparent) 54%, transparent 56%),
+    conic-gradient(from 200deg, color-mix(in srgb, var(--text-primary) 55%, var(--bg-primary)), var(--bg-primary), color-mix(in srgb, var(--text-accent) 25%, var(--bg-primary)), color-mix(in srgb, var(--text-primary) 70%, var(--bg-primary)), var(--bg-primary), color-mix(in srgb, var(--text-primary) 55%, var(--bg-primary)));
+  mask: radial-gradient(closest-side, transparent 46%, var(--bg-black) 48%, var(--bg-black) 98%, transparent 100%);
+  filter: drop-shadow(0 2cqi 2cqi color-mix(in srgb, var(--text-primary) 18%, transparent));
+  animation: torusFloat var(--_float) var(--ease-standard) infinite alternate;
+}
+
+@keyframes torusFloat {
+  from {
+    transform: translateY(-2%) rotate(-8deg);
+  }
+
+  to {
+    transform: translateY(6%) rotate(10deg);
+  }
+}
+
+/* 궤도선 */
+.orbit,
+.orbitSmall {
+  position: absolute;
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-primary) 45%, transparent);
+  /* 가로세로가 다른 타원 */
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.orbit {
+  top: 16%;
+  right: -8cqi;
+  width: 34cqi;
+  height: 22cqi;
+  transform: rotate(-4deg);
+}
+
+.orbitSmall {
+  bottom: 6%;
+  left: -6cqi;
+  width: 26cqi;
+  height: 16cqi;
+  border-color: color-mix(in srgb, var(--text-primary) 22%, transparent);
+}
+
+/* 아래 줄 */
+.homeFoot {
+  position: absolute;
+  left: 9cqi;
+  bottom: 8cqi;
+  display: flex;
+  align-items: center;
+  gap: 2cqi;
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+}
+
+.homeLine {
+  width: 6cqi;
+  height: 1px;
+  background-color: var(--text-accent);
+}
+
+.homeFoot b {
+  display: inline-block;
+  width: 0.8cqi;
+  height: 0.8cqi;
+  margin-left: 0.6cqi;
+  border-radius: var(--radius-full);
+  background-color: var(--text-accent);
+  outline: 0.4cqi solid color-mix(in srgb, var(--text-accent) 25%, transparent);
+}
+
+/* 폰 — 위 막대 가운데 메뉴는 감춘다 */
+@container (width < 560px) {
+  .homeNav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homeHeadline > span,
+  .torus {
+    animation: none;
+  }
+}

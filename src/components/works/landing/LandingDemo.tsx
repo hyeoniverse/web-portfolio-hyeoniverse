@@ -2,15 +2,21 @@
 
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
-import type { LandingDemo as DemoKey } from "@/types/workLanding";
-import styles from "./WorkLanding.module.css";
+import styles from "./kit/LandingKit.module.css";
 
 /**
- * 랜딩 페이지 항목의 상호작용 데모 — 키 → 데모 화면. 화면에 쓰일 때만 받는다(dynamic, 서버에서 그리지 않음).
+ * 랜딩 페이지의 상호작용 데모 — 키 → 데모 화면. 화면에 쓰일 때만 받는다(dynamic, 서버에서 그리지 않음).
  * 대부분 About 의 라이브 데모를 그대로 쓴다(props 없이 그리고, 화면에 들어오면 짧은 대본을 돈다).
  * AI 넷(번역 · 요약 · 커버 · 음성)은 실제 API(/api/demo/*)를 부르고 IP 마다 하루 상한이 있다.
  * 테마 · 레이아웃 · 메일함 · 공급자 전환은 MacFolio 의 데모를 옮겼다(./demos).
  */
+/** 띄울 수 있는 데모 */
+export type DemoKey =
+  | "translate" | "summary" | "cover" | "speech"
+  | "slides" | "wave" | "convert"
+  | "autosave" | "lifecycle" | "comments" | "invite" | "roles" | "kitchen" | "mailbox" | "providers"
+  | "themes" | "layouts";
+
 const load = (importer: () => Promise<{ default: ComponentType }>) =>
   dynamic(importer, { ssr: false, loading: () => <div className={styles.demoLoading} aria-hidden /> });
 

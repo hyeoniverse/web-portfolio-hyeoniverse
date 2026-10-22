@@ -1,7 +1,5 @@
 "use client";
 
-import { WorkLanding } from "@/components/works/landing/WorkLanding";
-import { normalizeLanding } from "@/types/workLanding";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -123,8 +121,6 @@ export default function WorkPreviewPage() {
               icon: w.icon || "",
               cover_position: w.cover_position ?? 50,
               cover_zoom: w.cover_zoom ?? 1,
-              landing_ko: normalizeLanding(w.landing_ko),
-              landing_en: normalizeLanding(w.landing_en),
               content_ko: w.content_ko || "",
               content_en: w.content_en || "",
               content_type: w.content_type || "markdown",
@@ -277,7 +273,6 @@ function PreviewArticle({
 }) {
   const siteConfig = useSiteConfig();
   const translationEnabled = siteConfig?.translation?.enabled !== false;
-  const landingMode = siteConfig?.works?.detailStyle === "landing";
   const translator = useCallback<WorkTranslator>(async (from, to) => {
     const keys = ["title", "subtitle", "description", "content"] as const;
     const texts = keys.map((k) => project[k][from] ?? "");
@@ -332,11 +327,9 @@ function PreviewArticle({
       heroZoom={heroZoom}
       heroIcon={heroIcon}
       heroAlt={heroAlt}
-      headings={landingMode ? [] : headings}
+      headings={headings}
       header={renderHeader(shown)}
-      afterContent={landingMode ? undefined : <WorkArticleGallery project={highlightedProject} viewLang={viewLang} />}
-      /* 상세가 랜딩 페이지 형태(설정 works.detailStyle)면 미리보기도 그 형태로 */
-      landing={landingMode ? <WorkLanding project={highlightedProject} viewLang={viewLang} /> : undefined}
+      afterContent={<WorkArticleGallery project={highlightedProject} viewLang={viewLang} />}
     >
       {needsTranslation && translationEnabled && (
         <TranslateBanner subject="work" viewLang={viewLang} translating={translating} error={error} onTranslate={translate} />

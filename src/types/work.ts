@@ -2,7 +2,6 @@ import type { Project, LocalizedText, GalleryNotes } from "@/data/projects";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { getCardSize } from "@/utils/getCardSize";
 import { syncOwnerRole } from "@/utils/workFormUtils";
-import { normalizeLanding, type WorkLanding } from "@/types/workLanding";
 
 export interface TeamMember {
   /**
@@ -102,9 +101,6 @@ export interface Work {
   scheduled_at?: string | null;
   related_post_ids?: string[];
   related_series_ids?: string[];
-  /** 랜딩 페이지 내용(언어별) — 설정에서 상세를 랜딩 페이지로 고르면 쓴다(types/workLanding) */
-  landing_ko?: WorkLanding | null;
-  landing_en?: WorkLanding | null;
 }
 
 /** Editor form — uses content_ko/en only (no legacy fields).
@@ -152,9 +148,6 @@ export interface WorkFormData {
   related_post_ids?: string[];
   /** 관련 시리즈 ID 목록 */
   related_series_ids?: string[];
-  /** 랜딩 페이지 내용(언어별) */
-  landing_ko: WorkLanding;
-  landing_en: WorkLanding;
 }
 
 /**
@@ -249,8 +242,6 @@ export function workFormToProject(input: WorkFormData): Project {
     scheduled_at: form.scheduled_at,
     related_post_ids: form.related_post_ids,
     related_series_ids: form.related_series_ids,
-    landing_ko: form.landing_ko,
-    landing_en: form.landing_en,
   };
   return workToProject(work);
 }
@@ -325,6 +316,5 @@ export function workToProject(w: Work): Project {
     liveUrl: w.live_url || undefined,
     githubUrl: w.github_url || undefined,
     summary: (w.summary_ko || w.summary_en) ? loc(w.summary_ko, w.summary_en) : undefined,
-    landing: { ko: normalizeLanding(w.landing_ko), en: normalizeLanding(w.landing_en) },
   };
 }

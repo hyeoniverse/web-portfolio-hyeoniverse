@@ -3,7 +3,6 @@ import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
-import { dropWorkLandingIfMissing, normalizeLandingFields, WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumns";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
@@ -48,7 +47,6 @@ const ALLOWED_FIELDS = new Set([
   "role_ko", "role_en",
   "contributions_ko", "contributions_en",
   "tech", "tech_notes", "image", "icon", "cover_position", "cover_zoom",
-  "landing_ko", "landing_en",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
@@ -129,15 +127,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   const notesDropped = await dropGalleryNotesIfMissing(admin, filtered);
   /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
   const coverDropped = await dropWorkCoverIfMissing(admin, filtered);
-  /* 랜딩 페이지 칸도 같다(workLandingColumns 참고). 저장 전에 모양을 맞춘다 */
-  normalizeLandingFields(filtered);
-  const landingDropped = await dropWorkLandingIfMissing(admin, filtered);
-  const notesHeader = notesDropped || coverDropped || landingDropped
+  const notesHeader = notesDropped || coverDropped
     ? {
         headers: {
           ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
           ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
-          ...(landingDropped ? { [WORK_LANDING_DROPPED_HEADER]: "1" } : {}),
         },
       }
     : undefined;
