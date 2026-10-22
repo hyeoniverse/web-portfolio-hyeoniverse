@@ -128,10 +128,11 @@
   text-underline-offset: 3px;
 }
 
-/* ── 흐름 — 이미지는 모두 화면 폭 전체(왼쪽 끝부터 오른쪽 끝까지). 같은 묶음의 이미지는 틈 없이 이어 붙이고, 격자 · 카드로 늘어놓지 않는다 ── */
+/* ── 흐름 — 이미지가 중심. 강한 장면만 화면 폭 전체로 쓰고, 나머지는 한 장씩 폭 · 위치를 바꿔 가며 둔다(격자 · 카드로 늘어놓지 않는다) ── */
 .flow {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-24);
   padding-bottom: var(--spacing-128);
   background-color: var(--bg-primary);
 }
@@ -140,18 +141,23 @@
   transform: translateY(48px);
 }
 
-/* 한 장 — 화면 폭 전체, 원래 비율 그대로 */
+/* 한 장 — 폰 · 태블릿은 여백 안 폭 전체(bleed 는 화면 폭 전체). 넓은 화면에서 at 에 따라 폭 · 위치가 달라진다 */
 .frame {
-  width: 100%;
-  margin: 0;
+  width: calc(100% - var(--spacing-page-inline) * 2);
+  margin: 0 auto;
 }
 
-/* 틀 · 그림자 · 둥근 모서리는 두지 않는다. 밝은 캡처끼리 이어 붙으면 경계가 녹아서, 이음매에 아주 옅은 선 하나만 */
+.frame_bleed {
+  width: 100%;
+}
+
+/* 틀 · 그림자 · 둥근 모서리는 두지 않는다. 캡처 대부분이 페이지와 같은 밝은 바탕이라 경계가 녹아서 아주 옅은 선 하나만 */
 .frameMedia {
   display: block;
   width: 100%;
   height: auto;
-  border-bottom: var(--border-light);
+  outline: var(--border-light);
+  outline-offset: calc(var(--border-width-1) * -1);
   background-color: var(--bg-tertiary);
 }
 
@@ -162,7 +168,7 @@
   gap: var(--spacing-16);
   width: var(--lp-inset);
   margin: 0 auto;
-  padding: var(--spacing-128) 0 var(--spacing-64);
+  padding: var(--spacing-96) 0 var(--spacing-16);
 }
 
 .noteNo {
@@ -191,7 +197,6 @@
 .demoStage {
   width: var(--lp-inset);
   margin: 0 auto;
-  padding: var(--spacing-96) 0;
 }
 
 /* 휴대폰 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나(카드로 늘어놓지 않는다) */
@@ -362,13 +367,38 @@
 
 /* ── 넓은 화면 ── */
 @media (width > 768px) {
+  /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
   .phones {
-    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-columns: 20%;
+    justify-content: center;
     overflow-x: visible;
   }
 }
 
 @media (width > 1024px) {
+  .flow {
+    gap: var(--spacing-64);
+  }
+
+  .frame_wide {
+    width: 94%;
+  }
+
+  .frame_left {
+    width: 78%;
+    margin-left: 3%;
+  }
+
+  .frame_right {
+    width: 78%;
+    margin-right: 3%;
+    margin-left: auto;
+  }
+
+  .frame_center {
+    width: 64%;
+  }
+
   .note {
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     align-items: baseline;

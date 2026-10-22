@@ -160,7 +160,10 @@ function NumberItem({ value, label, index }: { value: string; label: string; ind
   );
 }
 
-/** 흐름 — 페이지 가운데 전체. 이미지는 모두 화면 폭 전체로, 같은 묶음은 틈 없이 이어 붙이고 글은 묶음 사이의 짧은 쉼표(Note)뿐 */
+/**
+ * 흐름 — 페이지 가운데 전체. 참고 사이트(andreasantonsson.dev/project/synthetic-theatre)처럼 이미지가 중심이다:
+ * 강한 장면만 화면 폭 전체로, 나머지는 한 장씩 폭 · 위치를 바꿔 가며 틀 없이 잇는다. 격자 · 카드로 늘어놓지 않고, 글은 짧은 쉼표(Note)뿐
+ */
 export function Flow({ children }: { children: ReactNode }) {
   return <div className={styles.flow}>{children}</div>;
 }
@@ -176,20 +179,23 @@ export function Note({ no, title, body, viewLang }: { no?: string; title: L10n; 
   );
 }
 
+export type FrameAt = "bleed" | "wide" | "left" | "right" | "center";
+
 /**
- * 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(WebP 2880×1800) 또는 녹화를 화면 폭 전체로, 원래 비율 그대로.
+ * 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(WebP 2880×1800) 또는 녹화를 원래 비율 그대로.
+ * at: bleed(화면 폭 전체 — 강한 장면에만) · wide(94%) · left · right(78%, 한쪽에 붙인다) · center(64%). 폰 · 태블릿은 여백 안 폭 전체.
  * 그림은 줄이지 않고 원본을 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
  * 녹화는 보일 때만 소리 없이 되풀이 재생한다(판 전환 중 · 움직임 줄이기면 멈춘다)
  */
-export function Frame({ src, video, alt, width = 2880, height = 1800, priority }: {
-  src?: string; video?: string; alt: string; width?: number; height?: number; priority?: boolean;
+export function Frame({ src, video, alt, at = "wide", width = 2880, height = 1800, priority }: {
+  src?: string; video?: string; alt: string; at?: FrameAt; width?: number; height?: number; priority?: boolean;
 }) {
   return (
-    <figure className={styles.frame} data-reveal="rise">
+    <figure className={`${styles.frame} ${styles[`frame_${at}`]}`} data-reveal="rise">
       {video ? (
         <FrameVideo src={video} poster={src} label={alt} width={width} height={height} />
       ) : src ? (
-        <Image src={src} alt={alt} width={width} height={height} sizes="100vw" unoptimized priority={priority} className={styles.frameMedia} />
+        <Image src={src} alt={alt} width={width} height={height} sizes={at === "bleed" ? "100vw" : "80vw"} unoptimized priority={priority} className={styles.frameMedia} />
       ) : null}
     </figure>
   );
