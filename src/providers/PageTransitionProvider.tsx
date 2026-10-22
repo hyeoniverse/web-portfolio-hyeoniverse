@@ -89,6 +89,9 @@ const COVER_MAX_MS = 4000;
 const SLIDE_IN_MS = 700;
 const SLIDE_OUT_MS = 240;
 const SLIDE_EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
+/* View Transition 판 — 새 페이지가 커밋되기를 기다리는 상한. 브라우저는 갱신 콜백이 너무 오래 걸리면(크롬 4초)
+   전환을 건너뛰므로 그 전에 끝낸다(넘어가기는 그대로 이어진다) */
+const VIEW_COMMIT_MAX_MS = 3500;
 
 /** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
@@ -106,6 +109,9 @@ function pathOf(rawHref: string): string {
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<MorphTransitionState | null>(null);
   const [slide, setSlide] = useState<SlideTransitionState | null>(null);
+  /* View Transition 으로 도는 판 전환 — 커밋을 기다리는 동안과 화면이 미끄러지는 동안 */
+  const [viewSlide, setViewSlide] = useState<{ href: string; fromPath: string; committed: boolean } | null>(null);
+  const commitResolveRef = useRef<(() => void) | null>(null);
   const siteConfig = useSiteConfig();
   const detailStyle = siteConfig.works?.detailStyle;
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -145,16 +151,39 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     setSlide((prev) => prev ? { ...prev, phase } : null);
   }, []);
   const clearSlide = useCallback(() => setSlide(null), []);
+  /* 새 페이지가 찍히는 순간부터는 전환 중이 아니다 — 밀려 들어오는 화면 안에서 제목 등장 연출이 돈다(미리 보이는 다음 화면) */
+  const markViewCommitted = useCallback(() => setViewSlide((prev) => prev ? { ...prev, committed: true } : null), []);
 
   const navigateWithSlide = useCallback((href: string, from: SlideFrom = "right") => {
     clearTimers();
     setState(null);
-    setSlide({ href, from, fromPath: pathOf(toRoutePath(window.location.pathname)), phase: "in" });
+    const fromPath = pathOf(toRoutePath(window.location.pathname));
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    /* 브라우저가 View Transition 을 지원하면 — 참고 사이트처럼 밀려 들어오는 판이 곧 다음 페이지의 실제 화면이다.
+       떠나는 화면을 찍어 두고(old), 콜백에서 넘어가 새 페이지가 커밋되면(new) 둘을 겹쳐 미끄러뜨린다(_base.css).
+       방향은 <html data-slide-from> 으로 고른다 */
+    if (typeof document.startViewTransition === "function" && !reduceMotion) {
+      router.prefetch(href);
+      document.documentElement.dataset.slideFrom = from;
+      setViewSlide({ href, fromPath, committed: false });
+      const transition = document.startViewTransition(() => new Promise<void>((resolve) => {
+        commitResolveRef.current = resolve;
+        router.push(href);
+        timerRef.current.push(setTimeout(resolve, VIEW_COMMIT_MAX_MS));
+      }));
+      transition.finished.finally(() => {
+        delete document.documentElement.dataset.slideFrom;
+        commitResolveRef.current = null;
+        setViewSlide(null);
+      });
+      return;
+    }
+    /* 지원하지 않으면 바탕색 판으로 대신한다 */
+    setSlide({ href, from, fromPath, phase: "in" });
     /* 받아오기는 지금 시작하고(prefetch), 넘어가기는 판이 화면을 다 덮은 뒤에 — 판이 반쯤 들어온 사이에
        커밋되면 아직 덮이지 않은 쪽으로 새 페이지의 로딩 화면이 비쳤다 */
     router.prefetch(href);
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    timerRef.current.push(setTimeout(() => router.push(href), reduce ? 0 : SLIDE_IN_MS));
+    timerRef.current.push(setTimeout(() => router.push(href), reduceMotion ? 0 : SLIDE_IN_MS));
   }, [router]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
@@ -191,10 +220,13 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
         navigateWithSlide,
         endTransition,
         /* 판 전환은 걷히기 시작하면(out) 끝난 것으로 — 그때부터 새 페이지의 등장 연출이 돈다 */
-        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out"),
+        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out") || (viewSlide !== null && !viewSlide.committed),
       }}
     >
       {children}
+      {viewSlide && !viewSlide.committed && (
+        <CommitWatcher href={viewSlide.href} fromPath={viewSlide.fromPath} resolveRef={commitResolveRef} onCommit={markViewCommitted} />
+      )}
       {slide && (
         <SlideOverlay state={slide} onPhase={setSlidePhase} onDone={clearSlide} />
       )}
@@ -513,4 +545,38 @@ function SlideOverlay({
       />
     </>
   );
+}
+
+/* ── View Transition 판 — 새 경로가 커밋되면 갱신 콜백을 끝낸다 ──
+   두 프레임 미루는 건 새 트리가 그려진 다음 찍히게 하려는 것이다. 새 페이지는 맨 위에서 찍는다 */
+function CommitWatcher({
+  href,
+  fromPath,
+  resolveRef,
+  onCommit,
+}: {
+  href: string;
+  fromPath: string;
+  resolveRef: React.MutableRefObject<(() => void) | null>;
+  onCommit: () => void;
+}) {
+  const here = pathOf(useRoutePathname());
+  const committed = here !== fromPath || here === pathOf(href);
+  useEffect(() => {
+    if (!committed) return;
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+        onCommit();
+        resolveRef.current?.();
+        resolveRef.current = null;
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [committed, resolveRef, onCommit]);
+  return null;
 }

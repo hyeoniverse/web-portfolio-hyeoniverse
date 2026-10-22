@@ -62,6 +62,64 @@ body > main {
   animation-duration: var(--duration-base);
 }
 
+/* 랜딩 페이지 판 전환 — PageTransitionProvider.navigateWithSlide 가 <html data-slide-from> 을 달고 View Transition 을 돈다.
+   참고 사이트(andreasantonsson.dev)처럼 다음 페이지의 실제 화면이 한쪽에서 밀려 들어오고, 떠나는 화면은 어두워지며 조금 밀려난다.
+   두 장면을 겹쳐 그리므로 기본 합성(plus-lighter)과 교차 페이드를 끈다 */
+:root[data-slide-from] {
+  --slide-duration: 900ms;
+  --slide-ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+:root[data-slide-from]::view-transition-old(root),
+:root[data-slide-from]::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: var(--slide-duration);
+  animation-timing-function: var(--slide-ease);
+  animation-fill-mode: both;
+}
+
+:root[data-slide-from="right"]::view-transition-old(root) {
+  animation-name: slide-leave-left;
+}
+
+:root[data-slide-from="right"]::view-transition-new(root) {
+  animation-name: slide-enter-right;
+}
+
+:root[data-slide-from="bottom"]::view-transition-old(root) {
+  animation-name: slide-leave-up;
+}
+
+:root[data-slide-from="bottom"]::view-transition-new(root) {
+  animation-name: slide-enter-bottom;
+}
+
+@keyframes slide-leave-left {
+  to {
+    filter: brightness(0.4);
+    transform: translateX(-20%);
+  }
+}
+
+@keyframes slide-enter-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slide-leave-up {
+  to {
+    filter: brightness(0.4);
+    transform: translateY(-20%);
+  }
+}
+
+@keyframes slide-enter-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
 
 /* 루트 글자 크기는 정하지 않는다 — 브라우저의 "기본 글자 크기" 설정을 따라 rem 이 함께 커지게(3.2-5) */
 html {
