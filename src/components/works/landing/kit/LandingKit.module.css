@@ -159,44 +159,93 @@
   text-wrap: pretty;
 }
 
-/* ── 무대 — 장면을 올리는 판. 들어오며 커진다(--p: 0 → 1) ── */
-.stageInset,
-.stageFull {
+/* ── 화면 · 녹화 — 참고 페이지처럼 틀 없이 그림만, 칸 사이는 넓은 여백 ── */
+.shot {
   --p: 0;
-  --ratio: 16 / 9;
+  --ratio: 16 / 10;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  margin: 0;
 }
 
-.stageInset {
+.shot_inset {
   width: var(--lp-inset);
 }
 
-.stageFull {
+.shot_full,
+.shot_strip {
   width: 100%;
 }
 
-.stage {
+.shot_full {
+  --ratio: 16 / 9;
+}
+
+.shot_strip {
+  --ratio: 21 / 8;
+}
+
+.shotFrame {
   position: relative;
   aspect-ratio: var(--ratio);
   overflow: hidden;
+  background-color: var(--bg-tertiary);
+}
+
+.shot_inset .shotFrame {
   transform: scale(calc(0.94 + 0.06 * var(--p)));
   transform-origin: center top;
 }
 
-.stageInset .stage {
+.shotImage {
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* 화면 폭 — 스크롤 따라 안쪽 그림이 천천히 움직인다(--p: 0 → 1) */
+.shotParallax {
+  object-fit: cover;
+  transform: translateY(calc((var(--p) - 0.5) * -10%)) scale(1.12);
+}
+
+.shotVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.caption {
+  max-width: 60ch;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  word-break: keep-all;
+}
+
+.shot_full .caption,
+.shot_strip .caption {
+  padding: 0 var(--spacing-page-inline);
+}
+
+/* 나란히 — 세로 화면 여럿 */
+.row {
+  display: flex;
+  gap: var(--spacing-24);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.rowItem {
+  position: relative;
+  flex: 0 0 min(70%, 300px);
+  aspect-ratio: 390 / 844;
+  overflow: hidden;
   border-radius: var(--radius-surface);
-}
-
-.stage_dark {
-  background-color: var(--bg-black);
-  color: var(--text-white);
-}
-
-.stage_light {
   background-color: var(--bg-tertiary);
-}
-
-.stage_accent {
-  background-color: color-mix(in srgb, var(--text-accent) 8%, var(--bg-primary));
+  scroll-snap-align: center;
 }
 
 /* ── 데모 창 — 위 막대(점 셋 · 이름 · 실제 AI) + 데모 ── */
@@ -341,6 +390,17 @@
 }
 
 /* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
+@media (width > 768px) {
+  .row {
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .rowItem {
+    flex: 1 1 0;
+  }
+}
+
 @media (width > 480px) {
   .title,
   .nextTitle {
@@ -359,7 +419,8 @@
     animation: none;
   }
 
-  .stage {
+  .shot_inset .shotFrame,
+  .shotParallax {
     transform: none;
   }
 }

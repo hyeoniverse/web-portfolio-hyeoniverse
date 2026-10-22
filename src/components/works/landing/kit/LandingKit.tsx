@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import Image from "next/image";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Project } from "@/data/projects";
@@ -115,27 +116,6 @@ export function Statement({ no, title, body, viewLang }: { no?: string; title: L
   );
 }
 
-/**
- * 무대 — 코드로 그린 장면을 올리는 판. full 은 화면 폭, 아니면 칼럼 폭(1128px). 들어오며 조금 커진다.
- * tone: dark(검은 판) · light(옅은 판) · accent(강조색이 옅게 비친 판)
- */
-export function Stage({ children, full, tone = "dark", ratio = "16 / 9", label }: {
-  children: ReactNode; full?: boolean; tone?: "dark" | "light" | "accent"; ratio?: string; label?: string;
-}) {
-  return (
-    <div className={full ? styles.stageFull : styles.stageInset} data-progress="enter">
-      <div
-        className={`${styles.stage} ${styles[`stage_${tone}`]}`}
-        style={{ ["--ratio" as string]: ratio } as CSSProperties}
-        role={label ? "img" : undefined}
-        aria-label={label}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
 /** 데모 무대 — 칼럼 폭에 데모 창 하나 */
 export function DemoStage({ demo }: { demo: DemoKey }) {
   const { t } = useLanguage();
@@ -169,4 +149,74 @@ function NumberItem({ value, label, index }: { value: string; label: string; ind
 /** 칸 사이 여백을 두고 쌓는 줄 */
 export function Flow({ children }: { children: ReactNode }) {
   return <div className={styles.flow}>{children}</div>;
+}
+
+/**
+ * 화면 한 장 — 이 페이지를 위해 새로 찍은 캡처(content/works/<slug>/landing).
+ * full: 화면 폭(16:9), strip: 화면 폭의 가로로 긴 컷(21:8), inset: 칼럼 폭(1128px). 화면 폭은 스크롤 따라 안쪽 그림이 천천히 움직이고,
+ * 칼럼 폭은 들어오며 조금 커진다. caption 은 그림 아래 작은 한 줄
+ */
+export function Shot({ src, alt, variant = "inset", caption, priority, ratio }: {
+  src: string; alt: string; variant?: "full" | "strip" | "inset"; caption?: string; priority?: boolean; ratio?: string;
+}) {
+  const full = variant !== "inset";
+  return (
+    <figure className={`${styles.shot} ${styles[`shot_${variant}`]}`} data-progress={full ? "through" : "enter"}>
+      <div className={styles.shotFrame} style={ratio ? ({ ["--ratio" as string]: ratio } as CSSProperties) : undefined}>
+        <Image src={src} alt={alt} fill sizes={full ? "100vw" : "(max-width: 1200px) 100vw, 1128px"} priority={priority} className={full ? styles.shotParallax : styles.shotImage} />
+      </div>
+      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
+    </figure>
+  );
+}
+
+/** 녹화 — 화면에 보일 때만 소리 없이 되풀이 재생(움직임 줄이기면 첫 장면에서 멈춤). variant 는 Shot 과 같다.
+ *  start: 녹화 앞쪽(페이지를 여는 동안의 빈 화면)을 건너뛰는 초 — 되풀이할 때도 여기서 다시 시작한다 */
+export function Recording({ src, label, variant = "inset", caption, start = 0 }: { src: string; label: string; variant?: "full" | "inset"; caption?: string; start?: number }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e?.isIntersecting) void el.play().catch(() => {});
+      else el.pause();
+    }, { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <figure className={`${styles.shot} ${styles[`shot_${variant}`]}`} data-progress="enter">
+      <div className={styles.shotFrame}>
+        <video
+          ref={ref}
+          className={styles.shotVideo}
+          src={start ? `${src}#t=${start}` : src}
+          muted
+          playsInline
+          preload="metadata"
+          aria-label={label}
+          onTimeUpdate={(e) => { if (e.currentTarget.currentTime < start) e.currentTarget.currentTime = start; }}
+          onEnded={(e) => { e.currentTarget.currentTime = start; void e.currentTarget.play().catch(() => {}); }}
+        />
+      </div>
+      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
+    </figure>
+  );
+}
+
+/** 나란히 — 휴대폰 화면처럼 세로로 긴 그림 여럿을 칼럼 폭에 나란히(폰에서는 가로로 넘긴다) */
+export function Row({ items, caption }: { items: { src: string; alt: string }[]; caption?: string }) {
+  return (
+    <figure className={`${styles.shot} ${styles.shot_inset}`}>
+      <div className={styles.row}>
+        {items.map((it, i) => (
+          <div key={it.src} className={styles.rowItem} data-reveal="" style={delay(i)}>
+            <Image src={it.src} alt={it.alt} fill sizes="(max-width: 768px) 70vw, 360px" className={styles.shotImage} />
+          </div>
+        ))}
+      </div>
+      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
+    </figure>
+  );
 }
