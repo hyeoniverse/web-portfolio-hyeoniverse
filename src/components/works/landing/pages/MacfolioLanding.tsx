@@ -21,7 +21,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
       project={project}
       viewLang={viewLang}
       next={next}
-      eyebrow={{ ko: "웹에서 macOS 데스크톱처럼 쓰는 포트폴리오", en: "A portfolio you use like a macOS desktop, on the web" }}
+      eyebrow={{ ko: "macOS 데스크톱을 웹에 옮겨 놓은 포트폴리오", en: "A portfolio that moves the macOS desktop onto the web" }}
     >
       <Flow>
         <Frame at="bleed" priority src={`${A}/desktop-light.webp`} alt={t({ ko: "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock", en: "MacFolio desktop — widgets, folders and the Dock" })} />
@@ -52,7 +52,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="03"
-          title={{ ko: "macOS 와 똑같이 쓰는 기본 앱", en: "Stock apps that work just like macOS" }}
+          title={{ ko: "macOS 를 그대로 닮은 기본 앱", en: "Stock apps modelled on macOS" }}
           body={{
             ko: "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다.",
             en: "Browse docs and the repo README in Finder, play music, flip through photo albums and leave feedback in Messages without signing in.",
