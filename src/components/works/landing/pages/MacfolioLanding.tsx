@@ -21,7 +21,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
       project={project}
       viewLang={viewLang}
       next={next}
-      eyebrow={{ ko: "창을 열고 닫으며 둘러보는 포트폴리오", en: "A portfolio you explore by opening and closing windows" }}
+      eyebrow={{ ko: "읽는 대신 직접 만져 보는 포트폴리오", en: "A portfolio you touch instead of read" }}
     >
       <Flow>
         <Frame at="bleed" priority src={`${A}/desktop-light.webp`} alt={t({ ko: "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock", en: "MacFolio desktop — widgets, folders and the Dock" })} />
@@ -52,7 +52,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="03"
-          title={{ ko: "문서는 Finder 에, 피드백은 메시지로", en: "Docs in Finder, feedback in Messages" }}
+          title={{ ko: "익숙한 앱으로 둘러보는 작업과 기록", en: "Work and notes, browsed through familiar apps" }}
           body={{
             ko: "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다.",
             en: "Browse docs and the repo README in Finder, play music, flip through photo albums and leave feedback in Messages without signing in.",
