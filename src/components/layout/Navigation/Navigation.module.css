@@ -335,6 +335,25 @@
   text-decoration: none;
 }
 
+/* 랜딩 페이지의 간략 메뉴 — 오른쪽 위에 글자 링크 셋만(참고: andreasantonsson.dev). 좁은 화면도 메뉴 서랍 없이 그대로 */
+.navLanding {
+  justify-content: flex-end;
+}
+
+.navLandingLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+  pointer-events: auto;
+}
+
+.navLandingContact {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
 /* Sliding indicator — ►◀︎ markers positioned inside .navCenter.
    글자(▶ ◀)로 그리면 글꼴에 따라 ◀ 이 더 작게 나와, 같은 크기의 삼각형(clip-path)으로 그린다 */
 .navIndicator {

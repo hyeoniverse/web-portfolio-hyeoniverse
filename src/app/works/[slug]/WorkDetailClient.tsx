@@ -152,7 +152,8 @@ export default function WorkDetailClient({
           <WorkArticleTeam project={project} viewLang={viewLang} />
         </>
       )}
-      likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      /* 랜딩 페이지는 참고 사이트처럼 끝을 '다음 작업물'로 맺는다 — 좋아요 · 댓글 · 목록으로 줄은 게시물 형태에서만 */
+      likeConfig={external || landingMode ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       /* 랜딩 페이지는 끝에 '다음 작업물'을 크게 둔다 — 이전/다음 줄은 게시물 형태에서만 */
       adjacentConfig={landingMode ? undefined : {
         prev: prevProject ? {
@@ -169,8 +170,8 @@ export default function WorkDetailClient({
         nextLabelKey: "workDetail.next",
         className: styles.adjacentNavTopBorder,
       }}
-      commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
-      backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
+      commentsConfig={external || landingMode ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
+      backLink={landingMode ? undefined : { href: "/works", labelKey: "workDetail.viewAll" }}
       landing={landingMode ? (
         <TranslatingRegion active={contentTr.translating}>
           <LandingPage

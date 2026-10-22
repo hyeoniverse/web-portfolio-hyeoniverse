@@ -9,3 +9,10 @@ export type LandingPageSlug = (typeof LANDING_PAGE_SLUGS)[number];
 export function hasLandingPage(slug: string | null | undefined): slug is LandingPageSlug {
   return !!slug && (LANDING_PAGE_SLUGS as readonly string[]).includes(slug);
 }
+
+/** 지금 경로가 랜딩으로 그려지는 작업물 상세인가 — 사이트 메뉴가 참고 사이트처럼 간략해지는 기준(/works/<slug>) */
+export function isLandingPath(pathname: string, detailStyle: string | undefined): boolean {
+  if (detailStyle !== "landing") return false;
+  const m = /^\/works\/([^/]+)\/?$/.exec(pathname);
+  return !!m && hasLandingPage(decodeURIComponent(m[1]!));
+}

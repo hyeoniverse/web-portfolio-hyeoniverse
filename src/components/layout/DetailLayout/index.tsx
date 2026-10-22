@@ -203,7 +203,8 @@ export default function DetailLayout({
 
   return (
     <div ref={pageRef} className={styles.page}>
-      {/* Back button */}
+      {/* Back button — 랜딩 페이지는 사이트 메뉴(간략형)의 Works 가 대신한다 */}
+      {!landing && (
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -227,6 +228,7 @@ export default function DetailLayout({
           </a>
         )}
       </motion.div>
+      )}
 
       {landing ? (
         /* 랜딩 페이지 — 커버 · 머리 · 본문 · 목차 대신 전폭으로 */

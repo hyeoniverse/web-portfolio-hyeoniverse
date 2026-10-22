@@ -6,6 +6,7 @@ import type { Point } from "@/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
+import { isLandingPath } from "@/components/works/landing/registry";
 import { motion, AnimatePresence, useMotionValue, type TargetAndTransition } from "framer-motion";
 import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -144,6 +145,8 @@ export default function Navigation() {
   const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
   const pathname = useRoutePathname();
+  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 로고 + 글자 링크 몇 개로 줄인다 */
+  const landingNav = isLandingPath(pathname, siteConfig.works?.detailStyle);
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t, koLabel } = useLanguage();
   /* 메뉴 이름 — 공개 메뉴는 사전(navMenu.label)에서 읽어 사이트 번역이 덮을 수 있게. 사전에 없는 것(관리 메뉴)은 적힌 이름 */
@@ -729,6 +732,17 @@ export default function Navigation() {
       )}
     </Link>
 
+    {landingNav ? (
+      <nav aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${styles.navLanding}`}>
+        <div className={styles.navLandingLinks}>
+          <Link href="/works" className={`${styles.navLink} glith-on-hover`}>{navLabel({ key: "works", label: "Works" })}</Link>
+          <Link href="/about" className={`${styles.navLink} glith-on-hover`}>{navLabel({ key: "about", label: "About" })}</Link>
+          <Pressable noTapScale className={`${styles.navLink} ${styles.navLandingContact} glith-on-hover`} onClick={openForm}>
+            {t("navMenu.ui.getInTouch")}
+          </Pressable>
+        </div>
+      </nav>
+    ) : (
     <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${section.badge ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
@@ -1147,6 +1161,7 @@ export default function Navigation() {
         )}
       </AnimatePresence>
     </nav>
+    )}
     </header>
   );
 }
