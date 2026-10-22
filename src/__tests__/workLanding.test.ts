@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EMPTY_LANDING, isLandingEmpty, landingFilledCount, landingMediaOf, normalizeLanding, pruneLanding } from "@/types/workLanding";
+import { EMPTY_LANDING, contentMediaOf, isLandingEmpty, landingFilledCount, landingMediaOf, normalizeLanding, pruneLanding } from "@/types/workLanding";
 import { normalizeLandingFields } from "@/lib/api/workLandingColumns";
 
 /* 작업물 랜딩 페이지 내용(works.landing_ko / landing_en) — 제목 위 한 줄 · 미디어(그림 · 영상 / 데모, 칼럼 폭 / 화면 폭) */
@@ -46,8 +46,27 @@ describe("landingMediaOf", () => {
     expect(landingMediaOf({ eyebrow: "", media: [{ size: "full", src: "a.png" }] }, ["g1.png"])).toEqual([{ size: "full", src: "a.png" }]);
   });
 
-  it("비어 있으면 갤러리 그림으로 — 모두 칼럼 폭(슬라이드를 가로로 자르지 않게)", () => {
+  it("비어 있으면 넘긴 주소로 — 모두 칼럼 폭", () => {
     expect(landingMediaOf(EMPTY_LANDING, ["1", "", "3"])).toEqual([{ src: "1", size: "inset" }, { src: "3", size: "inset" }]);
+  });
+});
+
+/* 미디어를 비웠을 때 랜딩이 쓰는 본문 속 실제 화면 — 갤러리(발표 슬라이드) 대신 */
+describe("contentMediaOf", () => {
+  it("HTML img · video · source 와 마크다운 그림을 차례대로, 같은 주소는 한 번만", () => {
+    const html = '<p><img src="https://x/a.jpg" alt=""></p><video src="https://x/b.mp4"></video><img src="https://x/a.jpg">';
+    const md = "![화면](https://x/c.webp)\n![아이콘](https://x/i.svg)";
+    expect(contentMediaOf(html, md)).toEqual(["https://x/a.jpg", "https://x/b.mp4", "https://x/c.webp"]);
+  });
+
+  it("data: · svg · 확장자 없는 주소는 뺀다", () => {
+    expect(contentMediaOf('<img src="data:image/png;base64,AAA"><img src="https://x/logo.svg"><img src="https://x/noext">')).toEqual([]);
+  });
+
+  it("실제 화면(jpg · webp · mp4)이 세 장 넘게 있으면 설명 그림(png)은 뺀다", () => {
+    const html = ["a.jpg", "card.png", "b.webp", "c.mp4"].map((f) => `<img src="https://x/${f}">`).join("");
+    expect(contentMediaOf(html)).toEqual(["https://x/a.jpg", "https://x/b.webp", "https://x/c.mp4"]);
+    expect(contentMediaOf('<img src="https://x/a.jpg"><img src="https://x/card.png">')).toEqual(["https://x/a.jpg", "https://x/card.png"]);
   });
 });
 

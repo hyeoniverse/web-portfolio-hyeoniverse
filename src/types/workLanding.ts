@@ -72,10 +72,36 @@ export function landingFilledCount(l: WorkLanding): number {
   return (p.eyebrow.trim() ? 1 : 0) + p.media.length;
 }
 
-/** 보일 미디어 — 적어 둔 게 있으면 그것, 없으면 갤러리 그림(모두 칼럼 폭 — 갤러리는 대개 글이 든 슬라이드라 가로로 자르면 잘린다).
- *  대표 화면은 따로 맨 위에 그린다 */
-export function landingMediaOf(l: WorkLanding, gallery: string[]): LandingMedia[] {
+/** 보일 미디어 — 적어 둔 게 있으면 그것, 없으면 fallback 주소들(모두 칼럼 폭). 대표 화면은 따로 맨 위에 그린다 */
+export function landingMediaOf(l: WorkLanding, fallback: string[]): LandingMedia[] {
   const p = pruneLanding(l);
   if (p.media.length > 0) return p.media;
-  return gallery.filter(Boolean).map((src) => ({ src, size: "inset" }));
+  return fallback.filter(Boolean).map((src) => ({ src, size: "inset" }));
 }
+
+const MEDIA_EXT = /\.(jpe?g|png|webp|gif|avif|mp4|webm|mov|m4v)(\?|#|$)/i;
+
+/**
+ * 본문에 든 그림 · 영상 주소 — 미디어를 비웠을 때 랜딩이 쓰는 실제 화면 캡처 · 녹화.
+ * (갤러리는 대개 발표 슬라이드라 랜딩이 슬라이드 넘겨 보기가 되어 버린다.) HTML 의 img · video · source,
+ * 마크다운의 ![](주소)를 본문 차례대로, 같은 주소는 한 번만. 그림 · 영상 확장자가 아닌 것(svg · 아이콘 · data:)은 뺀다
+ */
+export function contentMediaOf(...contents: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const re = /<(?:img|video|source)\b[^>]*?\bsrc=["']([^"']+)["']|!\[[^\]]*\]\(\s*<?([^)\s>]+)>?[^)]*\)/gi;
+  for (const content of contents) {
+    for (const m of (content ?? "").matchAll(re)) {
+      const src = (m[1] ?? m[2] ?? "").trim();
+      if (!src || src.startsWith("data:") || !MEDIA_EXT.test(src) || seen.has(src)) continue;
+      seen.add(src);
+      out.push(src);
+    }
+  }
+  /* 실제 화면은 대개 사진 형식(jpg · webp)이나 녹화(mp4)이고, png 는 설명 그림(인포그래픽 카드)인 경우가 많다.
+     실제 화면이 세 장 넘게 있으면 그것만 쓴다 — 설명 그림이 섞이면 다시 슬라이드 넘겨 보기가 된다 */
+  const screens = out.filter((src) => SCREEN_EXT.test(src));
+  return screens.length >= 3 ? screens : out;
+}
+
+const SCREEN_EXT = /\.(jpe?g|webp|avif|mp4|webm|mov|m4v)(\?|#|$)/i;

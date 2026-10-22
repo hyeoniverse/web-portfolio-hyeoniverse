@@ -6,10 +6,10 @@ import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
-import { EMPTY_LANDING, landingMediaOf, type LandingMedia } from "@/types/workLanding";
+import { EMPTY_LANDING, contentMediaOf, landingMediaOf, type LandingMedia } from "@/types/workLanding";
 import { formatWorkYear } from "@/utils/formatWorkYear";
-import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { LandingDemoFrame } from "./LandingDemo";
+import { LandingScreen } from "./LandingScreen";
 import { useReveal, useScrollProgress } from "./useReveal";
 import styles from "./WorkLanding.module.css";
 
@@ -19,7 +19,8 @@ import styles from "./WorkLanding.module.css";
  * andreasantonsson.dev 의 프로젝트 페이지(project/secret-level)를 따랐다 — 글 없이 그림 위주.
  * 분류 한 줄 · 강조색 큰 세리프 제목 · 역할 / 기간 / 사이트 / GitHub 한 줄 → 화면 폭을 채우는 대표 화면 →
  * 넓은 여백을 두고 이어지는 미디어(칼럼 폭 화면 · 화면 폭 가로 컷 · 데모) → 다음 작업물을 크게.
- * 미디어는 편집기의 '랜딩 페이지' 칸(project.landing.media), 비어 있으면 갤러리 그림으로 채운다. 본문(글)은 보이지 않는다.
+ * 미디어는 편집기의 '랜딩 페이지' 칸(project.landing.media), 비어 있으면 본문에 든 실제 화면 캡처 · 녹화로 채운다(글은 보이지 않는다).
+ * 칼럼 폭 화면은 참고 페이지의 녹화 화면처럼 어두운 무대 위에 띄운다 — 뒤에 같은 화면을 흐리게 깔고, 화면은 통째로.
  * 움직임: 제목 글자가 올라오고, 칼럼 폭 미디어는 들어오며 커지고, 화면 폭 컷은 스크롤에 따라 안쪽 그림이 천천히 움직인다.
  */
 export function WorkLanding({ project, viewLang, next }: {
@@ -34,10 +35,14 @@ export function WorkLanding({ project, viewLang, next }: {
   /* 보는 언어 칸이 비어 있으면 다른 언어 칸으로 */
   const landing = project.landing?.[viewLang] ?? EMPTY_LANDING;
   const other = project.landing?.[viewLang === "ko" ? "en" : "ko"] ?? EMPTY_LANDING;
+  /* 미디어를 비웠으면 본문에 든 실제 화면 캡처 · 녹화로(대표 화면과 같은 그림은 뺀다). 본문에도 없으면 갤러리 */
   const media = useMemo(() => {
     const mine = landingMediaOf(landing, []);
-    return mine.length > 0 ? mine : landingMediaOf(other, project.gallery);
-  }, [landing, other, project.gallery]);
+    if (mine.length > 0) return mine;
+    const fromContent = contentMediaOf(project.content[viewLang] ?? "", project.content[viewLang === "ko" ? "en" : "ko"] ?? "")
+      .filter((src) => src !== project.image);
+    return landingMediaOf(other, fromContent.length > 0 ? fromContent : project.gallery);
+  }, [landing, other, project.content, project.gallery, project.image, viewLang]);
 
   const name = pickLocalized(project.title, viewLang);
   const eyebrow = landing.eyebrow.trim() || other.eyebrow.trim() || pickLocalized(project.subtitle, viewLang);
@@ -78,7 +83,7 @@ export function WorkLanding({ project, viewLang, next }: {
       {/* ── 대표 화면 — 화면 폭을 채운다. 스크롤에 따라 안쪽 그림이 천천히 움직인다 ── */}
       {project.image && (
         <div className={styles.full} data-progress="through">
-          <ProgressiveImage src={project.image} alt={name} fill sizes="100vw" priority className={styles.parallax} />
+          <LandingScreen src={project.image} alt={name} fit="cover" sizes="100vw" priority className={styles.parallax} />
         </div>
       )}
 
@@ -136,7 +141,7 @@ function MetaItem({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** 미디어 한 칸 — full 은 화면 폭 가로 컷(안쪽 그림이 스크롤 따라 움직인다), inset 은 칼럼 폭 화면(들어오며 커진다), 데모는 칼럼 폭 창 */
+/** 미디어 한 칸 — full 은 화면 폭 가로 컷(안쪽 그림이 스크롤 따라 움직인다), inset 은 칼럼 폭 무대(들어오며 커진다), 데모는 칼럼 폭 창 */
 function Media({ media, alt, demoLabel, liveLabel }: { media: LandingMedia; alt: string; demoLabel: string; liveLabel: string }) {
   if (media.demo) {
     return (
@@ -149,14 +154,19 @@ function Media({ media, alt, demoLabel, liveLabel }: { media: LandingMedia; alt:
   if (media.size === "full") {
     return (
       <div className={`${styles.full} ${styles.strip}`} data-progress="through">
-        <ProgressiveImage src={media.src} alt={alt} fill sizes="100vw" className={styles.parallax} />
+        <LandingScreen src={media.src} alt={alt} fit="cover" sizes="100vw" className={styles.parallax} />
       </div>
     );
   }
+  /* 무대 — 뒤에 같은 화면을 흐리게(영상이면 어두운 바탕만), 가운데 화면을 통째로 */
+  const still = !/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(media.src);
   return (
     <div className={styles.inset} data-progress="enter">
-      <div className={styles.insetFrame}>
-        <ProgressiveImage src={media.src} alt={alt} fill sizes="(max-width: 1200px) 100vw, 1128px" className={styles.insetImage} />
+      <div className={styles.stage}>
+        {still && <div className={styles.stageBackdrop} style={{ backgroundImage: `url("${media.src}")` }} aria-hidden />}
+        <div className={styles.stageScreen}>
+          <LandingScreen src={media.src} alt={alt} fit="contain" sizes="(max-width: 1200px) 90vw, 1000px" />
+        </div>
       </div>
     </div>
   );
