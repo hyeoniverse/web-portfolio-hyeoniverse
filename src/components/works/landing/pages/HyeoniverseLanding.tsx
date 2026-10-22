@@ -1,7 +1,7 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Phones, Sequence, type Lang, type L10n } from "../kit/LandingKit";
+import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Sequence, type Lang, type L10n } from "../kit/LandingKit";
 
 /** 테마 프리셋 이름 — 설정 화면의 THEME_PRESETS 순서(캡처 theme-light-00 … 17 · theme-dark-00 … 17 과 같다) */
 const THEME_PRESETS = ["Default", "Ruby", "Meadow", "Coral", "Azure", "Sand", "Harvest", "Honey", "Forest", "Rosewood", "Dusk", "Arctic", "Baltic", "Sorbet", "Twilight", "Tropica", "Petal", "Slate"];
@@ -77,32 +77,20 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="04"
-          title={{ ko: "블로그 — 모든 화면", en: "The blog — every screen" }}
+          title={{ ko: "쓴 글이 다시 읽히도록", en: "So that writing gets read again" }}
           body={{
-            ko: "blog.hyeoniverse.com 의 아홉 갈래 길. 글 목록(레이아웃 일곱 가지) · 기록 · 카테고리 · 시리즈 · 태그 · TIL · 글 한 편까지.",
-            en: "Nine routes on blog.hyeoniverse.com — the post list in seven layouts, history, categories, series, tags, TIL and the post page.",
+            ko: "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다.",
+            en: "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations.",
           }}
         />
-        <Frame at="bleed" src={`${A}/blog-posts-magazine.webp`} alt={t({ ko: "글 목록 — Magazine", en: "Posts — Magazine" })} />
-        <Frame at="left" src={`${A}/blog-posts-journal.webp`} alt={t({ ko: "글 목록 — Journal", en: "Posts — Journal" })} />
-        <Frame at="right" src={`${A}/blog-posts-grid.webp`} alt={t({ ko: "글 목록 — Grid", en: "Posts — Grid" })} />
-        <Frame at="center" src={`${A}/blog-posts-masonry.webp`} alt={t({ ko: "글 목록 — Masonry", en: "Posts — Masonry" })} />
-        <Frame at="left" src={`${A}/blog-posts-featured.webp`} alt={t({ ko: "글 목록 — Featured", en: "Posts — Featured" })} />
-        <Frame at="right" src={`${A}/blog-posts-compact.webp`} alt={t({ ko: "글 목록 — Compact", en: "Posts — Compact" })} />
-        <Frame at="wide" src={`${A}/blog-posts-blog.webp`} alt={t({ ko: "글 목록 — Blog", en: "Posts — Blog" })} />
-        <Frame at="right" src={`${A}/blog-history.webp`} alt={t({ ko: "기록 — 시간순", en: "History — timeline" })} />
-        <Frame at="left" src={`${A}/blog-categories.webp`} alt={t({ ko: "카테고리", en: "Categories" })} />
-        <Frame at="center" src={`${A}/blog-series.webp`} alt={t({ ko: "시리즈 목록", en: "Series" })} />
-        <Frame at="wide" src={`${A}/blog-series-detail.webp`} alt={t({ ko: "시리즈 — 차례대로 이어 읽기", en: "Series — read in order" })} />
+        <Frame at="bleed" src={`${A}/blog-posts-magazine.webp`} alt={t({ ko: "블로그 첫 화면 — 프로필 · 태그 구름 · 날짜별 기록 옆에 글 목록", en: "Blog home — profile, tag cloud and calendar beside the list" })} />
+        <Frame at="right" src={`${A}/blog-series-detail.webp`} alt={t({ ko: "시리즈 — 차례대로 이어 읽기", en: "Series — read in order" })} />
         <Frame at="left" src={`${A}/blog-tags.webp`} alt={t({ ko: "태그 — 초성으로 거르기", en: "Tags — filter by initial" })} />
-        <Frame at="right" src={`${A}/blog-tag.webp`} alt={t({ ko: "태그 하나", en: "One tag" })} />
-        <Frame at="center" src={`${A}/til.webp`} alt={t({ ko: "TIL — 열두 달 별자리와 잔디", en: "TIL — monthly constellations and the grid" })} />
-        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 별자리 하늘을 끌어 둘러보는 녹화", en: "TIL planetarium — dragging around the sky" })} />
-        <Frame at="right" src={`${A}/til-planetarium-2.webp`} alt={t({ ko: "플라네타리움 — 다른 방향", en: "Planetarium — another direction" })} />
-        <Frame at="bleed" src={`${A}/blog-post-top.webp`} alt={t({ ko: "글 — 표지 · 제목 · 공유 · 듣기 · 언어", en: "Post — cover, title, share, listen, language" })} />
-        <Frame at="left" src={`${A}/blog-post-body-1.webp`} alt={t({ ko: "글 — AI 요약 · 따라오는 목차 · 시리즈", en: "Post — AI summary, following contents, series" })} />
-        <Frame at="right" src={`${A}/blog-post-body-2.webp`} alt={t({ ko: "글 — 표와 다이어그램", en: "Post — tables and diagrams" })} />
-        <Frame at="center" src={`${A}/blog-post-end.webp`} alt={t({ ko: "글 끝 — 관련 작업물 · 댓글", en: "Post end — related project, comments" })} />
+        <Frame at="center" src={`${A}/blog-history.webp`} alt={t({ ko: "기록 — 해 · 달로 거슬러 오르는 타임라인", en: "History — a timeline by year and month" })} />
+        <Frame at="wide" src={`${A}/til.webp`} alt={t({ ko: "TIL — 하루 한 칸 잔디와 열두 달 별자리", en: "TIL — a square a day and twelve monthly constellations" })} />
+        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 한 해가 밤하늘로 펼쳐진다", en: "TIL planetarium — the year as a night sky" })} />
+        <Frame at="right" src={`${A}/blog-post-top.webp`} alt={t({ ko: "글 — 듣기 · 언어 바꾸기 · 공유", en: "Post — listen, switch language, share" })} />
+        <Frame at="left" src={`${A}/blog-post-body-1.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
 
         <Note
           viewLang={viewLang}
@@ -129,6 +117,9 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
             { src: `${A}/sky-w5-storm.webp`, label: t({ ko: "뇌우 · 밤", en: "Storm · night" }) },
           ].map(({ src, label }) => ({ src, alt: t({ ko: `About 하늘 — ${label}`, en: `About sky — ${label}` }) }))}
         />
+        <Frame at="bleed" src={`${A}/api-map.webp`} alt={t({ ko: "API 지도 — 엔드포인트 203개가 /api 태양을 도는 별자리", en: "API map — 203 endpoints as stars around the /api sun" })} />
+        <Frame at="wide" video={`${A}/api-journey.mp4`} src={`${A}/api-journey-poster.webp`} alt={t({ ko: "API 지도 — 작업물 수정 요청이 브라우저 → 프록시 → 로그인 → 검사 → DB → 알림 · 캐시 → 응답 정거장을 따라 도는 녹화", en: "API map — a 'save work' request travelling browser → proxy → login → checks → DB → notify and cache → response" })} />
+        <Frame at="right" src={`${A}/api-map-group.webp`} alt={t({ ko: "API 지도 — 묶음 하나의 엔드포인트 · 접근 등급 · 테이블", en: "API map — one group's endpoints, access levels and tables" })} />
         <Frame at="wide" src={`${A}/chapter-architecture-4.webp`} alt={t({ ko: "구조 — 요청이 지나가는 길을 별자리로", en: "Architecture — a request's path as a constellation" })} />
         <Frame at="right" src={`${A}/chapter-ai-3.webp`} alt={t({ ko: "AI — 제목 한 줄로 커버 만들기", en: "AI — a cover from one title line" })} />
         <Frame at="left" src={`${A}/chapter-design-0.webp`} alt={t({ ko: "디자인 — 토큰 몇 백 개로 그린 화면", en: "Design — screens drawn from a few hundred tokens" })} />
@@ -141,37 +132,44 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="06"
-          title={{ ko: "프로필은 가로로 걷는다", en: "The profile walks sideways" }}
+          title={{ ko: "스크롤 한 번에 한 사람을 소개하는 프로필", en: "A profile told in one scroll" }}
           body={{
-            ko: "세로로 스크롤하면 화면은 가로로 흐릅니다. 마스코트 몽이가 인사하고, 창처럼 겹친 사진을 지나 경력으로 이어집니다.",
-            en: "Scroll down and the page travels sideways — Mongi says hello, then photo windows lead into experience.",
+            ko: "아래로 굴리면 화면이 옆으로 흐르며, 마스코트 몽이의 인사 · 창처럼 겹친 사진 · GitHub 활동 · 고정한 저장소 · 경력이 차례로 지나갑니다.",
+            en: "Scroll down and the page runs sideways — Mongi's hello, photos stacked like windows, GitHub activity, pinned repos and experience pass by in turn.",
           }}
         />
-        <Frame at="wide" src={`${A}/profile-0.webp`} alt={t({ ko: "프로필 — Crafting Digital Experiences", en: "Profile — Crafting Digital Experiences" })} />
-        <Frame at="right" src={`${A}/profile-3.webp`} alt={t({ ko: "몽이의 인사", en: "Mongi says hello" })} />
-        <Frame at="left" src={`${A}/profile-5.webp`} alt={t({ ko: "창처럼 겹친 사진", en: "Photos as windows" })} />
-        <Frame at="center" src={`${A}/profile-6.webp`} alt={t({ ko: "프로필", en: "Profile" })} />
+        <Frame at="bleed" video={`${A}/profile.mp4`} src={`${A}/profile-poster.webp`} alt={t({ ko: "프로필을 스크롤하는 녹화", en: "Recording: scrolling the profile" })} />
 
         <Note
           viewLang={viewLang}
           no="07"
-          title={{ ko: "구석에 있는 페이지도 같은 결로", en: "The quiet corners, in the same style" }}
+          title={{ ko: "휴대폰에서도 같은 화면", en: "The same screens on a phone" }}
           body={{
-            ko: "연락하기 · 개인정보 처리방침 · 찾을 수 없는 페이지까지 같은 토큰과 글꼴로. 연락하기는 25MB 까지 첨부합니다.",
-            en: "Contact, privacy policy and even the not-found page share the same tokens and type. Contact takes attachments up to 25 MB.",
+            ko: "모든 화면을 휴대폰 폭에서 따로 다듬었습니다. 메뉴는 화면 전체로 열리고, 표와 코드는 옆으로 넘겨 읽습니다.",
+            en: "Every screen was tuned at phone width — the menu opens full screen, and tables and code scroll sideways.",
           }}
         />
-        <Frame at="right" src={`${A}/contact.webp`} alt={t({ ko: "연락하기", en: "Contact" })} />
-        <Frame at="left" src={`${A}/not-found.webp`} alt={t({ ko: "찾을 수 없는 페이지", en: "Not found" })} />
-
-        <Note viewLang={viewLang} no="08" title={{ ko: "휴대폰에서도 같은 화면", en: "The same screens on a phone" }} />
-        <Phones
-          items={[
-            { src: `${A}/m-home.webp`, alt: t({ ko: "홈", en: "Home" }) },
-            { src: `${A}/m-works.webp`, alt: t({ ko: "작업물", en: "Works" }) },
-            { src: `${A}/m-til.webp`, alt: "TIL" },
-            { src: `${A}/m-about.webp`, alt: "About" },
-            { src: `${A}/m-profile.webp`, alt: "Profile" },
+        <Marquee
+          phone
+          rows={[
+            [
+              { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }) },
+              { src: `${A}/mobile-menu.webp`, alt: t({ ko: "메뉴", en: "Menu" }) },
+              { src: `${A}/mobile-works.webp`, alt: t({ ko: "작업물", en: "Works" }) },
+              { src: `${A}/mobile-about.webp`, alt: "About" },
+              { src: `${A}/mobile-profile.webp`, alt: t({ ko: "프로필", en: "Profile" }) },
+              { src: `${A}/mobile-home-dark.webp`, alt: t({ ko: "홈 — 다크", en: "Home — dark" }) },
+              { src: `${A}/mobile-design-system.webp`, alt: t({ ko: "디자인 시스템", en: "Design system" }) },
+            ],
+            [
+              { src: `${A}/mobile-posts.webp`, alt: t({ ko: "블로그", en: "Blog" }) },
+              { src: `${A}/mobile-post.webp`, alt: t({ ko: "글", en: "Post" }) },
+              { src: `${A}/mobile-post-body.webp`, alt: t({ ko: "글 — 요약과 목차", en: "Post — summary and contents" }) },
+              { src: `${A}/mobile-series.webp`, alt: t({ ko: "시리즈", en: "Series" }) },
+              { src: `${A}/mobile-tags.webp`, alt: t({ ko: "태그", en: "Tags" }) },
+              { src: `${A}/mobile-history.webp`, alt: t({ ko: "기록", en: "History" }) },
+              { src: `${A}/mobile-til.webp`, alt: "TIL" },
+            ],
           ]}
         />
 

@@ -237,14 +237,15 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
 /**
  * 흐르는 띠 — 화면 폭 전체 두 줄. 저절로 흐르지 않고 스크롤로만 흐른다: 이 구간에 들어오면 화면에 붙어(sticky) 있고,
  * 스크롤하는 만큼 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흘러 한 바퀴(한 벌 길이)를 돌면 풀려 다음으로 넘어간다.
- * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다
+ * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다.
+ * phone 이면 세로 휴대폰 화면 — 장이 좁고 무대 높이에 맞춰 두 줄이 들어온다
  */
-export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
+export function Marquee({ rows, phone }: { rows: { src: string; alt: string }[][]; phone?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   usePinnedProgress(rootRef);
   const count = Math.max(...rows.map((row) => row.length));
   return (
-    <div ref={rootRef} className={styles.marquee} style={{ ["--count" as string]: count } as CSSProperties}>
+    <div ref={rootRef} className={`${styles.marquee} ${phone ? styles.marquee_phone : ""}`} style={{ ["--count" as string]: count } as CSSProperties}>
       <div className={styles.marqueeStage}>
         {rows.map((row, r) => (
           <div key={r} className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}>
@@ -254,9 +255,9 @@ export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
                 src={it.src}
                 alt={copy ? "" : it.alt}
                 aria-hidden={copy ? true : undefined}
-                width={1280}
-                height={800}
-                sizes="30vw"
+                width={phone ? 780 : 1280}
+                height={phone ? 1688 : 800}
+                sizes={phone ? "20vw" : "30vw"}
                 unoptimized
                 className={styles.marqueeItem}
               />

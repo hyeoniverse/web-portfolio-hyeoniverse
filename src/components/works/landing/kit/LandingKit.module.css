@@ -252,6 +252,11 @@
   transform: translate3d(calc((var(--p, 0) - 1) * var(--lap)), 0, 0);
 }
 
+/* 휴대폰 화면 — 두 줄이 화면 높이 안에 들어오게 장 폭을 높이에서 정한다(390 × 844 비율) */
+.marquee_phone {
+  --item: min(40vw, calc((100dvh - var(--spacing-48)) / 2 * 390 / 844));
+}
+
 .marqueeItem {
   display: block;
   flex: none;
@@ -376,6 +381,10 @@
 @media (width > 768px) {
   .marquee {
     --item: 26vw;
+  }
+
+  .marquee_phone {
+    --item: min(16vw, calc((100dvh - var(--spacing-48)) / 2 * 390 / 844));
   }
 
   /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
