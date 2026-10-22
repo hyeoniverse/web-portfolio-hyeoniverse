@@ -35,49 +35,6 @@ export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] =
   }, [...deps, enabled]);
 }
 
-/**
- * 스크롤 진행 — 루트 안의 [data-progress] 마다, 요소가 화면을 지나가는 정도(0~1)를 --p 로 넘긴다.
- * data-progress="enter": 위 끝이 화면 아래에 닿을 때 0 → 화면 가운데에 올 때 1(들어오며 커지는 미디어)
- * data-progress="through": 위 끝이 화면 아래에 닿을 때 0 → 아래 끝이 화면 위를 지날 때 1(화면 폭 컷의 안쪽 그림 움직임)
- * 움직임 줄이기면 1 로 둔다. 스크롤마다 한 프레임에 한 번만 잰다.
- */
-export function useScrollProgress(root: RefObject<HTMLElement | null>, deps: unknown[] = []) {
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const targets = Array.from(el.querySelectorAll<HTMLElement>("[data-progress]"));
-    if (reducedMotion()) {
-      targets.forEach((t) => t.style.setProperty("--p", "1"));
-      return;
-    }
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const vh = window.innerHeight || 1;
-      for (const t of targets) {
-        const r = t.getBoundingClientRect();
-        if (r.bottom < -vh || r.top > vh * 2) continue;
-        let p: number;
-        if (t.dataset.progress === "through") {
-          p = (vh - r.top) / Math.max(1, vh + r.height);
-        } else {
-          p = (vh - r.top) / (vh * 0.5 + Math.min(r.height, vh) * 0.5);
-        }
-        t.style.setProperty("--p", Math.min(1, Math.max(0, p)).toFixed(3));
-      }
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-}
 
 /** 숫자 세어 올리기 — "97점" · "1,351+" 처럼 앞의 숫자만 0 에서 올린다. 숫자가 없으면 그대로 */
 export function splitNumber(value: string): { prefix: string; num: number | null; decimals: number; suffix: string } {

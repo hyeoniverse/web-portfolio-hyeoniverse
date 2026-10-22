@@ -11,7 +11,7 @@ import { isPlainClick } from "@/utils/gestureUtils";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
-import { useCountUp, useReveal, useScrollProgress } from "../useReveal";
+import { useCountUp, useReveal } from "../useReveal";
 import LandingNav from "@/components/layout/Navigation/LandingNav";
 import styles from "./LandingKit.module.css";
 
@@ -60,7 +60,6 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
   }, [nextHref, router]);
   const ready = !isTransitioning;
   useReveal(rootRef, [viewLang, project.id], ready);
-  useScrollProgress(rootRef, [viewLang, project.id]);
 
   return (
     <article ref={rootRef} className={styles.landing} lang={viewLang} data-ready={ready ? "" : undefined}>
@@ -236,23 +235,55 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
 }
 
 /**
- * 흐르는 띠 — 화면 폭 전체에 화면을 여러 줄로 늘어놓고, 스크롤을 내리면 줄마다 반대 방향으로 흐른다(마키처럼).
- * 움직임은 스크롤 진행(--p, LandingShell 의 useScrollProgress)에 묶여 있어 스크롤을 멈추면 같이 멈춘다. 움직임 줄이기면 끝자리에 둔다
+ * 흐르는 띠 — 화면 폭 전체 두 줄. 저절로 흐르지 않고 스크롤로만 흐른다: 이 구간에 들어오면 화면에 붙어(sticky) 있고,
+ * 스크롤하는 만큼 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흘러 한 바퀴(한 벌 길이)를 돌면 풀려 다음으로 넘어간다.
+ * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다
  */
 export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = root.getBoundingClientRect();
+      const total = root.offsetHeight - window.innerHeight;
+      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+      root.style.setProperty("--p", p.toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+  const count = Math.max(...rows.map((row) => row.length));
   return (
-    <div className={styles.marquee} data-progress="through">
-      {rows.map((row, r) => (
-        <div
-          key={r}
-          className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}
-          style={{ ["--count" as string]: row.length } as CSSProperties}
-        >
-          {row.map((it) => (
-            <Image key={it.src} src={it.src} alt={it.alt} width={1280} height={800} sizes="30vw" unoptimized className={styles.marqueeItem} />
-          ))}
-        </div>
-      ))}
+    <div ref={rootRef} className={styles.marquee} style={{ ["--count" as string]: count } as CSSProperties}>
+      <div className={styles.marqueeStage}>
+        {rows.map((row, r) => (
+          <div key={r} className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}>
+            {[0, 1].map((copy) => row.map((it) => (
+              <Image
+                key={`${copy}-${it.src}`}
+                src={it.src}
+                alt={copy ? "" : it.alt}
+                aria-hidden={copy ? true : undefined}
+                width={1280}
+                height={800}
+                sizes="30vw"
+                unoptimized
+                className={styles.marqueeItem}
+              />
+            )))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
