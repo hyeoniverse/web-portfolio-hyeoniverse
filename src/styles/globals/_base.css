@@ -66,8 +66,8 @@ body > main {
    RouteViewTransition(<ViewTransition>)이 떠나는 내용에 slide-leave-*, 새 내용에 slide-enter-* 클래스를 붙인다.
    참고 사이트(andreasantonsson.dev)처럼 다음 페이지의 실제 화면이 한쪽에서 밀려 들어오고, 떠나는 화면은 어두워지며 조금 밀려난다 */
 :root {
-  --slide-duration: 900ms;
-  --slide-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --slide-duration: 800ms;
+  --slide-ease: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* 장면은 페이지 내용만 찍혀 바탕이 비친다 — 페이지 바탕색을 깔아 들어오는 화면이 떠나는 화면을 가리고, 떠나는 화면은 바탕째 어두워지게 */
@@ -103,29 +103,31 @@ body > main {
   animation-name: slide-enter-bottom;
 }
 
+/* 거리는 화면 단위(vw · dvh)로 — 장면은 페이지 내용 전체(랜딩은 2만 px 넘게)라 % 로 주면 그 높이를 기준으로 움직여,
+   다음 작업물이 수만 px 아래에서 출발해 한참 뒤에야 들이닥치고 떠나는 화면은 순식간에 날아갔다 */
 @keyframes slide-leave-left {
   to {
     filter: brightness(0.4);
-    transform: translateX(-20%);
+    transform: translateX(-20vw);
   }
 }
 
 @keyframes slide-enter-right {
   from {
-    transform: translateX(100%);
+    transform: translateX(100vw);
   }
 }
 
 @keyframes slide-leave-up {
   to {
     filter: brightness(0.4);
-    transform: translateY(-20%);
+    transform: translateY(-20dvh);
   }
 }
 
 @keyframes slide-enter-bottom {
   from {
-    transform: translateY(100%);
+    transform: translateY(100dvh);
   }
 }
 

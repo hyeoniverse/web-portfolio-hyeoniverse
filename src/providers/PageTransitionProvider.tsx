@@ -91,10 +91,10 @@ const MORPH_MS = 260;
 const FADE_MS = 170;
 const SAFETY_MS = 5000;
 const COVER_MAX_MS = 4000;
-/* 판 전환 — 밀려 들어오는 데 SLIDE_IN_MS, 걷히는 데 SLIDE_OUT_MS. 곡선은 참고 사이트처럼 천천히 출발해 천천히 멈춘다 */
+/* 판 전환 — 밀려 들어오는 데 SLIDE_IN_MS, 걷히는 데 SLIDE_OUT_MS. 곡선은 부드럽게 출발해 부드럽게 멈춘다(_base.css 의 --slide-ease 와 같다) */
 const SLIDE_IN_MS = 700;
 const SLIDE_OUT_MS = 240;
-const SLIDE_EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
+const SLIDE_EASE = "cubic-bezier(0.65, 0, 0.35, 1)";
 
 /** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
