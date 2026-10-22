@@ -329,22 +329,14 @@ export function Sequence({ items }: { items: { src: string; alt: string }[] }) {
 /** 휴대폰 몸통의 두께를 이루는 겹 수 — 둥근 모서리가 그대로 옆면이 된다 */
 const PHONE_SLICES = 14;
 
-/** 배경의 별 — 고정된 씨앗으로 만든 자리(서버 · 브라우저가 같은 값). 소수 둘째 자리까지 */
-const PHONE_STARS = Array.from({ length: 110 }, (_, k) => {
-  const r = (n: number) => {
-    const x = Math.sin(k * 127.1 + n * 311.7) * 43758.5453;
-    return Math.round((x - Math.floor(x)) * 10000) / 100;
-  };
-  return { x: r(1), y: r(2), s: 2 + (r(3) % 3), d: r(4) % 4 };
-});
-
 /**
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
  * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 반 바퀴마다 다음 화면이 보인다 —
  * 앞 · 뒷면 두 장만 두고 보이지 않는 쪽에 다음 화면을 넣어 둔다. 한 번 구르는 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다.
- * 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에 와서 채워진다. 뒤로는 별과, 화면 이름을 별(✦)로 이은 큰 글자 두 줄이 반대로 흐른다
+ * 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에 와서 채워진다. 뒤로는 큰 윤곽 글자 두 줄이 반대로 흐르고,
+ * 네 갈래 별 몇 개가 천천히 돈다(휴대폰이 입체라 배경은 납작하게)
  */
-export function PhoneFlip({ items }: { items: { src: string; alt: string; route: string }[] }) {
+export function PhoneFlip({ items, words }: { items: { src: string; alt: string; route: string }[]; words: string[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const [seg, setSeg] = useState(0);
@@ -382,22 +374,16 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string; route:
   /* 이 구간의 출발 화면은 seg, 도착 화면은 seg + 1 — 짝수 구간은 앞면에서 출발한다 */
   const front = items[seg % 2 === 0 ? seg : seg + 1];
   const back = items[seg % 2 === 0 ? seg + 1 : seg];
-  /* 장식 줄 — 화면 이름을 별로 이어 두 벌. 스크롤에 맞춰 두 줄이 반대로 흐른다 */
-  const names = items.map((it) => it.alt).join(" ✦ ");
-  const deco = `${names} ✦ ${names} ✦ `;
+  /* 장식 줄 — 사이트의 갈래 이름을 두 벌 이어, 스크롤에 맞춰 두 줄이 반대로 흐른다 */
+  const line = words.join(" · ");
+  const deco = `${line} · ${line}`;
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: flips } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
         <div className={styles.phoneBackdrop} aria-hidden>
-          <div className={styles.phoneSky}>
-            {PHONE_STARS.map((st, k) => (
-              <span
-                key={k}
-                className={styles.phoneStar}
-                style={{ left: `${st.x}%`, top: `${st.y}%`, ["--s" as string]: st.s, ["--d" as string]: st.d } as CSSProperties}
-              />
-            ))}
-          </div>
+          <span className={`${styles.phoneSpark} ${styles.phoneSparkA}`} />
+          <span className={`${styles.phoneSpark} ${styles.phoneSparkB}`} />
+          <span className={`${styles.phoneSpark} ${styles.phoneSparkC}`} />
           <p className={styles.phoneDeco}>{deco}</p>
           <p className={`${styles.phoneDeco} ${styles.phoneDecoReverse}`}>{deco}</p>
           <div ref={wordsRef} className={styles.phoneWords}>

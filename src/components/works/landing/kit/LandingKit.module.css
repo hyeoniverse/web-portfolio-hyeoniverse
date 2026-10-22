@@ -294,7 +294,6 @@
    몸통 = 같은 둥근 사각형을 두께 방향으로 겹친 옆면(PHONE_SLICES 겹) + 앞 · 뒤 화면. 회전 값은 --rx · --ry · --rz · --bob ── */
 .phoneFlip {
   --depth: 30px;
-  --star-period: 2.6s;
 
   position: relative;
   height: calc(100dvh + var(--count) * 50dvh);
@@ -311,7 +310,7 @@
   perspective: 1800px;
 }
 
-/* 뒤에 깔리는 것 — 별 · 행성, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
+/* 뒤에 깔리는 것 — 네 갈래 별 · 큰 윤곽 글자 두 줄, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
 .phoneBackdrop {
   position: absolute;
   inset: 0;
@@ -320,42 +319,38 @@
   pointer-events: none;
 }
 
-.phoneSky {
+/* 네 갈래 별 — About 의 별자리와 같은 모양. 납작한 한 가지 색, 스크롤하는 만큼 흘러가며 돈다 */
+.phoneSpark {
   position: absolute;
-  inset: 0;
-  transform: translateY(calc(var(--p, 0) * -6%));
+  aspect-ratio: 1;
+  background-color: var(--text-accent);
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
 }
 
-.phoneStar {
-  position: absolute;
-  width: calc(var(--s) * var(--border-width-1));
-  height: calc(var(--s) * var(--border-width-1));
-  border-radius: var(--radius-full);
+.phoneSparkA {
+  top: 12%;
+  right: 14%;
+  width: 9vmin;
+  transform: translateY(calc(var(--p, 0) * 22dvh)) rotate(calc(var(--p, 0) * 180deg));
+}
+
+.phoneSparkB {
+  bottom: 24%;
+  left: 12%;
+  width: 5vmin;
   background-color: color-mix(in srgb, var(--text-primary) 70%, transparent);
-  animation: starTwinkle var(--star-period) var(--ease-standard) infinite alternate;
-  animation-delay: calc(var(--d) * -1s);
+  transform: translateY(calc(var(--p, 0) * -18dvh)) rotate(calc(var(--p, 0) * -120deg));
 }
 
-/* 다섯에 하나는 네 갈래 반짝이 별 — About 의 별자리와 같은 모양 */
-.phoneStar:nth-child(5n) {
-  width: calc(var(--s) * var(--spacing-4));
-  height: calc(var(--s) * var(--spacing-4));
-  border-radius: 0;
-  background-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+.phoneSparkC {
+  top: 26%;
+  left: 24%;
+  width: 3vmin;
+  opacity: 0.7;
+  transform: translate(calc(var(--p, 0) * 14vw), calc(var(--p, 0) * 10dvh)) rotate(calc(var(--p, 0) * 90deg));
 }
 
-@keyframes starTwinkle {
-  from {
-    opacity: 0.25;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* 장식 줄 — 휴대폰 뒤 큰 윤곽 글자 두 줄(화면 이름을 ✦ 로 잇는다). 스크롤에 맞춰 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흐른다.
+/* 장식 줄 — 휴대폰 뒤 큰 윤곽 글자 두 줄. 스크롤에 맞춰 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흐른다.
    휴대폰이 입체라 배경은 납작한 선 글자로 둔다 */
 .phoneDeco {
   position: absolute;
@@ -644,8 +639,7 @@
     transition: none;
   }
 
-  .letter,
-  .phoneStar {
+  .letter {
     animation: none;
   }
 }

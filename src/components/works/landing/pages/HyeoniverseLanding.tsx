@@ -154,6 +154,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           }}
         />
         <PhoneFlip
+          words={["HOME", "WORKS", "POSTS", "SERIES", "TAGS", "TIL", "ABOUT", "PROFILE"]}
           items={[
             { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }), route: "/" },
             { src: `${A}/mobile-menu.webp`, alt: t({ ko: "메뉴", en: "Menu" }), route: "/ · menu" },
