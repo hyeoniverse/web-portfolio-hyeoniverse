@@ -79,23 +79,19 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="04"
           title={{ ko: "쓴 글이 다시 읽히도록", en: "So that writing gets read again" }}
           body={{
-            ko: "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다. 글마다 AI 가 요약하고, 영어로 옮기고, 표지를 그리고, 소리로 읽어 줍니다 — 공급자 하나가 멈춰도 다음 곳이 이어받습니다.",
-            en: "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations. AI summarises each post, translates it, draws its cover and reads it aloud — and when one provider stops, the next takes over.",
+            ko: "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다. 글마다 AI 가 요약하고, 영어로 옮기고, 소리로 읽어 줍니다.",
+            en: "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations. AI summarises each post, translates it and reads it aloud.",
           }}
         />
-        <Frame at="bleed" src={`${A}/blog-posts-magazine.webp`} alt={t({ ko: "블로그 첫 화면 — 프로필 · 태그 구름 · 날짜별 기록 옆에 글 목록", en: "Blog home — profile, tag cloud and calendar beside the list" })} />
-        <Frame at="right" src={`${A}/blog-series-detail.webp`} alt={t({ ko: "시리즈 — 차례대로 이어 읽기", en: "Series — read in order" })} />
-        <Frame at="left" src={`${A}/blog-tags.webp`} alt={t({ ko: "태그 — 초성으로 거르기", en: "Tags — filter by initial" })} />
-        <Frame at="center" src={`${A}/blog-history.webp`} alt={t({ ko: "기록 — 해 · 달로 거슬러 오르는 타임라인", en: "History — a timeline by year and month" })} />
-        <Frame at="wide" src={`${A}/til.webp`} alt={t({ ko: "TIL — 하루 한 칸 잔디와 열두 달 별자리", en: "TIL — a square a day and twelve monthly constellations" })} />
-        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 한 해가 밤하늘로 펼쳐진다", en: "TIL planetarium — the year as a night sky" })} />
-        <Frame at="right" src={`${A}/blog-post-top.webp`} alt={t({ ko: "글 — 듣기 · 언어 바꾸기 · 공유", en: "Post — listen, switch language, share" })} />
-        <Frame at="left" src={`${A}/blog-post-body-1.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
-        <Frame at="wide" src={`${A}/ai-summary.webp`} alt={t({ ko: "AI 요약 — 글 한 편을 글에 맞는 블록(목록 · 표 · 단계)으로 줄인다", en: "AI summary — a post condensed into blocks that fit it (lists, tables, steps)" })} />
-        <Frame at="right" src={`${A}/ai-translate.webp`} alt={t({ ko: "번역 — 한국어로 쓰면 영어판을 함께, 실패한 문장만 다음 공급자에게", en: "Translation — an English version alongside, only failed sentences retried elsewhere" })} />
-        <Frame at="left" src={`${A}/ai-cover.webp`} alt={t({ ko: "AI 커버 — 제목 한 줄로 글의 표지를", en: "AI cover — a post cover from one title line" })} />
-        <Frame at="right" src={`${A}/ai-voice.webp`} alt={t({ ko: "음성 — 대본을 넣으면 갤러리가 쓰는 목소리로", en: "Voice — a script read aloud for the gallery" })} />
-        <Frame at="center" src={`${A}/ai-providers.webp`} alt={t({ ko: "공급자 전환 — 한 곳이 실패하면 다음 곳으로", en: "Provider failover — when one fails, the next takes over" })} />
+        <Frame at="bleed" src={`${A}/blog2-home.webp`} alt={t({ ko: "블로그 첫 화면 — 넘겨 보는 글 표지", en: "Blog home — a carousel of post covers" })} />
+        <Frame at="right" src={`${A}/blog2-series.webp`} alt={t({ ko: "시리즈 — 차례대로 이어 읽기", en: "Series — read in order" })} />
+        <Frame at="left" src={`${A}/blog2-tags.webp`} alt={t({ ko: "태그 — 초성으로 거르기", en: "Tags — filter by initial" })} />
+        <Frame at="center" src={`${A}/blog2-history.webp`} alt={t({ ko: "기록 — 해 · 달로 거슬러 오르는 타임라인", en: "History — a timeline by year and month" })} />
+        <Frame at="wide" src={`${A}/blog2-til.webp`} alt={t({ ko: "TIL — 하루 한 칸 잔디와 열두 달 별자리", en: "TIL — a square a day and twelve monthly constellations" })} />
+        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/blog2-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 한 해가 밤하늘로 펼쳐진다", en: "TIL planetarium — the year as a night sky" })} />
+        <Frame at="right" src={`${A}/blog2-post-top.webp`} alt={t({ ko: "글 — 공유 · 듣기 · 언어 바꾸기 · 관련 작업물 · 시리즈", en: "Post — share, listen, language, related work and series" })} />
+        <Frame at="left" src={`${A}/blog2-post-summary.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
+        <Frame at="center" src={`${A}/blog2-post-en.webp`} alt={t({ ko: "글 — 영어로 바꾸면 이름 · 관련 작업물은 영어로, 본문은 AI 자동 번역", en: "Post — switched to English, with AI translation offered for the body" })} />
 
         <Note
           viewLang={viewLang}
