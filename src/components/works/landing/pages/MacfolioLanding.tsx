@@ -1,7 +1,7 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { Gallery, LandingShell, Numbers, Pair, Phones, Prose, Recording, Section, SectionHead, Shot, type Lang, type L10n } from "../kit/LandingKit";
+import { Gallery, LandingShell, Numbers, Pair, Phones, Prose, Recording, Section, SectionHead, Shot, Split, Switcher, type Lang, type L10n } from "../kit/LandingKit";
 
 /**
  * MacFolio 전용 랜딩 페이지 — andreasantonsson.dev/project/secret-level 처럼 섹션마다 화면 폭 전체를 쓴다.
@@ -26,73 +26,131 @@ export default function MacfolioLanding({ project, viewLang, next }: {
       </Section>
 
       <Section tone="base">
-        <SectionHead
-          viewLang={viewLang}
-          no="01"
-          title={{ ko: "포트폴리오를 운영체제처럼", en: "A portfolio that behaves like an OS" }}
-          body={{
-            ko: "스크롤해서 읽는 한 장짜리 페이지 대신, 메뉴 막대 · 위젯 · Dock 이 있는 데스크톱을 띄웠습니다. 보는 사람은 궁금한 앱을 골라 열고, 창을 끌어 옮기고, 닫습니다.",
-            en: "Instead of a single scrolling page, it boots into a desktop with a menu bar, widgets and a Dock. Visitors open the apps they care about, drag the windows around and close them.",
-          }}
-        />
-        <Prose
-          viewLang={viewLang}
-          items={[
-            {
-              label: { ko: "창 관리", en: "Window manager" },
-              body: {
-                ko: "창마다 위치 · 크기 · 쌓임 순서를 따로 들고 있어서, 여러 앱을 동시에 열어 두고 앞뒤로 오갈 수 있습니다. 앱 이름 · 아이콘 · Dock 자리는 목록 한 곳에서 정하고, Dock · Launchpad · 터미널 · 휴대폰 홈 화면이 모두 그 목록을 읽습니다.",
-                en: "Each window keeps its own position, size and stacking order, so several apps stay open at once. App names, icons and Dock slots are defined in one manifest that the Dock, Launchpad, Terminal and the phone home screen all read.",
-              },
-            },
-            {
-              label: { ko: "위젯 여덟 가지", en: "Eight widgets" },
-              body: {
-                ko: "날씨 · 캘린더 · 시계 · 음악 · 메모 · 사진 · GitHub 잔디 · 소개 여덟 가지를 데스크톱과 휴대폰이 같이 씁니다. 위젯 편집으로 갤러리를 열어 더하고, 칸 격자에 끌어 놓습니다.",
-                en: "Weather, Calendar, Clock, Music, Notes, Photos, GitHub contributions and About are shared by the desktop and the phone. Add them from the widget gallery and drag them onto the grid.",
-              },
-            },
-          ]}
-        />
-        <Recording src={`${A}/tour.mp4`} poster={`${A}/desktop-light.webp`} label={t({ ko: "Dock 에서 메모 · Finder · 음악을 여는 녹화", en: "Recording: opening Notes, Finder and Music from the Dock" })} />
+        <Split
+          head={
+            <>
+              <SectionHead
+                viewLang={viewLang}
+                align="start"
+                no="01"
+                title={{ ko: "포트폴리오를 운영체제처럼", en: "A portfolio that behaves like an OS" }}
+                body={{
+                  ko: "스크롤해서 읽는 한 장짜리 페이지 대신, 메뉴 막대 · 위젯 · Dock 이 있는 데스크톱을 띄웠습니다. 보는 사람은 궁금한 앱을 골라 열고, 창을 끌어 옮기고, 닫습니다.",
+                  en: "Instead of a single scrolling page, it boots into a desktop with a menu bar, widgets and a Dock. Visitors open the apps they care about, drag the windows around and close them.",
+                }}
+              />
+              <Prose
+                viewLang={viewLang}
+                items={[
+                  {
+                    label: { ko: "창 관리", en: "Window manager" },
+                    body: {
+                      ko: "창마다 위치 · 크기 · 쌓임 순서를 따로 들고 있어서, 여러 앱을 동시에 열어 두고 앞뒤로 오갈 수 있습니다. 앱 이름 · 아이콘 · Dock 자리는 목록 한 곳에서 정하고, Dock · Launchpad · 터미널 · 휴대폰 홈 화면이 모두 그 목록을 읽습니다.",
+                      en: "Each window keeps its own position, size and stacking order, so several apps stay open at once. App names, icons and Dock slots are defined in one manifest that the Dock, Launchpad, Terminal and the phone home screen all read.",
+                    },
+                  },
+                  {
+                    label: { ko: "위젯 여덟 가지", en: "Eight widgets" },
+                    body: {
+                      ko: "날씨 · 캘린더 · 시계 · 음악 · 메모 · 사진 · GitHub 잔디 · 소개 여덟 가지를 데스크톱과 휴대폰이 같이 씁니다. 위젯 편집으로 갤러리를 열어 더하고, 칸 격자에 끌어 놓습니다.",
+                      en: "Weather, Calendar, Clock, Music, Notes, Photos, GitHub contributions and About are shared by the desktop and the phone. Add them from the widget gallery and drag them onto the grid.",
+                    },
+                  },
+                ]}
+              />
+            </>
+          }
+        >
+          <Recording size="wide" src={`${A}/tour.mp4`} poster={`${A}/desktop-light.webp`} label={t({ ko: "Dock 에서 메모 · Finder · 음악을 여는 녹화", en: "Recording: opening Notes, Finder and Music from the Dock" })} />
+        </Split>
       </Section>
 
       <Section tone="tint">
-        <SectionHead
-          viewLang={viewLang}
-          no="02"
-          title={{ ko: "메모 앱이 곧 블로그다", en: "The Notes app is the blog" }}
-          body={{
-            ko: "폴더는 분류, 메모는 글입니다. 200편이 넘는 개발기가 메모 목록에 쌓여 있고, 관리자로 로그인하면 메모가 그대로 편집기가 됩니다.",
-            en: "Folders are categories, notes are posts. More than 200 dev notes sit in the list, and when signed in as admin a note becomes the editor itself.",
-          }}
-        />
-        <Pair>
+        <Split
+          reverse
+          head={
+            <>
+              <SectionHead
+                viewLang={viewLang}
+                align="start"
+                no="02"
+                title={{ ko: "메모 앱이 곧 블로그다", en: "The Notes app is the blog" }}
+                body={{
+                  ko: "폴더는 분류, 메모는 글입니다. 200편이 넘는 개발기가 메모 목록에 쌓여 있습니다.",
+                  en: "Folders are categories, notes are posts. More than 200 dev notes sit in the list.",
+                }}
+              />
+              <Prose
+                viewLang={viewLang}
+                items={[
+                  {
+                    label: { ko: "읽기", en: "Reading" },
+                    body: {
+                      ko: "목록 · 갤러리 보기를 고르고, 검색과 찾기 · 대치로 글을 찾습니다. 조회 · 댓글 · 좋아요로 고른 인기글 10편을 따로 모읍니다.",
+                      en: "Switch between list and gallery, search, and find-and-replace. The ten most popular posts by views, comments and likes get their own folder.",
+                    },
+                  },
+                  {
+                    label: { ko: "쓰기", en: "Writing" },
+                    body: {
+                      ko: "관리자로 로그인하면 글이 곧 편집기가 되고, 임시 저장 · 게시 · 버전 기록 · 예약 발행을 남깁니다.",
+                      en: "Signed in as admin, a note becomes the editor, with drafts, publishing, version history and scheduled posts.",
+                    },
+                  },
+                ]}
+              />
+            </>
+          }
+        >
           <Shot size="wide" src={`${A}/memo.webp`} alt={t({ ko: "메모 — 폴더 목록과 글 목록", en: "Notes — folders and the post list" })} caption={t({ ko: "폴더 · 글 목록 · 본문, 세 칸", en: "Folders, list and body in three columns" })} />
           <Shot size="wide" src={`${A}/memo-post.webp`} alt={t({ ko: "메모 앱에 열린 개발기", en: "A dev note open in Notes" })} caption={t({ ko: "표 · 코드 · 이미지가 들어간 개발기", en: "A dev note with tables, code and images" })} />
-        </Pair>
+        </Split>
       </Section>
 
       <Section tone="bleed">
         <Shot src={`${A}/desktop-dark.webp`} alt={t({ ko: "다크 모드 데스크톱", en: "Desktop in dark mode" })} />
       </Section>
 
-      <Section tone="base">
+      <Section tone="dark">
         <SectionHead
           viewLang={viewLang}
           no="03"
           title={{ ko: "기본 앱은 macOS 그대로", en: "The stock apps, as on macOS" }}
           body={{
-            ko: "Finder 에서 작업물 폴더를 열고, 음악으로 작업할 때 듣는 곡을 틀고, 사진에서 캡처를 넘겨 보고, 메시지로 말을 겁니다. 생김새와 단축키를 macOS 에 맞췄습니다.",
-            en: "Open project folders in Finder, play work music in Music, flip through captures in Photos and start a chat in Messages. Looks and shortcuts follow macOS.",
+            ko: "생김새와 단축키를 macOS 에 맞춘 기본 앱들입니다. 탭을 눌러 하나씩 열어 보세요.",
+            en: "Stock apps with macOS looks and shortcuts. Tap a tab to open each one.",
           }}
         />
-        <Pair>
-          <Shot size="wide" src={`${A}/finder.webp`} alt="Finder" caption="Finder" />
-          <Shot size="wide" src={`${A}/music.webp`} alt={t({ ko: "음악", en: "Music" })} caption={t({ ko: "음악", en: "Music" })} />
-          <Shot size="wide" src={`${A}/photos.webp`} alt={t({ ko: "사진", en: "Photos" })} caption={t({ ko: "사진", en: "Photos" })} />
-          <Shot size="wide" src={`${A}/messages.webp`} alt={t({ ko: "메시지", en: "Messages" })} caption={t({ ko: "메시지", en: "Messages" })} />
-        </Pair>
+        <Switcher
+          viewLang={viewLang}
+          label={t({ ko: "기본 앱", en: "Stock apps" })}
+          items={[
+            {
+              key: "finder",
+              label: "Finder",
+              src: `${A}/finder.webp`,
+              desc: { ko: "Macintosh HD › 사용자 › 홈 트리로 문서 · 블로그 · 사진 · 음악을 파일처럼 둘러봅니다. 저장소의 README 와 docs 도 여기서 읽습니다.", en: "Browse documents, posts, photos and music as files under Macintosh HD › Users › Home, including the repo's README and docs." },
+            },
+            {
+              key: "music",
+              label: t({ ko: "음악", en: "Music" }),
+              src: `${A}/music.webp`,
+              desc: { ko: "재생 목록 · 셔플 · 반복 · 대기열. 메뉴 막대와 휴대폰 위젯에서도 재생을 조작합니다.", en: "Playlists, shuffle, repeat and a queue, also controlled from the menu bar and the phone widget." },
+            },
+            {
+              key: "photos",
+              label: t({ ko: "사진", en: "Photos" }),
+              src: `${A}/photos.webp`,
+              desc: { ko: "프로젝트 화면을 앨범으로 묶어 비율을 지킨 격자로 보여 줍니다. Finder 의 그림 폴더도 앨범이 됩니다.", en: "Project screens grouped into albums on an aspect-true grid; folders under Finder › Pictures become albums too." },
+            },
+            {
+              key: "messages",
+              label: t({ ko: "메시지", en: "Messages" }),
+              src: `${A}/messages.webp`,
+              desc: { ko: "로그인 없이 피드백을 남기고 답글을 답니다. 이름은 방문자마다 자동으로 정해지고, 같은 브라우저에서 내 글을 지웁니다.", en: "Leave feedback and replies without signing in; names are assigned per visitor, and you can delete your own posts from the same browser." },
+            },
+          ]}
+        />
       </Section>
 
       <Section tone="bleed">

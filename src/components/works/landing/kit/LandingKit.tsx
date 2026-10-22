@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { isPlainClick } from "@/utils/gestureUtils";
+import Pressable from "@/components/ui/Pressable";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
@@ -179,10 +180,10 @@ export function Section({ tone = "base", children }: { tone?: "base" | "tint" | 
   return <section className={`${styles.section} ${styles[`section_${tone}`]}`}>{children}</section>;
 }
 
-/** 섹션 머리 — 번호 · 제목 · 한 줄(선택). 섹션 안에서 화면 위에 */
-export function SectionHead({ no, title, body, viewLang }: { no?: string; title: L10n; body?: L10n; viewLang: Lang }) {
+/** 섹션 머리 — 번호 · 제목 · 한 줄(선택). 섹션 안에서 화면 위에. align="start" 는 왼쪽 정렬(Split 의 머리) */
+export function SectionHead({ no, title, body, viewLang, align = "center" }: { no?: string; title: L10n; body?: L10n; viewLang: Lang; align?: "center" | "start" }) {
   return (
-    <header className={styles.sectionHead}>
+    <header className={`${styles.sectionHead} ${align === "start" ? styles.sectionHead_start : ""}`}>
       {no && <span className={styles.statementNo} data-reveal="">{no}</span>}
       <h2 className={styles.sectionTitle} data-reveal="" style={delay(1)}>{title[viewLang]}</h2>
       {body && <p className={styles.statementBody} data-reveal="" style={delay(2)}>{body[viewLang]}</p>}
@@ -246,12 +247,23 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
   );
 }
 
-/** 셋씩 — 화면이 많을 때 작게 여러 장(태블릿은 둘, 폰은 하나). 이름을 캡션으로 단다 */
+/**
+ * 화면 여럿 — 전환기(Switcher)로 그린다. 같은 크기 작은 썸네일을 늘어놓으면 읽을 수 없어서, 큰 화면 하나에 탭으로 갈아 끼운다.
+ * 캡션 "이름 — 설명" 은 탭 이름과 한 줄 설명으로 나눈다
+ */
 export function Gallery({ items }: { items: { src: string; alt: string }[] }) {
+  const { language } = useLanguage();
+  const viewLang: Lang = language === "en" ? "en" : "ko";
   return (
-    <div className={styles.grid}>
-      {items.map((it) => <Shot key={it.src} size="wide" src={it.src} alt={it.alt} caption={it.alt} />)}
-    </div>
+    <Switcher
+      viewLang={viewLang}
+      label={items.map((it) => it.alt.split(" — ")[0]).join(" · ")}
+      items={items.map((it) => {
+        const [name, ...rest] = it.alt.split(" — ");
+        const desc = rest.join(" — ");
+        return { key: it.src, label: name ?? it.alt, src: it.src, alt: it.alt, desc: desc ? { ko: desc, en: desc } : undefined };
+      })}
+    />
   );
 }
 
@@ -265,6 +277,102 @@ export function Prose({ items, viewLang }: { items: { label: L10n; body: L10n }[
           <p className={styles.proseBody}>{it.body[viewLang]}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+/**
+ * 좌우로 나눈 섹션 — 한쪽에 머리 · 설명(넓은 화면에서는 스크롤을 따라 붙는다), 다른 쪽으로 화면이 흐른다.
+ * 가운데 정렬 섹션과 번갈아 써서 리듬을 만든다. reverse 면 화면이 왼쪽. 태블릿 이하는 위아래
+ */
+export function Split({ head, children, reverse }: { head: ReactNode; children: ReactNode; reverse?: boolean }) {
+  return (
+    <div className={`${styles.split} ${reverse ? styles.splitReverse : ""}`}>
+      <div className={styles.splitHead}>{head}</div>
+      <div className={styles.splitBody}>{children}</div>
+    </div>
+  );
+}
+
+export type SwitchItem = { key: string; label: string; desc?: L10n; src?: string; video?: string; alt?: string };
+
+/**
+ * 전환기 — 탭을 누르면 큰 화면 하나가 그 장면으로 바뀐다(겹쳐 두고 흐리게 갈아 끼운다). 같은 내용의 여러 모양을
+ * 한 자리에서 비교하게. 보이는 동안 몇 초마다 다음 장면으로 넘어가고, 한 번 누르면 멈춘다(움직임 줄이기면 넘기지 않는다)
+ */
+export function Switcher({ items, viewLang, label }: { items: SwitchItem[]; viewLang: Lang; label: string }) {
+  const [active, setActive] = useState(0);
+  const [touched, setTouched] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [inView, setInView] = useState(false);
+  const { isTransitioning } = usePageTransition();
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  /* 보이는 동안 몇 초마다 다음 장면으로 — 누르면 그만 넘긴다 */
+  useEffect(() => {
+    if (!inView || touched || items.length < 2) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setActive((i) => (i + 1) % items.length), 4200);
+    return () => clearInterval(t);
+  }, [inView, touched, items.length]);
+
+  /* 지금 장면의 영상만 재생한다(판 전환 중에는 재생하지 않는다) */
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === active && inView && !isTransitioning) void v.play().catch(() => {});
+      else v.pause();
+    });
+  }, [active, inView, isTransitioning]);
+
+  const current = items[active];
+  return (
+    <div ref={rootRef} className={styles.switcher} data-reveal="rise">
+      <div className={styles.switchTabs} role="tablist" aria-label={label}>
+        {items.map((it, i) => (
+          <Pressable
+            key={it.key}
+            noTapScale
+            role="tab"
+            aria-selected={i === active}
+            className={`${styles.switchTab} ${i === active ? styles.switchTabOn : ""}`}
+            onClick={() => { setActive(i); setTouched(true); }}
+          >
+            <span className={styles.switchNo}>{String(i + 1).padStart(2, "0")}</span>
+            {it.label}
+          </Pressable>
+        ))}
+      </div>
+      <div className={styles.switchStage} role="tabpanel" aria-label={current?.label}>
+        {items.map((it, i) => (
+          <div key={it.key} className={`${styles.switchPane} ${i === active ? styles.switchPaneOn : ""}`} aria-hidden={i !== active}>
+            {it.video ? (
+              <video
+                ref={(el) => { videoRefs.current[i] = el; }}
+                className={styles.shotVideo}
+                src={it.video}
+                poster={it.src}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label={it.label}
+              />
+            ) : it.src ? (
+              <Image src={it.src} alt={it.alt ?? it.label} fill unoptimized className={styles.shotImage} />
+            ) : null}
+          </div>
+        ))}
+      </div>
+      {current?.desc && <p className={styles.switchDesc} aria-live="polite">{current.desc[viewLang]}</p>}
     </div>
   );
 }

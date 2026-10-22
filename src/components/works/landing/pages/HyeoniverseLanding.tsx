@@ -1,7 +1,7 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { DemoStage, Gallery, LandingShell, Numbers, Pair, Phones, Prose, Recording, Section, SectionHead, Shot, type Lang, type L10n } from "../kit/LandingKit";
+import { DemoStage, Gallery, LandingShell, Numbers, Pair, Phones, Prose, Recording, Section, SectionHead, Shot, Split, Switcher, type Lang, type L10n } from "../kit/LandingKit";
 
 /**
  * HYEONIVERSE 전용 랜딩 페이지 — andreasantonsson.dev/project/secret-level 처럼 섹션마다 화면 폭 전체를 쓴다.
@@ -27,77 +27,148 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
       </Section>
 
       <Section tone="base">
-        <SectionHead
-          viewLang={viewLang}
-          no="01"
-          title={{ ko: "만들고, 쓰고, 운영하는 한 곳", en: "One place to build, write and run" }}
-          body={{
-            ko: "작업물을 보여 주는 포트폴리오, 개발기를 쓰는 블로그, 매일 배운 것을 남기는 TIL, 이 모두를 고치는 관리자 CMS 를 한 저장소에서 만들었습니다.",
-            en: "A portfolio for projects, a blog for dev notes, a TIL log for what I learn each day, and the admin CMS that edits all of them — built in one repository.",
-          }}
-        />
-        <Prose
-          viewLang={viewLang}
-          items={[
-            {
-              label: { ko: "왜 직접 만들었나", en: "Why build it" },
-              body: {
-                ko: "템플릿이나 블로그 서비스를 쓰면 화면도 데이터도 남의 규칙을 따라야 합니다. 보는 화면과 쓰는 화면을 모두 직접 만들면, 글 하나를 고치는 흐름부터 페이지가 그려지는 속도까지 원하는 기준으로 맞출 수 있습니다.",
-                en: "With a template or a hosted blog, both the screens and the data follow someone else's rules. Building the reading side and the writing side myself lets me set the bar for everything, from editing a post to how fast a page paints.",
-              },
-            },
-            {
-              label: { ko: "기술", en: "Stack" },
-              body: {
-                ko: "Next.js 16 · React 19 · TypeScript, 스타일은 CSS Modules 와 디자인 토큰. 데이터는 Supabase(PostgreSQL)에 두고 RLS 정책으로 지킵니다. 움직임은 GSAP · Lenis · Framer Motion, 3D 는 Three.js 로 그리고 Vercel 에 배포합니다.",
-                en: "Next.js 16, React 19 and TypeScript, styled with CSS Modules and design tokens. Data lives in Supabase (PostgreSQL), guarded by RLS policies. Motion uses GSAP, Lenis and Framer Motion, 3D uses Three.js, and it ships on Vercel.",
-              },
-            },
-          ]}
-        />
-        <Shot size="wide" src={`${A}/about-0.webp`} alt={t({ ko: "About 첫 화면 — 별자리로 고르는 챕터", en: "About opening — chapters picked from a constellation" })} />
+        <Split
+          head={
+            <>
+              <SectionHead
+                viewLang={viewLang}
+                align="start"
+                no="01"
+                title={{ ko: "만들고, 쓰고, 운영하는 한 곳", en: "One place to build, write and run" }}
+                body={{
+                  ko: "작업물을 보여 주는 포트폴리오, 개발기를 쓰는 블로그, 매일 배운 것을 남기는 TIL, 이 모두를 고치는 관리자 CMS 를 한 저장소에서 만들었습니다.",
+                  en: "A portfolio for projects, a blog for dev notes, a TIL log for what I learn each day, and the admin CMS that edits all of them — built in one repository.",
+                }}
+              />
+              <Prose
+                viewLang={viewLang}
+                items={[
+                  {
+                    label: { ko: "왜 직접 만들었나", en: "Why build it" },
+                    body: {
+                      ko: "템플릿이나 블로그 서비스를 쓰면 화면도 데이터도 남의 규칙을 따라야 합니다. 보는 화면과 쓰는 화면을 모두 직접 만들면, 글 하나를 고치는 흐름부터 페이지가 그려지는 속도까지 원하는 기준으로 맞출 수 있습니다.",
+                      en: "With a template or a hosted blog, both the screens and the data follow someone else's rules. Building the reading side and the writing side myself lets me set the bar for everything, from editing a post to how fast a page paints.",
+                    },
+                  },
+                  {
+                    label: { ko: "기술", en: "Stack" },
+                    body: {
+                      ko: "Next.js 16 · React 19 · TypeScript, 스타일은 CSS Modules 와 디자인 토큰. 데이터는 Supabase(PostgreSQL)에 두고 RLS 정책으로 지킵니다. 움직임은 GSAP · Lenis · Framer Motion, 3D 는 Three.js 로 그리고 Vercel 에 배포합니다.",
+                      en: "Next.js 16, React 19 and TypeScript, styled with CSS Modules and design tokens. Data lives in Supabase (PostgreSQL), guarded by RLS policies. Motion uses GSAP, Lenis and Framer Motion, 3D uses Three.js, and it ships on Vercel.",
+                    },
+                  },
+                ]}
+              />
+            </>
+          }
+        >
+          <Shot size="wide" src={`${A}/about-0.webp`} alt={t({ ko: "About 첫 화면 — 별자리로 고르는 챕터", en: "About opening — chapters picked from a constellation" })} caption={t({ ko: "About — 별을 누르면 그 챕터로", en: "About — tap a star to open its chapter" })} />
+          <Shot size="wide" src={`${A}/posts-blog.webp`} alt={t({ ko: "블로그 글 목록", en: "Blog list" })} caption={t({ ko: "블로그 — 개발기 · 시리즈 · TIL 을 쓰는 곳", en: "Blog — where dev notes, series and TIL are written" })} />
+        </Split>
       </Section>
 
-      <Section tone="tint">
+      <Section tone="dark">
         <SectionHead
           viewLang={viewLang}
           no="02"
           title={{ ko: "작업물은 여섯 가지 모양으로 흐른다", en: "Works flow in six shapes" }}
           body={{
-            ko: "같은 작업물 목록을 Cylinder · Flow · Grid · Fullscreen · Cinematic · Split 로 보여 줍니다. 관리자 설정 하나로 바꿔 끼우고, 코드는 고치지 않습니다.",
-            en: "The same list of works renders as Cylinder, Flow, Grid, Fullscreen, Cinematic or Split. One admin setting swaps them; no code changes.",
+            ko: "같은 작업물 목록을 여섯 가지 레이아웃으로 보여 줍니다. 관리자 설정 하나로 바꿔 끼우고, 코드는 고치지 않습니다. 탭을 눌러 비교해 보세요.",
+            en: "The same list of works renders in six layouts, swapped with one admin setting and no code changes. Tap a tab to compare.",
           }}
         />
-        <Recording size="wide" src={`${A}/cylinder.mp4`} label={t({ ko: "Cylinder 레이아웃을 스크롤하는 녹화", en: "Recording: scrolling the Cylinder layout" })} />
-        <Pair>
-          <Shot size="wide" src={`${A}/works-flow.webp`} alt="Flow" caption="Flow" />
-          <Shot size="wide" src={`${A}/works-grid.webp`} alt="Grid" caption="Grid" />
-          <Shot size="wide" src={`${A}/works-cinematic.webp`} alt="Cinematic" caption="Cinematic" />
-          <Shot size="wide" src={`${A}/works-split.webp`} alt="Split" caption="Split" />
-        </Pair>
-      </Section>
-
-      <Section tone="bleed">
-        <Shot src={`${A}/works-fullscreen.webp`} alt="Fullscreen" />
+        <Switcher
+          viewLang={viewLang}
+          label={t({ ko: "작업물 레이아웃", en: "Works layouts" })}
+          items={[
+            {
+              key: "cylinder",
+              label: "Cylinder",
+              video: `${A}/cylinder.mp4`,
+              desc: { ko: "카드가 3D 원통에 둘러 붙어, 스크롤하면 원통이 돌며 다음 작업물이 앞으로 옵니다.", en: "Cards wrap a 3D cylinder that turns with the scroll, bringing the next work to the front." },
+            },
+            {
+              key: "flow",
+              label: "Flow",
+              src: `${A}/works-flow.webp`,
+              desc: { ko: "작업물이 가로로 흐르는 띠. 카드를 길게 누르면 커지다가 상세로 넘어갑니다.", en: "Works run in a horizontal strip; press and hold a card and it grows into the detail page." },
+            },
+            {
+              key: "grid",
+              label: "Grid",
+              src: `${A}/works-grid.webp`,
+              desc: { ko: "12칸 격자를 빈틈없이 채우는 벤토. 작업물 수에 따라 소개 칸과 카드 크기가 스스로 맞춰집니다.", en: "A bento that fills a 12-column grid with no gaps; the intro cell and cards resize to the number of works." },
+            },
+            {
+              key: "fullscreen",
+              label: "Fullscreen",
+              src: `${A}/works-fullscreen.webp`,
+              desc: { ko: "한 화면에 작업물 하나. 첫 화면에는 서울 시각과 실시간 FPS 가 뜹니다.", en: "One work per screen; the opening shows the Seoul time and a live FPS readout." },
+            },
+            {
+              key: "cinematic",
+              label: "Cinematic",
+              src: `${A}/works-cinematic.webp`,
+              desc: { ko: "한 번 굴리면 한 판씩 넘어가는 영화 같은 화면. 판이 화면을 꽉 채웁니다.", en: "One scroll, one full-screen panel, like cuts in a film." },
+            },
+            {
+              key: "split",
+              label: "Split",
+              src: `${A}/works-split.webp`,
+              desc: { ko: "글과 그림을 반씩 나눈 판이 한 번 굴릴 때마다 넘어갑니다.", en: "Panels split between text and image, one per scroll." },
+            },
+          ]}
+        />
       </Section>
 
       <Section tone="base">
-        <SectionHead
-          viewLang={viewLang}
-          no="03"
-          title={{ ko: "작업물 하나를 끝까지 읽는 페이지", en: "A page to read one project end to end" }}
-          body={{
-            ko: "큰 제목 아래 기간 · 역할 · 기술 · 사이트를 한 번에 보이고, AI 요약과 핵심 성과를 먼저 놓습니다. 본문은 목차를 따라 읽고, 마지막에 화면 갤러리를 둡니다.",
-            en: "Under a big title sit period, role, stack and links, followed by an AI summary and key results. The body follows a table of contents and ends in a screen gallery.",
-          }}
-        />
-        <Gallery
-          items={[
-            { src: `${A}/work-top.webp`, alt: t({ ko: "머리 — 정보와 AI 요약", en: "Header — facts and AI summary" }) },
-            { src: `${A}/work-body.webp`, alt: t({ ko: "본문 — 개요와 목차", en: "Body — overview and contents" }) },
-            { src: `${A}/work-gallery.webp`, alt: t({ ko: "갤러리", en: "Gallery" }) },
-          ]}
-        />
+        <Split
+          reverse
+          head={
+            <>
+              <SectionHead
+                viewLang={viewLang}
+                align="start"
+                no="03"
+                title={{ ko: "작업물 하나를 끝까지 읽는 페이지", en: "A page to read one project end to end" }}
+                body={{
+                  ko: "목록에서 고른 작업물은 긴 글 한 편처럼 읽힙니다. 위에서 아래로 내려가며 필요한 것만 먼저 보이게 순서를 짰습니다.",
+                  en: "A work picked from the list reads like one long article, ordered so what matters shows first.",
+                }}
+              />
+              <Prose
+                viewLang={viewLang}
+                items={[
+                  {
+                    label: { ko: "머리", en: "Header" },
+                    body: {
+                      ko: "큰 제목 아래 기간 · 역할 · 기술 · 사이트를 한 줄에 보이고, AI 요약과 핵심 성과(예: LCP 9.7초 → 2.7초)를 먼저 놓습니다.",
+                      en: "Period, role, stack and links sit in one row under the title, followed by an AI summary and key results (e.g. LCP 9.7 s → 2.7 s).",
+                    },
+                  },
+                  {
+                    label: { ko: "본문", en: "Body" },
+                    body: {
+                      ko: "개요 · 정보 표 · 문제와 해결을 목차를 따라 읽습니다. 오른쪽 목차가 지금 읽는 자리를 따라갑니다.",
+                      en: "Overview, facts table, problems and fixes follow a table of contents that tracks your position.",
+                    },
+                  },
+                  {
+                    label: { ko: "갤러리", en: "Gallery" },
+                    body: {
+                      ko: "끝에는 글 칼럼보다 넓은 자리에 화면 갤러리를 둡니다. 관련 글 · 시리즈 · 팀원도 여기서 이어집니다.",
+                      en: "It ends with a screen gallery wider than the text column, plus related posts, series and team.",
+                    },
+                  },
+                ]}
+              />
+            </>
+          }
+        >
+          <Shot size="wide" src={`${A}/work-top.webp`} alt={t({ ko: "머리 — 정보와 AI 요약", en: "Header — facts and AI summary" })} caption={t({ ko: "머리 — 정보와 AI 요약", en: "Header — facts and AI summary" })} />
+          <Shot size="wide" src={`${A}/work-body.webp`} alt={t({ ko: "본문 — 개요와 목차", en: "Body — overview and contents" })} caption={t({ ko: "본문 — 개요와 목차", en: "Body — overview and contents" })} />
+          <Shot size="wide" src={`${A}/work-gallery.webp`} alt={t({ ko: "갤러리", en: "Gallery" })} caption={t({ ko: "갤러리", en: "Gallery" })} />
+        </Split>
       </Section>
 
       <Section tone="dark">

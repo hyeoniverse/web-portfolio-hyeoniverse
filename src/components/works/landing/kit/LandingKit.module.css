@@ -316,16 +316,149 @@
   color: var(--text-white-muted);
 }
 
-/* 셋씩 — 화면이 많을 때(태블릿은 둘, 폰은 하나) */
-.grid {
+/* 왼쪽 정렬 머리 — Split 의 머리 */
+.sectionHead_start {
+  align-items: flex-start;
+  width: auto;
+  text-align: start;
+}
+
+.sectionHead_start .sectionTitle {
+  max-width: 14ch;
+}
+
+/* 좌우 분할 — 머리(넓은 화면에서 스크롤을 따라 붙는다) + 화면 흐름 */
+.split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-24);
+  gap: var(--spacing-48);
   width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
 }
 
-.grid .shot_wide {
+.splitHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-40);
+}
+
+.splitBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-48);
+  min-width: 0;
+}
+
+.splitBody .shot_wide {
   width: 100%;
+}
+
+.splitHead .prose {
+  width: auto;
+}
+
+.splitHead .proseItem {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-8);
+}
+
+/* 전환기 — 탭 줄 + 큰 화면 하나 + 지금 장면의 한 줄 설명 */
+/* 폭은 화면 높이에도 맞춘다 — 16:10 화면 · 탭 · 설명이 한 화면에 들어오게(1440×900 에서 아래가 잘렸다) */
+.switcher {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2), 112dvh);
+}
+
+.switchTabs {
+  display: flex;
+  gap: var(--spacing-8);
+  padding-bottom: var(--spacing-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.switchTab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.switchTab:hover {
+  color: var(--text-primary);
+}
+
+.switchTabOn,
+.switchTabOn:hover {
+  border-color: var(--text-accent);
+  background-color: var(--text-accent);
+  color: var(--text-on-accent);
+}
+
+.switchNo {
+  font: var(--font-label-xs);
+  opacity: 0.6;
+}
+
+.switchStage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: var(--radius-surface);
+  background-color: var(--bg-tertiary);
+  box-shadow: var(--shadow-overlay);
+}
+
+.switchPane {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.switchPaneOn {
+  opacity: 1;
+}
+
+.switchDesc {
+  max-width: 60ch;
+  margin: 0 auto;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+
+.section_dark .switchTab {
+  border-color: color-mix(in srgb, var(--text-white) 22%, transparent);
+  color: var(--text-white-muted);
+}
+
+.section_dark .switchTab:hover {
+  color: var(--text-white);
+}
+
+.section_dark .switchTabOn,
+.section_dark .switchTabOn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-on-accent);
+}
+
+.section_dark .switchDesc {
+  color: var(--text-white-muted);
 }
 
 /* 둘을 나란히 */
@@ -504,23 +637,40 @@
 
 /* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
 @media (width > 768px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .phones {
     justify-content: center;
     overflow: visible;
   }
 }
 
+@media (width > 768px) {
+  .switchTabs {
+    justify-content: center;
+  }
+}
+
 @media (width > 1024px) {
-  .pair {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    gap: var(--spacing-96);
   }
 
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .splitReverse {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+
+  .splitReverse .splitHead {
+    order: 2;
+  }
+
+  .splitHead {
+    position: sticky;
+    top: var(--spacing-96);
+  }
+
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .proseItem {
