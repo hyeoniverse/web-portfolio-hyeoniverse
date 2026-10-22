@@ -9,6 +9,7 @@ import {
   aggregateDailyVisits,
   aggregateLandingPages,
   aggregateNewVsReturning,
+  aggregateSearchTerms,
   aggregateTraffic,
   aggregateUtmCampaigns,
   aggregateVisitHeatmap,
@@ -110,7 +111,8 @@ export async function GET(request: Request) {
     dailyVisits: aggregateDailyVisits(history, days),
     botVisits,
     topContent,
-    ipVisitors: aggregateIpVisitors(trafficRows),
+    searchTerms: aggregateSearchTerms(trafficRows),
+    ipVisitors: aggregateIpVisitors(trafficRows, journeyRows),
     currentIp: maskIp(requestIp)
       ? { key: ipKey(requestIp), masked: maskIp(requestIp)!, excluded: excludedIps.has(requestIp) }
       : null,

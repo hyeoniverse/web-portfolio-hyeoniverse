@@ -67,3 +67,39 @@ export function referrerHost(ref: unknown, ownHost?: string): string {
     return "Direct";
   }
 }
+
+/* 검색 엔진별 검색어 파라미터 — 호스트가 그 도메인이거나 서브도메인이면 해당 키를 읽는다 */
+const SEARCH_PARAMS: Array<[string, string[]]> = [
+  ["naver.com", ["query", "oquery"]],
+  ["daum.net", ["q"]],
+  ["google.", ["q"]],
+  ["bing.com", ["q"]],
+  ["duckduckgo.com", ["q"]],
+  ["yahoo.", ["p", "q"]],
+  ["baidu.com", ["wd", "word"]],
+  ["yandex.", ["text"]],
+  ["ecosia.org", ["q"]],
+  ["search.brave.com", ["q"]],
+  ["startpage.com", ["query", "q"]],
+  ["kagi.com", ["q"]],
+];
+
+/**
+ * 유입 검색어 — document.referrer 전체 URL 의 검색어 파라미터. 없으면 null.
+ * 구글 등 대부분은 referrer 에서 검색어를 떼어 보내므로 네이버 · 다음 · 빙 등 일부에서만 잡힌다. 100자까지.
+ */
+export function searchTerm(ref: unknown): string | null {
+  if (typeof ref !== "string" || !ref) return null;
+  let url: URL;
+  try { url = new URL(ref); } catch { return null; }
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+  const entry = SEARCH_PARAMS.find(([d]) =>
+    d.endsWith(".") ? host.startsWith(d) || host.includes(`.${d}`) : host === d || host.endsWith(`.${d}`),
+  );
+  if (!entry) return null;
+  for (const key of entry[1]) {
+    const v = (url.searchParams.get(key) ?? "").replace(/\s+/g, " ").trim();
+    if (v) return v.slice(0, 100);
+  }
+  return null;
+}

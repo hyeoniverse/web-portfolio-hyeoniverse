@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Button from "@/components/ui/Button";
+import { ChevronRight } from "@/components/icons";
 import Chip from "@/components/ui/Chip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { sendAction } from "@/lib/sendAction";
 import type { TrafficData } from "@/types";
 import { List, ListItem } from "../components";
+import JourneyList from "./JourneyList";
 import { countryName, flagEmoji } from "../_components/countryDisplay";
 import dashStyles from "../Dashboard.module.css";
 import local from "./Traffic.module.css";
@@ -24,6 +26,9 @@ type Props = Pick<TrafficData, "ipVisitors" | "currentIp" | "excludedIps"> & {
 export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChanged }: Props) {
   const { t, language } = useLanguage();
   const [pending, setPending] = useState<string | null>(null);
+  // 활동 경로를 펼친 IP 의 키
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const toggleOpen = (key: string) => setOpenKey((k) => (k === key ? null : key));
 
   const toggle = async (target: { key: string } | { current: true }, exclude: boolean, pendingId: string) => {
     setPending(pendingId);
@@ -73,6 +78,17 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
         </div>
       )}
 
+      {excludedIps.length > 0 && (
+        <div className={styles.ipExcluded}>
+          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.excludedIps")}</span>
+          {excludedIps.map((e) => (
+            <Chip key={e.key} onRemove={() => toggle({ key: e.key }, false, e.key)}>
+              <span className={styles.ipMasked}>{e.masked}</span>
+            </Chip>
+          ))}
+        </div>
+      )}
+
       {ipVisitors.length === 0 ? (
         <p className={styles.muted}>
           {t("admin.inline.ipVisitors.empty")}
@@ -80,7 +96,23 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
       ) : (
         <List>
           {ipVisitors.map((v) => (
-            <ListItem key={v.key} layout="grid" className={styles.ipRow}>
+            <Fragment key={v.key}>
+            <ListItem
+              layout="grid"
+              className={`${styles.ipRow} ${v.journeys.length > 0 ? styles.ipRowToggle : ""}`}
+              // 행 전체가 활동 경로 열기 — 경로가 없는 IP 는 누를 게 없다
+              {...(v.journeys.length > 0 && {
+                role: "button",
+                tabIndex: 0,
+                "aria-expanded": openKey === v.key,
+                onClick: () => toggleOpen(v.key),
+                onKeyDown: (e: React.KeyboardEvent) => {
+                  if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
+                  e.preventDefault();
+                  toggleOpen(v.key);
+                },
+              })}
+            >
               <span className={styles.ipIdentity}>
                 <span className={styles.ipMasked}>{v.masked}</span>
                 <span className={styles.utmDetail}>
@@ -107,6 +139,8 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
                     : `${shortDate(v.firstDate)}–${shortDate(v.lastDate)}`}
                 </span>
               </span>
+              {/* 행 클릭(경로 열기)으로 번지지 않게 */}
+              <span onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
               <Button
                 variant="ghost"
                 loading={pending === v.key}
@@ -114,21 +148,27 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               >
                 {t("admin.inline.ipVisitors.mine")}
               </Button>
+              </span>
+              {/* 펼침 표시 — 글자 · 폭이 열고 닫을 때 바뀌지 않게 아이콘만 돌린다 */}
+              <span className={styles.ipPaths}>
+                {fillTemplate(t("admin.inline.ipVisitors.paths"), { n: v.journeys.length })}
+                <ChevronRight
+                  size={14}
+                  aria-hidden
+                  className={`${styles.ipChevron} ${openKey === v.key ? styles.ipChevronOpen : ""}`}
+                />
+              </span>
             </ListItem>
+            {openKey === v.key && (
+              <div className={styles.ipJourneys}>
+                <JourneyList journeys={v.journeys} />
+              </div>
+            )}
+            </Fragment>
           ))}
         </List>
       )}
 
-      {excludedIps.length > 0 && (
-        <div className={styles.ipExcluded}>
-          <span className={styles.ipCurrentLabel}>{t("admin.inline.ipVisitors.excludedIps")}</span>
-          {excludedIps.map((e) => (
-            <Chip key={e.key} onRemove={() => toggle({ key: e.key }, false, e.key)}>
-              <span className={styles.ipMasked}>{e.masked}</span>
-            </Chip>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

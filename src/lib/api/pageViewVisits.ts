@@ -12,7 +12,7 @@ import type { JourneyRow } from "./visitJourneys";
 const PAGE = 1000;
 
 /** 집계 함수(dashboardAggregates)가 받는 모양 + IP · 날짜 · 방문자 */
-export type LandingRow = AnalyticsVisitRow & { ip: string | null; date: string; visitor: string | null };
+export type LandingRow = AnalyticsVisitRow & { ip: string | null; date: string; visitor: string | null; search_term: string | null };
 
 type Raw = {
   ip: string | null;
@@ -30,10 +30,18 @@ type Raw = {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  search_term?: string | null;
 };
 
 const LANDING_COLUMNS =
   "ip, visitor_id, viewed_date, viewed_at, migrated_from, path, referrer, device_kind, os, browser, device_model, country, utm_source, utm_medium, utm_campaign";
+
+/* 유입 검색어 칸(2026_10_23) — 마이그레이션 전이면 이 칸을 빼고 다시 읽는다 */
+const SEARCH_TERM = ", search_term";
+
+async function withSearchTerm<T>(read: (extra: string) => Promise<T[] | null>): Promise<T[] | null> {
+  return (await read(SEARCH_TERM)) ?? read("");
+}
 
 async function pages<T>(fetchPage: (from: number, to: number) => PromiseLike<{ data: unknown; error: unknown }>): Promise<T[] | null> {
   const out: T[] = [];
@@ -52,11 +60,13 @@ export async function loadLandingRows(
   excluded: Set<string>,
   since?: string,
 ): Promise<LandingRow[]> {
-  const rows = await pages<Raw>((from, to) => {
-    let q = admin.from("page_views").select(LANDING_COLUMNS).eq("is_landing", true).or(HUMAN_VISITS_FILTER);
-    if (since) q = q.gte("viewed_date", since);
-    return q.order("viewed_at", { ascending: true }).range(from, to);
-  });
+  const rows = await withSearchTerm((extra) =>
+    pages<Raw>((from, to) => {
+      let q = admin.from("page_views").select(LANDING_COLUMNS + extra).eq("is_landing", true).or(HUMAN_VISITS_FILTER);
+      if (since) q = q.gte("viewed_date", since);
+      return q.order("viewed_at", { ascending: true }).range(from, to);
+    }),
+  );
   return (rows ?? [])
     .filter((r) => !r.ip || !excluded.has(r.ip))
     .map((r) => ({
@@ -73,6 +83,7 @@ export async function loadLandingRows(
       utm_source: r.utm_source,
       utm_medium: r.utm_medium,
       utm_campaign: r.utm_campaign,
+      search_term: r.search_term ?? null,
       // 옛 방문 기록(site_visits)에서 옮긴 줄은 날짜만 있고 시각이 없다 — 시간대 히트맵에서 뺀다
       created_at: r.migrated_from === "site_visits" ? null : r.viewed_at,
     }));
@@ -119,16 +130,18 @@ export async function countPostViews(
   return counts;
 }
 
-/** 방문 흐름 분석용 — since 이후 사람의 조회 줄(세션 · 경로 · 시각 · 머문 시간, 첫 조회의 유입 · 기기) */
+/** 방문 흐름 분석용 — since 이후 사람의 조회 줄(IP · 세션 · 경로 · 시각 · 머문 시간, 첫 조회의 유입 · 검색어 · 기기) */
 export async function loadJourneyRows(admin: SupabaseClient, excluded: Set<string>, since: string): Promise<JourneyRow[]> {
-  const rows = await pages<JourneyRow & { ip: string | null }>((from, to) =>
-    admin
-      .from("page_views")
-      .select("ip, session_id, path, viewed_at, duration_ms, is_landing, referrer, device_kind")
-      .or(HUMAN_VISITS_FILTER)
-      .gte("viewed_date", since)
-      .order("viewed_at", { ascending: true })
-      .range(from, to),
+  const rows = await withSearchTerm((extra) =>
+    pages<JourneyRow>((from, to) =>
+      admin
+        .from("page_views")
+        .select("ip, session_id, path, viewed_at, duration_ms, is_landing, referrer, device_kind" + extra)
+        .or(HUMAN_VISITS_FILTER)
+        .gte("viewed_date", since)
+        .order("viewed_at", { ascending: true })
+        .range(from, to),
+    ),
   );
   return (rows ?? []).filter((r) => !r.ip || !excluded.has(r.ip));
 }
