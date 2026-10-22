@@ -5,6 +5,10 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+/* 이 사이트를 iframe 으로 끼워 넣을 수 있는 곳 — 같은 출처와 MacFolio(macfolio.hyeoniverse.com, 데스크톱의 HYEONIVERSE 앱 창).
+   X-Frame-Options 는 출처 하나를 고를 수 없어(ALLOW-FROM 은 브라우저가 지원을 끊었다) CSP frame-ancestors 로 정한다 */
+const FRAME_ANCESTORS = "'self' https://macfolio.hyeoniverse.com";
+
 /* 콘텐츠 보안 정책 — 지금은 관찰 모드(Report-Only)라 막지 않고 위반만 보고한다(/api/csp-report → 서버 로그).
    쓰는 외부 출처: Supabase(데이터 · 저장소 · 실시간), reCAPTCHA(문의), giscus(댓글), unpkg(본문 도구),
    Vercel(분석 · 미리보기 툴바), Google Fonts · jsDelivr(글꼴), YouTube · Vimeo(본문 영상), Office 뷰어(라이브러리 미리보기).
@@ -22,7 +26,7 @@ const CSP = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'self'",
+  `frame-ancestors ${FRAME_ANCESTORS}`,
   // 위반 보고 — Safari 는 보고 주소가 없으면 관찰 모드 정책을 아예 쓰지 않는다. report-uri(Safari · Firefox) · report-to(Chrome) 둘 다
   "report-uri /api/csp-report",
   "report-to csp",
@@ -34,8 +38,9 @@ const SECURITY_HEADERS = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // 마이크는 슬라이드 음성 녹음(lib/micRecorder)이 쓴다 — 이 사이트에서만
   { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()" },
-  // 소개 페이지가 /works 를 iframe 으로 띄운다 — 같은 출처는 허용
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  /* 끼워 넣기 — 같은 출처(소개 페이지가 /works 를 iframe 으로 띄운다)와 MacFolio 만. 관찰 모드 정책과 달리 이 줄은 실제로 막는다.
+     X-Frame-Options(SAMEORIGIN)는 MacFolio 까지 막아 쓰지 않는다 — frame-ancestors 가 있으면 브라우저는 X-Frame-Options 를 보지 않는다 */
+  { key: "Content-Security-Policy", value: `frame-ancestors ${FRAME_ANCESTORS}` },
   { key: "Reporting-Endpoints", value: 'csp="/api/csp-report"' },
   { key: "Content-Security-Policy-Report-Only", value: CSP },
 ];
@@ -152,8 +157,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
-      // 관리 화면은 어디에도 끼워 넣지 못하게(클릭재킹) — 같은 키는 뒤의 값이 이긴다
-      { source: "/admin/:path*", headers: [{ key: "X-Frame-Options", value: "DENY" }] },
+      // 관리 화면은 어디에도 끼워 넣지 못하게(클릭재킹, MacFolio 도) — 같은 키는 뒤의 값이 이긴다
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
+      },
     ];
   },
   async rewrites() {
