@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
@@ -326,17 +326,28 @@ export function Sequence({ items }: { items: { src: string; alt: string }[] }) {
   );
 }
 
+/** 움직임 줄이기 설정 — 바뀌면 다시 그린다 */
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+function subscribeReducedMotion(cb: () => void) {
+  const mq = window.matchMedia?.(REDUCED_MOTION);
+  mq?.addEventListener("change", cb);
+  return () => mq?.removeEventListener("change", cb);
+}
+function readReducedMotion() {
+  return window.matchMedia?.(REDUCED_MOTION).matches ?? false;
+}
+
 /** 휴대폰 몸통의 두께를 이루는 겹 수 — 둥근 모서리가 그대로 옆면이 된다 */
 const PHONE_SLICES = 14;
 
 /**
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
  * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 앞면만 화면이고 뒷면은 실제 휴대폰 뒷면
- * (카메라 · 별 표시)이다. 한 바퀴 구를 때마다 다음 화면 — 뒷면이 보이는 동안 앞면의 화면을 갈아 끼운다.
+ * (카메라 · 별 표시)이다. 한 바퀴 구를 때마다 다음 화면 — 뒷면이 보이는 동안 앞면의 화면(짧은 녹화)을 갈아 끼운다.
  * 한 바퀴 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다. 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에서 채워진다.
  * 뒤로는 네 갈래 별 몇 개가 천천히 돈다(휴대폰이 입체라 배경은 납작하게, 글자 줄은 주소 줄 하나만)
  */
-export function PhoneFlip({ items }: { items: { src: string; alt: string; route: string }[] }) {
+export function PhoneFlip({ items }: { items: { src: string; video?: string; alt: string; route: string }[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
@@ -371,6 +382,7 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string; route:
     setCurrent(eased < 0.5 ? i : i + 1);
   });
   const screen = items[current];
+  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
@@ -392,7 +404,23 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string; route:
           <span className={styles.phoneButtons} aria-hidden />
           <div className={styles.phoneFace}>
             <div className={styles.phoneScreen}>
-              {screen && <Image src={screen.src} alt={screen.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />}
+              {screen?.video ? (
+                /* 화면마다 짧은 녹화 — 화면이 바뀌면 새로 붙어 처음부터 되풀이 재생한다(움직임 줄이기면 첫 장면) */
+                <video
+                  key={screen.video}
+                  className={styles.phoneShot}
+                  src={screen.video}
+                  poster={screen.src}
+                  autoPlay={!reducedMotion}
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-label={screen.alt}
+                />
+              ) : screen ? (
+                <Image src={screen.src} alt={screen.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />
+              ) : null}
               <span className={styles.phoneIsland} aria-hidden />
               <span className={styles.phoneGlare} aria-hidden />
             </div>

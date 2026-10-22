@@ -155,20 +155,20 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         />
         <PhoneFlip
           items={[
-            { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }), route: "/" },
-            { src: `${A}/mobile-menu.webp`, alt: t({ ko: "메뉴", en: "Menu" }), route: "/ · menu" },
-            { src: `${A}/mobile-works.webp`, alt: t({ ko: "작업물", en: "Works" }), route: "/works" },
-            { src: `${A}/mobile-about.webp`, alt: "About", route: "/about" },
-            { src: `${A}/mobile-profile.webp`, alt: t({ ko: "프로필", en: "Profile" }), route: "/profile" },
-            { src: `${A}/mobile-home-dark.webp`, alt: t({ ko: "홈 — 다크", en: "Home — dark" }), route: "/ · dark" },
-            { src: `${A}/mobile-design-system.webp`, alt: t({ ko: "디자인 시스템", en: "Design system" }), route: "/design-system" },
-            { src: `${A}/mobile-posts.webp`, alt: t({ ko: "블로그", en: "Blog" }), route: "/posts" },
-            { src: `${A}/mobile-post.webp`, alt: t({ ko: "글", en: "Post" }), route: "/posts/[slug]" },
-            { src: `${A}/mobile-post-body.webp`, alt: t({ ko: "글 — 요약과 목차", en: "Post — summary and contents" }), route: "/posts/[slug] · AI" },
-            { src: `${A}/mobile-series.webp`, alt: t({ ko: "시리즈", en: "Series" }), route: "/posts/series" },
-            { src: `${A}/mobile-tags.webp`, alt: t({ ko: "태그", en: "Tags" }), route: "/posts/tags" },
-            { src: `${A}/mobile-history.webp`, alt: t({ ko: "기록", en: "History" }), route: "/posts/history" },
-            { src: `${A}/mobile-til.webp`, alt: "TIL", route: "/posts/til" },
+            { src: `${A}/mobile-home.webp`, video: `${A}/mobile-home.mp4`, alt: t({ ko: "홈", en: "Home" }), route: "/" },
+            { src: `${A}/mobile-menu.webp`, video: `${A}/mobile-menu.mp4`, alt: t({ ko: "메뉴", en: "Menu" }), route: "/ · menu" },
+            { src: `${A}/mobile-works.webp`, video: `${A}/mobile-works.mp4`, alt: t({ ko: "작업물", en: "Works" }), route: "/works" },
+            { src: `${A}/mobile-about.webp`, video: `${A}/mobile-about.mp4`, alt: "About", route: "/about" },
+            { src: `${A}/mobile-profile.webp`, video: `${A}/mobile-profile.mp4`, alt: t({ ko: "프로필", en: "Profile" }), route: "/profile" },
+            { src: `${A}/mobile-home-dark.webp`, video: `${A}/mobile-home-dark.mp4`, alt: t({ ko: "홈 — 다크", en: "Home — dark" }), route: "/ · dark" },
+            { src: `${A}/mobile-design-system.webp`, video: `${A}/mobile-design-system.mp4`, alt: t({ ko: "디자인 시스템", en: "Design system" }), route: "/design-system" },
+            { src: `${A}/mobile-posts.webp`, video: `${A}/mobile-posts.mp4`, alt: t({ ko: "블로그", en: "Blog" }), route: "/posts" },
+            { src: `${A}/mobile-post.webp`, video: `${A}/mobile-post.mp4`, alt: t({ ko: "글", en: "Post" }), route: "/posts/[slug]" },
+            { src: `${A}/mobile-post-body.webp`, video: `${A}/mobile-post-body.mp4`, alt: t({ ko: "글 — 요약과 목차", en: "Post — summary and contents" }), route: "/posts/[slug] · AI" },
+            { src: `${A}/mobile-series.webp`, video: `${A}/mobile-series.mp4`, alt: t({ ko: "시리즈", en: "Series" }), route: "/posts/series" },
+            { src: `${A}/mobile-tags.webp`, video: `${A}/mobile-tags.mp4`, alt: t({ ko: "태그", en: "Tags" }), route: "/posts/tags" },
+            { src: `${A}/mobile-history.webp`, video: `${A}/mobile-history.mp4`, alt: t({ ko: "기록", en: "History" }), route: "/posts/history" },
+            { src: `${A}/mobile-til.webp`, video: `${A}/mobile-til.mp4`, alt: "TIL", route: "/posts/til" },
           ]}
         />
 
