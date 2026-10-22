@@ -335,23 +335,12 @@
   text-decoration: none;
 }
 
-/* 랜딩 페이지의 간략 메뉴 — 오른쪽 위에 글자 링크 셋만(참고: andreasantonsson.dev). 좁은 화면도 메뉴 서랍 없이 그대로 */
-.navLanding {
-  justify-content: flex-end;
-}
-
-.navLandingLinks {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-24);
-  pointer-events: auto;
-}
-
-.navLandingContact {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
+/* 랜딩 페이지 — 로고 대신 LandingNav 의 이름을 쓴다(첫 로딩 연출이 끝나면 숨긴다).
+   자식 .logo 의 인라인 visibility:visible 때문에 visibility 만으론 안 숨는다 → opacity 로(.navMenuOpen 과 같은 이유) */
+.logoNavBarHidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 /* Sliding indicator — ►◀︎ markers positioned inside .navCenter.

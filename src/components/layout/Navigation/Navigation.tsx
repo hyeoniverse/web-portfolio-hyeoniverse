@@ -52,6 +52,7 @@ import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 import { fillTemplate } from "@/utils/format";
 import Pressable from "@/components/ui/Pressable";
+import LandingNav from "./LandingNav";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
@@ -145,7 +146,8 @@ export default function Navigation() {
   const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
   const pathname = useRoutePathname();
-  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 로고 + 글자 링크 몇 개로 줄인다 */
+  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 이름 + 글자 링크 셋(LandingNav)으로 바꾼다.
+     로고는 첫 로딩 화면(워드마크가 로고 자리로 줄어드는 연출)에서만 그린다 */
   const landingNav = isLandingPath(pathname, siteConfig.works?.detailStyle);
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t, koLabel } = useLanguage();
@@ -599,7 +601,9 @@ export default function Navigation() {
       ref={logoBarRef}
       href={blogHref(section.homeHref)}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
-      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
+      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""} ${landingNav && !showLoadingLogo ? styles.logoNavBarHidden : ""}`}
+      aria-hidden={landingNav && !showLoadingLogo ? true : undefined}
+      tabIndex={landingNav && !showLoadingLogo ? -1 : undefined}
     >
         {(() => {
           // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
@@ -733,15 +737,7 @@ export default function Navigation() {
     </Link>
 
     {landingNav ? (
-      <nav aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${styles.navLanding}`}>
-        <div className={styles.navLandingLinks}>
-          <Link href="/works" className={`${styles.navLink} glith-on-hover`}>{navLabel({ key: "works", label: "Works" })}</Link>
-          <Link href="/about" className={`${styles.navLink} glith-on-hover`}>{navLabel({ key: "about", label: "About" })}</Link>
-          <Pressable noTapScale className={`${styles.navLink} ${styles.navLandingContact} glith-on-hover`} onClick={openForm}>
-            {t("navMenu.ui.getInTouch")}
-          </Pressable>
-        </div>
-      </nav>
+      <LandingNav name={DISPLAY_NAME} />
     ) : (
     <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${section.badge ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div

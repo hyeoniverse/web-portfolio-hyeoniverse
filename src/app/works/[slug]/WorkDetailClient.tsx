@@ -32,12 +32,15 @@ interface WorkDetailClientProps {
   project: Project;
   prevProject: Project | null;
   nextProject: Project | null;
+  /** 목록의 첫 작업물(지금이 첫 작업물이면 null) — 랜딩의 '다음 작업물'이 끝에서 처음으로 돈다 */
+  firstProject?: Project | null;
 }
 
 export default function WorkDetailClient({
   project: savedProject,
   prevProject,
   nextProject,
+  firstProject = null,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
   const router = useRouter();
@@ -48,6 +51,7 @@ export default function WorkDetailClient({
      커버는 레이아웃도 같은 값을 보고 그리지 않는다 */
   const landingSlug = siteConfig?.works?.detailStyle === "landing" && hasLandingPage(savedProject.slug) ? savedProject.slug : null;
   const landingMode = landingSlug !== null;
+  const landingNext = nextProject ?? firstProject;
   const isRichtext = savedProject.contentType === "richtext";
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
@@ -178,7 +182,7 @@ export default function WorkDetailClient({
             slug={landingSlug!}
             project={project}
             viewLang={viewLang}
-            next={nextProject ? { href: `/works/${nextProject.slug || nextProject.id}`, title: pickLocalized(nextProject.title, language) } : null}
+            next={landingNext ? { href: `/works/${landingNext.slug || landingNext.id}`, title: pickLocalized(landingNext.title, language) } : null}
           />
         </TranslatingRegion>
       ) : undefined}

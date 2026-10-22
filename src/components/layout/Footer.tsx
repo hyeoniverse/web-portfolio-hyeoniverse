@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { isLandingPath } from "@/components/works/landing/registry";
 import { cn } from "@/utils/cn";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import ViewModeToggle from "./ViewModeToggle";
@@ -36,7 +37,8 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // variant가 명시적으로 전달되면 항상 표시, 아니면 HIDDEN_ROUTES 체크
-  const isHidden = variant === "full" && HIDDEN_ROUTES.includes(pathname);
+  /* 랜딩으로 그리는 작업물 상세는 참고 사이트처럼 '다음 작업물'로 끝낸다 — 푸터를 그리지 않는다 */
+  const isHidden = variant === "full" && (HIDDEN_ROUTES.includes(pathname) || isLandingPath(pathname, siteConfig.works?.detailStyle));
 
   /* ── Sliding indicator ── */
   const linksRef = useRef<HTMLDivElement>(null);
