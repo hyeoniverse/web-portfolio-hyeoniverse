@@ -1,14 +1,14 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { DemoStage, Flow, Frame, LandingShell, Note, Numbers, Phones, type Lang, type L10n } from "../kit/LandingKit";
+import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Phones, type Lang, type L10n } from "../kit/LandingKit";
 
 /**
  * HYEONIVERSE 전용 랜딩 페이지 — andreasantonsson.dev/project/synthetic-theatre 처럼 이미지가 중심이다.
  * 강한 장면만 화면 폭 전체로, 나머지는 한 장씩 폭 · 위치를 바꿔 가며 잇는다(격자 · 카드로 늘어놓지 않는다). 글은 묶음마다 번호 · 제목 · 한 줄뿐.
  * 게시물(블로그 글 · 글 목록 · 작업물 상세)은 보여 주지 않는다 — 사이트를 이루는 화면과 장치를 보여 준다.
  * 화면은 모두 이 페이지를 위해 배포한 사이트(www.hyeoniverse.com)에서 2배 해상도로 새로 찍은 캡처 · 녹화다
- * (content/works/hyeoniverse/landing). 사이에 직접 만져 보는 테마 데모. 숫자는 이 저장소에서 센 값이다.
+ * (content/works/hyeoniverse/landing). 레이아웃 여섯은 녹화, 테마는 프리셋 열여덟 벌을 입힌 실제 홈 화면이 흐르는 띠. 숫자는 이 저장소에서 센 값이다.
  */
 const A = "/content/works/hyeoniverse/landing";
 
@@ -42,28 +42,32 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="02"
           title={{ ko: "작업물은 여섯 가지 모양으로 흐른다", en: "Works flow in six shapes" }}
           body={{
-            ko: "Cylinder · Flow · Grid · Fullscreen · Cinematic · Split. 관리자 설정 하나로 바꿔 끼웁니다.",
-            en: "Cylinder, Flow, Grid, Fullscreen, Cinematic and Split, swapped with one admin setting.",
+            ko: "Cylinder · Grid · Fullscreen · Flow · Cinematic · Split. 관리자 설정 하나로 바꿔 끼웁니다 — 배포한 사이트를 그대로 녹화했습니다.",
+            en: "Cylinder, Grid, Fullscreen, Flow, Cinematic and Split, swapped with one admin setting — recorded on the deployed site.",
           }}
         />
-        <Frame at="wide" video={`${A}/cylinder.mp4`} alt={t({ ko: "Cylinder — 3D 원통을 스크롤하는 녹화", en: "Cylinder — recording of the 3D cylinder" })} />
-        <Frame at="left" src={`${A}/works-flow.webp`} alt="Flow" />
-        <Frame at="right" src={`${A}/works-grid.webp`} alt="Grid" />
-        <Frame at="center" src={`${A}/works-fullscreen.webp`} alt="Fullscreen" />
-        <Frame at="left" src={`${A}/works-cinematic.webp`} alt="Cinematic" />
-        <Frame at="right" src={`${A}/works-split.webp`} alt="Split" />
+        <Frame at="wide" video={`${A}/works-cylinder.mp4`} src={`${A}/works-cylinder-poster.webp`} alt={t({ ko: "Cylinder — 스크롤하면 3D 원통이 돈다", en: "Cylinder — the 3D cylinder turns with the scroll" })} />
+        <Frame at="left" video={`${A}/works-grid.mp4`} src={`${A}/works-grid-poster.webp`} alt={t({ ko: "Grid — 마우스를 올린 칸의 행과 열이 커진다", en: "Grid — the hovered cell's row and column grow" })} />
+        <Frame at="right" video={`${A}/works-fullscreen.mp4`} src={`${A}/works-fullscreen-poster.webp`} alt={t({ ko: "Fullscreen — 한 화면에 작업물 하나", en: "Fullscreen — one work per screen" })} />
+        <Frame at="center" video={`${A}/works-flow.mp4`} src={`${A}/works-flow-poster.webp`} alt={t({ ko: "Flow — 카드를 길게 누르면 커지며 넘어간다", en: "Flow — press and hold a card and it grows into the page" })} />
+        <Frame at="left" video={`${A}/works-cinematic.mp4`} src={`${A}/works-cinematic-poster.webp`} alt={t({ ko: "Cinematic — 한 번 굴리면 한 판", en: "Cinematic — one scroll, one panel" })} />
+        <Frame at="right" video={`${A}/works-split.mp4`} src={`${A}/works-split-poster.webp`} alt={t({ ko: "Split — 글과 그림을 반씩 나눈 판", en: "Split — panels split between text and image" })} />
 
         <Note
           viewLang={viewLang}
           no="03"
-          title={{ ko: "같은 화면, 다른 밤", en: "Same screens, after dark" }}
+          title={{ ko: "같은 화면, 다른 테마", en: "Same screens, different themes" }}
           body={{
-            ko: "테마는 의미 토큰이 가리키는 값만 바꿉니다. 강조색은 열여덟 벌, 글자색은 대비를 계산해 정합니다 — 직접 골라 보세요.",
-            en: "Themes only swap what the semantic tokens point to. Eighteen accent presets, text colour chosen by computed contrast — try one.",
+            ko: "테마는 의미 토큰이 가리키는 값만 바꿉니다. 강조색 · 배경 · 글자색 프리셋 열여덟 벌을 입힌 실제 홈 화면 — 라이트와 다크.",
+            en: "Themes only swap what the semantic tokens point to. The real home page in eighteen presets of accent, background and text — light and dark.",
           }}
         />
-        <Frame at="bleed" src={`${A}/home-dark.webp`} alt={t({ ko: "다크 테마 홈", en: "Home in the dark theme" })} />
-        <DemoStage demo="themes" />
+        <Marquee
+          rows={[
+            ["00", "01", "02", "03", "04", "05", "06", "07", "08"].map((n) => ({ src: `${A}/theme-light-${n}.webp`, alt: t({ ko: `라이트 테마 프리셋 ${Number(n) + 1}`, en: `Light theme preset ${Number(n) + 1}` }) })),
+            ["09", "10", "11", "12", "13", "14", "15", "16", "17"].map((n) => ({ src: `${A}/theme-dark-${n}.webp`, alt: t({ ko: `다크 테마 프리셋 ${Number(n) + 1}`, en: `Dark theme preset ${Number(n) + 1}` }) })),
+          ]}
+        />
         <Frame at="left" src={`${A}/design-system.webp`} alt={t({ ko: "디자인 시스템 — 원칙", en: "Design system — principles" })} />
         <Frame at="right" src={`${A}/design-system-2.webp`} alt={t({ ko: "디자인 시스템 — 색", en: "Design system — colours" })} />
 

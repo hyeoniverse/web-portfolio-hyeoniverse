@@ -261,27 +261,7 @@
   "workDetail": {
     "landing": {
       "site": "Site",
-      "live": "Live AI",
       "nextProject": "Next project",
-      "demo": {
-        "translate": "Auto translation",
-        "summary": "AI summary",
-        "cover": "AI cover image",
-        "speech": "Text to speech",
-        "slides": "Slides with narration",
-        "wave": "Recording waveform editor",
-        "convert": "PDF · PPTX conversion",
-        "autosave": "Three-layer autosave",
-        "lifecycle": "A post's life — publish to trash",
-        "comments": "Comments",
-        "invite": "Member invites",
-        "roles": "Roles and permissions",
-        "kitchen": "Editor blocks",
-        "mailbox": "Notification mailbox",
-        "providers": "Provider fallback",
-        "themes": "Theme presets",
-        "layouts": "Six works layouts"
-      },
       "period": "Period"
     },
     "back": "Works",

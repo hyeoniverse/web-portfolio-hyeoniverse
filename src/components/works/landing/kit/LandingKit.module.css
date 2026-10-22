@@ -193,12 +193,6 @@
   word-break: keep-all;
 }
 
-/* 데모 무대 — 가운데 칼럼 폭 */
-.demoStage {
-  width: var(--lp-inset);
-  margin: 0 auto;
-}
-
 /* 휴대폰 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나(카드로 늘어놓지 않는다) */
 /* 폰 폭에서는 한 장이 반 폭 — 네 장을 다 넣으면 너무 작아 옆으로 넘긴다 */
 .phones {
@@ -224,63 +218,40 @@
   object-position: top center;
 }
 
-/* ── 데모 창 — 위 막대(점 셋 · 이름 · 실제 AI) + 데모 ── */
-.demo {
-  overflow: hidden;
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background-color: var(--bg-primary);
-  box-shadow: var(--shadow-raised);
-}
+/* ── 흐르는 띠 — 화면 폭 전체. 줄의 길이(--count 장)에서 화면 폭을 뺀 만큼을 스크롤 진행(--p)에 맞춰 옮긴다.
+   윗줄은 왼쪽으로, 아랫줄은 오른쪽으로 ── */
+.marquee {
+  --item: 46vw;
+  --gap: var(--spacing-12);
 
-.demoBar {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
-  padding: var(--spacing-12) var(--spacing-16);
-  border-bottom: var(--border-light);
-  background-color: var(--bg-secondary);
-}
-
-.demoDots {
-  display: inline-flex;
-  gap: var(--spacing-4);
-}
-
-.demoDots i {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background-color: color-mix(in srgb, var(--text-primary) 18%, transparent);
-}
-
-.demoName {
-  flex: 1;
-  min-width: 0;
+  flex-direction: column;
+  gap: var(--gap);
+  width: 100%;
   overflow: hidden;
-  font: var(--font-label-sm);
-  color: var(--text-secondary);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.demoLive {
-  flex-shrink: 0;
-  padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-full);
-  background-color: var(--bg-accent-subtle);
-  font: var(--font-label-xs);
-  color: var(--text-accent);
+.marqueeRow {
+  --travel: calc(var(--count) * var(--item) + (var(--count) - 1) * var(--gap) - 100vw);
+
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  transform: translateX(calc(var(--p, 0) * var(--travel) * -1));
+  will-change: transform;
 }
 
-.demoBody {
-  padding: var(--spacing-24);
+.marqueeRowReverse {
+  transform: translateX(calc((var(--p, 0) - 1) * var(--travel)));
 }
 
-.demoLoading {
-  min-height: 280px;
-  border-radius: var(--radius-surface);
-  background-color: var(--bg-tertiary);
+.marqueeItem {
+  display: block;
+  flex: none;
+  width: var(--item);
+  height: auto;
+  outline: var(--border-light);
+  outline-offset: calc(var(--border-width-1) * -1);
 }
 
 /* ── 숫자 띠 ── */
@@ -367,6 +338,10 @@
 
 /* ── 넓은 화면 ── */
 @media (width > 768px) {
+  .marquee {
+    --item: 26vw;
+  }
+
   /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
   .phones {
     grid-auto-columns: 20%;

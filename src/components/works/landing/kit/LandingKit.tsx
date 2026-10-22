@@ -11,7 +11,6 @@ import { isPlainClick } from "@/utils/gestureUtils";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
-import { LandingDemoFrame, type DemoKey } from "../LandingDemo";
 import { useCountUp, useReveal, useScrollProgress } from "../useReveal";
 import LandingNav from "@/components/layout/Navigation/LandingNav";
 import styles from "./LandingKit.module.css";
@@ -130,16 +129,6 @@ function Meta({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** 데모 무대 — 가운데 칼럼 폭에 데모 창 하나 */
-export function DemoStage({ demo }: { demo: DemoKey }) {
-  const { t } = useLanguage();
-  return (
-    <div className={styles.demoStage} data-reveal="zoom">
-      <LandingDemoFrame demo={demo} label={t(`workDetail.landing.demo.${demo}`)} liveLabel={t("workDetail.landing.live")} />
-    </div>
-  );
-}
-
 /** 숫자 띠 — 큰 숫자가 0 에서 세어 올라간다 */
 export function Numbers({ items, viewLang }: { items: { value: string; label: L10n }[]; viewLang: Lang }) {
   return (
@@ -240,6 +229,28 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
       {items.map((it) => (
         <div key={it.src} className={styles.phone}>
           <Image src={it.src} alt={it.alt} fill unoptimized className={styles.phoneImage} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * 흐르는 띠 — 화면 폭 전체에 화면을 여러 줄로 늘어놓고, 스크롤을 내리면 줄마다 반대 방향으로 흐른다(마키처럼).
+ * 움직임은 스크롤 진행(--p, LandingShell 의 useScrollProgress)에 묶여 있어 스크롤을 멈추면 같이 멈춘다. 움직임 줄이기면 끝자리에 둔다
+ */
+export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
+  return (
+    <div className={styles.marquee} data-progress="through">
+      {rows.map((row, r) => (
+        <div
+          key={r}
+          className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}
+          style={{ ["--count" as string]: row.length } as CSSProperties}
+        >
+          {row.map((it) => (
+            <Image key={it.src} src={it.src} alt={it.alt} width={1280} height={800} sizes="30vw" unoptimized className={styles.marqueeItem} />
+          ))}
         </div>
       ))}
     </div>
