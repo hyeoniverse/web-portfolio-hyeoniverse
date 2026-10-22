@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
@@ -12,6 +13,7 @@ import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
 import { LandingDemoFrame, type DemoKey } from "../LandingDemo";
 import { useCountUp, useReveal, useScrollProgress } from "../useReveal";
+import LandingNav from "@/components/layout/Navigation/LandingNav";
 import styles from "./LandingKit.module.css";
 
 /**
@@ -51,12 +53,19 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
   const role = pickLocalized(project.role, viewLang);
   /* 판 전환으로 들어왔으면 판이 걷힐 때까지 등장 연출을 멈춰 둔다(data-ready) */
   const { isTransitioning, navigateWithSlide } = usePageTransition();
+  /* 다음 작업물은 미리 받아 둔다 — 누르는 순간 판 전환이 바로 시작되게(받아 두지 않으면 로딩 화면이 먼저 밀려 들어왔다) */
+  const router = useRouter();
+  const nextHref = next?.href;
+  useEffect(() => {
+    if (nextHref) router.prefetch(nextHref);
+  }, [nextHref, router]);
   const ready = !isTransitioning;
   useReveal(rootRef, [viewLang, project.id], ready);
   useScrollProgress(rootRef, [viewLang, project.id]);
 
   return (
     <article ref={rootRef} className={styles.landing} lang={viewLang} data-ready={ready ? "" : undefined}>
+      <LandingNav />
       <header className={styles.hero}>
         <p className={styles.eyebrow} data-reveal="">{eyebrow[viewLang]}</p>
         <h1 className={styles.title} aria-label={name}>

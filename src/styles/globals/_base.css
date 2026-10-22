@@ -62,35 +62,44 @@ body > main {
   animation-duration: var(--duration-base);
 }
 
-/* 랜딩 페이지 판 전환 — PageTransitionProvider.navigateWithSlide 가 <html data-slide-from> 을 달고 View Transition 을 돈다.
-   참고 사이트(andreasantonsson.dev)처럼 다음 페이지의 실제 화면이 한쪽에서 밀려 들어오고, 떠나는 화면은 어두워지며 조금 밀려난다.
-   두 장면을 겹쳐 그리므로 기본 합성(plus-lighter)과 교차 페이드를 끈다 */
-:root[data-slide-from] {
+/* 랜딩 페이지 판 전환 — navigateWithSlide 가 transitionTypes(slide-right · slide-bottom)를 달고 넘어가면
+   RouteViewTransition(<ViewTransition>)이 떠나는 내용에 slide-leave-*, 새 내용에 slide-enter-* 클래스를 붙인다.
+   참고 사이트(andreasantonsson.dev)처럼 다음 페이지의 실제 화면이 한쪽에서 밀려 들어오고, 떠나는 화면은 어두워지며 조금 밀려난다 */
+:root {
   --slide-duration: 900ms;
   --slide-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-:root[data-slide-from]::view-transition-old(root),
-:root[data-slide-from]::view-transition-new(root) {
-  mix-blend-mode: normal;
+/* 장면은 페이지 내용만 찍혀 바탕이 비친다 — 페이지 바탕색을 깔아 들어오는 화면이 떠나는 화면을 가리고, 떠나는 화면은 바탕째 어두워지게 */
+::view-transition-old(.slide-leave-left),
+::view-transition-old(.slide-leave-up),
+::view-transition-new(.slide-enter-right),
+::view-transition-new(.slide-enter-bottom) {
+  background-color: var(--bg-primary);
   animation-duration: var(--slide-duration);
   animation-timing-function: var(--slide-ease);
   animation-fill-mode: both;
 }
 
-:root[data-slide-from="right"]::view-transition-old(root) {
+::view-transition-old(.slide-leave-left) {
   animation-name: slide-leave-left;
 }
 
-:root[data-slide-from="right"]::view-transition-new(root) {
-  animation-name: slide-enter-right;
-}
-
-:root[data-slide-from="bottom"]::view-transition-old(root) {
+::view-transition-old(.slide-leave-up) {
   animation-name: slide-leave-up;
 }
 
-:root[data-slide-from="bottom"]::view-transition-new(root) {
+/* 들어오는 장면이 떠나는 장면 위로 */
+::view-transition-group(.slide-enter-right),
+::view-transition-group(.slide-enter-bottom) {
+  z-index: 1;
+}
+
+::view-transition-new(.slide-enter-right) {
+  animation-name: slide-enter-right;
+}
+
+::view-transition-new(.slide-enter-bottom) {
   animation-name: slide-enter-bottom;
 }
 

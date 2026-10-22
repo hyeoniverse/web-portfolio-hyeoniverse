@@ -48,6 +48,10 @@ interface PageTransitionContextValue {
   navigateWithTransition: (href: string, image: string, rect: DOMRect, color?: string) => void;
   /** 판이 밀려 들어오는 전환으로 넘어간다(랜딩 페이지의 다음 작업물 · 간략 메뉴) */
   navigateWithSlide: (href: string, from?: SlideFrom) => void;
+  /** 이 경로가 판 전환으로 넘어가는 곳인가(RouteViewTransition 이 내용을 갈아 끼울지 정한다). 렌더에서 읽으므로 바꾸지 않는다 */
+  isSlideTarget: (path: string) => boolean;
+  /** 판 전환이 커밋된 뒤 표시를 지운다 */
+  clearSlideTarget: () => void;
   endTransition: () => void;
   isTransitioning: boolean;
 }
@@ -56,6 +60,8 @@ const PageTransitionContext = createContext<PageTransitionContextValue>({
   startTransition: () => {},
   navigateWithTransition: () => {},
   navigateWithSlide: () => {},
+  isSlideTarget: () => false,
+  clearSlideTarget: () => {},
   endTransition: () => {},
   isTransitioning: false,
 });
@@ -89,9 +95,6 @@ const COVER_MAX_MS = 4000;
 const SLIDE_IN_MS = 700;
 const SLIDE_OUT_MS = 240;
 const SLIDE_EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
-/* View Transition 판 — 새 페이지가 커밋되기를 기다리는 상한. 브라우저는 갱신 콜백이 너무 오래 걸리면(크롬 4초)
-   전환을 건너뛰므로 그 전에 끝낸다(넘어가기는 그대로 이어진다) */
-const VIEW_COMMIT_MAX_MS = 3500;
 
 /** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
@@ -109,9 +112,8 @@ function pathOf(rawHref: string): string {
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<MorphTransitionState | null>(null);
   const [slide, setSlide] = useState<SlideTransitionState | null>(null);
-  /* View Transition 으로 도는 판 전환 — 커밋을 기다리는 동안과 화면이 미끄러지는 동안 */
-  const [viewSlide, setViewSlide] = useState<{ href: string; fromPath: string; committed: boolean } | null>(null);
-  const commitResolveRef = useRef<(() => void) | null>(null);
+  /* View Transition 으로 넘어가는 주소 — RouteViewTransition 이 이 주소에 닿는 커밋에서만 내용을 갈아 끼운다 */
+  const slideTargetRef = useRef<string | null>(null);
   const siteConfig = useSiteConfig();
   const detailStyle = siteConfig.works?.detailStyle;
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -151,8 +153,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     setSlide((prev) => prev ? { ...prev, phase } : null);
   }, []);
   const clearSlide = useCallback(() => setSlide(null), []);
-  /* 새 페이지가 찍히는 순간부터는 전환 중이 아니다 — 밀려 들어오는 화면 안에서 제목 등장 연출이 돈다(미리 보이는 다음 화면) */
-  const markViewCommitted = useCallback(() => setViewSlide((prev) => prev ? { ...prev, committed: true } : null), []);
+
+  const isSlideTarget = useCallback((path: string) => slideTargetRef.current !== null && slideTargetRef.current === pathOf(path), []);
+  const clearSlideTarget = useCallback(() => {
+    slideTargetRef.current = null;
+  }, []);
 
   const navigateWithSlide = useCallback((href: string, from: SlideFrom = "right") => {
     clearTimers();
@@ -160,22 +165,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     const fromPath = pathOf(toRoutePath(window.location.pathname));
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     /* 브라우저가 View Transition 을 지원하면 — 참고 사이트처럼 밀려 들어오는 판이 곧 다음 페이지의 실제 화면이다.
-       떠나는 화면을 찍어 두고(old), 콜백에서 넘어가 새 페이지가 커밋되면(new) 둘을 겹쳐 미끄러뜨린다(_base.css).
-       방향은 <html data-slide-from> 으로 고른다 */
+       React 의 <ViewTransition>(RouteViewTransition)이 새 페이지가 커밋되는 순간 떠나는 화면과 새 화면을 찍어 미끄러뜨린다.
+       그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css) */
     if (typeof document.startViewTransition === "function" && !reduceMotion) {
-      router.prefetch(href);
-      document.documentElement.dataset.slideFrom = from;
-      setViewSlide({ href, fromPath, committed: false });
-      const transition = document.startViewTransition(() => new Promise<void>((resolve) => {
-        commitResolveRef.current = resolve;
-        router.push(href);
-        timerRef.current.push(setTimeout(resolve, VIEW_COMMIT_MAX_MS));
-      }));
-      transition.finished.finally(() => {
-        delete document.documentElement.dataset.slideFrom;
-        commitResolveRef.current = null;
-        setViewSlide(null);
-      });
+      slideTargetRef.current = pathOf(href);
+      router.push(href, { transitionTypes: [`slide-${from}`] });
       return;
     }
     /* 지원하지 않으면 바탕색 판으로 대신한다 */
@@ -218,15 +212,14 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
         startTransition,
         navigateWithTransition,
         navigateWithSlide,
+        isSlideTarget,
+        clearSlideTarget,
         endTransition,
         /* 판 전환은 걷히기 시작하면(out) 끝난 것으로 — 그때부터 새 페이지의 등장 연출이 돈다 */
-        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out") || (viewSlide !== null && !viewSlide.committed),
+        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out"),
       }}
     >
       {children}
-      {viewSlide && !viewSlide.committed && (
-        <CommitWatcher href={viewSlide.href} fromPath={viewSlide.fromPath} resolveRef={commitResolveRef} onCommit={markViewCommitted} />
-      )}
       {slide && (
         <SlideOverlay state={slide} onPhase={setSlidePhase} onDone={clearSlide} />
       )}
@@ -545,38 +538,4 @@ function SlideOverlay({
       />
     </>
   );
-}
-
-/* ── View Transition 판 — 새 경로가 커밋되면 갱신 콜백을 끝낸다 ──
-   두 프레임 미루는 건 새 트리가 그려진 다음 찍히게 하려는 것이다. 새 페이지는 맨 위에서 찍는다 */
-function CommitWatcher({
-  href,
-  fromPath,
-  resolveRef,
-  onCommit,
-}: {
-  href: string;
-  fromPath: string;
-  resolveRef: React.MutableRefObject<(() => void) | null>;
-  onCommit: () => void;
-}) {
-  const here = pathOf(useRoutePathname());
-  const committed = here !== fromPath || here === pathOf(href);
-  useEffect(() => {
-    if (!committed) return;
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(() => {
-        window.scrollTo(0, 0);
-        onCommit();
-        resolveRef.current?.();
-        resolveRef.current = null;
-      });
-    });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-    };
-  }, [committed, resolveRef, onCommit]);
-  return null;
 }

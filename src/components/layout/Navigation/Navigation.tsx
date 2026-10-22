@@ -52,7 +52,6 @@ import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 import { fillTemplate } from "@/utils/format";
 import Pressable from "@/components/ui/Pressable";
-import LandingNav from "./LandingNav";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
@@ -146,7 +145,7 @@ export default function Navigation() {
   const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
   const pathname = useRoutePathname();
-  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 이름 + 글자 링크 셋(LandingNav)으로 바꾼다.
+  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 이름 + 글자 링크 셋(LandingNav, 페이지 안)으로 바꾼다.
      로고는 첫 로딩 화면(워드마크가 로고 자리로 줄어드는 연출)에서만 그린다 */
   const landingNav = isLandingPath(pathname, siteConfig.works?.detailStyle);
   const { theme, toggleTheme } = useTheme();
@@ -736,9 +735,8 @@ export default function Navigation() {
       )}
     </Link>
 
-    {landingNav ? (
-      <LandingNav name={DISPLAY_NAME} />
-    ) : (
+    {/* 랜딩 페이지의 메뉴는 페이지 안(LandingShell)이 그린다 — 판 전환 때 새 페이지와 함께 밀려 들어오게 */}
+    {landingNav ? null : (
     <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${section.badge ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}

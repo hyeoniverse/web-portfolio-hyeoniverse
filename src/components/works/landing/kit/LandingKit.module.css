@@ -5,6 +5,8 @@
 .landing {
   --lp-inset: min(1128px, calc(100% - var(--spacing-page-inline) * 2));
 
+  /* 메뉴(LandingNav)가 맨 위에 놓이는 기준 */
+  position: relative;
   color: var(--text-primary);
 }
 
