@@ -326,23 +326,58 @@ export function Sequence({ items }: { items: { src: string; alt: string }[] }) {
   );
 }
 
+/** 휴대폰 몸통의 두께를 이루는 겹 수 — 둥근 모서리가 그대로 옆면이 된다 */
+const PHONE_SLICES = 14;
+
+/** 배경의 별 — 고정된 씨앗으로 만든 자리(서버 · 브라우저가 같은 값). 소수 둘째 자리까지 */
+const PHONE_STARS = Array.from({ length: 110 }, (_, k) => {
+  const r = (n: number) => {
+    const x = Math.sin(k * 127.1 + n * 311.7) * 43758.5453;
+    return Math.round((x - Math.floor(x)) * 10000) / 100;
+  };
+  return { x: r(1), y: r(2), s: 2 + (r(3) % 3), d: r(4) % 4 };
+});
+
 /**
- * 뒤집히는 휴대폰 — 휴대폰 모양 틀 하나가 화면에 붙어 있고, 스크롤하는 만큼 세로축으로 돈다. 반 바퀴(뒤집힐 때)마다 다음 화면이 보인다.
- * 앞면 · 뒷면 두 장만 두고, 보이지 않는 쪽에 다음 화면을 미리 넣어 둔다. 한 번 뒤집는 구간의 앞뒤 1/4 은 멈춰 있어 화면을 읽을 수 있다
+ * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
+ * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 반 바퀴마다 다음 화면이 보인다 —
+ * 앞 · 뒷면 두 장만 두고 보이지 않는 쪽에 다음 화면을 넣어 둔다. 한 번 구르는 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다.
+ * 뒤에는 화면마다의 주소(route)가 큰 글자 줄로 깔려, 지금 화면의 주소가 가운데에 와서 채워진다. 그 뒤로 별 · 행성
  */
-export function PhoneFlip({ items }: { items: { src: string; alt: string }[] }) {
+export function PhoneFlip({ items }: { items: { src: string; alt: string; route: string }[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const wordsRef = useRef<HTMLDivElement>(null);
   const [seg, setSeg] = useState(0);
+  const [current, setCurrent] = useState(0);
   const flips = Math.max(1, items.length - 1);
   usePinnedProgress(rootRef, (p) => {
+    const root = rootRef.current;
+    if (!root) return;
     const x = Math.min(flips - 1e-4, p * flips);
     const i = Math.floor(x);
     const f = x - i;
     const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
     const eased = t * t * (3 - 2 * t);
-    if (bodyRef.current) bodyRef.current.style.transform = `rotateY(${(i + eased) * 180}deg)`;
+    root.style.setProperty("--rx", `${(i + eased) * -180}deg`);
+    /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
+    root.style.setProperty("--ry", `${Math.sin(p * Math.PI * 3) * 14}deg`);
+    root.style.setProperty("--rz", `${Math.sin(p * Math.PI * 5) * 6}deg`);
+    root.style.setProperty("--bob", `${Math.sin(p * Math.PI * 4) * 2.5}dvh`);
+    root.style.setProperty("--spin", String(Math.abs(Math.sin(eased * Math.PI))));
+    /* 주소 줄 — 화면 i 의 주소 가운데가 화면 가운데에 오도록, 구르는 동안 i+1 의 주소로 옮겨 간다 */
+    const row = wordsRef.current;
+    if (row) {
+      const words = row.children;
+      const a = words[i] as HTMLElement | undefined;
+      const b = (words[i + 1] as HTMLElement | undefined) ?? a;
+      if (a && b) {
+        const ca = a.offsetLeft + a.offsetWidth / 2;
+        const cb = b.offsetLeft + b.offsetWidth / 2;
+        row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * eased)}px, 0, 0)`;
+      }
+    }
     setSeg(i);
+    setCurrent(eased < 0.5 ? i : i + 1);
   });
   /* 이 구간의 출발 화면은 seg, 도착 화면은 seg + 1 — 짝수 구간은 앞면에서 출발한다 */
   const front = items[seg % 2 === 0 ? seg : seg + 1];
@@ -350,12 +385,37 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string }[] }) 
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: flips } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
-        <div ref={bodyRef} className={styles.phoneFlipBody}>
+        <div className={styles.phoneBackdrop} aria-hidden>
+          <div className={styles.phoneSky}>
+            {PHONE_STARS.map((st, k) => (
+              <span
+                key={k}
+                className={styles.phoneStar}
+                style={{ left: `${st.x}%`, top: `${st.y}%`, ["--s" as string]: st.s, ["--d" as string]: st.d } as CSSProperties}
+              />
+            ))}
+          </div>
+          <span className={`${styles.planet} ${styles.planetRinged}`} />
+          <span className={`${styles.planet} ${styles.planetSmall}`} />
+          <span className={`${styles.planet} ${styles.planetMoon}`} />
+          <div ref={wordsRef} className={styles.phoneWords}>
+            {items.map((it, k) => (
+              <span key={k} className={`${styles.phoneWord} ${k === current ? styles.phoneWordOn : ""}`}>{it.route}</span>
+            ))}
+          </div>
+        </div>
+        <span className={styles.phoneShadow} aria-hidden />
+        <div className={styles.phoneFlipBody}>
+          {Array.from({ length: PHONE_SLICES }, (_, k) => (
+            <span key={k} className={styles.phoneSlice} style={{ ["--k" as string]: k } as CSSProperties} aria-hidden />
+          ))}
+          <span className={styles.phoneButtons} aria-hidden />
           {[front, back].map((it, k) => (
             <div key={k} className={`${styles.phoneFace} ${k ? styles.phoneFaceBack : ""}`}>
               <div className={styles.phoneScreen}>
                 {it && <Image src={it.src} alt={it.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />}
                 <span className={styles.phoneIsland} aria-hidden />
+                <span className={styles.phoneGlare} aria-hidden />
               </div>
             </div>
           ))}

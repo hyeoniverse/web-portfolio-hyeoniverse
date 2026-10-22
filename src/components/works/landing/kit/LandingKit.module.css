@@ -290,8 +290,12 @@
   opacity: 1;
 }
 
-/* ── 뒤집히는 휴대폰 — 바깥 상자 = 화면 높이 + 뒤집기마다 화면 높이의 50%. 무대가 붙어 있는 동안 몸통이 세로축으로 돈다 ── */
+/* ── 구르는 휴대폰 — 바깥 상자 = 화면 높이 + 구르기마다 화면 높이의 50%. 무대가 붙어 있는 동안 몸통이 가로축으로 구른다.
+   몸통 = 같은 둥근 사각형을 두께 방향으로 겹친 옆면(PHONE_SLICES 겹) + 앞 · 뒤 화면. 회전 값은 --rx · --ry · --rz · --bob ── */
 .phoneFlip {
+  --depth: 30px;
+  --star-period: 2.6s;
+
   position: relative;
   height: calc(100dvh + var(--count) * 50dvh);
 }
@@ -303,30 +307,194 @@
   align-items: center;
   justify-content: center;
   height: 100dvh;
-  perspective: 1600px;
+  overflow: hidden;
+  perspective: 1800px;
+}
+
+/* 뒤에 깔리는 것 — 별 · 행성, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
+.phoneBackdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.phoneSky {
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(var(--p, 0) * -6%));
+}
+
+.phoneStar {
+  position: absolute;
+  width: calc(var(--s) * var(--border-width-1));
+  height: calc(var(--s) * var(--border-width-1));
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  animation: starTwinkle var(--star-period) var(--ease-standard) infinite alternate;
+  animation-delay: calc(var(--d) * -1s);
+}
+
+/* 다섯에 하나는 네 갈래 반짝이 별 — About 의 별자리와 같은 모양 */
+.phoneStar:nth-child(5n) {
+  width: calc(var(--s) * var(--spacing-4));
+  height: calc(var(--s) * var(--spacing-4));
+  border-radius: 0;
+  background-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+
+@keyframes starTwinkle {
+  from {
+    opacity: 0.25;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 행성 — 휴대폰이 입체라 배경은 납작하게: 선 하나로 그린 원 · 고리, 그림자 · 그러데이션 없음. 스크롤하는 만큼 저마다 다른 빠르기로 흐른다 */
+.planet {
+  position: absolute;
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-primary) 30%, transparent);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-primary);
+}
+
+.planetRinged {
+  top: 12%;
+  right: 10%;
+  width: 18vmin;
+  height: 18vmin;
+  transform: translateY(calc(var(--p, 0) * 30dvh));
+}
+
+/* 고리 — 기울어진 타원 선(선 그림이라 행성 앞뒤를 가리지 않고 겹쳐 그린다) */
+.planetRinged::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180%;
+  height: 36%;
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-accent) 60%, transparent);
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%) rotate(-16deg);
+  content: "";
+}
+
+/* 행성 위 줄무늬 한 줄 */
+.planetRinged::after {
+  position: absolute;
+  top: 38%;
+  right: 12%;
+  left: 12%;
+  border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-primary) 18%, transparent);
+  content: "";
+}
+
+.planetSmall {
+  bottom: 22%;
+  left: 9%;
+  width: 9vmin;
+  height: 9vmin;
+  background-color: color-mix(in srgb, var(--text-accent) 12%, var(--bg-primary));
+  transform: translateY(calc(var(--p, 0) * -24dvh));
+}
+
+.planetMoon {
+  top: 22%;
+  left: 21%;
+  width: 2.4vmin;
+  height: 2.4vmin;
+  border: 0;
+  background-color: var(--text-accent);
+  transform: translate(calc(var(--p, 0) * 18vw), calc(var(--p, 0) * 12dvh));
+}
+
+/* 주소 줄 — 휴대폰 아래 한 줄로 늘어선 주소. 움직임은 PhoneFlip 이 지금 화면의 주소가 가운데에 오게 transform 으로 준다 */
+.phoneWords {
+  position: absolute;
+  bottom: 5dvh;
+  left: 0;
+  display: flex;
+  gap: 6vw;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.phoneWord {
+  flex: none;
+  font: var(--font-display-lg);
+  color: transparent;
+  -webkit-text-stroke: var(--border-width-1) color-mix(in srgb, var(--text-accent) 40%, transparent);
+  transition: color var(--duration-slow) var(--ease-standard);
+}
+
+.phoneWordOn {
+  color: var(--text-accent);
+}
+
+/* 바닥 그림자 — 옆으로 누울수록(--spin) 얇고 옅어진다 */
+.phoneShadow {
+  position: absolute;
+  bottom: 15dvh;
+  left: 50%;
+  width: min(30dvh, 280px);
+  height: 3dvh;
+  border-radius: var(--radius-full);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bg-black) 35%, transparent), transparent);
+  transform: translateX(-50%) scaleX(calc(1 - var(--spin, 0) * 0.35));
+  opacity: calc(1 - var(--spin, 0) * 0.5);
 }
 
 .phoneFlipBody {
   position: relative;
-  height: min(80dvh, 720px);
+  height: min(66dvh, 640px);
+  margin-bottom: 12dvh;
   aspect-ratio: 390 / 844;
   transform-style: preserve-3d;
+  transform: translateY(var(--bob, 0)) rotateZ(var(--rz, 0deg)) rotateY(var(--ry, 0deg)) rotateX(var(--rx, 0deg));
   will-change: transform;
 }
 
-/* 한 면 = 휴대폰 틀(검은 테두리 · 둥근 모서리) + 화면 */
+/* 옆면 — 금속 테두리. 겹마다 두께 방향으로 조금씩 옮겨 쌓고, 가운데로 갈수록 살짝 어둡게 */
+.phoneSlice {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--radius-surface) * 3);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--text-white) 55%, var(--bg-black)), color-mix(in srgb, var(--text-white) 22%, var(--bg-black)) 45%, color-mix(in srgb, var(--text-white) 68%, var(--bg-black)) 70%, color-mix(in srgb, var(--text-white) 32%, var(--bg-black)));
+  transform: translateZ(calc(var(--depth) / 2 - var(--k) * var(--depth) / 13));
+  backface-visibility: visible;
+}
+
+/* 옆 버튼 — 가운데 겹 높이에서 왼쪽으로 조금 튀어나온다 */
+.phoneButtons {
+  position: absolute;
+  top: 18%;
+  left: calc(var(--spacing-4) * -1);
+  width: var(--spacing-8);
+  height: 14%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--text-white) 40%, var(--bg-black)), color-mix(in srgb, var(--text-white) 66%, var(--bg-black)));
+  box-shadow: 0 calc(var(--spacing-48) * 2.2) 0 color-mix(in srgb, var(--text-white) 52%, var(--bg-black));
+  transform: translateZ(0);
+}
+
+/* 앞 · 뒤 화면 — 검은 유리 테두리 안에 화면. 두께의 바깥쪽에 붙인다 */
 .phoneFace {
   position: absolute;
   inset: 0;
   padding: var(--spacing-12);
   border-radius: calc(var(--radius-surface) * 3);
   background-color: var(--bg-black);
-  box-shadow: var(--shadow-overlay);
+  transform: translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
   backface-visibility: hidden;
 }
 
 .phoneFaceBack {
-  transform: rotateY(180deg);
+  transform: rotateX(180deg) translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
 }
 
 .phoneScreen {
@@ -356,6 +524,17 @@
   border-radius: var(--radius-full);
   background-color: var(--bg-black);
   transform: translateX(-50%);
+}
+
+/* 유리 반사 — 구를수록 빛줄기가 위아래로 지나간다 */
+.phoneGlare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, transparent 30%, color-mix(in srgb, var(--text-white) 22%, transparent) 45%, transparent 60%);
+  background-size: 100% 300%;
+  background-position: 0 calc(var(--spin, 0) * 100%);
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 /* ── 숫자 띠 ── */
@@ -504,7 +683,8 @@
     transition: none;
   }
 
-  .letter {
+  .letter,
+  .phoneStar {
     animation: none;
   }
 }
