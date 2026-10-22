@@ -1,22 +1,21 @@
 /* ── 작업물 상세 — 랜딩 페이지(WorkLanding) ──
-   MacFolio 의 프로젝트 소개 페이지(safari/hyeoniverse · HyeoniversePage.css)를 옮겼다. 색은 사이트 토큰으로 바꿨고,
-   1080px 칼럼 · 가운데 머리 · 큰 숫자 · 띠 배경을 번갈아 까는 챕터 · 나타나기 움직임을 따른다.
-   그쪽은 Safari 창 안이라 컨테이너 쿼리를 썼고, 여기는 페이지 전체라 화면 너비로 나눈다(태블릿 1024px). */
+   디자인: andreasantonsson.dev 의 프로젝트 페이지 — 강조색 하나로 쓴 큰 세리프 제목, 작은 정보 한 줄, 화면 폭을 채우는 미디어,
+   넓은 여백, 끝에 '다음 작업물'. 움직임 · 구성: MacFolio 의 프로젝트 소개 페이지(safari/hyeoniverse).
+   색은 사이트 토큰(강조색 --text-accent), 글꼴은 묶음 토큰(display = 세리프). 태블릿(1024px) 이하는 한 칸. */
 
 .landing {
-  --lp-pad: max(var(--spacing-page-inline), calc((100% - 1080px) / 2));
-  --lp-band: color-mix(in srgb, var(--bg-tertiary) 55%, var(--bg-primary));
+  --lp-pad: max(var(--spacing-page-inline), calc((100% - 1128px) / 2));
+  --lp-band: color-mix(in srgb, var(--text-accent) 5%, var(--bg-primary));
   --lp-line: var(--border-light);
 
   container-type: inline-size;
-  padding-top: var(--spacing-96);
   color: var(--text-primary);
 }
 
 /* ── 나타나기 — useReveal 이 data-shown 을 붙인다. --d 하나에 90ms 씩 늦춘다 ── */
 .landing [data-reveal] {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(28px);
   transition:
     opacity var(--duration-slower) var(--ease-enter),
     transform var(--duration-slower) var(--ease-enter);
@@ -31,25 +30,9 @@
   transform: scale(0.96);
 }
 
-.landing [data-reveal="ink"] {
-  transform: none;
-  filter: blur(8px);
-  transition-property: opacity, filter;
-}
-
 .landing [data-reveal][data-shown] {
   opacity: 1;
   transform: none;
-  filter: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .landing [data-reveal] {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition: none;
-  }
 }
 
 /* ── 머리 ── */
@@ -57,112 +40,159 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-20);
-  padding: var(--spacing-48) var(--lp-pad) var(--spacing-48);
+  justify-content: center;
+  gap: var(--spacing-32);
+  min-height: 86svh;
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-96);
   text-align: center;
+  color: var(--text-accent);
 }
 
 .eyebrow {
   margin: 0;
   font: var(--font-label-md);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-accent);
 }
 
-.tagline {
-  max-width: 18ch;
+.title {
+  max-width: 100%;
   margin: 0;
   font: var(--font-display-lg);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* 글자마다 아래에서 올라온다 — 마운트되자마자(화면 맨 위라 기다릴 것이 없다) */
+.titleLetters {
+  display: inline-block;
+}
+
+.letter {
+  display: inline-block;
+  animation: letterRise var(--duration-slower) var(--ease-enter) both;
+  animation-delay: calc(120ms + var(--d, 0) * 35ms);
+}
+
+@keyframes letterRise {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 역할 · 기간 · 주소 — 이름은 흐리게, 값은 강조색 */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-24) var(--spacing-64);
+  margin: 0;
+  text-align: left;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.metaLabel {
+  font: var(--font-body-sm);
+  color: color-mix(in srgb, var(--text-accent) 55%, var(--bg-primary));
+}
+
+.metaValue {
+  margin: 0;
+  font: var(--font-body-md);
+}
+
+.metaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.metaLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 대표 화면 — 칼럼 폭에서 시작해 화면 폭까지 커진다(--p: 0 → 1) ── */
+.cover {
+  --p: 0;
+
+  padding: 0 calc(var(--lp-pad) * (1 - var(--p)));
+}
+
+.coverFrame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-height: 92svh;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) * (1 - var(--p)));
+  background-color: var(--bg-tertiary);
+}
+
+.coverImage {
+  object-fit: cover;
+  transform: scale(calc(1.08 - 0.08 * var(--p)));
+}
+
+/* ── 큰 문장 · 설명 · 숫자 ── */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-64);
+  padding: var(--spacing-128) var(--lp-pad) var(--spacing-96);
+}
+
+/* 읽는 만큼 낱말이 진해진다 — 문단의 --p 와 낱말 차례(--i / --n) */
+.statement {
+  --p: 0;
+
+  max-width: 22ch;
+  margin: 0;
+  font: var(--font-display-lg);
+  color: var(--text-accent);
   text-wrap: balance;
 }
 
+.inkWord {
+  opacity: clamp(0.18, calc(var(--p) * 1.6 * var(--n) - var(--i)), 1);
+  transition: opacity var(--duration-fast) linear;
+}
+
+.introText {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-24);
+}
+
 .lead {
-  max-width: 60ch;
+  margin: 0;
+  font: var(--font-body-xl);
+  text-wrap: pretty;
+}
+
+.context {
   margin: 0;
   font: var(--font-body-lg);
   color: var(--text-secondary);
   text-wrap: pretty;
 }
 
-.links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--spacing-12);
-  margin-top: var(--spacing-8);
-}
-
-.link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  height: var(--control-height-xl);
-  padding: 0 var(--spacing-20);
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  font: var(--font-label-lg);
-  color: var(--text-primary);
-  text-decoration: none;
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard);
-}
-
-.link:hover {
-  border-color: var(--text-primary);
-}
-
-.linkPrimary {
-  border-color: var(--text-primary);
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.linkPrimary:hover {
-  background-color: var(--text-accent);
-  border-color: var(--text-accent);
-  color: var(--bg-primary);
-}
-
-/* ── 대표 화면 — 은빛 테두리 + 큰 그림자 ── */
-.shot {
-  position: relative;
-  margin: 0 var(--lp-pad) var(--spacing-48);
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-overlay);
-  outline: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
-  outline-offset: -1px;
-}
-
-.shotImage {
-  object-fit: cover;
-}
-
-/* ── 한눈에 보기 ── */
-.glance {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-32);
-  padding: var(--spacing-48) var(--lp-pad);
-}
-
-.context {
-  max-width: 64ch;
-  margin: 0;
-  font: var(--font-body-xl);
-  color: var(--text-secondary);
-  text-wrap: pretty;
-}
-
 .facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--spacing-24);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-32);
   margin: 0;
 }
 
@@ -170,7 +200,7 @@
   display: flex;
   flex-direction: column-reverse;
   gap: var(--spacing-8);
-  padding-top: var(--spacing-16);
+  padding-top: var(--spacing-20);
   border-top: var(--lp-line);
 }
 
@@ -183,27 +213,32 @@
 }
 
 .factLabel {
-  font: var(--font-label-md);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
-/* ── 챕터 — 짝수 번째는 띠 배경 ── */
+/* ── 챕터 — band 는 강조색이 옅게 비친 띠 ── */
 .chapter {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-32);
-  padding: var(--spacing-80) var(--lp-pad);
+  gap: var(--spacing-48);
+  padding: var(--spacing-96) var(--lp-pad);
 }
 
-.chapter:nth-of-type(even) {
+.chapterBand {
   background-color: var(--lp-band);
+}
+
+/* 갤러리 — 슬라이드가 다음 장을 화면 끝까지 내비친다. 가로로 넘치는 것만 자른다 */
+.chapterClip {
+  overflow-x: clip;
 }
 
 .chapterHead {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-  max-width: 64ch;
+  gap: var(--spacing-16);
+  max-width: 60ch;
 }
 
 .chapterNo {
@@ -213,7 +248,8 @@
 
 .chapterTitle {
   margin: 0;
-  font: var(--font-display-sm);
+  font: var(--font-display-md);
+  color: var(--text-accent);
   text-wrap: balance;
 }
 
@@ -224,83 +260,159 @@
   text-wrap: pretty;
 }
 
-/* 갤러리 — 슬라이드가 다음 장을 화면 끝까지 내비친다. 머리는 다른 챕터와 같은 칼럼, 가로로 넘치는 것만 자른다 */
-.chapterWide {
-  overflow-x: clip;
-}
-
-/* ── 주요 기능 — 글(제목 | 설명) + 그림 ── */
+/* ── 주요 기능 — 글(번호 · 제목 | 설명) 아래 미디어를 크게 ── */
 .features {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-48);
+  gap: var(--spacing-96);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .feature {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-24);
-  padding-top: var(--spacing-24);
-  border-top: var(--lp-line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
 }
 
 .featureText {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-8);
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-20);
+  border-top: var(--lp-line);
+}
+
+.featureNo {
+  font: var(--font-code-sm);
+  color: var(--text-tertiary);
 }
 
 .featureTitle {
   margin: 0;
-  font: var(--font-headline-sm);
+  font: var(--font-headline-lg);
 }
 
 .featureBody {
   margin: 0;
-  font: var(--font-body-md);
+  font: var(--font-body-lg);
   color: var(--text-secondary);
   white-space: pre-line;
 }
 
-.featureMedia,
-.pointMedia {
+/* ── 미디어 — 그림 · 영상(wide 면 들어오며 커진다) ── */
+.media {
+  position: relative;
+  min-width: 0;
+}
+
+.mediaWide {
+  --p: 1;
+}
+
+.mediaWide[data-progress] {
+  --p: 0;
+}
+
+.mediaFrame {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: var(--radius-surface);
   background-color: var(--bg-tertiary);
-  outline: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
-  outline-offset: -1px;
+}
+
+.mediaWide[data-progress] .mediaFrame {
+  transform: scale(calc(0.9 + 0.1 * var(--p)));
+  transform-origin: center top;
 }
 
 .mediaImage {
   object-fit: cover;
 }
 
-/* ── 챕터 항목 — 카드 ── */
-.points {
+/* ── 데모 창 — 위 막대(점 셋 · 이름 · 실제 AI) + 데모 ── */
+.demo {
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-raised);
+}
+
+.demoBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-bottom: var(--border-light);
+  background-color: var(--bg-secondary);
+}
+
+.demoDots {
+  display: inline-flex;
+  gap: var(--spacing-4);
+}
+
+.demoDots i {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-primary) 18%, transparent);
+}
+
+.demoName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demoLive {
+  flex-shrink: 0;
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-accent-subtle);
+  font: var(--font-label-xs);
+  color: var(--text-accent);
+}
+
+.demoBody {
+  padding: var(--spacing-24);
+}
+
+.demoLoading {
+  min-height: 280px;
+  border-radius: var(--radius-surface);
+  background-color: var(--bg-tertiary);
+}
+
+/* ── 챕터 항목 ── */
+.points,
+.bento {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-24);
+  gap: var(--spacing-48);
 }
 
 .point {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
-  padding-top: var(--spacing-16);
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-20);
   border-top: var(--lp-line);
 }
 
-.pointWithImage {
+.pointWithMedia {
   padding-top: 0;
   border-top: none;
 }
 
-.pointWithImage .pointMedia {
+.pointWithMedia .media {
   margin-bottom: var(--spacing-8);
 }
 
@@ -316,14 +428,34 @@
   white-space: pre-line;
 }
 
+/* 큰 무대 — 항목마다 글 위, 데모 · 미디어를 칼럼 폭으로 */
+.stages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-96);
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.stageText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  max-width: 60ch;
+}
+
 /* 본문(글)을 소개 챕터로 보일 때 — 글 칼럼 너비 */
 .article {
   max-width: 760px;
 }
 
-/* ── 진행 과정 — 읽은 만큼 선이 차오른다(--read) ── */
+/* ── 진행 과정 — 읽은 만큼 선이 차오른다(--p) ── */
 .timeline {
-  --read: 0;
+  --p: 0;
 
   position: relative;
   display: flex;
@@ -351,7 +483,7 @@
 
 .timeline::after {
   background-color: var(--text-accent);
-  transform: scaleY(var(--read));
+  transform: scaleY(var(--p));
   transform-origin: top;
 }
 
@@ -383,11 +515,6 @@
 }
 
 /* ── 맡은 일 ── */
-.role {
-  margin: 0;
-  font: var(--font-headline-sm);
-}
-
 .contributions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -435,49 +562,113 @@
   color: var(--text-secondary);
 }
 
-/* ── 꼬리 ── */
-.foot {
+/* ── 다음 작업물 — 큰 제목 + 둥근 화살표 ── */
+.next {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-24);
-  padding: var(--spacing-96) var(--lp-pad);
-  border-top: var(--lp-line);
+  padding: var(--spacing-128) var(--spacing-page-inline);
   text-align: center;
+  color: var(--text-accent);
 }
 
-.footLine {
-  max-width: 20ch;
+.nextLabel {
   margin: 0;
-  font: var(--font-display-md);
+  font: var(--font-headline-xs);
+}
+
+.nextLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-32);
+  color: inherit;
+  text-decoration: none;
+}
+
+.nextTitle {
+  font: var(--font-display-lg);
+  letter-spacing: -0.02em;
   text-wrap: balance;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.nextArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-64);
+  height: var(--spacing-64);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-accent) 8%, var(--bg-primary));
+  transition: transform var(--duration-base) var(--ease-spring), background-color var(--duration-base) var(--ease-standard);
+}
+
+.nextLink:hover .nextTitle {
+  opacity: 0.75;
+}
+
+.nextLink:hover .nextArrow {
+  background-color: var(--text-accent);
+  color: var(--bg-primary);
+  transform: translateY(6px);
+}
+
+/* ── 큰 제목 — 폰에서는 한 단계 작게(긴 한 낱말 제목이 낱말 가운데서 끊기지 않게), 그보다 넓으면 가장 크게 ── */
+@media (width > 480px) {
+  .title,
+  .nextTitle {
+    font: var(--font-display-xl);
+  }
+}
+
+/* ── 움직임 줄이기 — 처음부터 다 보인다 ── */
+@media (prefers-reduced-motion: reduce) {
+  .landing [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .letter {
+    animation: none;
+  }
+
+  .inkWord {
+    opacity: 1;
+  }
 }
 
 /* ── 태블릿보다 넓으면 여러 칸 ── */
 @media (width > 1024px) {
-  .feature {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: start;
-    gap: var(--spacing-48);
+  .introText {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-64);
   }
 
-  .feature:nth-child(even) .featureText {
-    order: 2;
-  }
-
-  .feature:not(:has(.featureMedia)) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .feature:not(:has(.featureMedia)) .featureText {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--spacing-48);
+  .featureText {
+    grid-template-columns: 80px minmax(0, 5fr) minmax(0, 6fr);
+    align-items: baseline;
+    gap: var(--spacing-32);
   }
 
   .points {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--spacing-48);
-    row-gap: var(--spacing-40);
+    row-gap: var(--spacing-64);
+  }
+
+  /* 크기가 다른 칸 — 첫 칸이 두 줄 두 칸, 나머지는 한 칸 */
+  .bento {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--spacing-32);
+    row-gap: var(--spacing-48);
+  }
+
+  .bento > :first-child {
+    grid-column: span 2;
+    grid-row: span 2;
   }
 
   .contributions {
@@ -486,7 +677,7 @@
   }
 
   .spec {
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 240px minmax(0, 1fr);
     gap: var(--spacing-24);
   }
 }

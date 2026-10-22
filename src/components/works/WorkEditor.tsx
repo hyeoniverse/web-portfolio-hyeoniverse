@@ -2166,6 +2166,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         value={landing}
         onChange={(next) => updateField(landingKey, next)}
         tw={tw}
+        demoName={(d) => t(`workDetail.landing.demo.${d}`)}
         modeHint={landingMode ? undefined : (
           <p className={styles.extraHint}>
             {tw("landingModeOff")}{" "}
@@ -2174,7 +2175,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         )}
       />
     </div>
-  ), [landing, landingKey, landingMode, tw, updateField]);
+  ), [landing, landingKey, landingMode, t, tw, updateField]);
 
   /* 추가 정보 항목 — 제목 · 개수 · 미리보기 · 편집기. 세 보기가 같이 쓴다 */
   const extraItems = useMemo<ExtraItem[]>(() => {

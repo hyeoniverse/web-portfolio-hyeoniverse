@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
+
+const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * 랜딩 페이지의 나타나기 — 루트 안의 [data-reveal] 이 화면에 들어오면 data-shown 을 붙인다(CSS 가 움직임을 맡는다).
@@ -32,20 +34,37 @@ export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] =
   }, deps);
 }
 
-/** 진행 과정 선 — 루트가 화면을 지나가는 만큼(0~1)을 --read 로 넘긴다 */
-export function useReadProgress(target: RefObject<HTMLElement | null>) {
+/**
+ * 스크롤 진행 — 루트 안의 [data-progress] 마다, 요소가 화면을 지나가는 정도(0~1)를 --p 로 넘긴다.
+ * data-progress="enter": 위 끝이 화면 아래에 닿을 때 0 → 화면 가운데에 올 때 1(들어오며 커지는 미디어)
+ * data-progress="through": 위 끝이 화면 아래 3/4 에 닿을 때 0 → 아래 끝이 같은 선을 지날 때 1(읽은 만큼 차오르는 선 · 글자)
+ * 움직임 줄이기면 1 로 둔다. 스크롤마다 한 프레임에 한 번만 잰다.
+ */
+export function useScrollProgress(root: RefObject<HTMLElement | null>, deps: unknown[] = []) {
   useEffect(() => {
-    const el = target.current;
+    const el = root.current;
     if (!el) return;
+    const targets = Array.from(el.querySelectorAll<HTMLElement>("[data-progress]"));
+    if (reducedMotion()) {
+      targets.forEach((t) => t.style.setProperty("--p", "1"));
+      return;
+    }
     let raf = 0;
     const update = () => {
       raf = 0;
-      const r = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      /* 위 끝이 화면 아래 3/4 에 닿을 때 0, 아래 끝이 같은 선을 지날 때 1 */
-      const line = vh * 0.75;
-      const p = Math.min(1, Math.max(0, (line - r.top) / Math.max(1, r.height)));
-      el.style.setProperty("--read", p.toFixed(3));
+      for (const t of targets) {
+        const r = t.getBoundingClientRect();
+        if (r.bottom < -vh || r.top > vh * 2) continue;
+        let p: number;
+        if (t.dataset.progress === "through") {
+          const line = vh * 0.75;
+          p = (line - r.top) / Math.max(1, r.height);
+        } else {
+          p = (vh - r.top) / (vh * 0.5 + Math.min(r.height, vh) * 0.5);
+        }
+        t.style.setProperty("--p", Math.min(1, Math.max(0, p)).toFixed(3));
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     update();
@@ -56,5 +75,46 @@ export function useReadProgress(target: RefObject<HTMLElement | null>) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [target]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+/** 숫자 세어 올리기 — "97점" · "1,200+" 처럼 앞의 숫자만 0 에서 올린다. 숫자가 없으면 그대로 */
+export function splitNumber(value: string): { prefix: string; num: number | null; decimals: number; suffix: string } {
+  const m = /^(\D*?)(\d[\d,]*(?:\.\d+)?)(.*)$/.exec(value);
+  if (!m) return { prefix: "", num: null, decimals: 0, suffix: value };
+  const raw = m[2].replace(/,/g, "");
+  return { prefix: m[1], num: Number(raw), decimals: raw.includes(".") ? raw.split(".")[1].length : 0, suffix: m[3] };
+}
+
+export function useCountUp(target: RefObject<HTMLElement | null>, value: string, durationMs = 1400): string {
+  const parts = splitNumber(value);
+  const [shown, setShown] = useState<number | null>(parts.num === null ? null : 0);
+  useEffect(() => {
+    const el = target.current;
+    if (!el || parts.num === null) return;
+    const end = parts.num;
+    let raf = 0;
+    /* 움직임 줄이기 · 관찰 불가 — 다음 프레임에 끝 값으로(효과 안에서 바로 상태를 바꾸지 않는다) */
+    if (reducedMotion() || typeof IntersectionObserver === "undefined") {
+      raf = requestAnimationFrame(() => setShown(end));
+      return () => cancelAnimationFrame(raf);
+    }
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      io.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / durationMs);
+        setShown(end * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => { io.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, [target, parts.num, durationMs]);
+  if (parts.num === null || shown === null) return value;
+  const n = shown.toLocaleString("en-US", { minimumFractionDigits: parts.decimals, maximumFractionDigits: parts.decimals });
+  return `${parts.prefix}${n}${parts.suffix}`;
 }

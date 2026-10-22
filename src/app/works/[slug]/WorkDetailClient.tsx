@@ -150,7 +150,8 @@ export default function WorkDetailClient({
         </>
       )}
       likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
-      adjacentConfig={{
+      /* 랜딩 페이지는 끝에 '다음 작업물'을 크게 둔다 — 이전/다음 줄은 게시물 형태에서만 */
+      adjacentConfig={landingMode ? undefined : {
         prev: prevProject ? {
           href: `/works/${prevProject.slug || prevProject.id}`,
           title: pickLocalized(prevProject.title, language),
@@ -169,7 +170,11 @@ export default function WorkDetailClient({
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
       landing={landingMode ? (
         <TranslatingRegion active={contentTr.translating}>
-          <WorkLanding project={project} viewLang={viewLang} />
+          <WorkLanding
+            project={project}
+            viewLang={viewLang}
+            next={nextProject ? { href: `/works/${nextProject.slug || nextProject.id}`, title: pickLocalized(nextProject.title, language) } : null}
+          />
         </TranslatingRegion>
       ) : undefined}
     >

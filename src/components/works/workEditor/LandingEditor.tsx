@@ -4,10 +4,11 @@ import { useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ImageIcon, Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
+import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { uploadFile } from "@/lib/adminUpload";
-import type { LandingChapter, LandingPoint, WorkLanding } from "@/types/workLanding";
+import { LANDING_CHAPTER_LOOKS, LANDING_DEMOS, type LandingChapter, type LandingChapterLook, type LandingDemo, type LandingPoint, type WorkLanding } from "@/types/workLanding";
 import styles from "./LandingEditor.module.css";
 
 /**
@@ -19,11 +20,14 @@ export default function LandingEditor({
   value,
   onChange,
   tw,
+  demoName,
   modeHint,
 }: {
   value: WorkLanding;
   onChange: (next: WorkLanding) => void;
   tw: (key: string) => string;
+  /** 데모 이름(공개 화면 문구 workDetail.landing.demo.*) */
+  demoName: (demo: LandingDemo) => string;
   /** 지금 설정이 게시물 형태면 알리는 줄 */
   modeHint?: ReactNode;
 }) {
@@ -71,7 +75,7 @@ export default function LandingEditor({
       <Group title={tw("landingHighlights")} hint={tw("landingHighlightsHint")} onAdd={() => set("highlights", [...value.highlights, emptyPoint()])} addLabel={tw("landingAdd")}>
         {value.highlights.map((p, i) => (
           <Row key={i} index={i} list={value.highlights} onList={(l) => set("highlights", l)} tw={tw} block>
-            <PointFields point={p} onChange={(np) => set("highlights", replace(value.highlights, i, np))} tw={tw} />
+            <PointFields point={p} onChange={(np) => set("highlights", replace(value.highlights, i, np))} tw={tw} demoName={demoName} />
           </Row>
         ))}
       </Group>
@@ -80,7 +84,7 @@ export default function LandingEditor({
       <Group title={tw("landingChapters")} hint={tw("landingChaptersHint")} onAdd={() => set("chapters", [...value.chapters, { title: "", lead: "", points: [] }])} addLabel={tw("landingAddChapter")}>
         {value.chapters.map((c, i) => (
           <Row key={i} index={i} list={value.chapters} onList={(l) => set("chapters", l)} tw={tw} block>
-            <ChapterFields chapter={c} onChange={(nc) => set("chapters", replace(value.chapters, i, nc))} tw={tw} />
+            <ChapterFields chapter={c} onChange={(nc) => set("chapters", replace(value.chapters, i, nc))} tw={tw} demoName={demoName} />
           </Row>
         ))}
       </Group>
@@ -165,27 +169,47 @@ function Row<T>({ index, list, onList, tw, block, children }: {
   );
 }
 
-function PointFields({ point, onChange, tw }: { point: LandingPoint; onChange: (p: LandingPoint) => void; tw: (k: string) => string }) {
+type DemoName = (demo: LandingDemo) => string;
+
+function PointFields({ point, onChange, tw, demoName }: { point: LandingPoint; onChange: (p: LandingPoint) => void; tw: (k: string) => string; demoName: DemoName }) {
   return (
     <>
       <input className={es.fieldInput} value={point.title} placeholder={tw("landingPointTitle")}
         onChange={(e) => onChange({ ...point, title: e.target.value })} />
       <Textarea value={point.body} onChange={(v) => onChange({ ...point, body: v })} placeholder={tw("landingPointBody")} rows={2} />
-      <ImageInput value={point.image ?? ""} onChange={(image) => onChange({ ...point, image: image || undefined })} tw={tw} />
+      {/* 미디어 — 데모를 고르면 그림 대신 데모 창이 뜬다 */}
+      <div className={styles.mediaRow}>
+        <Select
+          size="sm"
+          value={point.demo ?? ""}
+          options={[{ value: "", label: tw("landingDemoNone") }, ...LANDING_DEMOS.map((d) => ({ value: d, label: demoName(d) }))]}
+          onChange={(v) => onChange({ ...point, demo: (v || undefined) as LandingDemo | undefined })}
+        />
+        {!point.demo && <ImageInput value={point.image ?? ""} onChange={(image) => onChange({ ...point, image: image || undefined })} tw={tw} />}
+      </div>
     </>
   );
 }
 
-function ChapterFields({ chapter, onChange, tw }: { chapter: LandingChapter; onChange: (c: LandingChapter) => void; tw: (k: string) => string }) {
+function ChapterFields({ chapter, onChange, tw, demoName }: { chapter: LandingChapter; onChange: (c: LandingChapter) => void; tw: (k: string) => string; demoName: DemoName }) {
   return (
     <>
-      <input className={`${es.fieldInput} ${styles.chapterTitle}`} value={chapter.title} placeholder={tw("landingChapterTitle")}
-        onChange={(e) => onChange({ ...chapter, title: e.target.value })} />
+      <div className={styles.chapterHead}>
+        <input className={`${es.fieldInput} ${styles.chapterTitle}`} value={chapter.title} placeholder={tw("landingChapterTitle")}
+          onChange={(e) => onChange({ ...chapter, title: e.target.value })} />
+        {/* 모양 — 두 칸 카드 · 크기가 다른 칸 · 큰 무대 */}
+        <Select
+          size="sm"
+          value={chapter.look ?? "list"}
+          options={LANDING_CHAPTER_LOOKS.map((l) => ({ value: l, label: tw(`landingLook_${l}`) }))}
+          onChange={(v) => onChange({ ...chapter, look: v === "list" ? undefined : (v as LandingChapterLook) })}
+        />
+      </div>
       <Textarea value={chapter.lead} onChange={(v) => onChange({ ...chapter, lead: v })} placeholder={tw("landingChapterLead")} rows={2} />
       <div className={styles.subRows}>
         {chapter.points.map((p, i) => (
           <Row key={i} index={i} list={chapter.points} onList={(points) => onChange({ ...chapter, points })} tw={tw} block>
-            <PointFields point={p} onChange={(np) => onChange({ ...chapter, points: replace(chapter.points, i, np) })} tw={tw} />
+            <PointFields point={p} onChange={(np) => onChange({ ...chapter, points: replace(chapter.points, i, np) })} tw={tw} demoName={demoName} />
           </Row>
         ))}
         <div>
