@@ -140,6 +140,20 @@
 }
 
 /* 문의 폼 첨부가 저절로 꺼졌을 때 — 스위치 아래 두 칸을 가로질러 문구와 다시 켜기 */
+/* 이메일 서비스 — 공급자 | 파일 업로드 | 첨부 전달 방식. 좁으면 두 칸(짧은 칸이라 나란히), 태블릿보다 넓으면 세 칸 */
+.emailFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-20) var(--spacing-16);
+  width: 100%;
+}
+
+@media (width > 1024px) {
+  .emailFields {
+    grid-template-columns: var(--grid-columns-3);
+  }
+}
+
 .attachmentNote {
   grid-column: 1 / -1;
   display: flex;

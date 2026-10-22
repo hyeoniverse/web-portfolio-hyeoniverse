@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { contactAttachLimits } from "@/lib/contact/attachmentTypes";
 import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { logService } from "@/lib/serviceLog";
@@ -40,12 +41,12 @@ export async function POST(request: Request) {
 
   const cfg = await getSiteConfig();
   if (!cfg.emailService?.enableFileUpload) return fail("disabled", 403);
-  const blocked = cfg.media?.blockedExtensions?.length ? new Set(cfg.media.blockedExtensions) : BLOCKED_EXT;
-  if (blocked.has(ext)) return fail("type", 400);
-  const limits = (cfg.media?.limits ?? {}) as Record<string, number>;
-  const limitMb = limits[ext] ?? limits._default;
-  if (Object.keys(limits).length > 0 && limitMb === undefined) return fail("type", 400);
-  if (limitMb !== undefined && size > limitMb * 1024 * 1024) return fail("too_large", 400);
+  /* 받는 형식 · 크기 — 문의 서랍과 같은 목록(lib/contact/attachmentTypes). 차단 확장자는 기본 목록과 설정을 함께 본다 */
+  const blocked = new Set([...BLOCKED_EXT, ...(cfg.media?.blockedExtensions ?? [])]);
+  const allowed = contactAttachLimits(cfg.media?.limits as Record<string, number> | undefined, blocked);
+  const limitMb = allowed[ext];
+  if (limitMb === undefined) return fail("type", 400);
+  if (size > limitMb * 1024 * 1024) return fail("too_large", 400);
 
   let ticket: string | undefined;
   const path = `${crypto.randomUUID()}/${safeName(fileName)}`;

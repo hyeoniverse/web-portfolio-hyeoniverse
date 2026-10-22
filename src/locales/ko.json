@@ -67,7 +67,7 @@
       "emailPlaceholder": "이메일 주소",
       "titlePlaceholder": "제목",
       "messagePlaceholder": "하고 싶은 말이 있나요?",
-      "fileUpload": "pdf/doc 파일 첨부, 최대 10MB",
+      "fileUpload": "이미지 · 문서 · 압축 파일 첨부, 최대 {{mb}}MB",
       "acceptPrivacy": "{{policy}}에 동의합니다",
       "privacyPolicy": "개인정보 처리방침",
       "emailTitle": "Or email me",
