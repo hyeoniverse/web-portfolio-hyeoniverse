@@ -55,25 +55,43 @@
   text-wrap: balance;
 }
 
+/* 제목 — 참고 사이트처럼 넓게 벌어진 글자가 흐림에서 선명해지며 왼쪽부터 차례로 들어오고, 자간이 좁혀진다.
+   판 전환이 걷히기 전(data-ready 없음)에는 멈춰 둔다 — 판 아래에서 먼저 끝나 버리지 않게 */
 .titleLetters {
   display: inline-block;
+  animation: titleTrack calc(var(--duration-slower) * 2) var(--ease-enter) both;
 }
 
 .letter {
   display: inline-block;
-  animation: letterRise var(--duration-slower) var(--ease-enter) both;
-  animation-delay: calc(120ms + var(--d, 0) * 35ms);
+  animation: letterBlur var(--duration-slower) var(--ease-enter) both;
+  animation-delay: calc(80ms + var(--d, 0) * 45ms);
 }
 
-@keyframes letterRise {
+.landing:not([data-ready]) .titleLetters,
+.landing:not([data-ready]) .letter {
+  animation-play-state: paused;
+}
+
+@keyframes titleTrack {
+  from {
+    letter-spacing: 0.22em;
+  }
+
+  to {
+    letter-spacing: -0.02em;
+  }
+}
+
+@keyframes letterBlur {
   from {
     opacity: 0;
-    transform: translateY(0.4em);
+    filter: blur(14px);
   }
 
   to {
     opacity: 1;
-    transform: none;
+    filter: none;
   }
 }
 
@@ -531,7 +549,8 @@
     transition: none;
   }
 
-  .letter {
+  .letter,
+  .titleLetters {
     animation: none;
   }
 

@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import type { MouseEvent } from "react";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { isPlainClick } from "@/utils/gestureUtils";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -16,19 +19,26 @@ export default function LandingNav({ name }: { name: string }) {
   const siteConfig = useSiteConfig();
   const { t } = useLanguage();
   const { openForm } = useContactStore();
+  const { navigateWithSlide } = usePageTransition();
+  /* 메뉴로 떠날 때도 랜딩과 같은 판 전환(오른쪽에서) — 새 탭 클릭은 막지 않는다 */
+  const slideTo = (href: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    navigateWithSlide(href, "right");
+  };
   const label = (key: string, fallback: string) => {
     const v = t(`navMenu.label.${key}`);
     return v === `navMenu.label.${key}` ? fallback : v;
   };
   return (
     <nav aria-label={t("navMenu.ui.mainMenu")} className={styles.bar}>
-      <Link href="/" className={styles.brand}>
+      <Link href="/" className={styles.brand} onClick={slideTo("/")}>
         <span className={styles.name}>{name}</span>
         {siteConfig.personal.role && <span className={styles.role}>{siteConfig.personal.role}</span>}
       </Link>
       <ul className={styles.links}>
-        <li><Link href="/works" className={styles.link}>{label("works", "Works")}</Link></li>
-        <li><Link href="/about" className={styles.link}>{label("about", "About")}</Link></li>
+        <li><Link href="/works" className={styles.link} onClick={slideTo("/works")}>{label("works", "Works")}</Link></li>
+        <li><Link href="/about" className={styles.link} onClick={slideTo("/about")}>{label("about", "About")}</Link></li>
         <li>
           <Pressable noTapScale className={`${styles.link} ${styles.linkButton}`} onClick={openForm}>
             {t("navMenu.ui.getInTouch")}

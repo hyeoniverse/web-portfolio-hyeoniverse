@@ -9,10 +9,11 @@ const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.
  * 한 번 나타난 것은 다시 숨기지 않는다. 움직임 줄이기 설정이면 CSS 가 처음부터 보이게 둔다.
  * MacFolio 의 useReveal 을 옮겼다 — 그쪽은 화면을 벗어나면 다시 숨기지만, 긴 글을 되짚어 읽을 때 깜빡여 한 번만 나타나게 했다.
  */
-export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] = []) {
+export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] = [], enabled = true) {
   useEffect(() => {
     const el = root.current;
-    if (!el) return;
+    /* 판 전환이 덮고 있는 동안은 기다린다 — 걷힌 뒤 화면에 있는 것부터 나타나게 */
+    if (!el || !enabled) return;
     const targets = el.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown])");
     if (typeof IntersectionObserver === "undefined") {
       targets.forEach((t) => t.setAttribute("data-shown", ""));
@@ -31,7 +32,7 @@ export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] =
     targets.forEach((t) => io.observe(t));
     return () => io.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, enabled]);
 }
 
 /**

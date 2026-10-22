@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { isPlainClick } from "@/utils/gestureUtils";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
@@ -47,11 +49,14 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
   const name = pickLocalized(project.title, viewLang);
   const period = formatWorkYear(project.year, viewLang);
   const role = pickLocalized(project.role, viewLang);
-  useReveal(rootRef, [viewLang, project.id]);
+  /* 판 전환으로 들어왔으면 판이 걷힐 때까지 등장 연출을 멈춰 둔다(data-ready) */
+  const { isTransitioning, navigateWithSlide } = usePageTransition();
+  const ready = !isTransitioning;
+  useReveal(rootRef, [viewLang, project.id], ready);
   useScrollProgress(rootRef, [viewLang, project.id]);
 
   return (
-    <article ref={rootRef} className={styles.landing} lang={viewLang}>
+    <article ref={rootRef} className={styles.landing} lang={viewLang} data-ready={ready ? "" : undefined}>
       <header className={styles.hero}>
         <p className={styles.eyebrow} data-reveal="">{eyebrow[viewLang]}</p>
         <h1 className={styles.title} aria-label={name}>
@@ -86,7 +91,18 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
       {next && (
         <footer className={styles.next}>
           <p className={styles.nextLabel} data-reveal="">{t("workDetail.landing.nextProject")}</p>
-          <Link href={next.href} className={styles.nextLink} data-reveal="" style={delay(1)}>
+          {/* 다음 작업물은 아래에서 판이 올라오며 넘어간다(참고 사이트). 새 탭 클릭은 막지 않는다 */}
+          <Link
+            href={next.href}
+            className={styles.nextLink}
+            data-reveal=""
+            style={delay(1)}
+            onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+              if (!isPlainClick(e)) return;
+              e.preventDefault();
+              navigateWithSlide(next.href, "bottom");
+            }}
+          >
             <span className={styles.nextTitle}>{next.title}</span>
             <span className={styles.nextArrow} aria-hidden><ArrowDown size={20} /></span>
           </Link>
