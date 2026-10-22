@@ -32,7 +32,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="01"
-          title={{ ko: "스크롤에 답하는 첫 화면", en: "A home that answers the scroll" }}
+          title={{ ko: "스크롤에 반응하는 첫 화면", en: "A home that reacts to the scroll" }}
           body={{
             ko: "스크롤하는 만큼 큰 글자가 흩어지고, 3D 도넛이 화면 안을 떠다니며 작업물 · 글 · 프로필로 이어집니다.",
             en: "Big type scatters as you scroll, a 3D torus drifts across the screen, and the page leads on to works, writing and the profile.",
@@ -43,7 +43,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="02"
-          title={{ ko: "작업물은 여섯 가지 모양으로 흐른다", en: "Works flow in six shapes" }}
+          title={{ ko: "작업물을 여섯 가지 모양으로", en: "Works in six shapes" }}
           body={{
             ko: "Cylinder · Grid · Fullscreen · Flow · Cinematic · Split. 관리자 설정 하나로 바꿔 끼웁니다 — 실제 화면을 그대로 녹화했습니다.",
             en: "Cylinder, Grid, Fullscreen, Flow, Cinematic and Split, swapped with one admin setting — recorded from the real screens.",
@@ -100,7 +100,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="05"
-          title={{ ko: "하늘은 방문자의 시각과 날씨를 따른다", en: "The sky follows your time and weather" }}
+          title={{ ko: "시각과 날씨에 따라 바뀌는 About", en: "An About that changes with your time and weather" }}
           body={{
             ko: "About 의 배경은 방문자 시계로 새벽부터 밤까지 일곱 단계를 지나고, 그 도시의 날씨(Open-Meteo)에 따라 구름 · 안개 · 비 · 눈 · 뇌우가 내립니다. 스크롤하면 하루가 흐릅니다.",
             en: "The About background moves through seven stages from dawn to night by your clock, and clouds, fog, rain, snow or storms fall with your city's weather (Open-Meteo). Scroll to pass the day.",
@@ -136,7 +136,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="06"
-          title={{ ko: "스크롤 한 번에 한 사람을 소개하는 프로필", en: "A profile told in one scroll" }}
+          title={{ ko: "스크롤 한 번으로 읽는 프로필", en: "A profile read in one scroll" }}
           body={{
             ko: "아래로 굴리면 화면이 옆으로 흐르며, 마스코트 몽이의 인사 · 창처럼 겹친 사진 · GitHub 활동 · 고정한 저장소 · 경력이 차례로 지나갑니다.",
             en: "Scroll down and the page runs sideways — Mongi's hello, photos stacked like windows, GitHub activity, pinned repos and experience pass by in turn.",
@@ -147,7 +147,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="07"
-          title={{ ko: "휴대폰에서도 같은 화면", en: "The same screens on a phone" }}
+          title={{ ko: "휴대폰에서도 같은 경험", en: "The same experience on a phone" }}
           body={{
             ko: "모든 화면을 휴대폰 폭에서 따로 다듬었습니다. 메뉴는 화면 전체로 열리고, 표와 코드는 옆으로 넘겨 읽습니다.",
             en: "Every screen was tuned at phone width — the menu opens full screen, and tables and code scroll sideways.",

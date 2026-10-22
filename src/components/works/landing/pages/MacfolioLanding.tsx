@@ -21,7 +21,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
       project={project}
       viewLang={viewLang}
       next={next}
-      eyebrow={{ ko: "macOS 데스크톱을 웹으로 옮긴 포트폴리오", en: "A portfolio that brings the macOS desktop to the web" }}
+      eyebrow={{ ko: "macOS 데스크톱을 그대로 옮긴 웹 포트폴리오", en: "A web portfolio that recreates the macOS desktop" }}
     >
       <Flow>
         <Frame at="bleed" priority src={`${A}/desktop-light.webp`} alt={t({ ko: "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock", en: "MacFolio desktop — widgets, folders and the Dock" })} />
@@ -40,7 +40,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="02"
-          title={{ ko: "메모 앱이 곧 블로그다", en: "The Notes app is the blog" }}
+          title={{ ko: "메모 앱이 곧 블로그", en: "The Notes app as the blog" }}
           body={{
             ko: "폴더는 분류, 메모는 글. 관리자로 로그인하면 메모가 그대로 편집기가 됩니다.",
             en: "Folders are categories, notes are posts — signed in as admin, a note becomes the editor.",
@@ -52,7 +52,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="03"
-          title={{ ko: "기본 앱은 macOS 그대로", en: "The stock apps, as on macOS" }}
+          title={{ ko: "macOS 그대로의 기본 앱", en: "Stock apps, just like macOS" }}
           body={{
             ko: "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다.",
             en: "Browse docs and the repo README in Finder, play music, flip through photo albums and leave feedback in Messages without signing in.",
@@ -85,7 +85,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="05"
-          title={{ ko: "Safari 탭마다 프로젝트 하나", en: "One project per Safari tab" }}
+          title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
           body={{
             ko: "작업물은 Safari 에서 열립니다. HYEONIVERSE 탭은 배포한 사이트를 창 안에 그대로 불러옵니다.",
             en: "Projects open in Safari; the HYEONIVERSE tab loads the deployed site right inside the window.",
@@ -106,7 +106,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Frame at="left" src={`${A}/terminal.webp`} alt={t({ ko: "터미널", en: "Terminal" })} />
         <Frame at="right" src={`${A}/settings.webp`} alt={t({ ko: "시스템 설정", en: "System Settings" })} />
 
-        <Note viewLang={viewLang} no="07" title={{ ko: "휴대폰으로 열면, iOS 홈 화면", en: "On a phone, an iOS home screen" }} />
+        <Note viewLang={viewLang} no="07" title={{ ko: "휴대폰에서는 iOS 홈 화면으로", en: "On a phone, as an iOS home screen" }} />
         <Phones
           items={[
             { src: `${A}/phone-home.webp`, alt: t({ ko: "휴대폰 홈 화면", en: "Phone home screen" }) },
