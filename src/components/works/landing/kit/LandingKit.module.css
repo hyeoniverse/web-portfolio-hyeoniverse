@@ -128,355 +128,93 @@
   text-underline-offset: 3px;
 }
 
-/* ── 큰 문장 ── */
-.statement {
+/* ── 흐름 — 참고 사이트(synthetic-theatre)처럼 이미지가 중심. 틀 · 그림자 · 캡션 없이 큰 화면이 위치를 엇갈리며 이어진다 ── */
+.flow {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-20);
-  width: var(--lp-inset);
-  padding-top: var(--spacing-64);
-  text-align: center;
-}
-
-.statementNo {
-  font: var(--font-code-sm);
-  color: var(--text-accent);
-}
-
-.statementTitle {
-  max-width: 20ch;
-  word-break: keep-all;
-  margin: 0;
-  font: var(--font-display-md);
-  color: var(--text-accent);
-  text-wrap: balance;
-}
-
-.statementBody {
-  max-width: 52ch;
-  word-break: keep-all;
-  margin: 0;
-  font: var(--font-body-lg);
-  color: var(--text-secondary);
-  text-wrap: pretty;
-}
-
-/* ── 섹션 — 화면 폭 전체, 바탕이 바뀌는 덩어리 ── */
-.section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-64);
-  width: 100%;
-  padding: var(--spacing-128) 0;
-}
-
-.section_base {
+  gap: var(--spacing-48);
+  padding-bottom: var(--spacing-128);
   background-color: var(--bg-primary);
-}
-
-.section_tint {
-  background-color: color-mix(in srgb, var(--text-accent) 6%, var(--bg-primary));
-}
-
-.section_dark {
-  background-color: var(--bg-black);
-  color: var(--text-white);
-}
-
-.section_dark .sectionTitle,
-.section_dark .statementNo {
-  color: color-mix(in srgb, var(--text-accent) 55%, var(--text-white));
-}
-
-.section_dark .statementBody {
-  color: var(--text-white-muted);
-}
-
-.section_bleed {
-  padding: 0;
-  gap: 0;
-}
-
-.sectionHead {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-20);
-  width: var(--lp-inset);
-  text-align: center;
-}
-
-.sectionTitle {
-  max-width: 20ch;
-  margin: 0;
-  font: var(--font-display-md);
-  color: var(--text-accent);
-  text-wrap: balance;
-  word-break: keep-all;
-}
-
-/* ── 화면 · 녹화 — 캡처 비율 그대로(잘리지 않는다). 들어오면 아래에서 올라온다 ── */
-.shot {
-  --ratio: 16 / 10;
-
-  margin: 0;
-}
-
-.shot_bleed {
-  width: 100%;
-}
-
-.shot_wide {
-  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
 }
 
 .landing [data-reveal="rise"] {
   transform: translateY(48px);
 }
 
-.shotFrame {
-  position: relative;
-  aspect-ratio: var(--ratio);
-  overflow: hidden;
+/* 한 장 — 폰 · 태블릿은 여백 안 폭 전체, 넓은 화면에서는 78% 폭을 왼쪽 · 오른쪽 · 가운데 오른쪽으로 엇갈리게 */
+.frame {
+  width: calc(100% - var(--spacing-page-inline) * 2);
+  margin: 0 auto;
+}
+
+.frame_bleed {
+  width: 100%;
+}
+
+/* 틀 · 그림자는 두지 않는다. 다만 캡처 대부분이 페이지와 같은 밝은 바탕이라 경계가 녹아 버려서 아주 옅은 선 하나만 두른다 */
+.frameMedia {
+  display: block;
+  width: 100%;
+  height: auto;
+  outline: var(--border-light);
+  outline-offset: calc(var(--border-width-1) * -1);
   background-color: var(--bg-tertiary);
 }
 
-.shot_wide .shotFrame {
-  border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-overlay);
+/* 둘 — 큰 것과 작은 것을 나란히, 작은 쪽은 아래로 내려 높이를 어긋나게 */
+.duo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-24);
+  width: calc(100% - var(--spacing-page-inline) * 2);
+  margin: 0 auto;
 }
 
-.shotImage {
-  object-fit: cover;
-  object-position: top center;
-}
-
-.shotVideo {
-  position: absolute;
-  inset: 0;
+.duo .frame {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
-/* 데모 무대 — 섹션 칼럼 폭 */
+/* 짧은 글 — 번호 · 제목 · 한 줄. 이미지 사이의 쉼표 */
+.note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-16);
+  width: var(--lp-inset);
+  margin: var(--spacing-96) auto var(--spacing-16);
+}
+
+.noteNo {
+  font: var(--font-code-sm);
+  color: var(--text-accent);
+}
+
+.noteTitle {
+  margin: 0;
+  font: var(--font-display-md);
+  color: var(--text-accent);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.noteBody {
+  max-width: 48ch;
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+  word-break: keep-all;
+}
+
+/* 데모 무대 — 가운데 칼럼 폭 */
 .demoStage {
   width: var(--lp-inset);
-}
-
-/* 화면 아래 한 줄 설명 */
-.shotCaption {
-  margin-top: var(--spacing-12);
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-  text-align: center;
-  word-break: keep-all;
-}
-
-.section_dark .shotCaption {
-  color: var(--text-white-muted);
-}
-
-/* 긴 설명 — 왼쪽 작은 제목, 오른쪽 문단. 섹션 머리 아래 */
-.prose {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-40);
-  width: var(--lp-inset);
-}
-
-.proseItem {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-12);
-}
-
-.proseLabel {
-  margin: 0;
-  font: var(--font-title-sm);
-  color: var(--text-primary);
-  word-break: keep-all;
-}
-
-.section_dark .proseLabel {
-  color: var(--text-white);
-}
-
-.proseBody {
-  margin: 0;
-  font: var(--font-body-md);
-  color: var(--text-secondary);
-  word-break: keep-all;
-  text-wrap: pretty;
-}
-
-.section_dark .proseBody {
-  color: var(--text-white-muted);
-}
-
-/* 왼쪽 정렬 머리 — Split 의 머리 */
-.sectionHead_start {
-  align-items: flex-start;
-  width: auto;
-  text-align: start;
-}
-
-.sectionHead_start .sectionTitle {
-  max-width: 14ch;
-}
-
-/* 좌우 분할 — 머리(넓은 화면에서 스크롤을 따라 붙는다) + 화면 흐름 */
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-48);
-  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
-}
-
-.splitHead {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-40);
-}
-
-.splitBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-48);
-  min-width: 0;
-}
-
-.splitBody .shot_wide {
-  width: 100%;
-}
-
-.splitHead .prose {
-  width: auto;
-}
-
-.splitHead .proseItem {
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-8);
-}
-
-/* 전환기 — 탭 줄 + 큰 화면 하나 + 지금 장면의 한 줄 설명 */
-/* 폭은 화면 높이에도 맞춘다 — 16:10 화면 · 탭 · 설명이 한 화면에 들어오게(1440×900 에서 아래가 잘렸다) */
-.switcher {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2), 112dvh);
-}
-
-.switchTabs {
-  display: flex;
-  gap: var(--spacing-8);
-  padding-bottom: var(--spacing-4);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.switchTab {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-full);
-  background-color: transparent;
-  font: var(--font-label-md);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition:
-    color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard);
-}
-
-.switchTab:hover {
-  color: var(--text-primary);
-}
-
-.switchTabOn,
-.switchTabOn:hover {
-  border-color: var(--text-accent);
-  background-color: var(--text-accent);
-  color: var(--text-on-accent);
-}
-
-.switchNo {
-  font: var(--font-label-xs);
-  opacity: 0.6;
-}
-
-.switchStage {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: var(--radius-surface);
-  background-color: var(--bg-tertiary);
-  box-shadow: var(--shadow-overlay);
-}
-
-.switchPane {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity var(--duration-slow) var(--ease-standard);
-}
-
-.switchPaneOn {
-  opacity: 1;
-}
-
-.switchDesc {
-  max-width: 60ch;
   margin: 0 auto;
-  font: var(--font-body-md);
-  color: var(--text-secondary);
-  text-align: center;
-  word-break: keep-all;
-  text-wrap: pretty;
 }
 
-.section_dark .switchTab {
-  border-color: color-mix(in srgb, var(--text-white) 22%, transparent);
-  color: var(--text-white-muted);
-}
-
-.section_dark .switchTab:hover {
-  color: var(--text-white);
-}
-
-.section_dark .switchTabOn,
-.section_dark .switchTabOn:hover {
-  border-color: var(--text-accent);
-  color: var(--text-on-accent);
-}
-
-.section_dark .switchDesc {
-  color: var(--text-white-muted);
-}
-
-/* 둘을 나란히 */
-.pair {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-24);
-  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
-}
-
-.pair .shot_wide {
-  width: 100%;
-}
-
-/* 휴대폰 — 세로 화면 여럿 */
+/* 휴대폰 — 세로 화면 여럿(폰에서는 가로로 넘긴다) */
 .phones {
   display: flex;
-  gap: var(--spacing-32);
+  gap: var(--spacing-24);
   width: 100%;
   padding: 0 var(--spacing-page-inline);
   overflow-x: auto;
@@ -485,13 +223,17 @@
 
 .phone {
   position: relative;
-  flex: 0 0 min(72%, 320px);
+  flex: 0 0 min(72%, 300px);
   aspect-ratio: 390 / 844;
   overflow: hidden;
   border-radius: var(--radius-surface);
   background-color: var(--bg-tertiary);
-  box-shadow: var(--shadow-overlay);
   scroll-snap-align: center;
+}
+
+.phoneImage {
+  object-fit: cover;
+  object-position: top center;
 }
 
 /* ── 데모 창 — 위 막대(점 셋 · 이름 · 실제 AI) + 데모 ── */
@@ -559,7 +301,7 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-32);
   width: var(--lp-inset);
-  margin: 0;
+  margin: var(--spacing-96) auto 0;
 }
 
 .number {
@@ -635,50 +377,78 @@
   transform: translateY(6px);
 }
 
-/* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
+/* ── 넓은 화면 ── */
 @media (width > 768px) {
   .phones {
     justify-content: center;
     overflow: visible;
   }
-}
 
-@media (width > 768px) {
-  .switchTabs {
-    justify-content: center;
+  .duo {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: start;
+    gap: 3vw;
+  }
+
+  .duo > :last-child {
+    margin-top: 14vw;
+  }
+
+  .duo_reverse {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+
+  .duo_reverse > :first-child {
+    margin-top: 14vw;
+  }
+
+  .duo_reverse > :last-child {
+    margin-top: 0;
   }
 }
 
 @media (width > 1024px) {
-  .split {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: start;
-    gap: var(--spacing-96);
+  .flow {
+    gap: var(--spacing-64);
   }
 
-  .splitReverse {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  .frame_left {
+    width: 78%;
+    margin-left: 3%;
   }
 
-  .splitReverse .splitHead {
-    order: 2;
+  .frame_right {
+    width: 78%;
+    margin-right: 3%;
+    margin-left: auto;
   }
 
-  .splitHead {
-    position: sticky;
-    top: var(--spacing-96);
+  .frame_center {
+    width: 78%;
+    margin-left: 11%;
   }
 
-  .pair {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .frame_wide {
+    width: 94%;
+    margin-left: 3%;
   }
 
-  .proseItem {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--spacing-48);
+  .duo {
+    width: 94%;
+  }
+
+  .note {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: baseline;
+    column-gap: var(--spacing-48);
+  }
+
+  .noteNo {
+    grid-column: 1 / -1;
   }
 }
 
+/* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
 @media (width > 480px) {
   .title,
   .nextTitle {
@@ -695,9 +465,5 @@
 
   .letter {
     animation: none;
-  }
-
-  .landing [data-reveal="rise"] {
-    transform: none;
   }
 }

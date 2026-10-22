@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { isPlainClick } from "@/utils/gestureUtils";
-import Pressable from "@/components/ui/Pressable";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
 import { formatWorkYear } from "@/utils/formatWorkYear";
@@ -19,8 +18,8 @@ import styles from "./LandingKit.module.css";
 
 /**
  * 작업물 랜딩 페이지 부품 — 전용 페이지(pages/*)가 이것들로 짠다.
- * 디자인은 andreasantonsson.dev 의 프로젝트 페이지를 따랐다: 강조색 하나로 쓴 큰 세리프 제목 · 정보 한 줄 · 큰 문장과 큰 화면을
- * 번갈아 · 넓은 여백 · 끝에 '다음 작업물'. 화면은 기존 캡처가 아니라 페이지마다 코드로 그린 장면과 직접 만져 보는 데모다.
+ * 디자인은 andreasantonsson.dev 의 프로젝트 페이지를 따랐다: 강조색 하나로 쓴 큰 세리프 제목 · 정보 한 줄 · 화면 폭 전체 컷 ·
+ * 위치를 엇갈린 큰 화면들 · 짧은 글 · 끝에 '다음 작업물'. 화면은 이 페이지를 위해 배포한 사이트에서 새로 찍은 캡처 · 녹화다.
  */
 
 export type Lang = "ko" | "en";
@@ -131,18 +130,7 @@ function Meta({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** 큰 문장 — 작은 번호 · 큰 세리프 한두 줄 · 짧은 설명(선택). 화면 사이의 쉼표 */
-export function Statement({ no, title, body, viewLang }: { no?: string; title: L10n; body?: L10n; viewLang: Lang }) {
-  return (
-    <section className={styles.statement}>
-      {no && <span className={styles.statementNo} data-reveal="">{no}</span>}
-      <h2 className={styles.statementTitle} data-reveal="" style={delay(1)}>{title[viewLang]}</h2>
-      {body && <p className={styles.statementBody} data-reveal="" style={delay(2)}>{body[viewLang]}</p>}
-    </section>
-  );
-}
-
-/** 데모 무대 — 칼럼 폭에 데모 창 하나 */
+/** 데모 무대 — 가운데 칼럼 폭에 데모 창 하나 */
 export function DemoStage({ demo }: { demo: DemoKey }) {
   const { t } = useLanguage();
   return (
@@ -173,46 +161,49 @@ function NumberItem({ value, label, index }: { value: string; label: string; ind
 }
 
 /**
- * 섹션 — 화면 폭 전체를 쓰는 한 덩어리. secret-level 처럼 섹션마다 바탕(tone)이 바뀌고, 안에 문장 · 화면 · 데모를 둔다.
- * tone: base(사이트 바탕) · tint(강조색이 옅게 비친 바탕) · dark(검정) · bleed(여백 없이 화면만)
+ * 흐름 — 페이지 가운데 전체. 참고 사이트(andreasantonsson.dev/project/synthetic-theatre)처럼 이미지가 중심이다:
+ * 화면 폭 전체 컷과, 왼쪽 · 오른쪽 · 가운데로 엇갈린 큰 화면, 높이를 어긋나게 둔 두 장이 틀 없이 이어지고 글은 짧은 쉼표(Note)뿐
  */
-export function Section({ tone = "base", children }: { tone?: "base" | "tint" | "dark" | "bleed"; children: ReactNode }) {
-  return <section className={`${styles.section} ${styles[`section_${tone}`]}`}>{children}</section>;
+export function Flow({ children }: { children: ReactNode }) {
+  return <div className={styles.flow}>{children}</div>;
 }
 
-/** 섹션 머리 — 번호 · 제목 · 한 줄(선택). 섹션 안에서 화면 위에. align="start" 는 왼쪽 정렬(Split 의 머리) */
-export function SectionHead({ no, title, body, viewLang, align = "center" }: { no?: string; title: L10n; body?: L10n; viewLang: Lang; align?: "center" | "start" }) {
+/** 짧은 글 — 번호 · 제목 · 한 줄. 이미지 묶음 사이의 쉼표 */
+export function Note({ no, title, body, viewLang }: { no?: string; title: L10n; body?: L10n; viewLang: Lang }) {
   return (
-    <header className={`${styles.sectionHead} ${align === "start" ? styles.sectionHead_start : ""}`}>
-      {no && <span className={styles.statementNo} data-reveal="">{no}</span>}
-      <h2 className={styles.sectionTitle} data-reveal="" style={delay(1)}>{title[viewLang]}</h2>
-      {body && <p className={styles.statementBody} data-reveal="" style={delay(2)}>{body[viewLang]}</p>}
+    <header className={styles.note}>
+      {no && <span className={styles.noteNo} data-reveal="">{no}</span>}
+      <h2 className={styles.noteTitle} data-reveal="" style={delay(1)}>{title[viewLang]}</h2>
+      {body && <p className={styles.noteBody} data-reveal="" style={delay(2)}>{body[viewLang]}</p>}
     </header>
   );
 }
 
+export type FrameAt = "bleed" | "wide" | "left" | "right" | "center";
+
 /**
- * 화면 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(content/works/<slug>/landing, WebP 2880px).
- * 그림을 줄이지 않고 원본 그대로 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
- * size: bleed 는 화면 폭 전체(캡처 비율 그대로라 잘리지 않는다), wide 는 섹션 여백 안에서 최대 1600px
+ * 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(WebP 2880×1800) 또는 녹화. 틀 · 그림자 · 캡션 없이 원래 비율 그대로.
+ * 그림은 줄이지 않고 원본을 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
+ * at: bleed(화면 폭 전체) · wide(94%) · left · right · center(78%, 넓은 화면에서 위치를 엇갈리게)
+ * 녹화는 보일 때만 소리 없이 되풀이 재생한다(판 전환 중 · 움직임 줄이기면 멈춘다)
  */
-export function Shot({ src, alt, size = "bleed", ratio = "16 / 10", priority, caption }: {
-  src: string; alt: string; size?: "bleed" | "wide"; ratio?: string; priority?: boolean; caption?: string;
+export function Frame({ src, video, alt, at = "center", width = 2880, height = 1800, priority }: {
+  src?: string; video?: string; alt: string; at?: FrameAt; width?: number; height?: number; priority?: boolean;
 }) {
   return (
-    <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
-      <div className={styles.shotFrame} style={{ ["--ratio" as string]: ratio } as CSSProperties}>
-        <Image src={src} alt={alt} fill unoptimized priority={priority} className={styles.shotImage} />
-      </div>
-      {caption && <figcaption className={styles.shotCaption}>{caption}</figcaption>}
+    <figure className={`${styles.frame} ${styles[`frame_${at}`]}`} data-reveal="rise">
+      {video ? (
+        <FrameVideo src={video} poster={src} label={alt} width={width} height={height} />
+      ) : src ? (
+        <Image src={src} alt={alt} width={width} height={height} unoptimized priority={priority} className={styles.frameMedia} />
+      ) : null}
     </figure>
   );
 }
 
-/** 녹화 — 화면 폭 전체, 보일 때만 소리 없이 되풀이 재생(움직임 줄이기면 첫 장면에서 멈춤) */
-export function Recording({ src, label, poster, size = "bleed" }: { src: string; label: string; poster?: string; size?: "bleed" | "wide" }) {
+function FrameVideo({ src, poster, label, width, height }: { src: string; poster?: string; label: string; width: number; height: number }) {
   const ref = useRef<HTMLVideoElement>(null);
-  /* 판 전환이 도는 동안은 재생하지 않는다 — 영상 디코더가 켜지는 순간이 제목 등장과 겹쳐 화면이 250ms 남짓 끊겼다 */
+  /* 판 전환이 도는 동안은 재생하지 않는다 — 영상 디코더가 켜지는 순간이 제목 등장과 겹쳤다 */
   const { isTransitioning } = usePageTransition();
   useEffect(() => {
     const el = ref.current;
@@ -226,158 +217,36 @@ export function Recording({ src, label, poster, size = "bleed" }: { src: string;
     return () => io.disconnect();
   }, [isTransitioning]);
   return (
-    <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
-      <div className={styles.shotFrame}>
-        <video ref={ref} className={styles.shotVideo} src={src} poster={poster} muted loop playsInline preload="metadata" aria-label={label} />
-      </div>
-    </figure>
+    <video
+      ref={ref}
+      className={styles.frameMedia}
+      src={src}
+      poster={poster}
+      width={width}
+      height={height}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-label={label}
+    />
   );
 }
 
-/** 나란히 — 휴대폰 화면 여럿(폰에서는 가로로 넘긴다) */
+/** 둘 — 큰 것(7)과 작은 것(5)을 나란히, 작은 쪽은 아래로 내려 높이를 어긋나게. reverse 면 작은 것이 왼쪽 */
+export function Duo({ children, reverse }: { children: ReactNode; reverse?: boolean }) {
+  return <div className={`${styles.duo} ${reverse ? styles.duo_reverse : ""}`}>{children}</div>;
+}
+
+/** 휴대폰 화면 여럿 — 세로 화면을 나란히(폰에서는 가로로 넘긴다) */
 export function Phones({ items }: { items: { src: string; alt: string }[] }) {
   return (
     <div className={styles.phones}>
       {items.map((it, i) => (
         <div key={it.src} className={styles.phone} data-reveal="rise" style={delay(i)}>
-          <Image src={it.src} alt={it.alt} fill unoptimized className={styles.shotImage} />
+          <Image src={it.src} alt={it.alt} fill unoptimized className={styles.phoneImage} />
         </div>
       ))}
     </div>
   );
-}
-
-/**
- * 화면 여럿 — 전환기(Switcher)로 그린다. 같은 크기 작은 썸네일을 늘어놓으면 읽을 수 없어서, 큰 화면 하나에 탭으로 갈아 끼운다.
- * 캡션 "이름 — 설명" 은 탭 이름과 한 줄 설명으로 나눈다
- */
-export function Gallery({ items }: { items: { src: string; alt: string }[] }) {
-  const { language } = useLanguage();
-  const viewLang: Lang = language === "en" ? "en" : "ko";
-  return (
-    <Switcher
-      viewLang={viewLang}
-      label={items.map((it) => it.alt.split(" — ")[0]).join(" · ")}
-      items={items.map((it) => {
-        const [name, ...rest] = it.alt.split(" — ");
-        const desc = rest.join(" — ");
-        return { key: it.src, label: name ?? it.alt, src: it.src, alt: it.alt, desc: desc ? { ko: desc, en: desc } : undefined };
-      })}
-    />
-  );
-}
-
-/** 긴 설명 — 작은 제목과 문단 몇 개. 섹션 머리만으로 모자란 이야기를 적는다 */
-export function Prose({ items, viewLang }: { items: { label: L10n; body: L10n }[]; viewLang: Lang }) {
-  return (
-    <div className={styles.prose}>
-      {items.map((it, i) => (
-        <div key={i} className={styles.proseItem} data-reveal="" style={delay(i)}>
-          <h3 className={styles.proseLabel}>{it.label[viewLang]}</h3>
-          <p className={styles.proseBody}>{it.body[viewLang]}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/**
- * 좌우로 나눈 섹션 — 한쪽에 머리 · 설명(넓은 화면에서는 스크롤을 따라 붙는다), 다른 쪽으로 화면이 흐른다.
- * 가운데 정렬 섹션과 번갈아 써서 리듬을 만든다. reverse 면 화면이 왼쪽. 태블릿 이하는 위아래
- */
-export function Split({ head, children, reverse }: { head: ReactNode; children: ReactNode; reverse?: boolean }) {
-  return (
-    <div className={`${styles.split} ${reverse ? styles.splitReverse : ""}`}>
-      <div className={styles.splitHead}>{head}</div>
-      <div className={styles.splitBody}>{children}</div>
-    </div>
-  );
-}
-
-export type SwitchItem = { key: string; label: string; desc?: L10n; src?: string; video?: string; alt?: string };
-
-/**
- * 전환기 — 탭을 누르면 큰 화면 하나가 그 장면으로 바뀐다(겹쳐 두고 흐리게 갈아 끼운다). 같은 내용의 여러 모양을
- * 한 자리에서 비교하게. 보이는 동안 몇 초마다 다음 장면으로 넘어가고, 한 번 누르면 멈춘다(움직임 줄이기면 넘기지 않는다)
- */
-export function Switcher({ items, viewLang, label }: { items: SwitchItem[]; viewLang: Lang; label: string }) {
-  const [active, setActive] = useState(0);
-  const [touched, setTouched] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const [inView, setInView] = useState(false);
-  const { isTransitioning } = usePageTransition();
-
-  useEffect(() => {
-    const el = rootRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { threshold: 0.35 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  /* 보이는 동안 몇 초마다 다음 장면으로 — 누르면 그만 넘긴다 */
-  useEffect(() => {
-    if (!inView || touched || items.length < 2) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setActive((i) => (i + 1) % items.length), 4200);
-    return () => clearInterval(t);
-  }, [inView, touched, items.length]);
-
-  /* 지금 장면의 영상만 재생한다(판 전환 중에는 재생하지 않는다) */
-  useEffect(() => {
-    videoRefs.current.forEach((v, i) => {
-      if (!v) return;
-      if (i === active && inView && !isTransitioning) void v.play().catch(() => {});
-      else v.pause();
-    });
-  }, [active, inView, isTransitioning]);
-
-  const current = items[active];
-  return (
-    <div ref={rootRef} className={styles.switcher} data-reveal="rise">
-      <div className={styles.switchTabs} role="tablist" aria-label={label}>
-        {items.map((it, i) => (
-          <Pressable
-            key={it.key}
-            noTapScale
-            role="tab"
-            aria-selected={i === active}
-            className={`${styles.switchTab} ${i === active ? styles.switchTabOn : ""}`}
-            onClick={() => { setActive(i); setTouched(true); }}
-          >
-            <span className={styles.switchNo}>{String(i + 1).padStart(2, "0")}</span>
-            {it.label}
-          </Pressable>
-        ))}
-      </div>
-      <div className={styles.switchStage} role="tabpanel" aria-label={current?.label}>
-        {items.map((it, i) => (
-          <div key={it.key} className={`${styles.switchPane} ${i === active ? styles.switchPaneOn : ""}`} aria-hidden={i !== active}>
-            {it.video ? (
-              <video
-                ref={(el) => { videoRefs.current[i] = el; }}
-                className={styles.shotVideo}
-                src={it.video}
-                poster={it.src}
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label={it.label}
-              />
-            ) : it.src ? (
-              <Image src={it.src} alt={it.alt ?? it.label} fill unoptimized className={styles.shotImage} />
-            ) : null}
-          </div>
-        ))}
-      </div>
-      {current?.desc && <p className={styles.switchDesc} aria-live="polite">{current.desc[viewLang]}</p>}
-    </div>
-  );
-}
-
-/** 둘을 나란히 — 화면 두 장(태블릿 이하는 위아래) */
-export function Pair({ children }: { children: ReactNode }) {
-  return <div className={styles.pair}>{children}</div>;
 }
