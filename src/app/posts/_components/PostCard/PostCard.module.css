@@ -601,27 +601,40 @@
   display: -webkit-box;
 }
 
-/* series — 시리즈 필터링 timeline 의 한 칸. 작은 썸네일(7:5) 좌측 + 본문. compact 와 함께 붙는다 */
+/* series — 시리즈 필터링 timeline 의 한 칸. compact 와 함께 붙는다.
+   좁은 화면은 썸네일을 위에 넓게(작은 썸네일에 언어 · HOT 칩이 겹치고 잘렸다), 넓은 화면은 220px 썸네일 좌측 + 본문 */
 .series {
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-12);
   align-items: start;
 }
 .series .imageWrap {
-  aspect-ratio: 7 / 5;
-  width: 100px;
+  aspect-ratio: 16 / 10;
+  width: 100%;
 }
 .series .body {
   padding-top: 0;
 }
+/* 썸네일 안의 제목 · 발췌는 숨기고 body 에 보인다(list 와 같다) */
+.series .placeholderText {
+  display: none;
+}
+.series.placeholderCard .body .excerpt {
+  display: -webkit-box;
+}
+/* 제목은 두 줄까지(compact 의 한 줄 말줄임을 덮는다 — 시리즈 글 제목은 길다) */
+.series.compact .title {
+  -webkit-line-clamp: 2;
+  white-space: normal;
+}
 @media (width > 768px) {
   .series {
-    grid-template-columns: 140px 1fr;
-    gap: var(--spacing-16);
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--spacing-20);
   }
   .series .imageWrap {
-    width: 140px;
+    width: 220px;
   }
 }
 
