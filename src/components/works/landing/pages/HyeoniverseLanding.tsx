@@ -77,15 +77,32 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="04"
-          title={{ ko: "TIL — 하루 한 칸, 열두 별자리", en: "TIL — a square a day, twelve constellations" }}
+          title={{ ko: "블로그 — 모든 화면", en: "The blog — every screen" }}
           body={{
-            ko: "매일 배운 것을 남기면 잔디 한 칸이 채워지고, 그 달의 별자리에 별이 하나 켜집니다. 한 해는 플라네타리움으로 펼쳐집니다.",
-            en: "Each note fills a square and lights a star in that month's constellation. The year opens as a planetarium.",
+            ko: "blog.hyeoniverse.com 의 아홉 갈래 길. 글 목록(레이아웃 일곱 가지) · 기록 · 카테고리 · 시리즈 · 태그 · TIL · 글 한 편까지.",
+            en: "Nine routes on blog.hyeoniverse.com — the post list in seven layouts, history, categories, series, tags, TIL and the post page.",
           }}
         />
+        <Frame at="bleed" src={`${A}/blog-posts-magazine.webp`} alt={t({ ko: "글 목록 — Magazine", en: "Posts — Magazine" })} />
+        <Frame at="left" src={`${A}/blog-posts-journal.webp`} alt={t({ ko: "글 목록 — Journal", en: "Posts — Journal" })} />
+        <Frame at="right" src={`${A}/blog-posts-grid.webp`} alt={t({ ko: "글 목록 — Grid", en: "Posts — Grid" })} />
+        <Frame at="center" src={`${A}/blog-posts-masonry.webp`} alt={t({ ko: "글 목록 — Masonry", en: "Posts — Masonry" })} />
+        <Frame at="left" src={`${A}/blog-posts-featured.webp`} alt={t({ ko: "글 목록 — Featured", en: "Posts — Featured" })} />
+        <Frame at="right" src={`${A}/blog-posts-compact.webp`} alt={t({ ko: "글 목록 — Compact", en: "Posts — Compact" })} />
+        <Frame at="wide" src={`${A}/blog-posts-blog.webp`} alt={t({ ko: "글 목록 — Blog", en: "Posts — Blog" })} />
+        <Frame at="right" src={`${A}/blog-history.webp`} alt={t({ ko: "기록 — 시간순", en: "History — timeline" })} />
+        <Frame at="left" src={`${A}/blog-categories.webp`} alt={t({ ko: "카테고리", en: "Categories" })} />
+        <Frame at="center" src={`${A}/blog-series.webp`} alt={t({ ko: "시리즈 목록", en: "Series" })} />
+        <Frame at="wide" src={`${A}/blog-series-detail.webp`} alt={t({ ko: "시리즈 — 차례대로 이어 읽기", en: "Series — read in order" })} />
+        <Frame at="left" src={`${A}/blog-tags.webp`} alt={t({ ko: "태그 — 초성으로 거르기", en: "Tags — filter by initial" })} />
+        <Frame at="right" src={`${A}/blog-tag.webp`} alt={t({ ko: "태그 하나", en: "One tag" })} />
         <Frame at="center" src={`${A}/til.webp`} alt={t({ ko: "TIL — 열두 달 별자리와 잔디", en: "TIL — monthly constellations and the grid" })} />
-        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "별자리 하늘을 끌어 둘러보는 녹화", en: "Recording: dragging around the sky" })} />
+        <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 별자리 하늘을 끌어 둘러보는 녹화", en: "TIL planetarium — dragging around the sky" })} />
         <Frame at="right" src={`${A}/til-planetarium-2.webp`} alt={t({ ko: "플라네타리움 — 다른 방향", en: "Planetarium — another direction" })} />
+        <Frame at="bleed" src={`${A}/blog-post-top.webp`} alt={t({ ko: "글 — 표지 · 제목 · 공유 · 듣기 · 언어", en: "Post — cover, title, share, listen, language" })} />
+        <Frame at="left" src={`${A}/blog-post-body-1.webp`} alt={t({ ko: "글 — AI 요약 · 따라오는 목차 · 시리즈", en: "Post — AI summary, following contents, series" })} />
+        <Frame at="right" src={`${A}/blog-post-body-2.webp`} alt={t({ ko: "글 — 표와 다이어그램", en: "Post — tables and diagrams" })} />
+        <Frame at="center" src={`${A}/blog-post-end.webp`} alt={t({ ko: "글 끝 — 관련 작업물 · 댓글", en: "Post end — related project, comments" })} />
 
         <Note
           viewLang={viewLang}
@@ -112,8 +129,14 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
             { src: `${A}/sky-w5-storm.webp`, label: t({ ko: "뇌우 · 밤", en: "Storm · night" }) },
           ].map(({ src, label }) => ({ src, alt: t({ ko: `About 하늘 — ${label}`, en: `About sky — ${label}` }) }))}
         />
-        <Frame at="left" src={`${A}/about-2.webp`} alt={t({ ko: "About — 숫자로 본 사이트", en: "About — the site in numbers" })} />
-        <Frame at="right" src={`${A}/about-3.webp`} alt={t({ ko: "보는 화면, 쓰는 화면", en: "Screens to read, screens to write" })} />
+        <Frame at="wide" src={`${A}/chapter-architecture-4.webp`} alt={t({ ko: "구조 — 요청이 지나가는 길을 별자리로", en: "Architecture — a request's path as a constellation" })} />
+        <Frame at="right" src={`${A}/chapter-ai-3.webp`} alt={t({ ko: "AI — 제목 한 줄로 커버 만들기", en: "AI — a cover from one title line" })} />
+        <Frame at="left" src={`${A}/chapter-design-0.webp`} alt={t({ ko: "디자인 — 토큰 몇 백 개로 그린 화면", en: "Design — screens drawn from a few hundred tokens" })} />
+        <Frame at="right" src={`${A}/chapter-design-2.webp`} alt={t({ ko: "디자인 — 같은 회색도 뜻이 다르면 이름이 다르다", en: "Design — same grey, different meaning, different name" })} />
+        <Frame at="wide" src={`${A}/chapter-code-1.webp`} alt={t({ ko: "코드 — 3D 스크롤 토러스, 코드와 실행 화면", en: "Code — 3D scroll torus, code and live preview" })} />
+        <Frame at="left" src={`${A}/chapter-code-3.webp`} alt={t({ ko: "코드 — 속도를 맞춘 스냅 곡선", en: "Code — velocity-matched snap curve" })} />
+        <Frame at="right" src={`${A}/chapter-features-2.webp`} alt={t({ ko: "기능 — 읽는 사람이 보는 곳", en: "Features — what readers see" })} />
+        <Frame at="center" src={`${A}/chapter-making-5.webp`} alt={t({ ko: "만든 과정 — 8단계 계단", en: "Making — eight stages as steps" })} />
 
         <Note
           viewLang={viewLang}
