@@ -160,10 +160,7 @@ function NumberItem({ value, label, index }: { value: string; label: string; ind
   );
 }
 
-/**
- * 흐름 — 페이지 가운데 전체. 참고 사이트(andreasantonsson.dev/project/synthetic-theatre)처럼 이미지가 중심이다:
- * 화면 폭 전체 컷과, 왼쪽 · 오른쪽 · 가운데로 엇갈린 큰 화면, 높이를 어긋나게 둔 두 장이 틀 없이 이어지고 글은 짧은 쉼표(Note)뿐
- */
+/** 흐름 — 페이지 가운데 전체. 이미지는 모두 화면 폭 전체로, 같은 묶음은 틈 없이 이어 붙이고 글은 묶음 사이의 짧은 쉼표(Note)뿐 */
 export function Flow({ children }: { children: ReactNode }) {
   return <div className={styles.flow}>{children}</div>;
 }
@@ -179,23 +176,20 @@ export function Note({ no, title, body, viewLang }: { no?: string; title: L10n; 
   );
 }
 
-export type FrameAt = "bleed" | "wide" | "left" | "right" | "center";
-
 /**
- * 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(WebP 2880×1800) 또는 녹화. 틀 · 그림자 · 캡션 없이 원래 비율 그대로.
+ * 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(WebP 2880×1800) 또는 녹화를 화면 폭 전체로, 원래 비율 그대로.
  * 그림은 줄이지 않고 원본을 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
- * at: bleed(화면 폭 전체) · wide(94%) · left · right · center(78%, 넓은 화면에서 위치를 엇갈리게)
  * 녹화는 보일 때만 소리 없이 되풀이 재생한다(판 전환 중 · 움직임 줄이기면 멈춘다)
  */
-export function Frame({ src, video, alt, at = "center", width = 2880, height = 1800, priority }: {
-  src?: string; video?: string; alt: string; at?: FrameAt; width?: number; height?: number; priority?: boolean;
+export function Frame({ src, video, alt, width = 2880, height = 1800, priority }: {
+  src?: string; video?: string; alt: string; width?: number; height?: number; priority?: boolean;
 }) {
   return (
-    <figure className={`${styles.frame} ${styles[`frame_${at}`]}`} data-reveal="rise">
+    <figure className={styles.frame} data-reveal="rise">
       {video ? (
         <FrameVideo src={video} poster={src} label={alt} width={width} height={height} />
       ) : src ? (
-        <Image src={src} alt={alt} width={width} height={height} unoptimized priority={priority} className={styles.frameMedia} />
+        <Image src={src} alt={alt} width={width} height={height} sizes="100vw" unoptimized priority={priority} className={styles.frameMedia} />
       ) : null}
     </figure>
   );
@@ -233,17 +227,12 @@ function FrameVideo({ src, poster, label, width, height }: { src: string; poster
   );
 }
 
-/** 둘 — 큰 것(7)과 작은 것(5)을 나란히, 작은 쪽은 아래로 내려 높이를 어긋나게. reverse 면 작은 것이 왼쪽 */
-export function Duo({ children, reverse }: { children: ReactNode; reverse?: boolean }) {
-  return <div className={`${styles.duo} ${reverse ? styles.duo_reverse : ""}`}>{children}</div>;
-}
-
-/** 휴대폰 화면 여럿 — 세로 화면을 나란히(폰에서는 가로로 넘긴다) */
+/** 휴대폰 화면 여럿 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나 */
 export function Phones({ items }: { items: { src: string; alt: string }[] }) {
   return (
-    <div className={styles.phones}>
-      {items.map((it, i) => (
-        <div key={it.src} className={styles.phone} data-reveal="rise" style={delay(i)}>
+    <div className={styles.phones} data-reveal="rise">
+      {items.map((it) => (
+        <div key={it.src} className={styles.phone}>
           <Image src={it.src} alt={it.alt} fill unoptimized className={styles.phoneImage} />
         </div>
       ))}

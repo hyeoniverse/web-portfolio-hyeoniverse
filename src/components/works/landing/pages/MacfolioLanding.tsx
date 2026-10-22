@@ -1,11 +1,11 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { Duo, Flow, Frame, LandingShell, Note, Numbers, Phones, type Lang, type L10n } from "../kit/LandingKit";
+import { Flow, Frame, LandingShell, Note, Numbers, Phones, type Lang, type L10n } from "../kit/LandingKit";
 
 /**
  * MacFolio 전용 랜딩 페이지 — andreasantonsson.dev/project/synthetic-theatre 처럼 이미지가 중심이다.
- * 화면 폭 전체 컷과 위치를 엇갈린 큰 화면 · 높이를 어긋나게 둔 두 장이 틀 없이 이어지고, 글은 묶음마다 번호 · 제목 · 한 줄뿐.
+ * 이미지는 모두 화면 폭 전체로 틈 없이 이어 붙이고(격자 · 카드로 늘어놓지 않는다), 글은 묶음마다 번호 · 제목 · 한 줄뿐.
  * 화면은 모두 이 페이지를 위해 배포한 사이트(macfolio.hyeoniverse.com)에서 2배 해상도로 새로 찍은 캡처 · 녹화다
  * (content/works/macfolio/landing). 창으로 열리는 앱을 하나씩 다 보여 준다. 내용 · 숫자는 MacFolio README 에서 옮겼다.
  */
@@ -23,7 +23,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
       eyebrow={{ ko: "macOS 데스크톱을 웹으로 옮긴 포트폴리오", en: "A portfolio that brings the macOS desktop to the web" }}
     >
       <Flow>
-        <Frame at="bleed" priority src={`${A}/desktop-light.webp`} alt={t({ ko: "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock", en: "MacFolio desktop — widgets, folders and the Dock" })} />
+        <Frame priority src={`${A}/desktop-light.webp`} alt={t({ ko: "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock", en: "MacFolio desktop — widgets, folders and the Dock" })} />
 
         <Note
           viewLang={viewLang}
@@ -34,7 +34,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "A desktop with a menu bar, widgets and a Dock instead of a single page — open the apps you like, drag the windows, close them.",
           }}
         />
-        <Frame at="wide" video={`${A}/tour.mp4`} src={`${A}/desktop-light.webp`} alt={t({ ko: "Dock 에서 메모 · Finder · 음악을 여는 녹화", en: "Recording: opening Notes, Finder and Music from the Dock" })} />
+        <Frame video={`${A}/tour.mp4`} src={`${A}/desktop-light.webp`} alt={t({ ko: "Dock 에서 메모 · Finder · 음악을 여는 녹화", en: "Recording: opening Notes, Finder and Music from the Dock" })} />
 
         <Note
           viewLang={viewLang}
@@ -45,11 +45,9 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Folders are categories, notes are posts — over 200 dev notes, and signed in as admin a note becomes the editor.",
           }}
         />
-        <Duo>
-          <Frame src={`${A}/memo-post.webp`} alt={t({ ko: "메모 앱에 열린 개발기", en: "A dev note open in Notes" })} />
-          <Frame src={`${A}/memo.webp`} alt={t({ ko: "메모 — 폴더 · 글 목록 · 본문", en: "Notes — folders, list and body" })} />
-        </Duo>
-        <Frame at="bleed" src={`${A}/desktop-dark.webp`} alt={t({ ko: "다크 모드 데스크톱", en: "Desktop in dark mode" })} />
+        <Frame src={`${A}/memo-post.webp`} alt={t({ ko: "메모 앱에 열린 개발기", en: "A dev note open in Notes" })} />
+        <Frame src={`${A}/memo.webp`} alt={t({ ko: "메모 — 폴더 · 글 목록 · 본문", en: "Notes — folders, list and body" })} />
+        <Frame src={`${A}/desktop-dark.webp`} alt={t({ ko: "다크 모드 데스크톱", en: "Desktop in dark mode" })} />
 
         <Note
           viewLang={viewLang}
@@ -60,13 +58,11 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Browse docs and the repo README in Finder, play music, flip through photo albums and leave feedback in Messages without signing in.",
           }}
         />
-        <Frame at="right" src={`${A}/finder.webp`} alt="Finder" />
-        <Duo reverse>
-          <Frame src={`${A}/music.webp`} alt={t({ ko: "음악", en: "Music" })} />
-          <Frame src={`${A}/photos.webp`} alt={t({ ko: "사진", en: "Photos" })} />
-        </Duo>
-        <Frame at="left" src={`${A}/messages.webp`} alt={t({ ko: "메시지", en: "Messages" })} />
-        <Frame at="bleed" src={`${A}/launchpad.webp`} alt="Launchpad" />
+        <Frame src={`${A}/finder.webp`} alt="Finder" />
+        <Frame src={`${A}/music.webp`} alt={t({ ko: "음악", en: "Music" })} />
+        <Frame src={`${A}/photos.webp`} alt={t({ ko: "사진", en: "Photos" })} />
+        <Frame src={`${A}/messages.webp`} alt={t({ ko: "메시지", en: "Messages" })} />
+        <Frame src={`${A}/launchpad.webp`} alt="Launchpad" />
 
         <Note
           viewLang={viewLang}
@@ -77,23 +73,15 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Weather (Open-Meteo), cookie-free Activity Monitor, API docs, a Markdown résumé, a one-minute tour and other projects that run in a window.",
           }}
         />
-        <Duo>
-          <Frame src={`${A}/weather.webp`} alt={t({ ko: "날씨", en: "Weather" })} />
-          <Frame src={`${A}/activity.webp`} alt={t({ ko: "활동 상태 보기", en: "Activity Monitor" })} />
-        </Duo>
-        <Frame at="center" src={`${A}/apidocs.webp`} alt={t({ ko: "API 문서", en: "API docs" })} />
-        <Duo reverse>
-          <Frame src={`${A}/tips.webp`} alt={t({ ko: "팁", en: "Tips" })} />
-          <Frame src={`${A}/textedit.webp`} alt={t({ ko: "텍스트 편집기", en: "TextEdit" })} />
-        </Duo>
-        <Duo>
-          <Frame src={`${A}/newpick.webp`} alt="NewPick" />
-          <Frame src={`${A}/sproutfarm.webp`} alt="SproutFarm" />
-        </Duo>
-        <Duo reverse>
-          <Frame src={`${A}/mail.webp`} alt={t({ ko: "메일", en: "Mail" })} />
-          <Frame src={`${A}/github.webp`} alt="GitHub" />
-        </Duo>
+        <Frame src={`${A}/weather.webp`} alt={t({ ko: "날씨", en: "Weather" })} />
+        <Frame src={`${A}/activity.webp`} alt={t({ ko: "활동 상태 보기", en: "Activity Monitor" })} />
+        <Frame src={`${A}/apidocs.webp`} alt={t({ ko: "API 문서", en: "API docs" })} />
+        <Frame src={`${A}/tips.webp`} alt={t({ ko: "팁", en: "Tips" })} />
+        <Frame src={`${A}/textedit.webp`} alt={t({ ko: "텍스트 편집기", en: "TextEdit" })} />
+        <Frame src={`${A}/newpick.webp`} alt="NewPick" />
+        <Frame src={`${A}/sproutfarm.webp`} alt="SproutFarm" />
+        <Frame src={`${A}/mail.webp`} alt={t({ ko: "메일", en: "Mail" })} />
+        <Frame src={`${A}/github.webp`} alt="GitHub" />
 
         <Note
           viewLang={viewLang}
@@ -104,8 +92,8 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Projects open in Safari; the HYEONIVERSE tab loads the deployed site right inside the window.",
           }}
         />
-        <Frame at="wide" src={`${A}/hyeoniverse.webp`} alt={t({ ko: "Safari 에 열린 HYEONIVERSE", en: "HYEONIVERSE open in Safari" })} />
-        <Frame at="right" src={`${A}/safari.webp`} alt="Safari" />
+        <Frame src={`${A}/hyeoniverse.webp`} alt={t({ ko: "Safari 에 열린 HYEONIVERSE", en: "HYEONIVERSE open in Safari" })} />
+        <Frame src={`${A}/safari.webp`} alt="Safari" />
 
         <Note
           viewLang={viewLang}
@@ -116,10 +104,8 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Frontend on Cloudflare Workers, backend on a free Oracle Cloud VM — no open ports, requests only through a Cloudflare Tunnel.",
           }}
         />
-        <Duo>
-          <Frame src={`${A}/terminal.webp`} alt={t({ ko: "터미널", en: "Terminal" })} />
-          <Frame src={`${A}/settings.webp`} alt={t({ ko: "시스템 설정", en: "System Settings" })} />
-        </Duo>
+        <Frame src={`${A}/terminal.webp`} alt={t({ ko: "터미널", en: "Terminal" })} />
+        <Frame src={`${A}/settings.webp`} alt={t({ ko: "시스템 설정", en: "System Settings" })} />
 
         <Note
           viewLang={viewLang}
