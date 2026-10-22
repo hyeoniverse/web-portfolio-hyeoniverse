@@ -151,6 +151,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         />
         <Marquee
           phone
+          auto
           rows={[
             [
               { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }) },

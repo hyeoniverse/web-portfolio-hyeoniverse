@@ -257,6 +257,36 @@
   --item: min(40vw, calc((100dvh - var(--spacing-48)) / 2 * 390 / 844));
 }
 
+/* 저절로 흐르는 띠 — 붙지 않고 제 높이만큼만. 줄마다 한 벌 길이를 되풀이해 옮긴다(아랫줄은 거꾸로) */
+.marquee_auto {
+  --marquee-duration: 70s;
+
+  height: auto;
+}
+
+.marquee_auto .marqueeStage {
+  position: static;
+  height: auto;
+}
+
+.marquee_auto .marqueeRow {
+  animation: marqueeFlow var(--marquee-duration) linear infinite;
+}
+
+.marquee_auto .marqueeRowReverse {
+  animation-direction: reverse;
+}
+
+@keyframes marqueeFlow {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(calc(var(--lap) * -1), 0, 0);
+  }
+}
+
 .marqueeItem {
   display: block;
   flex: none;
@@ -445,7 +475,8 @@
     transition: none;
   }
 
-  .letter {
+  .letter,
+  .marquee_auto .marqueeRow {
     animation: none;
   }
 }

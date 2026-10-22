@@ -238,14 +238,15 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
  * 흐르는 띠 — 화면 폭 전체 두 줄. 저절로 흐르지 않고 스크롤로만 흐른다: 이 구간에 들어오면 화면에 붙어(sticky) 있고,
  * 스크롤하는 만큼 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흘러 한 바퀴(한 벌 길이)를 돌면 풀려 다음으로 넘어간다.
  * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다.
- * phone 이면 세로 휴대폰 화면 — 장이 좁고 무대 높이에 맞춰 두 줄이 들어온다
+ * phone 이면 세로 휴대폰 화면 — 장이 좁고 무대 높이에 맞춰 두 줄이 들어온다.
+ * auto 면 스크롤과 상관없이 붙지 않고 저절로 끝없이 흐른다(움직임 줄이기면 멈춘다)
  */
-export function Marquee({ rows, phone }: { rows: { src: string; alt: string }[][]; phone?: boolean }) {
+export function Marquee({ rows, phone, auto }: { rows: { src: string; alt: string }[][]; phone?: boolean; auto?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  usePinnedProgress(rootRef);
+  usePinnedProgress(rootRef, undefined, !auto);
   const count = Math.max(...rows.map((row) => row.length));
   return (
-    <div ref={rootRef} className={`${styles.marquee} ${phone ? styles.marquee_phone : ""}`} style={{ ["--count" as string]: count } as CSSProperties}>
+    <div ref={rootRef} className={`${styles.marquee} ${phone ? styles.marquee_phone : ""} ${auto ? styles.marquee_auto : ""}`} style={{ ["--count" as string]: count } as CSSProperties}>
       <div className={styles.marqueeStage}>
         {rows.map((row, r) => (
           <div key={r} className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}>
@@ -270,14 +271,14 @@ export function Marquee({ rows, phone }: { rows: { src: string; alt: string }[][
 }
 
 /** 붙어 있는 구간의 진행 — 바깥 상자가 화면 맨 위에 닿을 때 0, 바깥 상자 끝이 화면 아래에 닿을 때 1. --p 로 넘기고 값도 알린다 */
-function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: (p: number) => void) {
+function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: (p: number) => void, enabled = true) {
   const cb = useRef(onProgress);
   useEffect(() => {
     cb.current = onProgress;
   });
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || !enabled) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -296,7 +297,7 @@ function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: 
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [rootRef]);
+  }, [rootRef, enabled]);
 }
 
 /**
