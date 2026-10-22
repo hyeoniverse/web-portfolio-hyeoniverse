@@ -151,9 +151,12 @@ export const siteConfig = {
   emailService: {
     provider: "formspree" as "web3forms" | "formspree" | "emailjs",
     // 문의 폼은 서버(/api/contact)가 입력 · reCAPTCHA 를 확인한 뒤 고른 공급자로 보낸다(lib/contactSend).
-    // 파일 첨부 — 공급자에 싣지 않고 비공개 버킷(contact-attachments)에 올린 뒤 7일짜리 내려받기 링크를 본문에 붙인다.
-    // 공급자 요금제와 상관없이 쓸 수 있다. 크기 · 형식 제한은 media.limits · blockedExtensions 를 따른다
+    // 파일 첨부 — 방문자가 비공개 버킷(contact-attachments)에 올린 파일을 어떻게 전할지(attachmentMode).
+    //   link: 7일짜리 내려받기 링크를 본문에 붙인다 — 공급자 요금제와 상관없이 쓴다(기본)
+    //   provider: 서버가 파일을 내려받아 공급자 요청에 실제 첨부로 싣는다 — 공급자의 유료 요금제 · 첨부 크기 한도를 따른다
+    // 크기 · 형식 제한은 media.limits · blockedExtensions 를 따른다
     enableFileUpload: false,
+    attachmentMode: "link" as "link" | "provider",
   },
 
   // ---------------------------------------------------------------------------

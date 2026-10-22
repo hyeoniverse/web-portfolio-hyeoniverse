@@ -109,6 +109,7 @@
 --   2026_10_16  visitor_counts — 오늘 · 전체 방문자 수(푸터 · 대시보드 같은 기준)
 --   2026_10_17  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
 --   2026_10_19  posts · works.source_lang · content_translations 원문 백업(post_source · work_source · settings_source) — 기본 언어를 바꾸면 원문을 번역해 덮어쓴다
+--   2026_10_23  page_views.search_term — 유입 검색어 (record_page_view 가 첫 조회에 기록)
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -813,6 +814,7 @@ CREATE TABLE IF NOT EXISTS public.page_views (
   utm_source    text,
   utm_medium    text,
   utm_campaign  text,
+  search_term   text,               -- 검색 엔진 referrer 의 검색어 (잡히는 엔진만)
   migrated_from text                -- 옛 테이블(site_visits · post_views · work_views)에서 옮긴 줄의 출처. 새 기록은 NULL
 );
 
@@ -1300,7 +1302,7 @@ BEGIN
 
   INSERT INTO page_views (
     path, ip, session_id, visitor_id, is_landing, device_kind,
-    referrer, user_agent, os, browser, device_model, country, utm_source, utm_medium, utm_campaign
+    referrer, user_agent, os, browser, device_model, country, utm_source, utm_medium, utm_campaign, search_term
   )
   VALUES (
     p_path, p_ip, p_session, p_visitor, v_landing, p_meta->>'device_kind',
@@ -1312,7 +1314,8 @@ BEGIN
     CASE WHEN v_landing THEN p_meta->>'country' END,
     CASE WHEN v_landing THEN p_meta->>'utm_source' END,
     CASE WHEN v_landing THEN p_meta->>'utm_medium' END,
-    CASE WHEN v_landing THEN p_meta->>'utm_campaign' END
+    CASE WHEN v_landing THEN p_meta->>'utm_campaign' END,
+    CASE WHEN v_landing THEN p_meta->>'search_term' END
   )
   RETURNING page_views.id INTO v_id;
 

@@ -352,3 +352,22 @@ describe("isTrafficSpike", () => {
     expect(isTrafficSpike(15, 0)).toBe(true); // 이력 없어도 절대량이 크면 급증
   });
 });
+
+describe("aggregateSearchTerms", () => {
+  it("검색 채널 방문만 세고 검색어는 대소문자를 묶는다", async () => {
+    const { aggregateSearchTerms } = await import("@/lib/api/dashboardAggregates");
+    const base = { device_kind: null, os: null, browser: null, device_model: null };
+    const r = aggregateSearchTerms([
+      { ...base, referrer: "search.naver.com", search_term: "React" },
+      { ...base, referrer: "bing.com", search_term: "react" },
+      { ...base, referrer: "google.com", search_term: null },
+      { ...base, referrer: "github.com", search_term: "react" },
+      { ...base, referrer: "Direct" },
+    ]);
+    expect(r).toEqual({
+      searchVisits: 3,
+      withTerm: 2,
+      top: [{ term: "React", count: 2, pct: 100, engines: ["search.naver.com", "bing.com"] }],
+    });
+  });
+});

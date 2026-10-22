@@ -21,6 +21,7 @@ vi.mock("@/lib/supabase/admin", () => ({
       from: () => ({
         createSignedUploadUrl: async (path: string) => ({ data: { path, token: "upload-token" }, error: null }),
         createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://files.example/${path}?sig=1` }, error: null }),
+        download: async () => ({ data: new Blob(["%PDF-1.4"], { type: "application/pdf" }), error: null }),
       }),
     },
   }),
@@ -128,5 +129,38 @@ describe("/api/contact/upload → /api/contact 첨부", () => {
     expect((await (await upload(req("/api/contact/upload", { fileName: "a.pdf", size: 6 * 1024 * 1024, recaptchaToken: "tok" }))).json()).reason).toBe("too_large");
     state.cfg = { ...state.cfg, emailService: { provider: "formspree", enableFileUpload: false } };
     expect((await (await upload(req("/api/contact/upload", { fileName: "a.pdf", size: 10, recaptchaToken: "tok" }))).json()).reason).toBe("disabled");
+  });
+
+  it("이미지 · 문서 · 압축 파일은 받고(크기 제한에 없는 형식은 10MB), SVG · 동영상은 받지 않는다", async () => {
+    const reason = async (fileName: string, size = 1000) =>
+      (await (await upload(req("/api/contact/upload", { fileName, size, recaptchaToken: "tok" }))).json()).reason;
+    for (const f of ["photo.png", "scan.jpeg", "memo.hwp", "plan.docx", "data.xlsx", "files.zip"]) expect(await reason(f), f).toBeUndefined();
+    expect(await reason("memo.hwp", 11 * 1024 * 1024)).toBe("too_large");
+    expect(await reason("icon.svg")).toBe("type");
+    expect(await reason("clip.mp4")).toBe("type");
+  });
+
+  it("공급자 첨부 방식이면 파일을 attachment 칸에 싣고 본문에 링크를 붙이지 않는다", async () => {
+    state.cfg = { ...state.cfg, emailService: { provider: "formspree", enableFileUpload: true, attachmentMode: "provider" } };
+    const up = await (await upload(req("/api/contact/upload", { fileName: "cv.pdf", size: 1000, recaptchaToken: "tok" }))).json();
+    state.calls = [];
+    const res = await contact(req("/api/contact", { ...valid, recaptchaToken: undefined, attachment: { path: up.path, name: "cv.pdf", ticket: up.ticket } }));
+    expect(await res.json()).toEqual({ ok: true });
+    const body = state.calls.find((c) => c.url.includes("formspree"))!.body as FormData;
+    const file = body.get("attachment") as File;
+    expect(file).toBeInstanceOf(File);
+    expect(file.name).toBe("cv.pdf");
+    expect(String(body.get("message"))).not.toContain("files.example");
+    expect(body.get("attachment_url")).toBeNull();
+  });
+
+  it("저장소 링크 방식(기본)이면 Formspree 에 첨부 칸을 따로 넘기지 않는다 — 링크가 본문과 칸에 두 번 보이지 않게", async () => {
+    const up = await (await upload(req("/api/contact/upload", { fileName: "cv.pdf", size: 1000, recaptchaToken: "tok" }))).json();
+    state.calls = [];
+    await contact(req("/api/contact", { ...valid, recaptchaToken: undefined, attachment: { path: up.path, name: "cv.pdf", ticket: up.ticket } }));
+    const body = state.calls.find((c) => c.url.includes("formspree"))!.body as FormData;
+    expect(String(body.get("message"))).toContain("files.example");
+    expect(body.get("attachment_url")).toBeNull();
+    expect(body.get("attachment")).toBeNull();
   });
 });

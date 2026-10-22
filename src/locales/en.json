@@ -67,7 +67,7 @@
       "emailPlaceholder": "Your Email",
       "titlePlaceholder": "Title",
       "messagePlaceholder": "Something to say?",
-      "fileUpload": "Attach a pdf/doc file, max 10MB",
+      "fileUpload": "Attach an image, document or zip, max {{mb}}MB",
       "acceptPrivacy": "Accept the {{policy}}",
       "privacyPolicy": "Privacy Policy",
       "emailTitle": "Or email me",

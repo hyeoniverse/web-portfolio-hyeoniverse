@@ -1,4 +1,5 @@
 import { jsonOk } from "@/lib/api/response";
+import { contactMessageWithAttachment } from "@/lib/contact/attachmentMessage";
 import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -84,14 +85,22 @@ export async function POST(request: Request) {
     }
   }
 
-  // ── 첨부 링크 ──
+  // ── 첨부 — 설정(attachmentMode)에 따라 내려받기 링크(link) 또는 공급자 첨부(provider) ──
+  const attachMode = cfg.emailService?.attachmentMode === "provider" ? "provider" : "link";
   let attachmentUrl = "";
+  let attachmentFile: File | null = null;
   if (attachmentPath) {
-    const { data, error } = await createAdminClient().storage
-      .from(CONTACT_BUCKET)
-      .createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SEC, { download: attachmentName || true });
-    if (error || !data) return fail("invalid");
-    attachmentUrl = data.signedUrl;
+    const bucket = createAdminClient().storage.from(CONTACT_BUCKET);
+    if (attachMode === "provider") {
+      /* 공급자 첨부 — 버킷의 파일을 내려받아 요청에 싣는다. 공급자가 첨부를 받지 않는 요금제면 공급자가 거절한다 */
+      const { data, error } = await bucket.download(attachmentPath);
+      if (error || !data) return fail("invalid");
+      attachmentFile = new File([data], attachmentName || attachmentPath.split("/").pop() || "file", { type: data.type || "application/octet-stream" });
+    } else {
+      const { data, error } = await bucket.createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SEC, { download: attachmentName || true });
+      if (error || !data) return fail("invalid");
+      attachmentUrl = data.signedUrl;
+    }
   }
 
   // ── 공급자로 보내기 ──
@@ -106,13 +115,15 @@ export async function POST(request: Request) {
   form.set("name", name);
   form.set("email", email);
   form.set("title", title);
-  form.set("message", attachmentUrl
-    ? `${message}\n\n— 첨부 파일: ${attachmentName || "file"}\n${attachmentUrl}\n(링크는 7일 동안 열립니다)`
-    : message);
-  if (attachmentUrl) {
+  form.set("message", contactMessageWithAttachment(message, attachmentUrl ? { name: attachmentName, url: attachmentUrl } : null));
+  /* EmailJS 는 템플릿 변수로만 칸을 그린다 — 첨부 이름 · 링크를 따로 넘겨 템플릿에서 {{attachment_name}} · {{attachment_url}} 로 쓸 수 있게.
+     Formspree · Web3Forms 는 받은 칸을 모두 메일에 늘어놓아, 따로 넘기면 본문의 링크와 두 번 보인다 */
+  if (attachmentUrl && provider === "emailjs") {
     form.set("attachment_name", attachmentName);
     form.set("attachment_url", attachmentUrl);
   }
+  /* 공급자 첨부 — 칸 이름은 attachment(EmailJS 는 템플릿의 '변수 첨부' 이름을 attachment 로) */
+  if (attachmentFile) form.set("attachment", attachmentFile);
 
   const result = await sendContact(provider, keys, form, process.env.SITE_URL || undefined);
   if (!result.ok) {

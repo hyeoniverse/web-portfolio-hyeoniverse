@@ -21,6 +21,7 @@ import { pickFiles } from "@/lib/pickFiles";
 import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workEditor/ExtraInfoViews";
 import LandingEditor from "./workEditor/LandingEditor";
 import { landingFilledCount } from "@/types/workLanding";
+import { addSeriesPosts } from "./workEditor/seriesRelatedPosts";
 import { TechTable } from "./workEditor/TechTable";
 import { TeamMemberRow } from "./workEditor/TeamMemberRow";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
@@ -283,7 +284,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, []);
 
   /* ── 관련 글 multi-select ── */
-  const [allPosts, setAllPosts] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean; created_at: string }>>([]);
+  const [allPosts, setAllPosts] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean; created_at: string; series_id?: string | null; series_order?: number | null }>>([]);
   const [allSeries, setAllSeries] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean }>>([]);
 
   useEffect(() => {
@@ -2135,7 +2136,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         className={styles.relationPicker}
         items={allSeries}
         selectedIds={form.related_series_ids ?? []}
-        onChange={(ids) => updateField("related_series_ids", ids)}
+        onChange={(ids) => {
+          /* 새로 연결한 시리즈의 글은 관련 글에도 더한다(시리즈 순서대로, 이미 있으면 건너뜀) */
+          const posts = addSeriesPosts(form.related_post_ids ?? [], form.related_series_ids ?? [], ids, allPosts);
+          if (posts !== (form.related_post_ids ?? [])) updateField("related_post_ids", posts);
+          updateField("related_series_ids", ids);
+        }}
         getId={(s) => s.id}
         getTitle={(s) => (language === "en" && s.title_en ? s.title_en : s.title)}
         getMeta={(s) => s.category}
@@ -2147,7 +2153,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         emptyText={tw("relatedSeriesEmpty")}
       />
     </div>
-  ), [allSeries, form.related_series_ids, language, tw, updateField]);
+  ), [allPosts, allSeries, form.related_post_ids, form.related_series_ids, language, tw, updateField]);
 
   /* 랜딩 페이지 — 편집 중인 언어의 칸. 설정이 게시물 형태면 그 사실을 알린다 */
   const landingKey = editorLang === "en" ? "landing_en" : "landing_ko";

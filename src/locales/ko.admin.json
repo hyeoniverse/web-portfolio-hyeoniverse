@@ -132,7 +132,13 @@
       "exitPages": "나간 페이지",
       "recentJourneys": "최근 방문 경로",
       "noJourneys": "이 기간에 경로가 기록된 방문이 없습니다.",
-      "noNextPages": "두 페이지 이상 본 방문이 아직 없습니다."
+      "noNextPages": "두 페이지 이상 본 방문이 아직 없습니다.",
+      "searchTermsTitle": "유입 검색어",
+      "noSearchVisits": "기간 내 검색 엔진에서 들어온 방문이 없습니다.",
+      "searchVisits": "검색 유입",
+      "searchWithTerm": "검색어 확인",
+      "noSearchTerms": "검색어가 잡힌 방문이 아직 없습니다.",
+      "searchTermsNote": "검색 엔진이 주소에 검색어를 실어 준 방문만 셀 수 있습니다(네이버 · 다음 · 빙 등). 구글은 검색어를 보내지 않으므로 Search Console 에서 확인하세요."
     },
     "notifications": {
       "title": "알림",
@@ -762,7 +768,14 @@
       "servicesIntegrations": "서비스 & 연동",
       "emailServiceProvider": "이메일 서비스 제공자",
       "emailFileUpload": "이메일 파일 업로드",
-      "emailFileUploadHint": "파일 첨부는 {{providers}} 모두 유료 요금제에서만 받습니다. EmailJS 는 템플릿에 변수 첨부(이름 attachment)도 설정해야 합니다. 받지 않는 상태에서 켜 두면 첨부를 단 메일이 실패하고, 3번 이어 실패하면 첨부만 저절로 꺼집니다.",
+      "emailAttachHintStore": "방문자가 올린 파일은 먼저 사이트의 비공개 저장소(Supabase Storage)에 저장됩니다.",
+      "emailAttachHintLink": "저장소 링크: 메일 본문에 7일 동안 유효한 다운로드 링크를 붙입니다. {{providers}}의 모든 요금제에서 사용할 수 있습니다.",
+      "emailAttachHintProvider": "공급자 첨부: 서버가 파일을 공급자 요청에 첨부합니다. 공급자의 유료 요금제가 필요하며, 첨부 크기 한도는 공급자마다 다릅니다. EmailJS는 템플릿에 변수 첨부(이름 attachment)를 추가해야 합니다.",
+      "emailAttachHintLimits": "파일 크기는 미디어 설정의 크기 제한(저장소 한도 25MB)을 따르며, 실행 · 스크립트 파일은 받지 않습니다.",
+      "emailAttachHintAutoOff": "첨부가 포함된 메일이 3회 연속 실패하면 첨부 기능만 자동으로 꺼집니다.",
+      "emailAttachmentMode": "첨부 전달 방식",
+      "emailAttachmentModeLink": "저장소 링크 (모든 요금제 지원)",
+      "emailAttachmentModeProvider": "공급자 첨부 (유료 요금제 필요)",
       "aiCoverEnabled": "AI 커버 생성",
       "aiCoverProvider": "AI 커버 제공자",
       "aiSummarySettings": "AI 자동 요약",
@@ -1966,7 +1979,7 @@
         },
         "memberListEmpty": "아직 추가된 팀원이 없습니다. 아래에서 추가해 주세요.",
         "relatedPostsHint": "이 작업물과 함께 읽을 글입니다. 상세 화면 머리의 정보 칸에 링크로 보입니다. 칩을 끌어 순서를 바꿉니다.",
-        "relatedSeriesHint": "이 작업물을 다룬 시리즈입니다. 상세 화면 머리의 정보 칸에 링크로 보입니다.",
+        "relatedSeriesHint": "이 작업물을 다룬 시리즈입니다. 상세 화면 머리의 정보 칸에 링크로 보입니다. 시리즈를 연결하면 그 시리즈의 글이 관련 글에도 더해집니다.",
         "landing": "랜딩 페이지",
         "landingFilled": "내용 있음",
         "landingHint": "설정에서 작업물 상세를 랜딩 페이지로 고르면 이 내용으로 그려집니다. 비워 둔 칸은 부제목 · 설명 · 기간 · 기술 설명으로 채웁니다. 편집 중인 언어의 내용입니다.",
@@ -3048,7 +3061,8 @@
         "markMine": "내 IP 로 등록",
         "empty": "기간 내 IP 방문 기록이 없습니다.",
         "mine": "내 IP",
-        "excludedIps": "집계에서 제외된 IP"
+        "excludedIps": "집계에서 제외된 IP",
+        "paths": "경로 {{n}}"
       },
       "commentImageManager": {
         "title": "댓글 이미지 정리",

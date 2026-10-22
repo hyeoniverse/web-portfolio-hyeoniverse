@@ -4,8 +4,9 @@
  * 예전에는 방문자 브라우저가 공급자로 바로 보냈다. 그러면 reCAPTCHA 를 서버에서 확인할 수 없고(봇이 공급자로 바로
  * 보내면 그만이다), 공급자 키도 브라우저에 실려야 했다. 지금은 서버가 입력 · reCAPTCHA 를 확인한 뒤 서버 키로 보낸다.
  *
- * 첨부 파일은 공급자에 싣지 않는다 — 방문자가 비공개 버킷에 직접 올린 파일의 내려받기 링크를 본문에 붙인다
- * (/api/contact/upload). 공급자 요금제와 상관없이 첨부를 받고, Vercel 요청 크기 한도에도 걸리지 않는다.
+ * 첨부 파일은 방문자가 비공개 버킷에 직접 올린다(/api/contact/upload) — Vercel 요청 크기 한도에 걸리지 않는다.
+ * 전하는 방식은 설정(emailService.attachmentMode)을 따른다: link 면 내려받기 링크를 본문에 붙이고(요금제 상관없음),
+ * provider 면 서버가 파일을 내려받아 form 의 attachment 칸에 싣는다(공급자 유료 요금제). 여기서는 form 을 그대로 넘긴다.
  *
  * - EmailJS 를 서버에서 부르려면 EmailJS 계정 › Security 의 "Allow EmailJS API for non-browser applications" 를 켜고,
  *   Private Key 를 EMAILJS_PRIVATE_KEY 로 넣어야 한다(accessToken).

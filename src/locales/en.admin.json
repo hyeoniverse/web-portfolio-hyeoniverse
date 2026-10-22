@@ -132,7 +132,13 @@
       "exitPages": "Exit pages",
       "recentJourneys": "Recent visit paths",
       "noJourneys": "No visits with recorded paths in this period.",
-      "noNextPages": "No visits with more than one page yet."
+      "noNextPages": "No visits with more than one page yet.",
+      "searchTermsTitle": "Search keywords",
+      "noSearchVisits": "No visits from search engines in this period.",
+      "searchVisits": "Search visits",
+      "searchWithTerm": "With keyword",
+      "noSearchTerms": "No visits with a known keyword yet.",
+      "searchTermsNote": "Only counted when the search engine passes the query in the referrer (Naver, Daum, Bing, etc.). Google doesn't — check Search Console for it."
     },
     "notifications": {
       "title": "Notifications",
@@ -762,7 +768,14 @@
       "servicesIntegrations": "Services & Integrations",
       "emailServiceProvider": "Email Service Provider",
       "emailFileUpload": "Email File Upload",
-      "emailFileUploadHint": "Attachments are accepted only on paid plans of {{providers}}. EmailJS also needs a variable attachment named attachment in the template. If attachments are not accepted, messages with them fail, and after 3 failures in a row attachments turn off automatically.",
+      "emailAttachHintStore": "Uploaded files are first stored in the site's private storage (Supabase Storage).",
+      "emailAttachHintLink": "Storage link: a download link valid for 7 days is added to the message. Available on all plans of {{providers}}.",
+      "emailAttachHintProvider": "Provider attachment: the server attaches the file to the provider request. Requires the provider's paid plan, and attachment size limits differ by provider. EmailJS needs a variable attachment named attachment in the template.",
+      "emailAttachHintLimits": "File size follows the size limits in Media settings (storage cap 25MB). Executable and script files are not accepted.",
+      "emailAttachHintAutoOff": "If 3 messages with attachments fail in a row, only attachments are turned off automatically.",
+      "emailAttachmentMode": "Attachment delivery",
+      "emailAttachmentModeLink": "Storage link (all plans)",
+      "emailAttachmentModeProvider": "Provider attachment (paid plan required)",
       "aiCoverEnabled": "AI Cover Generation",
       "aiCoverProvider": "AI Cover Provider",
       "aiSummarySettings": "AI Auto Summary",
@@ -1966,7 +1979,7 @@
         },
         "memberListEmpty": "No members yet. Add one below.",
         "relatedPostsHint": "Posts to read with this project. They appear as links in the detail page's info grid. Drag chips to reorder.",
-        "relatedSeriesHint": "Series about this project. They appear as links in the detail page's info grid.",
+        "relatedSeriesHint": "Series about this project. They appear as links in the detail page's info grid. Linking a series also adds its posts to related posts.",
         "landing": "Landing page",
         "landingFilled": "Has content",
         "landingHint": "When the work detail is set to a landing page in Settings, it is drawn from this. Empty fields fall back to the subtitle, description, period and tech notes. This is the language you are editing.",
@@ -3048,7 +3061,8 @@
         "markMine": "Mark as mine",
         "empty": "No IP visits in this period.",
         "mine": "Mine",
-        "excludedIps": "Excluded IPs"
+        "excludedIps": "Excluded IPs",
+        "paths": "Paths {{n}}"
       },
       "commentImageManager": {
         "title": "Comment Image Cleanup",

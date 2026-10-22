@@ -974,6 +974,10 @@ export const schemaTables: ErdTable[] = [
         "type": "text"
       },
       {
+        "name": "search_term",
+        "type": "text"
+      },
+      {
         "name": "migrated_from",
         "type": "text"
       }
