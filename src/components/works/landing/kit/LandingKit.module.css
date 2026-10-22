@@ -424,7 +424,7 @@
 .phoneSlice {
   position: absolute;
   inset: 0;
-  border-radius: calc(var(--radius-surface) * 1.8);
+  border-radius: calc(var(--radius-surface) * 2.4);
   background: linear-gradient(135deg, color-mix(in srgb, var(--text-white) 55%, var(--bg-black)), color-mix(in srgb, var(--text-white) 22%, var(--bg-black)) 45%, color-mix(in srgb, var(--text-white) 68%, var(--bg-black)) 70%, color-mix(in srgb, var(--text-white) 32%, var(--bg-black)));
   transform: translateZ(calc(var(--depth) / 2 - var(--k) * var(--depth) / 13));
   backface-visibility: visible;
@@ -448,7 +448,7 @@
   position: absolute;
   inset: 0;
   padding: var(--spacing-12);
-  border-radius: calc(var(--radius-surface) * 1.8);
+  border-radius: calc(var(--radius-surface) * 2.4);
   background-color: var(--bg-black);
   transform: translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
   backface-visibility: hidden;
@@ -463,7 +463,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: calc(var(--radius-surface) * 1.2);
+  border-radius: calc(var(--radius-surface) * 1.7);
   background-color: var(--bg-tertiary);
 }
 
