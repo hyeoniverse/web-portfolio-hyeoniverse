@@ -300,9 +300,9 @@ function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: 
 
 /**
  * 시간순 장면 — 화면 폭 전체 무대가 화면에 붙어 있는 동안, 스크롤하는 만큼 다음 장면으로 겹쳐 넘어간다(한 장면에 화면 높이의 60%).
- * 아래에 지금 장면의 이름(시각 · 날씨)과 진행 눈금을 둔다. 다 넘기면 풀린다
+ * 다 넘기면 풀린다. 장면 이름 · 눈금 같은 표시는 두지 않는다(시각 · 날씨는 화면 안 글자로 보인다)
  */
-export function Sequence({ items }: { items: { src: string; alt: string; label: string }[] }) {
+export function Sequence({ items }: { items: { src: string; alt: string }[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   usePinnedProgress(rootRef, (p) => setActive(Math.min(items.length - 1, Math.floor(p * items.length))));
@@ -321,12 +321,6 @@ export function Sequence({ items }: { items: { src: string; alt: string; label: 
             className={`${styles.sequenceFrame} ${i <= active ? styles.sequenceFrameOn : ""}`}
           />
         ))}
-        <div className={styles.sequenceBar}>
-          <span className={styles.sequenceLabel} aria-live="polite">{items[active]?.label}</span>
-          <ol className={styles.sequenceTicks} aria-hidden>
-            {items.map((it, i) => <li key={it.src} className={i <= active ? styles.sequenceTickOn : undefined} />)}
-          </ol>
-        </div>
       </div>
     </div>
   );

@@ -110,7 +110,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
             { src: `${A}/sky-w3-rain.webp`, label: t({ ko: "비 · 한낮", en: "Rain · midday" }) },
             { src: `${A}/sky-w4-snow.webp`, label: t({ ko: "눈 · 저녁", en: "Snow · blue hour" }) },
             { src: `${A}/sky-w5-storm.webp`, label: t({ ko: "뇌우 · 밤", en: "Storm · night" }) },
-          ].map((it) => ({ ...it, alt: t({ ko: `About 하늘 — ${it.label}`, en: `About sky — ${it.label}` }) }))}
+          ].map(({ src, label }) => ({ src, alt: t({ ko: `About 하늘 — ${label}`, en: `About sky — ${label}` }) }))}
         />
         <Frame at="left" src={`${A}/about-2.webp`} alt={t({ ko: "About — 숫자로 본 사이트", en: "About — the site in numbers" })} />
         <Frame at="right" src={`${A}/about-3.webp`} alt={t({ ko: "보는 화면, 쓰는 화면", en: "Screens to read, screens to write" })} />
