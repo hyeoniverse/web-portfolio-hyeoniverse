@@ -57,43 +57,35 @@
   text-wrap: balance;
 }
 
-/* 제목 — 참고 사이트처럼 넓게 벌어진 글자가 흐림에서 선명해지며 왼쪽부터 차례로 들어오고, 자간이 좁혀진다.
-   판 전환이 걷히기 전(data-ready 없음)에는 멈춰 둔다 — 판 아래에서 먼저 끝나 버리지 않게 */
+/* 제목 — 참고 사이트처럼 넓게 벌어진 글자가 흐림에서 선명해지며 왼쪽부터 차례로 들어오고, 간격이 좁혀진다.
+   간격은 자간(letter-spacing)이 아니라 글자마다 순서에 비례한 가로 이동으로 좁힌다 — 자간은 메인 스레드에서만 움직여,
+   전환 직후 새 페이지가 초기화하는 동안 제목이 중간에서 멈췄다. 이동 · 투명도 · 흐림은 합성 단계에서 돈다.
+   판 전환이 덮기 전(data-ready 없음)에는 멈춰 둔다 — 판 아래에서 먼저 끝나 버리지 않게 */
 .titleLetters {
   display: inline-block;
-  animation: titleTrack calc(var(--duration-slower) * 2) var(--ease-enter) both;
 }
 
 .letter {
   display: inline-block;
-  animation: letterBlur var(--duration-slower) var(--ease-enter) both;
-  animation-delay: calc(80ms + var(--d, 0) * 45ms);
+  animation: letterIn var(--duration-slower) var(--ease-enter) both;
+  animation-delay: calc(40ms + var(--d, 0) * 40ms);
 }
 
-.landing:not([data-ready]) .titleLetters,
 .landing:not([data-ready]) .letter {
   animation-play-state: paused;
 }
 
-@keyframes titleTrack {
-  from {
-    letter-spacing: 0.22em;
-  }
-
-  to {
-    letter-spacing: -0.02em;
-  }
-}
-
-@keyframes letterBlur {
+@keyframes letterIn {
   from {
     opacity: 0;
     filter: blur(14px);
+    transform: translateX(calc(var(--d, 0) * 0.14em));
   }
 
   to {
     opacity: 1;
     filter: none;
+    transform: none;
   }
 }
 
@@ -551,8 +543,7 @@
     transition: none;
   }
 
-  .letter,
-  .titleLetters {
+  .letter {
     animation: none;
   }
 

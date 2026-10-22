@@ -95,6 +95,10 @@ const COVER_MAX_MS = 4000;
 const SLIDE_IN_MS = 700;
 const SLIDE_OUT_MS = 240;
 const SLIDE_EASE = "cubic-bezier(0.65, 0, 0.35, 1)";
+/* View Transition 판 — 누른 때부터 새 화면이 다 덮을 때까지(_base.css --slide-duration 750ms).
+   이때까지 새 페이지의 등장 연출을 멈춰 두고, 덮기가 끝나 갈 즈음 제목이 들어오게 한다(참고 사이트는 700ms 무렵 첫 글자가 비친다).
+   커밋 뒤 효과에서 재면 효과가 전환 뒤로 밀려 덮은 뒤 빈 화면이 300ms 남았다 — 누른 때부터 잰다 */
+const SLIDE_VIEW_MS = 650;
 
 /** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
@@ -114,6 +118,14 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const [slide, setSlide] = useState<SlideTransitionState | null>(null);
   /* View Transition 으로 넘어가는 주소 — RouteViewTransition 이 이 주소에 닿는 커밋에서만 내용을 갈아 끼운다 */
   const slideTargetRef = useRef<string | null>(null);
+  /* 판 전환이 도는 중(누른 때부터 새 화면이 다 덮을 때까지) — 그동안 새 페이지의 제목 등장을 멈춰 둔다(참고 사이트처럼 덮은 뒤에 나타난다) */
+  const [viewSliding, setViewSliding] = useState(false);
+  /* 판 전환을 푸는 타이머는 따로 둔다 — 다른 전환이 clearTimers 로 지우면 등장 연출이 멈춘 채 남는다 */
+  const viewSlideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const releaseViewSlideIn = useCallback((ms: number) => {
+    if (viewSlideTimerRef.current) clearTimeout(viewSlideTimerRef.current);
+    viewSlideTimerRef.current = setTimeout(() => setViewSliding(false), ms);
+  }, []);
   const siteConfig = useSiteConfig();
   const detailStyle = siteConfig.works?.detailStyle;
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -169,6 +181,8 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
        그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css) */
     if (typeof document.startViewTransition === "function" && !reduceMotion) {
       slideTargetRef.current = pathOf(href);
+      setViewSliding(true);
+      releaseViewSlideIn(SLIDE_VIEW_MS);
       router.push(href, { transitionTypes: [`slide-${from}`] });
       return;
     }
@@ -178,7 +192,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
        커밋되면 아직 덮이지 않은 쪽으로 새 페이지의 로딩 화면이 비쳤다 */
     router.prefetch(href);
     timerRef.current.push(setTimeout(() => router.push(href), reduceMotion ? 0 : SLIDE_IN_MS));
-  }, [router]);
+  }, [router, releaseViewSlideIn]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     /* 랜딩으로 그리는 작업물이면 커버가 커지는 연출 대신 판 전환 — 랜딩에는 커버 히어로가 없어 줄어들 자리가 없다 */
@@ -216,7 +230,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
         clearSlideTarget,
         endTransition,
         /* 판 전환은 걷히기 시작하면(out) 끝난 것으로 — 그때부터 새 페이지의 등장 연출이 돈다 */
-        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out"),
+        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out") || viewSliding,
       }}
     >
       {children}

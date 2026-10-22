@@ -64,9 +64,13 @@ body > main {
 
 /* 랜딩 페이지 판 전환 — navigateWithSlide 가 transitionTypes(slide-right · slide-bottom)를 달고 넘어가면
    RouteViewTransition(<ViewTransition>)이 떠나는 내용에 slide-leave-*, 새 내용에 slide-enter-* 클래스를 붙인다.
-   참고 사이트(andreasantonsson.dev)처럼 다음 페이지의 실제 화면이 한쪽에서 밀려 들어오고, 떠나는 화면은 어두워지며 조금 밀려난다 */
+   참고 사이트(andreasantonsson.dev)를 100ms 간격으로 잘라 본 시간표를 따른다:
+     0 ~ 55%(약 400ms) — 떠나는 화면이 제자리에서 어두워진다(새 화면은 아직 화면 밖)
+     55 ~ 100%(약 340ms) — 새 화면이 한쪽에서 빠르게 밀려 들어와 덮고, 떠나는 화면은 더 어두워지며 반대쪽으로 조금 밀려난다
+     그 뒤 — 새 화면의 제목 글자가 나타난다(LandingShell — 전환이 끝날 때까지 등장 연출을 멈춰 둔다)
+   구간마다 곡선이 달라 전체는 linear 로 두고 키프레임 안에서 곡선을 준다 */
 :root {
-  --slide-duration: 800ms;
+  --slide-duration: 750ms;
   --slide-ease: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
@@ -77,8 +81,22 @@ body > main {
 ::view-transition-new(.slide-enter-bottom) {
   background-color: var(--bg-primary);
   animation-duration: var(--slide-duration);
-  animation-timing-function: var(--slide-ease);
+  animation-timing-function: linear;
   animation-fill-mode: both;
+}
+
+/* 내용 밖(사이트 메뉴 · 바탕)도 떠나는 화면과 함께 어두워지게 — 기본 교차 페이드로 두면 메뉴만 먼저 사라졌다 */
+html:active-view-transition-type(slide-right)::view-transition-old(root) {
+  animation: slide-leave-left var(--slide-duration) linear both;
+}
+
+html:active-view-transition-type(slide-bottom)::view-transition-old(root) {
+  animation: slide-leave-up var(--slide-duration) linear both;
+}
+
+html:active-view-transition-type(slide-right)::view-transition-new(root),
+html:active-view-transition-type(slide-bottom)::view-transition-new(root) {
+  animation: none;
 }
 
 ::view-transition-old(.slide-leave-left) {
@@ -103,34 +121,56 @@ body > main {
   animation-name: slide-enter-bottom;
 }
 
-/* 거리는 화면 단위(vw · dvh)로 — 장면은 페이지 내용 전체(랜딩은 2만 px 넘게)라 % 로 주면 그 높이를 기준으로 움직여,
-   다음 작업물이 수만 px 아래에서 출발해 한참 뒤에야 들이닥치고 떠나는 화면은 순식간에 날아갔다 */
+/* 거리는 화면 단위(vw · dvh)로 — 장면은 페이지 내용 전체(랜딩은 2만 px 넘게)라 % 로 주면 그 높이를 기준으로 움직였다 */
 @keyframes slide-leave-left {
-  to {
-    filter: brightness(0.4);
-    transform: translateX(-20vw);
+  55% {
+    filter: brightness(0.62);
+    transform: none;
+    animation-timing-function: var(--slide-ease);
   }
-}
 
-@keyframes slide-enter-right {
-  from {
-    transform: translateX(100vw);
+  to {
+    filter: brightness(0.45);
+    transform: translateX(-8vw);
   }
 }
 
 @keyframes slide-leave-up {
+  55% {
+    filter: brightness(0.62);
+    transform: none;
+    animation-timing-function: var(--slide-ease);
+  }
+
   to {
-    filter: brightness(0.4);
-    transform: translateY(-20dvh);
+    filter: brightness(0.45);
+    transform: translateY(-6dvh);
+  }
+}
+
+@keyframes slide-enter-right {
+  from,
+  55% {
+    transform: translateX(100vw);
+    animation-timing-function: var(--slide-ease);
+  }
+
+  to {
+    transform: none;
   }
 }
 
 @keyframes slide-enter-bottom {
-  from {
+  from,
+  55% {
     transform: translateY(100dvh);
+    animation-timing-function: var(--slide-ease);
+  }
+
+  to {
+    transform: none;
   }
 }
-
 
 /* 루트 글자 크기는 정하지 않는다 — 브라우저의 "기본 글자 크기" 설정을 따라 rem 이 함께 커지게(3.2-5) */
 html {

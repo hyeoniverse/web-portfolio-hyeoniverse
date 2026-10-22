@@ -211,9 +211,11 @@ export function Shot({ src, alt, size = "bleed", ratio = "16 / 10", priority, ca
 /** 녹화 — 화면 폭 전체, 보일 때만 소리 없이 되풀이 재생(움직임 줄이기면 첫 장면에서 멈춤) */
 export function Recording({ src, label, poster, size = "bleed" }: { src: string; label: string; poster?: string; size?: "bleed" | "wide" }) {
   const ref = useRef<HTMLVideoElement>(null);
+  /* 판 전환이 도는 동안은 재생하지 않는다 — 영상 디코더가 켜지는 순간이 제목 등장과 겹쳐 화면이 250ms 남짓 끊겼다 */
+  const { isTransitioning } = usePageTransition();
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (!el || isTransitioning || typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const io = new IntersectionObserver(([e]) => {
       if (e?.isIntersecting) void el.play().catch(() => {});
@@ -221,7 +223,7 @@ export function Recording({ src, label, poster, size = "bleed" }: { src: string;
     }, { threshold: 0.3 });
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [isTransitioning]);
   return (
     <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
       <div className={styles.shotFrame}>
