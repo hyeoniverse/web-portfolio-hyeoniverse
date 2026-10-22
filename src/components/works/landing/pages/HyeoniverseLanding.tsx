@@ -79,8 +79,8 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="04"
           title={{ ko: "쓴 글이 다시 읽히도록", en: "So that writing gets read again" }}
           body={{
-            ko: "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다.",
-            en: "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations.",
+            ko: "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다. 글마다 AI 가 요약하고, 영어로 옮기고, 표지를 그리고, 소리로 읽어 줍니다 — 공급자 하나가 멈춰도 다음 곳이 이어받습니다.",
+            en: "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations. AI summarises each post, translates it, draws its cover and reads it aloud — and when one provider stops, the next takes over.",
           }}
         />
         <Frame at="bleed" src={`${A}/blog-posts-magazine.webp`} alt={t({ ko: "블로그 첫 화면 — 프로필 · 태그 구름 · 날짜별 기록 옆에 글 목록", en: "Blog home — profile, tag cloud and calendar beside the list" })} />
@@ -91,6 +91,11 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Frame at="bleed" video={`${A}/planetarium.mp4`} src={`${A}/til-planetarium.webp`} alt={t({ ko: "TIL 플라네타리움 — 한 해가 밤하늘로 펼쳐진다", en: "TIL planetarium — the year as a night sky" })} />
         <Frame at="right" src={`${A}/blog-post-top.webp`} alt={t({ ko: "글 — 듣기 · 언어 바꾸기 · 공유", en: "Post — listen, switch language, share" })} />
         <Frame at="left" src={`${A}/blog-post-body-1.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
+        <Frame at="wide" src={`${A}/ai-summary.webp`} alt={t({ ko: "AI 요약 — 글 한 편을 글에 맞는 블록(목록 · 표 · 단계)으로 줄인다", en: "AI summary — a post condensed into blocks that fit it (lists, tables, steps)" })} />
+        <Frame at="right" src={`${A}/ai-translate.webp`} alt={t({ ko: "번역 — 한국어로 쓰면 영어판을 함께, 실패한 문장만 다음 공급자에게", en: "Translation — an English version alongside, only failed sentences retried elsewhere" })} />
+        <Frame at="left" src={`${A}/ai-cover.webp`} alt={t({ ko: "AI 커버 — 제목 한 줄로 글의 표지를", en: "AI cover — a post cover from one title line" })} />
+        <Frame at="right" src={`${A}/ai-voice.webp`} alt={t({ ko: "음성 — 대본을 넣으면 갤러리가 쓰는 목소리로", en: "Voice — a script read aloud for the gallery" })} />
+        <Frame at="center" src={`${A}/ai-providers.webp`} alt={t({ ko: "공급자 전환 — 한 곳이 실패하면 다음 곳으로", en: "Provider failover — when one fails, the next takes over" })} />
 
         <Note
           viewLang={viewLang}
@@ -121,7 +126,6 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Frame at="wide" video={`${A}/api-journey.mp4`} src={`${A}/api-journey-poster.webp`} alt={t({ ko: "API 지도 — 작업물 수정 요청이 브라우저 → 프록시 → 로그인 → 검사 → DB → 알림 · 캐시 → 응답 정거장을 따라 도는 녹화", en: "API map — a 'save work' request travelling browser → proxy → login → checks → DB → notify and cache → response" })} />
         <Frame at="right" src={`${A}/api-map-group.webp`} alt={t({ ko: "API 지도 — 묶음 하나의 엔드포인트 · 접근 등급 · 테이블", en: "API map — one group's endpoints, access levels and tables" })} />
         <Frame at="wide" src={`${A}/chapter-architecture-4.webp`} alt={t({ ko: "구조 — 요청이 지나가는 길을 별자리로", en: "Architecture — a request's path as a constellation" })} />
-        <Frame at="right" src={`${A}/chapter-ai-3.webp`} alt={t({ ko: "AI — 제목 한 줄로 커버 만들기", en: "AI — a cover from one title line" })} />
         <Frame at="left" src={`${A}/chapter-design-0.webp`} alt={t({ ko: "디자인 — 토큰 몇 백 개로 그린 화면", en: "Design — screens drawn from a few hundred tokens" })} />
         <Frame at="right" src={`${A}/chapter-design-2.webp`} alt={t({ ko: "디자인 — 같은 회색도 뜻이 다르면 이름이 다르다", en: "Design — same grey, different meaning, different name" })} />
         <Frame at="wide" src={`${A}/chapter-code-1.webp`} alt={t({ ko: "코드 — 3D 스크롤 토러스, 코드와 실행 화면", en: "Code — 3D scroll torus, code and live preview" })} />
