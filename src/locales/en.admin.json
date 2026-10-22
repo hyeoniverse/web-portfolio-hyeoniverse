@@ -765,7 +765,7 @@
       "servicesIntegrations": "Services & Integrations",
       "emailServiceProvider": "Email Service Provider",
       "emailFileUpload": "Email File Upload",
-      "emailFileUploadHint": "Attachments are accepted only on paid plans of {{providers}}. EmailJS also needs a variable attachment named attachment in the template. If attachments are not accepted, messages with them fail, and after 3 failures in a row attachments turn off automatically.",
+      "emailFileUploadHint": "Attachments are not sent through the provider. They are uploaded to the site's private storage (Supabase Storage) and added to the message as a download link that works for 7 days, so they work on any plan of {{providers}}. In EmailJS, rendering {{message}} shows the link too, or use {{attachment_name}} · {{attachment_url}} separately. Size follows the file size limit in Media settings (storage cap 25MB), and executable or script files are blocked. After 3 failed messages with attachments in a row, attachments turn off automatically.",
       "aiCoverEnabled": "AI Cover Generation",
       "aiCoverProvider": "AI Cover Provider",
       "aiSummarySettings": "AI Auto Summary",

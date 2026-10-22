@@ -1,4 +1,5 @@
 import { jsonOk } from "@/lib/api/response";
+import { contactMessageWithAttachment } from "@/lib/contact/attachmentMessage";
 import { hitRateLimit, rateLimitKey } from "@/lib/api/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -106,10 +107,10 @@ export async function POST(request: Request) {
   form.set("name", name);
   form.set("email", email);
   form.set("title", title);
-  form.set("message", attachmentUrl
-    ? `${message}\n\n— 첨부 파일: ${attachmentName || "file"}\n${attachmentUrl}\n(링크는 7일 동안 열립니다)`
-    : message);
-  if (attachmentUrl) {
+  form.set("message", contactMessageWithAttachment(message, attachmentUrl ? { name: attachmentName, url: attachmentUrl } : null));
+  /* EmailJS 는 템플릿 변수로만 칸을 그린다 — 첨부 이름 · 링크를 따로 넘겨 템플릿에서 {{attachment_name}} · {{attachment_url}} 로 쓸 수 있게.
+     Formspree · Web3Forms 는 받은 칸을 모두 메일에 늘어놓아, 따로 넘기면 본문의 링크와 두 번 보인다 */
+  if (attachmentUrl && provider === "emailjs") {
     form.set("attachment_name", attachmentName);
     form.set("attachment_url", attachmentUrl);
   }

@@ -528,10 +528,10 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
     <>
       {/* Email Service */}
       <section className={shared.section}>
-        {/* 문의 메일은 브라우저가 공급자로 바로 보내 서버가 결과를 모른다 — 기록은 첨부 결과(contact) */}
+        {/* 문의 메일은 서버(/api/contact)가 공급자로 보낸다 — 보내기 실패와 첨부 결과가 기록(contact)에 남는다 */}
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} spacerExtra={<ServiceLogLink query={{ category: "contact" }} />} {...sh} />
         <HintLines className={styles.sectionHints} lines={[
-          /* 공급자 이름은 각 사이트로 — 요금제·첨부 조건을 바로 확인하게 */
+          /* 공급자 이름은 각 사이트로. 첨부는 공급자 요금제와 상관없다(비공개 저장소 + 내려받기 링크) */
           (() => {
             const [before, after = ""] = t("admin.settings.emailFileUploadHint").split("{{providers}}");
             const sites = [
