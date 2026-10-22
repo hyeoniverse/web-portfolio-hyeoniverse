@@ -16,10 +16,13 @@ import { fillCount } from "@/utils/format";
 import type { Post } from "@/types/post";
 import type { SeriesPageData } from "@/lib/posts";
 import styles from "./SeriesDetail.module.css";
+import { postListCoverOf } from "@/lib/postCover";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 /* 시리즈 상세의 한 편(에피소드) 행 — 순번 · 썸네일 · 카테고리 · 제목 · 발췌 · 날짜/읽는 시간.
    포맷(날짜·읽는 시간·표시 언어·발췌)은 카드 공통 훅을 재사용한다. */
 function SeriesEpisodeRow({ post, index }: { post: Post; index: number }) {
+  const coverFallback = useSiteConfig().posts?.coverFallback;
   const { t, date, readTime, showImage, category, langBadge, displayTitle, displayExcerpt, icon, handlePrefetch } =
     usePostCard({ post });
   return (
@@ -34,7 +37,7 @@ function SeriesEpisodeRow({ post, index }: { post: Post; index: number }) {
       >
         <span className={styles.epThumb}>
           {showImage ? (
-            <MediaThumb src={post.cover_image} fill sizes="(max-width: 768px) 96px, 160px" className={styles.epThumbImg} />
+            <MediaThumb src={postListCoverOf(post, coverFallback)} fill sizes="(max-width: 768px) 96px, 160px" className={styles.epThumbImg} />
           ) : (
             <span className={styles.epThumbFallback} style={{ background: getFallbackCoverGradient(post.slug || post.id) }}>
               {icon && <EmojiIcon value={icon} size={26} />}

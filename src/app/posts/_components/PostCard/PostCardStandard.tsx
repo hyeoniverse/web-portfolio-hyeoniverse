@@ -51,7 +51,7 @@ export default function PostCardStandard({
   imgError,
 }: PostCardVariantProps) {
   const {
-    t, cardRef, date, readTime, showImage, category, author, langBadge,
+    t, cardRef, date, readTime, showImage, coverSrc, category, author, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const isFeatured = variant === "featured";
@@ -134,7 +134,7 @@ export default function PostCardStandard({
       <div ref={peekRef} className={styles.imageWrap} style={peekStyle}>
         {showImage ? (
           <ProgressiveImage
-            src={post.cover_image}
+            src={coverSrc}
             alt={post.title}
             fill
             sizes={isFeatured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
@@ -205,8 +205,8 @@ export default function PostCardStandard({
           {category && <span className={styles.dateLineCat}><CategoryLabel category={category} /></span>}
         </div>
 
-        {/* 제목 — 커버 카드는 항상 body. list 레이아웃 placeholder 도 body 로(작은 썸네일에 제목/칩 겹침 방지) */}
-        {(showImage || layout === "list") && (
+        {/* 제목 — 커버 카드는 항상 body. list · series 레이아웃 placeholder 도 body 로(작은 썸네일에 제목/칩 겹침 방지) */}
+        {(showImage || layout === "list" || layout === "series") && (
           <h2 className={styles.title}><HighlightedText text={displayTitle} /></h2>
         )}
 

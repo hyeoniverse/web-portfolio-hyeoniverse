@@ -472,8 +472,8 @@ export default function ContentTab({
 
           {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />
-            <div className={styles.fields}>
+            <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout", "posts.coverFallback"]} {...sh} />
+            <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
                 <Select
                   value={config.posts.layout ?? "magazine"}
@@ -488,6 +488,17 @@ export default function ContentTab({
                     { value: "featured", label: t("admin.inline.contentTab.featuredHeroGrid") },
                   ]}
                   onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
+                />
+              </FieldRow>
+              {/* 커버 없는 글의 카드 — 그러데이션 판(기본) 또는 제목으로 그린 공유 카드. 배너는 늘 공유 카드 */}
+              <FieldRow label={t("admin.inline.contentTab.coverFallback")} hint={t("admin.inline.contentTab.coverFallbackHint")}>
+                <Select
+                  value={config.posts.coverFallback ?? "gradient"}
+                  options={[
+                    { value: "gradient", label: t("admin.inline.contentTab.coverFallbackGradient") },
+                    { value: "og", label: t("admin.inline.contentTab.coverFallbackOg") },
+                  ]}
+                  onChange={(v) => update("posts", "coverFallback", v as SiteConfigData["posts"]["coverFallback"])}
                 />
               </FieldRow>
             </div>

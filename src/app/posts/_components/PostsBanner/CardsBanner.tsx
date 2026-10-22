@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, Play, Pause } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { isPostCardImage, postCoverOf } from "@/lib/postCover";
 
 interface CardsBannerProps {
   posts: Post[];
@@ -73,16 +74,17 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
               {/* 가운데 카드만 글로 넘어간다. 옆 카드는 누르면 가운데로 오도록 이동을 막고 바깥(motion.div)이 받는다 */}
               <TransitionLink
                 href={blogHref(`/posts/${post.slug}`)}
-                image={post.cover_image || ""}
+                image={postCoverOf(post) || ""}
                 className={styles.cardLink}
+                aria-label={title}
                 style={{ cursor: isCenter ? "pointer" : "default" }}
                 onMouseEnter={() => isCenter && handlePrefetch(post.slug)}
                 onFocus={() => isCenter && handlePrefetch(post.slug)}
                 onClick={(e) => { if (!isCenter) e.preventDefault(); }}
               >
-                {post.cover_image && !imgErrors.has(post.id) ? (
+                {postCoverOf(post) && !imgErrors.has(post.id) ? (
                   <ProgressiveImage
-                    src={post.cover_image}
+                    src={postCoverOf(post)}
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 90vw, 60vw"
@@ -97,12 +99,17 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
                     aria-hidden="true"
                   />
                 )}
-                <div className={styles.cardOverlay} />
-                <div className={styles.cardContent}>
-                  {post.category && <span className={styles.cardCategory}><CategoryLabel category={post.category} /></span>}
-                  <h2 className={styles.cardTitle}>{title}</h2>
-                  {isCenter && excerpt && <p className={styles.cardExcerpt}>{excerpt}</p>}
-                </div>
+                {/* 제목 카드를 깔았으면 제목 · 요약이 카드 안에 있다 — 글자와 어두운 막 없이 그림만 */}
+                {!(isPostCardImage(postCoverOf(post)) && !imgErrors.has(post.id)) && (
+                  <>
+                    <div className={styles.cardOverlay} />
+                    <div className={styles.cardContent}>
+                      {post.category && <span className={styles.cardCategory}><CategoryLabel category={post.category} /></span>}
+                      <h2 className={styles.cardTitle}>{title}</h2>
+                      {isCenter && excerpt && <p className={styles.cardExcerpt}>{excerpt}</p>}
+                    </div>
+                  </>
+                )}
               </TransitionLink>
             </motion.div>
           );

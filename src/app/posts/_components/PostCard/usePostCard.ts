@@ -11,6 +11,7 @@ import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { SITE_TIME_ZONE } from "@/constants";
 import type { Post } from "@/types/post";
 import { useListTranslation } from "@/hooks/useListTranslation";
+import { postListCoverOf } from "@/lib/postCover";
 
 /* 카드 변형 넷이 공통으로 쓰는 값과 동작 — 표시 언어 판정 · 제목/발췌 · 날짜 · 읽기 시간 · 카테고리 · 작성자,
    그리고 카드 클릭(페이지 트랜지션)과 hover prefetch. 변형 컴포넌트가 각자 부른다. */
@@ -27,7 +28,9 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
     { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE },
   );
   const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
-  const showImage = !!post.cover_image && !imgError;
+  /* 커버 없는 글을 무엇으로 채울지는 설정(posts.coverFallback) — 기본은 그러데이션 판(showImage 가 거짓), og 면 제목 카드 */
+  const coverSrc = postListCoverOf(post, siteConf?.posts?.coverFallback);
+  const showImage = !!coverSrc && !imgError;
   const category = post.category || null;
   // 작성자 — author_ids 를 site.config authors 로 해석. 미할당이면 소유자로 돌아간다.
   const author = resolvePostAuthors(siteConf?.authors, post.author_ids)[0] ?? null;
@@ -52,7 +55,7 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
   };
 
   const href = blogHref(`/posts/${post.slug}`);
-  const coverImage = post.cover_image || "";
+  const coverImage = coverSrc;
   /* 사이트가 다른 언어(ko · en 밖)로 걸려 있으면 제목 · 요약을 그 번역으로 — 같은 화면의 카드들은 한 요청으로 모인다.
      시리즈 접두("시리즈 #n - ")의 시리즈 이름은 원문 그대로 */
   const tr = useListTranslation("post", post.id);
@@ -72,6 +75,7 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
   };
 
   return {
+    coverSrc,
     foreignLang,
     dateLocale,
     t,

@@ -2778,6 +2778,10 @@
       },
       "contentTab": {
         "cardLayout": "Card layout",
+        "coverFallback": "Posts without a cover",
+        "coverFallbackHint": "Choose what fills list cards for posts without a cover. The banner always uses the title card.",
+        "coverFallbackGradient": "Gradient",
+        "coverFallbackOg": "Title card (share image)",
         "gridStyle": "Grid style",
         "magazineMixedSizes": "Magazine (mixed sizes)",
         "gridImageFirst": "Grid (image-first)",

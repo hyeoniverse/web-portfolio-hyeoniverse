@@ -19,11 +19,8 @@ export const SITE_ORIGIN = toOrigin(process.env.SITE_URL) ?? "https://www.hyeoni
 /** 공유 카드 기본 그림 — 커버가 없는 페이지에 쓴다(public/og-default.png, 1200×630) */
 export const DEFAULT_OG_IMAGE = { url: "/og-default.png", width: 1200, height: 630, alt: "HYEONIVERSE" };
 
-/** 커버 없는 글의 공유 카드 주소(app/og/posts/[slug]) — 수정 시각을 붙여 제목을 고치면 주소가 바뀐다(공유 미리보기 캐시) */
-export function postCardImagePath(slug: string, updatedAt?: string | null): string {
-  const v = updatedAt ? Date.parse(updatedAt) : NaN;
-  return `/og/posts/${encodeURIComponent(slug)}${Number.isFinite(v) ? `?v=${v}` : ""}`;
-}
+/** 커버 없는 글의 공유 카드 주소(app/og/posts/[slug]) — 화면에서도 쓰여 lib/postCover 에 둔다 */
+export { postCardImagePath } from "@/lib/postCover";
 
 /** 공유 카드에 쓸 수 있는 그림 주소만 — 커버 칸에는 동영상(mp4 · webm)도 들어온다 */
 export function ogImageOf(src: string | null | undefined): string | null {

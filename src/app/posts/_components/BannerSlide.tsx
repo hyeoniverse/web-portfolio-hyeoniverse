@@ -13,6 +13,7 @@ import T from "@/components/ui/T";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./BannerSlide.module.css";
 import Badge from "@/components/ui/Badge";
+import { isPostCardImage, postCoverOf } from "@/lib/postCover";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
 
@@ -48,15 +49,15 @@ export default function BannerSlide({
   // 슬라이드 전체가 글 링크다 — 그냥 누르면 커버가 커지는 연출로, 새 탭 클릭은 브라우저가 연다(#933)
   const linkProps = {
     href: blogHref(`/posts/${post.slug}`),
-    image: post.cover_image || "",
+    image: postCoverOf(post) || "",
     onMouseEnter: handlePrefetch,
     onFocus: handlePrefetch,
     className: styles.slideLink,
   };
 
-  const image = post.cover_image && !imgError ? (
+  const image = postCoverOf(post) && !imgError ? (
     <ProgressiveImage
-      src={post.cover_image}
+      src={postCoverOf(post)}
       alt={title}
       fill
       sizes="(max-width: 768px) 100vw, 80vw"
@@ -71,6 +72,11 @@ export default function BannerSlide({
       style={{ background: getFallbackCoverGradient(post.slug || post.id) }}
     />
   );
+
+  /* 커버가 없어 제목 카드를 깔았으면 제목 · 분류 · 요약이 카드 안에 이미 있다 — 글자와, 글자를 읽히게 하려고 깐 어두운 막 없이 그림만 */
+  if (isPostCardImage(postCoverOf(post)) && !imgError) {
+    return <TransitionLink {...linkProps} aria-label={title}>{image}</TransitionLink>;
+  }
 
   /* ── Editorial ── */
   if (style === "editorial") {

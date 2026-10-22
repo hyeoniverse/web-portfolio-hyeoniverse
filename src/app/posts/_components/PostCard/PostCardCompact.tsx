@@ -27,7 +27,7 @@ export default function PostCardCompact({
   imgError?: boolean;
 }) {
   const {
-    t, cardRef, date, readTime, showImage, category, author, langBadge,
+    t, cardRef, date, readTime, showImage, coverSrc, category, author, langBadge,
     displayTitle, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
 
@@ -54,7 +54,7 @@ export default function PostCardCompact({
         {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
         <span className={styles.compactThumb}>
           {icon ? <EmojiIcon value={icon} size={18} /> : showImage ? (
-            <ProgressiveImage src={post.cover_image} alt="" fill sizes="24px" className={styles.compactThumbImg} onError={() => onImgError?.(post.id)} />
+            <ProgressiveImage src={coverSrc} alt="" fill sizes="24px" className={styles.compactThumbImg} onError={() => onImgError?.(post.id)} />
           ) : null}
         </span>
         <h2 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h2>

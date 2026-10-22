@@ -37,9 +37,9 @@ export function isAdminApiRoute(pathname: string): boolean {
   return pathname === "/api/admin" || pathname.startsWith("/api/admin/");
 }
 
-/** 블로그 주소에서도 앱 경로 그대로 여는 곳 — API · 관리 화면 · 로그인 콜백 */
+/** 블로그 주소에서도 앱 경로 그대로 여는 곳 — API · 관리 화면 · 로그인 콜백 · 글 제목 카드(/og/, 목록 커버로도 쓴다) */
 export function passThroughOnBlogHost(pathname: string): boolean {
-  return pathname.startsWith("/api/") || isAdminRoute(pathname) || pathname.startsWith("/auth/");
+  return pathname.startsWith("/api/") || isAdminRoute(pathname) || pathname.startsWith("/auth/") || pathname.startsWith("/og/");
 }
 
 function isPostsPath(path: string): boolean {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { isPostCardImage, POST_CARD_BG } from "@/lib/postCover";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { useImageFallback } from "@/hooks/useImageFallback";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
@@ -41,7 +42,9 @@ export default function MediaThumb({
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   /* 원본으로 되돌려도 실패한 주소 — 죽은 URL 이다. 엑박 대신 공용 placeholder 를 그린다(#1143) */
   const { src: displaySrc, broken, markBroken } = useImageFallback(src);
-  const skipOptimize = unoptimized || failedSrc === src;
+  const skipOptimize = unoptimized || failedSrc === src || isPostCardImage(src);
+  /* 제목 카드는 글자가 그림 안에 있어 잘리면 안 된다 — 통째로 담고 남는 곳은 카드 바탕색으로 */
+  const fitStyle = isPostCardImage(src) ? { ...style, objectFit: "contain" as const, backgroundColor: POST_CARD_BG } : style;
   const handleError = () => {
     if (!skipOptimize) { setFailedSrc(src); return; }
     markBroken();
@@ -96,7 +99,7 @@ export default function MediaThumb({
         loading={loading}
         className={className}
         unoptimized={skipOptimize || broken}
-        style={style}
+        style={fitStyle}
         onError={handleError}
       />
     );
@@ -112,7 +115,7 @@ export default function MediaThumb({
       loading={loading}
       className={className}
       unoptimized={skipOptimize || broken}
-      style={style}
+      style={fitStyle}
       onError={handleError}
     />
   );

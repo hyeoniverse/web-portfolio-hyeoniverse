@@ -2778,6 +2778,10 @@
       },
       "contentTab": {
         "cardLayout": "카드 레이아웃",
+        "coverFallback": "커버 없는 글",
+        "coverFallbackHint": "목록 카드에서 커버가 없는 글을 무엇으로 채울지 고릅니다. 배너는 늘 제목 카드를 씁니다.",
+        "coverFallbackGradient": "그러데이션 판",
+        "coverFallbackOg": "제목 카드(공유 이미지)",
         "gridStyle": "목록 배치",
         "magazineMixedSizes": "Magazine (사이즈 변주)",
         "gridImageFirst": "Grid (균일·이미지 우선)",
