@@ -120,7 +120,7 @@ export function Statement({ no, title, body, viewLang }: { no?: string; title: L
 export function DemoStage({ demo }: { demo: DemoKey }) {
   const { t } = useLanguage();
   return (
-    <div className={styles.stageInset} data-reveal="zoom">
+    <div className={styles.demoStage} data-reveal="zoom">
       <LandingDemoFrame demo={demo} label={t(`workDetail.landing.demo.${demo}`)} liveLabel={t("workDetail.landing.live")} />
     </div>
   );
@@ -170,14 +170,15 @@ export function SectionHead({ no, title, body, viewLang }: { no?: string; title:
  * 그림을 줄이지 않고 원본 그대로 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
  * size: bleed 는 화면 폭 전체(캡처 비율 그대로라 잘리지 않는다), wide 는 섹션 여백 안에서 최대 1600px
  */
-export function Shot({ src, alt, size = "bleed", ratio = "16 / 10", priority }: {
-  src: string; alt: string; size?: "bleed" | "wide"; ratio?: string; priority?: boolean;
+export function Shot({ src, alt, size = "bleed", ratio = "16 / 10", priority, caption }: {
+  src: string; alt: string; size?: "bleed" | "wide"; ratio?: string; priority?: boolean; caption?: string;
 }) {
   return (
     <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
       <div className={styles.shotFrame} style={{ ["--ratio" as string]: ratio } as CSSProperties}>
         <Image src={src} alt={alt} fill unoptimized priority={priority} className={styles.shotImage} />
       </div>
+      {caption && <figcaption className={styles.shotCaption}>{caption}</figcaption>}
     </figure>
   );
 }
@@ -212,6 +213,29 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
       {items.map((it, i) => (
         <div key={it.src} className={styles.phone} data-reveal="rise" style={delay(i)}>
           <Image src={it.src} alt={it.alt} fill unoptimized className={styles.shotImage} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** 셋씩 — 화면이 많을 때 작게 여러 장(태블릿은 둘, 폰은 하나). 이름을 캡션으로 단다 */
+export function Gallery({ items }: { items: { src: string; alt: string }[] }) {
+  return (
+    <div className={styles.grid}>
+      {items.map((it) => <Shot key={it.src} size="wide" src={it.src} alt={it.alt} caption={it.alt} />)}
+    </div>
+  );
+}
+
+/** 긴 설명 — 작은 제목과 문단 몇 개. 섹션 머리만으로 모자란 이야기를 적는다 */
+export function Prose({ items, viewLang }: { items: { label: L10n; body: L10n }[]; viewLang: Lang }) {
+  return (
+    <div className={styles.prose}>
+      {items.map((it, i) => (
+        <div key={i} className={styles.proseItem} data-reveal="" style={delay(i)}>
+          <h3 className={styles.proseLabel}>{it.label[viewLang]}</h3>
+          <p className={styles.proseBody}>{it.body[viewLang]}</p>
         </div>
       ))}
     </div>
