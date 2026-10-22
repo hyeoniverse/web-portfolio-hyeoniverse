@@ -355,62 +355,23 @@
   }
 }
 
-/* 행성 — 휴대폰이 입체라 배경은 납작하게: 선 하나로 그린 원 · 고리, 그림자 · 그러데이션 없음. 스크롤하는 만큼 저마다 다른 빠르기로 흐른다 */
-.planet {
+/* 장식 줄 — 휴대폰 뒤 큰 윤곽 글자 두 줄(화면 이름을 ✦ 로 잇는다). 스크롤에 맞춰 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흐른다.
+   휴대폰이 입체라 배경은 납작한 선 글자로 둔다 */
+.phoneDeco {
   position: absolute;
-  border: var(--border-width-1) solid color-mix(in srgb, var(--text-primary) 30%, transparent);
-  border-radius: var(--radius-full);
-  background-color: var(--bg-primary);
+  top: 18%;
+  left: 0;
+  margin: 0;
+  font: var(--font-display-xl);
+  color: transparent;
+  white-space: nowrap;
+  -webkit-text-stroke: var(--border-width-1) color-mix(in srgb, var(--text-accent) 35%, transparent);
+  transform: translateX(calc(var(--p, 0) * -50%));
 }
 
-.planetRinged {
-  top: 12%;
-  right: 10%;
-  width: 18vmin;
-  height: 18vmin;
-  transform: translateY(calc(var(--p, 0) * 30dvh));
-}
-
-/* 고리 — 기울어진 타원 선(선 그림이라 행성 앞뒤를 가리지 않고 겹쳐 그린다) */
-.planetRinged::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 180%;
-  height: 36%;
-  border: var(--border-width-1) solid color-mix(in srgb, var(--text-accent) 60%, transparent);
-  border-radius: var(--radius-full);
-  transform: translate(-50%, -50%) rotate(-16deg);
-  content: "";
-}
-
-/* 행성 위 줄무늬 한 줄 */
-.planetRinged::after {
-  position: absolute;
-  top: 38%;
-  right: 12%;
-  left: 12%;
-  border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-primary) 18%, transparent);
-  content: "";
-}
-
-.planetSmall {
-  bottom: 22%;
-  left: 9%;
-  width: 9vmin;
-  height: 9vmin;
-  background-color: color-mix(in srgb, var(--text-accent) 12%, var(--bg-primary));
-  transform: translateY(calc(var(--p, 0) * -24dvh));
-}
-
-.planetMoon {
-  top: 22%;
-  left: 21%;
-  width: 2.4vmin;
-  height: 2.4vmin;
-  border: 0;
-  background-color: var(--text-accent);
-  transform: translate(calc(var(--p, 0) * 18vw), calc(var(--p, 0) * 12dvh));
+.phoneDecoReverse {
+  top: 46%;
+  transform: translateX(calc((var(--p, 0) - 1) * 50%));
 }
 
 /* 주소 줄 — 휴대폰 아래 한 줄로 늘어선 주소. 움직임은 PhoneFlip 이 지금 화면의 주소가 가운데에 오게 transform 으로 준다 */
@@ -463,7 +424,7 @@
 .phoneSlice {
   position: absolute;
   inset: 0;
-  border-radius: calc(var(--radius-surface) * 3);
+  border-radius: calc(var(--radius-surface) * 1.8);
   background: linear-gradient(135deg, color-mix(in srgb, var(--text-white) 55%, var(--bg-black)), color-mix(in srgb, var(--text-white) 22%, var(--bg-black)) 45%, color-mix(in srgb, var(--text-white) 68%, var(--bg-black)) 70%, color-mix(in srgb, var(--text-white) 32%, var(--bg-black)));
   transform: translateZ(calc(var(--depth) / 2 - var(--k) * var(--depth) / 13));
   backface-visibility: visible;
@@ -487,7 +448,7 @@
   position: absolute;
   inset: 0;
   padding: var(--spacing-12);
-  border-radius: calc(var(--radius-surface) * 3);
+  border-radius: calc(var(--radius-surface) * 1.8);
   background-color: var(--bg-black);
   transform: translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
   backface-visibility: hidden;
@@ -502,7 +463,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: calc(var(--radius-surface) * 2.2);
+  border-radius: calc(var(--radius-surface) * 1.2);
   background-color: var(--bg-tertiary);
 }
 

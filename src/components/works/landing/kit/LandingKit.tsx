@@ -342,7 +342,7 @@ const PHONE_STARS = Array.from({ length: 110 }, (_, k) => {
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
  * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 반 바퀴마다 다음 화면이 보인다 —
  * 앞 · 뒷면 두 장만 두고 보이지 않는 쪽에 다음 화면을 넣어 둔다. 한 번 구르는 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다.
- * 뒤에는 화면마다의 주소(route)가 큰 글자 줄로 깔려, 지금 화면의 주소가 가운데에 와서 채워진다. 그 뒤로 별 · 행성
+ * 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에 와서 채워진다. 뒤로는 별과, 화면 이름을 별(✦)로 이은 큰 글자 두 줄이 반대로 흐른다
  */
 export function PhoneFlip({ items }: { items: { src: string; alt: string; route: string }[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -382,6 +382,9 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string; route:
   /* 이 구간의 출발 화면은 seg, 도착 화면은 seg + 1 — 짝수 구간은 앞면에서 출발한다 */
   const front = items[seg % 2 === 0 ? seg : seg + 1];
   const back = items[seg % 2 === 0 ? seg + 1 : seg];
+  /* 장식 줄 — 화면 이름을 별로 이어 두 벌. 스크롤에 맞춰 두 줄이 반대로 흐른다 */
+  const names = items.map((it) => it.alt).join(" ✦ ");
+  const deco = `${names} ✦ ${names} ✦ `;
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: flips } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
@@ -395,9 +398,8 @@ export function PhoneFlip({ items }: { items: { src: string; alt: string; route:
               />
             ))}
           </div>
-          <span className={`${styles.planet} ${styles.planetRinged}`} />
-          <span className={`${styles.planet} ${styles.planetSmall}`} />
-          <span className={`${styles.planet} ${styles.planetMoon}`} />
+          <p className={styles.phoneDeco}>{deco}</p>
+          <p className={`${styles.phoneDeco} ${styles.phoneDecoReverse}`}>{deco}</p>
           <div ref={wordsRef} className={styles.phoneWords}>
             {items.map((it, k) => (
               <span key={k} className={`${styles.phoneWord} ${k === current ? styles.phoneWordOn : ""}`}>{it.route}</span>
