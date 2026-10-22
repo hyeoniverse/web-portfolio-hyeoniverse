@@ -85,14 +85,22 @@ export async function POST(request: Request) {
     }
   }
 
-  // ── 첨부 링크 ──
+  // ── 첨부 — 설정(attachmentMode)에 따라 내려받기 링크(link) 또는 공급자 첨부(provider) ──
+  const attachMode = cfg.emailService?.attachmentMode === "provider" ? "provider" : "link";
   let attachmentUrl = "";
+  let attachmentFile: File | null = null;
   if (attachmentPath) {
-    const { data, error } = await createAdminClient().storage
-      .from(CONTACT_BUCKET)
-      .createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SEC, { download: attachmentName || true });
-    if (error || !data) return fail("invalid");
-    attachmentUrl = data.signedUrl;
+    const bucket = createAdminClient().storage.from(CONTACT_BUCKET);
+    if (attachMode === "provider") {
+      /* 공급자 첨부 — 버킷의 파일을 내려받아 요청에 싣는다. 공급자가 첨부를 받지 않는 요금제면 공급자가 거절한다 */
+      const { data, error } = await bucket.download(attachmentPath);
+      if (error || !data) return fail("invalid");
+      attachmentFile = new File([data], attachmentName || attachmentPath.split("/").pop() || "file", { type: data.type || "application/octet-stream" });
+    } else {
+      const { data, error } = await bucket.createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SEC, { download: attachmentName || true });
+      if (error || !data) return fail("invalid");
+      attachmentUrl = data.signedUrl;
+    }
   }
 
   // ── 공급자로 보내기 ──
@@ -114,6 +122,8 @@ export async function POST(request: Request) {
     form.set("attachment_name", attachmentName);
     form.set("attachment_url", attachmentUrl);
   }
+  /* 공급자 첨부 — 칸 이름은 attachment(EmailJS 는 템플릿의 '변수 첨부' 이름을 attachment 로) */
+  if (attachmentFile) form.set("attachment", attachmentFile);
 
   const result = await sendContact(provider, keys, form, process.env.SITE_URL || undefined);
   if (!result.ok) {

@@ -531,7 +531,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         {/* 문의 메일은 서버(/api/contact)가 공급자로 보낸다 — 보내기 실패와 첨부 결과가 기록(contact)에 남는다 */}
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} spacerExtra={<ServiceLogLink query={{ category: "contact" }} />} {...sh} />
         <HintLines className={styles.sectionHints} lines={[
-          /* 공급자 이름은 각 사이트로. 첨부는 공급자 요금제와 상관없다(비공개 저장소 + 내려받기 링크) */
+          /* 공급자 이름은 각 사이트로 — 공급자 첨부를 고를 때 요금제 · 첨부 조건을 바로 확인하게 */
           (() => {
             const [before, after = ""] = t("admin.settings.emailFileUploadHint").split("{{providers}}");
             const sites = [
@@ -573,6 +573,18 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             checked={config.emailService.enableFileUpload}
             onCheckedChange={(v) => update("emailService", "enableFileUpload", v)}
           />
+          {config.emailService.enableFileUpload && (
+            <FieldRow label={<T k="admin.settings.emailAttachmentMode" />}>
+              <Select
+                value={config.emailService.attachmentMode ?? "link"}
+                options={[
+                  { value: "link", label: t("admin.settings.emailAttachmentModeLink") },
+                  { value: "provider", label: t("admin.settings.emailAttachmentModeProvider") },
+                ]}
+                onChange={(v) => update("emailService", "attachmentMode", v as SiteConfigData["emailService"]["attachmentMode"])}
+              />
+            </FieldRow>
+          )}
           {config.emailService.enableFileUpload && <AttachmentHealthNote t={t} />}
         </div>
       </section>

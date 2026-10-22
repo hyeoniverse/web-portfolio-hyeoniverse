@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -12,6 +12,8 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import { fillTemplate } from "@/utils/format";
+import { contactAcceptAttr, contactAttachLimits } from "@/lib/contact/attachmentTypes";
 import { fillRich } from "@/utils/fillRich";
 import CloseButton from "@/components/ui/CloseButton";
 import Textarea from "@/components/ui/Textarea";
@@ -99,6 +101,13 @@ export default function ContactDrawer({
   setCopied,
 }: ContactDrawerProps) {
   const siteConfig = useSiteConfig();
+  /* 첨부 형식 · 한도 — 서버(/api/contact/upload)와 같은 목록(lib/contact/attachmentTypes). 이미지 · 문서 · 압축 파일 */
+  const attachLimits = useMemo(
+    () => contactAttachLimits(siteConfig.media?.limits as Record<string, number> | undefined, siteConfig.media?.blockedExtensions ?? []),
+    [siteConfig.media?.limits, siteConfig.media?.blockedExtensions],
+  );
+  const attachAccept = contactAcceptAttr(attachLimits);
+  const attachMaxMb = Math.max(0, ...Object.values(attachLimits) as number[]);
   const { t } = useLanguage();
   /* 첨부가 여러 번 이어 실패해 저절로 꺼졌는지 — 설정은 켜져 있어도 꺼질 수 있다(/api/contact/attachment).
      서랍을 처음 열 때 한 번 묻는다. 모르는 동안은 설정을 따른다 */
@@ -369,7 +378,7 @@ export default function ContactDrawer({
                             ref={fileInputRef}
                             type="file"
                             name="attachment"
-                            accept=".pdf,.doc,.docx"
+                            accept={attachAccept}
                             style={{ display: "none" }}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
@@ -380,7 +389,7 @@ export default function ContactDrawer({
                             className={`${styles.fileBtn} ${fileName ? styles.fileBtnActive : ""}`}
                             onClick={() => fileInputRef.current?.click()}
                           >
-                            {fileName || <T k="contact.drawer.fileUpload" />}
+                            {fileName || fillTemplate(t("contact.drawer.fileUpload"), { mb: attachMaxMb })}
                           </Pressable>
                           {fileName && (
                             <Pressable noTapScale
