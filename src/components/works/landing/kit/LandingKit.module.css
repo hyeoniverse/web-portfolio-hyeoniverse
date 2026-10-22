@@ -116,15 +116,6 @@
   text-underline-offset: 3px;
 }
 
-/* ── 쌓기 — 칸 사이 넓은 여백 ── */
-.flow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-96);
-  padding-bottom: var(--spacing-96);
-}
-
 /* ── 큰 문장 ── */
 .statement {
   display: flex;
@@ -159,32 +150,78 @@
   text-wrap: pretty;
 }
 
-/* ── 화면 · 녹화 — 참고 페이지처럼 틀 없이 그림만, 칸 사이는 넓은 여백 ── */
-.shot {
-  --p: 0;
-  --ratio: 16 / 10;
-
+/* ── 섹션 — 화면 폭 전체, 바탕이 바뀌는 덩어리 ── */
+.section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-16);
+  align-items: center;
+  gap: var(--spacing-64);
+  width: 100%;
+  padding: var(--spacing-128) 0;
+}
+
+.section_base {
+  background-color: var(--bg-primary);
+}
+
+.section_tint {
+  background-color: color-mix(in srgb, var(--text-accent) 6%, var(--bg-primary));
+}
+
+.section_dark {
+  background-color: var(--bg-black);
+  color: var(--text-white);
+}
+
+.section_dark .sectionTitle,
+.section_dark .statementNo {
+  color: color-mix(in srgb, var(--text-accent) 55%, var(--text-white));
+}
+
+.section_dark .statementBody {
+  color: var(--text-white-muted);
+}
+
+.section_bleed {
+  padding: 0;
+  gap: 0;
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-20);
+  width: var(--lp-inset);
+  text-align: center;
+}
+
+.sectionTitle {
+  max-width: 20ch;
+  margin: 0;
+  font: var(--font-display-md);
+  color: var(--text-accent);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+/* ── 화면 · 녹화 — 캡처 비율 그대로(잘리지 않는다). 들어오면 아래에서 올라온다 ── */
+.shot {
+  --ratio: 16 / 10;
+
   margin: 0;
 }
 
-.shot_inset {
-  width: var(--lp-inset);
-}
-
-.shot_full,
-.shot_strip {
+.shot_bleed {
   width: 100%;
 }
 
-.shot_full {
-  --ratio: 16 / 9;
+.shot_wide {
+  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
 }
 
-.shot_strip {
-  --ratio: 21 / 8;
+.landing [data-reveal="rise"] {
+  transform: translateY(48px);
 }
 
 .shotFrame {
@@ -194,20 +231,14 @@
   background-color: var(--bg-tertiary);
 }
 
-.shot_inset .shotFrame {
-  transform: scale(calc(0.94 + 0.06 * var(--p)));
-  transform-origin: center top;
+.shot_wide .shotFrame {
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-overlay);
 }
 
 .shotImage {
   object-fit: cover;
   object-position: top center;
-}
-
-/* 화면 폭 — 스크롤 따라 안쪽 그림이 천천히 움직인다(--p: 0 → 1) */
-.shotParallax {
-  object-fit: cover;
-  transform: translateY(calc((var(--p) - 0.5) * -10%)) scale(1.12);
 }
 
 .shotVideo {
@@ -218,33 +249,36 @@
   object-fit: cover;
 }
 
-.caption {
-  max-width: 60ch;
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
-  word-break: keep-all;
-}
-
-.shot_full .caption,
-.shot_strip .caption {
-  padding: 0 var(--spacing-page-inline);
-}
-
-/* 나란히 — 세로 화면 여럿 */
-.row {
-  display: flex;
+/* 둘을 나란히 */
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-24);
+  width: min(1600px, calc(100% - var(--spacing-page-inline) * 2));
+}
+
+.pair .shot_wide {
+  width: 100%;
+}
+
+/* 휴대폰 — 세로 화면 여럿 */
+.phones {
+  display: flex;
+  gap: var(--spacing-32);
+  width: 100%;
+  padding: 0 var(--spacing-page-inline);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 }
 
-.rowItem {
+.phone {
   position: relative;
-  flex: 0 0 min(70%, 300px);
+  flex: 0 0 min(72%, 320px);
   aspect-ratio: 390 / 844;
   overflow: hidden;
   border-radius: var(--radius-surface);
   background-color: var(--bg-tertiary);
+  box-shadow: var(--shadow-overlay);
   scroll-snap-align: center;
 }
 
@@ -391,13 +425,15 @@
 
 /* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
 @media (width > 768px) {
-  .row {
+  .phones {
     justify-content: center;
     overflow: visible;
   }
+}
 
-  .rowItem {
-    flex: 1 1 0;
+@media (width > 1024px) {
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -419,8 +455,7 @@
     animation: none;
   }
 
-  .shot_inset .shotFrame,
-  .shotParallax {
+  .landing [data-reveal="rise"] {
     transform: none;
   }
 }

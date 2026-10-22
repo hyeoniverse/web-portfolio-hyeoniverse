@@ -146,33 +146,44 @@ function NumberItem({ value, label, index }: { value: string; label: string; ind
   );
 }
 
-/** 칸 사이 여백을 두고 쌓는 줄 */
-export function Flow({ children }: { children: ReactNode }) {
-  return <div className={styles.flow}>{children}</div>;
+/**
+ * 섹션 — 화면 폭 전체를 쓰는 한 덩어리. secret-level 처럼 섹션마다 바탕(tone)이 바뀌고, 안에 문장 · 화면 · 데모를 둔다.
+ * tone: base(사이트 바탕) · tint(강조색이 옅게 비친 바탕) · dark(검정) · bleed(여백 없이 화면만)
+ */
+export function Section({ tone = "base", children }: { tone?: "base" | "tint" | "dark" | "bleed"; children: ReactNode }) {
+  return <section className={`${styles.section} ${styles[`section_${tone}`]}`}>{children}</section>;
+}
+
+/** 섹션 머리 — 번호 · 제목 · 한 줄(선택). 섹션 안에서 화면 위에 */
+export function SectionHead({ no, title, body, viewLang }: { no?: string; title: L10n; body?: L10n; viewLang: Lang }) {
+  return (
+    <header className={styles.sectionHead}>
+      {no && <span className={styles.statementNo} data-reveal="">{no}</span>}
+      <h2 className={styles.sectionTitle} data-reveal="" style={delay(1)}>{title[viewLang]}</h2>
+      {body && <p className={styles.statementBody} data-reveal="" style={delay(2)}>{body[viewLang]}</p>}
+    </header>
+  );
 }
 
 /**
- * 화면 한 장 — 이 페이지를 위해 새로 찍은 캡처(content/works/<slug>/landing).
- * full: 화면 폭(16:9), strip: 화면 폭의 가로로 긴 컷(21:8), inset: 칼럼 폭(1128px). 화면 폭은 스크롤 따라 안쪽 그림이 천천히 움직이고,
- * 칼럼 폭은 들어오며 조금 커진다. caption 은 그림 아래 작은 한 줄
+ * 화면 한 장 — 이 페이지를 위해 2배 해상도로 새로 찍은 캡처(content/works/<slug>/landing, WebP 2880px).
+ * 그림을 줄이지 않고 원본 그대로 낸다(unoptimized — 사이트의 이미지 최적화는 1536px 까지라 화면 폭에서 흐려졌다).
+ * size: bleed 는 화면 폭 전체(캡처 비율 그대로라 잘리지 않는다), wide 는 섹션 여백 안에서 최대 1600px
  */
-export function Shot({ src, alt, variant = "inset", caption, priority, ratio }: {
-  src: string; alt: string; variant?: "full" | "strip" | "inset"; caption?: string; priority?: boolean; ratio?: string;
+export function Shot({ src, alt, size = "bleed", ratio = "16 / 10", priority }: {
+  src: string; alt: string; size?: "bleed" | "wide"; ratio?: string; priority?: boolean;
 }) {
-  const full = variant !== "inset";
   return (
-    <figure className={`${styles.shot} ${styles[`shot_${variant}`]}`} data-progress={full ? "through" : "enter"}>
-      <div className={styles.shotFrame} style={ratio ? ({ ["--ratio" as string]: ratio } as CSSProperties) : undefined}>
-        <Image src={src} alt={alt} fill sizes={full ? "100vw" : "(max-width: 1200px) 100vw, 1128px"} priority={priority} className={full ? styles.shotParallax : styles.shotImage} />
+    <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
+      <div className={styles.shotFrame} style={{ ["--ratio" as string]: ratio } as CSSProperties}>
+        <Image src={src} alt={alt} fill unoptimized priority={priority} className={styles.shotImage} />
       </div>
-      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
     </figure>
   );
 }
 
-/** 녹화 — 화면에 보일 때만 소리 없이 되풀이 재생(움직임 줄이기면 첫 장면에서 멈춤). variant 는 Shot 과 같다.
- *  start: 녹화 앞쪽(페이지를 여는 동안의 빈 화면)을 건너뛰는 초 — 되풀이할 때도 여기서 다시 시작한다 */
-export function Recording({ src, label, variant = "inset", caption, start = 0 }: { src: string; label: string; variant?: "full" | "inset"; caption?: string; start?: number }) {
+/** 녹화 — 화면 폭 전체, 보일 때만 소리 없이 되풀이 재생(움직임 줄이기면 첫 장면에서 멈춤) */
+export function Recording({ src, label, poster, size = "bleed" }: { src: string; label: string; poster?: string; size?: "bleed" | "wide" }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -186,37 +197,28 @@ export function Recording({ src, label, variant = "inset", caption, start = 0 }:
     return () => io.disconnect();
   }, []);
   return (
-    <figure className={`${styles.shot} ${styles[`shot_${variant}`]}`} data-progress="enter">
+    <figure className={`${styles.shot} ${styles[`shot_${size}`]}`} data-reveal="rise">
       <div className={styles.shotFrame}>
-        <video
-          ref={ref}
-          className={styles.shotVideo}
-          src={start ? `${src}#t=${start}` : src}
-          muted
-          playsInline
-          preload="metadata"
-          aria-label={label}
-          onTimeUpdate={(e) => { if (e.currentTarget.currentTime < start) e.currentTarget.currentTime = start; }}
-          onEnded={(e) => { e.currentTarget.currentTime = start; void e.currentTarget.play().catch(() => {}); }}
-        />
+        <video ref={ref} className={styles.shotVideo} src={src} poster={poster} muted loop playsInline preload="metadata" aria-label={label} />
       </div>
-      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
     </figure>
   );
 }
 
-/** 나란히 — 휴대폰 화면처럼 세로로 긴 그림 여럿을 칼럼 폭에 나란히(폰에서는 가로로 넘긴다) */
-export function Row({ items, caption }: { items: { src: string; alt: string }[]; caption?: string }) {
+/** 나란히 — 휴대폰 화면 여럿(폰에서는 가로로 넘긴다) */
+export function Phones({ items }: { items: { src: string; alt: string }[] }) {
   return (
-    <figure className={`${styles.shot} ${styles.shot_inset}`}>
-      <div className={styles.row}>
-        {items.map((it, i) => (
-          <div key={it.src} className={styles.rowItem} data-reveal="" style={delay(i)}>
-            <Image src={it.src} alt={it.alt} fill sizes="(max-width: 768px) 70vw, 360px" className={styles.shotImage} />
-          </div>
-        ))}
-      </div>
-      {caption && <figcaption className={styles.caption} data-reveal="">{caption}</figcaption>}
-    </figure>
+    <div className={styles.phones}>
+      {items.map((it, i) => (
+        <div key={it.src} className={styles.phone} data-reveal="rise" style={delay(i)}>
+          <Image src={it.src} alt={it.alt} fill unoptimized className={styles.shotImage} />
+        </div>
+      ))}
+    </div>
   );
+}
+
+/** 둘을 나란히 — 화면 두 장(태블릿 이하는 위아래) */
+export function Pair({ children }: { children: ReactNode }) {
+  return <div className={styles.pair}>{children}</div>;
 }
