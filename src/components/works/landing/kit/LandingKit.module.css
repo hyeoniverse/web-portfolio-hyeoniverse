@@ -252,41 +252,6 @@
   transform: translate3d(calc((var(--p, 0) - 1) * var(--lap)), 0, 0);
 }
 
-/* 휴대폰 화면 — 두 줄이 화면 높이 안에 들어오게 장 폭을 높이에서 정한다(390 × 844 비율) */
-.marquee_phone {
-  --item: min(40vw, calc((100dvh - var(--spacing-48)) / 2 * 390 / 844));
-}
-
-/* 저절로 흐르는 띠 — 붙지 않고 제 높이만큼만. 줄마다 한 벌 길이를 되풀이해 옮긴다(아랫줄은 거꾸로) */
-.marquee_auto {
-  --marquee-duration: 70s;
-
-  height: auto;
-}
-
-.marquee_auto .marqueeStage {
-  position: static;
-  height: auto;
-}
-
-.marquee_auto .marqueeRow {
-  animation: marqueeFlow var(--marquee-duration) linear infinite;
-}
-
-.marquee_auto .marqueeRowReverse {
-  animation-direction: reverse;
-}
-
-@keyframes marqueeFlow {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: translate3d(calc(var(--lap) * -1), 0, 0);
-  }
-}
-
 .marqueeItem {
   display: block;
   flex: none;
@@ -323,6 +288,74 @@
 
 .sequenceFrameOn {
   opacity: 1;
+}
+
+/* ── 뒤집히는 휴대폰 — 바깥 상자 = 화면 높이 + 뒤집기마다 화면 높이의 50%. 무대가 붙어 있는 동안 몸통이 세로축으로 돈다 ── */
+.phoneFlip {
+  position: relative;
+  height: calc(100dvh + var(--count) * 50dvh);
+}
+
+.phoneFlipStage {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  perspective: 1600px;
+}
+
+.phoneFlipBody {
+  position: relative;
+  height: min(80dvh, 720px);
+  aspect-ratio: 390 / 844;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 한 면 = 휴대폰 틀(검은 테두리 · 둥근 모서리) + 화면 */
+.phoneFace {
+  position: absolute;
+  inset: 0;
+  padding: var(--spacing-12);
+  border-radius: calc(var(--radius-surface) * 3);
+  background-color: var(--bg-black);
+  box-shadow: var(--shadow-overlay);
+  backface-visibility: hidden;
+}
+
+.phoneFaceBack {
+  transform: rotateY(180deg);
+}
+
+.phoneScreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) * 2.2);
+  background-color: var(--bg-tertiary);
+}
+
+.phoneShot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* 화면 위 가운데의 섬 */
+.phoneIsland {
+  position: absolute;
+  top: var(--spacing-8);
+  left: 50%;
+  width: 32%;
+  height: var(--spacing-24);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-black);
+  transform: translateX(-50%);
 }
 
 /* ── 숫자 띠 ── */
@@ -413,10 +446,6 @@
     --item: 26vw;
   }
 
-  .marquee_phone {
-    --item: min(16vw, calc((100dvh - var(--spacing-48)) / 2 * 390 / 844));
-  }
-
   /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
   .phones {
     grid-auto-columns: 20%;
@@ -475,8 +504,7 @@
     transition: none;
   }
 
-  .letter,
-  .marquee_auto .marqueeRow {
+  .letter {
     animation: none;
   }
 }

@@ -237,16 +237,14 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
 /**
  * 흐르는 띠 — 화면 폭 전체 두 줄. 저절로 흐르지 않고 스크롤로만 흐른다: 이 구간에 들어오면 화면에 붙어(sticky) 있고,
  * 스크롤하는 만큼 윗줄은 왼쪽, 아랫줄은 오른쪽으로 흘러 한 바퀴(한 벌 길이)를 돌면 풀려 다음으로 넘어간다.
- * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다.
- * phone 이면 세로 휴대폰 화면 — 장이 좁고 무대 높이에 맞춰 두 줄이 들어온다.
- * auto 면 스크롤과 상관없이 붙지 않고 저절로 끝없이 흐른다(움직임 줄이기면 멈춘다)
+ * 줄마다 두 벌을 이어 붙여 한 바퀴의 끝이 처음과 똑같이 이어진다. 진행(--p)은 붙어 있는 동안 스크롤한 비율이다
  */
-export function Marquee({ rows, phone, auto }: { rows: { src: string; alt: string }[][]; phone?: boolean; auto?: boolean }) {
+export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  usePinnedProgress(rootRef, undefined, !auto);
+  usePinnedProgress(rootRef);
   const count = Math.max(...rows.map((row) => row.length));
   return (
-    <div ref={rootRef} className={`${styles.marquee} ${phone ? styles.marquee_phone : ""} ${auto ? styles.marquee_auto : ""}`} style={{ ["--count" as string]: count } as CSSProperties}>
+    <div ref={rootRef} className={styles.marquee} style={{ ["--count" as string]: count } as CSSProperties}>
       <div className={styles.marqueeStage}>
         {rows.map((row, r) => (
           <div key={r} className={`${styles.marqueeRow} ${r % 2 ? styles.marqueeRowReverse : ""}`}>
@@ -256,9 +254,9 @@ export function Marquee({ rows, phone, auto }: { rows: { src: string; alt: strin
                 src={it.src}
                 alt={copy ? "" : it.alt}
                 aria-hidden={copy ? true : undefined}
-                width={phone ? 780 : 1280}
-                height={phone ? 1688 : 800}
-                sizes={phone ? "20vw" : "30vw"}
+                width={1280}
+                height={800}
+                sizes="30vw"
                 unoptimized
                 className={styles.marqueeItem}
               />
@@ -271,14 +269,14 @@ export function Marquee({ rows, phone, auto }: { rows: { src: string; alt: strin
 }
 
 /** 붙어 있는 구간의 진행 — 바깥 상자가 화면 맨 위에 닿을 때 0, 바깥 상자 끝이 화면 아래에 닿을 때 1. --p 로 넘기고 값도 알린다 */
-function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: (p: number) => void, enabled = true) {
+function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: (p: number) => void) {
   const cb = useRef(onProgress);
   useEffect(() => {
     cb.current = onProgress;
   });
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || !enabled) return;
+    if (!root) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -297,7 +295,7 @@ function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: 
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [rootRef, enabled]);
+  }, [rootRef]);
 }
 
 /**
@@ -323,6 +321,45 @@ export function Sequence({ items }: { items: { src: string; alt: string }[] }) {
             className={`${styles.sequenceFrame} ${i <= active ? styles.sequenceFrameOn : ""}`}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 뒤집히는 휴대폰 — 휴대폰 모양 틀 하나가 화면에 붙어 있고, 스크롤하는 만큼 세로축으로 돈다. 반 바퀴(뒤집힐 때)마다 다음 화면이 보인다.
+ * 앞면 · 뒷면 두 장만 두고, 보이지 않는 쪽에 다음 화면을 미리 넣어 둔다. 한 번 뒤집는 구간의 앞뒤 1/4 은 멈춰 있어 화면을 읽을 수 있다
+ */
+export function PhoneFlip({ items }: { items: { src: string; alt: string }[] }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [seg, setSeg] = useState(0);
+  const flips = Math.max(1, items.length - 1);
+  usePinnedProgress(rootRef, (p) => {
+    const x = Math.min(flips - 1e-4, p * flips);
+    const i = Math.floor(x);
+    const f = x - i;
+    const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
+    const eased = t * t * (3 - 2 * t);
+    if (bodyRef.current) bodyRef.current.style.transform = `rotateY(${(i + eased) * 180}deg)`;
+    setSeg(i);
+  });
+  /* 이 구간의 출발 화면은 seg, 도착 화면은 seg + 1 — 짝수 구간은 앞면에서 출발한다 */
+  const front = items[seg % 2 === 0 ? seg : seg + 1];
+  const back = items[seg % 2 === 0 ? seg + 1 : seg];
+  return (
+    <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: flips } as CSSProperties}>
+      <div className={styles.phoneFlipStage}>
+        <div ref={bodyRef} className={styles.phoneFlipBody}>
+          {[front, back].map((it, k) => (
+            <div key={k} className={`${styles.phoneFace} ${k ? styles.phoneFaceBack : ""}`}>
+              <div className={styles.phoneScreen}>
+                {it && <Image src={it.src} alt={it.alt} width={780} height={1688} sizes="30vw" unoptimized className={styles.phoneShot} />}
+                <span className={styles.phoneIsland} aria-hidden />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

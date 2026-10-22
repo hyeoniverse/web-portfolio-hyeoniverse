@@ -1,7 +1,7 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Sequence, type Lang, type L10n } from "../kit/LandingKit";
+import { Flow, Frame, LandingShell, Marquee, Note, Numbers, PhoneFlip, Sequence, type Lang, type L10n } from "../kit/LandingKit";
 
 /** 테마 프리셋 이름 — 설정 화면의 THEME_PRESETS 순서(캡처 theme-light-00 … 17 · theme-dark-00 … 17 과 같다) */
 const THEME_PRESETS = ["Default", "Ruby", "Meadow", "Coral", "Azure", "Sand", "Harvest", "Honey", "Forest", "Rosewood", "Dusk", "Arctic", "Baltic", "Sorbet", "Twilight", "Tropica", "Petal", "Slate"];
@@ -153,28 +153,22 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
             en: "Every screen was tuned at phone width — the menu opens full screen, and tables and code scroll sideways.",
           }}
         />
-        <Marquee
-          phone
-          auto
-          rows={[
-            [
-              { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }) },
-              { src: `${A}/mobile-menu.webp`, alt: t({ ko: "메뉴", en: "Menu" }) },
-              { src: `${A}/mobile-works.webp`, alt: t({ ko: "작업물", en: "Works" }) },
-              { src: `${A}/mobile-about.webp`, alt: "About" },
-              { src: `${A}/mobile-profile.webp`, alt: t({ ko: "프로필", en: "Profile" }) },
-              { src: `${A}/mobile-home-dark.webp`, alt: t({ ko: "홈 — 다크", en: "Home — dark" }) },
-              { src: `${A}/mobile-design-system.webp`, alt: t({ ko: "디자인 시스템", en: "Design system" }) },
-            ],
-            [
-              { src: `${A}/mobile-posts.webp`, alt: t({ ko: "블로그", en: "Blog" }) },
-              { src: `${A}/mobile-post.webp`, alt: t({ ko: "글", en: "Post" }) },
-              { src: `${A}/mobile-post-body.webp`, alt: t({ ko: "글 — 요약과 목차", en: "Post — summary and contents" }) },
-              { src: `${A}/mobile-series.webp`, alt: t({ ko: "시리즈", en: "Series" }) },
-              { src: `${A}/mobile-tags.webp`, alt: t({ ko: "태그", en: "Tags" }) },
-              { src: `${A}/mobile-history.webp`, alt: t({ ko: "기록", en: "History" }) },
-              { src: `${A}/mobile-til.webp`, alt: "TIL" },
-            ],
+        <PhoneFlip
+          items={[
+            { src: `${A}/mobile-home.webp`, alt: t({ ko: "홈", en: "Home" }) },
+            { src: `${A}/mobile-menu.webp`, alt: t({ ko: "메뉴", en: "Menu" }) },
+            { src: `${A}/mobile-works.webp`, alt: t({ ko: "작업물", en: "Works" }) },
+            { src: `${A}/mobile-about.webp`, alt: "About" },
+            { src: `${A}/mobile-profile.webp`, alt: t({ ko: "프로필", en: "Profile" }) },
+            { src: `${A}/mobile-home-dark.webp`, alt: t({ ko: "홈 — 다크", en: "Home — dark" }) },
+            { src: `${A}/mobile-design-system.webp`, alt: t({ ko: "디자인 시스템", en: "Design system" }) },
+            { src: `${A}/mobile-posts.webp`, alt: t({ ko: "블로그", en: "Blog" }) },
+            { src: `${A}/mobile-post.webp`, alt: t({ ko: "글", en: "Post" }) },
+            { src: `${A}/mobile-post-body.webp`, alt: t({ ko: "글 — 요약과 목차", en: "Post — summary and contents" }) },
+            { src: `${A}/mobile-series.webp`, alt: t({ ko: "시리즈", en: "Series" }) },
+            { src: `${A}/mobile-tags.webp`, alt: t({ ko: "태그", en: "Tags" }) },
+            { src: `${A}/mobile-history.webp`, alt: t({ ko: "기록", en: "History" }) },
+            { src: `${A}/mobile-til.webp`, alt: "TIL" },
           ]}
         />
 
