@@ -1,7 +1,10 @@
 "use client";
 
 import type { Project } from "@/data/projects";
-import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Phones, type Lang, type L10n } from "../kit/LandingKit";
+import { Flow, Frame, LandingShell, Marquee, Note, Numbers, Phones, Sequence, type Lang, type L10n } from "../kit/LandingKit";
+
+/** 테마 프리셋 이름 — 설정 화면의 THEME_PRESETS 순서(캡처 theme-light-00 … 17 · theme-dark-00 … 17 과 같다) */
+const THEME_PRESETS = ["Default", "Ruby", "Meadow", "Coral", "Azure", "Sand", "Harvest", "Honey", "Forest", "Rosewood", "Dusk", "Arctic", "Baltic", "Sorbet", "Twilight", "Tropica", "Petal", "Slate"];
 
 /**
  * HYEONIVERSE 전용 랜딩 페이지 — andreasantonsson.dev/project/synthetic-theatre 처럼 이미지가 중심이다.
@@ -24,18 +27,18 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
       eyebrow={{ ko: "디자인 시스템부터 관리자 CMS 까지, 혼자 설계하고 운영하는 포트폴리오", en: "A portfolio designed and run solo, from the design system to the admin CMS" }}
     >
       <Flow>
-        <Frame at="bleed" video={`${A}/home.mp4`} src={`${A}/home-light.webp`} alt={t({ ko: "홈을 스크롤하는 녹화", en: "Recording: scrolling the home page" })} />
+        <Frame at="bleed" priority src={`${A}/home-light.webp`} alt={t({ ko: "홈 첫 화면", en: "Home" })} />
 
         <Note
           viewLang={viewLang}
           no="01"
-          title={{ ko: "만들고, 쓰고, 운영하는 한 곳", en: "One place to build, write and run" }}
+          title={{ ko: "스크롤에 답하는 첫 화면", en: "A home that answers the scroll" }}
           body={{
-            ko: "작업물을 보여 주는 포트폴리오, 블로그, 매일 남기는 TIL, 이 모두를 고치는 관리자 CMS 를 한 저장소에서 만들었습니다.",
-            en: "A portfolio, a blog, a daily TIL log and the admin CMS that edits them all — built in one repository.",
+            ko: "스크롤하는 만큼 큰 글자가 흩어지고, 3D 도넛이 화면 안을 떠다니며 작업물 · 글 · 프로필로 이어집니다.",
+            en: "Big type scatters as you scroll, a 3D torus drifts across the screen, and the page leads on to works, writing and the profile.",
           }}
         />
-        <Frame at="right" src={`${A}/about-0.webp`} alt={t({ ko: "About 첫 화면 — 별자리로 고르는 챕터", en: "About opening — chapters picked from a constellation" })} />
+        <Frame at="wide" video={`${A}/home.mp4`} src={`${A}/home-light.webp`} alt={t({ ko: "홈을 스크롤하는 녹화", en: "Recording: scrolling the home page" })} />
 
         <Note
           viewLang={viewLang}
@@ -58,14 +61,14 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="03"
           title={{ ko: "같은 화면, 다른 테마", en: "Same screens, different themes" }}
           body={{
-            ko: "테마는 의미 토큰이 가리키는 값만 바꿉니다. 강조색 · 배경 · 글자색 프리셋 열여덟 벌을 입힌 실제 홈 화면 — 라이트와 다크.",
-            en: "Themes only swap what the semantic tokens point to. The real home page in eighteen presets of accent, background and text — light and dark.",
+            ko: "테마는 의미 토큰이 가리키는 값만 바꿉니다. 프리셋 열여덟 벌을 모두 입힌 실제 홈 화면 — 윗줄 라이트, 아랫줄 다크.",
+            en: "Themes only swap what the semantic tokens point to. The real home page in all eighteen presets — light on top, dark below.",
           }}
         />
         <Marquee
           rows={[
-            ["00", "01", "02", "03", "04", "05", "06", "07", "08"].map((n) => ({ src: `${A}/theme-light-${n}.webp`, alt: t({ ko: `라이트 테마 프리셋 ${Number(n) + 1}`, en: `Light theme preset ${Number(n) + 1}` }) })),
-            ["09", "10", "11", "12", "13", "14", "15", "16", "17"].map((n) => ({ src: `${A}/theme-dark-${n}.webp`, alt: t({ ko: `다크 테마 프리셋 ${Number(n) + 1}`, en: `Dark theme preset ${Number(n) + 1}` }) })),
+            THEME_PRESETS.map((name, i) => ({ src: `${A}/theme-light-${String(i).padStart(2, "0")}.webp`, alt: t({ ko: `${name} — 라이트`, en: `${name} — light` }) })),
+            THEME_PRESETS.map((name, i) => ({ src: `${A}/theme-dark-${String(i).padStart(2, "0")}.webp`, alt: t({ ko: `${name} — 다크`, en: `${name} — dark` }) })),
           ]}
         />
         <Frame at="left" src={`${A}/design-system.webp`} alt={t({ ko: "디자인 시스템 — 원칙", en: "Design system — principles" })} />
@@ -87,15 +90,30 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="05"
-          title={{ ko: "About 은 챕터를 넘기는 이야기", en: "About reads as chapters" }}
+          title={{ ko: "하늘은 방문자의 시각과 날씨를 따른다", en: "The sky follows your time and weather" }}
           body={{
-            ko: "별을 누르면 그 챕터로. 숫자로 본 사이트, 보는 화면과 쓰는 화면을 차례로 넘깁니다.",
-            en: "Tap a star to open its chapter — the site in numbers, then the reading and writing sides.",
+            ko: "About 의 배경은 방문자 시계로 새벽부터 밤까지 일곱 단계를 지나고, 그 도시의 날씨(Open-Meteo)에 따라 구름 · 안개 · 비 · 눈 · 뇌우가 내립니다. 스크롤하면 하루가 흐릅니다.",
+            en: "The About background moves through seven stages from dawn to night by your clock, and clouds, fog, rain, snow or storms fall with your city's weather (Open-Meteo). Scroll to pass the day.",
           }}
         />
-        <Frame at="bleed" src={`${A}/about-2.webp`} alt={t({ ko: "About — 숫자로 본 사이트", en: "About — the site in numbers" })} />
-        <Frame at="left" src={`${A}/about-3.webp`} alt={t({ ko: "보는 화면, 쓰는 화면", en: "Screens to read, screens to write" })} />
-        <Frame at="right" src={`${A}/about-4.webp`} alt={t({ ko: "공개 화면 — 홈", en: "Public — home" })} />
+        <Sequence
+          items={[
+            { src: `${A}/sky-01-dawn.webp`, label: t({ ko: "05:40 새벽", en: "05:40 Dawn" }) },
+            { src: `${A}/sky-02-sunrise.webp`, label: t({ ko: "06:25 해돋이", en: "06:25 Sunrise" }) },
+            { src: `${A}/sky-03-morning.webp`, label: t({ ko: "08:30 아침", en: "08:30 Morning" }) },
+            { src: `${A}/sky-04-day.webp`, label: t({ ko: "12:30 한낮", en: "12:30 Midday" }) },
+            { src: `${A}/sky-05-dusk.webp`, label: t({ ko: "18:12 노을", en: "18:12 Sunset" }) },
+            { src: `${A}/sky-06-evening.webp`, label: t({ ko: "19:12 저녁", en: "19:12 Blue hour" }) },
+            { src: `${A}/sky-07-night.webp`, label: t({ ko: "22:30 밤", en: "22:30 Night" }) },
+            { src: `${A}/sky-w1-cloudy.webp`, label: t({ ko: "흐림 · 한낮", en: "Cloudy · midday" }) },
+            { src: `${A}/sky-w2-fog.webp`, label: t({ ko: "안개 · 아침", en: "Fog · morning" }) },
+            { src: `${A}/sky-w3-rain.webp`, label: t({ ko: "비 · 한낮", en: "Rain · midday" }) },
+            { src: `${A}/sky-w4-snow.webp`, label: t({ ko: "눈 · 저녁", en: "Snow · blue hour" }) },
+            { src: `${A}/sky-w5-storm.webp`, label: t({ ko: "뇌우 · 밤", en: "Storm · night" }) },
+          ].map((it) => ({ ...it, alt: t({ ko: `About 하늘 — ${it.label}`, en: `About sky — ${it.label}` }) }))}
+        />
+        <Frame at="left" src={`${A}/about-2.webp`} alt={t({ ko: "About — 숫자로 본 사이트", en: "About — the site in numbers" })} />
+        <Frame at="right" src={`${A}/about-3.webp`} alt={t({ ko: "보는 화면, 쓰는 화면", en: "Screens to read, screens to write" })} />
 
         <Note
           viewLang={viewLang}

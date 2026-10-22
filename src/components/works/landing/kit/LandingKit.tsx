@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
@@ -241,27 +241,7 @@ export function Phones({ items }: { items: { src: string; alt: string }[] }) {
  */
 export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const r = root.getBoundingClientRect();
-      const total = root.offsetHeight - window.innerHeight;
-      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
-      root.style.setProperty("--p", p.toFixed(4));
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  usePinnedProgress(rootRef);
   const count = Math.max(...rows.map((row) => row.length));
   return (
     <div ref={rootRef} className={styles.marquee} style={{ ["--count" as string]: count } as CSSProperties}>
@@ -283,6 +263,70 @@ export function Marquee({ rows }: { rows: { src: string; alt: string }[][] }) {
             )))}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** 붙어 있는 구간의 진행 — 바깥 상자가 화면 맨 위에 닿을 때 0, 바깥 상자 끝이 화면 아래에 닿을 때 1. --p 로 넘기고 값도 알린다 */
+function usePinnedProgress(rootRef: RefObject<HTMLElement | null>, onProgress?: (p: number) => void) {
+  const cb = useRef(onProgress);
+  useEffect(() => {
+    cb.current = onProgress;
+  });
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = root.getBoundingClientRect();
+      const total = root.offsetHeight - window.innerHeight;
+      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+      root.style.setProperty("--p", p.toFixed(4));
+      cb.current?.(p);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [rootRef]);
+}
+
+/**
+ * 시간순 장면 — 화면 폭 전체 무대가 화면에 붙어 있는 동안, 스크롤하는 만큼 다음 장면으로 겹쳐 넘어간다(한 장면에 화면 높이의 60%).
+ * 아래에 지금 장면의 이름(시각 · 날씨)과 진행 눈금을 둔다. 다 넘기면 풀린다
+ */
+export function Sequence({ items }: { items: { src: string; alt: string; label: string }[] }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  usePinnedProgress(rootRef, (p) => setActive(Math.min(items.length - 1, Math.floor(p * items.length))));
+  return (
+    <div ref={rootRef} className={styles.sequence} style={{ ["--count" as string]: items.length } as CSSProperties}>
+      <div className={styles.sequenceStage}>
+        {items.map((it, i) => (
+          <Image
+            key={it.src}
+            src={it.src}
+            alt={it.alt}
+            width={2880}
+            height={1800}
+            sizes="100vw"
+            unoptimized
+            className={`${styles.sequenceFrame} ${i <= active ? styles.sequenceFrameOn : ""}`}
+          />
+        ))}
+        <div className={styles.sequenceBar}>
+          <span className={styles.sequenceLabel} aria-live="polite">{items[active]?.label}</span>
+          <ol className={styles.sequenceTicks} aria-hidden>
+            {items.map((it, i) => <li key={it.src} className={i <= active ? styles.sequenceTickOn : undefined} />)}
+          </ol>
+        </div>
       </div>
     </div>
   );

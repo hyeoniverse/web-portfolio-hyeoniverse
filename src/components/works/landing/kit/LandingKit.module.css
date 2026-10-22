@@ -261,6 +261,76 @@
   outline-offset: calc(var(--border-width-1) * -1);
 }
 
+/* ── 시간순 장면 — 쌓임은 문서 순서로(뒤 장면 · 이름 띠가 위). 무대가 붙어 있는 동안 장면이 차례로 겹쳐 나타난다. 바깥 상자 = 화면 높이 + 장면마다 화면 높이의 60% ── */
+.sequence {
+  position: relative;
+  height: calc(100dvh + var(--count) * 60dvh);
+}
+
+.sequenceStage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--bg-black);
+}
+
+.sequenceFrame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity var(--duration-slower) var(--ease-standard);
+}
+
+.sequenceFrameOn {
+  opacity: 1;
+}
+
+.sequenceBar {
+  position: absolute;
+  right: var(--spacing-page-inline);
+  bottom: var(--spacing-32);
+  left: var(--spacing-page-inline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding: var(--spacing-12) var(--spacing-20);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--bg-black) 55%, transparent);
+  color: var(--text-white);
+  backdrop-filter: blur(12px);
+}
+
+.sequenceLabel {
+  font: var(--font-label-md);
+  white-space: nowrap;
+}
+
+.sequenceTicks {
+  display: flex;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sequenceTicks li {
+  width: var(--spacing-16);
+  height: var(--border-width-2);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-white) 30%, transparent);
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+
+.sequenceTicks .sequenceTickOn {
+  background-color: var(--text-white);
+}
+
 /* ── 숫자 띠 ── */
 .numbers {
   display: grid;
