@@ -531,9 +531,10 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         {/* 문의 메일은 서버(/api/contact)가 공급자로 보낸다 — 보내기 실패와 첨부 결과가 기록(contact)에 남는다 */}
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} spacerExtra={<ServiceLogLink query={{ category: "contact" }} />} {...sh} />
         <HintLines className={styles.sectionHints} lines={[
-          /* 공급자 이름은 각 사이트로 — 공급자 첨부를 고를 때 요금제 · 첨부 조건을 바로 확인하게 */
+          /* 첨부 안내 — 저장 · 두 방식 · 제한 · 자동 꺼짐을 한 줄씩. 공급자 이름은 각 사이트로(요금제 · 첨부 조건 확인) */
+          t("admin.settings.emailAttachHintStore"),
           (() => {
-            const [before, after = ""] = t("admin.settings.emailFileUploadHint").split("{{providers}}");
+            const [before, after = ""] = t("admin.settings.emailAttachHintLink").split("{{providers}}");
             const sites = [
               ["Formspree", "https://formspree.io/"],
               ["Web3Forms", "https://web3forms.com/"],
@@ -552,9 +553,13 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               </>
             );
           })(),
+          t("admin.settings.emailAttachHintProvider"),
+          t("admin.settings.emailAttachHintLimits"),
+          t("admin.settings.emailAttachHintAutoOff"),
           envKeyLine([...(CONTACT_KEYS[config.emailService.provider as keyof typeof CONTACT_KEYS] ?? [])], t),
         ]} />
-        <div className={`${shared.fields} ${shared.fieldPair} ${shared.fieldPairAlways}`}>
+        {/* 공급자 | 파일 업로드 | 첨부 전달 방식 — 넓으면 세 칸 */}
+        <div className={styles.emailFields}>
           <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
