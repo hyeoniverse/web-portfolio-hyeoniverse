@@ -260,19 +260,6 @@
   },
   "workDetail": {
     "landing": {
-      "glance": "한눈에 보기",
-      "features": "주요 기능",
-      "about": "소개",
-      "gallery": "화면",
-      "timeline": "진행 과정",
-      "role": "맡은 일",
-      "specs": "기술 사양",
-      "factPeriod": "기간",
-      "factTech": "사용한 기술",
-      "factTeam": "함께한 사람",
-      "github": "GitHub에서 보기",
-      "visit": "사이트 열기",
-      "factScreens": "화면",
       "site": "사이트",
       "live": "실제 AI",
       "nextProject": "다음 작업물",
@@ -294,7 +281,8 @@
         "providers": "공급자 자동 전환",
         "themes": "테마 프리셋",
         "layouts": "작업물 레이아웃 여섯 가지"
-      }
+      },
+      "period": "기간"
     },
     "back": "Works",
     "editWork": "이 작품 편집 (새 탭)",

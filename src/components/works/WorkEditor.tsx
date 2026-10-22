@@ -2242,7 +2242,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         title: tw("landing"),
         count: landingFilledCount(landing),
         preview: landingFilledCount(landing) === 0 ? empty : (
-          <span className={styles.extraPreviewLine}>{landing.tagline || landing.highlights[0]?.title || landing.chapters[0]?.title || tw("landingFilled")}</span>
+          <span className={styles.extraPreviewLine}>{landing.eyebrow || fillTemplate(tw("landingMediaCount"), { n: landing.media.length })}</span>
         ),
         body: landingSection,
       },

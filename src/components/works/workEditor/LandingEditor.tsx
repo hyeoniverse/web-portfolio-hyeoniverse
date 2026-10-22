@@ -5,16 +5,15 @@ import { ArrowDown, ArrowUp, ImageIcon, Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import Select from "@/components/ui/Select";
-import Textarea from "@/components/ui/Textarea";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { uploadFile } from "@/lib/adminUpload";
-import { LANDING_CHAPTER_LOOKS, LANDING_DEMOS, type LandingChapter, type LandingChapterLook, type LandingDemo, type LandingPoint, type WorkLanding } from "@/types/workLanding";
+import { LANDING_DEMOS, LANDING_MEDIA_SIZES, type LandingDemo, type LandingMedia, type LandingMediaSize, type WorkLanding } from "@/types/workLanding";
 import styles from "./LandingEditor.module.css";
 
 /**
  * 작업물 편집기 — 추가 정보의 '랜딩 페이지' 카드. 한 언어치(편집 중인 언어) 내용을 고친다.
- * 설정에서 작업물 상세를 랜딩 페이지로 고르면 이 내용으로 그려진다(WorkLanding). 비워 둔 칸은 다른 칸으로 채운다.
- * 목록은 모두 같은 모양 — 줄마다 위/아래 · 지우기, 끝에 '추가'.
+ * 설정에서 작업물 상세를 랜딩 페이지로 고르면 이 내용으로 그려진다(WorkLanding) — 글 없이 그림 위주.
+ * 제목 위 한 줄과, 대표 화면 아래로 이어질 미디어(그림 · 영상 또는 데모, 칼럼 폭 / 화면 폭). 미디어를 비우면 갤러리 그림으로 채운다.
  */
 export default function LandingEditor({
   value,
@@ -31,95 +30,46 @@ export default function LandingEditor({
   /** 지금 설정이 게시물 형태면 알리는 줄 */
   modeHint?: ReactNode;
 }) {
-  const set = <K extends keyof WorkLanding>(key: K, v: WorkLanding[K]) => onChange({ ...value, [key]: v });
+  const setMedia = (media: LandingMedia[]) => onChange({ ...value, media });
 
   return (
     <div className={styles.wrap}>
       <p className={styles.hint}>{tw("landingHint")}</p>
       {modeHint}
 
-      <div className={styles.grid2}>
-        <label className={es.field}>
-          <span className={es.fieldLabel}>{tw("landingTagline")}</span>
-          <input
-            className={es.fieldInput}
-            value={value.tagline}
-            onChange={(e) => set("tagline", e.target.value)}
-            placeholder={tw("landingTaglinePlaceholder")}
-          />
-        </label>
-        <div className={es.field}>
-          <span className={es.fieldLabel}>{tw("landingContext")}</span>
-          <Textarea
-            value={value.context}
-            onChange={(v) => set("context", v)}
-            placeholder={tw("landingContextPlaceholder")}
-            rows={2}
-          />
+      <label className={es.field}>
+        <span className={es.fieldLabel}>{tw("landingEyebrow")}</span>
+        <input
+          className={es.fieldInput}
+          value={value.eyebrow}
+          onChange={(e) => onChange({ ...value, eyebrow: e.target.value })}
+          placeholder={tw("landingEyebrowPlaceholder")}
+        />
+      </label>
+
+      <section className={styles.group}>
+        <div className={styles.groupHead}>
+          <h3 className={es.fieldLabel}>{tw("landingMedia")}</h3>
+          <span className={styles.groupHint}>{tw("landingMediaHint")}</span>
         </div>
-      </div>
-
-      {/* 숫자 요약 */}
-      <Group title={tw("landingFacts")} hint={tw("landingFactsHint")} onAdd={() => set("facts", [...value.facts, { value: "", label: "" }])} addLabel={tw("landingAdd")}>
-        {value.facts.map((f, i) => (
-          <Row key={i} index={i} list={value.facts} onList={(l) => set("facts", l)} tw={tw}>
-            <input className={`${es.fieldInput} ${styles.short}`} value={f.value} placeholder="16"
-              onChange={(e) => set("facts", replace(value.facts, i, { ...f, value: e.target.value }))} />
-            <input className={es.fieldInput} value={f.label} placeholder={tw("landingFactLabelPlaceholder")}
-              onChange={(e) => set("facts", replace(value.facts, i, { ...f, label: e.target.value }))} />
-          </Row>
-        ))}
-      </Group>
-
-      {/* 주요 기능 */}
-      <Group title={tw("landingHighlights")} hint={tw("landingHighlightsHint")} onAdd={() => set("highlights", [...value.highlights, emptyPoint()])} addLabel={tw("landingAdd")}>
-        {value.highlights.map((p, i) => (
-          <Row key={i} index={i} list={value.highlights} onList={(l) => set("highlights", l)} tw={tw} block>
-            <PointFields point={p} onChange={(np) => set("highlights", replace(value.highlights, i, np))} tw={tw} demoName={demoName} />
-          </Row>
-        ))}
-      </Group>
-
-      {/* 챕터 */}
-      <Group title={tw("landingChapters")} hint={tw("landingChaptersHint")} onAdd={() => set("chapters", [...value.chapters, { title: "", lead: "", points: [] }])} addLabel={tw("landingAddChapter")}>
-        {value.chapters.map((c, i) => (
-          <Row key={i} index={i} list={value.chapters} onList={(l) => set("chapters", l)} tw={tw} block>
-            <ChapterFields chapter={c} onChange={(nc) => set("chapters", replace(value.chapters, i, nc))} tw={tw} demoName={demoName} />
-          </Row>
-        ))}
-      </Group>
-
-      {/* 진행 과정 */}
-      <Group title={tw("landingTimeline")} onAdd={() => set("timeline", [...value.timeline, { date: "", label: "" }])} addLabel={tw("landingAdd")}>
-        {value.timeline.map((t, i) => (
-          <Row key={i} index={i} list={value.timeline} onList={(l) => set("timeline", l)} tw={tw}>
-            <input className={`${es.fieldInput} ${styles.short}`} value={t.date} placeholder="2026.03"
-              onChange={(e) => set("timeline", replace(value.timeline, i, { ...t, date: e.target.value }))} />
-            <input className={es.fieldInput} value={t.label} placeholder={tw("landingTimelinePlaceholder")}
-              onChange={(e) => set("timeline", replace(value.timeline, i, { ...t, label: e.target.value }))} />
-          </Row>
-        ))}
-      </Group>
-
-      {/* 기술 사양 */}
-      <Group title={tw("landingSpecs")} hint={tw("landingSpecsHint")} onAdd={() => set("specs", [...value.specs, { label: "", value: "" }])} addLabel={tw("landingAdd")}>
-        {value.specs.map((s, i) => (
-          <Row key={i} index={i} list={value.specs} onList={(l) => set("specs", l)} tw={tw}>
-            <input className={`${es.fieldInput} ${styles.short}`} value={s.label} placeholder="Frontend"
-              onChange={(e) => set("specs", replace(value.specs, i, { ...s, label: e.target.value }))} />
-            <input className={es.fieldInput} value={s.value} placeholder="Next.js 16 · React 19"
-              onChange={(e) => set("specs", replace(value.specs, i, { ...s, value: e.target.value }))} />
-          </Row>
-        ))}
-      </Group>
+        <div className={styles.rows}>
+          {value.media.map((m, i) => (
+            <Row key={i} index={i} list={value.media} onList={setMedia} tw={tw}>
+              <MediaFields media={m} onChange={(nm) => setMedia(value.media.map((x, j) => (j === i ? nm : x)))} tw={tw} demoName={demoName} />
+            </Row>
+          ))}
+        </div>
+        <div className={styles.addRow}>
+          <Button size="sm" variant="outline" onClick={() => setMedia([...value.media, { size: "inset" }])}>
+            <Plus size={14} /> {tw("landingAddMedia")}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setMedia([...value.media, { size: "inset", demo: "translate" }])}>
+            <Plus size={14} /> {tw("landingAddDemo")}
+          </Button>
+        </div>
+      </section>
     </div>
   );
-}
-
-const emptyPoint = (): LandingPoint => ({ title: "", body: "" });
-
-function replace<T>(list: T[], i: number, item: T): T[] {
-  return list.map((x, j) => (j === i ? item : x));
 }
 
 function move<T>(list: T[], from: number, to: number): T[] {
@@ -130,29 +80,13 @@ function move<T>(list: T[], from: number, to: number): T[] {
   return next;
 }
 
-function Group({ title, hint, onAdd, addLabel, children }: { title: string; hint?: string; onAdd: () => void; addLabel: string; children: ReactNode }) {
-  return (
-    <section className={styles.group}>
-      <div className={styles.groupHead}>
-        <h3 className={es.fieldLabel}>{title}</h3>
-        {hint && <span className={styles.groupHint}>{hint}</span>}
-      </div>
-      <div className={styles.rows}>{children}</div>
-      <div>
-        <Button size="sm" variant="outline" onClick={onAdd}>
-          <Plus size={14} /> {addLabel}
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-/** 목록 한 줄 — 오른쪽에 위/아래 · 지우기. block 이면 칸들이 세로로 쌓인다(기능 · 챕터) */
-function Row<T>({ index, list, onList, tw, block, children }: {
-  index: number; list: T[]; onList: (l: T[]) => void; tw: (k: string) => string; block?: boolean; children: ReactNode;
+/** 목록 한 줄 — 왼쪽 번호, 오른쪽에 위/아래 · 지우기 */
+function Row<T>({ index, list, onList, tw, children }: {
+  index: number; list: T[]; onList: (l: T[]) => void; tw: (k: string) => string; children: ReactNode;
 }) {
   return (
-    <div className={`${styles.row}${block ? ` ${styles.rowBlock}` : ""}`}>
+    <div className={styles.row}>
+      <span className={styles.rowNo}>{String(index + 1).padStart(2, "0")}</span>
       <div className={styles.rowFields}>{children}</div>
       <div className={styles.rowActions}>
         <Pressable className={styles.iconBtn} onClick={() => onList(move(list, index, index - 1))} disabled={index === 0} aria-label={tw("landingMoveUp")}>
@@ -169,60 +103,43 @@ function Row<T>({ index, list, onList, tw, block, children }: {
   );
 }
 
-type DemoName = (demo: LandingDemo) => string;
-
-function PointFields({ point, onChange, tw, demoName }: { point: LandingPoint; onChange: (p: LandingPoint) => void; tw: (k: string) => string; demoName: DemoName }) {
+/** 미디어 한 칸 — 종류(그림 · 영상 / 데모) · 크기 또는 데모 · 주소 */
+function MediaFields({ media, onChange, tw, demoName }: {
+  media: LandingMedia; onChange: (m: LandingMedia) => void; tw: (k: string) => string; demoName: (d: LandingDemo) => string;
+}) {
+  const isDemo = !!media.demo;
   return (
     <>
-      <input className={es.fieldInput} value={point.title} placeholder={tw("landingPointTitle")}
-        onChange={(e) => onChange({ ...point, title: e.target.value })} />
-      <Textarea value={point.body} onChange={(v) => onChange({ ...point, body: v })} placeholder={tw("landingPointBody")} rows={2} />
-      {/* 미디어 — 데모를 고르면 그림 대신 데모 창이 뜬다 */}
-      <div className={styles.mediaRow}>
+      <div className={styles.mediaHead}>
         <Select
           size="sm"
-          value={point.demo ?? ""}
-          options={[{ value: "", label: tw("landingDemoNone") }, ...LANDING_DEMOS.map((d) => ({ value: d, label: demoName(d) }))]}
-          onChange={(v) => onChange({ ...point, demo: (v || undefined) as LandingDemo | undefined })}
+          value={isDemo ? "demo" : "image"}
+          options={[{ value: "image", label: tw("landingKindImage") }, { value: "demo", label: tw("landingKindDemo") }]}
+          onChange={(v) => onChange(v === "demo" ? { size: "inset", demo: media.demo ?? "translate" } : { size: media.size, src: media.src })}
         />
-        {!point.demo && <ImageInput value={point.image ?? ""} onChange={(image) => onChange({ ...point, image: image || undefined })} tw={tw} />}
+        {/* 그림 · 영상은 칼럼 폭 / 화면 폭, 데모는 칼럼 폭 창으로만 띄운다 */}
+        {isDemo ? (
+          <Select
+            size="sm"
+            value={media.demo ?? "translate"}
+            options={LANDING_DEMOS.map((d) => ({ value: d, label: demoName(d) }))}
+            onChange={(v) => onChange({ ...media, demo: v as LandingDemo })}
+          />
+        ) : (
+          <Select
+            size="sm"
+            value={media.size}
+            options={LANDING_MEDIA_SIZES.map((s) => ({ value: s, label: tw(`landingSize_${s}`) }))}
+            onChange={(v) => onChange({ ...media, size: v as LandingMediaSize })}
+          />
+        )}
       </div>
+      {!isDemo && <ImageInput value={media.src ?? ""} onChange={(src) => onChange({ ...media, src: src || undefined })} tw={tw} />}
     </>
   );
 }
 
-function ChapterFields({ chapter, onChange, tw, demoName }: { chapter: LandingChapter; onChange: (c: LandingChapter) => void; tw: (k: string) => string; demoName: DemoName }) {
-  return (
-    <>
-      <div className={styles.chapterHead}>
-        <input className={`${es.fieldInput} ${styles.chapterTitle}`} value={chapter.title} placeholder={tw("landingChapterTitle")}
-          onChange={(e) => onChange({ ...chapter, title: e.target.value })} />
-        {/* 모양 — 두 칸 카드 · 크기가 다른 칸 · 큰 무대 */}
-        <Select
-          size="sm"
-          value={chapter.look ?? "list"}
-          options={LANDING_CHAPTER_LOOKS.map((l) => ({ value: l, label: tw(`landingLook_${l}`) }))}
-          onChange={(v) => onChange({ ...chapter, look: v === "list" ? undefined : (v as LandingChapterLook) })}
-        />
-      </div>
-      <Textarea value={chapter.lead} onChange={(v) => onChange({ ...chapter, lead: v })} placeholder={tw("landingChapterLead")} rows={2} />
-      <div className={styles.subRows}>
-        {chapter.points.map((p, i) => (
-          <Row key={i} index={i} list={chapter.points} onList={(points) => onChange({ ...chapter, points })} tw={tw} block>
-            <PointFields point={p} onChange={(np) => onChange({ ...chapter, points: replace(chapter.points, i, np) })} tw={tw} demoName={demoName} />
-          </Row>
-        ))}
-        <div>
-          <Button size="sm" variant="ghost" onClick={() => onChange({ ...chapter, points: [...chapter.points, emptyPoint()] })}>
-            <Plus size={14} /> {tw("landingAddPoint")}
-          </Button>
-        </div>
-      </div>
-    </>
-  );
-}
-
-/** 이미지 — 주소를 적거나 파일을 올린다. 올린 그림은 작은 미리보기로 */
+/** 그림 · 영상 — 주소를 적거나 파일을 올린다. 그림은 작은 미리보기로 */
 function ImageInput({ value, onChange, tw }: { value: string; onChange: (url: string) => void; tw: (k: string) => string }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -240,9 +157,10 @@ function ImageInput({ value, onChange, tw }: { value: string; onChange: (url: st
       if (fileRef.current) fileRef.current.value = "";
     }
   };
+  const isVideo = /\.(mp4|webm|mov)(\?|#|$)/i.test(value);
   return (
     <div className={styles.image}>
-      {value ? (
+      {value && !isVideo ? (
         // eslint-disable-next-line @next/next/no-img-element -- 편집기 미리보기(아무 주소나 들어온다)
         <img src={value} alt="" className={styles.imageThumb} />
       ) : (
@@ -252,7 +170,7 @@ function ImageInput({ value, onChange, tw }: { value: string; onChange: (url: st
       <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
         {busy ? tw("landingUploading") : tw("landingUpload")}
       </Button>
-      <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+      <input ref={fileRef} type="file" accept="image/*,video/mp4,video/webm" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       {failed && <span className={styles.imageError}>{tw("landingUploadFailed")}</span>}
     </div>
   );

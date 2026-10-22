@@ -260,19 +260,6 @@
   },
   "workDetail": {
     "landing": {
-      "glance": "At a glance",
-      "features": "Key features",
-      "about": "About",
-      "gallery": "Screens",
-      "timeline": "Timeline",
-      "role": "My role",
-      "specs": "Tech specs",
-      "factPeriod": "Period",
-      "factTech": "Technologies",
-      "factTeam": "People",
-      "github": "View on GitHub",
-      "visit": "Open site",
-      "factScreens": "Screens",
       "site": "Site",
       "live": "Live AI",
       "nextProject": "Next project",
@@ -294,7 +281,8 @@
         "providers": "Provider fallback",
         "themes": "Theme presets",
         "layouts": "Six works layouts"
-      }
+      },
+      "period": "Period"
     },
     "back": "Works",
     "editWork": "Edit this work (new tab)",
