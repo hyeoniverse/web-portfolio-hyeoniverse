@@ -136,7 +136,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="06"
-          title={{ ko: "스크롤 한 번으로 읽는 프로필", en: "A profile read in one scroll" }}
+          title={{ ko: "스크롤을 따라 옆으로 펼쳐지는 프로필", en: "A profile that unfolds sideways as you scroll" }}
           body={{
             ko: "아래로 굴리면 화면이 옆으로 흐르며, 마스코트 몽이의 인사 · 창처럼 겹친 사진 · GitHub 활동 · 고정한 저장소 · 경력이 차례로 지나갑니다.",
             en: "Scroll down and the page runs sideways — Mongi's hello, photos stacked like windows, GitHub activity, pinned repos and experience pass by in turn.",
