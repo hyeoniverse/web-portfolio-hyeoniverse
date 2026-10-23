@@ -12,7 +12,7 @@ import type { SettingsSection } from "../_hooks/useSettingsSections";
  *
  * About 설정처럼 패널이 많고 길게 이어진 화면에 둔다(#348). 맨 위 패널 칩은 표시·이름·순서를
  * 바꾸는 자리라 누르면 이동하지 않고, 페이지 맨 위에만 있다. 태블릿·모바일에서는 사이드바가
- * 가로 탭 바로 바뀌므로 숨기고, 오른쪽 눈금(SectionJumpNav)이 같은 일을 한다.
+ * 가로 탭 바로 바뀌므로 숨긴다(섹션 사이는 스크롤로 오간다).
  */
 export default function SectionOutline({
   sections,

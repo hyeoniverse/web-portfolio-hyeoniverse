@@ -1,7 +1,7 @@
 /* 제목·액션 둘 다 섹션 직속 sticky 요소(부모 .section grid). containing block 이 섹션 전체라
    스크롤 내내 함께 붙어 있고, sticky 조상에 안 갇힌다.
    difference 는 제목(.title)에만 — 페이지 콘텐츠와 반전. 액션(.spacer)·hint 는 정상 색.
-   data-settings-section — SectionJumpNav 스캔·점프 앵커. */
+   data-settings-section — SectionOutline 스캔·점프 앵커. */
 .title {
   grid-column: 1;
   grid-row: 1;

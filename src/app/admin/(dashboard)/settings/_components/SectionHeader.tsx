@@ -87,7 +87,7 @@ export default function SectionHeader({
     /* 제목만 sticky + difference — 섹션 직속 요소라야 containing block 이 섹션(높이 전체)이 되어
        스크롤 내내 붙어 있고, sticky 조상에 갇히지 않아 페이지 콘텐츠와 반전된다.
        액션(버튼/링크)·hint 는 blend 밖 형제라 정상 색으로 렌더된다.
-       data-settings-section — SectionJumpNav 스캔·점프 앵커(+scroll-margin-top). */
+       data-settings-section — SectionOutline 스캔·점프 앵커(+scroll-margin-top). */
     <>
       <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section data-dirty={dirty || undefined}>
         {title}
