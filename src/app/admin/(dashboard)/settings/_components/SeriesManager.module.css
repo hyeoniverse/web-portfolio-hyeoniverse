@@ -258,6 +258,9 @@
 
 .seriesCardCollapse {
   display: grid;
+  /* 열을 카드 폭에 묶는다 — 기본(auto) 열은 안쪽 내용 폭만큼 늘어나, 좁은 화면에서 펼친 편집 칸이 카드 밖으로
+     넘쳐 잘렸다(아래 줄의 삭제 · 되돌리기 단추가 안 보였다) */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: 0fr;
   overflow: hidden;
   /* 접힐 때: 즉시 접기 시작 (0.35s) */
@@ -271,6 +274,7 @@
 }
 
 .seriesCardCollapse > * {
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
 }

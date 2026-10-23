@@ -46,10 +46,26 @@
   gap: var(--spacing-8);
 }
 
+/* 동작 줄 — 왼쪽 끝 삭제, 오른쪽 되돌리기 · 취소 · 저장. 좁으면 다음 줄로 넘긴다(넘치면 카드 밖으로 잘렸다) */
 .seriesCardActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+/* 되돌리기 · 취소 · 저장은 한 묶음으로 오른쪽 끝 — 줄이 넘어가도 셋이 흩어지지 않는다 */
+.seriesCardActionsEnd {
+  display: flex;
   gap: var(--spacing-12);
+  margin-left: auto;
+}
+
+/* 커버 고르기 단추들 — 좁으면 줄바꿈 */
+.coverButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
 }
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {

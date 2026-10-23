@@ -541,7 +541,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
+            <div className={styles.coverButtons}>
               <Button variant="outline" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
@@ -872,16 +872,17 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
               <T k="admin.posts.delete" />
             </Button>
           )}
-          <div className="spacer" />
-          <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving}>
-            <T k="admin.posts.seriesModal.revert" />
-          </Button>
-          <Button variant="outline" onClick={onCancel}>
-            <T k="admin.posts.seriesModal.cancel" />
-          </Button>
-          <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
-            {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
-          </Button>
+          <div className={styles.seriesCardActionsEnd}>
+            <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving}>
+              <T k="admin.posts.seriesModal.revert" />
+            </Button>
+            <Button variant="outline" onClick={onCancel}>
+              <T k="admin.posts.seriesModal.cancel" />
+            </Button>
+            <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
+              {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
+            </Button>
+          </div>
         </div>
       )}
     </div>
