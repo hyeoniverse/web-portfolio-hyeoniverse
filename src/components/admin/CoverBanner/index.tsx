@@ -32,14 +32,14 @@ interface CoverBannerProps {
   onCoverChange: (url: string) => void;
   /** 업로드 트리거 — caller 가 파일 선택 후 onCoverChange 로 url 반영 */
   onUpload: () => void;
-  /** 페이지 이모지 (native / img:url / icon:id), null 이면 미설정 */
-  emoji: string | null;
-  onEmojiChange: (e: string | null) => void;
+  /** 페이지 이모지 (native / img:url / icon:id), null 이면 미설정. onEmojiChange 를 주지 않으면 이모지 칸을 그리지 않는다 */
+  emoji?: string | null;
+  onEmojiChange?: (e: string | null) => void;
   /** 커버 세로 위치 % (object-position, 0~100) — 저장값 */
   position?: number;
   /** 커버 확대 배율 (scale, 1~2.5) — 저장값 */
   zoom?: number;
-  /** 위치 조정 저장 시 호출 (DB 반영) */
+  /** 위치 조정 저장 시 호출 (DB 반영) — 주지 않으면 위치 조정 단추를 그리지 않는다 */
   onPositionChange?: (position: number) => void;
   onZoomChange?: (zoom: number) => void;
 }
@@ -320,7 +320,7 @@ export default function CoverBanner({
               </Popover>
 
               {/* 커버가 있을 때만 위치 조정 진입 */}
-              {hasCover && (
+              {hasCover && onPositionChange && (
                 <Button
                   variant="ghost"
                   shape="capsule"
@@ -338,6 +338,7 @@ export default function CoverBanner({
       </div>
 
       {/* ── 페이지 이모지 ── */}
+      {onEmojiChange && (
       <div className={`${styles.emojiRow}${hasCover ? "" : ` ${styles.emojiRowNoCover}`}`}>
         <div className={styles.emojiAnchor}>
           {/* 단일 버튼 — emoji 유무에 따라 내용만 바뀌도록(엘리먼트 유지) 해서
@@ -372,6 +373,7 @@ export default function CoverBanner({
           />
         </div>
       </div>
+      )}
     </div>
   );
 }
