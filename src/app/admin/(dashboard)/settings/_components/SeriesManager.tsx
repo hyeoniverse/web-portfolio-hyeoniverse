@@ -458,7 +458,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
               layout
               transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
               ref={(el) => { if (el) seriesRefs.current.set(s.id, el); else seriesRefs.current.delete(s.id); }}
-              className={`${styles.seriesCard} ${isDragging ? styles.seriesCardDragging : ""} ${dropClass}`}
+              className={`${styles.seriesCard} ${expanded ? styles.seriesCardExpanded : ""} ${isDragging ? styles.seriesCardDragging : ""} ${dropClass}`}
               // grip handle 이 mousedown 으로 armed 했을 때만 카드 draggable 활성화 → 핸들 외 영역은 드래그 시작 X
               draggable={!expanded && armedId === s.id}
               // motion.div 의 onDragStart 등은 framer drag 시스템 타입이라 HTML5 drag prop 과 충돌 → cast 로 우회

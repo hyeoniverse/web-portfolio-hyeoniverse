@@ -5,10 +5,17 @@
   border: var(--border-light);
   border-top: none;
   border-radius: 0 0 var(--radius-surface) var(--radius-surface);
-  padding: var(--card-padding-md);
+  /* 좁은 화면은 여백을 줄여 글 칸을 넓힌다 */
+  padding: var(--spacing-12);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
+}
+
+@media (width > 768px) {
+  .seriesCardBody {
+    padding: var(--card-padding-md);
+  }
 }
 /* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
 .seriesCardBodyStandalone {
@@ -294,9 +301,6 @@
   border-radius: 0;
 }
 /* handle 과 order 묶음 — 부모 gap 상쇄 (gap 0 으로 붙임) */
-.seriesPostHandle + .seriesPostOrder {
-  margin-left: calc(-1 * var(--spacing-12));
-}
 
 .seriesPostItem {
   position: relative;
@@ -332,8 +336,9 @@
   z-index: 1;
 }
 /* drag handle — 가장 앞 (숫자보다 좌측). mousedown 시점에만 부모 .seriesPostItem 의 draggable 이 armed */
+/* 끌기 손잡이 — 터치에서는 끌 수 없어 좁은 화면에서는 두지 않는다(차례는 옆의 위 · 아래 단추로) */
 .seriesPostHandle {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 16px;
@@ -345,6 +350,16 @@
 
 .seriesPostHandle:hover {
   color: var(--text-primary);
+}
+
+@media (width > 768px) {
+  .seriesPostHandle {
+    display: flex;
+  }
+
+  .seriesPostHandle + .seriesPostOrder {
+    margin-left: calc(-1 * var(--spacing-12));
+  }
 }
 
 .seriesPostOrder {
