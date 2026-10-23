@@ -44,7 +44,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
 
   const project = projects[projectIndex];
 
-  const prevProject = projectIndex > 0 ? projects[projectIndex - 1] : null;
   const nextProject =
     projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
   /* 랜딩 페이지의 '다음 작업물'은 끝에서 처음으로 돈다(참고 사이트처럼 늘 다음이 있다) */
@@ -65,7 +64,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
   return (
     <WorkDetailClient
       project={rendered}
-      prevProject={prevProject}
       nextProject={nextProject}
       firstProject={firstProject}
     />

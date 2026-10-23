@@ -660,7 +660,7 @@ export default function ContentTab({
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader
               title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`}
-              paths={["works.layout", "works.detailStyle", "works.adminPerPage", "works.infiniteScroll"]}
+              paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]}
               extra={
                 <Switch
                   label={t("admin.settings.worksInfiniteScroll")}
@@ -683,16 +683,6 @@ export default function ContentTab({
                     { value: "cylinder", label: "Cylinder" },
                   ]}
                   onChange={(v) => update("works", "layout", v)}
-                />
-              </FieldRow>
-              <FieldRow label={<T k="admin.settings.worksDetailStyle" />}>
-                <Select
-                  value={config.works.detailStyle ?? "article"}
-                  options={[
-                    { value: "article", label: t("admin.settings.worksDetailArticle") },
-                    { value: "landing", label: t("admin.settings.worksDetailLanding") },
-                  ]}
-                  onChange={(v) => update("works", "detailStyle", v)}
                 />
               </FieldRow>
               <FieldRow label={<T k="admin.settings.adminPerPage" />}>

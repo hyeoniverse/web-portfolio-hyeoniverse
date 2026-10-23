@@ -38,7 +38,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
 
   // variant가 명시적으로 전달되면 항상 표시, 아니면 HIDDEN_ROUTES 체크
   /* 랜딩으로 그리는 작업물 상세는 참고 사이트처럼 '다음 작업물'로 끝낸다 — 푸터를 그리지 않는다 */
-  const isHidden = variant === "full" && (HIDDEN_ROUTES.includes(pathname) || isLandingPath(pathname, siteConfig.works?.detailStyle));
+  const isHidden = variant === "full" && (HIDDEN_ROUTES.includes(pathname) || isLandingPath(pathname));
 
   /* ── Sliding indicator ── */
   const linksRef = useRef<HTMLDivElement>(null);

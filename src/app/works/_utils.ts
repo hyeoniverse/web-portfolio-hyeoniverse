@@ -1,12 +1,3 @@
-import type { TocHeading } from "@/types";
-import { extractHeadings as extractDocHeadings } from "@/utils/headingUtils";
-
-/** 목차 제목 — 글(posts)과 같은 공용 규칙(h1~h4, 같은 이름 제목 번호 붙이기)을 쓴다.
- *  예전에는 h2 만 뽑아 h3·h4 가 목차에 나오지 않았고 모든 항목이 같은 단계로 보였다. */
-export function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
-  return extractDocHeadings(content, !isRichtext);
-}
-
 /**
  * 글자 폭 어림 — 한글·한자·일본어 글자는 로마자의 두 배쯤 차지한다(#1062).
  *

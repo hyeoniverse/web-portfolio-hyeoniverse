@@ -90,10 +90,6 @@ describe("bodyLabels — 다시 모으기", () => {
 
 describe("bodyLabels — 정보 칸 라벨 · 영어 이름", () => {
   it("정보 칸 라벨은 locales/예전 글 그대로", () => {
-    expect(uiBodyLabels("ko").workCategory).toBe(ko.workDetail.category);
-    expect(uiBodyLabels("en").workTech).toBe(en.workDetail.tech);
-    expect(fillLabel(uiBodyLabels("ko").workTeamCount, { n: 3 })).toBe("팀 · 3");
-    expect(uiBodyLabels("en").workSolo).toBe("Solo");
     expect(uiBodyLabels("en").aiSummaryLabel).toBe(en.aiSummary.label);
   });
 

@@ -1,6 +1,0 @@
-/* 작품 상세 라우트 골격 — 본문 스타일은 components/works/WorkArticleView.module.css 로 옮겼다 (#662). */
-
-/* AdjacentNav 위에 team / related 둘 다 없을 때 — 윗부분과 분리되도록 border-top 추가 */
-.adjacentNavTopBorder {
-  border-top: var(--border-light);
-}
