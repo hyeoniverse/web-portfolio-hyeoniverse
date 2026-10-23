@@ -111,12 +111,17 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="06"
           title={{ ko: "글만 쓰면, 나머지는 AI 가", en: "Just write — AI does the rest" }}
           body={{
-            ko: "글마다 AI 가 요약하고, 다른 언어로 옮기고, 표지를 그리고, 소리로 읽어 줍니다. 공급자가 여럿이라 한 곳이 멈춰도 다음 곳이 이어받습니다.",
-            en: "AI summarises each post, translates it, draws its cover and reads it aloud. With several providers, when one stops the next takes over.",
+            ko: "글을 저장하면 AI 가 요약을 블록으로 정리하고, 방문자에게는 글을 소리로 읽어 줍니다. 작업물 슬라이드에는 대본만 적으면 해설 음성이 입혀지고, 다른 언어로 옮기는 일은 05 처럼 맡깁니다. 기능마다 공급자를 줄 세워 두어 한 곳이 실패하면 다음 곳이 이어받고, 호출은 모두 기록에 남습니다.",
+            en: "Save a post and AI lays out its summary in blocks, and reads the post aloud to visitors. Write a script for a work's slides and a narration voice is added; translation is handed off as in 05. Each feature lines up several providers so the next takes over when one fails, and every call is logged.",
           }}
         />
-        <Frame at="wide" src={`${A}/blog2-post-summary.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
-        <Frame at="right" src={`${A}/ai-listen.webp`} alt={t({ ko: "듣기 — 글을 소리로 읽어 준다", en: "Listen — the post read aloud" })} />
+        <Frame at="wide" src={`${A}/ai-post-summary.webp`} alt={t({ ko: "글의 AI 요약 — 핵심 · 검증 위치 · 주의 · 키워드를 블록으로", en: "A post's AI summary — key point, checks, caution and keywords as blocks" })} />
+        <Frame at="right" src={`${A}/ai-editor-summary.webp`} alt={t({ ko: "편집기 — 저장하면 생기는 AI 요약, 다시 만들기 한 번", en: "Editor — the AI summary made on save, regenerated with one button" })} />
+        <Frame at="left" src={`${A}/ai-listen.webp`} alt={t({ ko: "듣기 — 글을 소리로 읽어 준다", en: "Listen — the post read aloud" })} />
+        <Frame at="wide" src={`${A}/ai-narration.webp`} alt={t({ ko: "작업물 갤러리 — 슬라이드마다 대본, 음성 만들기로 해설 음성(18/18)", en: "Work gallery — a script per slide, narration voiced with one button (18/18)" })} />
+        <Frame at="center" src={`${A}/ai-chain-summary.webp`} width={2280} height={790} alt={t({ ko: "요약 공급자 순서 — 실패하면 다음 모델로", en: "Summary providers in order — on failure, the next model" })} />
+        <Frame at="right" src={`${A}/ai-chain-tts.webp`} width={2280} height={750} alt={t({ ko: "음성 공급자 순서 — Fish Audio 다음 Edge TTS", en: "Voice providers in order — Fish Audio, then Edge TTS" })} />
+        <Frame at="left" src={`${A}/ai-service-log.webp`} alt={t({ ko: "서비스 호출 기록 — 공급자마다 성공 · 실패를 남긴다", en: "Service call log — success and failure recorded per provider" })} />
 
         <Note
           viewLang={viewLang}
