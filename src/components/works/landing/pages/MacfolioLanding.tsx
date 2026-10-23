@@ -146,7 +146,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="09"
-          title={{ ko: "창 안에서 돌아가는 프로젝트 앱", en: "Project apps that run inside a window" }}
+          title={{ ko: "배포한 프로젝트를 그 자리에서 실행해 보기", en: "Run the deployed projects right here" }}
           body={{
             ko: "Dock 의 프로젝트 아이콘을 누르면 배포한 사이트가 창 안에서 그대로 열립니다 — HYEONIVERSE · NewPick · QRU · WTD. Launchpad 의 새싹 농장은 Unity 로 만든 게임이 창 안에서 돌아갑니다.",
             en: "Click a project icon in the Dock and the deployed site opens right inside a window — HYEONIVERSE, NewPick, QRU and WTD. SproutFarm in the Launchpad runs a Unity game inside its window.",
