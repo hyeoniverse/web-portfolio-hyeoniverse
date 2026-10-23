@@ -38,10 +38,12 @@
 }
 
 .fieldWrapSm .input {
+  margin-left: calc(var(--control-height-sm) / 2);
   line-height: var(--control-height-sm);
 }
 
 .fieldWrapXs .input {
+  margin-left: calc(var(--control-height-xs) / 2);
   line-height: var(--control-height-xs);
   font-size: var(--font-size-body-sm);
 }
@@ -53,6 +55,11 @@
   border-radius: 0;
 }
 
+/* 밑줄 칸은 둥근 끝이 없어 예전 시작점(16) 그대로 */
+.fieldWrapUnderline .input {
+  margin-left: var(--spacing-16);
+}
+
 /* contentEditable div — flex 1 로 남은 공간 차지, min-width: 0 로 truncate 허용.
    horizontal scroll 은 native (overflow-x: auto + nowrap). */
 .input {
@@ -62,7 +69,8 @@
   box-sizing: border-box;
   /* padding 0 — gap 은 margin 으로 (scroll 영역 밖이라 항상 유지됨) */
   padding: 0;
-  margin: 0 var(--spacing-4) 0 var(--spacing-16);
+  /* 알약의 둥근 끝(높이의 절반 — 곡선이 끝나는 곳)에서 글자가 시작한다 — 공용 Input 과 같은 시작점 */
+  margin: 0 var(--spacing-4) 0 calc(var(--control-height-md) / 2);
   border: none;
   background: transparent;
   font: var(--font-body-md);
