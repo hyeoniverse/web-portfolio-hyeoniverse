@@ -4,10 +4,11 @@ import Link from "next/link";
 import TextLink from "@/components/ui/TextLink";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject, type SyntheticEvent } from "react";
 import { ArrowDown, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { isPlainClick } from "@/utils/gestureUtils";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
@@ -356,26 +357,21 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
   const wordsRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const turns = Math.max(1, items.length - 1);
-  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
-  /* 넘기기 — 스크롤 값을 각도로 그대로 쓰면 스크롤 빠르기만큼 일정하게 돌아 밋밋했다. 스크롤은 "몇 번째 화면인가"만 정하고,
-     휴대폰은 한 번에 한 화면씩 스스로 천천히 구른다: 1.6초 동안 사인 곡선으로 부드럽게 출발해 부드럽게 멈춘다(가장 빠른 순간도 평균의 1.6배 —
-     용수철로 걸었을 땐 처음에 확 튀어 나가 휙휙 돌았다).
-     흔들림(기울기 · 떠다님)은 스크롤을 그대로 따른다. 움직임 줄이기면 바로 그 화면 */
-  const motion = useRef({ target: 0, x: 0, from: 0, start: 0, dur: 0, raf: 0, p: 0, want: 0 });
-  const paint = useCallback((x: number) => {
+  usePinnedProgress(rootRef, (p) => {
     const root = rootRef.current;
     if (!root) return;
-    const p = motion.current.p;
-    root.style.setProperty("--rx", `${x * -360}deg`);
+    const x = Math.min(turns - 1e-4, p * turns);
+    const i = Math.floor(x);
+    const f = x - i;
+    const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
+    const eased = t * t * (3 - 2 * t);
+    root.style.setProperty("--rx", `${(i + eased) * -360}deg`);
     /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
     root.style.setProperty("--ry", `${Math.sin(p * Math.PI * 3) * 14}deg`);
     root.style.setProperty("--rz", `${Math.sin(p * Math.PI * 5) * 6}deg`);
     root.style.setProperty("--bob", `${Math.sin(p * Math.PI * 4) * 2.5}dvh`);
-    const k = Math.min(turns, Math.max(0, x));
-    const i = Math.min(turns - 1, Math.floor(k));
-    const f = k - i;
-    root.style.setProperty("--spin", String(Math.abs(Math.sin(f * Math.PI * 2))));
-    /* 주소 줄 — 구르는 만큼 다음 화면의 주소로 옮겨 간다 */
+    root.style.setProperty("--spin", String(Math.abs(Math.sin(eased * Math.PI * 2))));
+    /* 주소 줄 — 화면 i 의 주소 가운데가 화면 가운데에 오도록, 구르는 동안 i+1 의 주소로 옮겨 간다 */
     const row = wordsRef.current;
     if (row) {
       const words = row.children;
@@ -384,51 +380,28 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
       if (a && b) {
         const ca = a.offsetLeft + a.offsetWidth / 2;
         const cb = b.offsetLeft + b.offsetWidth / 2;
-        row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * f)}px, 0, 0)`;
+        row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * eased)}px, 0, 0)`;
       }
     }
     /* 반 바퀴(뒷면이 보일 때)를 넘기면 다음 화면 */
-    setCurrent(Math.min(items.length - 1, Math.max(0, Math.round(x))));
-  }, [turns, items.length]);
-  /* 한 프레임 — 자기 자신을 다음 프레임에 다시 건다. 이름으로 부르면 선언 전에 쓰는 셈이라 ref 로 부른다 */
-  const stepRef = useRef<(now: number) => void>(() => {});
-  const step = useCallback((now: number) => {
-    const m = motion.current;
-    if (!m.start) m.start = now;
-    const t = Math.min(1, (now - m.start) / m.dur);
-    m.x = m.from + (m.target - m.from) * (0.5 - Math.cos(Math.PI * t) / 2);
-    paint(m.x);
-    if (t >= 1) {
-      /* 다 굴렀는데 스크롤이 그사이 더 멀리 가 있으면 한 화면 더 — 한 번에 여러 장을 건너뛰지 않고 차례로 넘긴다 */
-      if (m.want !== m.target) { m.from = m.x; m.target += Math.sign(m.want - m.target); m.start = now; m.dur = 1600; }
-      else { m.raf = 0; return; }
-    }
-    m.raf = requestAnimationFrame(stepRef.current);
-  }, [paint]);
-  useEffect(() => { stepRef.current = step; }, [step]);
-  usePinnedProgress(rootRef, (p) => {
-    const m = motion.current;
-    m.p = p;
-    /* 구간을 반 넘게 지나면 다음 화면 — 화면마다 스크롤 한 칸(구간)을 쓰고, 그 가운데에서 넘어간다 */
-    const want = Math.min(turns, Math.max(0, Math.round(p * turns)));
-    m.want = want;
-    if (reducedMotion) { m.target = m.x = want; paint(want); return; }
-    /* 같은 화면 안이거나 이미 구르는 중이면 — 기울기 · 떠다님만 따라 바꾼다(구르는 중이면 프레임마다 그리니 그대로). 구르는 중에 정해진 다음 화면은 끝난 뒤 넘긴다 */
-    if (want === m.target || m.raf) { if (!m.raf) paint(m.x); return; }
-    /* 한 화면씩 — 지금 화면에서 한 칸만 출발한다 */
-    m.from = m.x;
-    m.target += Math.sign(want - m.target);
-    m.start = 0;
-    m.dur = 1600;
-    if (!m.raf) m.raf = requestAnimationFrame(stepRef.current);
+    setCurrent(eased < 0.5 ? i : i + 1);
   });
-  /* 정리할 때 도는 중 표시(raf)도 비운다 — 취소만 하고 번호를 남기면 "이미 돌고 있다"로 읽혀 다시는 돌지 않았다
-     (개발 모드는 효과를 한 번 정리했다 다시 걸어서, 휴대폰이 아예 구르지 않았다) */
-  useEffect(() => {
-    const m = motion.current;
-    return () => { cancelAnimationFrame(m.raf); m.raf = 0; };
-  }, []);
   const screen = items[current];
+  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
+  /* 화면의 녹화가 끝나면 다음 화면으로 — 섹션이 화면에 붙어 있을 때만, 그 화면 자리까지 페이지를 부드럽게 굴린다(휴대폰은 스크롤을 따라 구른다).
+     섹션 밖이거나 마지막 화면이면 처음부터 다시 재생한다 */
+  const { lenis } = useLenis();
+  const onScreenEnded = useCallback((e: SyntheticEvent<HTMLVideoElement>) => {
+    const root = rootRef.current;
+    const video = e.currentTarget;
+    const r = root?.getBoundingClientRect();
+    const pinned = !!r && r.top <= 1 && r.bottom >= window.innerHeight - 1;
+    if (!root || !pinned || current >= items.length - 1) { video.currentTime = 0; void video.play().catch(() => {}); return; }
+    const total = root.offsetHeight - window.innerHeight;
+    const y = root.getBoundingClientRect().top + window.scrollY + ((current + 1) / turns) * total + 2;
+    if (lenis) lenis.scrollTo(y, { duration: 1.6 });
+    else window.scrollTo({ top: y, behavior: "smooth" });
+  }, [current, items.length, lenis, turns]);
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
@@ -451,7 +424,7 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
           <div className={styles.phoneFace}>
             <div className={styles.phoneScreen}>
               {screen?.video ? (
-                /* 화면마다 짧은 녹화 — 화면이 바뀌면 새로 붙어 처음부터 되풀이 재생한다(움직임 줄이기면 첫 장면) */
+                /* 화면마다 짧은 녹화 — 화면이 바뀌면 새로 붙어 처음부터 재생하고, 끝나면 다음 화면으로 넘어간다(움직임 줄이기면 첫 장면) */
                 <video
                   key={screen.video}
                   className={styles.phoneShot}
@@ -459,7 +432,8 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
                   poster={screen.src}
                   autoPlay={!reducedMotion}
                   muted
-                  loop
+                  loop={reducedMotion}
+                  onEnded={onScreenEnded}
                   playsInline
                   preload="auto"
                   aria-label={screen.alt}

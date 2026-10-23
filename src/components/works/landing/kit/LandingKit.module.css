@@ -289,8 +289,7 @@
   --depth: 30px;
 
   position: relative;
-  /* 화면 하나에 스크롤 화면 높이의 150% — 조금 굴려서는 다음 화면으로 넘어가지 않는다(50% · 90% 는 몇 칸에 여러 장이 넘어갔다) */
-  height: calc(100dvh + var(--count) * 150dvh);
+  height: calc(100dvh + var(--count) * 50dvh);
 }
 
 .phoneFlipStage {
