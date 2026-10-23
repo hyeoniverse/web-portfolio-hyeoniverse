@@ -71,9 +71,13 @@
   border-top: var(--border-light);
 }
 
+/* 섹션 한 줄 — [손잡이 | 번호 | 제목 | 펼치기 · 지우기] 격자. 펼친 내용은 제목과 같은 열에 둔다 */
 .section {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 24px 24px minmax(0, 1fr) auto;
+  grid-template-rows: 64px auto;
+  align-items: center;
+  column-gap: var(--spacing-8);
   border-bottom: var(--border-light);
   background: var(--bg-primary);
 }
@@ -84,37 +88,42 @@
   box-shadow: var(--shadow-floating);
 }
 
-.sectionHead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  min-height: 64px;
-}
-
 .grip {
   display: inline-flex;
-  padding: var(--spacing-4);
+  justify-content: center;
   color: var(--text-tertiary);
   cursor: grab;
   touch-action: none;
 }
 
 .no {
-  width: 24px;
-  flex-shrink: 0;
   font: var(--font-code-xs);
   color: var(--text-tertiary);
+}
+
+.sectionMain {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
 }
 
 .sectionSummary {
   display: flex;
   flex: 1;
+  align-items: center;
+  gap: var(--spacing-16);
+  min-width: 0;
+  height: 100%;
+  text-align: left;
+}
+
+.sectionText {
+  display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--spacing-4);
   min-width: 0;
-  padding: var(--spacing-12) 0;
-  text-align: left;
 }
 
 .sectionName,
@@ -139,10 +148,14 @@
   color: var(--text-tertiary);
 }
 
-/* 펼친 줄의 제목 — 접힌 줄의 제목과 같은 글자(body-md) · 같은 자리 */
 .sectionTitle {
   flex: 1;
   min-width: 0;
+}
+
+.sectionActions {
+  display: flex;
+  gap: var(--spacing-8);
 }
 
 .thumbs {
@@ -165,12 +178,19 @@
   white-space: nowrap;
 }
 
-/* 펼친 섹션 — 넓은 화면에서는 번호 열에 맞춰 들여 쓴다 */
+/* 펼친 내용 — 높이를 재서 0 ↔ 높이로 여닫는다(ExpandablePanel). 좁은 화면은 줄 전체 폭, 넓으면 제목 열 */
+.sectionPanel {
+  grid-column: 1 / -1;
+  height: 0;
+  overflow: hidden;
+  transition: height var(--duration-base) var(--ease-standard);
+}
+
 .sectionForm {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  padding: 0 0 var(--spacing-32);
+  padding: var(--spacing-8) 0 var(--spacing-32);
 }
 
 /* ── 장면 줄 — 작은 타일들, 고른 타일의 폼은 줄 바로 아래 ── */
@@ -439,8 +459,8 @@
     display: inline;
   }
 
-  .sectionForm {
-    padding-left: var(--spacing-64);
+  .sectionPanel {
+    grid-column: 3;
   }
 
   .frameForm {

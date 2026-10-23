@@ -1169,8 +1169,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       }}
       sidebar={propertiesSection}
       wide={
-        /* 갤러리 · 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다 */
+        /* 랜딩 · 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다 */
         <>
+      {/* 랜딩 페이지 — 2단 아래 전체 폭(섹션을 여닫아도 옆의 속성 열이 밀리지 않고, 장면 칸도 넓다). 작업물 상세는 이 데이터로 그린다. 처음에는 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다 */}
+      <div className={styles.section}>
+        <LandingEditor
+          value={landingValue}
+          lang={editorLang}
+          onUpload={handleContentImageUpload}
+          onChange={(next) => updateField("landing", next)}
+        />
+      </div>
+
       {/* ── 추가 정보 — 요약 카드 한 줄 + 누른 항목의 편집기가 그 아래에 펼쳐진다 ── */}
       <div className={styles.extraSections}>
         <h2 className={styles.sectionTitle}>{tw("additionalInfo")}</h2>
@@ -1190,16 +1200,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       }
     >
       {basicInfoSection}
-
-      {/* 랜딩 페이지 — 작업물 상세는 이 데이터로 그린다. 처음에는 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다 */}
-      <div className={styles.section}>
-        <LandingEditor
-          value={landingValue}
-          lang={editorLang}
-          onUpload={handleContentImageUpload}
-          onChange={(next) => updateField("landing", next)}
-        />
-      </div>
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (works 는 number/slug 없음) */}
       <SeoChecklist

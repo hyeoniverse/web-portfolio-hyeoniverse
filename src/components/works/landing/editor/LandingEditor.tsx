@@ -12,6 +12,7 @@ import Pressable from "@/components/ui/Pressable";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import { ExpandablePanel } from "@/components/admin/ProfileSections";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import { errorText } from "@/lib/apiError";
@@ -316,7 +317,12 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
   const ids = useMemo(() => value.sections.map((s) => s.id), [value.sections]);
   /* 섹션은 접어 둔다 — 장면이 많아 다 펼치면 편집 화면이 끝없이 길어진다. 새로 만든 섹션은 펼친다 */
   const [open, setOpen] = useState<Set<string>>(() => new Set());
-  const toggle = (id: string) => setOpen((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  /* 한 번이라도 펼친 섹션 — 내용(장면 그림들)은 처음 펼칠 때 그리고, 그 뒤로는 남겨 둔다 */
+  const [mounted, setMounted] = useState<Set<string>>(() => new Set());
+  const toggle = (id: string) => {
+    setMounted((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+    setOpen((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
 
   const setSection = (i: number, patch: Partial<LandingSection>) =>
     onChange({ ...value, sections: value.sections.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
@@ -327,6 +333,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
   const addSection = () => {
     const id = `s${Date.now().toString(36)}`;
     onChange({ ...value, sections: [...value.sections, { id, title: EMPTY, body: EMPTY, items: [] }] });
+    setMounted((prev) => new Set(prev).add(id));
     setOpen((prev) => new Set(prev).add(id));
   };
 
@@ -349,46 +356,52 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                   <SortableSection key={s.id} id={s.id}>
                     {(grip) => (
                       <>
-                        <div className={styles.sectionHead}>
-                          {grip}
-                          <span className={styles.no}>{sectionNo(i)}</span>
+                        {grip}
+                        <span className={styles.no}>{sectionNo(i)}</span>
+                        {/* 제목 칸 — 접힘 · 펼침 모두 같은 열 · 같은 높이라 손잡이 · 번호 · 단추가 움직이지 않는다 */}
+                        <div className={styles.sectionMain}>
                           {isOpen ? (
                             <Input className={styles.sectionTitle} clearable={false} value={s.title[lang]} placeholder={tl("sectionTitle")} aria-label={tl("sectionTitle")}
                               onChange={(v) => setSection(i, { title: { ...s.title, [lang]: v } })} />
                           ) : (
                             <Pressable className={styles.sectionSummary} onClick={() => toggle(s.id)}>
-                              <span className={styles.sectionName}>{s.title[lang] || <span className={styles.placeholder}>{tl("sectionTitle")}</span>}</span>
-                              {s.body?.[lang] && <span className={styles.sectionDesc}>{s.body[lang]}</span>}
+                              <span className={styles.sectionText}>
+                                <span className={styles.sectionName}>{s.title[lang] || <span className={styles.placeholder}>{tl("sectionTitle")}</span>}</span>
+                                {s.body?.[lang] && <span className={styles.sectionDesc}>{s.body[lang]}</span>}
+                              </span>
+                              {thumbs.length > 0 && (
+                                <span className={styles.thumbs} aria-hidden>
+                                  {thumbs.map((src, k) => <span key={k} className={styles.thumb}><Thumb src={src} /></span>)}
+                                </span>
+                              )}
+                              <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>
                             </Pressable>
                           )}
-                          <div className={styles.rowEnd}>
-                            {!isOpen && thumbs.length > 0 && (
-                              <span className={styles.thumbs} aria-hidden>
-                                {thumbs.map((src, k) => <span key={k} className={styles.thumb}><Thumb src={src} /></span>)}
-                              </span>
-                            )}
-                            {!isOpen && <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>}
-                            <IconBtn label={tl(isOpen ? "collapse" : "expand")} onClick={() => toggle(s.id)}>
-                              <ChevronRight size={14} className={`${styles.chevron}${isOpen ? ` ${styles.chevronOpen}` : ""}`} />
-                            </IconBtn>
-                            <IconBtn label={tl("removeSection")} danger onClick={() => onChange({ ...value, sections: value.sections.filter((_, j) => j !== i) })}>
-                              <Trash2 size={14} />
-                            </IconBtn>
-                          </div>
                         </div>
-                        {isOpen && (
-                          <div className={styles.sectionForm}>
-                            <div className={es.field}>
-                              <span className={es.fieldLabel}>{tl("sectionBody")}</span>
-                              <Textarea value={s.body?.[lang] ?? ""} rows={2} maxHint="basic"
-                                onChange={(v) => setSection(i, { body: { ...(s.body ?? EMPTY), [lang]: v } })} />
+                        <div className={styles.sectionActions}>
+                          <IconBtn label={tl(isOpen ? "collapse" : "expand")} onClick={() => toggle(s.id)}>
+                            <ChevronRight size={14} className={`${styles.chevron}${isOpen ? ` ${styles.chevronOpen}` : ""}`} />
+                          </IconBtn>
+                          <IconBtn label={tl("removeSection")} danger onClick={() => onChange({ ...value, sections: value.sections.filter((_, j) => j !== i) })}>
+                            <Trash2 size={14} />
+                          </IconBtn>
+                        </div>
+                        {/* 펼친 내용 — 제목과 같은 열(시작 · 끝이 같다). 한 번 펼친 뒤로는 남겨 두어 접을 때도 높이가 줄어드는 모습이 보인다 */}
+                        <ExpandablePanel open={isOpen} className={styles.sectionPanel}>
+                          {mounted.has(s.id) && (
+                            <div className={styles.sectionForm}>
+                              <div className={es.field}>
+                                <span className={es.fieldLabel}>{tl("sectionBody")}</span>
+                                <Textarea value={s.body?.[lang] ?? ""} rows={2} maxHint="basic"
+                                  onChange={(v) => setSection(i, { body: { ...(s.body ?? EMPTY), [lang]: v } })} />
+                              </div>
+                              <div className={es.field}>
+                                <span className={es.fieldLabel}>{tl("scenes")}</span>
+                                <SceneStrip items={s.items} lang={lang} onUpload={onUpload} onChange={(items) => setSection(i, { items })} />
+                              </div>
                             </div>
-                            <div className={es.field}>
-                              <span className={es.fieldLabel}>{tl("scenes")}</span>
-                              <SceneStrip items={s.items} lang={lang} onUpload={onUpload} onChange={(items) => setSection(i, { items })} />
-                            </div>
-                          </div>
-                        )}
+                          )}
+                        </ExpandablePanel>
                       </>
                     )}
                   </SortableSection>
