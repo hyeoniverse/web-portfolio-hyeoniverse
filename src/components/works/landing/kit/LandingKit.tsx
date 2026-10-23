@@ -412,7 +412,12 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
     if (reducedMotion) { m.x = p; m.v = 0; paint(p); return; }
     if (!m.raf) m.raf = requestAnimationFrame(stepRef.current);
   });
-  useEffect(() => () => cancelAnimationFrame(motion.current.raf), []);
+  /* 정리할 때 도는 중 표시(raf)도 비운다 — 취소만 하고 번호를 남기면 "이미 돌고 있다"로 읽혀 다시는 돌지 않았다
+     (개발 모드는 효과를 한 번 정리했다 다시 걸어서, 휴대폰이 아예 구르지 않았다) */
+  useEffect(() => {
+    const m = motion.current;
+    return () => { cancelAnimationFrame(m.raf); m.raf = 0; m.last = 0; };
+  }, []);
   const screen = items[current];
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
