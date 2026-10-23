@@ -71,13 +71,15 @@
   border-top: var(--border-light);
 }
 
-/* 섹션 한 줄 — [손잡이 | 번호 | 제목 | 펼치기 · 지우기] 격자. 펼친 내용은 제목과 같은 열에 둔다 */
+/* 섹션 한 줄 — [손잡이 | 번호 | 제목 | 펼치기 · 지우기] 격자. 넷 다 위쪽 한 줄(컨트롤 높이 32)에 맞춰 서고,
+   접힌 줄의 설명은 그 아래 줄에 온다. 펼치면 제목 줄이 그 자리에서 입력칸이 되고, 펼친 내용은 제목과 같은 열에 둔다 */
 .section {
   display: grid;
   grid-template-columns: 24px 24px minmax(0, 1fr) auto;
-  grid-template-rows: 64px auto;
-  align-items: center;
+  grid-template-rows: auto auto;
+  align-items: start;
   column-gap: var(--spacing-8);
+  padding: var(--spacing-16) 0;
   border-bottom: var(--border-light);
   background: var(--bg-primary);
 }
@@ -88,8 +90,15 @@
   box-shadow: var(--shadow-floating);
 }
 
+.grip,
+.no,
+.sectionActions {
+  display: flex;
+  align-items: center;
+  height: var(--control-height-md);
+}
+
 .grip {
-  display: inline-flex;
   justify-content: center;
   color: var(--text-tertiary);
   cursor: grab;
@@ -103,18 +112,16 @@
 
 .sectionMain {
   display: flex;
-  align-items: center;
   min-width: 0;
-  height: 100%;
+  min-height: var(--control-height-md);
 }
 
 .sectionSummary {
   display: flex;
   flex: 1;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-16);
   min-width: 0;
-  height: 100%;
   text-align: left;
 }
 
@@ -122,7 +129,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--spacing-4);
   min-width: 0;
 }
 
@@ -134,8 +140,10 @@
   text-overflow: ellipsis;
 }
 
+/* 제목 줄 — 입력칸(32)과 같은 높이 · 같은 자리라 펼쳐도 제목이 움직이지 않는다 */
 .sectionName {
   font: var(--font-body-md);
+  padding-block: calc((var(--control-height-md) - 1lh) / 2);
   color: var(--text-primary);
 }
 
@@ -154,13 +162,14 @@
 }
 
 .sectionActions {
-  display: flex;
   gap: var(--spacing-8);
 }
 
 .thumbs {
   display: none;
+  align-items: center;
   gap: var(--spacing-4);
+  height: var(--control-height-md);
 }
 
 .thumb {
@@ -174,6 +183,7 @@
 .count {
   display: none;
   font: var(--font-code-xs);
+  padding-block: calc((var(--control-height-md) - 1lh) / 2);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -190,7 +200,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  padding: var(--spacing-8) 0 var(--spacing-32);
+  padding: var(--spacing-16) 0;
 }
 
 /* ── 장면 줄 — 작은 타일들, 고른 타일의 폼은 줄 바로 아래 ── */

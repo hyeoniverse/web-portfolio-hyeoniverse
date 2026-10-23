@@ -1168,10 +1168,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         };
       }}
       sidebar={propertiesSection}
-      wide={
-        /* 랜딩 · 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다 */
-        <>
-      {/* 랜딩 페이지 — 2단 아래 전체 폭(섹션을 여닫아도 옆의 속성 열이 밀리지 않고, 장면 칸도 넓다). 작업물 상세는 이 데이터로 그린다. 처음에는 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다 */}
+      coverSlot={
+        /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
+        <CoverBanner
+          cover={form.image}
+          onCoverChange={(url) => updateField("image", url)}
+          onUpload={() => handleImageUpload()}
+          position={form.cover_position}
+          zoom={form.cover_zoom}
+        />
+      }
+    >
+      {basicInfoSection}
+
+      {/* 랜딩 페이지 — 속성 열 옆 본문 열에(아래 전체 폭에 두면 짧은 기본 정보 옆이 크게 비었다). 추가 정보도 같은 열에 두어
+          2단의 끝이 멀리 있으므로, 섹션을 여닫아 높이가 바뀌어도 붙어 따라오는 속성 열이 밀리지 않는다 */}
       <div className={styles.section}>
         <LandingEditor
           value={landingValue}
@@ -1186,20 +1197,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <h2 className={styles.sectionTitle}>{tw("additionalInfo")}</h2>
         <ExtraSummary items={extraItems} open={extraOpenKey} onOpenChange={setExtraOpenKey} />
       </div>
-        </>
-      }
-      coverSlot={
-        /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
-        <CoverBanner
-          cover={form.image}
-          onCoverChange={(url) => updateField("image", url)}
-          onUpload={() => handleImageUpload()}
-          position={form.cover_position}
-          zoom={form.cover_zoom}
-        />
-      }
-    >
-      {basicInfoSection}
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (works 는 number/slug 없음) */}
       <SeoChecklist
