@@ -864,6 +864,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     <div className={styles.properties}>
       {pinToggle}
 
+      {/* 메인 이미지 — 목록 카드 · 랜딩의 얼굴이라 속성 맨 위(slug 위)에 */}
+      {coverField}
+
       {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
       <div className={es.field} id="work-slug">
         <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
@@ -988,7 +991,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
-      {coverField}
     </div>
   ), [
     coverField, srcBadge, categoryCustomMode, editorLang, form.categories_en, form.categories_ko,

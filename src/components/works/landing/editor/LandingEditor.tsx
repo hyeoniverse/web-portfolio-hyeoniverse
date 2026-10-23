@@ -289,12 +289,19 @@ function SceneStrip({ items, lang, onUpload, onChange }: { items: LandingItem[];
   );
 }
 
-function SortableSection({ id, children }: { id: string; children: (handle: ReactNode) => ReactNode }) {
+/** 섹션 머리 줄 어디를 눌러도 여닫는다 — 손잡이 · 입력칸 · 단추와 펼친 내용 안은 제 일을 한다 */
+function isRowToggleClick(e: React.MouseEvent<HTMLElement>): boolean {
+  const t = e.target as HTMLElement;
+  return !t.closest("[data-section-panel], [data-section-grip], button, input, textarea, a, [contenteditable], [role='menu']");
+}
+
+function SortableSection({ id, onToggle, children }: { id: string; onToggle: () => void; children: (handle: ReactNode) => ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   return (
     <li ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={styles.section} data-dragging={isDragging ? "" : undefined} {...attributes}>
-      {children(<Pressable className={styles.grip} {...listeners} aria-label="Drag to reorder"><GripDotsIcon /></Pressable>)}
+      className={styles.section} data-dragging={isDragging ? "" : undefined} {...attributes}
+      onClick={(e) => { if (isRowToggleClick(e)) onToggle(); }}>
+      {children(<Pressable className={styles.grip} {...listeners} aria-label="Drag to reorder" data-section-grip=""><GripDotsIcon /></Pressable>)}
     </li>
   );
 }
@@ -348,7 +355,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                 const isOpen = open.has(s.id);
                 const thumbs = s.items.flatMap(itemMedia).slice(0, 4);
                 return (
-                  <SortableSection key={s.id} id={s.id}>
+                  <SortableSection key={s.id} id={s.id} onToggle={() => toggle(s.id)}>
                     {(grip) => (
                       <>
                         {grip}
@@ -359,7 +366,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                             <Input className={styles.sectionTitle} clearable={false} value={s.title[lang]} placeholder={tl("sectionTitle")} aria-label={tl("sectionTitle")}
                               onChange={(v) => setSection(i, { title: { ...s.title, [lang]: v } })} />
                           ) : (
-                            <Pressable className={styles.sectionSummary} onClick={() => toggle(s.id)}>
+                            <div className={styles.sectionSummary}>
                               <span className={styles.sectionText}>
                                 <span className={styles.sectionName}>{s.title[lang] || <span className={styles.placeholder}>{tl("sectionTitle")}</span>}</span>
                                 {s.body?.[lang] && <span className={styles.sectionDesc}>{s.body[lang]}</span>}
@@ -370,7 +377,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                                 </span>
                               )}
                               <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>
-                            </Pressable>
+                            </div>
                           )}
                         </div>
                         <div className={styles.sectionActions}>
@@ -384,7 +391,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                         {/* 펼친 내용 — 제목과 같은 열(시작 · 끝이 같다). 한 번 펼친 뒤로는 남겨 두어 접을 때도 높이가 줄어드는 모습이 보인다 */}
                         <ExpandablePanel open={isOpen} className={styles.sectionPanel}>
                           {mounted.has(s.id) && (
-                            <div className={styles.sectionForm}>
+                            <div className={styles.sectionForm} data-section-panel="">
                               <div className={es.field}>
                                 <span className={es.fieldLabel}>{tl("sectionBody")}</span>
                                 <Textarea value={s.body?.[lang] ?? ""} rows={2} maxHint="basic"

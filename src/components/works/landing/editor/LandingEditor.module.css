@@ -84,6 +84,11 @@
   background: var(--bg-primary);
 }
 
+/* 머리 줄 어디를 눌러도 여닫는다(펼친 내용 제외) */
+.section > :not(.sectionPanel) {
+  cursor: pointer;
+}
+
 .section[data-dragging] {
   position: relative;
   z-index: var(--z-index-float);
@@ -156,9 +161,15 @@
   color: var(--text-tertiary);
 }
 
+/* 펼친 줄의 제목 — 접힌 줄의 제목과 같은 글자(body-md) · 같은 높이(32)라 밑줄이 생겨도 글자 자리는 그대로다
+   (밑줄 입력칸 기본 높이 28 로 두면 32 줄 안에서 위로 붙어 글자가 올라갔다) */
 .sectionTitle {
   flex: 1;
   min-width: 0;
+}
+
+.sectionTitle input {
+  height: var(--control-height-md);
 }
 
 .sectionActions {

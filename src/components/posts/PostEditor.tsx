@@ -38,7 +38,7 @@ import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
 import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
-import { PostEditorSeoFields, PostGithubField, PostRelatedWorksField, PostSeriesField } from "./postEditor/PostEditorOptionalFields";
+import { PostEditorCoverField, PostEditorSeoFields, PostGithubField, PostRelatedWorksField, PostSeriesField } from "./postEditor/PostEditorOptionalFields";
 import { ExtraEmpty, ExtraSummary, type ExtraItem } from "@/components/works/workEditor/ExtraInfoViews";
 import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 
@@ -1074,6 +1074,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       {/* 상단 고정 — 목록 노출 설정이라 속성 패널 맨 위에 */}
       {pinToggle}
 
+      {/* 커버 — 목록 · 공유의 얼굴이라 속성 맨 위(slug 위)에 */}
+      <PostEditorCoverField form={metaForm} updateField={updateField} te={te} onCoverUpload={handleCoverUpload} />
+
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
             <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
@@ -1149,7 +1152,6 @@ export default function PostEditor({ post }: PostEditorProps) {
         allTagSuggestions={allTagSuggestions}
         excerptKey={excerptKey}
         tag={tag}
-        onCoverUpload={handleCoverUpload}
       />
     </div>
   ), [
