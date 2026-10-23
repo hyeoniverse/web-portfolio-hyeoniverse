@@ -22,6 +22,8 @@ function targetOf(e: MouseEvent): Page | null {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return null;
   const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
   if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return null;
+  /* 판 전환으로 넘어가는 링크(랜딩 메뉴)는 판이 화면을 덮고 있다 — 뼈대가 이전 화면을 감추고 판 사이로 비쳤다 */
+  if (a.closest("[data-slide-nav]")) return null;
   const url = new URL(a.href, location.href);
   if (url.origin !== location.origin) return null;
   const path = (url.pathname.replace(/\/+$/, "") || "/") as Page;

@@ -58,7 +58,9 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
   useEffect(() => {
     if (nextHref) router.prefetch(nextHref);
   }, [nextHref, router]);
-  const ready = !isTransitioning;
+  /* 기다리는 건 판 전환으로 들어온(전환 중에 마운트된) 랜딩뿐 — 떠나는 랜딩까지 멈추면 바탕색 판이 덮기 전에 내용이 사라졌다 */
+  const [enteredSliding] = useState(isTransitioning);
+  const ready = !(enteredSliding && isTransitioning);
   useReveal(rootRef, [viewLang, project.id], ready);
 
   return (

@@ -176,23 +176,25 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     setState(null);
     const fromPath = pathOf(toRoutePath(window.location.pathname));
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    /* 브라우저가 View Transition 을 지원하면 — 참고 사이트처럼 밀려 들어오는 판이 곧 다음 페이지의 실제 화면이다.
+    /* 브라우저가 View Transition 을 지원하고 다음 화면도 랜딩이면 — 참고 사이트처럼 밀려 들어오는 판이 곧 다음 페이지의 실제 화면이다.
        React 의 <ViewTransition>(RouteViewTransition)이 새 페이지가 커밋되는 순간 떠나는 화면과 새 화면을 찍어 미끄러뜨린다.
-       그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css) */
-    if (typeof document.startViewTransition === "function" && !reduceMotion) {
+       그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css).
+       랜딩이 아닌 곳(메뉴의 Works · About · 홈)은 커밋 뒤에도 Suspense · 3D 준비 화면 · 등장 연출이 이어져,
+       찍힌 새 화면이 빈 판이었고 준비 화면(검은 화면)과 두 번째 전환이 뒤따랐다 — 그런 곳은 아래 바탕색 판이 덮은 채로 넘어간다 */
+    if (typeof document.startViewTransition === "function" && !reduceMotion && isLandingPath(pathOf(href), detailStyle)) {
       slideTargetRef.current = pathOf(href);
       setViewSliding(true);
       releaseViewSlideIn(SLIDE_VIEW_MS);
       router.push(href, { transitionTypes: [`slide-${from}`] });
       return;
     }
-    /* 지원하지 않으면 바탕색 판으로 대신한다 */
+    /* 지원하지 않거나 랜딩이 아닌 곳이면 바탕색 판으로 */
     setSlide({ href, from, fromPath, phase: "in" });
     /* 받아오기는 지금 시작하고(prefetch), 넘어가기는 판이 화면을 다 덮은 뒤에 — 판이 반쯤 들어온 사이에
        커밋되면 아직 덮이지 않은 쪽으로 새 페이지의 로딩 화면이 비쳤다 */
     router.prefetch(href);
     timerRef.current.push(setTimeout(() => router.push(href), reduceMotion ? 0 : SLIDE_IN_MS));
-  }, [router, releaseViewSlideIn]);
+  }, [router, releaseViewSlideIn, detailStyle]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     /* 랜딩으로 그리는 작업물이면 커버가 커지는 연출 대신 판 전환 — 랜딩에는 커버 히어로가 없어 줄어들 자리가 없다 */

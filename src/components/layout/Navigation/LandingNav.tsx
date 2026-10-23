@@ -32,7 +32,8 @@ export default function LandingNav() {
     return v === `navMenu.label.${key}` ? fallback : v;
   };
   return (
-    <nav aria-label={t("navMenu.ui.mainMenu")} className={styles.bar}>
+    /* data-slide-nav — 판 전환이 화면을 맡으므로 사이트 이동 뼈대(NavSkeleton)는 뜨지 않는다 */
+    <nav aria-label={t("navMenu.ui.mainMenu")} className={styles.bar} data-slide-nav="">
       <Link href="/" className={styles.brand} onClick={slideTo("/")}>
         <span className={styles.name}>{name}</span>
         {siteConfig.personal.role && <span className={styles.role}>{siteConfig.personal.role}</span>}
