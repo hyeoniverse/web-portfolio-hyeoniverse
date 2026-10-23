@@ -289,7 +289,8 @@
   --depth: 30px;
 
   position: relative;
-  height: calc(100dvh + var(--count) * 50dvh);
+  /* 화면 하나에 스크롤 화면 높이의 90% */
+  height: calc(100dvh + var(--count) * 90dvh);
 }
 
 .phoneFlipStage {
