@@ -82,6 +82,8 @@ export interface Work {
   gallery: string[];
   /** 갤러리 장마다의 음성 — 그림 주소가 열쇠. 마이그레이션 전 DB 에는 칸이 없다 */
   gallery_notes?: GalleryNotes | null;
+  /** 랜딩 페이지 데이터(lib/workLanding) — 비면 저장소의 기본 데이터 · 카드 정보로 만든 기본 랜딩 */
+  landing?: unknown;
   live_url: string;
   github_url: string;
   published: boolean;
@@ -137,6 +139,8 @@ export interface WorkFormData {
   gallery: string[];
   /** 갤러리 장마다의 음성 — 그림 주소가 열쇠 */
   gallery_notes: GalleryNotes;
+  /** 랜딩 페이지 데이터(lib/workLanding) — null 이면 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩 */
+  landing: unknown;
   live_url: string;
   github_url: string;
   published: boolean;
@@ -228,6 +232,7 @@ export function workFormToProject(input: WorkFormData): Project {
     team_members: form.team_members,
     gallery: form.gallery,
     gallery_notes: form.gallery_notes,
+    landing: form.landing,
     live_url: form.live_url,
     github_url: form.github_url,
     published: form.published,
@@ -313,6 +318,7 @@ export function workToProject(w: Work): Project {
     teamMembers: teamMembers.length > 0 ? teamMembers : undefined,
     gallery: w.gallery,
     galleryNotes: w.gallery_notes ?? undefined,
+    landing: w.landing ?? undefined,
     liveUrl: w.live_url || undefined,
     githubUrl: w.github_url || undefined,
     summary: (w.summary_ko || w.summary_en) ? loc(w.summary_ko, w.summary_en) : undefined,

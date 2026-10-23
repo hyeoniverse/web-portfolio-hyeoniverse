@@ -27,7 +27,7 @@ export type Lang = "ko" | "en";
 export type L10n = { ko: string; en: string };
 
 /** 나타나는 순서 — 하나에 90ms */
-export function delay(n: number): CSSProperties {
+function delay(n: number): CSSProperties {
   return { ["--d" as string]: n } as CSSProperties;
 }
 
@@ -40,11 +40,13 @@ function repoOf(url: string): string {
 }
 
 /** 페이지 틀 — 머리(분류 · 큰 제목 · 역할 / 기간 / 사이트 / GitHub), 가운데(children), 끝의 다음 작업물. 나타나기 · 스크롤 진행을 건다 */
-export function LandingShell({ project, viewLang, next, eyebrow, children }: {
+export function LandingShell({ project, viewLang, next, eyebrow, nav = true, children }: {
   project: Project;
   viewLang: Lang;
   next?: { href: string; title: string } | null;
   eyebrow: L10n;
+  /** 사이트 메뉴(간략형) — 관리자 미리보기는 관리자 메뉴가 위에 있어 끈다 */
+  nav?: boolean;
   children: ReactNode;
 }) {
   const { t } = useLanguage();
@@ -67,7 +69,7 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
 
   return (
     <article ref={rootRef} className={styles.landing} lang={viewLang} data-ready={ready ? "" : undefined}>
-      <LandingNav />
+      {nav && <LandingNav />}
       <header className={styles.hero}>
         <p className={styles.eyebrow} data-reveal="">{eyebrow[viewLang]}</p>
         <h1 className={styles.title} aria-label={name}>
@@ -220,19 +222,6 @@ function FrameVideo({ src, poster, label, width, height }: { src: string; poster
       preload="metadata"
       aria-label={label}
     />
-  );
-}
-
-/** 휴대폰 화면 여럿 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나 */
-export function Phones({ items }: { items: { src: string; alt: string }[] }) {
-  return (
-    <div className={styles.phones} data-reveal="rise">
-      {items.map((it) => (
-        <div key={it.src} className={styles.phone}>
-          <Image src={it.src} alt={it.alt} fill unoptimized className={styles.phoneImage} />
-        </div>
-      ))}
-    </div>
   );
 }
 

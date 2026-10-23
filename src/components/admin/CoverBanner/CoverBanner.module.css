@@ -133,24 +133,38 @@
 }
 
 /* ── 커버 변경 Popover 내용 ── */
-/* 커버 메뉴 — 공용 메뉴 항목(올리기 · 지우기) 사이에 주소 칸. 패널 여백은 Popover menu 가 맡는다 */
+/* 커버 패널 — 단추 줄과 주소 칸 두 묶음. 안쪽 여백 16, 묶음 사이 16 */
 .menu {
   display: flex;
   flex-direction: column;
-  width: 280px;
+  gap: var(--spacing-16);
+  width: 272px;
+  padding: var(--spacing-16);
 }
 
-/* 주소 칸 — 메뉴 항목과 같은 좌우 여백, 위아래로 조금 띄운다 */
-.urlRow {
-  padding: var(--spacing-4) var(--spacing-8);
+/* 올리기 · 지우기 — 같은 폭으로 나란히(지우기가 없으면 올리기가 줄을 채운다) */
+.menuActions {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.menuBtn {
+  flex: 1;
+}
+
+.urlField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.urlLabel {
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
 }
 
 .urlInput {
   width: 100%;
-}
-
-.menuDanger {
-  color: var(--text-accent);
 }
 
 /* ── 페이지 이모지 ── */

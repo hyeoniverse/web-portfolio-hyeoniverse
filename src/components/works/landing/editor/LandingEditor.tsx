@@ -1,0 +1,503 @@
+"use client";
+
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { ArrowLeft, ArrowRight, ArrowUp, ChevronRight, Columns3, GripDotsIcon, Hash, Image as ImageIcon, Images, Play, Plus, Smartphone, Trash2, Upload, X } from "@/components/icons";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Popover, { MenuItem } from "@/components/ui/Popover";
+import Pressable from "@/components/ui/Pressable";
+import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
+import { ImageViewer } from "@/components/ui/ImageViewer";
+import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import { ExpandablePanel } from "@/components/admin/ProfileSections";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { showToast } from "@/stores/toastStore";
+import { errorText } from "@/lib/apiError";
+import { pickFiles } from "@/lib/pickFiles";
+import { fillTemplate } from "@/utils/format";
+import { isVideoUrl } from "@/lib/isVideoUrl";
+import { firstFrameSrc } from "@/components/ui/hoverVideo";
+import { sectionNo, type LandingFrameAt, type LandingItem, type LandingItemKind, type LandingL10n, type LandingSection, type WorkLanding } from "@/lib/workLanding";
+import styles from "./LandingEditor.module.css";
+
+type Lang = "ko" | "en";
+type Upload = (file: File) => Promise<string>;
+type Media = { src: string; alt: LandingL10n };
+
+const EMPTY: LandingL10n = { ko: "", en: "" };
+const KINDS: LandingItemKind[] = ["frame", "phones", "sequence", "marquee", "numbers"];
+const KIND_ICON: Record<LandingItemKind, ReactNode> = {
+  frame: <ImageIcon size={14} />, phones: <Smartphone size={14} />, sequence: <Images size={14} />, marquee: <Columns3 size={14} />, numbers: <Hash size={14} />,
+};
+const ATS: LandingFrameAt[] = ["bleed", "wide", "left", "right", "center"];
+
+/** 저장된 값이 랜딩 모양이면 그대로 편집한다 — 정규화하면 막 추가한 빈 항목(그림 올리기 전)이 사라진다 */
+export function asEditableLanding(raw: unknown): WorkLanding | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Partial<WorkLanding>;
+  if (!Array.isArray(o.sections) || !Array.isArray(o.hero)) return null;
+  return { eyebrow: o.eyebrow ?? EMPTY, hero: o.hero, sections: o.sections };
+}
+
+function newItem(kind: LandingItemKind): LandingItem {
+  switch (kind) {
+    case "frame": return { kind, at: "wide", alt: EMPTY };
+    case "marquee": return { kind, rows: [[], []] };
+    case "sequence": return { kind, items: [] };
+    case "phones": return { kind, items: [] };
+    case "numbers": return { kind, items: [{ value: "", label: EMPTY }] };
+  }
+}
+
+const move = <T,>(list: T[], from: number, to: number) => (to < 0 || to >= list.length ? list : arrayMove([...list], from, to));
+
+/** 항목의 그림들 — 타일 · 접힌 줄의 썸네일. 휴대폰 화면은 정지 그림과 그 위에서 재생할 녹화를 함께 넘긴다 */
+function itemThumbs(it: LandingItem): { src: string; hoverVideo?: string }[] {
+  switch (it.kind) {
+    case "frame": return it.src ? [{ src: it.src, hoverVideo: it.video }] : it.video ? [{ src: it.video }] : [];
+    case "marquee": return it.rows.flat().map((m) => ({ src: m.src }));
+    case "sequence": return it.items.map((m) => ({ src: m.src }));
+    case "phones": return it.items.map((m) => ({ src: m.src, hoverVideo: m.video }));
+    case "numbers": return [];
+  }
+}
+
+/** 그림 · 영상을 골라 올린다 — 여럿이면 차례대로. 실패한 파일은 알리고 건너뛴다 */
+function useUploader(onUpload: Upload) {
+  const { t } = useLanguage();
+  const [busy, setBusy] = useState(false);
+  const pick = (multiple: boolean, onDone: (urls: string[]) => void, accept = "image/*,video/*") => {
+    pickFiles({ accept, multiple }, async (files) => {
+      setBusy(true);
+      const urls: string[] = [];
+      for (const f of files) {
+        try { urls.push(await onUpload(f)); } catch (err) { showToast(errorText(err, t, t("admin.common.uploadFailed")), "error"); }
+      }
+      setBusy(false);
+      if (urls.length) onDone(urls);
+    });
+  };
+  return { busy, pick };
+}
+
+function useTl() {
+  const { t } = useLanguage();
+  return (k: string) => t(`admin.works.editor.landing.${k}`);
+}
+
+/** 크게 보기 — 편집기 맨 위의 뷰어 하나를 장면 폼들이 함께 쓴다(그림 · 영상, 여러 장이면 그 묶음을 넘겨 본다) */
+const ViewerContext = createContext<(images: string[], index: number) => void>(() => {});
+const useViewer = () => useContext(ViewerContext);
+
+/** 누르면 크게 보는 미리보기 칸 — 부모 칸을 덮는 투명 단추(지우기 단추와 겹치지 않게 그 밑에 깐다) */
+function ViewButton({ images, index }: { images: string[]; index: number }) {
+  const tl = useTl();
+  const open = useViewer();
+  return <Pressable className={styles.viewBtn} onClick={() => open(images, index)} aria-label={tl("view")} title={tl("view")} />;
+}
+
+const isGif = (src?: string) => !!src && /\.gif(\?|#|$)/i.test(src);
+
+/**
+ * 썸네일 — 움직이는 그림은 첫 장면을 정지 화면으로 보여 주고, 칸에 마우스를 올리면 재생한다(벗어나면 첫 장면으로).
+ * 동영상은 공용 firstFrameSrc(#t=0.1 — 그 지점까지만 받아 한 장면을 그린다), GIF 는 첫 프레임을 캔버스에 그려 둔다.
+ * hoverVideo — 정지 그림 위에서 재생할 녹화(휴대폰 화면). 칸 위에 "크게 보기" 단추가 덮여 있어, 올림은 부모 칸에서 받는다.
+ * 움직이는 그림이면 오른쪽 위에 작은 재생 표시. 부모가 기준(position)이다.
+ */
+function Thumb({ src, video, hoverVideo: hoverProp }: { src?: string; video?: string; hoverVideo?: string }) {
+  /* 정지 그림(src)과 영상(video)이 둘 다 있으면 그림을 첫 장면으로 쓰고 영상은 올렸을 때 재생한다 */
+  const hoverVideo = hoverProp ?? (video && src && !isVideoUrl(src) ? video : undefined);
+  const isVideo = !hoverVideo && (!!video || (!!src && isVideoUrl(src)));
+  const gif = !isVideo && isGif(src);
+  const moving = isVideo || gif || !!hoverVideo;
+  const markerRef = useRef<HTMLSpanElement>(null);
+  const playRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hover, setHover] = useState(false);
+  useEffect(() => {
+    const host = markerRef.current?.parentElement;
+    if (!host || !moving) return;
+    const on = () => setHover(true);
+    const off = () => setHover(false);
+    host.addEventListener("pointerenter", on);
+    host.addEventListener("pointerleave", off);
+    return () => { host.removeEventListener("pointerenter", on); host.removeEventListener("pointerleave", off); };
+  }, [moving]);
+  useEffect(() => {
+    const v = playRef.current;
+    if (!v) return;
+    if (hover) { v.play().catch(() => {}); return; }
+    v.pause();
+    try { v.currentTime = 0.1; } catch { /* 아직 받지 못했으면 넘어간다 */ }
+  }, [hover]);
+  const freezeGif = (img: HTMLImageElement) => {
+    const c = canvasRef.current;
+    if (!c || !img.naturalWidth) return;
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    c.getContext("2d")?.drawImage(img, 0, 0);
+  };
+  return (
+    <>
+      <span ref={markerRef} hidden />
+      {isVideo ? (
+        <video ref={playRef} className={styles.media} src={firstFrameSrc((video || src) as string)} muted playsInline loop preload="metadata" />
+      ) : gif ? (
+        <>
+          <canvas ref={canvasRef} className={`${styles.media} ${styles.layer}`} data-off={hover ? "" : undefined} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={`${styles.media} ${styles.layer}`} src={src} alt="" onLoad={(e) => freezeGif(e.currentTarget)} data-off={hover ? undefined : ""} />
+        </>
+      ) : src ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img className={styles.media} src={src} alt="" loading="lazy" />
+      ) : null}
+      {hoverVideo && (
+        <video ref={playRef} className={`${styles.media} ${styles.layer}`} src={firstFrameSrc(hoverVideo)} muted playsInline loop preload="none" data-off={hover ? undefined : ""} />
+      )}
+      {moving && <span className={styles.motionBadge} aria-hidden><Play size={8} fill="currentColor" strokeWidth={0} /></span>}
+    </>
+  );
+}
+
+/** 아이콘 단추(32 정사각) — 옮기기 · 펼치기 · 지우기 */
+function IconBtn({ label, onClick, disabled, danger, children }: { label: string; onClick: () => void; disabled?: boolean; danger?: boolean; children: ReactNode }) {
+  return (
+    <Pressable className={`${styles.iconBtn}${danger ? ` ${styles.iconBtnDanger}` : ""}`} onClick={onClick} disabled={disabled} aria-label={label} title={label}>
+      {children}
+    </Pressable>
+  );
+}
+
+function UploadBtn({ onUpload, onDone, multiple, accept, children }: { onUpload: Upload; onDone: (urls: string[]) => void; multiple?: boolean; accept?: string; children: ReactNode }) {
+  const { busy, pick } = useUploader(onUpload);
+  return (
+    <Button variant="ghost" className={es.toolBtn} icon={<Upload size={14} />} loading={busy} onClick={() => pick(!!multiple, onDone, accept)}>
+      {children}
+    </Button>
+  );
+}
+
+/** 그림 여러 장(넘기는 장면 · 흐르는 띠 한 줄) — 작은 타일마다 설명, 끝에 더하기 */
+function MediaGrid({ items, lang, onUpload, onChange }: { items: Media[]; lang: Lang; onUpload: Upload; onChange: (next: Media[]) => void }) {
+  const tl = useTl();
+  const { busy, pick } = useUploader(onUpload);
+  return (
+    <div className={styles.mediaGrid}>
+      {items.map((m, i) => (
+        <div key={`${m.src}-${i}`} className={styles.mediaCell}>
+          <div className={styles.mediaBox}>
+            <Thumb src={m.src} />
+            <ViewButton images={items.map((x) => x.src)} index={i} />
+            <Pressable className={styles.mediaRemove} onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={tl("remove")}><X size={12} /></Pressable>
+          </div>
+          <Input size="sm" clearable={false} value={m.alt[lang]} placeholder={tl("alt")}
+            onChange={(v) => onChange(items.map((x, j) => (j === i ? { ...x, alt: { ...x.alt, [lang]: v } } : x)))} />
+        </div>
+      ))}
+      <Pressable className={styles.mediaAdd} data-busy={busy ? "" : undefined}
+        onClick={() => pick(true, (urls) => onChange([...items, ...urls.map((src) => ({ src, alt: EMPTY }))]), "image/*")}>
+        <Plus size={14} />{tl("addImages")}
+      </Pressable>
+    </div>
+  );
+}
+
+/** 고른 장면의 폼 — 장면 줄 바로 아래, 그 자리에서 열린다 */
+function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang: Lang; onUpload: Upload; onChange: (next: LandingItem) => void }) {
+  const tl = useTl();
+  switch (item.kind) {
+    case "frame":
+      return (
+        <div className={styles.frameForm}>
+          <div className={styles.frameMedia}>
+            <div className={styles.framePreview}>
+              {item.src || item.video ? <Thumb src={item.src} video={item.video} /> : <span className={styles.emptyLine}>{tl("noMedia")}</span>}
+              {(item.video || item.src) && <ViewButton images={[(item.video || item.src) as string]} index={0} />}
+            </div>
+            <div className={styles.inline}>
+              <UploadBtn onUpload={onUpload} onDone={([u]) => onChange(isVideoUrl(u)
+                ? { ...item, video: u, src: undefined, width: undefined, height: undefined }
+                : { ...item, src: u, video: undefined, width: undefined, height: undefined })}>
+                {item.src || item.video ? tl("replace") : tl("upload")}
+              </UploadBtn>
+            </div>
+          </div>
+          <div className={styles.fields}>
+            <div className={es.field}>
+              <span className={es.fieldLabel}>{tl("atLabel")}</span>
+              <Select value={item.at} onChange={(v) => onChange({ ...item, at: v as LandingFrameAt })}
+                options={ATS.map((a) => ({ value: a, label: tl(`at.${a}`) }))} />
+            </div>
+            <Input label={tl("alt")} value={item.alt[lang]} onChange={(v) => onChange({ ...item, alt: { ...item.alt, [lang]: v } })} />
+          </div>
+        </div>
+      );
+    case "sequence":
+      return <MediaGrid items={item.items} lang={lang} onUpload={onUpload} onChange={(items) => onChange({ ...item, items })} />;
+    case "marquee":
+      return (
+        <div className={styles.stack}>
+          {item.rows.map((row, r) => (
+            <div key={r} className={es.field}>
+              <span className={es.fieldLabel}>{fillTemplate(tl("rowN"), { n: r + 1 })}</span>
+              <MediaGrid items={row} lang={lang} onUpload={onUpload} onChange={(next) => onChange({ ...item, rows: item.rows.map((x, j) => (j === r ? next : x)) })} />
+            </div>
+          ))}
+        </div>
+      );
+    case "phones":
+      return (
+        <div className={styles.stack}>
+          {item.items.length > 0 ? (
+            <ul className={styles.rows}>
+              {item.items.map((p, i) => {
+                const set = (patch: Partial<typeof p>) => onChange({ ...item, items: item.items.map((x, j) => (j === i ? { ...x, ...patch } : x)) });
+                return (
+                  <li key={`${p.src}-${i}`} className={styles.phoneRow}>
+                    <span className={styles.phoneThumb}><Thumb src={p.src} hoverVideo={p.video} /><ViewButton images={item.items.map((x) => x.video || x.src)} index={i} /></span>
+                    <div className={styles.pair}>
+                      <Input size="sm" clearable={false} value={p.route[lang]} placeholder={tl("route")} onChange={(v) => set({ route: { ...p.route, [lang]: v } })} />
+                      <Input size="sm" clearable={false} value={p.alt[lang]} placeholder={tl("alt")} onChange={(v) => set({ alt: { ...p.alt, [lang]: v } })} />
+                    </div>
+                    <div className={styles.rowEnd}>
+                      <UploadBtn onUpload={onUpload} accept="video/*" onDone={([video]) => set({ video })}>
+                        {p.video ? tl("videoReplace") : tl("videoAdd")}
+                      </UploadBtn>
+                      <IconBtn label={tl("moveUp")} disabled={i === 0} onClick={() => onChange({ ...item, items: move(item.items, i, i - 1) })}><ArrowUp size={14} /></IconBtn>
+                      <IconBtn label={tl("remove")} danger onClick={() => onChange({ ...item, items: item.items.filter((_, j) => j !== i) })}><Trash2 size={14} /></IconBtn>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : <p className={styles.emptyLine}>{tl("noScreens")}</p>}
+          <div className={styles.inline}>
+            <UploadBtn onUpload={onUpload} multiple accept="image/*" onDone={(urls) => onChange({ ...item, items: [...item.items, ...urls.map((src) => ({ src, alt: EMPTY, route: EMPTY }))] })}>
+              {tl("addScreen")}
+            </UploadBtn>
+          </div>
+        </div>
+      );
+    case "numbers":
+      return (
+        <div className={styles.stack}>
+          <ul className={styles.numberRows}>
+            {item.items.map((n, i) => (
+              <li key={i} className={styles.numberRow}>
+                <Input size="sm" clearable={false} value={n.value} placeholder={tl("value")}
+                  onChange={(v) => onChange({ ...item, items: item.items.map((x, j) => (j === i ? { ...x, value: v } : x)) })} />
+                <Input size="sm" clearable={false} value={n.label[lang]} placeholder={tl("label")}
+                  onChange={(v) => onChange({ ...item, items: item.items.map((x, j) => (j === i ? { ...x, label: { ...x.label, [lang]: v } } : x)) })} />
+                <IconBtn label={tl("remove")} danger onClick={() => onChange({ ...item, items: item.items.filter((_, j) => j !== i) })}><Trash2 size={14} /></IconBtn>
+              </li>
+            ))}
+          </ul>
+          <div className={styles.inline}>
+            <Button variant="ghost" className={es.toolBtn} icon={<Plus size={14} />} onClick={() => onChange({ ...item, items: [...item.items, { value: "", label: EMPTY }] })}>
+              {tl("addNumber")}
+            </Button>
+          </div>
+        </div>
+      );
+  }
+}
+
+/** 장면 타일 하나 — 대표 그림(숫자는 첫 값)과 종류 · 장 수 */
+function Tile({ item, index, active, onClick }: { item: LandingItem; index: number; active: boolean; onClick: () => void }) {
+  const tl = useTl();
+  const media = itemThumbs(item);
+  const count = item.kind === "numbers" ? item.items.length : media.length;
+  const name = tl(`kind.${item.kind}`);
+  return (
+    <Pressable className={styles.tile} data-active={active ? "" : undefined} onClick={onClick} aria-pressed={active} aria-label={`${index + 1} · ${name}`} title={name}>
+      {/* 썸네일이 곧 고르는 단추 — 차례는 왼쪽 위, 여러 장짜리 종류만 오른쪽 아래에 종류 · 장 수 */}
+      {item.kind === "numbers"
+        ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
+        : media[0] ? <Thumb src={media[0].src} hoverVideo={media[0].hoverVideo} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
+      <span className={styles.tileNo}>{index + 1}</span>
+      {item.kind !== "frame" && <span className={styles.tileKind}>{KIND_ICON[item.kind]}{count}</span>}
+    </Pressable>
+  );
+}
+
+/** 장면 줄 — 타일을 누르면 그 아래에서 폼이 열리고, 끝의 "장면"으로 종류를 골라 더한다 */
+function SceneStrip({ items, lang, onUpload, onChange }: { items: LandingItem[]; lang: Lang; onUpload: Upload; onChange: (next: LandingItem[]) => void }) {
+  const tl = useTl();
+  const [sel, setSel] = useState<number | null>(null);
+  const cur = sel !== null && sel < items.length ? sel : null;
+  return (
+    <div className={styles.strip}>
+      <div className={styles.tiles}>
+        {items.map((it, i) => <Tile key={i} item={it} index={i} active={cur === i} onClick={() => setSel(cur === i ? null : i)} />)}
+        <Popover placement="bottom-start" responsive={false} maxHeight={false} menu
+          trigger={<Pressable className={styles.tileAdd}><Plus size={16} /><span>{tl("addItem")}</span></Pressable>}>
+          {({ close }) => (
+            <>
+              {KINDS.map((k) => (
+                <MenuItem key={k} icon={KIND_ICON[k]} label={tl(`kind.${k}`)}
+                  onClick={() => { onChange([...items, newItem(k)]); setSel(items.length); close(); }} />
+              ))}
+            </>
+          )}
+        </Popover>
+      </div>
+      {cur !== null && (
+        <div className={styles.form}>
+          <div className={styles.formHead}>
+            <span className={styles.formTitle}>{KIND_ICON[items[cur].kind]}{tl(`kind.${items[cur].kind}`)}</span>
+            <div className={styles.rowEnd}>
+              <IconBtn label={tl("moveLeft")} disabled={cur === 0} onClick={() => { onChange(move(items, cur, cur - 1)); setSel(cur - 1); }}><ArrowLeft size={14} /></IconBtn>
+              <IconBtn label={tl("moveRight")} disabled={cur === items.length - 1} onClick={() => { onChange(move(items, cur, cur + 1)); setSel(cur + 1); }}><ArrowRight size={14} /></IconBtn>
+              <IconBtn label={tl("removeItem")} danger onClick={() => { onChange(items.filter((_, j) => j !== cur)); setSel(null); }}><Trash2 size={14} /></IconBtn>
+            </div>
+          </div>
+          <ItemForm item={items[cur]} lang={lang} onUpload={onUpload} onChange={(next) => onChange(items.map((x, j) => (j === cur ? next : x)))} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 섹션 머리 줄 어디를 눌러도 여닫는다 — 손잡이 · 입력칸 · 단추와 펼친 내용 안은 제 일을 한다 */
+function isRowToggleClick(e: React.MouseEvent<HTMLElement>): boolean {
+  const t = e.target as HTMLElement;
+  return !t.closest("[data-section-panel], [data-section-grip], button, input, textarea, a, [contenteditable], [role='menu']");
+}
+
+function SortableSection({ id, onToggle, children }: { id: string; onToggle: () => void; children: (handle: ReactNode) => ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <li ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={styles.section} data-dragging={isDragging ? "" : undefined} {...attributes}
+      onClick={(e) => { if (isRowToggleClick(e)) onToggle(); }}>
+      {children(<Pressable className={styles.grip} {...listeners} aria-label="Drag to reorder" data-section-grip=""><GripDotsIcon /></Pressable>)}
+    </li>
+  );
+}
+
+/**
+ * 작업물 랜딩 편집기 — 첫 장면들, 번호가 붙는 섹션 목록(끌어서 차례 바꾸기 · 제목 · 설명 · 장면).
+ * 섹션은 접힌 한 줄(번호 · 제목 · 설명 · 썸네일)로 두고, 누르면 그 자리에서 펼친다. 글은 편집 언어(lang) 칸만 고친다.
+ * 처음에는 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다.
+ */
+export default function LandingEditor({ value, lang, onUpload, onChange }: {
+  value: WorkLanding; lang: Lang; onUpload: Upload; onChange: (next: WorkLanding) => void;
+}) {
+  const tl = useTl();
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
+  const openViewer = useMemo(() => (images: string[], index: number) => setViewer({ images, index }), []);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const ids = useMemo(() => value.sections.map((s) => s.id), [value.sections]);
+  /* 섹션은 접어 둔다 — 장면이 많아 다 펼치면 편집 화면이 끝없이 길어진다. 새로 만든 섹션은 펼친다 */
+  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  /* 한 번이라도 펼친 섹션 — 내용(장면 그림들)은 처음 펼칠 때 그리고, 그 뒤로는 남겨 둔다 */
+  const [mounted, setMounted] = useState<Set<string>>(() => new Set());
+  const toggle = (id: string) => {
+    setMounted((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+    setOpen((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+
+  const setSection = (i: number, patch: Partial<LandingSection>) =>
+    onChange({ ...value, sections: value.sections.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    onChange({ ...value, sections: move(value.sections, ids.indexOf(String(active.id)), ids.indexOf(String(over.id))) });
+  };
+  const addSection = () => {
+    const id = `s${Date.now().toString(36)}`;
+    onChange({ ...value, sections: [...value.sections, { id, title: EMPTY, body: EMPTY, items: [] }] });
+    setMounted((prev) => new Set(prev).add(id));
+    setOpen((prev) => new Set(prev).add(id));
+  };
+
+  return (
+    <ViewerContext.Provider value={openViewer}>
+    <div className={styles.editor}>
+      <div className={es.field}>
+        <span className={es.fieldLabel}>{tl("hero")}</span>
+        <SceneStrip items={value.hero} lang={lang} onUpload={onUpload} onChange={(hero) => onChange({ ...value, hero })} />
+      </div>
+
+      <div className={es.field}>
+        <span className={es.fieldLabel}>{tl("sections")}</span>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+            <ol className={styles.sections}>
+              {value.sections.map((s, i) => {
+                const isOpen = open.has(s.id);
+                const thumbs = s.items.flatMap(itemThumbs).slice(0, 4);
+                return (
+                  <SortableSection key={s.id} id={s.id} onToggle={() => toggle(s.id)}>
+                    {(grip) => (
+                      <>
+                        {grip}
+                        <span className={styles.no}>{sectionNo(i)}</span>
+                        {/* 제목 칸 — 접힘 · 펼침 모두 같은 열 · 같은 높이라 손잡이 · 번호 · 단추가 움직이지 않는다 */}
+                        <div className={styles.sectionMain}>
+                          {isOpen ? (
+                            <Input className={styles.sectionTitle} clearable={false} value={s.title[lang]} placeholder={tl("sectionTitle")} aria-label={tl("sectionTitle")}
+                              onChange={(v) => setSection(i, { title: { ...s.title, [lang]: v } })} />
+                          ) : (
+                            <div className={styles.sectionSummary}>
+                              <span className={styles.sectionText}>
+                                <span className={styles.sectionName}>{s.title[lang] || <span className={styles.placeholder}>{tl("sectionTitle")}</span>}</span>
+                                {s.body?.[lang] && <span className={styles.sectionDesc}>{s.body[lang]}</span>}
+                              </span>
+                              {thumbs.length > 0 && (
+                                <span className={styles.thumbs} aria-hidden>
+                                  {thumbs.map((m, k) => <span key={k} className={styles.thumb}><Thumb src={m.src} hoverVideo={m.hoverVideo} /></span>)}
+                                </span>
+                              )}
+                              <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.sectionActions}>
+                          <IconBtn label={tl(isOpen ? "collapse" : "expand")} onClick={() => toggle(s.id)}>
+                            <ChevronRight size={14} className={`${styles.chevron}${isOpen ? ` ${styles.chevronOpen}` : ""}`} />
+                          </IconBtn>
+                          <IconBtn label={tl("removeSection")} danger onClick={() => onChange({ ...value, sections: value.sections.filter((_, j) => j !== i) })}>
+                            <Trash2 size={14} />
+                          </IconBtn>
+                        </div>
+                        {/* 펼친 내용 — 제목과 같은 열(시작 · 끝이 같다). 한 번 펼친 뒤로는 남겨 두어 접을 때도 높이가 줄어드는 모습이 보인다 */}
+                        <ExpandablePanel open={isOpen} className={styles.sectionPanel}>
+                          {mounted.has(s.id) && (
+                            <div className={styles.sectionForm} data-section-panel="">
+                              <div className={es.field}>
+                                <span className={es.fieldLabel}>{tl("sectionBody")}</span>
+                                <Textarea value={s.body?.[lang] ?? ""} rows={2} maxHint="basic"
+                                  onChange={(v) => setSection(i, { body: { ...(s.body ?? EMPTY), [lang]: v } })} />
+                              </div>
+                              <div className={es.field}>
+                                <span className={es.fieldLabel}>{tl("scenes")}</span>
+                                <SceneStrip items={s.items} lang={lang} onUpload={onUpload} onChange={(items) => setSection(i, { items })} />
+                              </div>
+                            </div>
+                          )}
+                        </ExpandablePanel>
+                      </>
+                    )}
+                  </SortableSection>
+                );
+              })}
+            </ol>
+          </SortableContext>
+        </DndContext>
+        {value.sections.length === 0 && <p className={styles.emptyLine}>{tl("noSections")}</p>}
+        <div className={styles.inline}>
+          <Button variant="ghost" className={es.toolBtn} icon={<Plus size={14} />} onClick={addSection}>{tl("addSection")}</Button>
+        </div>
+      </div>
+    </div>
+    {viewer && (
+      <ImageViewer images={viewer.images} index={viewer.index} open onClose={() => setViewer(null)} title={tl("view")} />
+    )}
+    </ViewerContext.Provider>
+  );
+}

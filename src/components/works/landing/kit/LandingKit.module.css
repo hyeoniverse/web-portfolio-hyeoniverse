@@ -186,31 +186,6 @@
   word-break: keep-all;
 }
 
-/* 휴대폰 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나(카드로 늘어놓지 않는다) */
-/* 폰 폭에서는 한 장이 반 폭 — 네 장을 다 넣으면 너무 작아 옆으로 넘긴다 */
-.phones {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 50%;
-  width: 100%;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.phone {
-  position: relative;
-  aspect-ratio: 390 / 844;
-  overflow: hidden;
-  background-color: var(--bg-tertiary);
-  scroll-snap-align: start;
-}
-
-.phoneImage {
-  object-fit: cover;
-  object-position: top center;
-}
-
 /* ── 흐르는 띠 — 스크롤로만 흐른다. 바깥 상자는 화면 높이 + 붙어 있을 스크롤 길이(한 바퀴 거리의 70%)만큼 길고,
    안쪽 무대가 그동안 화면에 붙어 있는다. 한 바퀴 = 한 벌 길이(--count 장 × (장 폭 + 사이)) ── */
 .marquee {
@@ -687,12 +662,7 @@
     --item: 26vw;
   }
 
-  /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
-  .phones {
-    grid-auto-columns: 20%;
-    justify-content: center;
-    overflow-x: visible;
-  }
+  
 }
 
 @media (width > 1024px) {

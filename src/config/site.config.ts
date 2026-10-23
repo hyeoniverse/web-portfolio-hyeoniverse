@@ -543,6 +543,14 @@ export const siteConfig = {
         },
       },
       {
+        ko: "프로젝트",
+        en: "Projects",
+        description: {
+          ko: "직접 만든 작업물을 처음부터 끝까지 풀어 씁니다. 왜 만들었는지, 어떻게 설계하고 무엇을 고쳤는지 — 작업물 페이지가 보여 주는 화면 뒤의 이야기입니다.",
+          en: "Each project written up end to end — why it was built, how it was designed and what was fixed along the way: the story behind the screens on its work page.",
+        },
+      },
+      {
         ko: "기타",
         en: "Etc",
         description: {

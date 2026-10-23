@@ -1,23 +1,20 @@
 "use client";
 
-import { useLangBadge } from "@/hooks/useSourceBadge";
 import { authoringLangOf } from "@/lib/siteLanguage";
 import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
-import { BadgeCheck, Plus, Check, X, Globe, GithubIcon } from "@/components/icons";
-import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
-import GalleryEditor, { type GalleryValue } from "@/components/gallery/GalleryEditor";
+import { Plus, Check, Globe, GithubIcon } from "@/components/icons";
 import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
+import { WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
+import LandingEditor, { asEditableLanding } from "./landing/editor/LandingEditor";
+import { landingOf } from "./landing/landingData";
 import { pickFiles } from "@/lib/pickFiles";
 import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workEditor/ExtraInfoViews";
-import { addSeriesPosts } from "./workEditor/seriesRelatedPosts";
-import { TechTable } from "./workEditor/TechTable";
-import { TeamMemberRow } from "./workEditor/TeamMemberRow";
+import { TechChips } from "./workEditor/TechChips";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -32,7 +29,7 @@ import AdminEditorShell, {
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
-import type { TeamMember, Work, WorkFormData } from "@/types/work";
+import { workFormToProject, type TeamMember, type Work, type WorkFormData } from "@/types/work";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import { noteFor, patchNote } from "@/lib/galleryNotes";
 import { useRevisions } from "@/hooks/useRevisions";
@@ -41,56 +38,33 @@ import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
 import { useEditorDraft } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
-import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
 import { notifyAiFailures, reportAiResponse } from "@/lib/ai/notifyFailures";
-import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
+import { TECH_PRESETS } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm, syncOwnerRole } from "@/utils/workFormUtils";
 import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { stripHtml } from "@/utils/htmlUtils";
-import { isVideoMedia } from "@/components/posts/plate/utils";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
-import ResizeHandle from "@/components/ui/ResizeHandle";
 import type {} from "@/data/profile";
-import RelationPicker from "@/components/admin/RelationPicker";
 import CoverImageField from "@/components/admin/CoverImageField";
 import CoverBanner from "@/components/admin/CoverBanner";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
-import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
-import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
-import type { SummaryOptions } from "@/lib/ai/summary";
-import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import { deriveTeamMemberAvatar } from "@/utils/teamMemberAvatar";
-import { useMyRole } from "@/hooks/useMyRole";
 import { useFocusOnceWhenReady } from "@/hooks/useFocusOnceWhenReady";
-import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
-import type { PlateEditorHandle } from "@/components/posts/PlateEditor";
-import { useEditorImages } from "@/components/posts/plate/useEditorImages";
-import Pressable from "@/components/ui/Pressable";
-import TeamMemberForm from "./workEditor/TeamMemberForm";
 import { CategoryMultiPicker, type WorksCategory } from "./workEditor/CategoryPicker";
 import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
-import { CodedError, errorFromBody, errorFromResponse, errorText, errorTextWithLinks } from "@/lib/apiError";
-import { sendAction, tryRequest } from "@/lib/sendAction";
+import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
+import { tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import Badge from "@/components/ui/Badge";
-
-const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
-  ssr: false,
-});
-const ImagePanel = dynamic(
-  () => import("@/components/posts/PlateEditor").then((m) => ({ default: m.ImagePanel })),
-  { ssr: false },
-);
 
 interface WorkEditorProps {
   work?: Work;
@@ -99,37 +73,17 @@ interface WorkEditorProps {
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
   const srcBadge = useSourceBadge();
-  const badgeOf = useLangBadge();
-  const { t, tLang, language } = useLanguage();
-  const { openModal, closeAll } = useModalStore();
+  const { t, tLang } = useLanguage();
+  const { openModal } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
   // 콘텐츠 작성 기본 언어 — nature/categories 필수 항목 + 초기 편집 언어의 기준 (방문자 언어와 무관)
   const primaryLang = authoringLangOf(useSiteConfig().metadata.defaultLanguage);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
-  // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
-  const plateRef = useRef<PlateEditorHandle>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const [editorImages, setEditorImages] = useEditorImages();
-  const [editorHtmlMode, setEditorHtmlMode] = useState(false);
-  // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
-  useEffect(() => {
-    setEditorImages([]);
-    let cancelled = false;
-    let attempts = 0;
-    const poll = setInterval(() => {
-      attempts++;
-      const imgs = plateRef.current?.getImages();
-      if (!cancelled && imgs !== undefined) {
-        setEditorImages(imgs);
-        if (imgs.length > 0 || attempts >= 10) clearInterval(poll);
-      }
-    }, 300);
-    return () => { cancelled = true; clearInterval(poll); };
-  }, [editorLang, setEditorImages]);
-  /* 추가 정보 — 펼친 항목(요약 카드 아래 편집기). 처음에는 기술 스택을 펼쳐 둔다 */
-  const [extraOpenKey, setExtraOpenKey] = useState<ExtraKey | null>("tech");
+  /* 추가 정보 — 펼친 항목(요약 카드 아래 편집기). 처음에는 모두 접어 둔다 */
+  const [extraOpenKey, setExtraOpenKey] = useState<ExtraKey | null>(null);
   // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
   const [slugManual, setSlugManual] = useState(!!work?.slug);
 
@@ -270,26 +224,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       .catch(() => {});
   }, []);
 
-  /* ── 관련 글 multi-select ── */
-  const [allPosts, setAllPosts] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean; created_at: string; series_id?: string | null; series_order?: number | null }>>([]);
-  const [allSeries, setAllSeries] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean }>>([]);
-
-  useEffect(() => {
-    fetch("/api/posts?all=true&limit=200")
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d?.posts)) setAllPosts(d.posts);
-      })
-      .catch(() => {});
-    fetch("/api/series?all=true")
-      .then((r) => r.json())
-      .then((d) => {
-        const list = Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []);
-        setAllSeries(list);
-      })
-      .catch(() => {});
-  }, []);
-
   useEffect(() => {
     if (!work?.id) return;
     let cancelled = false;
@@ -335,8 +269,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(work?.id);
-  /* 한 번이라도 저장돼 id 가 생겼는지 — 렌더 중에 ref 를 읽지 않으려고 상태로 따로 든다(AI 요약 칸의 다시 만들기) */
-  const [hasSavedId, setHasSavedId] = useState(!!work?.id);
   useEffect(() => { if (work?.id) savedIdRef.current = work.id; }, [work?.id]);
   const savedId = savedIdRef;
 
@@ -409,7 +341,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [form.tech, tech, tw, updateField]);
 
   const TRANSLATABLE_FIELDS = useMemo(
-    () => ["title", "subtitle", "description", "role", "content"] as const,
+    () => ["title", "subtitle", "description", "role"] as const,
     [],
   );
 
@@ -489,12 +421,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       const hasSrc = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, srcLang)] as string)?.trim());
       const hasDst = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, dstLang)] as string)?.trim());
-      /* 갤러리 대본은 칸마다 따로 — 원문은 있는데 그 언어 대본이 빈 장이 하나라도 있으면 그 장들만 채운다 */
-      const missingScript = form.gallery.some((url) =>
-        noteFor(form.gallery_notes?.[url], srcLang)?.script?.trim() && !noteFor(form.gallery_notes?.[url], dstLang)?.script?.trim());
-
-      const keys = [...(hasSrc && !hasDst ? TRANSLATABLE_FIELDS : []), ...(missingScript ? ["gallery"] : [])];
-      if (keys.length > 0) await translateFields(keys, newLang, { onlyMissing: true });
+      if (hasSrc && !hasDst) await translateFields([...TRANSLATABLE_FIELDS], newLang, { onlyMissing: true });
     },
     [form, translating, translateFields, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
@@ -502,126 +429,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const handleRetranslate = useCallback(
     async (fieldKeys?: string[]) => {
       if (translating) return;
-      await translateFields(fieldKeys ?? [...TRANSLATABLE_FIELDS, "gallery"], editorLang);
+      await translateFields(fieldKeys ?? [...TRANSLATABLE_FIELDS], editorLang);
     },
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
-
-  const onTeamMembersChange = useCallback((members: WorkFormData["team_members"]) => updateField("team_members", members), [updateField]);
-  const team = useTeamMembers(form.team_members, onTeamMembersChange);
-  /* 새 팀원 입력 칸을 펼쳤는가 — 평소에는 목록과 "팀원 추가" 단추만 두고, 누르거나 편집할 때만 연다.
-     예전에는 입력 카드가 늘 펼쳐져 있어 팀원 칸이 화면 하나를 차지했다 */
-  const [memberFormOpen, setMemberFormOpen] = useState(false);
-  const memberFormShown = memberFormOpen || team.editingIdx !== null;
-  const closeMemberForm = useCallback(() => { team.cancelEdit(); setMemberFormOpen(false); }, [team]);
-
-  /* 팀원에 사이트 저자 프로필을 연결하면 그 계정이 이 작업물의 편집자가 된다
-     (canEditWork · RLS 의 can_edit_work). 연결을 바꾸는 것은 권한을 주고 뺏는 일이라
-     관리자만 할 수 있다 — 서버도 같은 규칙으로 막는다. */
-  const myRole = useMyRole();
-  const siteAuthorsConfig = useSiteConfig().authors;
-  const siteAuthors = useMemo(
-    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; name_en?: string; avatar?: string; email?: string; bio?: string; bio_en?: string; role?: string; links?: { platform: string; url: string }[] }>,
-    [siteAuthorsConfig],
-  );
-  const linkedAuthorIds = useMemo(
-    () => new Set(form.team_members.map((m) => m.author_id).filter((v): v is string => !!v)),
-    [form.team_members],
-  );
-  /** 연결 토글 — 이미 다른 팀원이 쓰고 있는 계정은 고를 수 없다(한 사람이 두 줄이 되면 안 된다). */
-  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; name_en?: string; avatar?: string; email?: string; bio?: string; bio_en?: string; links?: { platform: string; url: string }[] }) => {
-    if (team.memberAuthorId === a.id) {
-      team.setMemberAuthorId(undefined);
-      return;
-    }
-    team.setMemberAuthorId(a.id);
-    // 비어 있는 칸만 채운다 — 이미 적어 둔 표시 이름·아바타를 덮지 않는다.
-    /* 멤버 프로필(설정 > 계정)의 한국어·영어 이름, 사진, 이메일, GitHub 주소를 가져온다 */
-    if (!team.memberName.trim()) team.setMemberName(a.name);
-    if (!team.memberNameEn.trim() && a.name_en?.trim()) team.setMemberNameEn(a.name_en.trim());
-    if (!team.memberAvatarUrl.trim() && a.avatar && (/^(https?:)?\/\//.test(a.avatar) || a.avatar.startsWith("/"))) team.setMemberAvatarUrl(a.avatar);
-    if (!team.memberEmail.trim() && a.email) team.setMemberEmail(a.email);
-    const url = a.links?.find((l) => l.platform === "github")?.url || a.links?.[0]?.url;
-    if (!team.memberUrl.trim() && url) team.setMemberUrl(url);
-    if (!team.memberBioKo.trim() && a.bio?.trim()) team.setMemberBioKo(a.bio.trim());
-    if (!team.memberBioEn.trim() && a.bio_en?.trim()) team.setMemberBioEn(a.bio_en.trim());
-  }, [team]);
-
-
-  // form 의 avatar preview — 사용자 입력 기준 derive (avatar_url 우선, 없으면 url 에서)
-  const teamAvatarPreview = deriveTeamMemberAvatar({
-    avatar_url: team.memberAvatarUrl,
-    url: team.memberUrl,
-  });
-  // avatar 더블클릭 → 파일 picker
-  const [teamAvatarUploading, setTeamAvatarUploading] = useState(false);
-  const handleTeamAvatarFile = useCallback(async (file: File) => {
-    setTeamAvatarUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("folder", "avatars");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      if (!res.ok) throw await errorFromResponse(res);
-      const data = await res.json();
-      if (data.url) team.setMemberAvatarUrl(data.url);
-    } catch (err) {
-      showToast(errorText(err, t, tw("avatarUploadFailed")), "error");
-    } finally {
-      setTeamAvatarUploading(false);
-    }
-  }, [team, t, tw]);
-
-
-  const handleInsertTemplate = useCallback(() => {
-    const lang = editorLang;
-    const contentKey = lang === "ko" ? "content_ko" : "content_en";
-    const current = form[contentKey];
-
-    const applyTemplate = (tmpl: WorkTemplate) => {
-      // 에디터는 richtext 단일 — 템플릿 md 를 richtext 로 변환해 삽입
-      const content = mdToRichHtml(lang === "ko" ? tmpl.content.ko : tmpl.content.en);
-      if (current.trim()) {
-        updateField(contentKey, current + "<hr />" + content);
-      } else {
-        updateField(contentKey, content);
-      }
-    };
-
-    openModal(
-      <div className={styles.templateModal}>
-        <p className={styles.templateModalDesc}>{tw("templateDesc")}</p>
-        <div className={styles.templateList}>
-          {WORK_TEMPLATES.map((tmpl) => (
-            <Pressable
-              key={tmpl.id}
-              className={styles.templateItem}
-              onClick={() => {
-                if (current.trim()) {
-                  openModal(
-                    <ModalConfirm
-                      desc={tw("templateConfirm")}
-                      confirmText={tw("insertTemplate")}
-                      onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
-                    />,
-                    { header: { title: tw("insertTemplate") }, closeButton: true, width: "360px" },
-                  );
-                } else {
-                  applyTemplate(tmpl);
-                  closeAll();
-                }
-              }}
-            >
-              {/* 템플릿 이름·설명은 고르는 단추라 화면 언어로, 넣는 본문만 편집 중인 언어로 */}
-              <span className={styles.templateItemLabel}>{language === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
-              <span className={styles.templateItemDesc}>{language === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
-            </Pressable>
-          ))}
-        </div>
-      </div>,
-      { header: { title: tw("insertTemplate") }, closeButton: true, width: "420px" },
-    );
-  }, [editorLang, language, form, updateField, tw, openModal, closeAll]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
     // 동영상 — 서버 body 한도 우회 위해 Storage 직접 업로드 (제한 초과 시 브라우저 압축).
@@ -696,22 +507,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     });
   }, [ingestCover, t]);
 
-  // 본문 편집기 높이 — 아래 손잡이로 바꾼다
-  const editorBlockRef = useRef<HTMLDivElement>(null);
-
-  /* 갤러리 값 — 갤러리 편집(GalleryEditor)이 고친다. 한 장을 바꾸면 그 주소가 표지였을 때 표지도 따라 바꾼다 */
-  const galleryValue = useMemo(() => ({ gallery: form.gallery, notes: form.gallery_notes ?? {} }), [form.gallery, form.gallery_notes]);
-  const onGalleryChange = useCallback((update: (prev: GalleryValue) => GalleryValue) => {
-    setForm((prev) => {
-      const next = update({ gallery: prev.gallery, notes: prev.gallery_notes ?? {} });
-      return { ...prev, gallery: next.gallery, gallery_notes: next.notes };
-    });
-  }, []);
-  const onGalleryUrlReplaced = useCallback((oldUrl: string, newUrl: string) => {
-    setForm((prev) => (prev.image === oldUrl ? { ...prev, image: newUrl } : prev));
-  }, []);
-  const galleryCover = useMemo(() => ({ url: form.image, set: (url: string) => updateField("image", url) }), [form.image, updateField]);
-
   const handleSave = useCallback(
     /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
     async (publish?: boolean, { stay = false }: { stay?: boolean } = {}) => {
@@ -726,7 +521,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (!(primaryLang === "en" ? form.nature_en : form.nature_ko).trim()) missing.push({ label: tw("nature"), field: "nature" });
         if (!form.year.trim()) missing.push({ label: tw("year"), field: "year" });
         if (!form.image.trim()) missing.push({ label: tw("mainImage"), field: "image" });
-        if (!form.content_ko.trim() && !form.content_en.trim()) missing.push({ label: tw("content"), field: "content" });
         if (missing.length > 0) {
           const msg = `${missing.map((m) => m.label).join(" · ")} ${tw("requiredFields")}`;
           setError(msg);
@@ -780,10 +574,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           return;
         }
 
-        if (!savedId.current) { savedId.current = data.id; setHasSavedId(true); }
+        if (!savedId.current) savedId.current = data.id;
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
+        }
+        /* 랜딩 칸도 같다 — 랜딩을 고친 경우에만 알린다 */
+        if (res.headers.get(WORK_LANDING_DROPPED_HEADER) && form.landing) {
+          showToast(tw("landing.notSaved"), "error", 6000);
         }
         /* 커버 위치 · 확대 칸도 같다 — 기본값에서 옮긴 경우에만 알린다 */
         if (res.headers.get(WORK_COVER_DROPPED_HEADER) && (form.cover_position !== 50 || form.cover_zoom !== 1)) {
@@ -912,47 +710,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     setStatusType("info");
   }, [tw]);
 
-  const [generatingSummary, setRegeneratingSummary] = useState(false);
-  /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다 */
-  const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: work?.summary_ko ?? "", en: work?.summary_en ?? "" });
-
-  /* options — 편집기 AI 요약 칸의 팝오버에서 고른 값. 머리 막대의 요약 단추는 지난번 값(브라우저에 남은 것)으로 */
-  const handleGenerateSummary = useCallback(async (options?: SummaryOptions) => {
-    const id = savedId.current ?? work?.id;
-    if (!id) return;
-    setRegeneratingSummary(true);
-    try {
-      /* 저장하지 않고 만든다 — 이미 요약이 있으면 현재 것과 나란히 보여 주고 고른 쪽만 저장한다 */
-      const res = await fetch(`/api/works/${id}/ai-summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() ?? undefined }),
-      });
-      /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
-      const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
-      if (!res.ok) {
-        /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        setError(errorTextWithLinks(data, t, tw("saveFailed")));
-        return;
-      }
-      const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
-      const current = data?.current;
-      const save = async (pair: SummaryPair) => {
-        const ok = await sendAction(`/api/works/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, tw("saveFailed"));
-        if (ok) { setSavedSummary(pair); setStatus(tw("generateSummaryDone")); setStatusType("success"); }
-      };
-      if (current && (current.ko || current.en)) {
-        openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
-        return;
-      }
-      await save(next);
-    } catch {
-      setError(tw("saveFailed"));
-    } finally {
-      setRegeneratingSummary(false);
-    }
-  }, [work?.id, tw, savedId, t, openModal]);
-
   const shellLabels = useMemo(
     () => ({
       delete: tw("delete"),
@@ -987,8 +744,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     () => [
       { key: "subtitle", label: tw("subtitle") },
       { key: "description", label: tw("description") },
-      { key: "content", label: tw("content") },
-      { key: "gallery", label: tw("galleryScripts") },
     ],
     [tw],
   );
@@ -998,7 +753,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   // 필수 제목 값 — 콘텐츠 작성 기본 언어 기준
   const reqTitle = primaryLang === "en" ? form.title_en : form.title;
-  const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   /* 본문과 상관없는 섹션은 쓰는 값이 바뀔 때만 다시 그린다. 본문 한 글자마다 편집 화면 전체를 다시 그려
      입력이 늦었다(#850). 섹션 JSX 를 메모해 두면 React 는 같은 요소를 받아 그 아래를 건너뛴다.
@@ -1006,6 +760,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleValue = form[titleKey];
   const subtitleValue = form[`subtitle${suf}`];
   const descriptionValue = form[`description${suf}`];
+
+  /* 랜딩 — 저장된 값이 있으면 그것을, 없으면 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩을 편집 출발점으로 */
+  const editableLanding = useMemo(() => asEditableLanding(form.landing), [form.landing]);
+  const landingValue = useMemo(() => editableLanding ?? landingOf(workFormToProject(form)), [editableLanding, form]);
 
   /* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */
   const basicInfoSection = useMemo(() => (
@@ -1025,7 +783,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 부제목 — 제목 바로 아래 */}
       <div className={es.field}>
-        <label className={es.fieldLabel}>{tw("subtitle")}</label>
+        <div className={es.fieldLabelRow}>
+          <label className={es.fieldLabel}>{tw("subtitle")}</label>
+          <span className={es.fieldHint}>{tw("subtitleHint")}</span>
+        </div>
         <SubtitleInput
           value={subtitleValue}
           onChange={(v) => updateField(`subtitle${suf}`, v)}
@@ -1035,7 +796,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
       <div className={es.field} id="work-description">
-        <label className={es.fieldLabel}>{tw("description")}</label>
+        <div className={es.fieldLabelRow}>
+          <label className={es.fieldLabel}>{tw("description")}</label>
+          <span className={es.fieldHint}>{tw("descriptionHint")}</span>
+        </div>
         <Textarea
           textareaClassName={styles.fieldTextarea}
           value={descriptionValue}
@@ -1044,21 +808,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           rows={3}
           maxHint="basic"
         />
-        {/* AI 요약 — 설명과 다른 값. 손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
-        <AiSummaryField
-          value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
-          lang={editorLang}
-          onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
-          busy={generatingSummary}
-          disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
-          disabledReason={tw("generateSummaryDisabled")}
-        />
       </div>
     </div>
   ), [
-    hasSavedId, descriptionValue, editorLang, reqTitle,
-    showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField,
-    savedSummary, isEdit, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
+    descriptionValue, reqTitle, showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField,
   ]);
 
   // 홈 Selected Works 핀 — 켜면 홈 랭킹 최상단 (posts 편집기 pinToggle 미러). 속성 패널 맨 위에 선다
@@ -1087,7 +840,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         pickerOpen={showCoverPicker}
         onPickerToggle={() => setShowCoverPicker((v) => !v)}
         urlInputPlaceholder={tw("pasteUrl")}
-        hint={form.gallery.length > 0 ? tw("galleryPickHint") : undefined}
         hasError={showErrors && !form.image.trim()}
         fill
       />
@@ -1103,13 +855,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       )}
     </div>
   ), [
-    form.description_en, form.description_ko, form.gallery.length, form.image, form.tech, form.title,
+    form.description_en, form.description_ko, form.image, form.tech, form.title,
     handleImageUpload, showCoverPicker, showErrors, tw, updateField,
   ]);
 
   const propertiesSection = useMemo(() => (
     <div className={styles.properties}>
       {pinToggle}
+
+      {/* 메인 이미지 — 목록 카드 · 랜딩의 얼굴이라 속성 맨 위(slug 위)에 */}
+      {coverField}
 
       {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
       <div className={es.field} id="work-slug">
@@ -1235,7 +990,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
-      {coverField}
     </div>
   ), [
     coverField, srcBadge, categoryCustomMode, editorLang, form.categories_en, form.categories_ko,
@@ -1243,21 +997,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     natureCustomMode, naturePresets, pinToggle, primaryLang,
     showErrors, tw, updateField, worksCategories,
   ]);
-
-  /* Images */
-  const imagesSection = useMemo(() => (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>{tw("images")}</h2>
-      <GalleryEditor
-        value={galleryValue}
-        onChange={onGalleryChange}
-        lang={editorLang}
-        cover={galleryCover}
-        onUrlReplaced={onGalleryUrlReplaced}
-        viewerTitle={form.title}
-      />
-    </div>
-  ), [tw, galleryValue, onGalleryChange, editorLang, galleryCover, onGalleryUrlReplaced, form.title]);
 
   /* 기술 추가 줄 — 프리셋 추천 combobox + ＋. 기본 보기와 표 보기가 같이 쓴다 */
   const techAddRow = useMemo(() => (
@@ -1307,193 +1046,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <p className={styles.extraHint}>{tw("techHint")}</p>
       <div className={es.field}>
         {techAddRow}
-        {/* 기술별 한 줄 — [손잡이 | 로고 · 이름 | 설명 KO | 설명 EN | 빼기]. 설명은 줄에서 바로 고친다 */}
-        <TechTable
+        <TechChips
           items={form.tech}
           notes={form.tech_notes ?? {}}
           onItemsChange={(next) => updateField("tech", next)}
           onNotesChange={(next) => updateField("tech_notes", next)}
-          labels={{
-            tech: tw("techTableTech"),
-            ko: tw("techTableKo"),
-            en: tw("techTableEn"),
-            placeholder: tw("techNotePlaceholder"),
-            remove: tw("techRemove"),
-            empty: tw("techEmpty"),
-            drag: t("admin.common.dragToReorder"),
-          }}
+          labels={{ remove: tw("techRemove"), empty: tw("techEmpty") }}
         />
       </div>
     </div>
-  ), [form.tech, form.tech_notes, t, techAddRow, tw, updateField]);
+  ), [form.tech, form.tech_notes, techAddRow, tw, updateField]);
 
-  /* Team Members */
-  const teamSection = useMemo(() => {
-    /* 팀원 입력 폼 — 새로 추가할 때는 목록 아래, 편집할 때는 그 팀원의 카드 자리에 놓인다 */
-    /* 연결한 계정의 프로필 링크 — 링크 칸 아래 알약으로 골라 넣는다 */
-    const memberLinkOptions = (siteAuthors.find((a) => a.id === team.memberAuthorId)?.links ?? [])
-      .filter((l) => l.url?.trim())
-      .map((l) => ({ value: l.url, label: `${l.platform.charAt(0).toUpperCase()}${l.platform.slice(1)}` }));
-    /* 팀원 입력 폼 — 새로 추가할 때는 목록 아래, 편집할 때는 그 팀원의 줄 자리에 놓인다 */
-    const memberForm = (
-      <TeamMemberForm
-        team={team}
-        badgeOf={badgeOf}
-        tw={tw}
-        avatarPreview={teamAvatarPreview}
-        avatarUploading={teamAvatarUploading}
-        onAvatarFile={handleTeamAvatarFile}
-        linkOptions={memberLinkOptions}
-        footerStart={
-          /* 사이트 멤버 연결 — "이 사람이 사이트 계정의 누구인가"를 고르는 일. 작업물 편집 권한을 주는 것이라 관리자에게만 보인다 */
-          <>
-            {myRole.canManageWorks && siteAuthors.length > 0 && (() => {
-                      const linked = siteAuthors.find((a) => a.id === team.memberAuthorId);
-                      return (
-                        <Popover
-                          placement="bottom-end"
-                          responsive={false}
-                          maxHeight={false}
-                          menu
-                          contentClassName={styles.memberLinkMenu}
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              className={es.toolBtn}
-                              title={tw("memberLinkHint")}
-                              icon={linked
-                                ? <AuthorAvatar value={linked.avatar} name={linked.name} size={16} imgClassName={styles.memberLinkChipAvatar} initialClassName={styles.memberLinkChipAvatar} />
-                                : <BadgeCheck size={12} strokeWidth={2} />}
-                            >
-                              {linked ? fillTemplate(tw("memberLinkedTo"), { name: linked.name }) : tw("linkSiteMember")}
-                            </Button>
-                          }
-                        >
-                          {({ close }) => (
-                            <>
-                              <p className={styles.memberLinkMenuHint}>{tw("memberLinkHint")}</p>
-                              {siteAuthors.map((a) => {
-                                const selected = team.memberAuthorId === a.id;
-                                // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
-                                const takenByOther = !selected && linkedAuthorIds.has(a.id);
-                                return (
-                                  <MenuItem
-                                    key={a.id}
-                                    active={selected}
-                                    className={takenByOther ? styles.memberLinkChipTaken : undefined}
-                                    icon={<AuthorAvatar value={a.avatar} name={a.name} size={16} imgClassName={styles.memberLinkChipAvatar} initialClassName={styles.memberLinkChipAvatar} />}
-                                    label={a.name}
-                                    trailing={selected ? <Check size={14} strokeWidth={2} /> : undefined}
-                                    onClick={() => {
-                                      if (takenByOther) {
-                                        showToast(fillTemplate(tw("memberLinkTaken"), { name: a.name }), "info");
-                                        return;
-                                      }
-                                      toggleLinkedAuthor(a);
-                                      close();
-                                    }}
-                                  />
-                                );
-                              })}
-                              {linked && (
-                                <>
-                                  <MenuDivider />
-                                  <MenuItem label={tw("memberUnlink")} onClick={() => { team.setMemberAuthorId(undefined); close(); }} />
-                                </>
-                              )}
-                            </>
-                          )}
-                        </Popover>
-                      );
-                    })()}
-          </>
-        }
-        footerEnd={
-          <>
-            <Button
-              variant="ghost"
-              className={es.toolBtn}
-              onClick={closeMemberForm}
-              aria-label={tw("cancel")}
-              icon={<X size={14} strokeWidth={2} />}
-            >
-              {tw("cancel")}
-            </Button>
-            {team.editingIdx !== null ? (
-              <Button
-                variant="primary"
-                className={es.toolBtnPrimary}
-                onClick={() => { team.saveEdit(); setMemberFormOpen(false); }}
-                disabled={!team.memberName.trim()}
-                aria-label={tw("memberSave")}
-                icon={<Check size={14} strokeWidth={2} />}
-              >
-                {tw("memberSave")}
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                className={es.toolBtnPrimary}
-                onClick={() => { team.addMember(); setMemberFormOpen(false); }}
-                disabled={!team.memberName.trim()}
-                aria-label={tw("memberAddAria")}
-                icon={<Plus size={14} strokeWidth={2} />}
-              >
-                {tw("memberAddButton")}
-              </Button>
-            )}
-          </>
-        }
-      />
-    );
-    return (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
-      <p className={styles.extraHint}>{tw("teamHint")}</p>
-      {/* 추가된 팀원 — 한 사람에 한 줄. 없어도 자리는 두고 비었다고 알린다 */}
-      <div className={styles.memberListBlock}>
-        {form.team_members.length === 0 ? (
-          <p className={styles.memberListEmpty}>{tw("memberListEmpty")}</p>
-        ) : (
-          <ul className={styles.memberRows}>
-            {form.team_members.map((m, i) => team.editingIdx === i ? (
-              /* 편집 중인 팀원 — 카드 자리에서 바로 폼으로 바뀐다. 예전에는 카드는 분홍으로 남고 폼은 목록 아래에 따로 열렸다 */
-              <li key={i} className={styles.memberEditItem}>{memberForm}</li>
-            ) : (
-              <TeamMemberRow
-                key={i}
-                member={m}
-                editorLang={editorLang}
-                linkedAuthorName={m.author_id ? siteAuthors.find((a) => a.id === m.author_id)?.name ?? m.author_id : undefined}
-                onEdit={() => team.startEdit(i)}
-                onRemove={() => team.removeMember(i)}
-                labels={{ edit: tw("memberEdit"), remove: tw("remove"), linked: tw("memberLinkedBadge") }}
-              />
-            ))}
-          </ul>
-        )}
-      </div>
-      {/* 새 팀원 추가 — 접혀 있으면 단추 하나. 추가 중이면 목록 아래에 폼 */}
-      {!memberFormShown ? (
-        <div>
-          <Button
-            variant="ghost"
-            className={es.toolBtn}
-            onClick={() => setMemberFormOpen(true)}
-            icon={<Plus size={14} strokeWidth={2} />}
-          >
-            {tw("memberFormLabel")}
-          </Button>
-        </div>
-      ) : team.editingIdx === null ? memberForm : null}
-    </div>
-    );
-  }, [
-    badgeOf, closeMemberForm, editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, memberFormShown,
-    myRole.canManageWorks, siteAuthors, team, teamAvatarPreview, teamAvatarUploading, toggleLinkedAuthor,
-    tw,
-  ]);
 
+
+
+  /* 추가 정보 항목 — 제목 · 개수 · 미리보기 · 편집기. 세 보기가 같이 쓴다 */
   /* Links */
   const linksSection = useMemo(() => (
     <div className={styles.section}>
@@ -1525,65 +1092,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     </div>
   ), [form.github_url, form.live_url, tw, updateField]);
 
-  /* 관련 글 */
-  const relatedPostsSection = useMemo(() => (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
-      <p className={styles.extraHint}>{tw("relatedPostsHint")}</p>
-      <RelationPicker
-        className={styles.relationPicker}
-        items={allPosts}
-        selectedIds={form.related_post_ids ?? []}
-        onChange={(ids) => updateField("related_post_ids", ids)}
-        getId={(p) => p.id}
-        getTitle={(p) => (language === "en" && p.title_en ? p.title_en : p.title)}
-        getMeta={(p) => p.category}
-        getThumb={(p) => p.cover_image}
-        getStatus={(p) => (p.published ? "published" : "draft")}
-        searchPlaceholder={tw("relatedPostsSearch")}
-        searchInputPlaceholder={tw("relatedPostsSearchInput")}
-        noResultsText={tw("relatedPostsNoResults")}
-        emptyText={tw("relatedPostsEmpty")}
-      />
-    </div>
-  ), [allPosts, form.related_post_ids, language, tw, updateField]);
-
-  /* 관련 시리즈 */
-  const relatedSeriesSection = useMemo(() => (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
-      <p className={styles.extraHint}>{tw("relatedSeriesHint")}</p>
-      <RelationPicker
-        className={styles.relationPicker}
-        items={allSeries}
-        selectedIds={form.related_series_ids ?? []}
-        onChange={(ids) => {
-          /* 새로 연결한 시리즈의 글은 관련 글에도 더한다(시리즈 순서대로, 이미 있으면 건너뜀) */
-          const posts = addSeriesPosts(form.related_post_ids ?? [], form.related_series_ids ?? [], ids, allPosts);
-          if (posts !== (form.related_post_ids ?? [])) updateField("related_post_ids", posts);
-          updateField("related_series_ids", ids);
-        }}
-        getId={(s) => s.id}
-        getTitle={(s) => (language === "en" && s.title_en ? s.title_en : s.title)}
-        getMeta={(s) => s.category}
-        getThumb={(s) => s.cover_image}
-        getStatus={(s) => (s.published ? "published" : "draft")}
-        searchPlaceholder={tw("relatedSeriesSearch")}
-        searchInputPlaceholder={tw("relatedSeriesSearchInput")}
-        noResultsText={tw("relatedSeriesNoResults")}
-        emptyText={tw("relatedSeriesEmpty")}
-      />
-    </div>
-  ), [allPosts, allSeries, form.related_post_ids, form.related_series_ids, language, tw, updateField]);
-
-  /* 추가 정보 항목 — 제목 · 개수 · 미리보기 · 편집기. 세 보기가 같이 쓴다 */
   const extraItems = useMemo<ExtraItem[]>(() => {
     const empty = <ExtraEmpty>{tw("extraEmpty")}</ExtraEmpty>;
     const host = (u: string) => { try { return new URL(u).host.replace(/^www\./, ""); } catch { return u; } };
     const links = [form.live_url, form.github_url].filter((u): u is string => !!u?.trim());
-    const titleOf = (x: { title: string; title_en?: string }) => (language === "en" && x.title_en ? x.title_en : x.title);
-    const posts = allPosts.filter((p) => (form.related_post_ids ?? []).includes(p.id));
-    const series = allSeries.filter((x) => (form.related_series_ids ?? []).includes(x.id));
     return [
       {
         key: "tech",
@@ -1600,48 +1112,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         body: techSection,
       },
       {
-        key: "team",
-        title: tw("teamMembers"),
-        count: form.team_members.length,
-        preview: form.team_members.length === 0 ? empty : (
-          <>
-            {form.team_members.slice(0, 4).map((m, i) => (
-              <span key={i} className={styles.extraPreviewChip}>
-                <AuthorAvatar value={deriveTeamMemberAvatar(m)} name={m.name} size={18} imgClassName={styles.extraPreviewAvatar} initialClassName={styles.extraPreviewAvatar} />
-                {editorLang === "en" && m.name_en ? m.name_en : m.name}
-              </span>
-            ))}
-          </>
-        ),
-        body: teamSection,
-      },
-      {
         key: "links",
         title: tw("links"),
         count: links.length,
         preview: links.length === 0 ? empty : <>{links.map((u) => <span key={u} className={styles.extraPreviewChip}>{host(u)}</span>)}</>,
         body: linksSection,
       },
-      {
-        key: "posts",
-        title: tw("relatedPosts"),
-        count: posts.length,
-        preview: posts.length === 0 ? empty : <>{posts.slice(0, 3).map((p) => <span key={p.id} className={styles.extraPreviewLine}>{titleOf(p)}</span>)}</>,
-        body: relatedPostsSection,
-      },
-      {
-        key: "series",
-        title: tw("relatedSeries"),
-        count: series.length,
-        preview: series.length === 0 ? empty : <>{series.slice(0, 3).map((x) => <span key={x.id} className={styles.extraPreviewLine}>{titleOf(x)}</span>)}</>,
-        body: relatedSeriesSection,
-      },
     ];
-  }, [
-    allPosts, allSeries, editorLang, form.github_url, form.live_url, form.related_post_ids, form.related_series_ids,
-    form.team_members, form.tech, language, linksSection, relatedPostsSection, relatedSeriesSection,
-    teamSection, techSection, tw,
-  ]);
+  }, [form.github_url, form.live_url, form.tech, linksSection, techSection, tw]);
 
   return (
     <>
@@ -1680,9 +1158,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
       retranslating={translating}
-      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? () => void handleGenerateSummary() : undefined) : undefined}
-      aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
-      generatingSummary={generatingSummary}
       getCurrentSnapshot={(lang) => {
         const isKo = lang === "ko";
         return {
@@ -1694,126 +1169,35 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         };
       }}
       sidebar={propertiesSection}
-      wide={
-        /* 갤러리 · 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다 */
-        <>
-      {imagesSection}
-
-      {/* ── 추가 정보 — 요약 카드 한 줄 + 누른 항목의 편집기가 그 아래에 펼쳐진다 ── */}
-      <div className={styles.extraSections}>
-        <h2 className={styles.sectionTitle}>{tw("additionalInfo")}</h2>
-        <ExtraSummary items={extraItems} open={extraOpenKey} onOpenChange={setExtraOpenKey} />
-      </div>
-        </>
-      }
       coverSlot={
         /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
         <CoverBanner
           cover={form.image}
           onCoverChange={(url) => updateField("image", url)}
           onUpload={() => handleImageUpload()}
-          emoji={form.icon || null}
-          onEmojiChange={(e) => updateField("icon", e ?? "")}
           position={form.cover_position}
           zoom={form.cover_zoom}
-          onPositionChange={(n) => updateField("cover_position", n)}
-          onZoomChange={(n) => updateField("cover_zoom", n)}
         />
       }
     >
       {basicInfoSection}
 
-      {/* Detail Content */}
-      <div className={styles.section} data-required="content">
-        <div className={styles.editorHeader}>
-          <div className={styles.editorHeaderLeft}>
-            <h2 className={`${styles.sectionTitle}${showErrors && !form.content_ko.trim() && !form.content_en.trim() ? ` ${styles.sectionTitleError}` : ""}`} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
-              {tw("content")}
-            </h2>
-            <Pressable
-              className={styles.templateBtn}
-              onClick={handleInsertTemplate}
-            >
-              {tw("insertTemplate")}
-            </Pressable>
-          </div>
-          <Checkbox
-            checked={editorHtmlMode}
-            onChange={() => plateRef.current?.toggleHtmlMode()}
-            shape="square"
-            label="HTML"
-          />
-        </div>
-
-        <div ref={editorBlockRef} className={styles.editorBlock}>
-          <Editor
-            key={editorLang}
-            value={form[contentKey]}
-            onChange={(v) => {
-              updateField(contentKey, v);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-            onImageUpload={handleContentImageUpload}
-            editorRef={plateRef}
-            postLang={editorLang}
-            onHtmlModeChange={setEditorHtmlMode}
-          />
-        </div>
-        <ResizeHandle targetRef={editorBlockRef} label={t("admin.common.resizeEditor")} className={es.editorResize} />
-
-        {/* ── 본문 첨부 이미지 패널 (Posts editor 와 동일) ── */}
-        <div>
-          <ImagePanel
-            images={editorImages}
-            onSelect={(path) => plateRef.current?.selectImageAt(path)}
-            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
-            onRemove={(path) => plateRef.current?.removeImage(path)}
-            onImageUpload={async (file) => {
-              const url = await handleContentImageUpload(file);
-              plateRef.current?.insertImageByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onVideoUpload={async (file) => {
-              const url = await handleContentImageUpload(file);
-              plateRef.current?.insertMediaByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onBulkInsert={(items) => {
-              for (const it of items) {
-                if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
-                else plateRef.current?.insertImageByUrl(it.url);
-              }
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-            onReinsert={(url, mediaType) => {
-              if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
-              else plateRef.current?.insertImageByUrl(url);
-            }}
-            onRemoveDetached={(url) => {
-              plateRef.current?.removeDetached(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-          />
-        </div>
+      {/* 랜딩 페이지 — 속성 열 옆 본문 열에(아래 전체 폭에 두면 짧은 기본 정보 옆이 크게 비었다). 추가 정보도 같은 열에 두어
+          2단의 끝이 멀리 있으므로, 섹션을 여닫아 높이가 바뀌어도 붙어 따라오는 속성 열이 밀리지 않는다 */}
+      <div className={styles.section}>
+        <LandingEditor
+          value={landingValue}
+          lang={editorLang}
+          onUpload={handleContentImageUpload}
+          onChange={(next) => updateField("landing", next)}
+        />
       </div>
 
+      {/* ── 추가 정보 — 요약 카드 한 줄 + 누른 항목의 편집기가 그 아래에 펼쳐진다 ── */}
+      <div className={styles.extraSections}>
+        <h2 className={styles.sectionTitle}>{tw("additionalInfo")}</h2>
+        <ExtraSummary items={extraItems} open={extraOpenKey} onOpenChange={setExtraOpenKey} />
+      </div>
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (works 는 number/slug 없음) */}
       <SeoChecklist

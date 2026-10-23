@@ -37,7 +37,7 @@ export function useReveal(root: RefObject<HTMLElement | null>, deps: unknown[] =
 
 
 /** 숫자 세어 올리기 — "97점" · "1,351+" 처럼 앞의 숫자만 0 에서 올린다. 숫자가 없으면 그대로 */
-export function splitNumber(value: string): { prefix: string; num: number | null; decimals: number; suffix: string } {
+function splitNumber(value: string): { prefix: string; num: number | null; decimals: number; suffix: string } {
   const m = /^(\D*?)(\d[\d,]*(?:\.\d+)?)(.*)$/.exec(value);
   if (!m) return { prefix: "", num: null, decimals: 0, suffix: value };
   const raw = m[2].replace(/,/g, "");

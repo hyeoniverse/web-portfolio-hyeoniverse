@@ -87,6 +87,7 @@
 --   2026_10_18  content_translations.source_type — admin_text
 --   2026_10_19  contact-attachments 버킷(문의 첨부, 비공개 25MB) · posts/works.source_lang + 원문 백업
 --   2026_10_20  works.cover_position / cover_zoom — 작업물 커버 위치·확대 (posts 미러)
+--   2026_10_24  works.landing — 작업물 랜딩 페이지 데이터(섹션 · 장면)
 --   2026_08_25  스토리지 직접 업로드 정책 제거 (서버 검증 우회 차단)
 --   2026_08_25  posts/works 정책을 4단계 권한 모델에 맞춤
 --   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
@@ -714,6 +715,7 @@ CREATE TABLE IF NOT EXISTS works (
   tech_notes       jsonb NOT NULL DEFAULT '{}'::jsonb,
   gallery          text[] NOT NULL DEFAULT '{}',
   gallery_notes    jsonb NOT NULL DEFAULT '{}'::jsonb, -- 갤러리 장마다의 음성(그림 주소 → 대본·음성 파일)
+  landing          jsonb, -- 랜딩 페이지 데이터(src/lib/workLanding.ts) — 비면 기본 데이터 · 기본 랜딩
   live_url         text DEFAULT '',
   github_url       text DEFAULT '',
   published        boolean NOT NULL DEFAULT false,
@@ -2358,7 +2360,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_20_works_cover_position',          'works.cover_position/cover_zoom — 작업물 커버 위치·확대 영속화 (posts 미러)'),
   ('2026_10_21_revoke_definer_functions',      'SECURITY DEFINER 함수(vault · 메일 · 예약 작업)의 anon · authenticated 실행 권한 회수 + search_path 고정'),
   ('2026_10_21_b_rate_limits_public_read',     'rate_limits 공유 속도 제한 + 휴지통 글 · 캘린더 · 관계 테이블 공개 읽기 조이기 + 버킷 목록 정책 제거'),
-  ('2026_10_22_rls_require_aal2',              '정책의 역할 판정(app_role · app_level · app_author_id)을 2단계 인증(aal2) 세션에서만')
+  ('2026_10_22_rls_require_aal2',              '정책의 역할 판정(app_role · app_level · app_author_id)을 2단계 인증(aal2) 세션에서만'),
+  ('2026_10_24_works_landing',                 'works.landing — 작업물 랜딩 페이지 데이터(섹션 · 장면)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

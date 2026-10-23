@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
 import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
+import { dropWorkLandingIfMissing, WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
 import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { QUERY_PARAM } from "@/constants";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
@@ -146,7 +147,7 @@ const ALLOWED_FIELDS = new Set([
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
   "solution_ko", "solution_en", "solution_image",
-  "team_members", "gallery", "gallery_notes",
+  "team_members", "gallery", "gallery_notes", "landing",
   "live_url", "github_url",
   "published", "sort_order", "is_pinned",
 ]);
@@ -190,10 +191,13 @@ export async function POST(request: Request) {
   const notesDropped = await dropGalleryNotesIfMissing(supabase, filtered);
   /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
   const coverDropped = await dropWorkCoverIfMissing(supabase, filtered);
-  const notesHeaders = notesDropped || coverDropped
+  /* 랜딩 칸도 같다(workLandingColumn 참고) */
+  const landingDropped = await dropWorkLandingIfMissing(supabase, filtered);
+  const notesHeaders = notesDropped || coverDropped || landingDropped
     ? {
         ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
         ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
+        ...(landingDropped ? { [WORK_LANDING_DROPPED_HEADER]: "1" } : {}),
       }
     : undefined;
 

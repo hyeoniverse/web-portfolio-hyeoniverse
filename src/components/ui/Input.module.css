@@ -30,7 +30,8 @@
   width: 100%;
   height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-16);
+  /* 알약의 둥근 끝(높이의 절반 — 곡선이 끝나는 곳)에서 글자가 시작한다 — 16 고정이면 높이가 크고 작음에 따라 곡선에 붙어 보였다 */
+  padding: 0 calc(var(--control-height-md) / 2);
   border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
@@ -108,7 +109,7 @@
 .sm {
   height: var(--control-height-sm);
   box-sizing: border-box;
-  padding: 0 var(--spacing-16);
+  padding: 0 calc(var(--control-height-sm) / 2);
   font-size: var(--font-size-body-md);
   line-height: 1;
 }
@@ -133,7 +134,7 @@
 .xs {
   height: var(--control-height-xs);
   box-sizing: border-box;
-  padding: 0 var(--spacing-12);
+  padding: 0 calc(var(--control-height-xs) / 2);
   font-size: var(--font-size-body-sm);
   line-height: 1;
 }

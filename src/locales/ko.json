@@ -1019,7 +1019,8 @@
       "zoomIn": "확대",
       "zoomOut": "축소",
       "savePosition": "저장",
-      "cancel": "취소"
+      "cancel": "취소",
+      "urlLabel": "이미지 주소"
     },
     "insertVideo": "동영상 삽입",
     "insertCalendar": "이벤트 달력",

@@ -1,0 +1,566 @@
+/* ── 작업물 랜딩 편집기 — 상자 대신 선과 여백(docs/editor-ui.md). 면은 장면 타일 한 겹뿐 ── */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-40);
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.rowEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.emptyLine {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border-radius: var(--radius-control);
+  color: var(--text-tertiary);
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.iconBtnDanger:hover:not(:disabled) {
+  color: var(--text-accent);
+}
+
+.iconBtn:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+/* 접힘 › · 펼침 ⌄ */
+.chevron {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* 겹친 그림 층(GIF 정지 화면 · 휴대폰 녹화) — 칸을 덮고, 쉴 때 · 올렸을 때 한쪽만 보인다 */
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.layer[data-off] {
+  opacity: 0;
+}
+
+/* 크게 보기 — 미리보기 칸 전체를 덮는 투명 단추 */
+.viewBtn {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-in;
+}
+
+/* 움직이는 그림 표시 — 썸네일 오른쪽 위의 작은 재생 표 */
+.motionBadge {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--text-primary) 72%, transparent);
+  color: var(--bg-primary);
+  pointer-events: none;
+}
+
+/* 접힌 줄의 작은 썸네일(40×28) · 휴대폰 화면 칸(32×56)은 표도 작게 */
+.thumb .motionBadge,
+.phoneThumb .motionBadge {
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 12px;
+  height: 12px;
+}
+
+.thumb .motionBadge svg,
+.phoneThumb .motionBadge svg {
+  width: 6px;
+  height: 6px;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── 섹션 목록 — 줄마다 아래 가는 선, 접힌 줄은 번호 · 제목 · 설명 한 줄 · 썸네일 ── */
+.sections {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+}
+
+/* 섹션 한 줄 — [손잡이 | 번호 | 제목 | 펼치기 · 지우기] 격자. 넷 다 위쪽 한 줄(컨트롤 높이 32)에 맞춰 서고,
+   접힌 줄의 설명은 그 아래 줄에 온다. 펼치면 제목 줄이 그 자리에서 입력칸이 되고, 펼친 내용은 제목과 같은 열에 둔다 */
+.section {
+  display: grid;
+  grid-template-columns: 24px 24px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  column-gap: var(--spacing-8);
+  padding: var(--spacing-16) 0;
+  border-bottom: var(--border-light);
+  background: var(--bg-primary);
+}
+
+/* 머리 줄 어디를 눌러도 여닫는다(펼친 내용 제외) */
+.section > :not(.sectionPanel) {
+  cursor: pointer;
+}
+
+.section[data-dragging] {
+  position: relative;
+  z-index: var(--z-index-float);
+  box-shadow: var(--shadow-floating);
+}
+
+.grip,
+.no,
+.sectionActions {
+  display: flex;
+  align-items: center;
+  height: var(--control-height-md);
+}
+
+.grip {
+  justify-content: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+  touch-action: none;
+}
+
+.no {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.sectionMain {
+  display: flex;
+  min-width: 0;
+  min-height: var(--control-height-md);
+}
+
+.sectionSummary {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--spacing-16);
+  min-width: 0;
+  text-align: left;
+}
+
+.sectionText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sectionName,
+.sectionDesc {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 제목 줄 — 입력칸(32)과 같은 높이 · 같은 자리라 펼쳐도 제목이 움직이지 않는다 */
+.sectionName {
+  font: var(--font-body-md);
+  padding-block: calc((var(--control-height-md) - 1lh) / 2);
+  color: var(--text-primary);
+}
+
+.sectionDesc {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 펼친 줄의 제목 — 접힌 줄의 제목과 같은 글자(body-md) · 같은 높이(32)라 밑줄이 생겨도 글자 자리는 그대로다
+   (밑줄 입력칸 기본 높이 28 로 두면 32 줄 안에서 위로 붙어 글자가 올라갔다) */
+.sectionTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionTitle input {
+  height: var(--control-height-md);
+}
+
+.sectionActions {
+  gap: var(--spacing-8);
+}
+
+.thumbs {
+  display: none;
+  align-items: center;
+  gap: var(--spacing-4);
+  height: var(--control-height-md);
+}
+
+.thumb {
+  position: relative;
+  width: 40px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: var(--radius-mark);
+  background: var(--bg-tertiary);
+}
+
+.count {
+  display: none;
+  font: var(--font-code-xs);
+  padding-block: calc((var(--control-height-md) - 1lh) / 2);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* 펼친 내용 — 높이를 재서 0 ↔ 높이로 여닫는다(ExpandablePanel). 좁은 화면은 줄 전체 폭, 넓으면 제목 열 */
+.sectionPanel {
+  grid-column: 1 / -1;
+  height: 0;
+  overflow: hidden;
+  transition: height var(--duration-base) var(--ease-standard);
+}
+
+.sectionForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-16) 0;
+}
+
+/* ── 장면 줄 — 작은 타일들, 고른 타일의 폼은 줄 바로 아래 ── */
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+/* 장면 타일 — 썸네일 하나가 고르는 단추. 차례 · 종류는 그 위에 작은 표로 얹는다 */
+.tile,
+.tileAdd {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+}
+
+.tile {
+  background: var(--bg-secondary);
+}
+
+.tile:hover {
+  border-color: var(--border-color-control);
+}
+
+.tile[data-active] {
+  border-color: var(--text-primary);
+}
+
+.tileEmpty {
+  color: var(--text-tertiary);
+}
+
+.tileNumber {
+  font: var(--font-headline-sm);
+  color: var(--text-primary);
+}
+
+.tileNo,
+.tileKind {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-mark);
+  background: var(--bg-primary);
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
+}
+
+.tileNo {
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+}
+
+.tileKind {
+  right: var(--spacing-4);
+  bottom: var(--spacing-4);
+}
+
+.tileKind svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tile[data-active] .tileNo {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.tileAdd {
+  flex-direction: column;
+  gap: var(--spacing-4);
+  border-style: dashed;
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+.tileAdd:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* 고른 장면의 폼 — 위 가는 선 하나로 장면 줄과 나눈다 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-light);
+}
+
+.formHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.formTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+}
+
+.fields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* 그림 · 영상 — 좁으면 미리보기 위 · 칸 아래, 넓으면 나란히 */
+.frameForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.frameMedia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.framePreview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+/* 여러 장 — 작은 타일과 그 아래 설명 */
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--spacing-16) var(--spacing-8);
+}
+
+.mediaCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.mediaBox {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+.mediaRemove {
+  position: absolute;
+  z-index: 1;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.mediaAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  aspect-ratio: 4 / 3;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-mark);
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+.mediaAdd:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.mediaAdd[data-busy] {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+/* 휴대폰 화면 · 숫자 — 줄 목록, 줄 사이 가는 선 */
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rows > li + li {
+  border-top: var(--border-light);
+}
+
+.phoneRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-16);
+  padding: var(--spacing-8) 0;
+}
+
+.phoneThumb {
+  position: relative;
+  width: 32px;
+  height: 56px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+.pair {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-8);
+  min-width: 160px;
+}
+
+/* 숫자 줄 — 칸마다 밑줄이 있어 줄 사이 구분선까지 그으면 가로선이 겹쳐 번잡했다. 선 대신 간격으로 나눈다 */
+.numberRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.numberRow {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+@media (width > 768px) {
+  .thumbs {
+    display: flex;
+  }
+
+  .count {
+    display: inline;
+  }
+
+  .sectionPanel {
+    grid-column: 3;
+  }
+
+  .frameForm {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .frameMedia {
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .pair {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .numberRow {
+    grid-template-columns: 140px 1fr auto;
+  }
+}

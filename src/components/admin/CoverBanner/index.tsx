@@ -19,7 +19,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
+import Popover from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -32,14 +32,14 @@ interface CoverBannerProps {
   onCoverChange: (url: string) => void;
   /** 업로드 트리거 — caller 가 파일 선택 후 onCoverChange 로 url 반영 */
   onUpload: () => void;
-  /** 페이지 이모지 (native / img:url / icon:id), null 이면 미설정 */
-  emoji: string | null;
-  onEmojiChange: (e: string | null) => void;
+  /** 페이지 이모지 (native / img:url / icon:id), null 이면 미설정. onEmojiChange 를 주지 않으면 이모지 칸을 그리지 않는다 */
+  emoji?: string | null;
+  onEmojiChange?: (e: string | null) => void;
   /** 커버 세로 위치 % (object-position, 0~100) — 저장값 */
   position?: number;
   /** 커버 확대 배율 (scale, 1~2.5) — 저장값 */
   zoom?: number;
-  /** 위치 조정 저장 시 호출 (DB 반영) */
+  /** 위치 조정 저장 시 호출 (DB 반영) — 주지 않으면 위치 조정 단추를 그리지 않는다 */
   onPositionChange?: (position: number) => void;
   onZoomChange?: (zoom: number) => void;
 }
@@ -151,22 +151,42 @@ export default function CoverBanner({
     setUrlDraft("");
     close();
   };
+  /* 커버 패널 — 위: 올리기 · 지우기 한 줄, 아래: 라벨 아래 주소 칸(적용 화살표가 붙은 알약). 메뉴 목록 모양 대신
+     편집 화면의 "라벨 아래 값" 결로 짠다 */
   const coverMenu = ({ close }: { close: () => void }) => (
     <div className={styles.menu}>
-      <MenuItem
-        icon={<Upload size={14} strokeWidth={2} />}
-        label={t("editor.cover.upload")}
-        onClick={() => {
-          onUpload();
-          close();
-        }}
-      />
-      {/* 주소 붙여 넣기 — 메뉴 항목과 같은 들여쓰기로 */}
-      <div className={styles.urlRow}>
+      <div className={styles.menuActions}>
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.menuBtn}
+          icon={<Upload size={14} strokeWidth={2} />}
+          onClick={() => { onUpload(); close(); }}
+          soundDisabled
+        >
+          {t("editor.cover.upload")}
+        </Button>
+        {hasCover && (
+          <Button
+            variant="outline"
+            size="sm"
+            tone="danger"
+            className={styles.menuBtn}
+            icon={<Trash2 size={14} strokeWidth={2} />}
+            onClick={() => { onCoverChange(""); close(); }}
+            soundDisabled
+          >
+            {t("editor.cover.remove")}
+          </Button>
+        )}
+      </div>
+      <div className={styles.urlField}>
+        <span className={styles.urlLabel}>{t("editor.cover.urlLabel")}</span>
         <Input
           variant="capsule"
+          size="sm"
           value={urlDraft}
-          placeholder={t("editor.cover.urlPlaceholder")}
+          placeholder="https://"
           onChange={setUrlDraft}
           className={styles.urlInput}
           clearable={false}
@@ -181,22 +201,9 @@ export default function CoverBanner({
           }}
         />
       </div>
-      {hasCover && (
-        <>
-          <MenuDivider />
-          <MenuItem
-            className={styles.menuDanger}
-            icon={<Trash2 size={14} strokeWidth={2} />}
-            label={t("editor.cover.remove")}
-            onClick={() => {
-              onCoverChange("");
-              close();
-            }}
-          />
-        </>
-      )}
     </div>
   );
+
 
   return (
     /* 커버가 없으면 "커버 추가" 단추를 늘 보인다 — 빈 띠 위에 hover 해야만 나타나면 찾을 수 없다 */
@@ -300,9 +307,8 @@ export default function CoverBanner({
             <>
               <Popover
                 placement="bottom-end"
-                /* 불투명 패널 · 공용 메뉴 여백 — 반투명(glass)이면 뒤의 상단 막대 단추가 비쳐 겹쳐 보였다 */
+                /* 불투명 패널 — 반투명(glass)이면 뒤의 상단 막대 단추가 비쳐 겹쳐 보였다. 여백은 패널 안(.menu)이 맡는다 */
                 variant="solid"
-                menu
                 sheetTitle={hasCover ? t("editor.cover.change") : t("editor.cover.add")}
                 trigger={
                   <Button
@@ -320,7 +326,7 @@ export default function CoverBanner({
               </Popover>
 
               {/* 커버가 있을 때만 위치 조정 진입 */}
-              {hasCover && (
+              {hasCover && onPositionChange && (
                 <Button
                   variant="ghost"
                   shape="capsule"
@@ -338,6 +344,7 @@ export default function CoverBanner({
       </div>
 
       {/* ── 페이지 이모지 ── */}
+      {onEmojiChange && (
       <div className={`${styles.emojiRow}${hasCover ? "" : ` ${styles.emojiRowNoCover}`}`}>
         <div className={styles.emojiAnchor}>
           {/* 단일 버튼 — emoji 유무에 따라 내용만 바뀌도록(엘리먼트 유지) 해서
@@ -372,6 +379,7 @@ export default function CoverBanner({
           />
         </div>
       </div>
+      )}
     </div>
   );
 }

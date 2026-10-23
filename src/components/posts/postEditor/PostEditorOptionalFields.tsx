@@ -26,8 +26,7 @@ import styles from "../PostEditor.module.css";
 
 type UpdateField = <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
 
-/** 사이드바 — 요약 · 태그 · 커버. 커버 피커의 열림/닫힘은 이 칸 안에서만 쓰므로 함께 들고 있다.
- *  닫을 때 바로 unmount 하면 닫는 애니메이션이 보이지 않아, 애니메이션이 끝난 뒤에 내린다. */
+/** 사이드바 — 요약 · 태그(커버는 맨 위의 PostEditorCoverField) */
 export function PostEditorSeoFields({
   form,
   updateField,
@@ -37,7 +36,6 @@ export function PostEditorSeoFields({
   allTagSuggestions,
   excerptKey,
   tag,
-  onCoverUpload,
 }: {
   /** 본문을 뺀 폼 — 이 섹션은 본문을 쓰지 않는다. 본문을 칠 때는 같은 객체라 다시 그리지 않는다 */
   form: PostMetaForm;
@@ -50,26 +48,7 @@ export function PostEditorSeoFields({
   /** 편집 언어에 따라 excerpt / excerpt_en 중 어느 필드를 쓸지 */
   excerptKey: "excerpt" | "excerpt_en";
   tag: ReturnType<typeof import("@/hooks/useTagInput").useTagInput>;
-  onCoverUpload: () => void | Promise<void>;
 }) {
-  const [showCoverPicker, setShowCoverPicker] = useState(false);
-  // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
-  // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
-  const [closingCoverPicker, setClosingCoverPicker] = useState(false);
-  const closeCoverPickerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const requestCloseCoverPicker = useCallback(() => {
-    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
-    setClosingCoverPicker(true);
-    closeCoverPickerTimer.current = setTimeout(() => {
-      setShowCoverPicker(false);
-      setClosingCoverPicker(false);
-      closeCoverPickerTimer.current = null;
-    }, 450);
-  }, []);
-  useEffect(() => () => {
-    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
-  }, []);
-
   const addTagWithPreset = useCallback((value?: string) => {
     const raw = (value ?? tag.input).trim().replace(/,/g, "");
     if (!raw || form.tags.includes(raw)) {
@@ -147,6 +126,43 @@ export function PostEditorSeoFields({
         </div>
       </div>
 
+    </>
+  );
+}
+
+/** 사이드바 맨 위(slug 위)의 커버 — 목록 · 공유의 얼굴이라 속성 맨 위에 둔다. 커버 피커의 열림/닫힘은 이 칸 안에서만 쓰므로 함께 들고 있다.
+ *  닫을 때 바로 unmount 하면 닫는 애니메이션이 보이지 않아, 애니메이션이 끝난 뒤에 내린다. */
+export function PostEditorCoverField({
+  form,
+  updateField,
+  te,
+  onCoverUpload,
+}: {
+  form: PostMetaForm;
+  updateField: UpdateField;
+  te: (key: string) => string;
+  onCoverUpload: () => void | Promise<void>;
+}) {
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
+  // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
+  // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
+  const [closingCoverPicker, setClosingCoverPicker] = useState(false);
+  const closeCoverPickerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestCloseCoverPicker = useCallback(() => {
+    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
+    setClosingCoverPicker(true);
+    closeCoverPickerTimer.current = setTimeout(() => {
+      setShowCoverPicker(false);
+      setClosingCoverPicker(false);
+      closeCoverPickerTimer.current = null;
+    }, 450);
+  }, []);
+  useEffect(() => () => {
+    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
+  }, []);
+
+  return (
+    <>
       <CoverImageField
         value={form.cover_image}
         onChange={(url) => {

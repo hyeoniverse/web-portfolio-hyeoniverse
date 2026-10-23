@@ -37,7 +37,6 @@ export function CategoryMultiPicker({
   labels: { placeholder: string; custom: string; add: string };
   onChange: (ko: string[], en: string[]) => void;
 }) {
-  const remaining = presets.filter((c) => !selectedKos.includes(c.ko));
   const add = (ko: string, en: string) => {
     const k = ko.trim();
     const e = en.trim();
@@ -71,9 +70,11 @@ export function CategoryMultiPicker({
           placeholder={labels.placeholder}
           options={[
             { value: "__custom__", label: labels.custom },
-            ...remaining.map((cat, i) => ({
+            /* 이미 추가한 분류도 목록에 둔다 — 빠지면 왜 안 보이는지 알 수 없다. 고를 수만 없게 */
+            ...presets.map((cat, i) => ({
               value: `preset:${i}`,
               label: editorLang === "ko" ? cat.ko : cat.en,
+              disabled: selectedKos.includes(cat.ko),
             })),
           ]}
           onChange={(v) => {
@@ -81,7 +82,7 @@ export function CategoryMultiPicker({
               setCustomMode(true);
             } else if (v.startsWith("preset:")) {
               const idx = parseInt(v.slice("preset:".length));
-              const cat = remaining[idx];
+              const cat = presets[idx];
               if (cat) add(cat.ko, cat.en);
             }
           }}

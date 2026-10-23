@@ -82,6 +82,8 @@ export interface Project {
   gallery: string[];
   /** 갤러리 장마다의 음성(대본·음성 파일) — 그림 주소가 열쇠. 없으면 음성 없이 넘겨 본다 */
   galleryNotes?: GalleryNotes;
+  /** 랜딩 페이지 데이터(works.landing, lib/workLanding 로 모양을 맞춘다) */
+  landing?: unknown;
   liveUrl?: string;
   githubUrl?: string;
   summary?: LocalizedText;
