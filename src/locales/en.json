@@ -1019,7 +1019,8 @@
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "savePosition": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "urlLabel": "Image URL"
     },
     "insertVideo": "Insert Video",
     "insertCalendar": "Event Calendar",

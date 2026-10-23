@@ -19,7 +19,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
+import Popover from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -151,23 +151,42 @@ export default function CoverBanner({
     setUrlDraft("");
     close();
   };
+  /* 커버 패널 — 위: 올리기 · 지우기 한 줄, 아래: 라벨 아래 주소 칸(적용 화살표가 붙은 알약). 메뉴 목록 모양 대신
+     편집 화면의 "라벨 아래 값" 결로 짠다 */
   const coverMenu = ({ close }: { close: () => void }) => (
     <div className={styles.menu}>
-      <MenuItem
-        icon={<Upload size={14} strokeWidth={2} />}
-        label={t("editor.cover.upload")}
-        onClick={() => {
-          onUpload();
-          close();
-        }}
-      />
-      {/* 주소 붙여 넣기 — 메뉴 항목과 같은 좌우 끝, 작은 칸(sm) */}
-      <div className={styles.urlRow}>
+      <div className={styles.menuActions}>
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.menuBtn}
+          icon={<Upload size={14} strokeWidth={2} />}
+          onClick={() => { onUpload(); close(); }}
+          soundDisabled
+        >
+          {t("editor.cover.upload")}
+        </Button>
+        {hasCover && (
+          <Button
+            variant="outline"
+            size="sm"
+            tone="danger"
+            className={styles.menuBtn}
+            icon={<Trash2 size={14} strokeWidth={2} />}
+            onClick={() => { onCoverChange(""); close(); }}
+            soundDisabled
+          >
+            {t("editor.cover.remove")}
+          </Button>
+        )}
+      </div>
+      <div className={styles.urlField}>
+        <span className={styles.urlLabel}>{t("editor.cover.urlLabel")}</span>
         <Input
           variant="capsule"
           size="sm"
           value={urlDraft}
-          placeholder={t("editor.cover.urlPlaceholder")}
+          placeholder="https://"
           onChange={setUrlDraft}
           className={styles.urlInput}
           clearable={false}
@@ -182,22 +201,9 @@ export default function CoverBanner({
           }}
         />
       </div>
-      {hasCover && (
-        <>
-          <MenuDivider />
-          <MenuItem
-            className={styles.menuDanger}
-            icon={<Trash2 size={14} strokeWidth={2} />}
-            label={t("editor.cover.remove")}
-            onClick={() => {
-              onCoverChange("");
-              close();
-            }}
-          />
-        </>
-      )}
     </div>
   );
+
 
   return (
     /* 커버가 없으면 "커버 추가" 단추를 늘 보인다 — 빈 띠 위에 hover 해야만 나타나면 찾을 수 없다 */
@@ -301,9 +307,8 @@ export default function CoverBanner({
             <>
               <Popover
                 placement="bottom-end"
-                /* 불투명 패널 · 공용 메뉴 여백 — 반투명(glass)이면 뒤의 상단 막대 단추가 비쳐 겹쳐 보였다 */
+                /* 불투명 패널 — 반투명(glass)이면 뒤의 상단 막대 단추가 비쳐 겹쳐 보였다. 여백은 패널 안(.menu)이 맡는다 */
                 variant="solid"
-                menu
                 sheetTitle={hasCover ? t("editor.cover.change") : t("editor.cover.add")}
                 trigger={
                   <Button
