@@ -27,6 +27,7 @@ import { PostLinkKit } from "./plugins/post-link-kit";
 import { CalendarKit } from "./plugins/calendar-kit";
 import { DiagramKit } from "./plugins/diagram-kit";
 import { PlaygroundKit } from "./plugins/playground-kit";
+import { GalleryKit } from "./plugins/gallery-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
 import { GithubSyntaxKit } from "./plugins/github-syntax-kit";
 import { TocKit } from "./plugins/toc-kit";
@@ -62,6 +63,7 @@ export const EditorKit = [
   ...PostLinkKit,     // post_link(slug, title) — inline void, 노션식 [[게시물 링크
   ...CalendarKit,     // calendar(month, events[]) — void, 이벤트 달력
   ...DiagramKit,      // diagram(data: 위치보존 노드/엣지) — void, React Flow 캔버스
+  ...GalleryKit,      // gallery(data: 주소 목록 + 장마다 대본 · 음성) — void, 슬라이드 갤러리
   ...PlaygroundKit,   // playground(data: html/css/js) — void, sandboxed iframe 라이브 실행
   ...FootnoteKit,     // footnote_ref, footnote_content
   ...GithubSyntaxKit, // [!NOTE] → 콜아웃(알림), [^1] → 각주 자동변환

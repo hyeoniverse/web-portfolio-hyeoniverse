@@ -3,6 +3,7 @@
  * 클라이언트에서 onChange마다 호출되므로 의존성 없이 경량으로 구현
  */
 
+import { normalizeGallery } from "./plate/gallery/model";
 import { blogHref } from "@/lib/siteHosts";
 import { formatDateValue } from "./plate/dateUtils";
 import { officeViewerUrl } from "@/lib/officeViewer";
@@ -253,6 +254,14 @@ function serializeNode(node: SlateNode): string {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = (el as any).data ?? { nodes: [], edges: [] };
       return `<div data-diagram="${esc(JSON.stringify(data))}"></div>`;
+    }
+
+    // ── Gallery ── void: el.data(주소 목록 + 장마다 대본 · 음성) 를 JSON attribute 로 저장
+    case "gallery": {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = normalizeGallery((el as any).data);
+      if (data.gallery.length === 0) return "";
+      return `<div data-gallery="${esc(JSON.stringify(data))}"></div>`;
     }
 
     // ── Playground ── void: el.data(html/css/js) 를 JSON attribute 로 저장
