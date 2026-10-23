@@ -57,6 +57,16 @@
   transform: rotate(90deg);
 }
 
+/* 겹친 그림 층(GIF 정지 화면 · 휴대폰 녹화) — 칸을 덮고, 쉴 때 · 올렸을 때 한쪽만 보인다 */
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.layer[data-off] {
+  opacity: 0;
+}
+
 /* 크게 보기 — 미리보기 칸 전체를 덮는 투명 단추 */
 .viewBtn {
   position: absolute;

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -20,6 +20,7 @@ import { errorText } from "@/lib/apiError";
 import { pickFiles } from "@/lib/pickFiles";
 import { fillTemplate } from "@/utils/format";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { firstFrameSrc } from "@/components/ui/hoverVideo";
 import { sectionNo, type LandingFrameAt, type LandingItem, type LandingItemKind, type LandingL10n, type LandingSection, type WorkLanding } from "@/lib/workLanding";
 import styles from "./LandingEditor.module.css";
 
@@ -54,12 +55,13 @@ function newItem(kind: LandingItemKind): LandingItem {
 
 const move = <T,>(list: T[], from: number, to: number) => (to < 0 || to >= list.length ? list : arrayMove([...list], from, to));
 
-/** 항목의 그림들 — 타일 · 접은 섹션의 썸네일 */
-function itemMedia(it: LandingItem): string[] {
+/** 항목의 그림들 — 타일 · 접힌 줄의 썸네일. 휴대폰 화면은 정지 그림과 그 위에서 재생할 녹화를 함께 넘긴다 */
+function itemThumbs(it: LandingItem): { src: string; hoverVideo?: string }[] {
   switch (it.kind) {
-    case "frame": return [it.src || it.video || ""].filter(Boolean);
-    case "marquee": return it.rows.flat().map((m) => m.src);
-    case "sequence": case "phones": return it.items.map((m) => m.src);
+    case "frame": return it.src ? [{ src: it.src, hoverVideo: it.video }] : it.video ? [{ src: it.video }] : [];
+    case "marquee": return it.rows.flat().map((m) => ({ src: m.src }));
+    case "sequence": return it.items.map((m) => ({ src: m.src }));
+    case "phones": return it.items.map((m) => ({ src: m.src, hoverVideo: m.video }));
     case "numbers": return [];
   }
 }
@@ -100,16 +102,63 @@ function ViewButton({ images, index }: { images: string[]; index: number }) {
 
 const isGif = (src?: string) => !!src && /\.gif(\?|#|$)/i.test(src);
 
-/** 썸네일 — 움직이는 그림(동영상 · GIF, 또는 녹화가 붙은 휴대폰 화면)이면 오른쪽 위에 작은 재생 표시. 부모가 기준(position)이다 */
-function Thumb({ src, video, motion }: { src?: string; video?: string; motion?: boolean }) {
-  const isVideo = !!video || (!!src && isVideoUrl(src));
-  const moving = isVideo || isGif(src) || !!motion;
+/**
+ * 썸네일 — 움직이는 그림은 첫 장면을 정지 화면으로 보여 주고, 칸에 마우스를 올리면 재생한다(벗어나면 첫 장면으로).
+ * 동영상은 공용 firstFrameSrc(#t=0.1 — 그 지점까지만 받아 한 장면을 그린다), GIF 는 첫 프레임을 캔버스에 그려 둔다.
+ * hoverVideo — 정지 그림 위에서 재생할 녹화(휴대폰 화면). 칸 위에 "크게 보기" 단추가 덮여 있어, 올림은 부모 칸에서 받는다.
+ * 움직이는 그림이면 오른쪽 위에 작은 재생 표시. 부모가 기준(position)이다.
+ */
+function Thumb({ src, video, hoverVideo: hoverProp }: { src?: string; video?: string; hoverVideo?: string }) {
+  /* 정지 그림(src)과 영상(video)이 둘 다 있으면 그림을 첫 장면으로 쓰고 영상은 올렸을 때 재생한다 */
+  const hoverVideo = hoverProp ?? (video && src && !isVideoUrl(src) ? video : undefined);
+  const isVideo = !hoverVideo && (!!video || (!!src && isVideoUrl(src)));
+  const gif = !isVideo && isGif(src);
+  const moving = isVideo || gif || !!hoverVideo;
+  const markerRef = useRef<HTMLSpanElement>(null);
+  const playRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hover, setHover] = useState(false);
+  useEffect(() => {
+    const host = markerRef.current?.parentElement;
+    if (!host || !moving) return;
+    const on = () => setHover(true);
+    const off = () => setHover(false);
+    host.addEventListener("pointerenter", on);
+    host.addEventListener("pointerleave", off);
+    return () => { host.removeEventListener("pointerenter", on); host.removeEventListener("pointerleave", off); };
+  }, [moving]);
+  useEffect(() => {
+    const v = playRef.current;
+    if (!v) return;
+    if (hover) { v.play().catch(() => {}); return; }
+    v.pause();
+    try { v.currentTime = 0.1; } catch { /* 아직 받지 못했으면 넘어간다 */ }
+  }, [hover]);
+  const freezeGif = (img: HTMLImageElement) => {
+    const c = canvasRef.current;
+    if (!c || !img.naturalWidth) return;
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    c.getContext("2d")?.drawImage(img, 0, 0);
+  };
   return (
     <>
-      {isVideo
-        ? <video className={styles.media} src={video || src} muted playsInline preload="metadata" />
+      <span ref={markerRef} hidden />
+      {isVideo ? (
+        <video ref={playRef} className={styles.media} src={firstFrameSrc((video || src) as string)} muted playsInline loop preload="metadata" />
+      ) : gif ? (
+        <>
+          <canvas ref={canvasRef} className={`${styles.media} ${styles.layer}`} data-off={hover ? "" : undefined} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={`${styles.media} ${styles.layer}`} src={src} alt="" onLoad={(e) => freezeGif(e.currentTarget)} data-off={hover ? undefined : ""} />
+        </>
+      ) : src ? (
         /* eslint-disable-next-line @next/next/no-img-element */
-        : src ? <img className={styles.media} src={src} alt="" loading="lazy" /> : null}
+        <img className={styles.media} src={src} alt="" loading="lazy" />
+      ) : null}
+      {hoverVideo && (
+        <video ref={playRef} className={`${styles.media} ${styles.layer}`} src={firstFrameSrc(hoverVideo)} muted playsInline loop preload="none" data-off={hover ? undefined : ""} />
+      )}
       {moving && <span className={styles.motionBadge} aria-hidden><Play size={8} fill="currentColor" strokeWidth={0} /></span>}
     </>
   );
@@ -210,7 +259,7 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
                 const set = (patch: Partial<typeof p>) => onChange({ ...item, items: item.items.map((x, j) => (j === i ? { ...x, ...patch } : x)) });
                 return (
                   <li key={`${p.src}-${i}`} className={styles.phoneRow}>
-                    <span className={styles.phoneThumb}><Thumb src={p.src} motion={!!p.video} /><ViewButton images={item.items.map((x) => x.video || x.src)} index={i} /></span>
+                    <span className={styles.phoneThumb}><Thumb src={p.src} hoverVideo={p.video} /><ViewButton images={item.items.map((x) => x.video || x.src)} index={i} /></span>
                     <div className={styles.pair}>
                       <Input size="sm" clearable={false} value={p.route[lang]} placeholder={tl("route")} onChange={(v) => set({ route: { ...p.route, [lang]: v } })} />
                       <Input size="sm" clearable={false} value={p.alt[lang]} placeholder={tl("alt")} onChange={(v) => set({ alt: { ...p.alt, [lang]: v } })} />
@@ -261,7 +310,7 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
 /** 장면 타일 하나 — 대표 그림(숫자는 첫 값)과 종류 · 장 수 */
 function Tile({ item, index, active, onClick }: { item: LandingItem; index: number; active: boolean; onClick: () => void }) {
   const tl = useTl();
-  const media = itemMedia(item);
+  const media = itemThumbs(item);
   const count = item.kind === "numbers" ? item.items.length : media.length;
   const name = tl(`kind.${item.kind}`);
   return (
@@ -269,7 +318,7 @@ function Tile({ item, index, active, onClick }: { item: LandingItem; index: numb
       {/* 썸네일이 곧 고르는 단추 — 차례는 왼쪽 위, 여러 장짜리 종류만 오른쪽 아래에 종류 · 장 수 */}
       {item.kind === "numbers"
         ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
-        : media[0] ? <Thumb src={media[0]} motion={item.kind === "phones" && item.items.some((m) => m.video)} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
+        : media[0] ? <Thumb src={media[0].src} hoverVideo={media[0].hoverVideo} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
       <span className={styles.tileNo}>{index + 1}</span>
       {item.kind !== "frame" && <span className={styles.tileKind}>{KIND_ICON[item.kind]}{count}</span>}
     </Pressable>
@@ -381,7 +430,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
             <ol className={styles.sections}>
               {value.sections.map((s, i) => {
                 const isOpen = open.has(s.id);
-                const thumbs = s.items.flatMap(itemMedia).slice(0, 4);
+                const thumbs = s.items.flatMap(itemThumbs).slice(0, 4);
                 return (
                   <SortableSection key={s.id} id={s.id} onToggle={() => toggle(s.id)}>
                     {(grip) => (
@@ -401,7 +450,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                               </span>
                               {thumbs.length > 0 && (
                                 <span className={styles.thumbs} aria-hidden>
-                                  {thumbs.map((src, k) => <span key={k} className={styles.thumb}><Thumb src={src} /></span>)}
+                                  {thumbs.map((m, k) => <span key={k} className={styles.thumb}><Thumb src={m.src} hoverVideo={m.hoverVideo} /></span>)}
                                 </span>
                               )}
                               <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>
