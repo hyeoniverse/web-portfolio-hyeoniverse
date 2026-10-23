@@ -39,7 +39,7 @@ import { useEditorDraft } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { autoTranslate } from "@/utils/autoTranslate";
-import { notifyAiFailures, reportAiResponse } from "@/lib/ai/notifyFailures";
+import { notifyAiFailures } from "@/lib/ai/notifyFailures";
 import { TECH_PRESETS } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
@@ -601,14 +601,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (savedId.current && related_post_ids) await syncRelation("related-posts", { postIds: related_post_ids });
         if (savedId.current && related_series_ids) await syncRelation("related-series", { seriesIds: related_series_ids });
         if (relationFailures.length) showToast(errorText(relationFailures[0], t, tw("relatedFailed")), "error");
-
-        // 발행 시 AI 요약 자동 생성 (fire-and-forget)
-        if (willPublish && savedId.current) {
-          /* 기다리지 않지만 실패는 알린다 — 조용히 버리면 키가 만료돼도 요약이 왜 안 생기는지 모른다 */
-          fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) })
-            .then((res) => reportAiResponse(res, t, t("admin.aiHealth.feature.summary"), { background: true }))
-            .catch(() => {});
-        }
 
         // 실제 save 성공 — localStorage draft 정리 + 이 저장으로 대체된 autosave revision dismiss
         // (다음 진입 시 저장본이 옛 autosave 로 되돌아가지 않게)
