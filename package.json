@@ -38,7 +38,9 @@
     "gen-erd": "tsx scripts/gen-erd.ts",
     "gen-api-map": "tsx scripts/gen-api-map.ts",
     "gen-token-sky": "tsx scripts/gen-token-sky.ts",
-    "gen-about-dict": "tsx scripts/gen-about-dict.ts"
+    "gen-about-dict": "tsx scripts/gen-about-dict.ts",
+    "gen": "tsx scripts/gen-about-fallback.ts && tsx scripts/gen-erd.ts && tsx scripts/gen-api-map.ts && tsx scripts/gen-token-sky.ts && tsx scripts/gen-about-dict.ts",
+    "gen:check": "node scripts/check-generated.mjs"
   },
   "dependencies": {
     "@aiden0z/pptx-renderer": "^1.3.0",

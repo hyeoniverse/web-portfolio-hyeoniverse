@@ -45,6 +45,11 @@ jobs:
       - name: TypeScript typecheck
         run: npm run typecheck
 
+      # 생성물(src/data/generated)이 원본과 같은지 — About 문구 · md · 라우트 · 마이그레이션 · 토큰을 고치고 생성을
+      # 빼먹으면 여기서 실패한다. 맞추려면 로컬에서 `npm run gen` 후 생성물을 함께 커밋한다
+      - name: 생성물 최신 여부
+        run: npm run gen:check
+
       # warning 총량이 락돼 있다 (--max-warnings). 한 개라도 늘면 실패한다.
       # 줄였다면 package.json 의 상한도 함께 내려 되돌아가지 못하게 한다.
       - name: ESLint (warning 총량 락)
