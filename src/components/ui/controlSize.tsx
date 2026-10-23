@@ -10,12 +10,12 @@
  *
  * 안쪽의 작은 조작으로 배치가 짜인 부품(색 선택기 · 날짜 선택기 · 이모지 선택기 · 한 틀 안에 컨트롤을 녹인 막대 등)은
  * <ControlSizeScope size={null}> 로 범위를 푼다 — 포털로 뜬 팝업도 React 트리를 따라 범위를 물려받기 때문이다.
- * 범위 안에서 한 줄만 작게 둘 때(설정 섹션 머리의 기본값 · 되돌리기 · 저장 — 영어 화면 좁은 폭에서 두 줄로 꺾였다)는
- * <ControlSizeScope size="sm"> 로 다시 감싼다.
+ * 범위 안에서 한 줄만 작게 둘 때는 <ControlSizeScope size="sm"> 로 다시 감싼다. xs 는 단추 줄 전용이다
+ * (설정 섹션 머리의 기본값 · 되돌리기 · 저장을 제목과 한 줄에) — 입력 · 셀렉트에는 xs 모양이 없다.
  */
 import { createContext, useContext, type ReactNode } from "react";
 
-type ScopeSize = "md" | "sm" | null;
+type ScopeSize = "md" | "sm" | "xs" | null;
 
 const ControlSizeContext = createContext<ScopeSize>(null);
 
@@ -23,8 +23,8 @@ export function ControlSizeScope({ size, children }: { size: ScopeSize; children
   return <ControlSizeContext.Provider value={size}>{children}</ControlSizeContext.Provider>;
 }
 
-/** 범위가 있으면 그 크기(md · sm), 없으면 넘긴 크기 그대로 */
-export function useScopedSize<T extends string>(size: T): T | "md" | "sm" {
+/** 범위가 있으면 그 크기(md · sm · xs), 없으면 넘긴 크기 그대로 */
+export function useScopedSize<T extends string>(size: T): T | "md" | "sm" | "xs" {
   const scoped = useContext(ControlSizeContext);
   return scoped ?? size;
 }

@@ -12,9 +12,10 @@
   z-index: calc(var(--z-index-nav) - 3);
   mix-blend-mode: difference;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* 긴 제목은 말줄임 대신 단어 사이에서 줄을 바꾼다(한글도 단어 단위). 칸보다 긴 영어 단어만 하이픈을 넣어 끊는다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 /* titleClassName 으로 받는 .sectionTitle/.sectionSubTitle 도 color·margin 을 정한다. 반전에 쓰는
    white 와 grid 배치의 margin 0 은 여기가 이겨야 하는데, 같은 (0,1,0) 이면 번들 순서가 승자를
@@ -23,33 +24,48 @@
   margin: 0;
   padding: 0;
   color: var(--text-white);
-  line-height: var(--line-height-100);
+  /* 줄을 바꿀 때 두 줄이 붙지 않게 — 한 줄일 때는 단추(24)보다 낮아 줄 높이가 바뀌지 않는다 */
+  line-height: var(--line-height-125);
 }
 
 /* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색.
    제목은 difference 반전으로 겹침을 처리하지만 버튼엔 그게 없어서, 스크롤 중
    컨텐츠 버튼 위를 지나가면 서로 비쳐 보였다 — 글래스 칩(blur만, 배경색 없음)으로
    뒤를 흐려 준다. 평소(맨 배경 위)엔 티가 안 난다 */
-/* 좁은 화면은 제목 아래 줄의 오른쪽 끝에, 넘치면 줄을 넘긴다 — 제목 옆 칸에 두면 단추 묶음(≈340px)이 제목 칸을 0 으로
-   밀어 제목이 사라지고 단추가 화면 밖으로 나갔다. 붙을 때도 제목(한 줄, title-sm · 줄높이 100%) 바로 아래 줄에 붙어 겹치지 않는다 */
+/* 섹션이 넉넉하면 제목과 같은 줄 오른쪽 칸에, 좁으면(아래 컨테이너 쿼리) 제목 아래 줄 오른쪽 끝에 — 어느 쪽이든 단추는
+   한 줄로 붙어 따라온다. 단추를 제목 옆 칸 안에서 두 줄로 꺾으면 단추 사이 빈 곳이 커지고 뒤를 가리는 면이 넓어졌다 */
 .spacer {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
   justify-self: end;
   position: sticky;
-  top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16) + var(--font-size-title-sm) + var(--spacing-8));
-  /* 붙어서 스크롤하면 내용 단추 위를 지나가므로 뒤를 흐린다(단추 묶음 폭만큼만 — 줄 전체로 넓히면 노란 상자로 보였다) */
-  backdrop-filter: blur(24px) saturate(1.6);
+  top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16));
   z-index: calc(var(--z-index-nav) - 3);
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: center;
   gap: var(--spacing-4);
   min-width: 0;
-  /* 좁은 화면은 끝선을 본문 오른쪽 끝에 맞춘다 — 옆 여백이 있으면 혼자 안으로 들어가 보인다 */
-  padding: var(--spacing-2) 0;
-  border-radius: var(--radius-control);
+  max-width: 100%;
 }
+
+/* 붙어서 스크롤하면 내용 위를 지나가므로 단추마다 반투명 바탕을 깐다(투명 blur 는 어두운 내용 위에서 단추가 묻혔다).
+   평소(맨 바탕 위)에는 바탕과 같은 색이라 티가 안 난다. 눌렀을 때 채워지는 모양은 단추 것을 그대로 쓴다(:hover 제외) */
+.spacer > :not(.dot, :hover) {
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+}
+
+@container settings-section (width < 560px) {
+  .spacer {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    /* 제목 한 줄(title-sm · 줄높이 125%) 아래에 붙는다 */
+    top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16) + var(--font-size-title-sm) * 1.25 + var(--spacing-8));
+  }
+}
+
 /* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
 .dot {
   /* 좁은 화면 — 줄 밖 왼쪽에 띄운다. 자리를 차지하면 영어 화면에서 단추가 두 줄로 꺾였다 */
@@ -69,15 +85,8 @@
   background: var(--bg-accent-solid);
 }
 
-/* 768 위 — 제목과 같은 줄 오른쪽 칸에, 제목과 같이 붙는다 */
 @media (width > 768px) {
   .spacer {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16));
-    flex-wrap: nowrap;
-    flex-shrink: 0;
     padding: var(--spacing-2) var(--spacing-4);
   }
 
@@ -93,6 +102,12 @@
   .title,
   .spacer {
     top: calc(var(--header-height) + var(--spacing-20));
+  }
+
+  @container settings-section (width < 560px) {
+    .spacer {
+      top: calc(var(--header-height) + var(--spacing-20) + var(--font-size-title-sm) * 1.25 + var(--spacing-8));
+    }
   }
 }
 

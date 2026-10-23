@@ -92,8 +92,8 @@ export default function SectionHeader({
       <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section data-dirty={dirty || undefined}>
         {title}
       </h2>
-      {/* 섹션 단추는 sm — 설정 페이지의 md 범위 안이지만, 영어 화면 좁은 폭에서 기본값 · 되돌리기 · 섹션 저장이 두 줄로 꺾였다 */}
-      <ControlSizeScope size="sm">
+      {/* 섹션 단추는 xs — 제목과 한 줄에 두려고(좁은 화면 · 영어 화면에서도) 설정 페이지의 md 범위보다 두 단계 작게 */}
+      <ControlSizeScope size="xs">
       {customActions ? (
         <div className={localStyles.spacer}>
           <span className={`${localStyles.dot} ${dirty ? localStyles.dotOn : ""}`} aria-hidden />
