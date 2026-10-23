@@ -9,11 +9,11 @@ import "@/styles/vendor/pretendard.css";
 import {
   Inter,
   Playfair_Display,
-  JetBrains_Mono,
   Space_Grotesk,
   Nanum_Myeongjo,
   Instrument_Serif,
 } from "next/font/google";
+import localFont from "next/font/local";
 // 나머지 25개 옵션 폰트는 ThemeProvider의 loadGoogleFont()으로 동적 로드
 
 import Navigation from "@/components/layout/Navigation";
@@ -127,15 +127,18 @@ const playfair = Playfair_Display({
   display: "swap",
   preload: false,
 });
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+/* JetBrains Mono 는 저장소의 파일로(OFL, 가변 글꼴 — 400 · 500 이 한 파일). next/font/google 로 받으면 Google 이 가끔
+   쿼리가 여럿 붙은 주소(fonts.gstatic.com/l/font?kit=…&…)를 돌려주고, Turbopack 이 그 주소를 풀지 못해 dev · build 가 멈췄다 */
+const jetbrains = localFont({
+  src: "./fonts/JetBrainsMono-latin.woff2",
+  weight: "400 500",
+  style: "normal",
   variable: "--font-jetbrains",
   /* swap — web font 가 로드되면 항상 적용 (optional 이면 늦게 로드 시 fallback 영구 표시 → 폰트 크기 일관성 깨짐).
      fallback 으로 size-adjusted 시스템 mono 지정해 swap 직전·직후 메트릭 차이 최소화 */
   display: "swap",
   fallback: ["SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
-  adjustFontFallback: true,
+  adjustFontFallback: "Arial",
   preload: false,
 });
 const spaceGrotesk = Space_Grotesk({
