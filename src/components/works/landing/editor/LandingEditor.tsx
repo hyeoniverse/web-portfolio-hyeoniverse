@@ -241,17 +241,12 @@ function Tile({ item, index, active, onClick }: { item: LandingItem; index: numb
   const name = tl(`kind.${item.kind}`);
   return (
     <Pressable className={styles.tile} data-active={active ? "" : undefined} onClick={onClick} aria-pressed={active} aria-label={`${index + 1} · ${name}`} title={name}>
-      <span className={styles.tileMedia}>
-        {item.kind === "numbers"
-          ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
-          : media[0] ? <Thumb src={media[0]} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
-      </span>
-      {/* 차례 · 종류 아이콘 — 종류 이름은 고르면 폼 머리에 나온다(타일마다 같은 이름이 늘어서지 않게) */}
-      <span className={styles.tileLabel}>
-        <span className={styles.tileNo}>{index + 1}</span>
-        {KIND_ICON[item.kind]}
-        {item.kind !== "frame" && <span className={styles.tileCount}>×{count}</span>}
-      </span>
+      {/* 썸네일이 곧 고르는 단추 — 차례는 왼쪽 위, 여러 장짜리 종류만 오른쪽 아래에 종류 · 장 수 */}
+      {item.kind === "numbers"
+        ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
+        : media[0] ? <Thumb src={media[0]} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
+      <span className={styles.tileNo}>{index + 1}</span>
+      {item.kind !== "frame" && <span className={styles.tileKind}>{KIND_ICON[item.kind]}{count}</span>}
     </Pressable>
   );
 }

@@ -206,32 +206,29 @@
   gap: var(--spacing-8);
 }
 
+/* 장면 타일 — 썸네일 하나가 고르는 단추. 차례 · 종류는 그 위에 작은 표로 얹는다 */
 .tile,
 .tileAdd {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  width: 96px;
-  text-align: left;
-}
-
-.tileMedia {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 96px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border: var(--border-light);
   border-radius: var(--radius-mark);
+}
+
+.tile {
   background: var(--bg-secondary);
 }
 
-.tile:hover .tileMedia {
+.tile:hover {
   border-color: var(--border-color-control);
 }
 
-.tile[data-active] .tileMedia {
+.tile[data-active] {
   border-color: var(--text-primary);
 }
 
@@ -244,36 +241,43 @@
   color: var(--text-primary);
 }
 
-.tileLabel {
-  display: flex;
+.tileNo,
+.tileKind {
+  position: absolute;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4);
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-mark);
+  background: var(--bg-primary);
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
 }
 
 .tileNo {
-  font: var(--font-code-xs);
+  top: var(--spacing-4);
+  left: var(--spacing-4);
 }
 
-.tile[data-active] .tileLabel {
-  color: var(--text-primary);
+.tileKind {
+  right: var(--spacing-4);
+  bottom: var(--spacing-4);
 }
 
-.tileCount {
-  font: var(--font-code-xs);
-  color: var(--text-tertiary);
+.tileKind svg {
+  width: 12px;
+  height: 12px;
 }
 
-/* 더하기 타일은 그림 칸 높이만큼 — 아래 이름 줄은 없다 */
+.tile[data-active] .tileNo {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
 .tileAdd {
-  align-self: flex-start;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 4 / 3;
-  border: var(--border-light);
+  flex-direction: column;
+  gap: var(--spacing-4);
   border-style: dashed;
-  border-radius: var(--radius-mark);
   font: var(--font-label-sm);
   color: var(--text-tertiary);
 }
