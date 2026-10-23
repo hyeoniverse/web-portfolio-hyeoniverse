@@ -28,9 +28,9 @@ import styles from "./Architecture.module.css";
 /** 좌표는 소수 둘째 자리까지 — 서버와 브라우저의 삼각함수가 마지막 자리에서 달라 하이드레이션이 어긋난다 */
 
 /** 조작 안내 — 확대 · 축소 단추 없이 Ctrl + 휠 · 두 손가락 */
-const HINT = l10n("끌어서 이동 · 돋보기 단추나 ⌘(Ctrl) + 휠로 확대 · 축소합니다.", "Drag to pan · zoom with the magnifier buttons or ⌘ (Ctrl) + wheel.");
+const HINT = l10n("끌어서 이동 · 돋보기 버튼이나 ⌘(Ctrl) + 휠로 확대 · 축소합니다.", "Drag to pan · zoom with the magnifier buttons or ⌘ (Ctrl) + wheel.");
 /* 손가락 — 세로로 쓸면 프레지 넘기기라(touch-action: pan-y) 지도는 옆으로 끌어 옮기고, 확대는 두 손가락 · 단추 */
-const HINT_TOUCH = l10n("옆으로 끌어서 이동 · 두 손가락이나 돋보기 단추로 확대 · 축소합니다.", "Drag sideways to pan · pinch or use the magnifier buttons to zoom.");
+const HINT_TOUCH = l10n("옆으로 끌어서 이동 · 두 손가락이나 돋보기 버튼으로 확대 · 축소합니다.", "Drag sideways to pan · pinch or use the magnifier buttons to zoom.");
 const r2 = (v: number) => Math.round(v * 100) / 100;
 const methodKind = (m: string) => (m === "GET" ? "read" : m === "DELETE" ? "delete" : "write");
 

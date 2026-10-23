@@ -80,7 +80,7 @@ export const publicScene = {
     {
       title: { ko: "번역 배너", en: "Translate banner" },
       body: {
-        ko: "보는 언어의 본문이 없으면 단추 하나로 그 자리에서 AI 번역을 받습니다. 메뉴의 🌐 단추로는 화면 글 · 목록 · 본문 · About · Profile 까지 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장해 둡니다.",
+        ko: "보는 언어의 본문이 없으면 버튼 하나로 그 자리에서 AI 번역을 받습니다. 메뉴의 🌐 버튼으로는 화면 글 · 목록 · 본문 · About · Profile 까지 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장해 둡니다.",
         en: "When a body is missing in your language, one button translates it in place. The 🌐 button in the menu switches the whole site — UI text, lists, bodies, About and Profile — into one of 33 languages, and each translation is made once per language and stored.",
       },
       shot: { src: `${CMS}/10-translate-banner-light.png` },

@@ -96,7 +96,7 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
           no="05"
           title={{ ko: "한국어로 쓰고, 어느 언어로든 읽히게", en: "Written in Korean, read in any language" }}
           body={{
-            ko: "화면 글은 KO · EN 단추 하나로 바뀌고, 🌐 메뉴로는 사이트 전체를 다른 언어로 볼 수 있습니다. 글 한 편도 언어를 골라 그 자리에서 옮겨 읽습니다.",
+            ko: "화면 글은 KO · EN 버튼 하나로 바뀌고, 🌐 메뉴로는 사이트 전체를 다른 언어로 볼 수 있습니다. 글 한 편도 언어를 골라 그 자리에서 옮겨 읽습니다.",
             en: "UI text flips with one KO · EN button, and the 🌐 menu shows the whole site in another language. A single post can be switched and translated in place, too.",
           }}
         />
