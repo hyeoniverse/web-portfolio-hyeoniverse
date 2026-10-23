@@ -358,10 +358,10 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
   const turns = Math.max(1, items.length - 1);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
   /* 넘기기 — 스크롤 값을 각도로 그대로 쓰면 스크롤 빠르기만큼 일정하게 돌아 밋밋했다. 스크롤은 "몇 번째 화면인가"만 정하고,
-     휴대폰은 그 화면까지 스스로 천천히 구른다: 1.6초 동안 사인 곡선으로 부드럽게 출발해 부드럽게 멈춘다(가장 빠른 순간도 평균의 1.6배 —
+     휴대폰은 한 번에 한 화면씩 스스로 천천히 구른다: 1.6초 동안 사인 곡선으로 부드럽게 출발해 부드럽게 멈춘다(가장 빠른 순간도 평균의 1.6배 —
      용수철로 걸었을 땐 처음에 확 튀어 나가 휙휙 돌았다).
      흔들림(기울기 · 떠다님)은 스크롤을 그대로 따른다. 움직임 줄이기면 바로 그 화면 */
-  const motion = useRef({ target: 0, x: 0, from: 0, start: 0, dur: 0, raf: 0, p: 0 });
+  const motion = useRef({ target: 0, x: 0, from: 0, start: 0, dur: 0, raf: 0, p: 0, want: 0 });
   const paint = useCallback((x: number) => {
     const root = rootRef.current;
     if (!root) return;
@@ -398,7 +398,11 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
     const t = Math.min(1, (now - m.start) / m.dur);
     m.x = m.from + (m.target - m.from) * (0.5 - Math.cos(Math.PI * t) / 2);
     paint(m.x);
-    if (t >= 1) { m.raf = 0; return; }
+    if (t >= 1) {
+      /* 다 굴렀는데 스크롤이 그사이 더 멀리 가 있으면 한 화면 더 — 한 번에 여러 장을 건너뛰지 않고 차례로 넘긴다 */
+      if (m.want !== m.target) { m.from = m.x; m.target += Math.sign(m.want - m.target); m.start = now; m.dur = 1600; }
+      else { m.raf = 0; return; }
+    }
     m.raf = requestAnimationFrame(stepRef.current);
   }, [paint]);
   useEffect(() => { stepRef.current = step; }, [step]);
@@ -406,15 +410,16 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
     const m = motion.current;
     m.p = p;
     /* 구간을 반 넘게 지나면 다음 화면 — 화면마다 스크롤 한 칸(구간)을 쓰고, 그 가운데에서 넘어간다 */
-    const target = Math.min(turns, Math.max(0, Math.round(p * turns)));
-    if (reducedMotion) { m.target = m.x = target; paint(target); return; }
-    /* 같은 화면 안에서 스크롤하면 기울기 · 떠다님만 따라 바꾼다(구르는 중이면 프레임마다 그리니 그대로) */
-    if (target === m.target) { if (!m.raf) paint(m.x); return; }
-    /* 지금 자리에서 새 목표로 다시 출발 — 한 화면 거리는 1.6초, 여러 화면을 한 번에 건너면 조금만 더 길게 */
+    const want = Math.min(turns, Math.max(0, Math.round(p * turns)));
+    m.want = want;
+    if (reducedMotion) { m.target = m.x = want; paint(want); return; }
+    /* 같은 화면 안이거나 이미 구르는 중이면 — 기울기 · 떠다님만 따라 바꾼다(구르는 중이면 프레임마다 그리니 그대로). 구르는 중에 정해진 다음 화면은 끝난 뒤 넘긴다 */
+    if (want === m.target || m.raf) { if (!m.raf) paint(m.x); return; }
+    /* 한 화면씩 — 지금 화면에서 한 칸만 출발한다 */
     m.from = m.x;
-    m.target = target;
+    m.target += Math.sign(want - m.target);
     m.start = 0;
-    m.dur = 1600 * Math.sqrt(Math.max(1, Math.abs(target - m.x)));
+    m.dur = 1600;
     if (!m.raf) m.raf = requestAnimationFrame(stepRef.current);
   });
   /* 정리할 때 도는 중 표시(raf)도 비운다 — 취소만 하고 번호를 남기면 "이미 돌고 있다"로 읽혀 다시는 돌지 않았다
