@@ -315,8 +315,14 @@
   text-overflow: ellipsis;
 }
 
-.dropdown .option:hover {
+.dropdown .option:hover:not(:disabled) {
   background: var(--bg-tertiary);
+}
+
+/* 고를 수 없는 항목(이미 추가함 등) — 자리는 지키고 옅게 */
+.option:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: default;
 }
 
 .optionActive {

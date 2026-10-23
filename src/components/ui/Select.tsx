@@ -27,6 +27,8 @@ interface SelectOption {
   selected?: boolean;
   /** combobox 필터 매칭에 사용할 추가 검색어 (예: 한국어 alias "리액트" → React 매칭) */
   searchTerms?: string[];
+  /** 목록에는 보이지만 고를 수 없다(예: 이미 추가한 항목) */
+  disabled?: boolean;
 }
 
 type SelectVariant = "default" | "bubble";
@@ -329,6 +331,7 @@ export default function Select({
       setActiveIdx((i) => Math.max(i - 1, -1));
     } else if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
+      if (activeIdx >= 0 && filteredOptions[activeIdx]?.disabled) return;
       const chosen = activeIdx >= 0 ? filteredOptions[activeIdx]?.value : inputValue;
       if (chosen) onAdd?.(chosen);
       setOpen(false);
@@ -347,6 +350,7 @@ export default function Select({
         type="button"
         className={`${styles.option} ${isActive ? styles.optionActive : ""} ${isHovered ? styles.optionActive : ""} ${opt.selected ? styles.optionSelected : ""}`}
         data-active={isActive ? "" : undefined}
+        disabled={opt.disabled}
         onMouseEnter={() => combobox && setActiveIdx(i)}
         /* 직접 입력 중이면 입력칸 초점을 지킨다 — blur 로 친 값이 먼저 저장된 뒤 고른 값으로 덮이는 깜빡임을 막는다 */
         onMouseDown={preserveFocus || editing ? (e) => e.preventDefault() : undefined}
