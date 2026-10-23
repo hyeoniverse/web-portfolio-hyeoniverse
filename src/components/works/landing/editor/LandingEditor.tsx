@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowLeft, ArrowRight, ArrowUp, ChevronDown, Columns3, GripDotsIcon, Hash, Image as ImageIcon, Images, Plus, Smartphone, Trash2, Upload, X } from "@/components/icons";
+import { ArrowLeft, ArrowRight, ArrowUp, ChevronRight, Columns3, GripDotsIcon, Hash, Image as ImageIcon, Images, Plus, Smartphone, Trash2, Upload, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Popover, { MenuItem } from "@/components/ui/Popover";
@@ -233,20 +233,23 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
 }
 
 /** 장면 타일 하나 — 대표 그림(숫자는 첫 값)과 종류 · 장 수 */
-function Tile({ item, active, onClick }: { item: LandingItem; active: boolean; onClick: () => void }) {
+function Tile({ item, index, active, onClick }: { item: LandingItem; index: number; active: boolean; onClick: () => void }) {
   const tl = useTl();
   const media = itemMedia(item);
   const count = item.kind === "numbers" ? item.items.length : media.length;
+  const name = tl(`kind.${item.kind}`);
   return (
-    <Pressable className={styles.tile} data-active={active ? "" : undefined} onClick={onClick} aria-pressed={active}>
+    <Pressable className={styles.tile} data-active={active ? "" : undefined} onClick={onClick} aria-pressed={active} aria-label={`${index + 1} · ${name}`} title={name}>
       <span className={styles.tileMedia}>
         {item.kind === "numbers"
           ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
           : media[0] ? <Thumb src={media[0]} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
       </span>
+      {/* 차례 · 종류 아이콘 — 종류 이름은 고르면 폼 머리에 나온다(타일마다 같은 이름이 늘어서지 않게) */}
       <span className={styles.tileLabel}>
-        {tl(`kind.${item.kind}`)}
-        {item.kind !== "frame" && <span className={styles.tileCount}>{count}</span>}
+        <span className={styles.tileNo}>{index + 1}</span>
+        {KIND_ICON[item.kind]}
+        {item.kind !== "frame" && <span className={styles.tileCount}>×{count}</span>}
       </span>
     </Pressable>
   );
@@ -260,7 +263,7 @@ function SceneStrip({ items, lang, onUpload, onChange }: { items: LandingItem[];
   return (
     <div className={styles.strip}>
       <div className={styles.tiles}>
-        {items.map((it, i) => <Tile key={i} item={it} active={cur === i} onClick={() => setSel(cur === i ? null : i)} />)}
+        {items.map((it, i) => <Tile key={i} item={it} index={i} active={cur === i} onClick={() => setSel(cur === i ? null : i)} />)}
         <Popover placement="bottom-start" responsive={false} maxHeight={false} menu
           trigger={<Pressable className={styles.tileAdd}><Plus size={16} /><span>{tl("addItem")}</span></Pressable>}>
           {({ close }) => (
@@ -350,7 +353,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                           {grip}
                           <span className={styles.no}>{sectionNo(i)}</span>
                           {isOpen ? (
-                            <Input className={styles.sectionTitle} value={s.title[lang]} placeholder={tl("sectionTitle")}
+                            <Input className={styles.sectionTitle} clearable={false} value={s.title[lang]} placeholder={tl("sectionTitle")} aria-label={tl("sectionTitle")}
                               onChange={(v) => setSection(i, { title: { ...s.title, [lang]: v } })} />
                           ) : (
                             <Pressable className={styles.sectionSummary} onClick={() => toggle(s.id)}>
@@ -366,7 +369,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                             )}
                             {!isOpen && <span className={styles.count}>{fillTemplate(tl("itemCount"), { n: s.items.length })}</span>}
                             <IconBtn label={tl(isOpen ? "collapse" : "expand")} onClick={() => toggle(s.id)}>
-                              <ChevronDown size={14} className={isOpen ? styles.chevronOpen : undefined} />
+                              <ChevronRight size={14} className={`${styles.chevron}${isOpen ? ` ${styles.chevronOpen}` : ""}`} />
                             </IconBtn>
                             <IconBtn label={tl("removeSection")} danger onClick={() => onChange({ ...value, sections: value.sections.filter((_, j) => j !== i) })}>
                               <Trash2 size={14} />
@@ -375,8 +378,11 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
                         </div>
                         {isOpen && (
                           <div className={styles.sectionForm}>
-                            <Textarea label={tl("sectionBody")} value={s.body?.[lang] ?? ""} rows={2}
-                              onChange={(v) => setSection(i, { body: { ...(s.body ?? EMPTY), [lang]: v } })} />
+                            <div className={es.field}>
+                              <span className={es.fieldLabel}>{tl("sectionBody")}</span>
+                              <Textarea value={s.body?.[lang] ?? ""} rows={2} maxHint="basic"
+                                onChange={(v) => setSection(i, { body: { ...(s.body ?? EMPTY), [lang]: v } })} />
+                            </div>
                             <div className={es.field}>
                               <span className={es.fieldLabel}>{tl("scenes")}</span>
                               <SceneStrip items={s.items} lang={lang} onUpload={onUpload} onChange={(items) => setSection(i, { items })} />
