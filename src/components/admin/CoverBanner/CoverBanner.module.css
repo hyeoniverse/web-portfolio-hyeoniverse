@@ -133,16 +133,17 @@
 }
 
 /* ── 커버 변경 Popover 내용 ── */
-/* 커버 메뉴 — 공용 메뉴 항목(올리기 · 지우기) 사이에 주소 칸. 패널 여백은 Popover menu 가 맡는다 */
+/* 커버 메뉴 — 공용 메뉴 항목(올리기 · 지우기) 사이에 주소 칸. 패널 여백은 Popover menu 가 맡는다.
+   폭은 주소 칸이 읽힐 만큼만(248), 주소 칸은 작은 칸(sm)으로 */
 .menu {
   display: flex;
   flex-direction: column;
-  width: 280px;
+  width: 248px;
 }
 
-/* 주소 칸 — 메뉴 항목과 같은 좌우 여백, 위아래로 조금 띄운다 */
+/* 주소 칸 — 패널 테두리와 붙지 않게 좌우 8, 구분선(좌우 12)과 비슷한 들여쓰기 */
 .urlRow {
-  padding: var(--spacing-4) var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-8) var(--spacing-8);
 }
 
 .urlInput {

@@ -161,10 +161,11 @@ export default function CoverBanner({
           close();
         }}
       />
-      {/* 주소 붙여 넣기 — 메뉴 항목과 같은 들여쓰기로 */}
+      {/* 주소 붙여 넣기 — 메뉴 항목과 같은 좌우 끝, 작은 칸(sm) */}
       <div className={styles.urlRow}>
         <Input
           variant="capsule"
+          size="sm"
           value={urlDraft}
           placeholder={t("editor.cover.urlPlaceholder")}
           onChange={setUrlDraft}
