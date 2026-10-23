@@ -56,37 +56,6 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="03"
-          title={{ ko: "바탕화면을 내 것으로", en: "Make the desktop your own" }}
-          body={{
-            ko: "바탕화면을 오른쪽 클릭해 위젯 갤러리를 열고 시계 · 명언 · 사진 위젯을 더합니다. 배경화면은 여섯 벌, 다크 모드에서는 위젯과 함께 어두운 버전으로 바뀝니다 — 윗줄 라이트, 아랫줄 다크.",
-            en: "Right-click the desktop to open the widget gallery and add clock, quote and photo widgets. Six wallpapers, each switching to a dark version with the widgets in dark mode — light on top, dark below.",
-          }}
-        />
-        <Frame at="wide" video={`${A}/rec-widgets.mp4`} src={`${A}/rec-widgets-poster.webp`} alt={t({ ko: "위젯 편집 — 갤러리에서 고르면 바탕화면 칸에 들어간다", en: "Editing widgets — picked from the gallery, dropped into the desktop grid" })} />
-        <Marquee
-          rows={[
-            WALLPAPERS.map((name, i) => ({ src: `${A}/wall-light-${i}.webp`, alt: t({ ko: `${name} — 라이트`, en: `${name} — light` }) })),
-            WALLPAPERS.map((name, i) => ({ src: `${A}/wall-dark-${i}.webp`, alt: t({ ko: `${name} — 다크`, en: `${name} — dark` }) })),
-          ]}
-        />
-
-        <Note
-          viewLang={viewLang}
-          no="04"
-          title={{ ko: "시스템 설정에서 고르는 것들", en: "What you choose in System Settings" }}
-          body={{
-            ko: "화면 모드는 라이트 · 다크 · 기기를 따르는 자동. 개인정보 보호에서는 이 사이트가 무엇을 얼마나 오래 모으는지 확인하고, 내 브라우저의 방문 분석을 끕니다. 관리자는 비밀번호 없이 GitHub 계정으로만 들어오고, 정보에는 만든 사람과 쓴 기술이 적혀 있습니다.",
-            en: "Appearance is light, dark or automatic. Privacy shows what the site collects and for how long, and turns off visit analytics for your browser. The admin signs in only with GitHub — no password — and About lists who built it and with what.",
-          }}
-        />
-        <Frame at="left" src={`${A}/settings-appearance.webp`} width={1784} height={1304} alt={t({ ko: "화면 모드 — 라이트 · 다크 · 자동", en: "Appearance — light, dark and automatic" })} />
-        <Frame at="right" src={`${A}/settings-privacy.webp`} width={1784} height={1304} alt={t({ ko: "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석", en: "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser" })} />
-        <Frame at="left" src={`${A}/settings-account.webp`} width={1784} height={1304} alt={t({ ko: "계정 — GitHub 로 로그인, 세션 12시간", en: "Account — sign in with GitHub, 12-hour session" })} />
-        <Frame at="right" src={`${A}/settings-about.webp`} width={1784} height={1304} alt={t({ ko: "정보 — 프로필 · 연락처 · 기술", en: "About — profile, contact and skills" })} />
-
-        <Note
-          viewLang={viewLang}
-          no="05"
           title={{ ko: "블로그가 된 메모 앱", en: "A Notes app that became the blog" }}
           body={{
             ko: "폴더는 분류, 메모는 글. 인기글을 따로 모으고, 목록과 갤러리로 바꿔 봅니다. 관리자로 로그인하면 메모가 그대로 편집기가 됩니다.",
@@ -98,7 +67,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="06"
+          no="04"
           title={{ ko: "익숙한 앱으로 둘러보는 작업과 기록", en: "Work and notes, browsed through familiar apps" }}
           body={{
             ko: "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다. 터미널에 neofetch · skills · projects 를 치면 소개가 나옵니다.",
@@ -114,7 +83,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="07"
+          no="05"
           title={{ ko: "이력서를 Markdown 한 장으로", en: "The résumé as a single Markdown file" }}
           body={{
             ko: "바탕화면의 이력서 폴더를 열면 Markdown 원본과 PDF 가 나란히 있습니다. Markdown 은 텍스트 편집기에서 서식대로 읽고, PDF 는 미리보기에서 쪽을 넘겨 봅니다. 관리자는 텍스트 편집기의 서식 막대로 바로 고칩니다.",
@@ -124,6 +93,39 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Frame at="wide" src={`${A}/textedit-resume.webp`} alt={t({ ko: "텍스트 편집기 — 김정현_이력서.md, 강점 · 할 수 있는 일", en: "TextEdit — the résumé .md, strengths and skills" })} />
         <Frame at="left" src={`${A}/textedit-resume-2.webp`} alt={t({ ko: "텍스트 편집기 — 프로젝트 · 수상 · 교육", en: "TextEdit — projects, awards and education" })} />
         <Frame at="right" src={`${A}/preview-resume.webp`} alt={t({ ko: "미리보기 — 같은 이력서의 PDF", en: "Preview — the same résumé as a PDF" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="06"
+          title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
+          body={{
+            ko: "작업물은 Safari 에서 열립니다. 프로젝트 일곱 개가 탭 하나씩 — 탭마다 그 프로젝트에 맞춰 따로 만든 소개 페이지가 있고, ‘여기서 열기’를 누르면 배포한 사이트를 창 안에 그대로 불러옵니다.",
+            en: "Projects open in Safari, one tab each for seven projects — every tab has its own page designed for that project, and ‘Open here’ loads the deployed site right inside the window.",
+          }}
+        />
+        <Frame at="wide" video={`${A}/rec-safari.mp4`} src={`${A}/rec-safari-poster.webp`} alt={t({ ko: "Safari — HYEONIVERSE 탭에서 배포한 사이트를 그대로 스크롤", en: "Safari — scrolling the deployed HYEONIVERSE site in its tab" })} />
+        <Frame at="left" src={`${A}/tab-macfolio.webp`} alt={t({ ko: "MacFolio 탭 — 포트폴리오를, 데스크톱으로", en: "MacFolio tab — a portfolio, as a desktop" })} />
+        <Frame at="right" src={`${A}/tab-hyeoniverse.webp`} alt={t({ ko: "HYEONIVERSE 탭 — 작업물과 글을, 움직이는 화면으로", en: "HYEONIVERSE tab — works and writing, on moving screens" })} />
+        <Frame at="center" src={`${A}/tab-newpick.webp`} alt={t({ ko: "NewPick 탭 — 아침 뉴스, 요약해서 한 통에", en: "NewPick tab — the morning news, summarised in one mail" })} />
+        <Frame at="left" src={`${A}/tab-qru.webp`} alt={t({ ko: "QRU 탭 — QR 한 장에 담은 나", en: "QRU tab — yourself in one QR code" })} />
+        <Frame at="right" src={`${A}/tab-wtd.webp`} alt={t({ ko: "WTD 탭 — 할 일은 끌어서, 루틴은 알아서", en: "WTD tab — drag your tasks, routines handle themselves" })} />
+        <Frame at="wide" src={`${A}/tab-sproutfarm.webp`} alt={t({ ko: "새싹 농장 탭 — 픽셀 아트 농장 게임 소개", en: "SproutFarm tab — a pixel-art farm game" })} />
+        <Frame at="center" src={`${A}/tab-devcourse.webp`} alt={t({ ko: "DevCourse FullStack 탭 — 터미널 모양의 학습 기록", en: "DevCourse FullStack tab — a learning log shaped like a terminal" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="07"
+          title={{ ko: "배포한 프로젝트를 그 자리에서 실행해 보기", en: "Run the deployed projects right here" }}
+          body={{
+            ko: "Dock 의 프로젝트 아이콘을 누르면 배포한 사이트가 창 안에서 그대로 열립니다 — HYEONIVERSE · NewPick · QRU · WTD. Launchpad 의 새싹 농장은 Unity 로 만든 게임이 창 안에서 돌아갑니다.",
+            en: "Click a project icon in the Dock and the deployed site opens right inside a window — HYEONIVERSE, NewPick, QRU and WTD. SproutFarm in the Launchpad runs a Unity game inside its window.",
+          }}
+        />
+        <Frame at="wide" src={`${A}/project-hyeoniverse.webp`} alt="HYEONIVERSE" />
+        <Frame at="left" src={`${A}/project-newpick.webp`} alt={t({ ko: "NewPick — AI 뉴스레터", en: "NewPick — an AI newsletter" })} />
+        <Frame at="right" src={`${A}/project-qru.webp`} alt={t({ ko: "QRU — QR 디지털 명함", en: "QRU — a QR digital business card" })} />
+        <Frame at="left" src={`${A}/project-whattodo.webp`} alt={t({ ko: "WTD — 목록과 할 일", en: "WTD — lists and tasks" })} />
+        <Frame at="wide" src={`${A}/project-sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 픽셀 아트 게임", en: "SproutFarm — a pixel-art game running in a window" })} />
 
         <Note
           viewLang={viewLang}
@@ -146,21 +148,6 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="09"
-          title={{ ko: "배포한 프로젝트를 그 자리에서 실행해 보기", en: "Run the deployed projects right here" }}
-          body={{
-            ko: "Dock 의 프로젝트 아이콘을 누르면 배포한 사이트가 창 안에서 그대로 열립니다 — HYEONIVERSE · NewPick · QRU · WTD. Launchpad 의 새싹 농장은 Unity 로 만든 게임이 창 안에서 돌아갑니다.",
-            en: "Click a project icon in the Dock and the deployed site opens right inside a window — HYEONIVERSE, NewPick, QRU and WTD. SproutFarm in the Launchpad runs a Unity game inside its window.",
-          }}
-        />
-        <Frame at="wide" src={`${A}/project-hyeoniverse.webp`} alt="HYEONIVERSE" />
-        <Frame at="left" src={`${A}/project-newpick.webp`} alt={t({ ko: "NewPick — AI 뉴스레터", en: "NewPick — an AI newsletter" })} />
-        <Frame at="right" src={`${A}/project-qru.webp`} alt={t({ ko: "QRU — QR 디지털 명함", en: "QRU — a QR digital business card" })} />
-        <Frame at="left" src={`${A}/project-whattodo.webp`} alt={t({ ko: "WTD — 목록과 할 일", en: "WTD — lists and tasks" })} />
-        <Frame at="wide" src={`${A}/project-sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 픽셀 아트 게임", en: "SproutFarm — a pixel-art game running in a window" })} />
-
-        <Note
-          viewLang={viewLang}
-          no="10"
           title={{ ko: "쿠키 없이 세는 방문 분석", en: "Visit analytics without cookies" }}
           body={{
             ko: "활동 상태 보기는 사이트 안의 분석 앱입니다. 쿠키 대신 하루 단위 해시로 방문자를 세고, 방문 · 순방문자 · 앱 열기 · 머문 시간을 기간별로 봅니다. 많이 연 앱과 많이 읽힌 글, 나라 · 기기 · 브라우저 · OS · 언어까지 나눠 봅니다.",
@@ -173,21 +160,34 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="11"
-          title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
+          no="10"
+          title={{ ko: "바탕화면을 내 것으로", en: "Make the desktop your own" }}
           body={{
-            ko: "작업물은 Safari 에서 열립니다. 프로젝트 일곱 개가 탭 하나씩 — 탭마다 그 프로젝트에 맞춰 따로 만든 소개 페이지가 있고, ‘여기서 열기’를 누르면 배포한 사이트를 창 안에 그대로 불러옵니다.",
-            en: "Projects open in Safari, one tab each for seven projects — every tab has its own page designed for that project, and ‘Open here’ loads the deployed site right inside the window.",
+            ko: "바탕화면을 오른쪽 클릭해 위젯 갤러리를 열고 시계 · 명언 · 사진 위젯을 더합니다. 배경화면은 여섯 벌, 다크 모드에서는 위젯과 함께 어두운 버전으로 바뀝니다 — 윗줄 라이트, 아랫줄 다크.",
+            en: "Right-click the desktop to open the widget gallery and add clock, quote and photo widgets. Six wallpapers, each switching to a dark version with the widgets in dark mode — light on top, dark below.",
           }}
         />
-        <Frame at="wide" video={`${A}/rec-safari.mp4`} src={`${A}/rec-safari-poster.webp`} alt={t({ ko: "Safari — HYEONIVERSE 탭에서 배포한 사이트를 그대로 스크롤", en: "Safari — scrolling the deployed HYEONIVERSE site in its tab" })} />
-        <Frame at="left" src={`${A}/tab-macfolio.webp`} alt={t({ ko: "MacFolio 탭 — 포트폴리오를, 데스크톱으로", en: "MacFolio tab — a portfolio, as a desktop" })} />
-        <Frame at="right" src={`${A}/tab-hyeoniverse.webp`} alt={t({ ko: "HYEONIVERSE 탭 — 작업물과 글을, 움직이는 화면으로", en: "HYEONIVERSE tab — works and writing, on moving screens" })} />
-        <Frame at="center" src={`${A}/tab-newpick.webp`} alt={t({ ko: "NewPick 탭 — 아침 뉴스, 요약해서 한 통에", en: "NewPick tab — the morning news, summarised in one mail" })} />
-        <Frame at="left" src={`${A}/tab-qru.webp`} alt={t({ ko: "QRU 탭 — QR 한 장에 담은 나", en: "QRU tab — yourself in one QR code" })} />
-        <Frame at="right" src={`${A}/tab-wtd.webp`} alt={t({ ko: "WTD 탭 — 할 일은 끌어서, 루틴은 알아서", en: "WTD tab — drag your tasks, routines handle themselves" })} />
-        <Frame at="wide" src={`${A}/tab-sproutfarm.webp`} alt={t({ ko: "새싹 농장 탭 — 픽셀 아트 농장 게임 소개", en: "SproutFarm tab — a pixel-art farm game" })} />
-        <Frame at="center" src={`${A}/tab-devcourse.webp`} alt={t({ ko: "DevCourse FullStack 탭 — 터미널 모양의 학습 기록", en: "DevCourse FullStack tab — a learning log shaped like a terminal" })} />
+        <Frame at="wide" video={`${A}/rec-widgets.mp4`} src={`${A}/rec-widgets-poster.webp`} alt={t({ ko: "위젯 편집 — 갤러리에서 고르면 바탕화면 칸에 들어간다", en: "Editing widgets — picked from the gallery, dropped into the desktop grid" })} />
+        <Marquee
+          rows={[
+            WALLPAPERS.map((name, i) => ({ src: `${A}/wall-light-${i}.webp`, alt: t({ ko: `${name} — 라이트`, en: `${name} — light` }) })),
+            WALLPAPERS.map((name, i) => ({ src: `${A}/wall-dark-${i}.webp`, alt: t({ ko: `${name} — 다크`, en: `${name} — dark` }) })),
+          ]}
+        />
+
+        <Note
+          viewLang={viewLang}
+          no="11"
+          title={{ ko: "시스템 설정에서 고르는 것들", en: "What you choose in System Settings" }}
+          body={{
+            ko: "화면 모드는 라이트 · 다크 · 기기를 따르는 자동. 개인정보 보호에서는 이 사이트가 무엇을 얼마나 오래 모으는지 확인하고, 내 브라우저의 방문 분석을 끕니다. 관리자는 비밀번호 없이 GitHub 계정으로만 들어오고, 정보에는 만든 사람과 쓴 기술이 적혀 있습니다.",
+            en: "Appearance is light, dark or automatic. Privacy shows what the site collects and for how long, and turns off visit analytics for your browser. The admin signs in only with GitHub — no password — and About lists who built it and with what.",
+          }}
+        />
+        <Frame at="left" src={`${A}/settings-appearance.webp`} width={1784} height={1304} alt={t({ ko: "화면 모드 — 라이트 · 다크 · 자동", en: "Appearance — light, dark and automatic" })} />
+        <Frame at="right" src={`${A}/settings-privacy.webp`} width={1784} height={1304} alt={t({ ko: "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석", en: "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser" })} />
+        <Frame at="left" src={`${A}/settings-account.webp`} width={1784} height={1304} alt={t({ ko: "계정 — GitHub 로 로그인, 세션 12시간", en: "Account — sign in with GitHub, 12-hour session" })} />
+        <Frame at="right" src={`${A}/settings-about.webp`} width={1784} height={1304} alt={t({ ko: "정보 — 프로필 · 연락처 · 기술", en: "About — profile, contact and skills" })} />
 
         <Note
           viewLang={viewLang}
