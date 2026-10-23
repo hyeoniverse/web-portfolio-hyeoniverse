@@ -151,18 +151,10 @@ export default function PostCardStandard({
             />
             {/* placeholderInner = 상단 badges + 하단 텍스트 그룹 (space-between) */}
             <div className={styles.placeholderInner}>
-              {/* hot·pinned·icon 좌상단 (lang 은 아래에서 imageWrap 우상단 절대배치로 별도 처리) */}
-              {(isHot || post.is_pinned || icon) && (
-                <div className={styles.placeholderBadges}>
-                  {icon && (
-                    <span className={styles.placeholderIcon}><EmojiIcon value={icon} size={24} /></span>
-                  )}
-                  {isHot && (
-                    <HotBadge />
-                  )}
-                  {post.is_pinned && (
-                    <Badge variant="overlay" uppercase icon={<Pin size={10} />} className={styles.pinnedOverlay}>Pinned</Badge>
-                  )}
+              {/* 페이지 이모지만 여기. hot · pinned 는 커버 카드와 같은 좌상단 자리(imageBadgesLeft)에 — 따로 두면 우상단 언어 칩과 높이가 어긋났다 */}
+              {icon && (
+                <div className={`${styles.placeholderBadges} ${isHot || post.is_pinned ? styles.placeholderBadgesBelow : ""}`}>
+                  <span className={styles.placeholderIcon}><EmojiIcon value={icon} size={24} /></span>
                 </div>
               )}
               <div className={styles.placeholderText}>
@@ -175,8 +167,8 @@ export default function PostCardStandard({
             </div>
           </div>
         )}
-        {/* hot·pinned — 좌상단에 나란히(가로) 고정 */}
-        {showImage && (isHot || post.is_pinned) && (
+        {/* hot·pinned — 커버 · 그러데이션 판 무관 좌상단에 나란히(가로) 고정. 우상단 언어 칩과 같은 모서리 여백 · 같은 줄 */}
+        {(isHot || post.is_pinned) && (
           <div className={styles.imageBadgesLeft}>
             {isHot && (
               <HotBadge />

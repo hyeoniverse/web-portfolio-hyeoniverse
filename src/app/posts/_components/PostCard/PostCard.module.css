@@ -59,6 +59,11 @@
   pointer-events: none;
 }
 /* placeholder(커버 없음) 카드 — 상단 배지 줄에 함께(placeholderText 의 mix-blend 영향 밖). */
+/* hot · pinned 가 좌상단에 있으면 이모지는 그 아래로 */
+.placeholderBadgesBelow {
+  margin-top: var(--spacing-24);
+}
+
 .placeholderIcon {
   display: inline-flex;
   align-items: center;
@@ -629,12 +634,32 @@
   white-space: normal;
 }
 @media (width > 768px) {
+  /* 썸네일 옆에는 날짜 · 제목 · 요약만, 태그와 작성자 · 조회 · 좋아요 줄은 그 아래에서 썸네일과 같은 왼쪽 끝부터 전폭으로.
+     본문 상자를 풀어(display: contents) 줄마다 칸을 정한다 */
   .series {
     grid-template-columns: 220px minmax(0, 1fr);
-    gap: var(--spacing-20);
+    column-gap: var(--spacing-20);
+    row-gap: var(--spacing-8);
   }
   .series .imageWrap {
+    grid-row: 1 / span 3;
+    grid-column: 1;
     width: 220px;
+  }
+  .series .body {
+    display: contents;
+  }
+  .series .dateLine,
+  .series .title,
+  .series .excerpt {
+    grid-column: 2;
+  }
+  .series .tagsRow,
+  .series .meta {
+    grid-column: 1 / -1;
+  }
+  .series .tagsRow {
+    margin-top: var(--spacing-8);
   }
 }
 
