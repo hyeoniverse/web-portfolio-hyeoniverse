@@ -94,22 +94,22 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="05"
-          title={{ ko: "한국어로 쓰고, 어느 언어로든 읽게", en: "Written in Korean, readable in any language" }}
+          title={{ ko: "한국어로 쓰고, 어느 언어로든 읽히게", en: "Written in Korean, read in any language" }}
           body={{
             ko: "화면 글은 KO · EN 단추 하나로 바뀌고, 🌐 메뉴로는 사이트 전체를 다른 언어로 볼 수 있습니다. 글 한 편도 언어를 골라 그 자리에서 옮겨 읽습니다.",
             en: "UI text flips with one KO · EN button, and the 🌐 menu shows the whole site in another language. A single post can be switched and translated in place, too.",
           }}
         />
-        <Frame at="bleed" src={`${A}/lang-blog-en.webp`} alt={t({ ko: "EN 으로 바꾼 블로그 첫 화면", en: "The blog home switched to English" })} />
-        <Frame at="left" src={`${A}/lang-works-en.webp`} alt={t({ ko: "EN 으로 바꾼 작업물", en: "Works switched to English" })} />
-        <Frame at="right" src={`${A}/lang-site-menu.webp`} alt={t({ ko: "🌐 사이트 전체를 다른 언어로 보기", en: "🌐 view the whole site in another language" })} />
-        <Frame at="center" src={`${A}/lang-post-menu.webp`} alt={t({ ko: "글 한 편의 언어 고르기", en: "Choosing a language for one post" })} />
-        <Frame at="left" src={`${A}/lang-post-en.webp`} alt={t({ ko: "영어로 바꾼 글 — 본문은 AI 자동 번역을 제안", en: "A post switched to English — AI translation offered for the body" })} />
+        <Frame at="bleed" src={`${A}/lang-home-ja.webp`} alt={t({ ko: "일본어로 본 첫 화면", en: "The home page in Japanese" })} />
+        <Frame at="left" src={`${A}/lang-works-fr.webp`} alt={t({ ko: "프랑스어로 본 작업물", en: "Works in French" })} />
+        <Frame at="right" src={`${A}/lang-profile-de.webp`} alt={t({ ko: "독일어로 본 프로필", en: "The profile in German" })} />
+        <Frame at="center" src={`${A}/lang-series-it.webp`} alt={t({ ko: "이탈리아어로 본 시리즈 — 글 제목 · 요약까지", en: "A series in Italian — down to post titles and summaries" })} />
+        <Frame at="wide" src={`${A}/lang-til-es.webp`} alt={t({ ko: "스페인어로 본 TIL", en: "TIL in Spanish" })} />
 
         <Note
           viewLang={viewLang}
           no="06"
-          title={{ ko: "글 곁에서 일하는 AI", en: "AI working alongside the writing" }}
+          title={{ ko: "글만 쓰면, 나머지는 AI 가", en: "Just write — AI does the rest" }}
           body={{
             ko: "글마다 AI 가 요약하고, 다른 언어로 옮기고, 표지를 그리고, 소리로 읽어 줍니다. 공급자가 여럿이라 한 곳이 멈춰도 다음 곳이 이어받습니다.",
             en: "AI summarises each post, translates it, draws its cover and reads it aloud. With several providers, when one stops the next takes over.",
@@ -117,11 +117,6 @@ export default function HyeoniverseLanding({ project, viewLang, next }: {
         />
         <Frame at="wide" src={`${A}/blog2-post-summary.webp`} alt={t({ ko: "글 — AI 요약과 읽는 자리를 따라오는 목차", en: "Post — AI summary and a contents list that follows you" })} />
         <Frame at="right" src={`${A}/ai-listen.webp`} alt={t({ ko: "듣기 — 글을 소리로 읽어 준다", en: "Listen — the post read aloud" })} />
-        <Frame at="left" src={`${A}/ai-summary.webp`} alt={t({ ko: "AI 요약 — 글을 목록 · 표 · 단계 블록으로", en: "AI summary — a post as lists, tables and steps" })} />
-        <Frame at="right" src={`${A}/ai-translate.webp`} alt={t({ ko: "번역 — 실패한 문장만 다음 공급자에게", en: "Translation — only failed sentences go to the next provider" })} />
-        <Frame at="center" src={`${A}/ai-cover.webp`} alt={t({ ko: "AI 커버 — 제목 한 줄로 표지를", en: "AI cover — a cover from one title line" })} />
-        <Frame at="left" src={`${A}/ai-voice.webp`} alt={t({ ko: "음성 — 대본을 목소리로", en: "Voice — a script read aloud" })} />
-        <Frame at="right" src={`${A}/ai-providers.webp`} alt={t({ ko: "공급자 전환 — 한 곳이 실패하면 다음 곳으로", en: "Provider failover — when one fails, the next takes over" })} />
 
         <Note
           viewLang={viewLang}
