@@ -6,8 +6,8 @@
   grid-column: 1;
   grid-row: 1;
   position: sticky;
-  /* 좁은 화면 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
-  top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
+  /* 좁은 화면 — 위에 가로 탭바(≈45px)와 하위 탭 줄(--settings-subnav-h, page.module.css)까지 있으니 그 아래로 더 내린다 */
+  top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16));
   /* 프리셋 카드 등 positioned 콘텐츠 위로 (Settings 패널 z 사다리 참조) */
   z-index: calc(var(--z-index-nav) - 3);
   mix-blend-mode: difference;
@@ -31,12 +31,14 @@
    컨텐츠 버튼 위를 지나가면 서로 비쳐 보였다 — 글래스 칩(blur만, 배경색 없음)으로
    뒤를 흐려 준다. 평소(맨 배경 위)엔 티가 안 난다 */
 /* 좁은 화면은 제목 아래 줄의 오른쪽 끝에, 넘치면 줄을 넘긴다 — 제목 옆 칸에 두면 단추 묶음(≈340px)이 제목 칸을 0 으로
-   밀어 제목이 사라지고 단추가 화면 밖으로 나갔다. 제목과 같은 자리에 붙으면(sticky) 겹치므로 붙이지 않는다 */
+   밀어 제목이 사라지고 단추가 화면 밖으로 나갔다. 붙을 때도 제목(한 줄, title-sm · 줄높이 100%) 바로 아래 줄에 붙어 겹치지 않는다 */
 .spacer {
   grid-column: 1 / -1;
   justify-self: end;
-  /* 점(.dot)의 기준 — 붙이지는 않는다 */
-  position: relative;
+  position: sticky;
+  top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16) + var(--font-size-title-sm) + var(--spacing-8));
+  /* 붙어서 스크롤하면 내용 단추 위를 지나가므로 뒤를 흐린다(단추 묶음 폭만큼만 — 줄 전체로 넓히면 노란 상자로 보였다) */
+  backdrop-filter: blur(24px) saturate(1.6);
   z-index: calc(var(--z-index-nav) - 3);
   display: flex;
   flex-wrap: wrap;
@@ -73,14 +75,10 @@
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
-    position: sticky;
-    top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
+    top: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16));
     flex-wrap: nowrap;
     flex-shrink: 0;
     padding: var(--spacing-2) var(--spacing-4);
-    /* 붙어서 스크롤하면 내용 단추 위를 지나가므로 뒤를 흐린다. 좁은 화면은 붙지 않아 필요 없고,
-       줄 전체로 넓어진 흐림이 따뜻한 바탕의 채도를 올려 노란 상자로 보였다 */
-    backdrop-filter: blur(24px) saturate(1.6);
   }
 
   .dot {

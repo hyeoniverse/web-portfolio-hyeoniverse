@@ -125,6 +125,20 @@ export default function SettingsPage() {
   // 붙어 있는 사이드바와 그 틀 — 페이지 끝에서 사이드바 높이를 남은 자리에 맞춘다(아래 효과).
   const layoutRef = useRef<HTMLDivElement>(null);
   const sideNavRef = useRef<HTMLElement>(null);
+  // 탭바가 위에 붙었는지 — sentinel 이 사이트 nav 밑으로 사라지면 스크롤한 것. 붙으면 위쪽에 frost 판을 깐다(.stickyFrost)
+  const navSentinelRef = useRef<HTMLDivElement>(null);
+  const [navPinned, setNavPinned] = useState(false);
+  useEffect(() => {
+    const el = navSentinelRef.current;
+    if (!el) return; // 로딩 스켈레톤 동안엔 sentinel 이 없다 — loading 이 풀리면 재실행된다
+    const io = new IntersectionObserver(
+      ([e]) => setNavPinned(!e.isIntersecting),
+      /* 고정선 = 사이트 nav 높이(--header-height, 64px). 그 위로 sentinel 이 넘어가면 pin */
+      { rootMargin: "-64px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loading]);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const tab = searchParams.get("tab");
@@ -937,7 +951,12 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* 탭바 고정 감지용 sentinel — 탭바 자연 위치에 두는 0 높이 마커 */}
+      <div ref={navSentinelRef} aria-hidden />
       <div className={styles.layout} ref={layoutRef}>
+        {/* 붙은 탭바 · 하위 탭 뒤의 frost — difference 글자(래퍼의 blend) 안에서는 뒤를 비추지 못해 따로 둔 판.
+            글자는 이 흐려진 바탕과 반전된다. 붙었을 때만 보인다 */}
+        <div className={`${styles.stickyFrost} ${navPinned ? styles.stickyFrostOn : ""}`} aria-hidden />
         {/* ── Side Nav ── 태블릿 이하에서 sticky · difference 는 이 래퍼가 맡고, 가로 스크롤(overflow)은 안쪽 nav 가 맡는다 */}
         <div className={styles.tabBarSticky}>
         {/* data-lenis-prevent-wheel — 사이드바가 안에서 스크롤될 때 전역 Lenis 가 휠을 가로채지 않게.

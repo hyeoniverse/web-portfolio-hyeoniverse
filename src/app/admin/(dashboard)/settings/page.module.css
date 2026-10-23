@@ -45,6 +45,32 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  /* 좁은 화면에서 위에 붙는 하위 탭 줄의 높이 — 섹션 제목 · 단추(SectionHeader)와 frost 판이 그 아래까지 내려간다 */
+  --settings-subnav-h: 0px;
+}
+
+.layout:has(.mobileSubNav) {
+  --settings-subnav-h: 40px;
+}
+
+/* 붙은 탭바 · 하위 탭 뒤의 frost 판 — 사이트 nav 영역부터 하위 탭 아래 페이드까지. 흐름에서 자리를 차지하지 않고
+   (위 · 아래 음수 여백), 자연 위치는 탭바보다 nav 높이만큼 위라 탭바가 붙는 순간 화면 맨 위에 붙는다 */
+.stickyFrost {
+  --_h: calc(var(--header-height) + 2.9rem + var(--settings-subnav-h) + var(--spacing-16));
+  position: sticky;
+  top: 0;
+  z-index: calc(var(--z-index-nav) - 4);
+  height: var(--_h);
+  margin: calc(-1 * var(--header-height)) calc(-1 * var(--spacing-page-inline)) calc(var(--header-height) - var(--_h));
+  backdrop-filter: var(--blur-glass);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.stickyFrostOn {
+  opacity: 1;
 }
 
 /* 태블릿·모바일: 탭 메뉴 위에 가로 스크롤 탭바. sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만.
@@ -284,7 +310,18 @@
 }
 
 /* 태블릿 이하의 하위 탭 줄 — 데스크탑은 사이드바 안의 .navSub 가 대신한다 */
+/* 하위 탭 줄 — 좁은 화면에서 탭바 바로 아래에 붙는다. 탭바처럼 글자를 difference 로 반전해 어두운 콘텐츠 위에서도 읽힌다.
+   층: 섹션 제목(-3) < 하위 탭(-2) < 탭바(-1) < 사이트 nav */
 .mobileSubNav {
+  position: sticky;
+  top: calc(var(--header-height) + 2.9rem);
+  z-index: calc(var(--z-index-nav) - 2);
+  height: var(--settings-subnav-h);
+  mix-blend-mode: difference;
+  --text-primary: var(--text-white);
+  --text-secondary: color-mix(in srgb, var(--text-white) 72%, transparent);
+  --text-accent: var(--text-white);
+  --border-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
   display: flex;
   gap: 0;
   /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
@@ -414,6 +451,14 @@
 
   .navSub {
     display: flex;
+  }
+
+  .layout:has(.mobileSubNav) {
+    --settings-subnav-h: 0px;
+  }
+
+  .stickyFrost {
+    display: none;
   }
 
   .mobileSubNav {
