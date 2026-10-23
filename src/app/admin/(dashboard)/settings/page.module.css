@@ -224,36 +224,22 @@
   display: flex;
   justify-content: center;
 }
-/* 탭바 sticky 래퍼 — edit 페이지 topBar 와 같은 방식.
-   태블릿 이하에서 이 래퍼가 sticky + frost 를 맡는다. 스크롤(overflow)은 안쪽 sideNav 라 ::before 가 안 잘린다.
-   데스크탑에선 래퍼를 없는 셈 친다(sideNav 가 직접 세로 사이드바, 아래 media). */
+/* 탭바 sticky 래퍼 — 태블릿 이하에서 이 래퍼가 위에 붙는다. 데스크탑에선 래퍼를 없는 셈 친다(sideNav 가 직접 세로 사이드바, 아래 media).
+   붙은 채로 콘텐츠(어두운 미리보기 등) 위를 지나가도 읽히게 글자를 difference 로 반전한다 — 글 목록 필터 줄(PostsFilterBar)과
+   같은 방식. blend 는 페이지와 섞이는 이 래퍼(sticky · z-index → stacking context)에 둬야 하고, 안쪽 색은 흰색 기반 토큰으로 바꾼다.
+   (예전의 frost blur 판은 blend 안에서는 뒤를 비추지 못해 뺐다) */
 .tabBarSticky {
   display: block;
   position: sticky;
   top: var(--header-height);
-  /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
   z-index: calc(var(--z-index-nav) - 1);
-}
-/* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
-   overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
-.tabBarSticky::before {
-  content: "";
-  position: absolute;
-  top: calc(-1 * var(--header-height));
-  left: calc(-1 * var(--spacing-page-inline));
-  right: calc(-1 * var(--spacing-page-inline));
-  /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
-     예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
-  bottom: calc(-1 * var(--spacing-16));
-  z-index: -1;
-  backdrop-filter: var(--blur-glass);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-base) var(--ease-standard);
-}
-.tabBarPinned::before {
-  opacity: 1;
+  mix-blend-mode: difference;
+  --text-primary: var(--text-white);
+  --text-secondary: color-mix(in srgb, var(--text-white) 72%, transparent);
+  --text-tertiary: color-mix(in srgb, var(--text-white) 58%, transparent);
+  --text-accent: var(--text-white);
+  --border-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-color-light: color-mix(in srgb, var(--text-white) 28%, transparent);
 }
 
 .navConflictBadge {
@@ -415,12 +401,15 @@
     white-space: normal;
   }
 
+  /* 데스크탑 — 래퍼 상자가 없어져 blend 도 없다. 안쪽 색 토큰은 바꾸기 전 값(부모 것)으로 되돌린다 */
   .tabBarSticky {
     display: contents;
-  }
-
-  .tabBarSticky::before {
-    content: none;
+    --text-primary: inherit;
+    --text-secondary: inherit;
+    --text-tertiary: inherit;
+    --text-accent: inherit;
+    --border-light: inherit;
+    --border-color-light: inherit;
   }
 
   .navSub {

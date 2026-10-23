@@ -25,7 +25,6 @@ import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelt
 import GeneralTab from "./_components/GeneralTab";
 import { preloadSettingsTab } from "./_components/settingsTabLoaders";
 import SectionHeader from "./_components/SectionHeader";
-import SectionJumpNav from "./_components/SectionJumpNav";
 import SectionOutline from "./_components/SectionOutline";
 import { useSettingsSections } from "./_hooks/useSettingsSections";
 import T from "@/components/ui/T";
@@ -126,21 +125,6 @@ export default function SettingsPage() {
   // 붙어 있는 사이드바와 그 틀 — 페이지 끝에서 사이드바 높이를 남은 자리에 맞춘다(아래 효과).
   const layoutRef = useRef<HTMLDivElement>(null);
   const sideNavRef = useRef<HTMLElement>(null);
-  // 탭바가 고정(pin)됐는지 — sentinel 이 사이트 nav 밑으로 사라지면 스크롤한 것.
-  // 고정되면 상단(nav 영역 포함)에 frost blur 를 깐다 (edit 페이지와 같은 방식).
-  const navSentinelRef = useRef<HTMLDivElement>(null);
-  const [navPinned, setNavPinned] = useState(false);
-  useEffect(() => {
-    const el = navSentinelRef.current;
-    if (!el) return; // 로딩 스켈레톤 동안엔 sentinel 이 없다 — loading 이 풀리면 재실행된다
-    const io = new IntersectionObserver(
-      ([e]) => setNavPinned(!e.isIntersecting),
-      /* 고정선 = 사이트 nav 높이(--header-height, 64px). 그 위로 sentinel 이 넘어가면 pin */
-      { rootMargin: "-64px 0px 0px 0px", threshold: 0 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [loading]);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const tab = searchParams.get("tab");
@@ -953,12 +937,9 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* 탭바 고정 감지용 sentinel — 탭바 자연 위치에 두는 0 높이 마커 */}
-      <div ref={navSentinelRef} aria-hidden />
       <div className={styles.layout} ref={layoutRef}>
-        {/* ── Side Nav ── edit 페이지 topBar 처럼, sticky+frost 는 이 래퍼가 맡고
-            가로 스크롤(overflow)은 안쪽 nav 가 맡는다 (overflow 가 ::before frost 를 안 자르게). */}
-        <div className={`${styles.tabBarSticky} ${navPinned ? styles.tabBarPinned : ""}`}>
+        {/* ── Side Nav ── 태블릿 이하에서 sticky · difference 는 이 래퍼가 맡고, 가로 스크롤(overflow)은 안쪽 nav 가 맡는다 */}
+        <div className={styles.tabBarSticky}>
         {/* data-lenis-prevent-wheel — 사이드바가 안에서 스크롤될 때 전역 Lenis 가 휠을 가로채지 않게.
             data-lenis-prevent 는 쓰지 않는다 — 휠만 막으면 되고, 클릭 · 터치까지 Lenis 에서 뺄 까닭이 없다. */}
         <nav className={styles.sideNav} ref={sideNavRef} data-lenis-prevent-wheel
@@ -1013,8 +994,7 @@ export default function SettingsPage() {
 
         {/* ── Panel ── */}
         <div className={styles.panel} ref={panelRef}>
-          {/* Content 하위탭(HOME/PROFILE/ABOUT/…) — 태블릿 이하에서만 보이는 가로 줄.
-              섹션 바로가기(SectionJumpNav)는 이 하위탭 "아래"에 와야 계층이 맞다. */}
+          {/* Content 하위탭(HOME/PROFILE/ABOUT/…) — 태블릿 이하에서만 보이는 가로 줄 */}
           {activeTab === "content" && (
             <div className={styles.mobileSubNav}>
               {CONTENT_SUBTABS.map((sub) => {
@@ -1035,8 +1015,6 @@ export default function SettingsPage() {
               })}
             </div>
           )}
-          {/* 섹션 바로가기 — 섹션이 여럿이면 하위탭 아래 가로 점프 링크. 탭으로 감추지 않고 이동만. */}
-          <SectionJumpNav sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} pinned={navPinned} dirty={sectionNav.dirty} />
           {/* ── 통합 충돌 배너 (탭별 필터) ── */}
           {tabConflicts.length > 0 && (() => {
             const PREVIEW_COUNT = 3;
