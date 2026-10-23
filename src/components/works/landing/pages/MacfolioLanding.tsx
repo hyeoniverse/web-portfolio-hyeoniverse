@@ -70,11 +70,24 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             WALLPAPERS.map((name, i) => ({ src: `${A}/wall-dark-${i}.webp`, alt: t({ ko: `${name} — 다크`, en: `${name} — dark` }) })),
           ]}
         />
-        <Frame at="right" src={`${A}/settings.webp`} alt={t({ ko: "시스템 설정 — 화면 모드 · 배경화면 · 사운드", en: "System Settings — appearance, wallpaper and sound" })} />
 
         <Note
           viewLang={viewLang}
           no="04"
+          title={{ ko: "시스템 설정에서 고르는 것들", en: "What you choose in System Settings" }}
+          body={{
+            ko: "화면 모드는 라이트 · 다크 · 기기를 따르는 자동. 개인정보 보호에서는 이 사이트가 무엇을 얼마나 오래 모으는지 확인하고, 내 브라우저의 방문 분석을 끕니다. 관리자는 비밀번호 없이 GitHub 계정으로만 들어오고, 정보에는 만든 사람과 쓴 기술이 적혀 있습니다.",
+            en: "Appearance is light, dark or automatic. Privacy shows what the site collects and for how long, and turns off visit analytics for your browser. The admin signs in only with GitHub — no password — and About lists who built it and with what.",
+          }}
+        />
+        <Frame at="left" src={`${A}/settings-appearance.webp`} width={1560} height={1080} alt={t({ ko: "화면 모드 — 라이트 · 다크 · 자동", en: "Appearance — light, dark and automatic" })} />
+        <Frame at="right" src={`${A}/settings-privacy.webp`} width={1560} height={1080} alt={t({ ko: "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석", en: "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser" })} />
+        <Frame at="left" src={`${A}/settings-account.webp`} width={1560} height={1080} alt={t({ ko: "계정 — GitHub 로 로그인, 세션 12시간", en: "Account — sign in with GitHub, 12-hour session" })} />
+        <Frame at="right" src={`${A}/settings-about.webp`} width={1560} height={1080} alt={t({ ko: "정보 — 프로필 · 연락처 · 기술", en: "About — profile, contact and skills" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="05"
           title={{ ko: "블로그가 된 메모 앱", en: "A Notes app that became the blog" }}
           body={{
             ko: "폴더는 분류, 메모는 글. 인기글을 따로 모으고, 목록과 갤러리로 바꿔 봅니다. 관리자로 로그인하면 메모가 그대로 편집기가 됩니다.",
@@ -87,7 +100,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="05"
+          no="06"
           title={{ ko: "익숙한 앱으로 둘러보는 작업과 기록", en: "Work and notes, browsed through familiar apps" }}
           body={{
             ko: "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다. 터미널에 neofetch · skills · projects 를 치면 소개가 나옵니다.",
@@ -99,27 +112,51 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Frame at="center" src={`${A}/photos.webp`} alt={t({ ko: "사진", en: "Photos" })} />
         <Frame at="left" src={`${A}/messages.webp`} alt={t({ ko: "메시지", en: "Messages" })} />
         <Frame at="wide" video={`${A}/rec-terminal.mp4`} src={`${A}/rec-terminal-poster.webp`} alt={t({ ko: "터미널 — neofetch · skills · projects", en: "Terminal — neofetch, skills and projects" })} />
-        <Frame at="right" src={`${A}/textedit.webp`} alt={t({ ko: "텍스트 편집기 — Markdown 이력서", en: "TextEdit — a Markdown résumé" })} />
 
         <Note
           viewLang={viewLang}
-          no="06"
+          no="07"
+          title={{ ko: "이력서는 Markdown 한 장", en: "The résumé is a single Markdown file" }}
+          body={{
+            ko: "바탕화면의 이력서 폴더를 열면 Markdown 원본과 PDF 가 나란히 있습니다. Markdown 은 텍스트 편집기에서 서식대로 읽고, PDF 는 미리보기에서 쪽을 넘겨 봅니다. 관리자는 텍스트 편집기의 서식 막대로 바로 고칩니다.",
+            en: "Open the résumé folder on the desktop and the Markdown source sits next to the PDF. Read the Markdown formatted in TextEdit and page through the PDF in Preview; the admin edits it right in TextEdit's format bar.",
+          }}
+        />
+        <Frame at="wide" src={`${A}/textedit-resume.webp`} alt={t({ ko: "텍스트 편집기 — 김정현_이력서.md, 강점 · 할 수 있는 일", en: "TextEdit — the résumé .md, strengths and skills" })} />
+        <Frame at="left" src={`${A}/textedit-resume-2.webp`} alt={t({ ko: "텍스트 편집기 — 프로젝트 · 수상 · 교육", en: "TextEdit — projects, awards and education" })} />
+        <Frame at="right" src={`${A}/preview-resume.webp`} alt={t({ ko: "미리보기 — 같은 이력서의 PDF", en: "Preview — the same résumé as a PDF" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="08"
           title={{ ko: "Launchpad 안의 앱들", en: "Inside the Launchpad" }}
           body={{
-            ko: "날씨(Open-Meteo) · 쿠키 없이 세는 활동 상태 · 창 안에서 실행하는 다른 작업물.",
-            en: "Weather (Open-Meteo), a cookie-free Activity Monitor and other projects that run in a window.",
+            ko: "날씨(Open-Meteo) · 활동 상태 보기 · 창 안에서 실행하는 다른 작업물.",
+            en: "Weather (Open-Meteo), Activity Monitor and other projects that run in a window.",
           }}
         />
         <Frame at="bleed" src={`${A}/launchpad.webp`} alt="Launchpad" />
         <Frame at="right" src={`${A}/weather.webp`} alt={t({ ko: "날씨", en: "Weather" })} />
-        <Frame at="left" src={`${A}/activity.webp`} alt={t({ ko: "활동 상태 보기", en: "Activity Monitor" })} />
         <Frame at="wide" src={`${A}/sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 게임", en: "SproutFarm — a game running in a window" })} />
         <Frame at="right" src={`${A}/newpick.webp`} alt="NewPick" />
         <Frame at="left" src={`${A}/github.webp`} alt="GitHub" />
 
         <Note
           viewLang={viewLang}
-          no="07"
+          no="09"
+          title={{ ko: "쿠키 없이 세는 방문 분석", en: "Visit analytics without cookies" }}
+          body={{
+            ko: "활동 상태 보기는 사이트 안의 분석 앱입니다. 쿠키 대신 하루 단위 해시로 방문자를 세고, 방문 · 순방문자 · 앱 열기 · 머문 시간을 기간별로 봅니다. 많이 연 앱과 많이 읽힌 글, 나라 · 기기 · 브라우저 · OS · 언어까지 나눠 봅니다.",
+            en: "Activity Monitor is the site's own analytics app. Visitors are counted with a daily hash instead of cookies — visits, unique visitors, app opens and time on site by period, plus the most-opened apps, most-read posts, and country, device, browser, OS and language.",
+          }}
+        />
+        <Frame at="wide" src={`${A}/activity-overview.webp`} alt={t({ ko: "개요 — 방문 · 순방문자 · 앱 열기 · 머문 시간과 7일 추이", en: "Overview — visits, unique visitors, app opens, time on site and the 7-day trend" })} />
+        <Frame at="left" src={`${A}/activity-apps.webp`} alt={t({ ko: "앱 · 글 — 많이 연 앱과 많이 읽힌 글", en: "Apps & posts — most-opened apps and most-read posts" })} />
+        <Frame at="right" src={`${A}/activity-region.webp`} alt={t({ ko: "지역 · 기기 — 나라 · 기기 · 브라우저 · OS · 언어", en: "Region & device — country, device, browser, OS and language" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="10"
           title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
           body={{
             ko: "작업물은 Safari 에서 열립니다. 프로젝트마다 소개 페이지를 탭으로 넘겨 보고, HYEONIVERSE 탭은 배포한 사이트를 창 안에 그대로 불러옵니다.",
@@ -131,7 +168,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="08"
+          no="11"
           title={{ ko: "서버까지 직접, 운영비 0원", en: "Running the server too, for $0" }}
           body={{
             ko: "프론트엔드는 Cloudflare Workers, 백엔드(NestJS · PostgreSQL)는 Oracle Cloud 무료 VM 에서 직접 운영합니다. 메뉴 막대에서 서버 상태와 응답 시간을 바로 보고, API 문서도 사이트 안 앱으로 엽니다.",
@@ -143,7 +180,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="09"
+          no="12"
           title={{ ko: "휴대폰으로 열면 iOS 홈 화면처럼", en: "On a phone, it opens like an iOS home screen" }}
           body={{
             ko: "화면 폭이 좁으면 iOS 홈 화면이 됩니다. 페이지를 넘기는 홈 화면, 길게 눌러 위젯 빼고 더하기, 위에서 쓸어 내리는 제어 센터, 터미널 대신 단축어.",
