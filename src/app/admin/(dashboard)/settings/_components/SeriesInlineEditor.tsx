@@ -67,6 +67,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   series,
   onSave,
   onCancel,
+  onDelete,
   onCoverChange,
   bare = false,
   hideStandaloneHeader = false,
@@ -540,7 +541,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
+            <div className={styles.coverButtons}>
               <Button variant="outline" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
@@ -865,16 +866,23 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
          외부에서 actions 를 직접 렌더할 때(hideBottomActions)는 양쪽 모두 숨김 */}
       {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
         <div className={styles.seriesCardActions}>
-          <div className="spacer" />
-          <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving}>
-            <T k="admin.posts.seriesModal.revert" />
-          </Button>
-          <Button variant="outline" onClick={onCancel}>
-            <T k="admin.posts.seriesModal.cancel" />
-          </Button>
-          <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
-            {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
-          </Button>
+          {/* 지우기는 같은 줄 왼쪽 끝 — 저장 · 취소와 떨어뜨려 잘못 누르지 않게 */}
+          {isEdit && onDelete && (
+            <Button variant="outline" tone="danger" onClick={onDelete} disabled={saving} icon={<Trash2 size={12} strokeWidth={2} />}>
+              <T k="admin.posts.delete" />
+            </Button>
+          )}
+          <div className={styles.seriesCardActionsEnd}>
+            <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving}>
+              <T k="admin.posts.seriesModal.revert" />
+            </Button>
+            <Button variant="outline" onClick={onCancel}>
+              <T k="admin.posts.seriesModal.cancel" />
+            </Button>
+            <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
+              {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
+            </Button>
+          </div>
         </div>
       )}
     </div>
