@@ -1,0 +1,72 @@
+/* 설정 › 콘텐츠의 미리보기 — 실제 배너 · 카드를 작은 틀 안에 */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-16);
+}
+
+.caption {
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+/* 배너는 원래 크기 그대로 그리되 높이를 제한한다(설정 칸 폭에 맞춰 줄어든다) */
+.banner {
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  padding: var(--spacing-16);
+  background-color: var(--bg-primary);
+}
+
+.bannerLoading {
+  height: var(--spacing-128);
+}
+
+/* 커버가 없을 때 — 두 카드를 나란히, 고른 쪽에 테두리 */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-12);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background-color: var(--bg-primary);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.choice:hover {
+  border-color: var(--border-color-strong);
+}
+
+.choice:focus-visible {
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: var(--border-width-2);
+}
+
+.choiceOn,
+.choiceOn:hover {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 var(--border-width-1) var(--text-accent);
+}
+
+/* 카드는 누를 수 없게 — 고르기 칸의 내용일 뿐(inert 와 함께) */
+.choiceCard {
+  display: block;
+  pointer-events: none;
+}
+
+.choiceLabel {
+  font: var(--font-label-md);
+  color: var(--text-primary);
+}

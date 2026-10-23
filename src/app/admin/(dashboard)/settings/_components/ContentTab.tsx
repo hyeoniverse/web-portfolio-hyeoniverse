@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import { BannerPreview, CoverFallbackPreview } from "./PostsAppearancePreview";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileGithubEditor from "./ProfileGithubEditor";
@@ -454,6 +455,11 @@ export default function ContentTab({
                 />
               </FieldRow>
             </div>
+            {config.posts.showBanner === true && (
+              <BannerPreview
+                draft={{ bannerLayout: config.posts.bannerLayout, bannerStyle: config.posts.bannerStyle, bannerTransition: config.posts.bannerTransition }}
+              />
+            )}
           </section>
 
           {/* 블로그 이름 — /posts 머리말의 큰 제목 */}
@@ -502,6 +508,11 @@ export default function ContentTab({
                 />
               </FieldRow>
             </div>
+            {/* 커버가 없을 때 — 두 가지를 실제 카드로 미리 보여 주고, 눌러서도 고른다 */}
+            <CoverFallbackPreview
+              value={config.posts.coverFallback ?? "gradient"}
+              onSelect={(v) => update("posts", "coverFallback", v)}
+            />
           </section>
 
           {/* Pagination — 전폭 얇은 바 */}
