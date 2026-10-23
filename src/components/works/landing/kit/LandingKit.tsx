@@ -445,6 +445,7 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
                 </i>
               ))}
               <b />
+              <u />
             </span>
             <span className={styles.phoneLogo} />
           </div>
