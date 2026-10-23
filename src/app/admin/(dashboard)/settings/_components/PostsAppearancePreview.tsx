@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import type { Post } from "@/types/post";
 import type { SiteConfigData } from "@/config/site.config";
 import { SiteConfigProvider, useSiteConfig } from "@/providers/SiteConfigProvider";
-import PostCard from "@/app/posts/_components/PostCard/PostCard";
+import PostsGrid, { type PostsLayout } from "@/app/posts/_components/PostsGrid/PostsGrid";
 import T from "@/components/ui/T";
 import styles from "./PostsAppearancePreview.module.css";
 
@@ -54,51 +54,77 @@ function stopNavigation(e: React.MouseEvent) {
   e.stopPropagation();
 }
 
-/** 배너 미리보기 — 고른 레이아웃 · 스타일 · 전환 효과 */
-export function BannerPreview({ draft }: { draft: Partial<SiteConfigData["posts"]> }) {
-  const posts = useSamplePosts();
-  if (posts.length === 0) return null;
+/* 넓은 화면(1200px)에서 그린 그대로를 칸 폭에 맞춰 줄여 보여 준다 — 좁은 칸에서 그리면 배너 최소 높이(360px) · 목록 열 수가
+   실제와 달라 크고 어색했다 */
+const STAGE_WIDTH = 1200;
+
+function ScaledStage({ children, deps }: { children: ReactNode; deps: unknown }) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ scale: 0.4, height: 0 });
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    const stage = stageRef.current;
+    if (!viewport || !stage) return;
+    const measure = () => {
+      const scale = viewport.clientWidth / STAGE_WIDTH;
+      setBox({ scale, height: stage.offsetHeight * scale });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(viewport);
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, [deps]);
   return (
     <div className={styles.frame}>
       <span className={styles.caption}><T k="admin.inline.contentTab.previewLabel" /></span>
-      <div className={styles.banner} onClickCapture={stopNavigation}>
-        <DraftPosts posts={draft}>
-          <PostsBanner posts={posts} imgErrors={new Set()} onImgError={() => {}} />
-        </DraftPosts>
+      <div ref={viewportRef} className={styles.viewport} style={{ height: box.height || undefined }} onClickCapture={stopNavigation}>
+        <div ref={stageRef} className={styles.stage} style={{ width: STAGE_WIDTH, transform: `scale(${box.scale})` }}>
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
-/** 커버가 없을 때 — 두 가지를 나란히 실제 카드로. 누르면 그것을 고른다 */
-export function CoverFallbackPreview({ value, onSelect }: { value: string; onSelect: (v: "gradient" | "og") => void }) {
+/** 배너 미리보기 — 고른 레이아웃 · 스타일 · 전환 효과 */
+export function BannerPreview({ draft }: { draft: Partial<SiteConfigData["posts"]> }) {
   const posts = useSamplePosts();
-  const sample = posts[0];
-  if (!sample) return null;
-  const noCover: Post = { ...sample, cover_image: "", is_pinned: false };
+  if (posts.length === 0) return null;
   return (
-    /* 고르기 칸 — 안에 실제 카드(링크 포함)를 그려서 단추로 감싸지 않고 radio 역할의 칸으로 둔다. 카드는 inert 라 누르거나 초점이 가지 않는다 */
-    <div className={styles.choices} role="radiogroup">
-      {(["gradient", "og"] as const).map((v) => (
-        <div
-          key={v}
-          role="radio"
-          aria-checked={value === v}
-          tabIndex={0}
-          className={`${styles.choice} ${value === v ? styles.choiceOn : ""}`}
-          onClick={() => onSelect(v)}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(v); } }}
-        >
-          <span className={styles.choiceCard} inert>
-            <DraftPosts posts={{ coverFallback: v }}>
-              <PostCard post={noCover} layout="grid" />
-            </DraftPosts>
-          </span>
-          <span className={styles.choiceLabel}>
-            <T k={v === "gradient" ? "admin.inline.contentTab.coverFallbackGradient" : "admin.inline.contentTab.coverFallbackOg"} />
-          </span>
-        </div>
-      ))}
-    </div>
+    <ScaledStage deps={posts.length}>
+      <DraftPosts posts={draft}>
+        <PostsBanner posts={posts} imgErrors={new Set()} onImgError={() => {}} />
+      </DraftPosts>
+    </ScaledStage>
+  );
+}
+
+const noop = () => {};
+const monthKey = (p: Post) => (p.created_at ?? "").slice(0, 7);
+const monthLabel = (p: Post) => (p.created_at ?? "").slice(0, 7).replace("-", ". ");
+
+/** 목록 미리보기 — 고른 목록 배치 · 커버가 없을 때 방식으로 최근 글 셋 */
+export function ListPreview({ layout, coverFallback }: { layout: string; coverFallback: string }) {
+  const posts = useSamplePosts();
+  if (posts.length === 0) return null;
+  return (
+    <ScaledStage deps={`${posts.length}-${layout}`}>
+      <DraftPosts posts={{ layout: layout as SiteConfigData["posts"]["layout"], coverFallback: coverFallback as SiteConfigData["posts"]["coverFallback"] }}>
+        <PostsGrid
+          posts={posts}
+          loading={false}
+          perPage={posts.length}
+          activeSeries={null}
+          postsLayout={layout as PostsLayout}
+          popularIds={new Set()}
+          imgErrors={new Set()}
+          onImgError={noop}
+          monthKey={monthKey}
+          monthLabel={monthLabel}
+        />
+      </DraftPosts>
+    </ScaledStage>
   );
 }

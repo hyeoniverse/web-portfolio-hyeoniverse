@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
-import { BannerPreview, CoverFallbackPreview } from "./PostsAppearancePreview";
+import { BannerPreview, ListPreview } from "./PostsAppearancePreview";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileGithubEditor from "./ProfileGithubEditor";
@@ -507,11 +507,8 @@ export default function ContentTab({
                 />
               </FieldRow>
             </div>
-            {/* 커버가 없을 때 — 두 가지를 실제 카드로 미리 보여 주고, 눌러서도 고른다 */}
-            <CoverFallbackPreview
-              value={config.posts.coverFallback ?? "gradient"}
-              onSelect={(v) => update("posts", "coverFallback", v)}
-            />
+            {/* 고른 목록 배치 · 커버가 없을 때 방식으로 최근 글 셋 */}
+            <ListPreview layout={config.posts.layout ?? "magazine"} coverFallback={config.posts.coverFallback ?? "gradient"} />
           </section>
 
           {/* Pagination — 전폭 얇은 바 */}
