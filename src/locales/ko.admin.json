@@ -1518,6 +1518,8 @@
         "draftLabel": "초안",
         "coverImage": "커버 이미지",
         "uploadCover": "이미지 업로드",
+        "generateCover": "제목으로 만들기",
+        "autoCoverHint": "커버를 고르지 않으면 만들 때 제목으로 커버를 그려 넣습니다.",
         "remove": "제거",
         "posts": "포함된 글",
         "postsEmpty": "시리즈에 등록된 글이 없습니다",

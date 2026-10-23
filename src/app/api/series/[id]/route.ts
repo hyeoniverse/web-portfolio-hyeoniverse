@@ -4,6 +4,8 @@ import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { SERIES_TITLE_MAX } from "@/types/post";
 import { topPostCategory } from "@/lib/seriesCategory";
 import { getUserRole } from "@/lib/api/roles";
+import { createSeriesCover, isAutoSeriesCover, removeAutoSeriesCover } from "@/lib/seriesCover";
+import { moveSeriesTo } from "@/lib/seriesOrder";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -47,13 +49,13 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 // PATCH /api/series/[id] — 시리즈 수정 (admin only)
-// ?skipShift=true → drag 의 batch 호출이 자체 정렬을 관리하므로 auto-shift 건너뜀
+// { position } → 사용자 정의 순서에서 그 자리(1부터)로 옮기고 전체 순번을 1부터 다시 매긴다
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
-  const body = await request.json();
+  let body = await request.json();
 
   // 제목(ko/en) 길이 검증 — partial update 라 존재할 때만. UI/폼 우회 방어.
   if (typeof body.title === "string" && body.title.length > SERIES_TITLE_MAX)
@@ -61,42 +63,35 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (typeof body.title_en === "string" && body.title_en.length > SERIES_TITLE_MAX)
     return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400, { code: "SERIES_TITLE_TOO_LONG", params: { max: SERIES_TITLE_MAX } });
 
-  const url = new URL(request.url);
-  const skipShift = url.searchParams.get("skipShift") === "true";
-
   // 시리즈는 자기 카테고리를 갖지 않음(멤버 글에서 도출) — category 쓰기 경로 제거.
 
+  /* 순서는 position 으로만 바꾼다 — sort_order 를 직접 쓰면 0 · 빈 번호 · 중복이 생겨 화면 번호가 어긋났다 */
+  const { position, sort_order: _sortOrder, ...fields } = body as Record<string, unknown> & { position?: unknown };
+  if (typeof position === "number" && Number.isFinite(position)) {
+    try {
+      await moveSeriesTo(supabase, id, position);
+    } catch (e) {
+      return jsonServerError(e, "PATCH /api/series/[id] position");
+    }
+  }
+  if (Object.keys(fields).length === 0) {
+    const { data, error } = await supabase.from("series").select().eq("id", id).single();
+    if (error) return jsonServerError(error, "PATCH /api/series/[id]");
+    return jsonOk(data);
+  }
+  body = fields;
 
-  // sort_order 변경 시 — 다른 시리즈들과 충돌 방지로 shift (skipShift 모드 제외)
-  if (!skipShift && body.sort_order !== undefined && body.sort_order !== null) {
-    const { data: cur } = await supabase
-      .from("series")
-      .select("sort_order")
-      .eq("id", id)
-      .maybeSingle();
-    const oldOrder = cur?.sort_order;
-    const newOrder = body.sort_order as number;
-    if (oldOrder !== undefined && oldOrder !== newOrder) {
-      // 이동 범위에 있는 다른 시리즈들 +1 / -1
-      const lo = Math.min(oldOrder, newOrder);
-      const hi = Math.max(oldOrder, newOrder);
-      const direction = oldOrder < newOrder ? -1 : 1;
-      const { data: affected } = await supabase
-        .from("series")
-        .select("id, sort_order")
-        .neq("id", id)
-        .gte("sort_order", lo)
-        .lte("sort_order", hi);
-      if (affected) {
-        // 각 행의 새 sort_order 가 row 별로 다르므로 PostgREST 단일 UPDATE 불가 — 병렬 호출로 round-trip 단축
-        await Promise.all(
-          affected.map((row) =>
-            supabase
-              .from("series")
-              .update({ sort_order: row.sort_order + direction })
-              .eq("id", row.id),
-          ),
-        );
+  /* 자동 커버를 쓰는 시리즈의 제목이 바뀌면 커버도 새 제목으로 다시 그린다(올린 커버는 그대로) */
+  let oldAutoCover: string | null = null;
+  if ((typeof body.title === "string" || typeof body.title_en === "string") && body.cover_image === undefined) {
+    const { data: cur } = await supabase.from("series").select("title, title_en, cover_image").eq("id", id).maybeSingle();
+    const titleChanged = cur && ((typeof body.title === "string" && body.title !== cur.title) || (typeof body.title_en === "string" && body.title_en !== cur.title_en));
+    if (cur && titleChanged && isAutoSeriesCover(cur.cover_image)) {
+      try {
+        body.cover_image = await createSeriesCover({ id, title: body.title ?? cur.title, title_en: body.title_en ?? cur.title_en });
+        oldAutoCover = cur.cover_image;
+      } catch (e) {
+        console.warn("[PATCH /api/series/[id]] auto cover failed:", e instanceof Error ? e.message : e);
       }
     }
   }
@@ -109,6 +104,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     .single();
 
   if (error) return jsonServerError(error, "PATCH /api/series/[id]");
+  if (oldAutoCover) await removeAutoSeriesCover(oldAutoCover);
 
   return jsonOk(data);
 }

@@ -7,6 +7,8 @@ import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 import { SERIES_TITLE_MAX } from "@/types/post";
 import { topPostCategory } from "@/lib/seriesCategory";
+import { createSeriesCover } from "@/lib/seriesCover";
+import { seriesPositions } from "@/lib/seriesOrder";
 
 /** 제목(ko/en) 길이 검증 — 초과 시 400, 통과 시 null. UI/폼 우회(직접 API 호출) 방어. */
 function validateSeriesTitle(body: { title?: unknown; title_en?: unknown }) {
@@ -202,7 +204,9 @@ export async function GET(request: Request) {
   }));
 
   if (isPaginated) {
-    return jsonOk({ items, total: count ?? items.length });
+    /* 관리 화면의 "#N" — 사용자 정의 순서에서 몇 번째인지(정렬 · 검색과 관계없이). sort_order 값을 그대로 보이면 0 · 빈 번호가 드러났다 */
+    const positions = await seriesPositions(supabase);
+    return jsonOk({ items: items.map((s) => ({ ...s, position: positions.get(s.id) ?? 0 })), total: count ?? items.length });
   }
 
   return jsonOk(items);
@@ -243,6 +247,17 @@ export async function POST(request: Request) {
   const { data, error } = await supabase.from("series").insert(body).select().single();
 
   if (error) return jsonServerError(error, "POST /api/series");
+
+  /* 커버를 고르지 않았으면 제목으로 그린 커버를 기본값으로 — 실패해도 시리즈는 만들어 둔다 */
+  if (!data.cover_image) {
+    try {
+      const cover_image = await createSeriesCover(data);
+      const { data: withCover } = await supabase.from("series").update({ cover_image }).eq("id", data.id).select().single();
+      if (withCover) return jsonOk(withCover, 201);
+    } catch (e) {
+      console.warn("[POST /api/series] auto cover failed:", e instanceof Error ? e.message : e);
+    }
+  }
 
   return jsonOk(data, 201);
 }

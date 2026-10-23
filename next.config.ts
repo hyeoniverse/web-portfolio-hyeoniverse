@@ -61,6 +61,19 @@ const nextConfig: NextConfig = {
       "./node_modules/pretendard/dist/web/static/woff/Pretendard-Medium.woff",
       "./node_modules/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
     ],
+    /* 시리즈 자동 커버(lib/seriesCover)도 같은 그림을 그린다 */
+    "/api/series": [
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Medium.woff",
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
+    ],
+    "/api/series/*": [
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Medium.woff",
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
+    ],
+    "/api/series/*/cover": [
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Medium.woff",
+      "./node_modules/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
+    ],
   },
   experimental: {
     inlineCss: false,

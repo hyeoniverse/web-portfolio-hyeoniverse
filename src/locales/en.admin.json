@@ -1518,6 +1518,8 @@
         "draftLabel": "Draft",
         "coverImage": "Cover Image",
         "uploadCover": "Upload Cover",
+        "generateCover": "Generate from title",
+        "autoCoverHint": "If you don't pick a cover, one is drawn from the title when the series is created.",
         "remove": "Remove",
         "posts": "Posts",
         "postsEmpty": "No posts in this series",
