@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
-  margin-top: var(--spacing-16);
+  width: 100%;
 }
 
 .caption {
@@ -11,22 +11,32 @@
   color: var(--text-tertiary);
 }
 
-/* 배너 · 목록 — 실제 화면 폭으로 그린 무대를 칸 폭에 맞춰 줄인다(높이는 줄인 높이로 맞춘다). 너무 커지지 않게 폭 상한 */
+/* 틀 — 여백은 줄이지 않은 실제 12px. 안쪽 카드 모서리(줄어든 24px ≈ 10px)와 틀 모서리(24px − 12px)가 같은 원을 그린다 */
 .viewport {
-  position: relative;
-  width: 100%;
-  max-width: 560px;
-  overflow: hidden;
+  padding: var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background-color: var(--bg-primary);
+}
+
+/* 실제 화면 폭으로 그린 무대를 이 칸 폭에 맞춰 줄인다(높이는 줄인 높이로 맞춘다).
+   모바일은 미리보기가 고르는 칸 위에 온다 — 너무 길면 아래 칸이 밀려나니 높이를 묶고 안에서 넘겨 본다 */
+.clip {
+  position: relative;
+  max-height: 420px;
+  overflow: hidden auto;
+}
+@media (width > 768px) {
+  .clip {
+    max-height: none;
+    overflow: hidden;
+  }
 }
 
 .stage {
   position: absolute;
   top: 0;
   left: 0;
-  padding: var(--spacing-24);
   transform-origin: top left;
 }
 

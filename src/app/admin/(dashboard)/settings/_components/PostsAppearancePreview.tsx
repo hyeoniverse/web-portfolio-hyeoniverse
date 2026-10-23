@@ -73,21 +73,25 @@ function stopNavigation(e: React.MouseEvent) {
 /* 실제 화면에서의 폭으로 그린 그대로를 칸 폭에 맞춰 줄여 보여 준다 — 좁은 칸에서 그리면 배너 최소 높이(360px) · 목록 열 수가
    실제와 달라 크고 어색했다 */
 /** 무대 폭 — 실제 화면(1440px)에서 그 부품이 차지하는 폭. 배너는 본문 전폭, 목록은 사이드바를 뺀 본문 칸.
-    폭이 다르면 카드 안 글자(카드 폭에 비례하는 cqw)와 열 수가 실제와 달라진다. 무대 안쪽 여백(양쪽 24px)을 더한 값 */
-const BANNER_STAGE_WIDTH = 1210 + 48;
-const LIST_STAGE_WIDTH = 882 + 48;
+    폭이 다르면 카드 안 글자(카드 폭에 비례하는 cqw)와 열 수가 실제와 달라진다 */
+const BANNER_STAGE_WIDTH = 1210;
+const LIST_STAGE_WIDTH = 882;
+/** 모바일 — 화면 크기 규칙(@media)이 실제 창 폭을 따르니 무대도 휴대폰 본문 폭으로 그린다. 넓게 그리면 모바일 규칙과 섞인 모양이 나왔다 */
+const MOBILE_STAGE_WIDTH = 358;
+const WIDE_QUERY = "(width > 768px)";
 
 function ScaledStage({ children, deps, width }: { children: ReactNode; deps: unknown; width: number }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const [box, setBox] = useState({ scale: 0.4, height: 0 });
+  const [box, setBox] = useState({ width, scale: 0.4, height: 0 });
   useEffect(() => {
     const viewport = viewportRef.current;
     const stage = stageRef.current;
     if (!viewport || !stage) return;
     const measure = () => {
-      const scale = viewport.clientWidth / width;
-      setBox({ scale, height: stage.offsetHeight * scale });
+      const stageWidth = window.matchMedia(WIDE_QUERY).matches ? width : MOBILE_STAGE_WIDTH;
+      const scale = viewport.clientWidth / stageWidth;
+      setBox({ width: stageWidth, scale, height: stage.offsetHeight * scale });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -98,9 +102,11 @@ function ScaledStage({ children, deps, width }: { children: ReactNode; deps: unk
   return (
     <div className={styles.frame}>
       <span className={styles.caption}><T k="admin.inline.contentTab.previewLabel" /></span>
-      <div ref={viewportRef} className={styles.viewport} style={{ height: box.height || undefined }} onClickCapture={stopNavigation}>
-        <div ref={stageRef} className={styles.stage} style={{ width, transform: `scale(${box.scale})` }}>
-          {children}
+      <div className={styles.viewport} onClickCapture={stopNavigation}>
+        <div ref={viewportRef} className={styles.clip} style={{ height: box.height || undefined }}>
+          <div ref={stageRef} className={styles.stage} style={{ width: box.width, transform: `scale(${box.scale})` }}>
+            {children}
+          </div>
         </div>
       </div>
     </div>
