@@ -1,5 +1,5 @@
 import { blogHref } from "@/lib/siteHosts";
-import { Download, ExternalLink, Eye } from "@/components/icons";
+import { Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
@@ -47,7 +47,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       key: "view",
       label: "",
       className: ts.colView,
-      /* 발행된 글은 공개 상세로(새 창 아이콘), 임시저장은 같은 자리에서 관리자 미리보기를 연다(눈 아이콘) — 작업물 목록과 같다 */
+      /* 발행된 글은 공개 상세로, 임시저장은 같은 자리 같은 아이콘으로 관리자 미리보기를 새 창에 연다(툴팁으로 가른다) — 작업물 목록과 같다 */
       render: (post) => {
         const live = post.published && post.slug;
         const label = t(live ? "admin.posts.viewDetail" : "admin.posts.previewDraft");
@@ -61,7 +61,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
             aria-label={label}
             onClick={(e) => e.stopPropagation()}
           >
-            {live ? <ExternalLink size={14} strokeWidth={1.5} /> : <Eye size={14} strokeWidth={1.5} />}
+            <ExternalLink size={14} strokeWidth={1.5} />
           </a>
         );
       },
