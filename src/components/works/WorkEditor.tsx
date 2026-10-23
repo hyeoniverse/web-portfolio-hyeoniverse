@@ -4,17 +4,13 @@ import { useLangBadge } from "@/hooks/useSourceBadge";
 import { authoringLangOf } from "@/lib/siteLanguage";
 import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
-import { BadgeCheck, ChevronLeft, ChevronRight, Plus, Star, Check, X, Maximize2, FileText, Replace, Globe, GithubIcon } from "@/components/icons";
+import { BadgeCheck, Plus, Check, X, Globe, GithubIcon } from "@/components/icons";
 import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
-import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
-import { isOfficeDocUrl, officeDocKind } from "@/lib/officeViewer";
-import { GalleryNarrationPanel, NarrationBadge, useNarrationActions } from "./GalleryNarrationEditor";
-import { useBenchSplit } from "./useBenchSplit";
+import GalleryEditor, { type GalleryValue } from "@/components/gallery/GalleryEditor";
 import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { pickFiles } from "@/lib/pickFiles";
@@ -22,10 +18,8 @@ import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workE
 import { addSeriesPosts } from "./workEditor/seriesRelatedPosts";
 import { TechTable } from "./workEditor/TechTable";
 import { TeamMemberRow } from "./workEditor/TeamMemberRow";
-import type { GalleryNote, GalleryNotes } from "@/data/projects";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
-import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -40,7 +34,7 @@ import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
 import type { TeamMember, Work, WorkFormData } from "@/types/work";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
-import { noteFor, notesForLang, patchNote, replaceGalleryUrl } from "@/lib/galleryNotes";
+import { noteFor, patchNote } from "@/lib/galleryNotes";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
@@ -66,8 +60,6 @@ import RelationPicker from "@/components/admin/RelationPicker";
 import CoverImageField from "@/components/admin/CoverImageField";
 import CoverBanner from "@/components/admin/CoverBanner";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
-import { isVideoUrl } from "@/lib/isVideoUrl";
-import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
 import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
@@ -103,9 +95,6 @@ const ImagePanel = dynamic(
 interface WorkEditorProps {
   work?: Work;
 }
-
-/** 파일이 들어 있는 끌기인가 — 칸을 끌어 차례를 바꾸는 것과 가른다 */
-const isFileDrag = (e: React.DragEvent) => e.dataTransfer.types.includes("Files");
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
@@ -330,43 +319,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB works.icon)
   const [showCoverPicker, setShowCoverPicker] = useState(false);
-  const [galleryViewerIdx, setGalleryViewerIdx] = useState<number | null>(null);
-  /* 갤러리에서 고른 칸 — 여러 장을 한 번에 지우려고 둔다. 목록이 바뀌면 비운다(자리 번호가 밀린다) */
-  const [gallerySelected, setGallerySelected] = useState<Set<number>>(new Set());
-  /* 마지막으로 그냥 누른 칸 — Shift+클릭의 범위가 여기서 시작한다 */
-  const galleryAnchor = useRef<number | null>(null);
-  /* 끌어서 옮기기 — 칸을 통째로 끈다. dragIdx = 끌고 있는 칸, overIdx = 지금 지나는 칸 */
-  const [galleryDragIdx, setGalleryDragIdx] = useState<number | null>(null);
-  const [galleryOverIdx, setGalleryOverIdx] = useState<number | null>(null);
-
-  /* PDF 를 들이는 동안의 진행 — 읽기 → 쪽마다 그리기 → 올리기. 끝날 때까지 갤러리는 잠근다.
-     쪽이 많으면 분 단위로 걸리는데, 그 사이에 지우거나 더 넣으면 자리 번호가 어긋난다 */
-  const [pdfProgress, setPdfProgress] = useState<
-    { phase: "reading" | "rendering" | "uploading"; name: string; done: number; total: number } | null
-  >(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
-  const [galleryImgErrors, setGalleryImgErrors] = useState<Set<string>>(new Set());
-  // gallery 항목이 바뀔 때 제거된 src 의 에러 상태 정리
-  const galleryChanged = useDepsChanged([form.gallery]);
-  if (galleryChanged) {
-    if (gallerySelected.size > 0) setGallerySelected(new Set());
-    const valid = new Set(form.gallery);
-    setGalleryImgErrors((prev) => {
-      let changed = false;
-      const next = new Set<string>();
-      for (const s of prev) {
-        if (valid.has(s)) next.add(s);
-        else changed = true;
-      }
-      return changed ? next : prev;
-    });
-  }
-
 
   /* 저장하지 않고 떠나려 하면 묻는다 — 뒤로 가기·사이트 안 링크·새로고침·탭 닫기 */
   const askLeave = (go: () => void) => openModal(
@@ -549,14 +507,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
 
-  /* 갤러리 대본만 번역한다 — 다른 언어의 대본을 지금 편집 언어로. 본문 번역과 따로 두어, 대본 한 장을 고칠 때마다
-     갤러리 전체를 다시 번역하지 않는다 */
-  const translateScripts = useCallback(async (urls: string[]) => {
-    if (translating || urls.length === 0) return;
-    await translateFields(["gallery"], editorLang, { urls });
-  }, [translating, editorLang, translateFields]);
-  const sourceNotes: GalleryNotes = useMemo(() => notesForLang(form.gallery_notes, editorLang === "en" ? "ko" : "en"), [form.gallery_notes, editorLang]);
-
   const onTeamMembersChange = useCallback((members: WorkFormData["team_members"]) => updateField("team_members", members), [updateField]);
   const team = useTeamMembers(form.team_members, onTeamMembersChange);
   /* 새 팀원 입력 칸을 펼쳤는가 — 평소에는 목록과 "팀원 추가" 단추만 두고, 누르거나 편집할 때만 연다.
@@ -729,251 +679,38 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     return { url: data.url as string };
   }, []);
 
-  const ingestFiles = useCallback(async (files: File[], field: "image" | "gallery") => {
-      if (files.length === 0) return;
-
-      const { compressImage, validateFileSize } = await import("@/lib/compressImage");
-      const { isPdfFile, pdfToImages } = await import("@/lib/pdfToImages");
-      const { isPptxFile, pptxToImages } = await import("@/lib/pptxToImages");
-      /* 막히거나 거절되면 사유를 화면 언어로 알린다. 예전에는 브라우저 alert 에 한국어 문장이 떴고,
-         서버가 거절하면 아무 표시 없이 넘어갔다 */
-      const fail = (err: unknown) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
-      /* PDF·PPTX 는 쪽 수만큼 그림으로 펼친 뒤 나머지 흐름을 그대로 탄다 */
-      /* 발표 자료는 장마다 발표자 노트가 따라온다 — 올린 그림 주소에 붙여 슬라이드 음성의 기본 대본으로 둔다 */
-      const expanded: { file: File; notes?: string }[] = [];
-      let fromPdf = false;
-      for (const file of files) {
-        const deck = field === "gallery" && isPdfFile(file)
-          ? async (f: File, onP: Parameters<typeof pdfToImages>[1]) => (await pdfToImages(f, onP)).map((page) => ({ file: page }))
-          : field === "gallery" && isPptxFile(file) ? pptxToImages
-          : null;
-        if (deck) {
-          try {
-            setPdfProgress({ phase: "reading", name: file.name, done: 0, total: 0 });
-            const pages = await deck(file, (p) => setPdfProgress({ phase: "rendering", name: file.name, ...p }));
-            expanded.push(...pages);
-            fromPdf = true;
-          } catch (err) {
-            fail(err);
-            setPdfProgress(null);
-          }
-          continue;
-        }
-        expanded.push({ file });
-      }
-
-      let uploaded = 0;
-      for (const { file, notes } of expanded) {
-        if (fromPdf) setPdfProgress({ phase: "uploading", name: file.name, done: uploaded, total: expanded.length });
-        uploaded++;
-        const data = await uploadMedia(file, fail, { compressImage, validateFileSize });
-        if (!data) continue;
-
-        if (field === "image") {
-          updateField("image", data.url);
-        } else {
-          setForm((prev) => ({
-            ...prev,
-            gallery: [...prev.gallery, data.url],
-            ...(notes ? { gallery_notes: { ...(prev.gallery_notes ?? {}), [data.url]: { script: notes } } } : {}),
-          }));
-        }
-      }
-      if (fromPdf) setPdfProgress(null);
+  /* 표지 — 고른 그림 · 영상 하나를 올려 대표 이미지로 둔다(갤러리는 GalleryEditor 가 따로 들인다) */
+  const ingestCover = useCallback(async (files: File[]) => {
+    const [file] = files;
+    if (!file) return;
+    const fail = (err: unknown) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
+    const data = await uploadMedia(file, fail, await import("@/lib/compressImage"));
+    if (data) updateField("image", data.url);
   }, [t, updateField, uploadMedia]);
 
   /* 고르기 창 */
-  const handleImageUpload = useCallback((field: "image" | "gallery") => {
-    pickFiles({
-      /* 갤러리에는 PDF·PPTX 도 받는다 — 쪽마다 그림으로 바꿔 슬라이드처럼 넘겨 보게 한다.
-         옛 .ppt 는 파일째 올라가 읽는 화면에서 문서 뷰어로 열린다 */
-      accept: field === "gallery"
-        ? "image/*,video/mp4,video/webm,video/quicktime,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.ppt,application/vnd.ms-powerpoint"
-        : "image/*,video/mp4,video/webm,video/quicktime",
-      multiple: field === "gallery",
-    }, (files) => {
+  const handleImageUpload = useCallback(() => {
+    pickFiles({ accept: "image/*,video/mp4,video/webm,video/quicktime" }, (files) => {
       /* 업로드 흐름이 예상 못 한 곳에서 던지면 아무 표시 없이 끝났다 — 사유를 알린다 */
-      ingestFiles(files, field).catch((err) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error"));
+      ingestCover(files).catch((err) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error"));
     });
-  }, [ingestFiles, t]);
+  }, [ingestCover, t]);
 
-  /* 밖에서 끌어다 놓기 — 갤러리 영역 전체가 받는다. 칸을 끌어 차례를 바꾸는 것과는 다른 일이라
-     "파일이 들어 있는 끌기" 일 때만 받는다 */
-  const [galleryFileOver, setGalleryFileOver] = useState(false);
-  /* 갤러리 작업대 — 단축키를 받는 틀과 아래 가로 썸네일 줄(끌고 좌우 가장자리에 다가가면 줄을 민다) */
-  const galleryAreaRef = useRef<HTMLDivElement>(null);
-  const galleryRailRef = useRef<HTMLDivElement>(null);
-  /* 작업대 위의 슬라이드 | 대본 폭 — 사이 핸들로 조절한다 */
-  const galleryBenchRef = useRef<HTMLDivElement>(null);
-  const benchSplit = useBenchSplit(galleryBenchRef);
   // 본문 편집기 높이 — 아래 손잡이로 바꾼다
   const editorBlockRef = useRef<HTMLDivElement>(null);
-  const autoScroll = useRef<{ timer: ReturnType<typeof setInterval>; dir: -1 | 1 } | null>(null);
-  const stopAutoScroll = useCallback(() => {
-    if (autoScroll.current) clearInterval(autoScroll.current.timer);
-    autoScroll.current = null;
-  }, []);
-  /* 화면 밖에 있는 칸으로도 끌고 갈 수 있게 — 끌기 중 가장자리에 머물면 줄이 저절로 밀린다.
-     끌기 중에는 휠도 스크롤 막대도 못 쓰므로, 이게 없으면 안 보이는 자리에는 못 떨군다 */
-  const edgeAutoScroll = useCallback((clientX: number) => {
-    const strip = galleryRailRef.current?.querySelector<HTMLElement>(`.${styles.galleryCarousel}`);
-    if (!strip) return;
-    const r = strip.getBoundingClientRect();
-    const EDGE = 90; // 가장자리에서 이 안에 들어오면 민다
-    const STEP = 12; // 한 번에 미는 거리(px)
-    const dir: -1 | 1 | 0 = clientX < r.left + EDGE ? -1 : clientX > r.right - EDGE ? 1 : 0;
-    if (dir === 0) { stopAutoScroll(); return; }
-    if (autoScroll.current?.dir === dir) {
-      /* 이미 그쪽으로 밀고 있다 — 이 사건만큼 한 걸음 더. 끌기가 도는 동안 타이머가 멈추는
-         브라우저에서도 최소한 손을 움직이는 만큼은 따라간다 */
-      strip.scrollLeft += dir * STEP;
-      return;
-    }
-    stopAutoScroll();
-    /* 타이머로 민다 — requestAnimationFrame 은 끌기가 도는 동안 한 번 돌고 멈춰 버린다 */
-    strip.scrollLeft += dir * STEP;
-    autoScroll.current = { timer: setInterval(() => { strip.scrollLeft += dir * STEP; }, 16), dir };
-  }, [stopAutoScroll]);
 
-  const onGalleryDragOver = useCallback((e: React.DragEvent) => {
-    if (galleryDragIdx !== null) {
-      /* 칸을 끌고 있다 — 칸 사이 빈 곳을 지날 때도 받아야 가장자리 밀기가 끊기지 않는다 */
-      e.preventDefault();
-      edgeAutoScroll(e.clientX);
-      return;
-    }
-    if (pdfProgress || !isFileDrag(e)) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-    setGalleryFileOver(true);
-  }, [edgeAutoScroll, galleryDragIdx, pdfProgress]);
-  const onGalleryDragLeave = useCallback((e: React.DragEvent) => {
-    /* 안쪽 칸으로 옮겨 갈 때도 leave 가 온다. 끌기 중에는 relatedTarget 이 비어 오는 일이 많아
-       그걸로 가르면 칸을 지날 때마다 가장자리 밀기가 끊긴다 — 자리로 판별한다 */
-    const r = e.currentTarget.getBoundingClientRect();
-    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    if (inside) return;
-    stopAutoScroll();
-    setGalleryFileOver(false);
-  }, [stopAutoScroll]);
-  const onGalleryDrop = useCallback((e: React.DragEvent) => {
-    if (pdfProgress || galleryDragIdx !== null || !isFileDrag(e)) return;
-    e.preventDefault();
-    setGalleryFileOver(false);
-    void ingestFiles(Array.from(e.dataTransfer.files), "gallery");
-  }, [galleryDragIdx, ingestFiles, pdfProgress]);
-
-  /* 창을 떠나거나 그대로 끝나도 밀기는 멈춰야 한다 */
-  useEffect(() => stopAutoScroll, [stopAutoScroll]);
-
-  /**
-   * 갤러리 칸을 누를 때의 고르기 — 끌기는 차례 바꾸기가 가져갔으므로 고르기는 누르기로만 한다.
-   *
-   * Shift 면 지난번 누른 칸부터 여기까지, ⌘/Ctrl 이면 하나씩 켜고 끈다 — 파일 목록에서 쓰는 방식 그대로다.
-   * 그냥 누르면 고르지 않고 그 장을 작업대 위에 연다(대본 쓰기). 아래 mods 가 둘 다 false 로 오는 일은
-   * 이제 없지만, 오면 그 한 장만(다시 누르면 해제) 고른다.
-   */
-  const pickGalleryItem = useCallback((i: number, mods: { shift: boolean; toggle: boolean }) => {
-    setGallerySelected((prev) => {
-      if (mods.shift && galleryAnchor.current !== null) {
-        const lo = Math.min(galleryAnchor.current, i);
-        const hi = Math.max(galleryAnchor.current, i);
-        const next = new Set(prev);
-        for (let n = lo; n <= hi; n++) next.add(n);
-        return next;
-      }
-      if (mods.toggle) {
-        const next = new Set(prev);
-        if (next.has(i)) next.delete(i); else next.add(i);
-        return next;
-      }
-      /* 혼자 골라져 있던 칸을 다시 누르면 아무것도 안 고른 상태로 */
-      if (prev.size === 1 && prev.has(i)) return new Set<number>();
-      return new Set([i]);
-    });
-    if (!mods.shift) galleryAnchor.current = i;
-  }, []);
-
-  const removeSelectedGallery = useCallback(() => {
-    setForm((prev) => ({ ...prev, gallery: prev.gallery.filter((_, i) => !gallerySelected.has(i)) }));
-    setGallerySelected(new Set());
-  }, [gallerySelected]);
-
-  /* 끌어 놓은 자리로 옮긴다 — 뽑아서 그 자리에 끼운다(맞바꾸기가 아니다. 멀리 끌면 사이에 있던
-     칸들이 통째로 한 칸씩 밀려야 눈에 보이는 대로 떨어진다) */
-  const reorderGallery = useCallback((from: number, to: number) => {
+  /* 갤러리 값 — 갤러리 편집(GalleryEditor)이 고친다. 한 장을 바꾸면 그 주소가 표지였을 때 표지도 따라 바꾼다 */
+  const galleryValue = useMemo(() => ({ gallery: form.gallery, notes: form.gallery_notes ?? {} }), [form.gallery, form.gallery_notes]);
+  const onGalleryChange = useCallback((update: (prev: GalleryValue) => GalleryValue) => {
     setForm((prev) => {
-      if (from === to || from < 0 || to < 0 || from >= prev.gallery.length || to >= prev.gallery.length) return prev;
-      const gallery = [...prev.gallery];
-      const [moved] = gallery.splice(from, 1);
-      gallery.splice(to, 0, moved);
-      return { ...prev, gallery };
+      const next = update({ gallery: prev.gallery, notes: prev.gallery_notes ?? {} });
+      return { ...prev, gallery: next.gallery, gallery_notes: next.notes };
     });
   }, []);
-
-  /* 차례 바꾸기 — 이웃과 자리를 맞바꾼다. 끌기는 고르기가 쓰고 있어서 단추로 옮긴다.
-     자리가 바뀌면 galleryChanged 가 고른 칸을 비운다(번호가 밀려 엉뚱한 칸이 지워지지 않게) */
-  const moveGalleryItem = useCallback((index: number, dir: -1 | 1) => {
-    setForm((prev) => {
-      const to = index + dir;
-      if (to < 0 || to >= prev.gallery.length) return prev;
-      const gallery = [...prev.gallery];
-      [gallery[index], gallery[to]] = [gallery[to], gallery[index]];
-      return { ...prev, gallery };
-    });
+  const onGalleryUrlReplaced = useCallback((oldUrl: string, newUrl: string) => {
+    setForm((prev) => (prev.image === oldUrl ? { ...prev, image: newUrl } : prev));
   }, []);
-
-  /* 갤러리 장 하나의 음성 값을 바꾼다 — 폼 최신값 위에 덧쓰므로 음성을 만드는 동안 다른 장을 고쳐도 섞이지 않는다.
-     undefined 인 칸은 지우고, 다 비면 그 장의 항목을 없앤다 */
-  /* 대본·음성은 편집 언어(KO/EN)를 따른다 — 한국어는 노트 기본 칸, 영어는 노트의 en 칸(lib/galleryNotes) */
-  const updateGalleryNote = useCallback((url: string, patch: Partial<GalleryNote>) => {
-    setForm((prev) => ({ ...prev, gallery_notes: patchNote(prev.gallery_notes ?? {}, url, editorLang, patch) }));
-  }, [editorLang]);
-  const langNotes: GalleryNotes = useMemo(() => notesForLang(form.gallery_notes, editorLang), [form.gallery_notes, editorLang]);
-
-  /* 슬라이드 음성 — 칸마다의 음성 단추와 제목 줄의 "음성 만들기"가 목소리·진행 상태를 같이 쓴다 */
-  const narration = useNarrationActions({ gallery: form.gallery, notes: langNotes, update: updateGalleryNote, tw, lang: editorLang });
-  /* 작업대 위에 연 장 — 고른 적이 없으면 첫 장 */
-  const narrationCurrent = narration.openIndex >= 0 ? narration.openIndex : 0;
-  /* 갤러리를 고치지 못하는 동안 — PDF 를 들이는 중이거나 음성을 만드는 중. 만드는 중에 장을 빼거나 옮기면
-     만든 음성이 엉뚱한 장에 붙거나 사라진 장에 붙는다 */
-  const narrationBusy = narration.busy.size > 0 || !!narration.bulk;
-  const galleryLocked = !!pdfProgress || narrationBusy;
-
-  const removeGalleryItem = useCallback(
-    (index: number) => {
-      setForm((prev) => ({
-        ...prev,
-        gallery: prev.gallery.filter((_, i) => i !== index),
-      }));
-    },
-    [],
-  );
-
-  /* 한 장을 다른 그림·영상으로 바꾼다 — 자리는 그대로 두고 주소만 바꾼다. 대본·음성(KO/EN)은 그림 주소를 열쇠로
-     두므로 새 주소로 옮기고, 대표 이미지였으면 대표 이미지도, 음성 편집에서 열어 둔 장이면 그 장을 계속 연다.
-     갈아 끼우는 동안 그 칸에 올리는 중 표시를 둔다 */
-  const [replacingUrl, setReplacingUrl] = useState<string | null>(null);
-  const replaceGalleryItem = useCallback((oldUrl: string) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,video/mp4,video/webm,video/quicktime";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      setReplacingUrl(oldUrl);
-      const fail = (err: unknown) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
-      const data = await uploadMedia(file, fail, await import("@/lib/compressImage"));
-      setReplacingUrl(null);
-      if (!data) return;
-      const newUrl = data.url;
-      /* 올리는 동안 그 장을 지웠으면 바꿀 자리가 없다 — replaceGalleryUrl 이 그대로 돌려준다 */
-      setForm((prev) => replaceGalleryUrl(prev, oldUrl, newUrl));
-      if (narration.openUrl === oldUrl) narration.open(newUrl, false);
-      showToast(tw("galleryReplaced"), "success");
-    };
-    input.click();
-  }, [t, tw, uploadMedia, narration]);
+  const galleryCover = useMemo(() => ({ url: form.image, set: (url: string) => updateField("image", url) }), [form.image, updateField]);
 
   const handleSave = useCallback(
     /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
@@ -1346,7 +1083,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         uploadLabel={tw("uploadImage")}
         chooseLabel={tw("chooseCover")}
         closeLabel={tw("closePicker")}
-        onUpload={() => handleImageUpload("image")}
+        onUpload={() => handleImageUpload()}
         pickerOpen={showCoverPicker}
         onPickerToggle={() => setShowCoverPicker((v) => !v)}
         urlInputPlaceholder={tw("pasteUrl")}
@@ -1511,330 +1248,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const imagesSection = useMemo(() => (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>{tw("images")}</h2>
-
-      <div className={es.field}>
-        <div className={styles.galleryLabelRow}>
-          <label className={es.fieldLabel} style={{ marginBottom: 0 }}>
-            {tw("gallery")}
-            {form.gallery.length > 0 && (
-              <span className={styles.galleryCount}>{form.gallery.length}</span>
-            )}
-          </label>
-          <span className={styles.galleryLabelActions}>
-          {gallerySelected.size > 0 && (
-            <span className={styles.gallerySelectionBar}>
-              <span>{fillTemplate(t("admin.common.selectedCount"), { count: gallerySelected.size })}</span>
-              <Button variant="ghost" shape="capsule" onClick={() => setGallerySelected(new Set())} disabled={galleryLocked} soundDisabled>
-                {t("admin.common.clearSelection")}
-              </Button>
-              <Button variant="outline" shape="capsule" onClick={removeSelectedGallery} disabled={galleryLocked} soundDisabled>
-                {t("admin.common.deleteSelected")}
-              </Button>
-            </span>
-          )}
-          {pdfProgress && (
-            <span className={styles.galleryPdfProgress}>
-              <span>
-                {pdfProgress.phase === "reading"
-                  ? fillTemplate(tw("pdfReading"), { name: pdfProgress.name })
-                  : pdfProgress.phase === "rendering"
-                    ? fillTemplate(tw("pdfConverting"), { name: pdfProgress.name, done: pdfProgress.done, total: pdfProgress.total })
-                    : fillTemplate(tw("pdfUploading"), { done: pdfProgress.done, total: pdfProgress.total })}
-              </span>
-              {/* 진행 막대 — 쪽 수를 모르는 읽기 단계에서는 자리만 지킨다 */}
-              <span className={styles.galleryProgressTrack}>
-                <span
-                  className={styles.galleryProgressFill}
-                  style={{ width: pdfProgress.total > 0 ? `${Math.round((pdfProgress.done / pdfProgress.total) * 100)}%` : "0%" }}
-                />
-              </span>
-            </span>
-          )}
-          <Button
-            variant="outline"
-            shape="capsule"
-            onClick={() => handleImageUpload("gallery")}
-            disabled={galleryLocked}
-            soundDisabled
-          >
-            {tw("addMore")}
-          </Button>
-          </span>
-        </div>
-        {form.gallery.length === 0 ? (
-          <Pressable
-            className={`${styles.galleryAddTile}${galleryFileOver ? ` ${styles.galleryFileOver}` : ""}`}
-            onClick={() => handleImageUpload("gallery")}
-            disabled={galleryLocked}
-            onDragOver={onGalleryDragOver}
-            onDragLeave={onGalleryDragLeave}
-            onDrop={(e) => { if (narrationBusy) { e.preventDefault(); return; } onGalleryDrop(e); }}
-          >
-            <Plus size={20} strokeWidth={1.5} />
-            <span>{tw("addGallery")}</span>
-          </Pressable>
-        ) : (
-          /* 작업대 — 위는 고른 장(왼쪽)과 대본(오른쪽), 아래는 가로 썸네일 줄(누르면 위에 열림, Shift·⌘ 로 여럿 고르기,
-             끌어 차례 바꾸기). 위 칸 높이가 정해져 있어 대본이 길어도 페이지가 길어지지 않는다.
-             단축키(⌘A·Esc·← →)는 감싼 div 가 받는다 */
-          <div
-            ref={galleryAreaRef}
-            tabIndex={0}
-            /* 들이는 중에는 손대지 못하게 — 자리 번호가 밀려 고른 것과 지울 것이 어긋난다 */
-            data-busy={pdfProgress ? "" : undefined}
-            onKeyDown={(e: React.KeyboardEvent) => {
-              if (pdfProgress) return;
-              if (!narrationBusy && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") {
-                e.preventDefault();
-                setGallerySelected(new Set(form.gallery.map((_, i) => i)));
-              }
-              if (e.key === "Escape") setGallerySelected(new Set());
-              /* ← → — 위에 여는 장을 옮긴다. 대본을 쓰는 중(입력칸)에는 커서 이동이라 건드리지 않는다 */
-              if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !(e.target as HTMLElement).closest("textarea, input, select")) {
-                e.preventDefault();
-                const next = Math.max(0, Math.min(form.gallery.length - 1, narrationCurrent + (e.key === "ArrowLeft" ? -1 : 1)));
-                narration.open(form.gallery[next], false);
-                /* 썸네일 줄에서 옮겼으면 초점도 그 칸으로 — 다음 ← → 가 이어진다 */
-                const tile = galleryRailRef.current?.querySelector<HTMLElement>(`[data-gallery-index="${next}"]`);
-                tile?.scrollIntoView({ block: "nearest", inline: "nearest" });
-                if ((e.target as HTMLElement).closest(`.${styles.galleryRail}`)) tile?.focus({ preventScroll: true });
-              }
-            }}
-            className={`${styles.gallerySelectArea}${galleryFileOver ? ` ${styles.galleryFileOver}` : ""}`}
-            onDragOver={onGalleryDragOver}
-            onDragLeave={onGalleryDragLeave}
-            onDrop={(e) => { if (narrationBusy) { e.preventDefault(); return; } onGalleryDrop(e); }}
-          >
-          <div ref={galleryBenchRef} className={styles.galleryBench} style={benchSplit.benchStyle}>
-          {/* 위 — 고른 장을 크게 보며 대본을 쓴다(왼쪽 칸 슬라이드, 오른쪽 칸 대본, 그 아래 조작 막대) */}
-          <GalleryNarrationPanel
-          gallery={form.gallery}
-          notes={langNotes}
-          actions={narration}
-          tw={tw}
-          translate={serviceStatus.translation ? { sourceNotes, busy: translating, run: translateScripts } : undefined}
-          renderSlide={(src) => isOfficeDocUrl(src) ? (
-            <span className={styles.galleryDoc}>
-              <FileText size={40} strokeWidth={1.25} />
-              <span className={styles.galleryDocKind}>{officeDocKind(src)}</span>
-            </span>
-          ) : isVideoUrl(src) ? (
-            <video src={src} muted playsInline controls preload="metadata" />
-          ) : (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={src} alt="" />
-          )}
-          />
-          {/* 슬라이드 | 대본 사이 핸들 — 끌거나 ← → 로 폭을 나눈다. 두 번 누르면 반반 */}
-          <div className={styles.galleryBenchHandle} aria-label={tw("narrationSplit")} {...benchSplit.handleProps}>
-            <span className={styles.galleryBenchHandleBar} />
-          </div>
-          <div ref={galleryRailRef} className={styles.galleryRail}>
-          <HorizontalCarousel className={styles.galleryCarousel}>
-            {form.gallery.map((src, i) => {
-              const isMain = src === form.image && !!src;
-              const filename = src.split("/").pop() ?? src;
-              return (
-                <div
-                    key={i}
-                    data-gallery-index={i}
-                    className={[
-                      styles.galleryItem,
-                      narrationCurrent === i ? styles.galleryItemCurrent : "",
-                      gallerySelected.has(i) ? styles.galleryItemSelected : "",
-                      galleryDragIdx === i ? styles.galleryItemDragging : "",
-                      galleryOverIdx === i && galleryDragIdx !== null && galleryDragIdx !== i
-                        ? (galleryDragIdx < i ? styles.galleryDropAfter : styles.galleryDropBefore)
-                        : "",
-                    ].filter(Boolean).join(" ")}
-                    /* 칸을 통째로 끌어 차례를 바꾼다(들이는 중에는 못 끈다) */
-                    draggable={!galleryLocked}
-                    onDragStart={(e) => {
-                      if (galleryLocked) { e.preventDefault(); return; }
-                      setGalleryDragIdx(i);
-                      e.dataTransfer.effectAllowed = "move";
-                      /* 자료를 하나도 담지 않으면 브라우저가 끌기를 그 자리에서 취소한다 —
-                         dragstart 만 오고 dragover·drop 이 오지 않는다 */
-                      e.dataTransfer.setData("text/plain", String(i));
-                    }}
-                    onDragOver={(e) => {
-                      if (galleryDragIdx === null) return;
-                      e.preventDefault();
-                      setGalleryOverIdx(i);
-                    }}
-                    onDragEnd={() => { stopAutoScroll(); setGalleryDragIdx(null); setGalleryOverIdx(null); }}
-                    onDrop={(e) => {
-                      if (galleryDragIdx === null) return; // 밖에서 온 파일 — 갤러리 영역이 받는다
-                      e.preventDefault();
-                      stopAutoScroll();
-                      reorderGallery(galleryDragIdx, i);
-                      setGalleryDragIdx(null);
-                      setGalleryOverIdx(null);
-                    }}
-                    /* 누르면 고른다 — 크게 보기는 오버레이의 돋보기 단추가 연다 */
-                    /* 그냥 누르면 위에 이 장을 연다. Shift·⌘ 는 여럿 고르기 — 크게 보기는 오버레이의 돋보기 단추가 연다 */
-                    onClick={(e) => {
-                      if (e.shiftKey || e.metaKey || e.ctrlKey) pickGalleryItem(i, { shift: e.shiftKey, toggle: e.metaKey || e.ctrlKey });
-                      else narration.open(src);
-                    }}
-                    onPointerDown={(e) => {
-                      if (e.button !== 0 || pdfProgress) return;
-                      /* 캐러셀까지 내려가면 그쪽이 포인터를 붙잡아 가로로 밀어 버린다 — 그러면
-                         브라우저가 칸의 끌기를 시작하지 못한다(가로로 미는 일은 휠과 화살표가 맡는다) */
-                      e.stopPropagation();
-                    }}
-
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        if (e.shiftKey || e.metaKey || e.ctrlKey) pickGalleryItem(i, { shift: e.shiftKey, toggle: e.metaKey || e.ctrlKey });
-                        else narration.open(src);
-                      }
-                    }}
-                    aria-label={tw("viewImage")}
-                    aria-pressed={gallerySelected.has(i)}
-                    aria-current={narrationCurrent === i ? "true" : undefined}
-                  >
-                    {isOfficeDocUrl(src) ? (
-                      /* 문서 칸 — 그림이 아니라 그대로 그리면 깨진 그림이 된다. 읽는 화면은 문서 뷰어로 연다 */
-                      <span className={styles.galleryDoc}>
-                        <FileText size={28} strokeWidth={1.5} />
-                        <span className={styles.galleryDocKind}>{officeDocKind(src)}</span>
-                      </span>
-                    ) : isVideoUrl(src) && !galleryImgErrors.has(src) ? (
-                      <video
-                        src={src}
-                        className={styles.galleryImg}
-                        draggable={false}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        onMouseEnter={(e) => { void e.currentTarget.play().catch(() => {}); }}
-                        onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                        onError={() => setGalleryImgErrors((prev) => {
-                          if (prev.has(src)) return prev;
-                          const next = new Set(prev);
-                          next.add(src);
-                          return next;
-                        })}
-                      />
-                    ) : (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={galleryImgErrors.has(src) ? IMAGE_FALLBACK_SRC : src}
-                        alt={`Gallery ${i + 1}`}
-                        className={styles.galleryImg}
-                        draggable={false}
-                        onError={() => setGalleryImgErrors((prev) => {
-                          if (prev.has(src)) return prev;
-                          const next = new Set(prev);
-                          next.add(src);
-                          return next;
-                        })}
-                      />
-                    )}
-                    {isMain && (
-                      <Badge variant="solid" tone="accent" size="md" icon={<Star size={10} strokeWidth={2.5} fill="currentColor" />} className={styles.galleryMainBadge}>
-                        {tw("currentMain")}
-                      </Badge>
-                    )}
-                    <div className={styles.galleryOverlay}>
-                      {/* 단추를 눌렀을 때만 칸의 고르기가 따라오지 않게 한다 — 겹 전체에 걸면
-                          칸을 누르는 것도, 끌어서 고르는 것도 여기서 다 먹힌다 */}
-                      <div
-                        className={styles.galleryActions}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          disabled={galleryLocked || i === 0}
-                          onClick={() => moveGalleryItem(i, -1)}
-                          aria-label={tw("moveEarlier")}
-                          title={tw("moveEarlier")}
-                          soundDisabled
-                          icon={<ChevronLeft size={12} strokeWidth={2} />}
-                        />
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          disabled={galleryLocked || i === form.gallery.length - 1}
-                          onClick={() => moveGalleryItem(i, 1)}
-                          aria-label={tw("moveLater")}
-                          title={tw("moveLater")}
-                          soundDisabled
-                          icon={<ChevronRight size={12} strokeWidth={2} />}
-                        />
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          onClick={() => setGalleryViewerIdx(i)}
-                          aria-label={tw("viewImage")}
-                          title={tw("viewImage")}
-                          soundDisabled
-                          icon={<Maximize2 size={12} strokeWidth={2} />}
-                        />
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          active={isMain}
-                          disabled={narrationBusy}
-                          onClick={() => { if (!isMain) updateField("image", src); }}
-                          aria-label={tw("setAsMain")}
-                          title={tw("setAsMain")}
-                          soundDisabled
-                          icon={<Star size={12} strokeWidth={2} fill={isMain ? "currentColor" : "none"} />}
-                        />
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          disabled={galleryLocked || !!replacingUrl}
-                          loading={replacingUrl === src}
-                          onClick={() => replaceGalleryItem(src)}
-                          aria-label={tw("replaceImage")}
-                          title={tw("replaceImage")}
-                          soundDisabled
-                          icon={<Replace size={12} strokeWidth={2} />}
-                        />
-                        <Button
-                          variant="difference"
-                          shape="circle"
-                          disabled={galleryLocked}
-                          onClick={() => removeGalleryItem(i)}
-                          aria-label={tw("remove")}
-                          title={tw("remove")}
-                          soundDisabled
-                          icon={<X size={14} strokeWidth={2} />}
-                        />
-                      </div>
-                      <div className={styles.galleryMeta}>
-                        <span className={styles.galleryMetaIndex}>{i + 1} / {form.gallery.length}</span>
-                        <span className={styles.galleryMetaName}>{filename}</span>
-                      </div>
-                    </div>
-                    {/* 이 장의 음성 — 음성 파일(스피커)·대본만(글줄). 없으면 그리지 않는다 */}
-                    <NarrationBadge note={langNotes[src]} className={styles.galleryNarrationBadge} />
-                  </div>
-              );
-            })}
-          </HorizontalCarousel>
-          </div>
-          </div>
-          </div>
-        )}
-      </div>
+      <GalleryEditor
+        value={galleryValue}
+        onChange={onGalleryChange}
+        lang={editorLang}
+        cover={galleryCover}
+        onUrlReplaced={onGalleryUrlReplaced}
+        viewerTitle={form.title}
+      />
     </div>
-  ), [
-    form.gallery, langNotes, form.image, galleryImgErrors,
-    galleryDragIdx, galleryFileOver, galleryOverIdx, gallerySelected, handleImageUpload, moveGalleryItem,
-    onGalleryDragLeave, onGalleryDragOver, onGalleryDrop, pdfProgress, pickGalleryItem, removeGalleryItem,
-    removeSelectedGallery, reorderGallery, stopAutoScroll,
-    t, tw, updateField, narration, narrationCurrent, benchSplit, galleryLocked, narrationBusy,
-    serviceStatus.translation, sourceNotes, translating, translateScripts, replacingUrl, replaceGalleryItem,
-  ]);
+  ), [tw, galleryValue, onGalleryChange, editorLang, galleryCover, onGalleryUrlReplaced, form.title]);
 
   /* 기술 추가 줄 — 프리셋 추천 combobox + ＋. 기본 보기와 표 보기가 같이 쓴다 */
   const techAddRow = useMemo(() => (
@@ -2288,7 +1711,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <CoverBanner
           cover={form.image}
           onCoverChange={(url) => updateField("image", url)}
-          onUpload={() => handleImageUpload("image")}
+          onUpload={() => handleImageUpload()}
           emoji={form.icon || null}
           onEmojiChange={(e) => updateField("icon", e ?? "")}
           position={form.cover_position}
@@ -2421,13 +1844,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           // 이동한 필드를 상호작용 전까지 blink
           flashSeoField(el);
         }}
-      />
-      <ImageViewer
-        images={form.gallery}
-        index={galleryViewerIdx ?? 0}
-        open={galleryViewerIdx !== null}
-        onClose={() => setGalleryViewerIdx(null)}
-        title={form.title}
       />
     </AdminEditorShell>
     {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 */}

@@ -19,7 +19,7 @@ import { insertToc } from "@platejs/toc";
 import {
   Pilcrow, Heading1, Heading2, Heading3, Heading4, Quote,
   List, ListOrdered, ListChecks,
-  Image as ImageIcon, Video, Film,
+  Image as ImageIcon, Images, Video, Film,
   Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
   Info, AlertCircle, AlertTriangle, Ban,
 } from "@/components/icons";
@@ -160,6 +160,7 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "video", labelKey: "insertVideo", icon: <Film size={ICON} />, keywords: ["video", "동영상", "비디오", "movie", "mp4", "업로드", "upload"], run: (e) => triggerVideoUpload(e) },
     { key: "embed", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["embed", "youtube", "임베드", "미디어", "url", "링크"], run: (e) => insertBlockHere(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
     { key: "file", labelKey: "insertFile", icon: <Paperclip size={ICON} />, keywords: ["file", "파일", "attachment", "첨부", "다운로드", "download", "업로드", "upload"], run: (e) => triggerFileUpload(e) },
+    { key: "gallery", labelKey: "insertGallery", icon: <Images size={ICON} />, keywords: ["gallery", "slide", "slides", "갤러리", "슬라이드", "발표", "ppt", "pptx", "pdf", "음성", "대본", "narration"], run: (e) => insertBlockHere(e, { type: "gallery", data: { gallery: [], notes: {} }, children: [{ text: "" }] }) },
     { key: "audio", labelKey: "insertAudio", icon: <AudioLines size={ICON} />, keywords: ["audio", "오디오", "음악", "music", "sound", "소리", "mp3"], run: (e) => triggerAudioUpload(e) },
   ] },
   { labelKey: "groupCallout", items: CALLOUT_TYPES.map(calloutItem) },

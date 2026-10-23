@@ -1,9 +1,10 @@
 import type React from "react";
 import { normalizePlayground, RUNNER_TEMPLATES } from "../plate/playground/model";
+import { normalizeGallery } from "../plate/gallery/model";
 
 import type { ReaderExtrasContext } from "./context";
 
-/* React island 세 종류 — mermaid 다이어그램 · 코드 플레이그라운드 · 캘린더.
+/* React island 네 종류 — mermaid 다이어그램 · 코드 플레이그라운드 · 캘린더 · 슬라이드 갤러리.
    셋 다 무거운 의존성이라 동적 import 로 가져와 마운트하고, 언마운트 때 root 를 정리한다. */
 export function renderIslands({ el, labels, body, cleanups, isCancelled }: ReaderExtrasContext) {
   // ── mermaid ── 에디터와 동일 UI(SegmentedControl + MermaidPreview) React island 로 마운트
@@ -72,6 +73,29 @@ export function renderIslands({ el, labels, body, cleanups, isCancelled }: Reade
     }).catch(() => { /* noop */ });
     // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
     // "synchronously unmount a root while React was already rendering" 경고가 난다.
+    cleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
+  });
+
+  // ── 슬라이드 갤러리 (data-gallery) ── 작업물 상세와 같은 갤러리(장마다 음성 · 자막)를 React island 로 마운트
+  el.querySelectorAll<HTMLElement>("[data-gallery]").forEach((host) => {
+    if (host.dataset.galleryDone) return;
+    host.dataset.galleryDone = "1";
+    const data = normalizeGallery((() => { try { return JSON.parse(host.getAttribute("data-gallery") || "{}"); } catch { return {}; } })());
+    if (data.gallery.length === 0) { host.remove(); return; }
+    const mount = document.createElement("div");
+    mount.className = "reader-gallery";
+    host.replaceWith(mount);
+    let root: import("react-dom/client").Root | null = null;
+    Promise.all([
+      import("react"),
+      import("react-dom/client"),
+      import("../../gallery/ReaderGallery"),
+    ]).then(([ReactMod, rdc, mod]) => {
+      if (isCancelled() || !mount.isConnected) return;
+      const r = rdc.createRoot(mount);
+      root = r;
+      r.render(ReactMod.createElement(mod.default, { data, title: document.title, labels: body }));
+    }).catch(() => { /* noop */ });
     cleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
   });
 
