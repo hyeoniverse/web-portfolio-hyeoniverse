@@ -2046,7 +2046,8 @@
           "noSections": "No sections yet",
           "moveLeft": "Move earlier",
           "moveRight": "Move later",
-          "removeItem": "Remove scene"
+          "removeItem": "Remove scene",
+          "view": "View larger"
         },
         "subtitleHint": "Shown as the landing's top line and on list cards",
         "descriptionHint": "Shown on list cards and in search results (share previews)"

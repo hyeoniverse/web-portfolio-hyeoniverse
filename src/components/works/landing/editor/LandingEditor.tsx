@@ -1,16 +1,17 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowLeft, ArrowRight, ArrowUp, ChevronRight, Columns3, GripDotsIcon, Hash, Image as ImageIcon, Images, Plus, Smartphone, Trash2, Upload, X } from "@/components/icons";
+import { ArrowLeft, ArrowRight, ArrowUp, ChevronRight, Columns3, GripDotsIcon, Hash, Image as ImageIcon, Images, Play, Plus, Smartphone, Trash2, Upload, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
+import { ImageViewer } from "@/components/ui/ImageViewer";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { ExpandablePanel } from "@/components/admin/ProfileSections";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -86,10 +87,32 @@ function useTl() {
   return (k: string) => t(`admin.works.editor.landing.${k}`);
 }
 
-function Thumb({ src, video }: { src?: string; video?: string }) {
-  if (video || (src && isVideoUrl(src))) return <video className={styles.media} src={video || src} muted playsInline preload="metadata" />;
-  /* eslint-disable-next-line @next/next/no-img-element */
-  return src ? <img className={styles.media} src={src} alt="" loading="lazy" /> : null;
+/** 크게 보기 — 편집기 맨 위의 뷰어 하나를 장면 폼들이 함께 쓴다(그림 · 영상, 여러 장이면 그 묶음을 넘겨 본다) */
+const ViewerContext = createContext<(images: string[], index: number) => void>(() => {});
+const useViewer = () => useContext(ViewerContext);
+
+/** 누르면 크게 보는 미리보기 칸 — 부모 칸을 덮는 투명 단추(지우기 단추와 겹치지 않게 그 밑에 깐다) */
+function ViewButton({ images, index }: { images: string[]; index: number }) {
+  const tl = useTl();
+  const open = useViewer();
+  return <Pressable className={styles.viewBtn} onClick={() => open(images, index)} aria-label={tl("view")} title={tl("view")} />;
+}
+
+const isGif = (src?: string) => !!src && /\.gif(\?|#|$)/i.test(src);
+
+/** 썸네일 — 움직이는 그림(동영상 · GIF, 또는 녹화가 붙은 휴대폰 화면)이면 오른쪽 위에 작은 재생 표시. 부모가 기준(position)이다 */
+function Thumb({ src, video, motion }: { src?: string; video?: string; motion?: boolean }) {
+  const isVideo = !!video || (!!src && isVideoUrl(src));
+  const moving = isVideo || isGif(src) || !!motion;
+  return (
+    <>
+      {isVideo
+        ? <video className={styles.media} src={video || src} muted playsInline preload="metadata" />
+        /* eslint-disable-next-line @next/next/no-img-element */
+        : src ? <img className={styles.media} src={src} alt="" loading="lazy" /> : null}
+      {moving && <span className={styles.motionBadge} aria-hidden><Play size={8} fill="currentColor" strokeWidth={0} /></span>}
+    </>
+  );
 }
 
 /** 아이콘 단추(32 정사각) — 옮기기 · 펼치기 · 지우기 */
@@ -120,6 +143,7 @@ function MediaGrid({ items, lang, onUpload, onChange }: { items: Media[]; lang: 
         <div key={`${m.src}-${i}`} className={styles.mediaCell}>
           <div className={styles.mediaBox}>
             <Thumb src={m.src} />
+            <ViewButton images={items.map((x) => x.src)} index={i} />
             <Pressable className={styles.mediaRemove} onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={tl("remove")}><X size={12} /></Pressable>
           </div>
           <Input size="sm" clearable={false} value={m.alt[lang]} placeholder={tl("alt")}
@@ -144,6 +168,7 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
           <div className={styles.frameMedia}>
             <div className={styles.framePreview}>
               {item.src || item.video ? <Thumb src={item.src} video={item.video} /> : <span className={styles.emptyLine}>{tl("noMedia")}</span>}
+              {(item.video || item.src) && <ViewButton images={[(item.video || item.src) as string]} index={0} />}
             </div>
             <div className={styles.inline}>
               <UploadBtn onUpload={onUpload} onDone={([u]) => onChange(isVideoUrl(u)
@@ -185,7 +210,7 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
                 const set = (patch: Partial<typeof p>) => onChange({ ...item, items: item.items.map((x, j) => (j === i ? { ...x, ...patch } : x)) });
                 return (
                   <li key={`${p.src}-${i}`} className={styles.phoneRow}>
-                    <span className={styles.phoneThumb}><Thumb src={p.src} /></span>
+                    <span className={styles.phoneThumb}><Thumb src={p.src} motion={!!p.video} /><ViewButton images={item.items.map((x) => x.video || x.src)} index={i} /></span>
                     <div className={styles.pair}>
                       <Input size="sm" clearable={false} value={p.route[lang]} placeholder={tl("route")} onChange={(v) => set({ route: { ...p.route, [lang]: v } })} />
                       <Input size="sm" clearable={false} value={p.alt[lang]} placeholder={tl("alt")} onChange={(v) => set({ alt: { ...p.alt, [lang]: v } })} />
@@ -212,7 +237,7 @@ function ItemForm({ item, lang, onUpload, onChange }: { item: LandingItem; lang:
     case "numbers":
       return (
         <div className={styles.stack}>
-          <ul className={styles.rows}>
+          <ul className={styles.numberRows}>
             {item.items.map((n, i) => (
               <li key={i} className={styles.numberRow}>
                 <Input size="sm" clearable={false} value={n.value} placeholder={tl("value")}
@@ -244,7 +269,7 @@ function Tile({ item, index, active, onClick }: { item: LandingItem; index: numb
       {/* 썸네일이 곧 고르는 단추 — 차례는 왼쪽 위, 여러 장짜리 종류만 오른쪽 아래에 종류 · 장 수 */}
       {item.kind === "numbers"
         ? <span className={styles.tileNumber}>{item.items[0]?.value || "0"}</span>
-        : media[0] ? <Thumb src={media[0]} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
+        : media[0] ? <Thumb src={media[0]} motion={item.kind === "phones" && item.items.some((m) => m.video)} /> : <span className={styles.tileEmpty}>{KIND_ICON[item.kind]}</span>}
       <span className={styles.tileNo}>{index + 1}</span>
       {item.kind !== "frame" && <span className={styles.tileKind}>{KIND_ICON[item.kind]}{count}</span>}
     </Pressable>
@@ -315,6 +340,8 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
   value: WorkLanding; lang: Lang; onUpload: Upload; onChange: (next: WorkLanding) => void;
 }) {
   const tl = useTl();
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
+  const openViewer = useMemo(() => (images: string[], index: number) => setViewer({ images, index }), []);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
   const ids = useMemo(() => value.sections.map((s) => s.id), [value.sections]);
   /* 섹션은 접어 둔다 — 장면이 많아 다 펼치면 편집 화면이 끝없이 길어진다. 새로 만든 섹션은 펼친다 */
@@ -340,6 +367,7 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
   };
 
   return (
+    <ViewerContext.Provider value={openViewer}>
     <div className={styles.editor}>
       <div className={es.field}>
         <span className={es.fieldLabel}>{tl("hero")}</span>
@@ -418,5 +446,9 @@ export default function LandingEditor({ value, lang, onUpload, onChange }: {
         </div>
       </div>
     </div>
+    {viewer && (
+      <ImageViewer images={viewer.images} index={viewer.index} open onClose={() => setViewer(null)} title={tl("view")} />
+    )}
+    </ViewerContext.Provider>
   );
 }

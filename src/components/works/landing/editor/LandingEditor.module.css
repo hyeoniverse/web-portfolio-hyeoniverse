@@ -57,6 +57,44 @@
   transform: rotate(90deg);
 }
 
+/* 크게 보기 — 미리보기 칸 전체를 덮는 투명 단추 */
+.viewBtn {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-in;
+}
+
+/* 움직이는 그림 표시 — 썸네일 오른쪽 위의 작은 재생 표 */
+.motionBadge {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--text-primary) 72%, transparent);
+  color: var(--bg-primary);
+  pointer-events: none;
+}
+
+/* 접힌 줄의 작은 썸네일(40×28) · 휴대폰 화면 칸(32×56)은 표도 작게 */
+.thumb .motionBadge,
+.phoneThumb .motionBadge {
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 12px;
+  height: 12px;
+}
+
+.thumb .motionBadge svg,
+.phoneThumb .motionBadge svg {
+  width: 6px;
+  height: 6px;
+}
+
 .media {
   display: block;
   width: 100%;
@@ -184,6 +222,7 @@
 }
 
 .thumb {
+  position: relative;
   width: 40px;
   height: 28px;
   overflow: hidden;
@@ -359,6 +398,7 @@
 }
 
 .framePreview {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,6 +435,7 @@
 
 .mediaRemove {
   position: absolute;
+  z-index: 1;
   top: var(--spacing-4);
   right: var(--spacing-4);
   display: inline-flex;
@@ -450,6 +491,7 @@
 }
 
 .phoneThumb {
+  position: relative;
   width: 32px;
   height: 56px;
   flex-shrink: 0;
@@ -467,12 +509,18 @@
   min-width: 160px;
 }
 
+/* 숫자 줄 — 칸마다 밑줄이 있어 줄 사이 구분선까지 그으면 가로선이 겹쳐 번잡했다. 선 대신 간격으로 나눈다 */
+.numberRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
 .numberRow {
   display: grid;
   grid-template-columns: 96px 1fr auto;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--spacing-8) 0;
 }
 
 @media (width > 768px) {
