@@ -137,12 +137,12 @@ export const erdScene = {
   tables: { ko: "테이블", en: "tables" } satisfies L10n,
   relations: { ko: "관계", en: "relations" } satisfies L10n,
   hint: {
-    ko: "목록에서 테이블을 고르면 그 테이블과 연결된 테이블만 남고, 설계 메모가 옆에 나옵니다. 빈 곳을 누르면 전체 보기로 돌아가고, 확대는 단추나 Ctrl + 휠로 합니다.",
+    ko: "목록에서 테이블을 고르면 그 테이블과 연결된 테이블만 남고, 설계 메모가 옆에 나옵니다. 빈 곳을 누르면 전체 보기로 돌아가고, 확대는 버튼이나 Ctrl + 휠로 합니다.",
     en: "Pick a table to keep only it and its connected tables, with its design notes beside. Click empty space for the full view; zoom with the buttons or Ctrl + wheel.",
   } satisfies L10n,
   /* 손가락으로 쓰는 기기 — 누르기 · 두 손가락 */
   hintTouch: {
-    ko: "목록에서 테이블을 고르면 그 테이블과 연결된 테이블만 남고, 설계 메모가 옆에 나옵니다. 빈 곳을 누르면 전체 보기로 돌아가고, 확대는 단추나 두 손가락으로 합니다.",
+    ko: "목록에서 테이블을 고르면 그 테이블과 연결된 테이블만 남고, 설계 메모가 옆에 나옵니다. 빈 곳을 누르면 전체 보기로 돌아가고, 확대는 버튼이나 두 손가락으로 합니다.",
     en: "Pick a table to keep only it and its connected tables, with its design notes beside. Tap empty space for the full view; zoom with the buttons or pinch.",
   } satisfies L10n,
   index: { ko: "테이블 목록", en: "Table list" } satisfies L10n,

@@ -15,6 +15,8 @@ import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
 import { WorkArticleBody } from "@/components/works/WorkArticleBody";
 import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
+import { LandingPage } from "@/components/works/landing/LandingPage";
+import { hasLandingPage } from "@/components/works/landing/registry";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
@@ -30,18 +32,26 @@ interface WorkDetailClientProps {
   project: Project;
   prevProject: Project | null;
   nextProject: Project | null;
+  /** 목록의 첫 작업물(지금이 첫 작업물이면 null) — 랜딩의 '다음 작업물'이 끝에서 처음으로 돈다 */
+  firstProject?: Project | null;
 }
 
 export default function WorkDetailClient({
   project: savedProject,
   prevProject,
   nextProject,
+  firstProject = null,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
   const router = useRouter();
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 제거됨. */
   const translationEnabled = siteConfig?.translation?.enabled !== false;
+  /* 상세 형태 — 설정(works.detailStyle)이 landing 이고 전용 랜딩 페이지가 있는 작업물이면 랜딩으로(없으면 게시물 형태).
+     커버는 레이아웃도 같은 값을 보고 그리지 않는다 */
+  const landingSlug = siteConfig?.works?.detailStyle === "landing" && hasLandingPage(savedProject.slug) ? savedProject.slug : null;
+  const landingMode = landingSlug !== null;
+  const landingNext = nextProject ?? firstProject;
   const isRichtext = savedProject.contentType === "richtext";
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
@@ -113,13 +123,14 @@ export default function WorkDetailClient({
     <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
       backHref="/works"
+      scrollButtons={false}
       backLabel={t("workDetail.back")}
       /* 커버는 레이아웃이 셸에서 그린다(#946) — 여기서는 alt 를 넘기고 아이콘·헤더 자리만 맞춘다 */
       heroImage={project.image}
       heroInShell
       heroAlt={pickLocalized(project.title, language)}
       heroIcon={project.icon}
-      headings={headings}
+      headings={landingMode ? [] : headings}
       header={
         <WorkArticleHeader
           project={project}
@@ -136,7 +147,8 @@ export default function WorkDetailClient({
           relatedSeries={relatedSeries}
         />
       }
-      afterContent={
+      /* 랜딩 페이지는 화면 · 팀을 제 안에서 그린다 */
+      afterContent={landingMode ? undefined : (
         <>
           {/* 갤러리는 글 칼럼보다 넓은 이 자리에 — 슬라이드가 작게 보이면 읽을 수가 없다 */}
           <TranslatingRegion active={contentTr.translating}>
@@ -144,9 +156,11 @@ export default function WorkDetailClient({
           </TranslatingRegion>
           <WorkArticleTeam project={project} viewLang={viewLang} />
         </>
-      }
-      likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
-      adjacentConfig={{
+      )}
+      /* 랜딩 페이지는 참고 사이트처럼 끝을 '다음 작업물'로 맺는다 — 좋아요 · 댓글 · 목록으로 줄은 게시물 형태에서만 */
+      likeConfig={external || landingMode ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      /* 랜딩 페이지는 끝에 '다음 작업물'을 크게 둔다 — 이전/다음 줄은 게시물 형태에서만 */
+      adjacentConfig={landingMode ? undefined : {
         prev: prevProject ? {
           href: `/works/${prevProject.slug || prevProject.id}`,
           title: pickLocalized(prevProject.title, language),
@@ -161,8 +175,18 @@ export default function WorkDetailClient({
         nextLabelKey: "workDetail.next",
         className: styles.adjacentNavTopBorder,
       }}
-      commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
-      backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
+      commentsConfig={external || landingMode ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
+      backLink={landingMode ? undefined : { href: "/works", labelKey: "workDetail.viewAll" }}
+      landing={landingMode ? (
+        <TranslatingRegion active={contentTr.translating}>
+          <LandingPage
+            slug={landingSlug!}
+            project={project}
+            viewLang={viewLang}
+            next={landingNext ? { href: `/works/${landingNext.slug || landingNext.id}`, title: pickLocalized(landingNext.title, language) } : null}
+          />
+        </TranslatingRegion>
+      ) : undefined}
     >
       {contentTr.targetLang ? (
         <ContentTranslateBanner

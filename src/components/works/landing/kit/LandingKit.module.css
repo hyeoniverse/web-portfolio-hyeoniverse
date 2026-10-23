@@ -1,0 +1,757 @@
+/* ── 작업물 랜딩 페이지 부품(LandingKit) ──
+   andreasantonsson.dev 의 프로젝트 페이지를 따랐다 — 강조색 하나로 쓴 큰 세리프 제목, 작은 정보 한 줄, 큰 문장과 큰 화면을 번갈아,
+   넓은 여백, 끝에 '다음 작업물'. 색은 사이트 토큰(강조색 --text-accent), 글꼴은 묶음 토큰(display = 세리프). */
+
+.landing {
+  --lp-inset: min(1128px, calc(100% - var(--spacing-page-inline) * 2));
+
+  /* 메뉴(LandingNav)가 맨 위에 놓이는 기준 */
+  position: relative;
+  color: var(--text-primary);
+}
+
+/* ── 나타나기 — useReveal 이 data-shown 을 붙인다 ── */
+.landing [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-slower) var(--ease-enter),
+    transform var(--duration-slower) var(--ease-enter);
+  transition-delay: calc(var(--d, 0) * 90ms);
+}
+
+.landing [data-reveal="zoom"] {
+  transform: scale(0.96);
+}
+
+.landing [data-reveal][data-shown] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── 머리 ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-40);
+  min-height: 80svh;
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-96);
+  text-align: center;
+  color: var(--text-accent);
+}
+
+.eyebrow {
+  max-width: 48ch;
+  word-break: keep-all;
+  margin: 0;
+  font: var(--font-body-md);
+}
+
+.title {
+  max-width: 100%;
+  margin: 0;
+  font: var(--font-display-lg);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* 제목 — 참고 사이트처럼 넓게 벌어진 글자가 흐림에서 선명해지며 왼쪽부터 차례로 들어오고, 간격이 좁혀진다.
+   간격은 자간(letter-spacing)이 아니라 글자마다 순서에 비례한 가로 이동으로 좁힌다 — 자간은 메인 스레드에서만 움직여,
+   전환 직후 새 페이지가 초기화하는 동안 제목이 중간에서 멈췄다. 이동 · 투명도 · 흐림은 합성 단계에서 돈다.
+   판 전환이 덮기 전(data-ready 없음)에는 멈춰 둔다 — 판 아래에서 먼저 끝나 버리지 않게 */
+.titleLetters {
+  display: inline-block;
+}
+
+.letter {
+  display: inline-block;
+  animation: letterIn var(--duration-slower) var(--ease-enter) both;
+  animation-delay: calc(40ms + var(--d, 0) * 40ms);
+}
+
+.landing:not([data-ready]) .letter {
+  animation-play-state: paused;
+}
+
+@keyframes letterIn {
+  from {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateX(calc(var(--d, 0) * 0.14em));
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-20) var(--spacing-64);
+  margin: 0;
+  text-align: left;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.metaLabel {
+  font: var(--font-body-sm);
+  color: color-mix(in srgb, var(--text-accent) 55%, var(--bg-primary));
+}
+
+.metaValue {
+  margin: 0;
+  font: var(--font-body-sm);
+}
+
+.metaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.metaLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 흐름 — 이미지가 중심. 강한 장면만 화면 폭 전체로 쓰고, 나머지는 한 장씩 폭 · 위치를 바꿔 가며 둔다(격자 · 카드로 늘어놓지 않는다) ── */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding-bottom: var(--spacing-128);
+  background-color: var(--bg-primary);
+}
+
+.landing [data-reveal="rise"] {
+  transform: translateY(48px);
+}
+
+/* 한 장 — 폰 · 태블릿은 여백 안 폭 전체(bleed 는 화면 폭 전체). 넓은 화면에서 at 에 따라 폭 · 위치가 달라진다 */
+.frame {
+  width: calc(100% - var(--spacing-page-inline) * 2);
+  margin: 0 auto;
+}
+
+.frame_bleed {
+  width: 100%;
+}
+
+/* 틀 · 그림자 · 둥근 모서리는 두지 않는다. 캡처 대부분이 페이지와 같은 밝은 바탕이라 경계가 녹아서 아주 옅은 선 하나만 */
+.frameMedia {
+  display: block;
+  width: 100%;
+  height: auto;
+  outline: var(--border-light);
+  outline-offset: calc(var(--border-width-1) * -1);
+  background-color: var(--bg-tertiary);
+}
+
+/* 짧은 글 — 번호 · 제목 · 한 줄. 이미지 사이의 쉼표 */
+.note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-16);
+  width: var(--lp-inset);
+  margin: 0 auto;
+  padding: var(--spacing-96) 0 var(--spacing-16);
+}
+
+.noteNo {
+  font: var(--font-code-sm);
+  color: var(--text-accent);
+}
+
+.noteTitle {
+  margin: 0;
+  font: var(--font-display-md);
+  color: var(--text-accent);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.noteBody {
+  max-width: 48ch;
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+  word-break: keep-all;
+}
+
+/* 휴대폰 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나(카드로 늘어놓지 않는다) */
+/* 폰 폭에서는 한 장이 반 폭 — 네 장을 다 넣으면 너무 작아 옆으로 넘긴다 */
+.phones {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 50%;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.phone {
+  position: relative;
+  aspect-ratio: 390 / 844;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+  scroll-snap-align: start;
+}
+
+.phoneImage {
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ── 흐르는 띠 — 스크롤로만 흐른다. 바깥 상자는 화면 높이 + 붙어 있을 스크롤 길이(한 바퀴 거리의 70%)만큼 길고,
+   안쪽 무대가 그동안 화면에 붙어 있는다. 한 바퀴 = 한 벌 길이(--count 장 × (장 폭 + 사이)) ── */
+.marquee {
+  --item: 46vw;
+  --gap: var(--spacing-12);
+  --lap: calc(var(--count) * (var(--item) + var(--gap)));
+
+  position: relative;
+  height: calc(100dvh + var(--lap) * 0.7);
+}
+
+.marqueeStage {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.marqueeRow {
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  transform: translate3d(calc(var(--p, 0) * var(--lap) * -1), 0, 0);
+  will-change: transform;
+}
+
+.marqueeRowReverse {
+  transform: translate3d(calc((var(--p, 0) - 1) * var(--lap)), 0, 0);
+}
+
+.marqueeItem {
+  display: block;
+  flex: none;
+  width: var(--item);
+  height: auto;
+  outline: var(--border-light);
+  outline-offset: calc(var(--border-width-1) * -1);
+}
+
+/* ── 시간순 장면 — 쌓임은 문서 순서로(뒤 장면이 위). 무대가 붙어 있는 동안 장면이 차례로 겹쳐 나타난다. 바깥 상자 = 화면 높이 + 장면마다 화면 높이의 60% ── */
+.sequence {
+  position: relative;
+  height: calc(100dvh + var(--count) * 60dvh);
+}
+
+.sequenceStage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--bg-black);
+}
+
+.sequenceFrame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity var(--duration-slower) var(--ease-standard);
+}
+
+.sequenceFrameOn {
+  opacity: 1;
+}
+
+/* ── 구르는 휴대폰 — 바깥 상자 = 화면 높이 + 구르기마다 화면 높이의 50%. 무대가 붙어 있는 동안 몸통이 가로축으로 구른다.
+   몸통 = 같은 둥근 사각형을 두께 방향으로 겹친 옆면(PHONE_SLICES 겹) + 앞 · 뒤 화면. 회전 값은 --rx · --ry · --rz · --bob ── */
+.phoneFlip {
+  --depth: 30px;
+
+  position: relative;
+  height: calc(100dvh + var(--count) * 50dvh);
+}
+
+.phoneFlipStage {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  overflow: hidden;
+  perspective: 1800px;
+}
+
+/* 뒤에 깔리는 것 — 네 갈래 별, 그 앞에 화면마다의 주소 줄(지금 화면의 주소가 가운데에서 채워진다) */
+.phoneBackdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* 네 갈래 별 — About 의 별자리와 같은 모양. 납작한 한 가지 색, 스크롤하는 만큼 흘러가며 돈다 */
+.phoneSpark {
+  position: absolute;
+  aspect-ratio: 1;
+  background-color: var(--text-accent);
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+}
+
+.phoneSparkA {
+  top: 12%;
+  right: 14%;
+  width: 9vmin;
+  transform: translateY(calc(var(--p, 0) * 22dvh)) rotate(calc(var(--p, 0) * 180deg));
+}
+
+.phoneSparkB {
+  bottom: 24%;
+  left: 12%;
+  width: 5vmin;
+  background-color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  transform: translateY(calc(var(--p, 0) * -18dvh)) rotate(calc(var(--p, 0) * -120deg));
+}
+
+.phoneSparkC {
+  top: 26%;
+  left: 24%;
+  width: 3vmin;
+  opacity: 0.7;
+  transform: translate(calc(var(--p, 0) * 14vw), calc(var(--p, 0) * 10dvh)) rotate(calc(var(--p, 0) * 90deg));
+}
+
+/* 주소 줄 — 휴대폰 아래 한 줄로 늘어선 주소. 움직임은 PhoneFlip 이 지금 화면의 주소가 가운데에 오게 transform 으로 준다 */
+.phoneWords {
+  position: absolute;
+  bottom: 5dvh;
+  left: 0;
+  display: flex;
+  gap: 6vw;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.phoneWord {
+  flex: none;
+  font: var(--font-display-lg);
+  color: transparent;
+  -webkit-text-stroke: var(--border-width-1) color-mix(in srgb, var(--text-accent) 40%, transparent);
+  transition: color var(--duration-slow) var(--ease-standard);
+}
+
+.phoneWordOn {
+  color: var(--text-accent);
+}
+
+/* 바닥 그림자 — 옆으로 누울수록(--spin) 얇고 옅어진다 */
+.phoneShadow {
+  position: absolute;
+  bottom: 15dvh;
+  left: 50%;
+  width: min(30dvh, 280px);
+  height: 3dvh;
+  border-radius: var(--radius-full);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bg-black) 35%, transparent), transparent);
+  transform: translateX(-50%) scaleX(calc(1 - var(--spin, 0) * 0.35));
+  opacity: calc(1 - var(--spin, 0) * 0.5);
+}
+
+.phoneFlipBody {
+  position: relative;
+  height: min(66dvh, 640px);
+  margin-bottom: 12dvh;
+  aspect-ratio: 390 / 844;
+  transform-style: preserve-3d;
+  transform: translateY(var(--bob, 0)) rotateZ(var(--rz, 0deg)) rotateY(var(--ry, 0deg)) rotateX(var(--rx, 0deg));
+  will-change: transform;
+}
+
+/* 옆면 — 금속 테두리. 겹마다 두께 방향으로 조금씩 옮겨 쌓고, 가운데로 갈수록 살짝 어둡게 */
+.phoneSlice {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--radius-surface) * 2.4);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--text-white) 55%, var(--bg-black)), color-mix(in srgb, var(--text-white) 22%, var(--bg-black)) 45%, color-mix(in srgb, var(--text-white) 68%, var(--bg-black)) 70%, color-mix(in srgb, var(--text-white) 32%, var(--bg-black)));
+  transform: translateZ(calc(var(--depth) / 2 - var(--k) * var(--depth) / 13));
+  backface-visibility: visible;
+}
+
+/* 옆 버튼 — 가운데 겹 높이에서 왼쪽으로 조금 튀어나온다 */
+.phoneButtons {
+  position: absolute;
+  top: 18%;
+  left: calc(var(--spacing-4) * -1);
+  width: var(--spacing-8);
+  height: 14%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--text-white) 40%, var(--bg-black)), color-mix(in srgb, var(--text-white) 66%, var(--bg-black)));
+  box-shadow: 0 calc(var(--spacing-48) * 2.2) 0 color-mix(in srgb, var(--text-white) 52%, var(--bg-black));
+  transform: translateZ(0);
+}
+
+/* 앞 · 뒤 화면 — 검은 유리 테두리 안에 화면. 두께의 바깥쪽에 붙인다 */
+.phoneFace {
+  position: absolute;
+  inset: 0;
+  padding: var(--spacing-12);
+  border-radius: calc(var(--radius-surface) * 2.4);
+  background-color: var(--bg-black);
+  transform: translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
+  backface-visibility: hidden;
+}
+
+/* 뒷면 — 실제 휴대폰 뒤처럼 무광 유리. 가로축으로 뒤집어 붙인다 */
+.phoneBack {
+  padding: 0;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--text-white) 28%, var(--bg-black)), color-mix(in srgb, var(--text-white) 12%, var(--bg-black)) 60%, color-mix(in srgb, var(--text-white) 22%, var(--bg-black)));
+  transform: rotateX(180deg) translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
+}
+
+/* 카메라 섬 — 가로축으로 뒤집혀 있어 이 면의 아래쪽이 몸통의 위쪽이다. 뒷면에서 솟은 유리 받침(겹으로 쌓은 두께) 위에
+   실제 휴대폰처럼 렌즈 셋을 삼각으로(왼쪽 위아래 둘 · 오른쪽 가운데 하나), 오른쪽 위에 플래시, 오른쪽 아래에 마이크 구멍.
+   렌즈는 금속 경통을 겹으로 쌓아 받침보다 더 튀어나오고, 맨 위에 유리가 얹힌다. 자리는 칸이 아니라 정사각 받침의 % 로
+   — 격자 칸에 맡기면 칸이 정사각이 아니어서 렌즈가 타원으로 찌그러졌다.
+   겹은 모두 이 면의 3D 공간에 그대로 놓여(preserve-3d) 휴대폰이 구르는 각도대로 옆면이 보인다 */
+.phoneBack {
+  transform-style: preserve-3d;
+}
+
+.phoneCamera {
+  --cam-h: calc(var(--depth) * 0.2);
+  --lens-h: calc(var(--depth) * 0.32);
+
+  position: absolute;
+  bottom: 3.5%;
+  left: 5%;
+  width: 44%;
+  aspect-ratio: 1;
+  border-radius: 24%;
+  /* 무광 뒷판보다 살짝 밝은 유리 — 위쪽 가장자리에 빛이 맺히고 아래로 갈수록 가라앉는다 */
+  background:
+    linear-gradient(200deg, color-mix(in srgb, var(--text-white) 16%, transparent), transparent 40%),
+    linear-gradient(160deg, color-mix(in srgb, var(--text-white) 30%, var(--bg-black)), color-mix(in srgb, var(--text-white) 18%, var(--bg-black)));
+  box-shadow:
+    inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--text-white) 34%, transparent),
+    inset 0 calc(var(--border-width-1) * -3) calc(var(--border-width-1) * 4) color-mix(in srgb, var(--text-white) 18%, transparent);
+  transform-style: preserve-3d;
+  transform: translateZ(var(--cam-h));
+  backface-visibility: hidden;
+}
+
+/* 받침의 옆면 — 뒷면 쪽으로 겹을 내려 쌓는다. 위 겹은 받침과 같은 밝기, 아래로 갈수록 어둡게.
+   맨 아래 겹은 조금 넓혀 뒷판에 닿는 자리가 둥글게 퍼진다(접합부의 그림자) */
+.phoneCameraSlab {
+  position: absolute;
+  inset: calc(var(--k) * -0.4%);
+  border-radius: inherit;
+  background-color: color-mix(in srgb, var(--text-white) calc(26% - var(--k) * 3%), var(--bg-black));
+  transform: translateZ(calc(var(--cam-h) * (var(--k) + 1) / -5));
+  backface-visibility: hidden;
+}
+
+.phoneLens {
+  position: absolute;
+  width: 42%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+}
+
+/* 렌즈 자리 — 이 면은 뒤집혀 있어 top 이 작을수록 몸통의 아래쪽이다 */
+.phoneLens:nth-of-type(1) {
+  top: 6%;
+  left: 6%;
+}
+
+.phoneLens:nth-of-type(2) {
+  top: 52%;
+  left: 6%;
+}
+
+.phoneLens:nth-of-type(3) {
+  top: 29%;
+  left: 52%;
+}
+
+/* 경통 — 금속 고리를 겹으로 쌓아 받침 위로 튀어나온다. 위로 갈수록 밝고, 맨 위 겹은 깎은 테두리처럼 가장 밝다 */
+.phoneLens s {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--text-white) calc(30% + var(--k) * 6%), var(--bg-black)), color-mix(in srgb, var(--text-white) calc(12% + var(--k) * 3%), var(--bg-black)));
+  transform: translateZ(calc(var(--lens-h) * var(--k) / 7));
+  backface-visibility: hidden;
+}
+
+/* 유리 — 경통 맨 위. 짙은 렌즈 안에 동심 고리 · 비스듬한 반사 · 강조색으로 비치는 코팅 */
+.phoneLens em {
+  position: absolute;
+  inset: 13%;
+  border-radius: var(--radius-full);
+  background:
+    radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--text-white) 80%, transparent) 0 6%, transparent 9%),
+    radial-gradient(circle at 64% 68%, color-mix(in srgb, var(--bg-accent-solid) 35%, transparent) 0 5%, transparent 14%),
+    radial-gradient(circle, var(--bg-black) 0 26%, color-mix(in srgb, var(--text-white) 14%, var(--bg-black)) 28% 32%, var(--bg-black) 34% 58%, color-mix(in srgb, var(--text-white) 20%, var(--bg-black)) 60% 64%, var(--bg-black) 66%);
+  box-shadow: inset 0 0 0 calc(var(--border-width-1) * 2) color-mix(in srgb, var(--text-white) 10%, var(--bg-black));
+  transform: translateZ(calc(var(--lens-h) + var(--border-width-1)));
+  backface-visibility: hidden;
+}
+
+/* 플래시 — 오른쪽 위(뒤집힌 면이라 아래쪽). 받침에서 조금만 솟은 유백색 원 */
+.phoneCamera b {
+  position: absolute;
+  top: 74%;
+  left: 70%;
+  width: 15%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle at 40% 35%, var(--text-white), color-mix(in srgb, var(--text-white) 62%, var(--bg-black)));
+  box-shadow: 0 0 0 calc(var(--border-width-1) * 2) color-mix(in srgb, var(--text-white) 30%, var(--bg-black));
+  transform: translateZ(calc(var(--border-width-1) * 2));
+  backface-visibility: hidden;
+}
+
+/* 마이크 구멍 — 오른쪽 아래(뒤집힌 면이라 위쪽) */
+.phoneCamera u {
+  position: absolute;
+  top: 13%;
+  left: 74%;
+  width: 6%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-black);
+  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--text-white) 20%, var(--bg-black));
+  backface-visibility: hidden;
+}
+
+/* 가운데 별 표시 */
+.phoneLogo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14%;
+  aspect-ratio: 1;
+  background-color: color-mix(in srgb, var(--text-white) 45%, var(--bg-black));
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+  transform: translate(-50%, -50%);
+}
+
+.phoneScreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) * 1.7);
+  background-color: var(--bg-tertiary);
+}
+
+.phoneShot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* 화면 위 가운데의 섬 */
+.phoneIsland {
+  position: absolute;
+  top: var(--spacing-8);
+  left: 50%;
+  width: 32%;
+  height: var(--spacing-24);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-black);
+  transform: translateX(-50%);
+}
+
+/* 유리 반사 — 구를수록 빛줄기가 위아래로 지나간다 */
+.phoneGlare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, transparent 30%, color-mix(in srgb, var(--text-white) 22%, transparent) 45%, transparent 60%);
+  background-size: 100% 300%;
+  background-position: 0 calc(var(--spin, 0) * 100%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* ── 숫자 띠 ── */
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-32);
+  width: var(--lp-inset);
+  margin: var(--spacing-128) auto 0;
+}
+
+.number {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--spacing-8);
+  padding-top: var(--spacing-20);
+  border-top: var(--border-light);
+}
+
+.numberValue {
+  margin: 0;
+  font: var(--font-display-md);
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.numberLabel {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+/* ── 다음 작업물 ── */
+.next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-24);
+  padding: var(--spacing-96) var(--spacing-page-inline) var(--spacing-128);
+  text-align: center;
+  color: var(--text-accent);
+}
+
+.nextLabel {
+  margin: 0;
+  font: var(--font-headline-xs);
+}
+
+.nextLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-32);
+  color: inherit;
+  text-decoration: none;
+}
+
+.nextTitle {
+  font: var(--font-display-lg);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.nextArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-64);
+  height: var(--spacing-64);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--text-accent) 8%, var(--bg-primary));
+  transition: transform var(--duration-base) var(--ease-spring), background-color var(--duration-base) var(--ease-standard);
+}
+
+.nextLink:hover .nextTitle {
+  opacity: 0.75;
+}
+
+.nextLink:hover .nextArrow {
+  background-color: var(--text-accent);
+  color: var(--bg-primary);
+  transform: translateY(6px);
+}
+
+/* ── 넓은 화면 ── */
+@media (width > 768px) {
+  .marquee {
+    --item: 26vw;
+  }
+
+  /* 넓은 화면에서는 한 장이 화면 폭의 20% — 다섯 장이면 화면 폭을 꽉 채우고, 적으면 가운데 모인다 */
+  .phones {
+    grid-auto-columns: 20%;
+    justify-content: center;
+    overflow-x: visible;
+  }
+}
+
+@media (width > 1024px) {
+  .flow {
+    gap: var(--spacing-64);
+  }
+
+  .frame_wide {
+    width: 94%;
+  }
+
+  .frame_left {
+    width: 78%;
+    margin-left: 3%;
+  }
+
+  .frame_right {
+    width: 78%;
+    margin-right: 3%;
+    margin-left: auto;
+  }
+
+  .frame_center {
+    width: 64%;
+  }
+
+  .note {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: baseline;
+    column-gap: var(--spacing-48);
+  }
+
+  .noteNo {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── 큰 제목 — 폰에서는 한 단계 작게, 그보다 넓으면 가장 크게 ── */
+@media (width > 480px) {
+  .title,
+  .nextTitle {
+    font: var(--font-display-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .letter {
+    animation: none;
+  }
+}

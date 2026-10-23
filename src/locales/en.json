@@ -259,6 +259,11 @@
     "periodPreview": "Preview"
   },
   "workDetail": {
+    "landing": {
+      "site": "Site",
+      "nextProject": "Next project",
+      "period": "Period"
+    },
     "back": "Works",
     "editWork": "Edit this work (new tab)",
     "editRepoWork": "Bring the repository in and edit",

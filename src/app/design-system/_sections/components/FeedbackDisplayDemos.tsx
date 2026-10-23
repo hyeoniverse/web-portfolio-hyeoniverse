@@ -130,7 +130,7 @@ export default function FeedbackDisplayDemos() {
         {/* Gallery */}
         <DemoGroup
           title="WorkGallery · ImageViewer"
-          ko={"작업물 상세의 슬라이드 갤러리입니다. 가운데 한 장이 크고 양옆이 원근으로 기울어 이어지며, 끌기·휠·화살표 키로 넘기고 옆 장이나 아래 점을 누르면 그 장으로 갑니다. 양 끝에서 더 굴리면 페이지가 이어서 움직입니다. 가운데 장을 누르면 ImageViewer 가 열려 확대·전체화면으로 봅니다. 장마다 대본·음성(notes)이 있으면 띠 왼쪽에 음성 단추와 자막 단추가 생깁니다. 음성을 켜면 장을 읽고 다 읽으면 다음 장으로 넘어가며, 자막은 읽는 문장을 아래에 띄웁니다. 이 예시는 음성 파일 없이 대본만 두어 브라우저 음성으로 읽습니다."}
+          ko={"작업물 상세의 슬라이드 갤러리입니다. 가운데 한 장이 크고 양옆이 원근으로 기울어 이어지며, 끌기·휠·화살표 키로 넘기고 옆 장이나 아래 점을 누르면 그 장으로 갑니다. 양 끝에서 더 굴리면 페이지가 이어서 움직입니다. 가운데 장을 누르면 ImageViewer 가 열려 확대·전체화면으로 봅니다. 장마다 대본·음성(notes)이 있으면 띠 왼쪽에 음성 버튼과 자막 버튼이 생깁니다. 음성을 켜면 장을 읽고 다 읽으면 다음 장으로 넘어가며, 자막은 읽는 문장을 아래에 띄웁니다. 이 예시는 음성 파일 없이 대본만 두어 브라우저 음성으로 읽습니다."}
           en={"The slide gallery from work details — a large center slide with perspective-tilted neighbors. Drag, wheel or arrow keys to move; click a side slide or a dot to jump. Scrolling past either end hands the wheel back to the page. Clicking the center slide opens ImageViewer for zoom / fullscreen. With per-slide scripts or audio (notes), narration and caption buttons appear on the left of the strip — narration reads each slide and advances when done, captions show the sentence being read. This demo has scripts only, so the browser's speech reads them."}
         >
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>

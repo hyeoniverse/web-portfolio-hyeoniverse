@@ -47,6 +47,8 @@ export default async function WorkDetailPage({ params }: PageProps) {
   const prevProject = projectIndex > 0 ? projects[projectIndex - 1] : null;
   const nextProject =
     projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
+  /* 랜딩 페이지의 '다음 작업물'은 끝에서 처음으로 돈다(참고 사이트처럼 늘 다음이 있다) */
+  const firstProject = projectIndex > 0 ? projects[0] : null;
 
   // richtext 코드블록 — 서버에서 Shiki 로 미리 칠함 (ko/en 둘 다, viewLang 은 client 에서 전환).
   const rendered =
@@ -65,6 +67,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
       project={rendered}
       prevProject={prevProject}
       nextProject={nextProject}
+      firstProject={firstProject}
     />
   );
 }

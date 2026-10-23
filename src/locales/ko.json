@@ -259,6 +259,11 @@
     "periodPreview": "미리보기"
   },
   "workDetail": {
+    "landing": {
+      "site": "사이트",
+      "nextProject": "다음 작업물",
+      "period": "기간"
+    },
     "back": "Works",
     "editWork": "이 작품 편집 (새 탭)",
     "editRepoWork": "저장소를 작업물로 들여 편집",

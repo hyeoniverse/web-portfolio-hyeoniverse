@@ -350,7 +350,7 @@ export const tabs = {
       en: "pg_cron inside the database handles scheduled publishing and trash cleanup. Each stage changes the posts columns.",
     },
     steps: [
-      { ko: "아래 단추로 다음 단계로 넘겨 보세요.", en: "Use the buttons below to move to the next stage." },
+      { ko: "아래 버튼으로 다음 단계로 넘겨 보세요.", en: "Use the buttons below to move to the next stage." },
       { ko: "지운 뒤에는 '복구'나 '30일 연장'도 눌러 보세요.", en: "After deleting, try 'Restore' or 'Extend 30 days'." },
     ],
   },
@@ -384,7 +384,7 @@ export const tabs = {
   roles: {
     label: { ko: "권한", en: "Roles" },
     title: { ko: "누가 무엇을 할 수 있나", en: "Who can do what" },
-    why: { ko: "단추를 숨기는 데서 그치지 않고, API 와 DB 가 역할 밖의 일을 거절합니다.", en: "Not just hidden buttons — the API and the database refuse what a role can't do." },
+    why: { ko: "버튼을 숨기는 데서 그치지 않고, API 와 DB 가 역할 밖의 일을 거절합니다.", en: "Not just hidden buttons — the API and the database refuse what a role can't do." },
     what: {
       ko: "역할은 사용자가 고칠 수 없는 app_metadata 에 있고, API 검사와 DB 정책(RLS)이 그 값을 읽어 막습니다.",
       en: "Roles live in app_metadata, which users cannot edit, and both API checks and database policies (RLS) read it.",

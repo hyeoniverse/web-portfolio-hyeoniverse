@@ -111,6 +111,11 @@ interface DetailLayoutProps {
   };
   /** 하단 back-to-list 링크 — comments 다음 */
   backLink?: { href: string; labelKey: string };
+  /** 랜딩 페이지 형태(작업물 상세 — 설정 works.detailStyle). 주면 커버 · 머리 · 본문 · 목차 대신 이것을 전폭으로 그리고,
+   *  뒤로 가기 · 좋아요 · 이전/다음 · 댓글은 그대로 둔다. children 은 그리지 않는다 */
+  landing?: ReactNode;
+  /** 오른쪽 아래 위/아래로 가기 단추 — 기본은 보인다. 작업물 상세는 끈다 */
+  scrollButtons?: boolean;
 }
 
 export default function DetailLayout({
@@ -137,6 +142,8 @@ export default function DetailLayout({
   adjacentConfig,
   commentsConfig,
   backLink,
+  landing,
+  scrollButtons = true,
 }: DetailLayoutProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
   const { endTransition, isTransitioning } = usePageTransition();
@@ -199,7 +206,8 @@ export default function DetailLayout({
 
   return (
     <div ref={pageRef} className={styles.page}>
-      {/* Back button */}
+      {/* Back button — 랜딩 페이지는 사이트 메뉴(간략형)의 Works 가 대신한다 */}
+      {!landing && (
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -223,7 +231,13 @@ export default function DetailLayout({
           </a>
         )}
       </motion.div>
+      )}
 
+      {landing ? (
+        /* 랜딩 페이지 — 커버 · 머리 · 본문 · 목차 대신 전폭으로 */
+        landing
+      ) : (
+      <>
       {/* Hero — 커버가 있으면 상세 경로에서는 레이아웃이 셸에서 그린다(heroInShell). 커버가 없으면 여기서 여백을 둔다 */}
       {heroImage && heroInShell ? null : heroImage ? (
         <DetailHero image={heroImage} alt={heroAlt} position={heroPosition} zoom={heroZoom} onError={onHeroError} />
@@ -266,6 +280,9 @@ export default function DetailLayout({
           </aside>
         )}
       </div>
+
+      </>
+      )}
 
       {/* After content (page-specific: work actions / team, post extras 등) */}
       {afterContent && (
@@ -326,7 +343,7 @@ export default function DetailLayout({
         </div>
       )}
 
-      <ScrollButtons />
+      {scrollButtons && <ScrollButtons />}
     </div>
   );
 }

@@ -234,7 +234,7 @@ export const speechCopy = {
   pause: { ko: "일시정지", en: "Pause" } satisfies L10n,
   seek: { ko: "재생 위치", en: "Playback position" } satisfies L10n,
   blocked: {
-    ko: "브라우저가 자동 재생을 막았습니다. 재생 단추를 눌러 들어 보세요.",
+    ko: "브라우저가 자동 재생을 막았습니다. 재생 버튼을 눌러 들어 보세요.",
     en: "The browser blocked autoplay. Press play to listen.",
   } satisfies L10n,
 };

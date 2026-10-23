@@ -6,6 +6,7 @@ import type { Point } from "@/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
+import { isLandingPath } from "@/components/works/landing/registry";
 import { motion, AnimatePresence, useMotionValue, type TargetAndTransition } from "framer-motion";
 import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -144,6 +145,9 @@ export default function Navigation() {
   const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
   const pathname = useRoutePathname();
+  /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 이름 + 글자 링크 셋(LandingNav, 페이지 안)으로 바꾼다.
+     로고는 첫 로딩 화면(워드마크가 로고 자리로 줄어드는 연출)에서만 그린다 */
+  const landingNav = isLandingPath(pathname, siteConfig.works?.detailStyle);
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t, koLabel } = useLanguage();
   /* 메뉴 이름 — 공개 메뉴는 사전(navMenu.label)에서 읽어 사이트 번역이 덮을 수 있게. 사전에 없는 것(관리 메뉴)은 적힌 이름 */
@@ -596,7 +600,9 @@ export default function Navigation() {
       ref={logoBarRef}
       href={blogHref(section.homeHref)}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
-      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
+      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""} ${landingNav && !showLoadingLogo ? styles.logoNavBarHidden : ""}`}
+      aria-hidden={landingNav && !showLoadingLogo ? true : undefined}
+      tabIndex={landingNav && !showLoadingLogo ? -1 : undefined}
     >
         {(() => {
           // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
@@ -729,6 +735,8 @@ export default function Navigation() {
       )}
     </Link>
 
+    {/* 랜딩 페이지의 메뉴는 페이지 안(LandingShell)이 그린다 — 판 전환 때 새 페이지와 함께 밀려 들어오게 */}
+    {landingNav ? null : (
     <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${section.badge ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
@@ -1147,6 +1155,7 @@ export default function Navigation() {
         )}
       </AnimatePresence>
     </nav>
+    )}
     </header>
   );
 }

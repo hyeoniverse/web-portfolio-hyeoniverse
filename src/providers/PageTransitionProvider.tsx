@@ -13,6 +13,8 @@ import { toRoutePath, useRoutePathname } from "@/hooks/useRoutePathname";
 import { appPathOfHref } from "@/lib/siteHosts";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useKeepOnTopRef } from "@/hooks/useTopLayer";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { isLandingPath } from "@/components/works/landing/registry";
 
 /* ── Types ── */
 interface MorphTransitionState {
@@ -30,9 +32,26 @@ interface MorphTransitionState {
   phase: "init" | "expand" | "cover" | "morph" | "hold" | "done";
 }
 
+/** 랜딩 페이지로 가는 전환 — 참고 사이트(andreasantonsson.dev)처럼 떠나는 페이지가 어두워지는 동안
+    바탕색 판이 한쪽에서 밀려 들어와 덮고, 새 페이지가 커밋되면 걷힌다. 제목 글자는 그 뒤에 나타난다(LandingShell) */
+type SlideFrom = "right" | "bottom";
+interface SlideTransitionState {
+  href: string;
+  fromPath: string;
+  from: SlideFrom;
+  /* in: 판이 밀려 들어온다 · cover: 다 덮은 채 커밋을 기다린다 · out: 판이 걷힌다 */
+  phase: "in" | "cover" | "out";
+}
+
 interface PageTransitionContextValue {
   startTransition: (image: string, rect: DOMRect, targetId: string, color?: string) => void;
   navigateWithTransition: (href: string, image: string, rect: DOMRect, color?: string) => void;
+  /** 판이 밀려 들어오는 전환으로 넘어간다(랜딩 페이지의 다음 작업물 · 간략 메뉴) */
+  navigateWithSlide: (href: string, from?: SlideFrom) => void;
+  /** 이 경로가 판 전환으로 넘어가는 곳인가(RouteViewTransition 이 내용을 갈아 끼울지 정한다). 렌더에서 읽으므로 바꾸지 않는다 */
+  isSlideTarget: (path: string) => boolean;
+  /** 판 전환이 커밋된 뒤 표시를 지운다 */
+  clearSlideTarget: () => void;
   endTransition: () => void;
   isTransitioning: boolean;
 }
@@ -40,6 +59,9 @@ interface PageTransitionContextValue {
 const PageTransitionContext = createContext<PageTransitionContextValue>({
   startTransition: () => {},
   navigateWithTransition: () => {},
+  navigateWithSlide: () => {},
+  isSlideTarget: () => false,
+  clearSlideTarget: () => {},
   endTransition: () => {},
   isTransitioning: false,
 });
@@ -69,6 +91,14 @@ const MORPH_MS = 260;
 const FADE_MS = 170;
 const SAFETY_MS = 5000;
 const COVER_MAX_MS = 4000;
+/* 판 전환 — 밀려 들어오는 데 SLIDE_IN_MS, 걷히는 데 SLIDE_OUT_MS. 곡선은 부드럽게 출발해 부드럽게 멈춘다(_base.css 의 --slide-ease 와 같다) */
+const SLIDE_IN_MS = 700;
+const SLIDE_OUT_MS = 240;
+const SLIDE_EASE = "cubic-bezier(0.65, 0, 0.35, 1)";
+/* View Transition 판 — 누른 때부터 새 화면이 다 덮을 때까지(_base.css --slide-duration 750ms).
+   이때까지 새 페이지의 등장 연출을 멈춰 두고, 덮기가 끝나 갈 즈음 제목이 들어오게 한다(참고 사이트는 700ms 무렵 첫 글자가 비친다).
+   커밋 뒤 효과에서 재면 효과가 전환 뒤로 밀려 덮은 뒤 빈 화면이 300ms 남았다 — 누른 때부터 잰다 */
+const SLIDE_VIEW_MS = 650;
 
 /** 주소에서 앱 경로만 — 블로그 절대 주소는 /posts/… 로 읽고, 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
     usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
@@ -85,6 +115,19 @@ function pathOf(rawHref: string): string {
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<MorphTransitionState | null>(null);
+  const [slide, setSlide] = useState<SlideTransitionState | null>(null);
+  /* View Transition 으로 넘어가는 주소 — RouteViewTransition 이 이 주소에 닿는 커밋에서만 내용을 갈아 끼운다 */
+  const slideTargetRef = useRef<string | null>(null);
+  /* 판 전환이 도는 중(누른 때부터 새 화면이 다 덮을 때까지) — 그동안 새 페이지의 제목 등장을 멈춰 둔다(참고 사이트처럼 덮은 뒤에 나타난다) */
+  const [viewSliding, setViewSliding] = useState(false);
+  /* 판 전환을 푸는 타이머는 따로 둔다 — 다른 전환이 clearTimers 로 지우면 등장 연출이 멈춘 채 남는다 */
+  const viewSlideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const releaseViewSlideIn = useCallback((ms: number) => {
+    if (viewSlideTimerRef.current) clearTimeout(viewSlideTimerRef.current);
+    viewSlideTimerRef.current = setTimeout(() => setViewSliding(false), ms);
+  }, []);
+  const siteConfig = useSiteConfig();
+  const detailStyle = siteConfig.works?.detailStyle;
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   /* 새 페이지가 morph 보다 먼저 준비되면 morph 끝나는 즉시 done 으로 직행 */
   const endRequestedRef = useRef(false);
@@ -117,7 +160,48 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     timerRef.current.push(safety);
   }, [endTransition]);
 
+  /* 덮개의 단계 효과가 렌더마다 다시 돌지 않게 고정된 함수로 넘긴다 */
+  const setSlidePhase = useCallback((phase: SlideTransitionState["phase"]) => {
+    setSlide((prev) => prev ? { ...prev, phase } : null);
+  }, []);
+  const clearSlide = useCallback(() => setSlide(null), []);
+
+  const isSlideTarget = useCallback((path: string) => slideTargetRef.current !== null && slideTargetRef.current === pathOf(path), []);
+  const clearSlideTarget = useCallback(() => {
+    slideTargetRef.current = null;
+  }, []);
+
+  const navigateWithSlide = useCallback((href: string, from: SlideFrom = "right") => {
+    clearTimers();
+    setState(null);
+    const fromPath = pathOf(toRoutePath(window.location.pathname));
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    /* 브라우저가 View Transition 을 지원하고 다음 화면도 랜딩이면 — 참고 사이트처럼 밀려 들어오는 판이 곧 다음 페이지의 실제 화면이다.
+       React 의 <ViewTransition>(RouteViewTransition)이 새 페이지가 커밋되는 순간 떠나는 화면과 새 화면을 찍어 미끄러뜨린다.
+       그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css).
+       랜딩이 아닌 곳(메뉴의 Works · About · 홈)은 커밋 뒤에도 Suspense · 3D 준비 화면 · 등장 연출이 이어져,
+       찍힌 새 화면이 빈 판이었고 준비 화면(검은 화면)과 두 번째 전환이 뒤따랐다 — 그런 곳은 아래 바탕색 판이 덮은 채로 넘어간다 */
+    if (typeof document.startViewTransition === "function" && !reduceMotion && isLandingPath(pathOf(href), detailStyle)) {
+      slideTargetRef.current = pathOf(href);
+      setViewSliding(true);
+      releaseViewSlideIn(SLIDE_VIEW_MS);
+      router.push(href, { transitionTypes: [`slide-${from}`] });
+      return;
+    }
+    /* 지원하지 않거나 랜딩이 아닌 곳이면 바탕색 판으로 */
+    setSlide({ href, from, fromPath, phase: "in" });
+    /* 받아오기는 지금 시작하고(prefetch), 넘어가기는 판이 화면을 다 덮은 뒤에 — 판이 반쯤 들어온 사이에
+       커밋되면 아직 덮이지 않은 쪽으로 새 페이지의 로딩 화면이 비쳤다 */
+    router.prefetch(href);
+    timerRef.current.push(setTimeout(() => router.push(href), reduceMotion ? 0 : SLIDE_IN_MS));
+  }, [router, releaseViewSlideIn, detailStyle]);
+
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
+    /* 랜딩으로 그리는 작업물이면 커버가 커지는 연출 대신 판 전환 — 랜딩에는 커버 히어로가 없어 줄어들 자리가 없다 */
+    if (isLandingPath(pathOf(href), detailStyle)) {
+      navigateWithSlide(href, "right");
+      return;
+    }
     clearTimers();
     endRequestedRef.current = false;
     setState({ image, color, rect, targetId: href, href, fromPath: pathOf(toRoutePath(window.location.pathname)), phase: "init" });
@@ -127,7 +211,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     router.push(href);
     const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
-  }, [router, endTransition]);
+  }, [router, endTransition, detailStyle, navigateWithSlide]);
 
   /* done 진입 시 fade-out 끝나면 overlay unmount */
   useEffect(() => {
@@ -143,11 +227,18 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
       value={{
         startTransition,
         navigateWithTransition,
+        navigateWithSlide,
+        isSlideTarget,
+        clearSlideTarget,
         endTransition,
-        isTransitioning: state !== null && state.phase !== "done",
+        /* 판 전환은 걷히기 시작하면(out) 끝난 것으로 — 그때부터 새 페이지의 등장 연출이 돈다 */
+        isTransitioning: (state !== null && state.phase !== "done") || (slide !== null && slide.phase !== "out") || viewSliding,
       }}
     >
       {children}
+      {slide && (
+        <SlideOverlay state={slide} onPhase={setSlidePhase} onDone={clearSlide} />
+      )}
       {state && (
         <TransitionOverlay
           state={state}
@@ -353,6 +444,114 @@ function TransitionOverlay({
         }}
       />
     </div>
+    </>
+  );
+}
+
+/* ── 판 전환 덮개 ── */
+function SlideOverlay({
+  state,
+  onPhase,
+  onDone,
+}: {
+  state: SlideTransitionState;
+  onPhase: (phase: SlideTransitionState["phase"]) => void;
+  onDone: () => void;
+}) {
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  /* 늘 맨 위(3.10-1) — 어두운 막 위에 판 */
+  const topScrimRef = useKeepOnTopRef<HTMLDivElement>(1, scrimRef);
+  const topPanelRef = useKeepOnTopRef<HTMLDivElement>(1, panelRef);
+  const { phase, from, href, fromPath } = state;
+  const pathname = useRoutePathname();
+  const here = pathOf(pathname);
+  const navPending = here === fromPath && here !== pathOf(href);
+  const navPendingRef = useRef(navPending);
+  useEffect(() => {
+    navPendingRef.current = navPending;
+  }, [navPending]);
+
+  /* in: 다음 프레임에 판을 제자리로, 막을 어둡게 — 끝났을 때 아직 안 넘어갔으면 cover 로 기다린다 */
+  useEffect(() => {
+    if (phase !== "in") return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const ms = reduce ? 0 : SLIDE_IN_MS;
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const panel = panelRef.current;
+        const scrim = scrimRef.current;
+        if (panel) {
+          panel.style.transition = `transform ${ms}ms ${SLIDE_EASE}`;
+          panel.style.transform = "none";
+        }
+        if (scrim) {
+          scrim.style.transition = `opacity ${ms}ms ${SLIDE_EASE}`;
+          scrim.style.opacity = "0.55";
+        }
+      });
+    });
+    const t = setTimeout(() => onPhase(navPendingRef.current ? "cover" : "out"), ms);
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      clearTimeout(t);
+    };
+  }, [phase, onPhase]);
+
+  /* cover: 커밋되면 두 프레임 뒤(새 트리가 판 아래에서 먼저 그려지게) 걷는다. 끝내 안 오면 상한에서 걷는다 */
+  useEffect(() => {
+    if (phase !== "cover") return;
+    const t = setTimeout(() => onPhase("out"), COVER_MAX_MS);
+    if (navPending) return () => clearTimeout(t);
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => onPhase("out"));
+    });
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [phase, navPending, onPhase]);
+
+  /* out: 새 페이지 맨 위에서 판을 옅게 걷는다(판은 페이지 바탕색이라 이어져 보인다) */
+  useEffect(() => {
+    if (phase !== "out") return;
+    window.scrollTo(0, 0);
+    const panel = panelRef.current;
+    const scrim = scrimRef.current;
+    if (scrim) {
+      scrim.style.transition = "none";
+      scrim.style.opacity = "0";
+    }
+    if (panel) {
+      panel.style.transition = `opacity ${SLIDE_OUT_MS}ms ease`;
+      panel.style.opacity = "0";
+    }
+    const t = setTimeout(onDone, SLIDE_OUT_MS);
+    return () => clearTimeout(t);
+  }, [phase, onDone]);
+
+  return (
+    <>
+      <div
+        ref={topScrimRef}
+        data-nav-tone-skip
+        style={{ position: "fixed", inset: 0, background: "var(--bg-black)", opacity: 0, pointerEvents: "none" }}
+      />
+      <div
+        ref={topPanelRef}
+        data-nav-tone-skip
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "var(--bg-primary)",
+          transform: from === "bottom" ? "translateY(100%)" : "translateX(100%)",
+          pointerEvents: "none",
+        }}
+      />
     </>
   );
 }

@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { LANDING_PAGE_SLUGS, isLandingPath } from "@/components/works/landing/registry";
 import { LONG_PRESS_DURATION, type Project } from "@/data/projects";
 import { workHref } from "../_components/layouts/shared";
 
@@ -23,11 +26,30 @@ interface PressedCard {
    대체 레이아웃 5종은 카드 DOM 구조가 달라 롱프레스 없이 handleLayoutProjectClick 만 쓴다. */
 export function useWorkTransition(cardActiveClassName: string) {
   const { navigateWithTransition, isTransitioning } = usePageTransition();
+  /* 랜딩으로 그리는 작업물은 미리 받아 둔다 — 판 전환은 새 페이지가 커밋되는 순간 찍는데, 받아 두지 않으면
+     로딩 화면이 먼저 커밋돼 뼈대가 밀려 들어왔다. 전용 페이지가 있는 작업물 몇 개뿐이라 목록을 열 때 한 번에 */
+  const router = useRouter();
+  const detailStyle = useSiteConfig().works?.detailStyle;
+  useEffect(() => {
+    if (detailStyle !== "landing") return;
+    for (const slug of LANDING_PAGE_SLUGS) router.prefetch(`/works/${slug}`);
+  }, [detailStyle, router]);
   const cardRefs = useRef<Map<number, HTMLElement>>(new Map());
   const pressStartRef = useRef<number | null>(null);
   const pressRafRef = useRef<number | null>(null);
   const [transitionData, setTransitionData] = useState<TransitionData | null>(null);
   const [pressedCard, setPressedCard] = useState<PressedCard | null>(null);
+
+  /* 목록의 전환 막(WorkTransitionOverlay)을 깔고 넘어간다. 랜딩으로 그리는 작업물은 판 전환이 떠나는 목록을 찍어
+     밀어내야 해서 막을 깔지 않는다 — 깔면 목록이 먼저 바탕색으로 덮여 빈 화면이 밀려났다 */
+  const startCardTransition = useCallback(
+    (project: Project, rect: DOMRect) => {
+      const href = workHref(project);
+      if (!isLandingPath(href, detailStyle)) setTransitionData({ id: project.id, image: project.image, rect });
+      navigateWithTransition(href, project.image, rect);
+    },
+    [navigateWithTransition, detailStyle],
+  );
 
   /** 진행 중인 프레스 애니메이션과 카드에 직접 쓴 확대값을 되돌린다 */
   const clearPress = useCallback(() => {
@@ -49,10 +71,9 @@ export function useWorkTransition(cardActiveClassName: string) {
       if (!card) return;
 
       const rect = card.getBoundingClientRect();
-      setTransitionData({ id: project.id, image: project.image, rect });
-      navigateWithTransition(workHref(project), project.image, rect);
+      startCardTransition(project, rect);
     },
-    [navigateWithTransition],
+    [startCardTransition],
   );
 
   const handleCardClick = useCallback(
@@ -103,11 +124,8 @@ export function useWorkTransition(cardActiveClassName: string) {
 
   /** 대체 레이아웃 공통 — 레이아웃이 계산한 rect 로 바로 전환한다 */
   const handleLayoutProjectClick = useCallback(
-    (project: Project, rect: DOMRect) => {
-      setTransitionData({ id: project.id, image: project.image, rect });
-      navigateWithTransition(workHref(project), project.image, rect);
-    },
-    [navigateWithTransition],
+    (project: Project, rect: DOMRect) => startCardTransition(project, rect),
+    [startCardTransition],
   );
 
   return {

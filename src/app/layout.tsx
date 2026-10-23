@@ -17,6 +17,7 @@ import localFont from "next/font/local";
 // 나머지 25개 옵션 폰트는 ThemeProvider의 loadGoogleFont()으로 동적 로드
 
 import Navigation from "@/components/layout/Navigation";
+import RouteViewTransition from "@/components/layout/RouteViewTransition";
 import Footer from "@/components/layout/Footer";
 import ClientOverlays from "@/components/layout/ClientOverlays";
 import LoadingScreen from "@/components/layout/LoadingScreen";
@@ -207,7 +208,8 @@ export default async function RootLayout({
                 <LenisProvider>
                 <PageTransitionProvider>
                 <Navigation />
-                <main suppressHydrationWarning>{children}</main>
+                {/* 판 전환(랜딩 페이지)은 페이지 내용만 미끄러뜨린다 — RouteViewTransition */}
+                <main suppressHydrationWarning><RouteViewTransition>{children}</RouteViewTransition></main>
                 <Footer />
                 </PageTransitionProvider>
 
