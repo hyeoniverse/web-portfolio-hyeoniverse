@@ -115,17 +115,10 @@
   font: var(--font-body-sm);
 }
 
+/* 외부 링크는 공용 TextLink(밑줄이 그어지고 화살표가 비켜 선다) — 글자 크기 · 색은 메타 줄을 따른다 */
 .metaLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
+  font: inherit;
   color: inherit;
-  text-decoration: none;
-}
-
-.metaLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* ── 흐름 — 이미지가 중심. 강한 장면만 화면 폭 전체로 쓰고, 나머지는 한 장씩 폭 · 위치를 바꿔 가며 둔다(격자 · 카드로 늘어놓지 않는다) ── */
@@ -296,7 +289,8 @@
   --depth: 30px;
 
   position: relative;
-  height: calc(100dvh + var(--count) * 50dvh);
+  /* 화면 하나에 스크롤 화면 높이의 90% */
+  height: calc(100dvh + var(--count) * 90dvh);
 }
 
 .phoneFlipStage {

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import TextLink from "@/components/ui/TextLink";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
-import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject, type SyntheticEvent } from "react";
+import { ArrowDown, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { isPlainClick } from "@/utils/gestureUtils";
 import type { Project } from "@/data/projects";
 import { pickLocalized } from "@/types/common";
@@ -80,16 +82,14 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
           {period && <Meta label={t("workDetail.landing.period")}>{period}</Meta>}
           {project.liveUrl && (
             <Meta label={t("workDetail.landing.site")}>
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.metaLink}>
-                {hostOf(project.liveUrl)} <ArrowUpRight size={14} />
-              </a>
+              <TextLink external href={project.liveUrl} className={styles.metaLink}>{hostOf(project.liveUrl)}</TextLink>
             </Meta>
           )}
           {project.githubUrl && (
             <Meta label="GitHub">
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={styles.metaLink}>
-                <GithubIcon size={14} /> {repoOf(project.githubUrl)} <ArrowUpRight size={14} />
-              </a>
+              <TextLink external href={project.githubUrl} className={styles.metaLink}>
+                <GithubIcon size={14} /> {repoOf(project.githubUrl)}
+              </TextLink>
             </Meta>
           )}
         </dl>
@@ -349,7 +349,7 @@ const LENS_RINGS = 7;
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
  * 스크롤하는 만큼 홈의 도넛처럼 위에서 아래로 굴러간다(가로축 회전 + 살짝 기울고 떠다님). 앞면만 화면이고 뒷면은 실제 휴대폰 뒷면
  * (카메라 · 별 표시)이다. 한 바퀴 구를 때마다 다음 화면 — 뒷면이 보이는 동안 앞면의 화면(짧은 녹화)을 갈아 끼운다.
- * 한 바퀴 구간의 앞뒤 1/4 은 멈춰 화면을 읽게 한다. 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에서 채워진다.
+ * 한 바퀴 구간의 앞뒤 10% 는 멈춰 화면을 읽게 한다. 아래에는 화면마다의 주소(route) 줄이 깔려 지금 화면의 주소가 가운데에서 채워진다.
  * 뒤로는 네 갈래 별 몇 개가 천천히 돈다(휴대폰이 입체라 배경은 납작하게, 글자 줄은 주소 줄 하나만)
  */
 export function PhoneFlip({ items }: { items: { src: string; video?: string; alt: string; route: string }[] }) {
@@ -363,7 +363,8 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
     const x = Math.min(turns - 1e-4, p * turns);
     const i = Math.floor(x);
     const f = x - i;
-    const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
+    /* 한 화면 구간의 80% 에 걸쳐 천천히 구른다(앞뒤 10% 는 멈춰 읽기) — 가운데 50% 에서 돌 때는 휙 돌았다 */
+    const t = Math.min(1, Math.max(0, (f - 0.1) / 0.8));
     const eased = t * t * (3 - 2 * t);
     root.style.setProperty("--rx", `${(i + eased) * -360}deg`);
     /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
@@ -388,6 +389,20 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
   });
   const screen = items[current];
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
+  /* 화면의 녹화가 끝나면 다음 화면으로 — 섹션이 화면에 붙어 있을 때만, 그 화면 자리까지 페이지를 부드럽게 굴린다(휴대폰은 스크롤을 따라 구른다).
+     섹션 밖이거나 마지막 화면이면 처음부터 다시 재생한다 */
+  const { lenis } = useLenis();
+  const onScreenEnded = useCallback((e: SyntheticEvent<HTMLVideoElement>) => {
+    const root = rootRef.current;
+    const video = e.currentTarget;
+    const r = root?.getBoundingClientRect();
+    const pinned = !!r && r.top <= 1 && r.bottom >= window.innerHeight - 1;
+    if (!root || !pinned || current >= items.length - 1) { video.currentTime = 0; void video.play().catch(() => {}); return; }
+    const total = root.offsetHeight - window.innerHeight;
+    const y = root.getBoundingClientRect().top + window.scrollY + ((current + 1) / turns) * total + 2;
+    if (lenis) lenis.scrollTo(y, { duration: 2.6 });
+    else window.scrollTo({ top: y, behavior: "smooth" });
+  }, [current, items.length, lenis, turns]);
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
@@ -410,7 +425,7 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
           <div className={styles.phoneFace}>
             <div className={styles.phoneScreen}>
               {screen?.video ? (
-                /* 화면마다 짧은 녹화 — 화면이 바뀌면 새로 붙어 처음부터 되풀이 재생한다(움직임 줄이기면 첫 장면) */
+                /* 화면마다 짧은 녹화 — 화면이 바뀌면 새로 붙어 처음부터 재생하고, 끝나면 다음 화면으로 넘어간다(움직임 줄이기면 첫 장면) */
                 <video
                   key={screen.video}
                   className={styles.phoneShot}
@@ -418,7 +433,8 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
                   poster={screen.src}
                   autoPlay={!reducedMotion}
                   muted
-                  loop
+                  loop={reducedMotion}
+                  onEnded={onScreenEnded}
                   playsInline
                   preload="auto"
                   aria-label={screen.alt}
