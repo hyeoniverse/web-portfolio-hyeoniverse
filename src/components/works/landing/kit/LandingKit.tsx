@@ -341,6 +341,9 @@ function readReducedMotion() {
 
 /** 휴대폰 몸통의 두께를 이루는 겹 수 — 둥근 모서리가 그대로 옆면이 된다 */
 const PHONE_SLICES = 14;
+/** 카메라 섬 받침 · 렌즈 경통의 겹 수 — 몸통과 같은 방식으로 두께를 쌓아 뒷면에서 솟아오르게 한다 */
+const CAMERA_SLABS = 5;
+const LENS_RINGS = 7;
 
 /**
  * 구르는 휴대폰 — 진짜 휴대폰처럼 두께(겹친 옆면 · 버튼) · 유리 반사 · 바닥 그림자가 있는 목업이 화면에 붙은 채,
@@ -427,10 +430,21 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
               <span className={styles.phoneGlare} aria-hidden />
             </div>
           </div>
-          {/* 뒷면 — 무광 유리 · 카메라 섬(렌즈 셋 · 플래시) · 가운데 별. 가로축으로 뒤집혀 붙어 있어 위아래가 바뀐 자리에 둔다 */}
+          {/* 뒷면 — 무광 유리 · 솟아오른 카메라 섬(경통이 튀어나온 렌즈 셋 · 플래시) · 가운데 별. 가로축으로 뒤집혀 붙어 있어 위아래가 바뀐 자리에 둔다 */}
           <div className={`${styles.phoneFace} ${styles.phoneBack}`} aria-hidden>
             <span className={styles.phoneCamera}>
-              <i /><i /><i /><b />
+              {Array.from({ length: CAMERA_SLABS }, (_, k) => (
+                <span key={k} className={styles.phoneCameraSlab} style={{ ["--k" as string]: k } as CSSProperties} />
+              ))}
+              {[0, 1, 2].map((n) => (
+                <i key={n} className={styles.phoneLens}>
+                  {Array.from({ length: LENS_RINGS }, (_, k) => (
+                    <s key={k} style={{ ["--k" as string]: k } as CSSProperties} />
+                  ))}
+                  <em />
+                </i>
+              ))}
+              <b />
             </span>
             <span className={styles.phoneLogo} />
           </div>

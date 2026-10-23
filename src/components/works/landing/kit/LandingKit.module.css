@@ -437,8 +437,17 @@
   transform: rotateX(180deg) translateZ(calc(var(--depth) / 2 + var(--border-width-1)));
 }
 
-/* 카메라 섬 — 가로축으로 뒤집혀 있어 이 면의 아래쪽이 몸통의 위쪽이다. 렌즈 셋(삼각 배치) · 플래시 */
+/* 카메라 섬 — 가로축으로 뒤집혀 있어 이 면의 아래쪽이 몸통의 위쪽이다. 뒷면에서 솟은 받침(겹으로 쌓은 두께) 위에
+   렌즈 셋(삼각 배치) · 플래시. 렌즈는 금속 경통을 겹으로 쌓아 받침보다 더 튀어나오고, 맨 위에 유리가 얹힌다.
+   겹은 모두 이 면의 3D 공간에 그대로 놓여(preserve-3d) 휴대폰이 구르는 각도대로 옆면이 보인다 */
+.phoneBack {
+  transform-style: preserve-3d;
+}
+
 .phoneCamera {
+  --cam-h: calc(var(--depth) * 0.22);
+  --lens-h: calc(var(--depth) * 0.3);
+
   position: absolute;
   bottom: 4%;
   left: 6%;
@@ -449,17 +458,53 @@
   aspect-ratio: 1;
   padding: 7%;
   border-radius: calc(var(--radius-surface) * 1.6);
-  background-color: color-mix(in srgb, var(--text-white) 18%, var(--bg-black));
-  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--text-white) 25%, transparent);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--text-white) 30%, var(--bg-black)), color-mix(in srgb, var(--text-white) 14%, var(--bg-black)) 60%, color-mix(in srgb, var(--text-white) 24%, var(--bg-black)));
+  box-shadow: inset 0 0 0 var(--border-width-1) color-mix(in srgb, var(--text-white) 30%, transparent);
+  transform-style: preserve-3d;
+  transform: translateZ(var(--cam-h));
+  backface-visibility: hidden;
 }
 
-.phoneCamera i {
+/* 받침의 옆면 — 뒷면 유리 쪽으로 겹을 내려 쌓는다. 아래로 갈수록 어둡게 */
+.phoneCameraSlab {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: color-mix(in srgb, var(--text-white) calc(24% - var(--k) * 2%), var(--bg-black));
+  transform: translateZ(calc(var(--cam-h) * (var(--k) + 1) / -5));
+  backface-visibility: hidden;
+}
+
+.phoneLens {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* 경통 — 금속 고리를 겹으로 쌓아 받침 위로 튀어나온다. 위로 갈수록 밝게 */
+.phoneLens s {
+  position: absolute;
+  inset: 0;
   border-radius: var(--radius-full);
-  background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--text-white) 30%, var(--bg-black)), var(--bg-black) 55%);
-  box-shadow: 0 0 0 calc(var(--border-width-1) * 3) color-mix(in srgb, var(--text-white) 35%, var(--bg-black));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--text-white) calc(40% + var(--k) * 4%), var(--bg-black)), color-mix(in srgb, var(--text-white) calc(18% + var(--k) * 2%), var(--bg-black)));
+  transform: translateZ(calc(var(--lens-h) * var(--k) / 7));
+  backface-visibility: hidden;
 }
 
-.phoneCamera i:nth-child(3) {
+/* 유리 — 경통 맨 위. 짙은 렌즈 안에 동심 고리와 비스듬한 반사 */
+.phoneLens em {
+  position: absolute;
+  inset: 12%;
+  border-radius: var(--radius-full);
+  background:
+    radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--text-white) 75%, transparent) 0 7%, transparent 9%),
+    radial-gradient(circle at 62% 66%, color-mix(in srgb, var(--bg-accent-solid) 30%, transparent) 0 6%, transparent 14%),
+    radial-gradient(circle, var(--bg-black) 0 28%, color-mix(in srgb, var(--text-white) 14%, var(--bg-black)) 30% 34%, var(--bg-black) 36% 60%, color-mix(in srgb, var(--text-white) 22%, var(--bg-black)) 62% 66%, var(--bg-black) 68%);
+  box-shadow: inset 0 0 0 calc(var(--border-width-1) * 2) color-mix(in srgb, var(--text-white) 12%, var(--bg-black));
+  transform: translateZ(calc(var(--lens-h) + var(--border-width-1)));
+  backface-visibility: hidden;
+}
+
+.phoneLens:nth-child(n + 3 of .phoneLens) {
   grid-column: 1;
 }
 
@@ -469,7 +514,10 @@
   width: 30%;
   aspect-ratio: 1;
   border-radius: var(--radius-full);
-  background-color: color-mix(in srgb, var(--text-white) 70%, var(--bg-black));
+  background: radial-gradient(circle at 40% 35%, var(--text-white), color-mix(in srgb, var(--text-white) 60%, var(--bg-black)));
+  box-shadow: 0 0 0 calc(var(--border-width-1) * 2) color-mix(in srgb, var(--text-white) 30%, var(--bg-black));
+  transform: translateZ(calc(var(--border-width-1) * 2));
+  backface-visibility: hidden;
 }
 
 /* 가운데 별 표시 */

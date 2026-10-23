@@ -80,10 +80,10 @@ export default function MacfolioLanding({ project, viewLang, next }: {
             en: "Appearance is light, dark or automatic. Privacy shows what the site collects and for how long, and turns off visit analytics for your browser. The admin signs in only with GitHub — no password — and About lists who built it and with what.",
           }}
         />
-        <Frame at="left" src={`${A}/settings-appearance.webp`} width={1560} height={1080} alt={t({ ko: "화면 모드 — 라이트 · 다크 · 자동", en: "Appearance — light, dark and automatic" })} />
-        <Frame at="right" src={`${A}/settings-privacy.webp`} width={1560} height={1080} alt={t({ ko: "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석", en: "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser" })} />
-        <Frame at="left" src={`${A}/settings-account.webp`} width={1560} height={1080} alt={t({ ko: "계정 — GitHub 로 로그인, 세션 12시간", en: "Account — sign in with GitHub, 12-hour session" })} />
-        <Frame at="right" src={`${A}/settings-about.webp`} width={1560} height={1080} alt={t({ ko: "정보 — 프로필 · 연락처 · 기술", en: "About — profile, contact and skills" })} />
+        <Frame at="left" src={`${A}/settings-appearance.webp`} width={1784} height={1304} alt={t({ ko: "화면 모드 — 라이트 · 다크 · 자동", en: "Appearance — light, dark and automatic" })} />
+        <Frame at="right" src={`${A}/settings-privacy.webp`} width={1784} height={1304} alt={t({ ko: "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석", en: "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser" })} />
+        <Frame at="left" src={`${A}/settings-account.webp`} width={1784} height={1304} alt={t({ ko: "계정 — GitHub 로 로그인, 세션 12시간", en: "Account — sign in with GitHub, 12-hour session" })} />
+        <Frame at="right" src={`${A}/settings-about.webp`} width={1784} height={1304} alt={t({ ko: "정보 — 프로필 · 연락처 · 기술", en: "About — profile, contact and skills" })} />
 
         <Note
           viewLang={viewLang}
@@ -96,7 +96,6 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         />
         <Frame at="bleed" video={`${A}/rec-memo.mp4`} src={`${A}/rec-memo-poster.webp`} alt={t({ ko: "메모 — 인기글 · 갤러리 보기 · 폴더 · 목록 보기", en: "Notes — popular posts, gallery view, folders and list view" })} />
         <Frame at="left" src={`${A}/memo.webp`} alt={t({ ko: "메모 — 폴더 · 목록 · 본문 세 칸", en: "Notes — folders, list and body" })} />
-        <Frame at="bleed" src={`${A}/desktop-dark.webp`} alt={t({ ko: "다크 모드 데스크톱", en: "Desktop in dark mode" })} />
 
         <Note
           viewLang={viewLang}
