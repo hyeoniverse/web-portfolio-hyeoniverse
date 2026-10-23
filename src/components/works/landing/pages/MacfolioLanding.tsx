@@ -158,12 +158,18 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           no="10"
           title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
           body={{
-            ko: "작업물은 Safari 에서 열립니다. 프로젝트마다 소개 페이지를 탭으로 넘겨 보고, HYEONIVERSE 탭은 배포한 사이트를 창 안에 그대로 불러옵니다.",
-            en: "Projects open in Safari — flip through each project's page in tabs, and the HYEONIVERSE tab loads the deployed site right inside the window.",
+            ko: "작업물은 Safari 에서 열립니다. 프로젝트 일곱 개가 탭 하나씩 — 탭마다 그 프로젝트에 맞춰 따로 만든 소개 페이지가 있고, ‘여기서 열기’를 누르면 배포한 사이트를 창 안에 그대로 불러옵니다.",
+            en: "Projects open in Safari, one tab each for seven projects — every tab has its own page designed for that project, and ‘Open here’ loads the deployed site right inside the window.",
           }}
         />
         <Frame at="wide" video={`${A}/rec-safari.mp4`} src={`${A}/rec-safari-poster.webp`} alt={t({ ko: "Safari — HYEONIVERSE 탭에서 배포한 사이트를 그대로 스크롤", en: "Safari — scrolling the deployed HYEONIVERSE site in its tab" })} />
-        <Frame at="left" src={`${A}/hyeoniverse.webp`} alt={t({ ko: "Safari 에 열린 HYEONIVERSE", en: "HYEONIVERSE open in Safari" })} />
+        <Frame at="left" src={`${A}/tab-macfolio.webp`} alt={t({ ko: "MacFolio 탭 — 포트폴리오를, 데스크톱으로", en: "MacFolio tab — a portfolio, as a desktop" })} />
+        <Frame at="right" src={`${A}/tab-hyeoniverse.webp`} alt={t({ ko: "HYEONIVERSE 탭 — 작업물과 글을, 움직이는 화면으로", en: "HYEONIVERSE tab — works and writing, on moving screens" })} />
+        <Frame at="center" src={`${A}/tab-newpick.webp`} alt={t({ ko: "NewPick 탭 — 아침 뉴스, 요약해서 한 통에", en: "NewPick tab — the morning news, summarised in one mail" })} />
+        <Frame at="left" src={`${A}/tab-qru.webp`} alt={t({ ko: "QRU 탭 — QR 한 장에 담은 나", en: "QRU tab — yourself in one QR code" })} />
+        <Frame at="right" src={`${A}/tab-wtd.webp`} alt={t({ ko: "WTD 탭 — 할 일은 끌어서, 루틴은 알아서", en: "WTD tab — drag your tasks, routines handle themselves" })} />
+        <Frame at="wide" src={`${A}/tab-sproutfarm.webp`} alt={t({ ko: "새싹 농장 탭 — 픽셀 아트 농장 게임 소개", en: "SproutFarm tab — a pixel-art farm game" })} />
+        <Frame at="center" src={`${A}/tab-devcourse.webp`} alt={t({ ko: "DevCourse FullStack 탭 — 터미널 모양의 학습 기록", en: "DevCourse FullStack tab — a learning log shaped like a terminal" })} />
 
         <Note
           viewLang={viewLang}
