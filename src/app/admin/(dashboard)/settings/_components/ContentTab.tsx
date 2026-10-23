@@ -403,22 +403,21 @@ export default function ContentTab({
             <SectionHeader
               title={t("admin.settings.banner")}
               paths={["posts.showBanner", "posts.showSeriesRow", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
-              extra={
-                <>
-                  <Switch
-                    label={t("admin.settings.showBanner")}
-                    checked={config.posts.showBanner === true}
-                    onCheckedChange={(v) => update("posts", "showBanner", v)}
-                  />
-                  <Switch
-                    label={t("admin.settings.showSeriesRow")}
-                    checked={config.posts.showSeriesRow === true}
-                    onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
-                  />
-                </>
-              }
               {...sh}
             />
+            {/* 켜고 끄는 두 가지는 나란히 2열 */}
+            <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
+              <Switch
+                label={t("admin.settings.showBanner")}
+                checked={config.posts.showBanner === true}
+                onCheckedChange={(v) => update("posts", "showBanner", v)}
+              />
+              <Switch
+                label={t("admin.settings.showSeriesRow")}
+                checked={config.posts.showSeriesRow === true}
+                onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
+              />
+            </div>
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <FieldRow label={<T k="admin.settings.bannerLayout" />}>
                 <Select
@@ -490,8 +489,9 @@ export default function ContentTab({
                   onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
                 />
               </FieldRow>
-              {/* 커버 없는 글의 카드 — 그러데이션 판(기본) 또는 제목으로 그린 공유 카드. 배너는 늘 공유 카드 */}
-              <FieldRow label={t("admin.inline.contentTab.coverFallback")} hint={t("admin.inline.contentTab.coverFallbackHint")}>
+              {/* 커버를 안 올린 글의 카드 — 색 배경(기본) 또는 제목이 들어간 이미지(공유 카드). 배너는 늘 제목 이미지 */}
+              {/* 설명은 ? 도움말로 — 라벨 아래에 두면 옆 칸(목록 배치)과 고르기 칸 높이가 어긋났다 */}
+              <FieldRow label={t("admin.inline.contentTab.coverFallback")} help={t("admin.inline.contentTab.coverFallbackHint")}>
                 <Select
                   value={config.posts.coverFallback ?? "gradient"}
                   options={[
