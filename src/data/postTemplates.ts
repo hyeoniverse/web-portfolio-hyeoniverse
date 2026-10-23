@@ -463,6 +463,135 @@ I plan to keep recording notes like these.[^1]
     },
   },
   {
+    id: "project",
+    label: { ko: "프로젝트", en: "Project" },
+    desc: { ko: "작업물 소개 — 팀 구성 · 맡은 일 · 문제 해결 · 결과", en: "Project write-up — team, my role, problems solved, results" },
+    content: {
+      ko: `## 개요
+
+스터디 모임의 일정과 출석을 한곳에서 관리하는 웹앱입니다. 단체 채팅방에 흩어지던 공지·투표·출석 체크를 한 화면으로 모아, 모임장이 매주 손으로 정리하던 일을 없애는 것이 목표였습니다.
+
+- **기간**: 2025.03 – 2025.06 (12주)
+- **형태**: 4인 팀 프로젝트 · 교내 캡스톤
+- **링크**: [서비스](https://example.com) · [GitHub](https://github.com/example/study-planner)
+
+## 팀 구성
+
+| 이름 | 역할 | 맡은 일 |
+| --- | --- | --- |
+| 김OO | 프론트엔드 · 팀장 | 일정 화면, 디자인 시스템, 배포 |
+| 이OO | 프론트엔드 | 출석 체크, 알림 |
+| 박OO | 백엔드 | API, 인증, DB 설계 |
+| 최OO | 디자인 | UI · 아이콘 · 발표 자료 |
+
+## 내가 맡은 일
+
+- 주간 · 월간 일정 화면과 드래그로 일정 옮기기
+- 버튼 · 입력칸 · 모달을 공용 부품으로 묶은 작은 디자인 시스템
+- GitHub Actions 로 PR 마다 미리보기 배포
+
+## 주요 기능
+
+- **일정**: 반복 모임을 한 번에 만들고, 끌어서 날짜를 옮긴다
+- **출석**: 모임 시작 10분 전부터 QR 로 체크, 지각 · 결석을 자동 집계
+- **알림**: 모임 하루 전과 한 시간 전에 웹 푸시
+
+## 기술 스택
+
+| 영역 | 사용 기술 |
+| --- | --- |
+| 프론트엔드 | Next.js · TypeScript · Tailwind CSS |
+| 백엔드 | NestJS · PostgreSQL · Prisma |
+| 배포 | Vercel · Fly.io · GitHub Actions |
+
+## 문제 해결
+
+### 반복 일정을 하나만 고치면 전체가 바뀌던 문제
+
+**상황**: 반복 모임 중 한 회차의 시간을 바꾸면 모든 회차가 함께 바뀌었다.
+**원인**: 반복 규칙 하나에 모든 회차가 묶여 있고, 회차별 예외를 저장할 곳이 없었다.
+**해결**: 회차별 예외 테이블을 두고, 화면에서는 "이번만 · 이후 모두 · 전체" 중 고르게 했다.
+
+> [!TIP]
+> 캘린더 앱(Google · Apple)이 같은 문제를 어떻게 푸는지 먼저 살펴보면 설계가 빨라진다.
+
+## 결과
+
+- 시범 운영한 스터디 3곳에서 출석 정리 시간이 주 30분 → 0분
+- 학과 캡스톤 경진대회 우수상
+
+## 배운 점
+
+- 데이터 모델을 먼저 그려 두면 화면을 바꿀 때 덜 흔들린다
+- 공용 부품을 일찍 만들수록 팀원 넷의 화면이 하나처럼 보인다
+
+## 발표 자료
+
+슬라이드는 아래 갤러리 블록에 올린다(빈 줄에서 \`/\` → 갤러리).`,
+      en: `## Overview
+
+A web app that keeps a study group's schedule and attendance in one place. It gathers the announcements, polls and roll calls scattered across a group chat into one screen, so the organizer no longer tidies them up by hand every week.
+
+- **Period**: 2025.03 – 2025.06 (12 weeks)
+- **Type**: 4-person team project · university capstone
+- **Links**: [Live](https://example.com) · [GitHub](https://github.com/example/study-planner)
+
+## Team
+
+| Name | Role | Responsibilities |
+| --- | --- | --- |
+| Kim | Frontend · Lead | Schedule views, design system, deployment |
+| Lee | Frontend | Attendance, notifications |
+| Park | Backend | API, auth, database design |
+| Choi | Design | UI, icons, presentation |
+
+## My Role
+
+- Weekly and monthly schedule views with drag-to-reschedule
+- A small design system of shared buttons, inputs and modals
+- Preview deployments for every PR with GitHub Actions
+
+## Key Features
+
+- **Schedule**: create recurring meetups at once and drag them to another day
+- **Attendance**: check in by QR from 10 minutes before start; lateness and absences are tallied automatically
+- **Reminders**: web push a day and an hour before each meetup
+
+## Tech Stack
+
+| Area | Technologies |
+| --- | --- |
+| Frontend | Next.js · TypeScript · Tailwind CSS |
+| Backend | NestJS · PostgreSQL · Prisma |
+| Deployment | Vercel · Fly.io · GitHub Actions |
+
+## Problems Solved
+
+### Editing one occurrence changed every occurrence
+
+**Context**: changing the time of one session in a recurring series changed all of them.
+**Root cause**: every session was tied to a single recurrence rule with nowhere to store per-session exceptions.
+**Resolution**: added a per-occurrence exceptions table and let the UI choose "this one · this and following · all".
+
+> [!TIP]
+> Looking at how calendar apps (Google, Apple) handle this first speeds up the design.
+
+## Results
+
+- Attendance bookkeeping in three pilot groups went from 30 minutes a week to zero
+- Excellence award at the department capstone showcase
+
+## Lessons Learned
+
+- Drawing the data model first keeps the screens from wobbling when they change
+- The earlier shared components exist, the more four people's screens look like one
+
+## Slides
+
+Put the slides in a gallery block below (type \`/\` on an empty line → Gallery).`,
+    },
+  },
+  {
     id: "til",
     label: { ko: "TIL", en: "TIL" },
     desc: { ko: "오늘 배운 것", en: "Today I Learned" },
