@@ -2019,7 +2019,7 @@
           "notSaved": "DB 에 랜딩 칸이 아직 없어 랜딩은 저장되지 않았습니다 — 2026_10_24_works_landing.sql 마이그레이션을 실행해 주세요.",
           "kind": {
             "frame": "그림 · 영상",
-            "phones": "구르는 휴대폰",
+            "phones": "휴대폰 목업",
             "sequence": "넘기는 장면",
             "marquee": "흐르는 띠",
             "numbers": "숫자"

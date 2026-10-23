@@ -2019,7 +2019,7 @@
           "notSaved": "The database has no landing column yet, so the landing was not saved — run the 2026_10_24_works_landing.sql migration.",
           "kind": {
             "frame": "Image · video",
-            "phones": "Rolling phone",
+            "phones": "Phone mockup",
             "sequence": "Pinned scenes",
             "marquee": "Marquee",
             "numbers": "Numbers"
