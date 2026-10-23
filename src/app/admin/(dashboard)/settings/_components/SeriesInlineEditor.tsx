@@ -106,6 +106,22 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  /* 제목으로 커버 그리기 — 커버를 지웠거나 자동 커버가 없던 예전 시리즈. 새 시리즈는 만들 때 저절로 그린다 */
+  const handleGenerateCover = async () => {
+    if (!series) return;
+    setGenerating(true);
+    try {
+      const res = await fetch(`/api/series/${series.id}/cover`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw errorFromBody(data, res.status);
+      updateField("cover_image", data.cover_image);
+    } catch (err) {
+      setError(errorText(err, t, ts("uploadFailed")));
+    } finally {
+      setGenerating(false);
+    }
+  };
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [coverPickerClosing, setCoverPickerClosing] = useState(false);
   const coverPickerCloseTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -534,6 +550,11 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
               <Button variant="outline" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
+              {isEdit && (
+                <Button variant="outline" onClick={handleGenerateCover} loading={generating}>
+                  <T k="admin.posts.seriesModal.generateCover" />
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => {
@@ -544,6 +565,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 {showCoverPicker && !coverPickerClosing ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
               </Button>
             </div>
+            {!isEdit && <p className={shared.fieldHint}><T k="admin.posts.seriesModal.autoCoverHint" /></p>}
             {showCoverPicker && (
               <CoverImagePicker
                 onSelect={(url) => { updateField("cover_image", url); closeCoverPicker(); }}

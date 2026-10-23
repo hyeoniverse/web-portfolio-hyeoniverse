@@ -4,6 +4,7 @@ import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { SERIES_TITLE_MAX } from "@/types/post";
 import { topPostCategory } from "@/lib/seriesCategory";
 import { getUserRole } from "@/lib/api/roles";
+import { createSeriesCover, isAutoSeriesCover, removeAutoSeriesCover } from "@/lib/seriesCover";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -101,6 +102,21 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
   }
 
+  /* 자동 커버를 쓰는 시리즈의 제목이 바뀌면 커버도 새 제목으로 다시 그린다(올린 커버는 그대로) */
+  let oldAutoCover: string | null = null;
+  if ((typeof body.title === "string" || typeof body.title_en === "string") && body.cover_image === undefined) {
+    const { data: cur } = await supabase.from("series").select("title, title_en, cover_image").eq("id", id).maybeSingle();
+    const titleChanged = cur && ((typeof body.title === "string" && body.title !== cur.title) || (typeof body.title_en === "string" && body.title_en !== cur.title_en));
+    if (cur && titleChanged && isAutoSeriesCover(cur.cover_image)) {
+      try {
+        body.cover_image = await createSeriesCover({ id, title: body.title ?? cur.title, title_en: body.title_en ?? cur.title_en });
+        oldAutoCover = cur.cover_image;
+      } catch (e) {
+        console.warn("[PATCH /api/series/[id]] auto cover failed:", e instanceof Error ? e.message : e);
+      }
+    }
+  }
+
   const { data, error } = await supabase
     .from("series")
     .update(body)
@@ -109,6 +125,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     .single();
 
   if (error) return jsonServerError(error, "PATCH /api/series/[id]");
+  if (oldAutoCover) await removeAutoSeriesCover(oldAutoCover);
 
   return jsonOk(data);
 }

@@ -2,11 +2,11 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 203,
-  "routeFiles": 140,
+  "total": 204,
+  "routeFiles": 141,
   "access": {
     "public": 70,
-    "signed-in": 61,
+    "signed-in": 62,
     "author": 28,
     "admin": 16,
     "owner": 26,
@@ -764,6 +764,59 @@ export const apiMap: ApiMap = {
       }
     },
     {
+      "key": "series",
+      "files": 3,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/series",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/series",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/api/series/[id]",
+          "access": "public"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/series/[id]",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/series/[id]",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/api/series/[id]/cover",
+          "access": "signed-in"
+        }
+      ],
+      "tables": [
+        "posts",
+        "series",
+        "site_settings"
+      ],
+      "rpcs": [],
+      "services": [
+        "storage"
+      ],
+      "access": {
+        "public": 2,
+        "signed-in": 4,
+        "author": 0,
+        "admin": 0,
+        "owner": 0,
+        "cron": 0
+      }
+    },
+    {
       "key": "admin/works",
       "files": 3,
       "endpoints": [
@@ -905,52 +958,6 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 0,
         "signed-in": 5,
-        "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "series",
-      "files": 2,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/series",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/series",
-          "access": "signed-in"
-        },
-        {
-          "method": "GET",
-          "path": "/api/series/[id]",
-          "access": "public"
-        },
-        {
-          "method": "PATCH",
-          "path": "/api/series/[id]",
-          "access": "signed-in"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/series/[id]",
-          "access": "signed-in"
-        }
-      ],
-      "tables": [
-        "posts",
-        "series",
-        "site_settings"
-      ],
-      "rpcs": [],
-      "services": [],
-      "access": {
-        "public": 2,
-        "signed-in": 3,
         "author": 0,
         "admin": 0,
         "owner": 0,
