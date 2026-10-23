@@ -795,6 +795,10 @@ export const schemaTables: ErdTable[] = [
         "comment": "갤러리 장마다의 음성 — 그림 주소 → { script, audio, audioSource, audioScript }"
       },
       {
+        "name": "landing",
+        "type": "jsonb"
+      },
+      {
         "name": "live_url",
         "type": "text"
       },

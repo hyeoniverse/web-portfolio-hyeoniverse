@@ -1,0 +1,840 @@
+{
+  "eyebrow": {
+    "ko": "읽는 대신 직접 만져 보는 포트폴리오",
+    "en": "A portfolio you touch instead of read"
+  },
+  "hero": [
+    {
+      "kind": "frame",
+      "at": "bleed",
+      "src": "/content/works/macfolio/landing/desktop-light.webp",
+      "alt": {
+        "ko": "MacFolio 데스크톱 — 위젯 · 바탕화면 폴더 · Dock",
+        "en": "MacFolio desktop — widgets, folders and the Dock"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "s1",
+      "title": {
+        "ko": "포트폴리오를 운영체제처럼",
+        "en": "A portfolio that behaves like an OS"
+      },
+      "body": {
+        "ko": "한 장짜리 페이지 대신 켜지는 데스크톱. 사과 로고 아래 막대가 차면 메뉴 막대 · 위젯 · Dock 이 나타나고, 궁금한 앱을 열고, 창을 끌어 옮기고, 닫습니다.",
+        "en": "A desktop that boots instead of a single page — once the bar under the Apple logo fills, the menu bar, widgets and Dock appear; open the apps you like, drag the windows, close them."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/rec-boot-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-boot.mp4",
+          "alt": {
+            "ko": "부팅 — 눌러서 시작하면 로딩 막대가 차고 데스크톱이 열린다",
+            "en": "Boot — click to start, the bar fills and the desktop opens"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/desktop-light.webp",
+          "video": "/content/works/macfolio/landing/tour.mp4",
+          "alt": {
+            "ko": "Dock 에서 메모 · Finder · 음악을 열고 창을 끌어 옮기는 녹화",
+            "en": "Recording: opening Notes, Finder and Music from the Dock and dragging windows"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": {
+        "ko": "처음 온 사람에게 1분 둘러보기",
+        "en": "A one-minute tour for first-timers"
+      },
+      "body": {
+        "ko": "처음 들어오면 Dock · 메뉴 막대 · 이력서를 차례로 짚어 주는 둘러보기를 권합니다. 지나간 설명은 팁 앱에서 주제별로 다시 봅니다.",
+        "en": "First-time visitors are offered a tour that points out the Dock, menu bar and résumé in turn. Tips can be revisited by topic in the Tips app."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/rec-guide-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-guide.mp4",
+          "alt": {
+            "ko": "1분 둘러보기 — 다음을 누를 때마다 다음 자리를 짚는다",
+            "en": "One-minute tour — each Next points to the next spot"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": {
+        "ko": "블로그가 된 메모 앱",
+        "en": "A Notes app that became the blog"
+      },
+      "body": {
+        "ko": "폴더는 분류, 메모는 글. 인기글을 따로 모으고, 목록과 갤러리로 바꿔 봅니다. 관리자로 로그인하면 메모가 그대로 편집기가 됩니다.",
+        "en": "Folders are categories, notes are posts. Popular posts get their own folder, and lists switch to a gallery. Signed in as admin, a note becomes the editor."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/macfolio/landing/rec-memo-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-memo.mp4",
+          "alt": {
+            "ko": "메모 — 인기글 · 갤러리 보기 · 폴더 · 목록 보기",
+            "en": "Notes — popular posts, gallery view, folders and list view"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/memo.webp",
+          "alt": {
+            "ko": "메모 — 폴더 · 목록 · 본문 세 칸",
+            "en": "Notes — folders, list and body"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": {
+        "ko": "익숙한 앱으로 둘러보는 작업과 기록",
+        "en": "Work and notes, browsed through familiar apps"
+      },
+      "body": {
+        "ko": "Finder 로 문서와 저장소의 README 를 둘러보고, 음악을 틀고, 사진 앨범을 넘기고, 메시지에 로그인 없이 피드백을 남깁니다. 터미널에 neofetch · skills · projects 를 치면 소개가 나옵니다.",
+        "en": "Browse docs and the repo README in Finder, play music, flip through photo albums and leave feedback in Messages without signing in. Type neofetch, skills or projects in Terminal for an introduction."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/finder.webp",
+          "alt": {
+            "ko": "Finder",
+            "en": "Finder"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/music.webp",
+          "alt": {
+            "ko": "음악",
+            "en": "Music"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/macfolio/landing/photos.webp",
+          "alt": {
+            "ko": "사진",
+            "en": "Photos"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/messages.webp",
+          "alt": {
+            "ko": "메시지",
+            "en": "Messages"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/github.webp",
+          "alt": {
+            "ko": "GitHub",
+            "en": "GitHub"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/rec-terminal-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-terminal.mp4",
+          "alt": {
+            "ko": "터미널 — neofetch · skills · projects",
+            "en": "Terminal — neofetch, skills and projects"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "title": {
+        "ko": "이력서를 Markdown 한 장으로",
+        "en": "The résumé as a single Markdown file"
+      },
+      "body": {
+        "ko": "바탕화면의 이력서 폴더를 열면 Markdown 원본과 PDF 가 나란히 있습니다. Markdown 은 텍스트 편집기에서 서식대로 읽고, PDF 는 미리보기에서 쪽을 넘겨 봅니다. 관리자는 텍스트 편집기의 서식 막대로 바로 고칩니다.",
+        "en": "Open the résumé folder on the desktop and the Markdown source sits next to the PDF. Read the Markdown formatted in TextEdit and page through the PDF in Preview; the admin edits it right in TextEdit's format bar."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/textedit-resume.webp",
+          "alt": {
+            "ko": "텍스트 편집기 — 김정현_이력서.md, 강점 · 할 수 있는 일",
+            "en": "TextEdit — the résumé .md, strengths and skills"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/textedit-resume-2.webp",
+          "alt": {
+            "ko": "텍스트 편집기 — 프로젝트 · 수상 · 교육",
+            "en": "TextEdit — projects, awards and education"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/preview-resume.webp",
+          "alt": {
+            "ko": "미리보기 — 같은 이력서의 PDF",
+            "en": "Preview — the same résumé as a PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "title": {
+        "ko": "Safari 탭으로 여는 프로젝트",
+        "en": "Projects opened in Safari tabs"
+      },
+      "body": {
+        "ko": "작업물은 Safari 에서 열립니다. 프로젝트 일곱 개가 탭 하나씩 — 탭마다 그 프로젝트에 맞춰 따로 만든 소개 페이지가 있고, ‘여기서 열기’를 누르면 배포한 사이트를 창 안에 그대로 불러옵니다.",
+        "en": "Projects open in Safari, one tab each for seven projects — every tab has its own page designed for that project, and ‘Open here’ loads the deployed site right inside the window."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/rec-safari-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-safari.mp4",
+          "alt": {
+            "ko": "Safari — HYEONIVERSE 탭에서 배포한 사이트를 그대로 스크롤",
+            "en": "Safari — scrolling the deployed HYEONIVERSE site in its tab"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/tab-macfolio.webp",
+          "alt": {
+            "ko": "MacFolio 탭 — 포트폴리오를, 데스크톱으로",
+            "en": "MacFolio tab — a portfolio, as a desktop"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/tab-hyeoniverse.webp",
+          "alt": {
+            "ko": "HYEONIVERSE 탭 — 작업물과 글을, 움직이는 화면으로",
+            "en": "HYEONIVERSE tab — works and writing, on moving screens"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/macfolio/landing/tab-newpick.webp",
+          "alt": {
+            "ko": "NewPick 탭 — 아침 뉴스, 요약해서 한 통에",
+            "en": "NewPick tab — the morning news, summarised in one mail"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/tab-qru.webp",
+          "alt": {
+            "ko": "QRU 탭 — QR 한 장에 담은 나",
+            "en": "QRU tab — yourself in one QR code"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/tab-wtd.webp",
+          "alt": {
+            "ko": "WTD 탭 — 할 일은 끌어서, 루틴은 알아서",
+            "en": "WTD tab — drag your tasks, routines handle themselves"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/tab-sproutfarm.webp",
+          "alt": {
+            "ko": "새싹 농장 탭 — 픽셀 아트 농장 게임 소개",
+            "en": "SproutFarm tab — a pixel-art farm game"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/macfolio/landing/tab-devcourse.webp",
+          "alt": {
+            "ko": "DevCourse FullStack 탭 — 터미널 모양의 학습 기록",
+            "en": "DevCourse FullStack tab — a learning log shaped like a terminal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "title": {
+        "ko": "배포한 프로젝트를 그 자리에서 실행해 보기",
+        "en": "Run the deployed projects right here"
+      },
+      "body": {
+        "ko": "Dock 의 프로젝트 아이콘을 누르면 배포한 사이트가 창 안에서 그대로 열립니다 — HYEONIVERSE · NewPick · QRU · WTD. Launchpad 의 새싹 농장은 Unity 로 만든 게임이 창 안에서 돌아갑니다.",
+        "en": "Click a project icon in the Dock and the deployed site opens right inside a window — HYEONIVERSE, NewPick, QRU and WTD. SproutFarm in the Launchpad runs a Unity game inside its window."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/project-hyeoniverse.webp",
+          "alt": {
+            "ko": "HYEONIVERSE",
+            "en": "HYEONIVERSE"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/project-newpick.webp",
+          "alt": {
+            "ko": "NewPick — AI 뉴스레터",
+            "en": "NewPick — an AI newsletter"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/project-qru.webp",
+          "alt": {
+            "ko": "QRU — QR 디지털 명함",
+            "en": "QRU — a QR digital business card"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/project-whattodo.webp",
+          "alt": {
+            "ko": "WTD — 목록과 할 일",
+            "en": "WTD — lists and tasks"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/project-sproutfarm.webp",
+          "alt": {
+            "ko": "새싹 농장 — 창 안에서 실행하는 픽셀 아트 게임",
+            "en": "SproutFarm — a pixel-art game running in a window"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "title": {
+        "ko": "Launchpad 안의 앱들",
+        "en": "Inside the Launchpad"
+      },
+      "body": {
+        "ko": "Launchpad 에는 날씨 · 팁 · QuickTime Player · API 문서 · 활동 상태 보기 · 미리보기 · 텍스트 편집기가 있습니다. 모두 macOS 의 같은 앱처럼 창으로 열립니다.",
+        "en": "The Launchpad holds Weather, Tips, QuickTime Player, API docs, Activity Monitor, Preview and TextEdit — each opens in a window like its macOS namesake."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/macfolio/landing/launchpad.webp",
+          "alt": {
+            "ko": "Launchpad",
+            "en": "Launchpad"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/app-weather.webp",
+          "alt": {
+            "ko": "날씨 — 도시를 검색해 시간별 · 10일 예보(Open-Meteo)",
+            "en": "Weather — hourly and 10-day forecasts by city (Open-Meteo)"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/app-tips.webp",
+          "alt": {
+            "ko": "팁 — 1분 둘러보기와 주제별 팁",
+            "en": "Tips — the one-minute tour and tips by topic"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/macfolio/landing/app-quicktime.webp",
+          "alt": {
+            "ko": "QuickTime Player — 동영상 재생",
+            "en": "QuickTime Player — video playback"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/app-apidocs.webp",
+          "alt": {
+            "ko": "API 문서 — 백엔드의 OpenAPI 를 사이트 안 앱으로",
+            "en": "API docs — the backend's OpenAPI as an in-site app"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/app-activity.webp",
+          "alt": {
+            "ko": "활동 상태 보기 — 쿠키 없이 세는 방문 분석",
+            "en": "Activity Monitor — cookie-free visit analytics"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/app-preview.webp",
+          "alt": {
+            "ko": "미리보기 — PDF 를 쪽 썸네일과 함께",
+            "en": "Preview — PDFs with page thumbnails"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/macfolio/landing/app-textedit.webp",
+          "alt": {
+            "ko": "텍스트 편집기 — 저장소 문서를 서식대로",
+            "en": "TextEdit — repo docs, formatted"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "title": {
+        "ko": "쿠키 없이 세는 방문 분석",
+        "en": "Visit analytics without cookies"
+      },
+      "body": {
+        "ko": "활동 상태 보기는 사이트 안의 분석 앱입니다. 쿠키 대신 하루 단위 해시로 방문자를 세고, 방문 · 순방문자 · 앱 열기 · 머문 시간을 기간별로 봅니다. 많이 연 앱과 많이 읽힌 글, 나라 · 기기 · 브라우저 · OS · 언어까지 나눠 봅니다.",
+        "en": "Activity Monitor is the site's own analytics app. Visitors are counted with a daily hash instead of cookies — visits, unique visitors, app opens and time on site by period, plus the most-opened apps, most-read posts, and country, device, browser, OS and language."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/activity-overview.webp",
+          "alt": {
+            "ko": "개요 — 방문 · 순방문자 · 앱 열기 · 머문 시간과 7일 추이",
+            "en": "Overview — visits, unique visitors, app opens, time on site and the 7-day trend"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/activity-apps.webp",
+          "alt": {
+            "ko": "앱 · 글 — 많이 연 앱과 많이 읽힌 글",
+            "en": "Apps & posts — most-opened apps and most-read posts"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/activity-region.webp",
+          "alt": {
+            "ko": "지역 · 기기 — 나라 · 기기 · 브라우저 · OS · 언어",
+            "en": "Region & device — country, device, browser, OS and language"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "title": {
+        "ko": "바탕화면을 내 것으로",
+        "en": "Make the desktop your own"
+      },
+      "body": {
+        "ko": "바탕화면을 오른쪽 클릭해 위젯 갤러리를 열고 시계 · 명언 · 사진 위젯을 더합니다. 배경화면은 여섯 벌, 다크 모드에서는 위젯과 함께 어두운 버전으로 바뀝니다 — 윗줄 라이트, 아랫줄 다크.",
+        "en": "Right-click the desktop to open the widget gallery and add clock, quote and photo widgets. Six wallpapers, each switching to a dark version with the widgets in dark mode — light on top, dark below."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/rec-widgets-poster.webp",
+          "video": "/content/works/macfolio/landing/rec-widgets.mp4",
+          "alt": {
+            "ko": "위젯 편집 — 갤러리에서 고르면 바탕화면 칸에 들어간다",
+            "en": "Editing widgets — picked from the gallery, dropped into the desktop grid"
+          }
+        },
+        {
+          "kind": "marquee",
+          "rows": [
+            [
+              {
+                "src": "/content/works/macfolio/landing/wall-light-0.webp",
+                "alt": {
+                  "ko": "High Sierra — 라이트",
+                  "en": "High Sierra — light"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-light-1.webp",
+                "alt": {
+                  "ko": "Big Sur — 라이트",
+                  "en": "Big Sur — light"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-light-2.webp",
+                "alt": {
+                  "ko": "Ventura — 라이트",
+                  "en": "Ventura — light"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-light-3.webp",
+                "alt": {
+                  "ko": "Sonoma — 라이트",
+                  "en": "Sonoma — light"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-light-4.webp",
+                "alt": {
+                  "ko": "Sequoia — 라이트",
+                  "en": "Sequoia — light"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-light-5.webp",
+                "alt": {
+                  "ko": "Tahoe — 라이트",
+                  "en": "Tahoe — light"
+                }
+              }
+            ],
+            [
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-0.webp",
+                "alt": {
+                  "ko": "High Sierra — 다크",
+                  "en": "High Sierra — dark"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-1.webp",
+                "alt": {
+                  "ko": "Big Sur — 다크",
+                  "en": "Big Sur — dark"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-2.webp",
+                "alt": {
+                  "ko": "Ventura — 다크",
+                  "en": "Ventura — dark"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-3.webp",
+                "alt": {
+                  "ko": "Sonoma — 다크",
+                  "en": "Sonoma — dark"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-4.webp",
+                "alt": {
+                  "ko": "Sequoia — 다크",
+                  "en": "Sequoia — dark"
+                }
+              },
+              {
+                "src": "/content/works/macfolio/landing/wall-dark-5.webp",
+                "alt": {
+                  "ko": "Tahoe — 다크",
+                  "en": "Tahoe — dark"
+                }
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "title": {
+        "ko": "시스템 설정에서 고르는 것들",
+        "en": "What you choose in System Settings"
+      },
+      "body": {
+        "ko": "화면 모드는 라이트 · 다크 · 기기를 따르는 자동. 개인정보 보호에서는 이 사이트가 무엇을 얼마나 오래 모으는지 확인하고, 내 브라우저의 방문 분석을 끕니다. 관리자는 비밀번호 없이 GitHub 계정으로만 들어오고, 정보에는 만든 사람과 쓴 기술이 적혀 있습니다.",
+        "en": "Appearance is light, dark or automatic. Privacy shows what the site collects and for how long, and turns off visit analytics for your browser. The admin signs in only with GitHub — no password — and About lists who built it and with what."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/settings-appearance.webp",
+          "alt": {
+            "ko": "화면 모드 — 라이트 · 다크 · 자동",
+            "en": "Appearance — light, dark and automatic"
+          },
+          "width": 1784,
+          "height": 1304
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/settings-privacy.webp",
+          "alt": {
+            "ko": "개인정보 보호 및 보안 — 사람 확인(Cloudflare Turnstile) · 이 브라우저의 방문 분석",
+            "en": "Privacy & Security — human checks (Cloudflare Turnstile) and visit analytics for this browser"
+          },
+          "width": 1784,
+          "height": 1304
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/macfolio/landing/settings-account.webp",
+          "alt": {
+            "ko": "계정 — GitHub 로 로그인, 세션 12시간",
+            "en": "Account — sign in with GitHub, 12-hour session"
+          },
+          "width": 1784,
+          "height": 1304
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/macfolio/landing/settings-about.webp",
+          "alt": {
+            "ko": "정보 — 프로필 · 연락처 · 기술",
+            "en": "About — profile, contact and skills"
+          },
+          "width": 1784,
+          "height": 1304
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "title": {
+        "ko": "서버까지 직접, 운영비 0원",
+        "en": "Running the server too, for $0"
+      },
+      "body": {
+        "ko": "프론트엔드는 Cloudflare Workers, 백엔드(NestJS · PostgreSQL)는 Oracle Cloud 무료 VM 에서 직접 운영합니다. 메뉴 막대에서 서버 상태와 응답 시간을 바로 보고, API 문서도 사이트 안 앱으로 엽니다.",
+        "en": "Frontend on Cloudflare Workers, backend (NestJS and PostgreSQL) run on a free Oracle Cloud VM — server status and response time show right in the menu bar, and the API docs open as an in-site app."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/macfolio/landing/server-menu.webp",
+          "alt": {
+            "ko": "메뉴 막대의 서버 메뉴 — API 상태 · 응답 시간 · 주소",
+            "en": "The server menu in the menu bar — API status, response time and address"
+          },
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "title": {
+        "ko": "휴대폰으로 열면 iOS 홈 화면처럼",
+        "en": "On a phone, it opens like an iOS home screen"
+      },
+      "body": {
+        "ko": "화면 폭이 좁으면 iOS 홈 화면이 됩니다. 페이지를 넘기는 홈 화면, 길게 눌러 위젯 빼고 더하기, 위에서 쓸어 내리는 제어 센터, 터미널 대신 단축어.",
+        "en": "On a narrow screen it becomes an iOS home screen — swipe between pages, long-press to add or remove widgets, pull down for Control Center, and Shortcuts in place of Terminal."
+      },
+      "items": [
+        {
+          "kind": "phones",
+          "items": [
+            {
+              "src": "/content/works/macfolio/landing/m-home.webp",
+              "video": "/content/works/macfolio/landing/m-home.mp4",
+              "alt": {
+                "ko": "홈 화면 — 세 쪽을 넘긴다",
+                "en": "Home screen — three pages"
+              },
+              "route": {
+                "ko": "홈 화면",
+                "en": "Home"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-edit.webp",
+              "video": "/content/works/macfolio/landing/m-edit.mp4",
+              "alt": {
+                "ko": "길게 눌러 위젯 편집",
+                "en": "Long-press to edit widgets"
+              },
+              "route": {
+                "ko": "위젯 편집",
+                "en": "Edit widgets"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-control.webp",
+              "video": "/content/works/macfolio/landing/m-control.mp4",
+              "alt": {
+                "ko": "제어 센터",
+                "en": "Control Center"
+              },
+              "route": {
+                "ko": "제어 센터",
+                "en": "Control Center"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-memo.webp",
+              "video": "/content/works/macfolio/landing/m-memo.mp4",
+              "alt": {
+                "ko": "메모 — 글 목록과 본문",
+                "en": "Notes — post list and body"
+              },
+              "route": {
+                "ko": "메모",
+                "en": "Notes"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-shortcuts.webp",
+              "video": "/content/works/macfolio/landing/m-shortcuts.mp4",
+              "alt": {
+                "ko": "단축어 — 눌러서 실행하는 터미널 명령",
+                "en": "Shortcuts — Terminal commands as taps"
+              },
+              "route": {
+                "ko": "단축어",
+                "en": "Shortcuts"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-music.webp",
+              "video": "/content/works/macfolio/landing/m-music.mp4",
+              "alt": {
+                "ko": "음악",
+                "en": "Music"
+              },
+              "route": {
+                "ko": "음악",
+                "en": "Music"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-weather.webp",
+              "video": "/content/works/macfolio/landing/m-weather.mp4",
+              "alt": {
+                "ko": "날씨",
+                "en": "Weather"
+              },
+              "route": {
+                "ko": "날씨",
+                "en": "Weather"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-settings.webp",
+              "video": "/content/works/macfolio/landing/m-settings.mp4",
+              "alt": {
+                "ko": "설정 — 배경화면",
+                "en": "Settings — wallpaper"
+              },
+              "route": {
+                "ko": "설정",
+                "en": "Settings"
+              }
+            },
+            {
+              "src": "/content/works/macfolio/landing/m-safari.webp",
+              "video": "/content/works/macfolio/landing/m-safari.mp4",
+              "alt": {
+                "ko": "Safari",
+                "en": "Safari"
+              },
+              "route": {
+                "ko": "Safari",
+                "en": "Safari"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "numbers",
+          "items": [
+            {
+              "value": "20+",
+              "label": {
+                "ko": "창으로 열리는 앱",
+                "en": "Apps that open as windows"
+              }
+            },
+            {
+              "value": "0원",
+              "label": {
+                "ko": "운영비",
+                "en": "Running cost (KRW)"
+              }
+            },
+            {
+              "value": "200편+",
+              "label": {
+                "ko": "메모 앱에 쓴 개발기",
+                "en": "Dev notes written in Notes"
+              }
+            },
+            {
+              "value": "9종",
+              "label": {
+                "ko": "데스크톱 · 휴대폰 위젯",
+                "en": "Widget types on desktop and phone"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

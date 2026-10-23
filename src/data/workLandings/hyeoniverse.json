@@ -1,0 +1,1057 @@
+{
+  "eyebrow": {
+    "ko": "디자인 시스템부터 관리자 CMS 까지, 혼자 설계하고 운영하는 포트폴리오",
+    "en": "A portfolio designed and run solo, from the design system to the admin CMS"
+  },
+  "hero": [
+    {
+      "kind": "frame",
+      "at": "bleed",
+      "src": "/content/works/hyeoniverse/landing/home-light.webp",
+      "alt": {
+        "ko": "홈 첫 화면",
+        "en": "Home"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "s1",
+      "title": {
+        "ko": "스크롤에 반응하는 첫 화면",
+        "en": "A home that reacts to the scroll"
+      },
+      "body": {
+        "ko": "스크롤하는 만큼 큰 글자가 흩어지고, 3D 도넛이 화면 안을 떠다니며 작업물 · 글 · 프로필로 이어집니다.",
+        "en": "Big type scatters as you scroll, a 3D torus drifts across the screen, and the page leads on to works, writing and the profile."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/home-light.webp",
+          "video": "/content/works/hyeoniverse/landing/home.mp4",
+          "alt": {
+            "ko": "홈을 스크롤하는 녹화",
+            "en": "Recording: scrolling the home page"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": {
+        "ko": "작업물을 여섯 가지 모양으로",
+        "en": "Works in six shapes"
+      },
+      "body": {
+        "ko": "Cylinder · Grid · Fullscreen · Flow · Cinematic · Split. 관리자 설정 하나로 바꿔 끼웁니다 — 실제 화면을 그대로 녹화했습니다.",
+        "en": "Cylinder, Grid, Fullscreen, Flow, Cinematic and Split, swapped with one admin setting — recorded from the real screens."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/works-cylinder-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-cylinder.mp4",
+          "alt": {
+            "ko": "Cylinder — 스크롤하면 3D 원통이 돈다",
+            "en": "Cylinder — the 3D cylinder turns with the scroll"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/works-grid-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-grid.mp4",
+          "alt": {
+            "ko": "Grid — 마우스를 올린 칸의 행과 열이 커진다",
+            "en": "Grid — the hovered cell's row and column grow"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/works-fullscreen-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-fullscreen.mp4",
+          "alt": {
+            "ko": "Fullscreen — 한 화면에 작업물 하나",
+            "en": "Fullscreen — one work per screen"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/hyeoniverse/landing/works-flow-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-flow.mp4",
+          "alt": {
+            "ko": "Flow — 카드 띠가 끝없이 돌아온다(순환 스크롤)",
+            "en": "Flow — the card strip loops endlessly"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/works-cinematic-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-cinematic.mp4",
+          "alt": {
+            "ko": "Cinematic — 한 번 굴리면 한 판, 끝나면 다시 처음 판",
+            "en": "Cinematic — one scroll, one panel, looping back to the first"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/works-split-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/works-split.mp4",
+          "alt": {
+            "ko": "Split — 글과 그림을 반씩 나눈 판",
+            "en": "Split — panels split between text and image"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": {
+        "ko": "같은 화면, 다른 테마",
+        "en": "Same screens, different themes"
+      },
+      "body": {
+        "ko": "테마는 의미 토큰이 가리키는 값만 바꿉니다. 프리셋 열여덟 벌을 모두 입힌 실제 홈 화면 — 윗줄 라이트, 아랫줄 다크.",
+        "en": "Themes only swap what the semantic tokens point to. The real home page in all eighteen presets — light on top, dark below."
+      },
+      "items": [
+        {
+          "kind": "marquee",
+          "rows": [
+            [
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-00.webp",
+                "alt": {
+                  "ko": "Default — 라이트",
+                  "en": "Default — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-01.webp",
+                "alt": {
+                  "ko": "Ruby — 라이트",
+                  "en": "Ruby — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-02.webp",
+                "alt": {
+                  "ko": "Meadow — 라이트",
+                  "en": "Meadow — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-03.webp",
+                "alt": {
+                  "ko": "Coral — 라이트",
+                  "en": "Coral — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-04.webp",
+                "alt": {
+                  "ko": "Azure — 라이트",
+                  "en": "Azure — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-05.webp",
+                "alt": {
+                  "ko": "Sand — 라이트",
+                  "en": "Sand — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-06.webp",
+                "alt": {
+                  "ko": "Harvest — 라이트",
+                  "en": "Harvest — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-07.webp",
+                "alt": {
+                  "ko": "Honey — 라이트",
+                  "en": "Honey — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-08.webp",
+                "alt": {
+                  "ko": "Forest — 라이트",
+                  "en": "Forest — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-09.webp",
+                "alt": {
+                  "ko": "Rosewood — 라이트",
+                  "en": "Rosewood — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-10.webp",
+                "alt": {
+                  "ko": "Dusk — 라이트",
+                  "en": "Dusk — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-11.webp",
+                "alt": {
+                  "ko": "Arctic — 라이트",
+                  "en": "Arctic — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-12.webp",
+                "alt": {
+                  "ko": "Baltic — 라이트",
+                  "en": "Baltic — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-13.webp",
+                "alt": {
+                  "ko": "Sorbet — 라이트",
+                  "en": "Sorbet — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-14.webp",
+                "alt": {
+                  "ko": "Twilight — 라이트",
+                  "en": "Twilight — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-15.webp",
+                "alt": {
+                  "ko": "Tropica — 라이트",
+                  "en": "Tropica — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-16.webp",
+                "alt": {
+                  "ko": "Petal — 라이트",
+                  "en": "Petal — light"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-light-17.webp",
+                "alt": {
+                  "ko": "Slate — 라이트",
+                  "en": "Slate — light"
+                }
+              }
+            ],
+            [
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-00.webp",
+                "alt": {
+                  "ko": "Default — 다크",
+                  "en": "Default — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-01.webp",
+                "alt": {
+                  "ko": "Ruby — 다크",
+                  "en": "Ruby — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-02.webp",
+                "alt": {
+                  "ko": "Meadow — 다크",
+                  "en": "Meadow — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-03.webp",
+                "alt": {
+                  "ko": "Coral — 다크",
+                  "en": "Coral — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-04.webp",
+                "alt": {
+                  "ko": "Azure — 다크",
+                  "en": "Azure — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-05.webp",
+                "alt": {
+                  "ko": "Sand — 다크",
+                  "en": "Sand — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-06.webp",
+                "alt": {
+                  "ko": "Harvest — 다크",
+                  "en": "Harvest — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-07.webp",
+                "alt": {
+                  "ko": "Honey — 다크",
+                  "en": "Honey — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-08.webp",
+                "alt": {
+                  "ko": "Forest — 다크",
+                  "en": "Forest — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-09.webp",
+                "alt": {
+                  "ko": "Rosewood — 다크",
+                  "en": "Rosewood — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-10.webp",
+                "alt": {
+                  "ko": "Dusk — 다크",
+                  "en": "Dusk — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-11.webp",
+                "alt": {
+                  "ko": "Arctic — 다크",
+                  "en": "Arctic — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-12.webp",
+                "alt": {
+                  "ko": "Baltic — 다크",
+                  "en": "Baltic — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-13.webp",
+                "alt": {
+                  "ko": "Sorbet — 다크",
+                  "en": "Sorbet — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-14.webp",
+                "alt": {
+                  "ko": "Twilight — 다크",
+                  "en": "Twilight — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-15.webp",
+                "alt": {
+                  "ko": "Tropica — 다크",
+                  "en": "Tropica — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-16.webp",
+                "alt": {
+                  "ko": "Petal — 다크",
+                  "en": "Petal — dark"
+                }
+              },
+              {
+                "src": "/content/works/hyeoniverse/landing/theme-dark-17.webp",
+                "alt": {
+                  "ko": "Slate — 다크",
+                  "en": "Slate — dark"
+                }
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/design-system.webp",
+          "alt": {
+            "ko": "디자인 시스템 — 원칙",
+            "en": "Design system — principles"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/design-system-2.webp",
+          "alt": {
+            "ko": "디자인 시스템 — 색",
+            "en": "Design system — colours"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": {
+        "ko": "쓴 글이 다시 읽히도록",
+        "en": "So that writing gets read again"
+      },
+      "body": {
+        "ko": "글은 쓰는 순간보다 나중에 다시 찾힐 때 쓸모가 생깁니다. 시리즈로 이어 읽고, 초성으로 태그를 거르고, 날짜로 거슬러 오르고, 매일의 기록은 별자리로 쌓습니다.",
+        "en": "Writing earns its keep when it's found again later — read a series in order, filter tags by initial, walk back through the timeline, and stack daily notes into constellations."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/hyeoniverse/landing/blog2-home.webp",
+          "alt": {
+            "ko": "블로그 첫 화면 — 넘겨 보는 글 표지",
+            "en": "Blog home — a carousel of post covers"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/blog2-series.webp",
+          "alt": {
+            "ko": "시리즈 — 차례대로 이어 읽기",
+            "en": "Series — read in order"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/blog2-tags.webp",
+          "alt": {
+            "ko": "태그 — 초성으로 거르기",
+            "en": "Tags — filter by initial"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/hyeoniverse/landing/blog2-history.webp",
+          "alt": {
+            "ko": "기록 — 해 · 달로 거슬러 오르는 타임라인",
+            "en": "History — a timeline by year and month"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/blog2-til.webp",
+          "alt": {
+            "ko": "TIL — 하루 한 칸 잔디와 열두 달 별자리",
+            "en": "TIL — a square a day and twelve monthly constellations"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/hyeoniverse/landing/blog2-planetarium.webp",
+          "video": "/content/works/hyeoniverse/landing/planetarium.mp4",
+          "alt": {
+            "ko": "TIL 플라네타리움 — 한 해가 밤하늘로 펼쳐진다",
+            "en": "TIL planetarium — the year as a night sky"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/blog2-post-top.webp",
+          "alt": {
+            "ko": "글 — 공유 · 듣기 · 언어 바꾸기 · 관련 작업물 · 시리즈",
+            "en": "Post — share, listen, language, related work and series"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "title": {
+        "ko": "한국어로 쓰고, 어느 언어로든 읽히게",
+        "en": "Written in Korean, read in any language"
+      },
+      "body": {
+        "ko": "화면 글은 KO · EN 버튼 하나로 바뀌고, 🌐 메뉴로는 사이트 전체를 다른 언어로 볼 수 있습니다. 글 한 편도 언어를 골라 그 자리에서 옮겨 읽습니다.",
+        "en": "UI text flips with one KO · EN button, and the 🌐 menu shows the whole site in another language. A single post can be switched and translated in place, too."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/hyeoniverse/landing/lang-home-ja.webp",
+          "alt": {
+            "ko": "일본어로 본 첫 화면",
+            "en": "The home page in Japanese"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/lang-works-fr.webp",
+          "alt": {
+            "ko": "프랑스어로 본 작업물",
+            "en": "Works in French"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/lang-profile-de.webp",
+          "alt": {
+            "ko": "독일어로 본 프로필",
+            "en": "The profile in German"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/hyeoniverse/landing/lang-series-it.webp",
+          "alt": {
+            "ko": "이탈리아어로 본 시리즈 — 글 제목 · 요약까지",
+            "en": "A series in Italian — down to post titles and summaries"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/lang-til-es.webp",
+          "alt": {
+            "ko": "스페인어로 본 TIL",
+            "en": "TIL in Spanish"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "title": {
+        "ko": "글만 쓰면, 나머지는 AI 가",
+        "en": "Just write — AI does the rest"
+      },
+      "body": {
+        "ko": "글을 저장하면 AI 가 요약을 블록으로 정리하고, 방문자에게는 글을 소리로 읽어 줍니다. 작업물 슬라이드에는 대본만 적으면 해설 음성이 입혀지고, 다른 언어로 옮기는 일은 05 처럼 맡깁니다. 기능마다 공급자를 줄 세워 두어 한 곳이 실패하면 다음 곳이 이어받고, 호출은 모두 기록에 남습니다.",
+        "en": "Save a post and AI lays out its summary in blocks, and reads the post aloud to visitors. Write a script for a work's slides and a narration voice is added; translation is handed off as in 05. Each feature lines up several providers so the next takes over when one fails, and every call is logged."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/ai-post-summary.webp",
+          "alt": {
+            "ko": "글의 AI 요약 — 핵심 · 검증 위치 · 주의 · 키워드를 블록으로",
+            "en": "A post's AI summary — key point, checks, caution and keywords as blocks"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/ai-editor-summary.webp",
+          "alt": {
+            "ko": "편집기 — 저장하면 생기는 AI 요약, 다시 만들기 한 번",
+            "en": "Editor — the AI summary made on save, regenerated with one button"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/ai-listen.webp",
+          "alt": {
+            "ko": "듣기 — 글을 소리로 읽어 준다",
+            "en": "Listen — the post read aloud"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/ai-narration.webp",
+          "alt": {
+            "ko": "작업물 갤러리 — 슬라이드마다 대본, 음성 만들기로 해설 음성(18/18)",
+            "en": "Work gallery — a script per slide, narration voiced with one button (18/18)"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/hyeoniverse/landing/ai-chain-summary.webp",
+          "alt": {
+            "ko": "요약 공급자 순서 — 실패하면 다음 모델로",
+            "en": "Summary providers in order — on failure, the next model"
+          },
+          "width": 2280,
+          "height": 790
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/ai-chain-tts.webp",
+          "alt": {
+            "ko": "음성 공급자 순서 — Fish Audio 다음 Edge TTS",
+            "en": "Voice providers in order — Fish Audio, then Edge TTS"
+          },
+          "width": 2280,
+          "height": 750
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/ai-service-log.webp",
+          "alt": {
+            "ko": "서비스 호출 기록 — 공급자마다 성공 · 실패를 남긴다",
+            "en": "Service call log — success and failure recorded per provider"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "title": {
+        "ko": "시각과 날씨에 따라 바뀌는 About",
+        "en": "An About that changes with your time and weather"
+      },
+      "body": {
+        "ko": "About 의 배경은 방문자 시계로 새벽부터 밤까지 일곱 단계를 지나고, 그 도시의 날씨(Open-Meteo)에 따라 구름 · 안개 · 비 · 눈 · 뇌우가 내립니다. 스크롤하면 하루가 흐릅니다.",
+        "en": "The About background moves through seven stages from dawn to night by your clock, and clouds, fog, rain, snow or storms fall with your city's weather (Open-Meteo). Scroll to pass the day."
+      },
+      "items": [
+        {
+          "kind": "sequence",
+          "items": [
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-01-dawn.webp",
+              "alt": {
+                "ko": "About 하늘 — 05:40 새벽",
+                "en": "About sky — 05:40 Dawn"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-02-sunrise.webp",
+              "alt": {
+                "ko": "About 하늘 — 06:25 해돋이",
+                "en": "About sky — 06:25 Sunrise"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-03-morning.webp",
+              "alt": {
+                "ko": "About 하늘 — 08:30 아침",
+                "en": "About sky — 08:30 Morning"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-04-day.webp",
+              "alt": {
+                "ko": "About 하늘 — 12:30 한낮",
+                "en": "About sky — 12:30 Midday"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-05-dusk.webp",
+              "alt": {
+                "ko": "About 하늘 — 18:12 노을",
+                "en": "About sky — 18:12 Sunset"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-06-evening.webp",
+              "alt": {
+                "ko": "About 하늘 — 19:12 저녁",
+                "en": "About sky — 19:12 Blue hour"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-07-night.webp",
+              "alt": {
+                "ko": "About 하늘 — 22:30 밤",
+                "en": "About sky — 22:30 Night"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-w1-cloudy.webp",
+              "alt": {
+                "ko": "About 하늘 — 흐림 · 한낮",
+                "en": "About sky — Cloudy · midday"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-w2-fog.webp",
+              "alt": {
+                "ko": "About 하늘 — 안개 · 아침",
+                "en": "About sky — Fog · morning"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-w3-rain.webp",
+              "alt": {
+                "ko": "About 하늘 — 비 · 한낮",
+                "en": "About sky — Rain · midday"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-w4-snow.webp",
+              "alt": {
+                "ko": "About 하늘 — 눈 · 저녁",
+                "en": "About sky — Snow · blue hour"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/sky-w5-storm.webp",
+              "alt": {
+                "ko": "About 하늘 — 뇌우 · 밤",
+                "en": "About sky — Storm · night"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/hyeoniverse/landing/api-map.webp",
+          "alt": {
+            "ko": "API 지도 — 엔드포인트 203개가 /api 태양을 도는 별자리",
+            "en": "API map — 203 endpoints as stars around the /api sun"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/api-journey-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/api-journey.mp4",
+          "alt": {
+            "ko": "API 지도 — 작업물 수정 요청이 브라우저 → 프록시 → 로그인 → 검사 → DB → 알림 · 캐시 → 응답 정거장을 따라 도는 녹화",
+            "en": "API map — a 'save work' request travelling browser → proxy → login → checks → DB → notify and cache → response"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/api-map-group.webp",
+          "alt": {
+            "ko": "API 지도 — 묶음 하나의 엔드포인트 · 접근 등급 · 테이블",
+            "en": "API map — one group's endpoints, access levels and tables"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/chapter-architecture-4.webp",
+          "alt": {
+            "ko": "구조 — 요청이 지나가는 길을 별자리로",
+            "en": "Architecture — a request's path as a constellation"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/chapter-design-0.webp",
+          "alt": {
+            "ko": "디자인 — 토큰 몇 백 개로 그린 화면",
+            "en": "Design — screens drawn from a few hundred tokens"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/chapter-design-2.webp",
+          "alt": {
+            "ko": "디자인 — 같은 회색도 뜻이 다르면 이름이 다르다",
+            "en": "Design — same grey, different meaning, different name"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "wide",
+          "src": "/content/works/hyeoniverse/landing/chapter-code-1.webp",
+          "alt": {
+            "ko": "코드 — 3D 스크롤 토러스, 코드와 실행 화면",
+            "en": "Code — 3D scroll torus, code and live preview"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "left",
+          "src": "/content/works/hyeoniverse/landing/chapter-code-3.webp",
+          "alt": {
+            "ko": "코드 — 속도를 맞춘 스냅 곡선",
+            "en": "Code — velocity-matched snap curve"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "right",
+          "src": "/content/works/hyeoniverse/landing/chapter-features-2.webp",
+          "alt": {
+            "ko": "기능 — 읽는 사람이 보는 곳",
+            "en": "Features — what readers see"
+          }
+        },
+        {
+          "kind": "frame",
+          "at": "center",
+          "src": "/content/works/hyeoniverse/landing/chapter-making-5.webp",
+          "alt": {
+            "ko": "만든 과정 — 8단계 계단",
+            "en": "Making — eight stages as steps"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "title": {
+        "ko": "스크롤을 따라 옆으로 펼쳐지는 프로필",
+        "en": "A profile that unfolds sideways as you scroll"
+      },
+      "body": {
+        "ko": "아래로 굴리면 화면이 옆으로 흐르며, 마스코트 몽이의 인사 · 창처럼 겹친 사진 · GitHub 활동 · 고정한 저장소 · 경력이 차례로 지나갑니다.",
+        "en": "Scroll down and the page runs sideways — Mongi's hello, photos stacked like windows, GitHub activity, pinned repos and experience pass by in turn."
+      },
+      "items": [
+        {
+          "kind": "frame",
+          "at": "bleed",
+          "src": "/content/works/hyeoniverse/landing/profile-poster.webp",
+          "video": "/content/works/hyeoniverse/landing/profile.mp4",
+          "alt": {
+            "ko": "프로필을 스크롤하는 녹화",
+            "en": "Recording: scrolling the profile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "title": {
+        "ko": "휴대폰에서도 같은 경험",
+        "en": "The same experience on a phone"
+      },
+      "body": {
+        "ko": "모든 화면을 휴대폰 폭에서 따로 다듬었습니다. 메뉴는 화면 전체로 열리고, 표와 코드는 옆으로 넘겨 읽습니다.",
+        "en": "Every screen was tuned at phone width — the menu opens full screen, and tables and code scroll sideways."
+      },
+      "items": [
+        {
+          "kind": "phones",
+          "items": [
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-home.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-home.mp4",
+              "alt": {
+                "ko": "홈",
+                "en": "Home"
+              },
+              "route": {
+                "ko": "/",
+                "en": "/"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-menu.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-menu.mp4",
+              "alt": {
+                "ko": "메뉴",
+                "en": "Menu"
+              },
+              "route": {
+                "ko": "/ · menu",
+                "en": "/ · menu"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-works.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-works.mp4",
+              "alt": {
+                "ko": "작업물",
+                "en": "Works"
+              },
+              "route": {
+                "ko": "/works",
+                "en": "/works"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-about.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-about.mp4",
+              "alt": {
+                "ko": "About",
+                "en": "About"
+              },
+              "route": {
+                "ko": "/about",
+                "en": "/about"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-profile.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-profile.mp4",
+              "alt": {
+                "ko": "프로필",
+                "en": "Profile"
+              },
+              "route": {
+                "ko": "/profile",
+                "en": "/profile"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-home-dark.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-home-dark.mp4",
+              "alt": {
+                "ko": "홈 — 다크",
+                "en": "Home — dark"
+              },
+              "route": {
+                "ko": "/ · dark",
+                "en": "/ · dark"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-design-system.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-design-system.mp4",
+              "alt": {
+                "ko": "디자인 시스템",
+                "en": "Design system"
+              },
+              "route": {
+                "ko": "/design-system",
+                "en": "/design-system"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-posts.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-posts.mp4",
+              "alt": {
+                "ko": "블로그",
+                "en": "Blog"
+              },
+              "route": {
+                "ko": "/posts",
+                "en": "/posts"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-post.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-post.mp4",
+              "alt": {
+                "ko": "글",
+                "en": "Post"
+              },
+              "route": {
+                "ko": "/posts/[slug]",
+                "en": "/posts/[slug]"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-post-body.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-post-body.mp4",
+              "alt": {
+                "ko": "글 — 요약과 목차",
+                "en": "Post — summary and contents"
+              },
+              "route": {
+                "ko": "/posts/[slug] · AI",
+                "en": "/posts/[slug] · AI"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-series.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-series.mp4",
+              "alt": {
+                "ko": "시리즈",
+                "en": "Series"
+              },
+              "route": {
+                "ko": "/posts/series",
+                "en": "/posts/series"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-tags.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-tags.mp4",
+              "alt": {
+                "ko": "태그",
+                "en": "Tags"
+              },
+              "route": {
+                "ko": "/posts/tags",
+                "en": "/posts/tags"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-history.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-history.mp4",
+              "alt": {
+                "ko": "기록",
+                "en": "History"
+              },
+              "route": {
+                "ko": "/posts/history",
+                "en": "/posts/history"
+              }
+            },
+            {
+              "src": "/content/works/hyeoniverse/landing/mobile-til.webp",
+              "video": "/content/works/hyeoniverse/landing/mobile-til.mp4",
+              "alt": {
+                "ko": "TIL",
+                "en": "TIL"
+              },
+              "route": {
+                "ko": "/posts/til",
+                "en": "/posts/til"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "numbers",
+          "items": [
+            {
+              "value": "139",
+              "label": {
+                "ko": "API 라우트",
+                "en": "API routes"
+              }
+            },
+            {
+              "value": "1,343",
+              "label": {
+                "ko": "단위 테스트",
+                "en": "Unit tests"
+              }
+            },
+            {
+              "value": "74",
+              "label": {
+                "ko": "DB 마이그레이션",
+                "en": "DB migrations"
+              }
+            },
+            {
+              "value": "18",
+              "label": {
+                "ko": "테마 프리셋",
+                "en": "Theme presets"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

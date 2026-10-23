@@ -15,7 +15,8 @@ import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
 import { WorkArticleBody } from "@/components/works/WorkArticleBody";
 import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
-import { LandingPage } from "@/components/works/landing/LandingPage";
+import { LandingRenderer } from "@/components/works/landing/LandingRenderer";
+import { landingOf } from "@/components/works/landing/landingData";
 import { hasLandingPage } from "@/components/works/landing/registry";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
@@ -179,8 +180,8 @@ export default function WorkDetailClient({
       backLink={landingMode ? undefined : { href: "/works", labelKey: "workDetail.viewAll" }}
       landing={landingMode ? (
         <TranslatingRegion active={contentTr.translating}>
-          <LandingPage
-            slug={landingSlug!}
+          <LandingRenderer
+            data={landingOf(project)}
             project={project}
             viewLang={viewLang}
             next={landingNext ? { href: `/works/${landingNext.slug || landingNext.id}`, title: pickLocalized(landingNext.title, language) } : null}
