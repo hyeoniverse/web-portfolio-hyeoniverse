@@ -455,11 +455,10 @@ export default function ContentTab({
                 />
               </FieldRow>
             </div>
-            {config.posts.showBanner === true && (
-              <BannerPreview
-                draft={{ bannerLayout: config.posts.bannerLayout, bannerStyle: config.posts.bannerStyle, bannerTransition: config.posts.bannerTransition }}
-              />
-            )}
+            {/* 배너를 꺼 두어도 고르는 레이아웃 · 스타일이 어떻게 보이는지는 보여 준다 */}
+            <BannerPreview
+              draft={{ bannerLayout: config.posts.bannerLayout, bannerStyle: config.posts.bannerStyle, bannerTransition: config.posts.bannerTransition }}
+            />
           </section>
 
           {/* 블로그 이름 — /posts 머리말의 큰 제목 */}
