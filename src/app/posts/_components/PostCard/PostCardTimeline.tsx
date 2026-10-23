@@ -29,7 +29,7 @@ export default function PostCardTimeline({
   imgError?: boolean;
 }) {
   const {
-    t, language, foreignLang, dateLocale, cardRef, readTime, showImage, category, author, langBadge,
+    t, language, foreignLang, dateLocale, cardRef, readTime, showImage, coverSrc, category, author, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate).
@@ -94,7 +94,7 @@ export default function PostCardTimeline({
           {(showImage || icon) && (
             <div className={`${styles.timelinePreviewThumb} ${icon ? styles.timelinePreviewThumbEmoji : ""}`}>
               {icon ? <EmojiIcon value={icon} size={34} /> : (
-                <ProgressiveImage src={post.cover_image} alt="" fill sizes="140px" className={styles.timelinePreviewThumbImg} onError={() => onImgError?.(post.id)} />
+                <ProgressiveImage src={coverSrc} alt="" fill sizes="140px" className={styles.timelinePreviewThumbImg} onError={() => onImgError?.(post.id)} />
               )}
             </div>
           )}

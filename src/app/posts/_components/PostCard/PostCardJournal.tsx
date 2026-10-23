@@ -28,7 +28,7 @@ export default function PostCardJournal({
   imgError?: boolean;
 }) {
   const {
-    t, cardRef, date, readTime, showImage, category, langBadge,
+    t, cardRef, date, readTime, showImage, coverSrc, category, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
 
@@ -46,7 +46,7 @@ export default function PostCardJournal({
       <div className={styles.cover}>
         {showImage ? (
           <ProgressiveImage
-            src={post.cover_image}
+            src={coverSrc}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 400px"

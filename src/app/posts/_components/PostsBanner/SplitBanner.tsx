@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, Play, Pause } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { postCoverOf } from "@/lib/postCover";
 
 interface SplitBannerProps {
   posts: Post[];
@@ -47,7 +48,7 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
   }, [post.slug, router]);
 
   const href = blogHref(`/posts/${post.slug}`);
-  const image = post.cover_image || "";
+  const image = postCoverOf(post) || "";
 
   return (
     <div className={styles.splitWrap} onMouseEnter={pause} onMouseLeave={resume} data-cursor="stop">
@@ -66,9 +67,9 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
             >
               {/* 제목 링크와 같은 곳이라 초점·보조기기에서는 뺀다 */}
               <TransitionLink href={href} image={image} className={styles.splitImageLink} tabIndex={-1} aria-hidden="true">
-                {post.cover_image && !imgErrors.has(post.id) ? (
+                {postCoverOf(post) && !imgErrors.has(post.id) ? (
                   <ProgressiveImage
-                    src={post.cover_image}
+                    src={postCoverOf(post)}
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

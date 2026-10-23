@@ -9,6 +9,7 @@ import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./ProgressiveImage.module.css";
 import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
 import { useNearViewport } from "@/hooks/useNearViewport";
+import { isPostCardImage, POST_CARD_BG } from "@/lib/postCover";
 
 interface ProgressiveImageProps {
   src: string;
@@ -128,8 +129,10 @@ export default function ProgressiveImage({
              그러면 LCP 이미지가 Low 로 받혀 스타일시트·스크립트와 대역폭을 나눈다(#944) */
           fetchPriority={priority ? "high" : undefined}
           loading={loading}
+          unoptimized={isPostCardImage(src)}
           className={`${className ?? ""} ${styles.full} ${visible ? styles.fullLoaded : ""}`}
-          style={style}
+          /* 제목 카드는 글자가 그림 안에 있어 잘리면 안 된다 — 어느 비율의 칸이든 통째로 담고 남는 곳은 카드 바탕색으로 */
+          style={isPostCardImage(src) ? { ...style, objectFit: "contain", backgroundColor: POST_CARD_BG } : style}
           onLoad={() => setLoaded(true)}
           onError={() => {
             setErrored(true);

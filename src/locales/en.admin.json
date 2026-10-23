@@ -2778,6 +2778,11 @@
       },
       "contentTab": {
         "cardLayout": "Card layout",
+        "coverFallback": "When there's no cover",
+        "coverFallbackHint": "Choose what cards show for posts without a cover image. 'Color background' puts the title on a color unique to each post; 'Title image' uses the image shown when the link is shared (title, tags, date). The banner always uses the title image.",
+        "coverFallbackGradient": "Color background",
+        "coverFallbackOg": "Title image",
+        "previewLabel": "Preview · recent posts, unsaved",
         "gridStyle": "Grid style",
         "magazineMixedSizes": "Magazine (mixed sizes)",
         "gridImageFirst": "Grid (image-first)",

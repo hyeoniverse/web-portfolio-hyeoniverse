@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import { BannerPreview, ListPreview } from "./PostsAppearancePreview";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileGithubEditor from "./ProfileGithubEditor";
@@ -398,13 +399,18 @@ export default function ContentTab({
 
       {contentSubTab === "posts" && (
         <>
-          {/* Banner Settings — 전폭 얇은 바(셀렉트 3개 한 줄) */}
+          {/* Banner Settings — 고르는 칸 · 미리보기 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader
               title={t("admin.settings.banner")}
               paths={["posts.showBanner", "posts.showSeriesRow", "posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]}
-              extra={
-                <>
+              {...sh}
+            />
+            {/* 고르는 칸은 왼쪽, 미리보기는 오른쪽(모바일은 미리보기가 위) */}
+            <div className={styles.previewSplit}>
+              <div className={styles.previewControls}>
+                {/* 켜고 끄는 두 가지는 나란히 2열 */}
+                <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
                   <Switch
                     label={t("admin.settings.showBanner")}
                     checked={config.posts.showBanner === true}
@@ -415,45 +421,53 @@ export default function ContentTab({
                     checked={config.posts.showSeriesRow === true}
                     onCheckedChange={(v) => update("posts", "showSeriesRow", v)}
                   />
-                </>
-              }
-              {...sh}
-            />
-            <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
-              <FieldRow label={<T k="admin.settings.bannerLayout" />}>
-                <Select
-                  value={config.posts.bannerLayout ?? "fullwidth"}
-                  options={[
-                    { value: "fullwidth", label: "Fullwidth" },
-                    { value: "split", label: "Split" },
-                    { value: "cards", label: "Cards" },
-                    { value: "ticker", label: "Ticker" },
-                  ]}
-                  onChange={(v) => update("posts", "bannerLayout", v as SiteConfigData["posts"]["bannerLayout"])}
+                </div>
+                <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
+                  <FieldRow label={<T k="admin.settings.bannerLayout" />}>
+                    <Select
+                      width="full"
+                      value={config.posts.bannerLayout ?? "fullwidth"}
+                      options={[
+                        { value: "fullwidth", label: "Fullwidth" },
+                        { value: "split", label: "Split" },
+                        { value: "cards", label: "Cards" },
+                        { value: "ticker", label: "Ticker" },
+                      ]}
+                      onChange={(v) => update("posts", "bannerLayout", v as SiteConfigData["posts"]["bannerLayout"])}
+                    />
+                  </FieldRow>
+                  <FieldRow label={<T k="admin.settings.bannerStyle" />}>
+                    <Select
+                      width="full"
+                      value={config.posts.bannerStyle ?? "editorial"}
+                      options={[
+                        { value: "editorial", label: "Editorial" },
+                        { value: "minimal", label: "Minimal" },
+                        { value: "cinematic", label: "Cinematic" },
+                        { value: "magazine", label: "Magazine" },
+                      ]}
+                      onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
+                    />
+                  </FieldRow>
+                  <FieldRow label={<T k="admin.settings.bannerTransition" />}>
+                    <Select
+                      width="full"
+                      value={config.posts.bannerTransition ?? "default"}
+                      options={[
+                        { value: "default", label: "Default" },
+                        { value: "cylinder", label: "Cylinder" },
+                      ]}
+                      onChange={(v) => update("posts", "bannerTransition", v as SiteConfigData["posts"]["bannerTransition"])}
+                    />
+                  </FieldRow>
+                </div>
+              </div>
+              {/* 배너를 꺼 두어도 고르는 레이아웃 · 스타일이 어떻게 보이는지는 보여 준다 */}
+              <div className={styles.previewAside}>
+                <BannerPreview
+                  draft={{ bannerLayout: config.posts.bannerLayout, bannerStyle: config.posts.bannerStyle, bannerTransition: config.posts.bannerTransition }}
                 />
-              </FieldRow>
-              <FieldRow label={<T k="admin.settings.bannerStyle" />}>
-                <Select
-                  value={config.posts.bannerStyle ?? "editorial"}
-                  options={[
-                    { value: "editorial", label: "Editorial" },
-                    { value: "minimal", label: "Minimal" },
-                    { value: "cinematic", label: "Cinematic" },
-                    { value: "magazine", label: "Magazine" },
-                  ]}
-                  onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
-                />
-              </FieldRow>
-              <FieldRow label={<T k="admin.settings.bannerTransition" />}>
-                <Select
-                  value={config.posts.bannerTransition ?? "default"}
-                  options={[
-                    { value: "default", label: "Default" },
-                    { value: "cylinder", label: "Cylinder" },
-                  ]}
-                  onChange={(v) => update("posts", "bannerTransition", v as SiteConfigData["posts"]["bannerTransition"])}
-                />
-              </FieldRow>
+              </div>
             </div>
           </section>
 
@@ -470,26 +484,46 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
+          {/* 목록 카드 레이아웃 — 고르는 칸 · 미리보기 */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
-            <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout"]} {...sh} />
-            <div className={styles.fields}>
-              <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
-                <Select
-                  value={config.posts.layout ?? "magazine"}
-                  options={[
-                    { value: "journal", label: t("admin.inline.contentTab.journalCards") },
-                    { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
-                    { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
-                    { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
-                    { value: "list", label: t("admin.inline.contentTab.listRows") },
-                    { value: "compact", label: t("admin.inline.contentTab.compactTextOnly") },
-                    { value: "masonry", label: t("admin.inline.contentTab.masonryVariableHeight") },
-                    { value: "featured", label: t("admin.inline.contentTab.featuredHeroGrid") },
-                  ]}
-                  onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
-                />
-              </FieldRow>
+            <SectionHeader title={t("admin.inline.contentTab.cardLayout")} paths={["posts.layout", "posts.coverFallback"]} {...sh} />
+            <div className={styles.previewSplit}>
+              <div className={styles.previewControls}>
+                <FieldRow label={t("admin.inline.contentTab.gridStyle")}>
+                  <Select
+                    width="full"
+                    value={config.posts.layout ?? "magazine"}
+                    options={[
+                      { value: "journal", label: t("admin.inline.contentTab.journalCards") },
+                      { value: "blog", label: t("admin.inline.contentTab.blogTextFirst") },
+                      { value: "magazine", label: t("admin.inline.contentTab.magazineMixedSizes") },
+                      { value: "grid", label: t("admin.inline.contentTab.gridImageFirst") },
+                      { value: "list", label: t("admin.inline.contentTab.listRows") },
+                      { value: "compact", label: t("admin.inline.contentTab.compactTextOnly") },
+                      { value: "masonry", label: t("admin.inline.contentTab.masonryVariableHeight") },
+                      { value: "featured", label: t("admin.inline.contentTab.featuredHeroGrid") },
+                    ]}
+                    onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
+                  />
+                </FieldRow>
+                {/* 커버를 안 올린 글의 카드 — 색 배경(기본) 또는 제목이 들어간 이미지(공유 카드). 배너는 늘 제목 이미지 */}
+                {/* 설명은 ? 도움말로 — 라벨 아래에 두면 옆 칸(목록 배치)과 고르기 칸 높이가 어긋났다 */}
+                <FieldRow label={t("admin.inline.contentTab.coverFallback")} help={t("admin.inline.contentTab.coverFallbackHint")}>
+                  <Select
+                    width="full"
+                    value={config.posts.coverFallback ?? "gradient"}
+                    options={[
+                      { value: "gradient", label: t("admin.inline.contentTab.coverFallbackGradient") },
+                      { value: "og", label: t("admin.inline.contentTab.coverFallbackOg") },
+                    ]}
+                    onChange={(v) => update("posts", "coverFallback", v as SiteConfigData["posts"]["coverFallback"])}
+                  />
+                </FieldRow>
+              </div>
+              {/* 고른 목록 배치 · 커버가 없을 때 방식으로 최근 글 셋 */}
+              <div className={styles.previewAside}>
+                <ListPreview layout={config.posts.layout ?? "magazine"} coverFallback={config.posts.coverFallback ?? "gradient"} />
+              </div>
             </div>
           </section>
 

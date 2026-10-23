@@ -1,0 +1,45 @@
+/* 설정 › 콘텐츠의 미리보기 — 실제 배너 · 카드를 작게 */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+.caption {
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+/* 틀 — 줄여 그린 화면을 담는 작은 창이라 면(24px)의 절반 모서리 · 여백 8px. 24px 은 칸 크기에 비해 너무 둥글었다 */
+.viewport {
+  padding: var(--spacing-8);
+  border: var(--border-light);
+  border-radius: calc(var(--radius-surface) / 2);
+  background-color: var(--bg-primary);
+}
+
+/* 실제 화면 폭으로 그린 무대를 이 칸 폭에 맞춰 줄인다(높이는 줄인 높이로 맞춘다).
+   모바일은 미리보기가 고르는 칸 위에 온다 — 너무 길면 아래 칸이 밀려나니 높이를 묶고 안에서 넘겨 본다 */
+.clip {
+  position: relative;
+  max-height: 420px;
+  overflow: hidden auto;
+}
+@media (width > 768px) {
+  .clip {
+    max-height: none;
+    overflow: hidden;
+  }
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.bannerLoading {
+  height: var(--spacing-128);
+}

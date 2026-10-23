@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight, Play, Pause } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { postCoverOf } from "@/lib/postCover";
 
 interface TickerBannerProps {
   posts: Post[];
@@ -64,15 +65,15 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
       <div key={key} className={styles.tickerInner} inert={!shown}>
         <TransitionLink
           href={blogHref(`/posts/${post.slug}`)}
-          image={post.cover_image || ""}
+          image={postCoverOf(post) || ""}
           className={styles.tickerLink}
           onMouseEnter={() => handlePrefetch(post.slug)}
           onFocus={() => handlePrefetch(post.slug)}
         >
           <div className={styles.tickerThumb}>
-            {post.cover_image && !imgErrors.has(post.id) ? (
+            {postCoverOf(post) && !imgErrors.has(post.id) ? (
               <MediaThumb
-                src={post.cover_image}
+                src={postCoverOf(post)}
                 alt={title}
                 fill
                 sizes="56px"

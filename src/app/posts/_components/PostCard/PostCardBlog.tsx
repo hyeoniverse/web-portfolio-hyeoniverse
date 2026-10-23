@@ -27,7 +27,7 @@ export default function PostCardBlog({
   imgError?: boolean;
 }) {
   const {
-    t, cardRef, date, readTime, showImage, category, langBadge,
+    t, cardRef, date, readTime, showImage, coverSrc, category, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
 
@@ -77,7 +77,7 @@ export default function PostCardBlog({
       {showImage && (
         <div className={styles.blogThumb}>
           <ProgressiveImage
-            src={post.cover_image}
+            src={coverSrc}
             alt=""
             fill
             sizes="(max-width: 480px) 96px, 160px"
