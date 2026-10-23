@@ -1,5 +1,5 @@
 import { blogHref } from "@/lib/siteHosts";
-import { Download, ExternalLink } from "@/components/icons";
+import { Download, ExternalLink, Eye } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
@@ -47,20 +47,24 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       key: "view",
       label: "",
       className: ts.colView,
-      render: (post) =>
-        post.published && post.slug ? (
+      /* 발행된 글은 공개 상세로(새 창 아이콘), 임시저장은 같은 자리에서 관리자 미리보기를 연다(눈 아이콘) — 작업물 목록과 같다 */
+      render: (post) => {
+        const live = post.published && post.slug;
+        const label = t(live ? "admin.posts.viewDetail" : "admin.posts.previewDraft");
+        return (
           <a
-            href={blogHref(`/posts/${post.slug}`)}
+            href={live ? blogHref(`/posts/${post.slug}`) : `/admin/posts/preview?fetch=${encodeURIComponent(post.id)}`}
             target="_blank"
             rel="noopener noreferrer"
             className={ts.viewBtn}
-            title={t("admin.posts.viewDetail")}
-            aria-label={t("admin.posts.viewDetail")}
+            title={label}
+            aria-label={label}
             onClick={(e) => e.stopPropagation()}
           >
-            <ExternalLink size={14} strokeWidth={1.5} />
+            {live ? <ExternalLink size={14} strokeWidth={1.5} /> : <Eye size={14} strokeWidth={1.5} />}
           </a>
-        ) : null,
+        );
+      },
       skeletonWidth: "20px",
     },
     {

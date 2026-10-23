@@ -11,7 +11,7 @@ import { usePopoverRef } from "@/hooks/useTopLayer";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder } from "@/components/icons";
+import { Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder, Eye } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
@@ -615,7 +615,8 @@ export default function AdminWorksPage() {
               aria-label={label}
               onClick={(e) => e.stopPropagation()}
             >
-              <ExternalLink size={14} strokeWidth={1.5} />
+              {/* 공개 상세는 새 창 아이콘, 임시저장 미리보기는 눈 아이콘 — 같은 자리라 모양으로 가른다 */}
+              {live ? <ExternalLink size={14} strokeWidth={1.5} /> : <Eye size={14} strokeWidth={1.5} />}
             </a>
           );
         },
