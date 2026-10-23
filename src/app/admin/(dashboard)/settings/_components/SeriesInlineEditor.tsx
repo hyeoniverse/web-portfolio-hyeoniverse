@@ -379,22 +379,16 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       });
       if (!res.ok) throw errorFromBody(await res.json().catch(() => null), res.status);
       const savedSeries = (await res.json()) as Series;
-      /* 새 시리즈 + 사용자가 원한 position 이 기본 (맨 뒤) 와 다르면 PATCH 로 위치 변경 (backend auto-shift) */
+      /* 새 시리즈 + 사용자가 원한 position 이 기본 (맨 뒤) 와 다르면 PATCH 로 위치 변경 */
       /* 시리즈는 이미 저장됐다. 뒤따르는 위치·글 반영이 실패해도 저장은 끝내고, 반영하지 못한 것은 알림으로 알린다.
          예전에는 응답을 보지 않아 실패해도 저장된 것처럼 보였다(#868) */
       if (!isEdit && form.desiredPosition !== totalCount + 1) {
-        // 현재 list 의 (position-1) 번째 시리즈의 sort_order 자리로 이동
-        const listRes = await sendAction(`/api/series?all=true&sortBy=default&sortDir=asc&page=0&limit=200`, undefined, t, t("admin.common.reorderFailed"));
-        const listData = listRes ? await listRes.json().catch(() => null) : null;
-        const items = (Array.isArray(listData?.items) ? listData.items : []) as Series[];
-        const target = items[form.desiredPosition - 1];
-        if (target && target.id !== savedSeries.id) {
-          await sendAction(`/api/series/${savedSeries.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sort_order: target.sort_order }),
-          }, t, t("admin.common.reorderFailed"));
-        }
+        // 원한 순번 자리로 — 서버가 끼우고 전체를 1부터 다시 매긴다
+        await sendAction(`/api/series/${savedSeries.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ position: form.desiredPosition }),
+        }, t, t("admin.common.reorderFailed"));
       }
 
       /* 포스트 변경사항 일괄 반영 — 새 시리즈 / edit 둘 다. savedSeries.id 로 연결. */

@@ -265,32 +265,23 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
     );
   };
 
+  /* 끌어 놓은 자리의 순번(position)으로 옮긴다 — 서버가 그 자리에 끼우고 전체를 1부터 다시 매긴다 */
   const handleReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
+    const moved = seriesList[fromIdx];
+    const target = seriesList[toIdx]?.position;
+    if (!moved || !target) return;
     const reordered = [...seriesList];
-    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
-    const lo = Math.min(fromIdx, toIdx);
-    const hi = Math.max(fromIdx, toIdx);
-    const sortOrders = seriesList.slice(lo, hi + 1).map((s) => s.sort_order);
-    const next = reordered.map((s, idx) => {
-      if (idx >= lo && idx <= hi) {
-        return { ...s, sort_order: sortOrders[idx - lo] };
-      }
-      return s;
-    });
-    setSeriesList(next);
-    // skipShift=true — 클라이언트가 직접 정렬 관리
-    const changed = next.slice(lo, hi + 1);
-    const saved = await sendActions(
-      changed.map((s) => ({
-        input: `/api/series/${s.id}?skipShift=true`,
-        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: s.sort_order }) },
-      })),
-      t, t("admin.common.reorderFailed"), { sequential: true },
-    );
-    /* 하나라도 실패하면 먼저 바꿔 둔 화면 순서가 서버와 어긋나므로 다시 불러온다(#868) */
-    if (saved < changed.length) fetchSeries();
+    setSeriesList(reordered);
+    await sendAction(`/api/series/${moved.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ position: target }),
+    }, t, t("admin.common.reorderFailed"));
+    /* 번호가 모두 바뀌므로 성공해도 다시 불러온다. 실패하면 먼저 바꿔 둔 화면 순서를 서버 순서로 되돌린다(#868) */
+    fetchSeries();
   };
 
   /* URL ?series=ID — findPage 로 해당 페이지를 알아낸 뒤 이동 */
@@ -554,15 +545,15 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                         #
                         <EditableRowNumber
                           inline
-                          value={s.sort_order}
+                          value={s.position ?? 0}
                           min={1}
                           max={total}
                           onSave={async (n) => {
-                            if (n === s.sort_order) return;
+                            if (n === s.position) return;
                             const res = await sendAction(`/api/series/${s.id}`, {
                               method: "PATCH",
                               headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ sort_order: n }),
+                              body: JSON.stringify({ position: n }),
                             }, t, t("admin.common.reorderFailed"));
                             if (res) fetchSeries();
                           }}

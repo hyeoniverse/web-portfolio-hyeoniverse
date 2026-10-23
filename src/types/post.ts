@@ -103,6 +103,8 @@ export interface Series {
   title_en: string;
   description_en: string;
   sort_order: number;
+  /** 관리 목록(GET ?page=)만 — 사용자 정의 순서에서 몇 번째인지(1부터). 화면의 "#N" */
+  position?: number;
   post_count?: number;
   /** 소속 글들의 cover 이미지 (모자이크 미리보기 용, 최대 4개) */
   thumbs?: string[];

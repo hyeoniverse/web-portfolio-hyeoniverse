@@ -8,6 +8,7 @@ import type { SyntaxMode } from "@/lib/searchQuery";
 import { SERIES_TITLE_MAX } from "@/types/post";
 import { topPostCategory } from "@/lib/seriesCategory";
 import { createSeriesCover } from "@/lib/seriesCover";
+import { seriesPositions } from "@/lib/seriesOrder";
 
 /** 제목(ko/en) 길이 검증 — 초과 시 400, 통과 시 null. UI/폼 우회(직접 API 호출) 방어. */
 function validateSeriesTitle(body: { title?: unknown; title_en?: unknown }) {
@@ -203,7 +204,9 @@ export async function GET(request: Request) {
   }));
 
   if (isPaginated) {
-    return jsonOk({ items, total: count ?? items.length });
+    /* 관리 화면의 "#N" — 사용자 정의 순서에서 몇 번째인지(정렬 · 검색과 관계없이). sort_order 값을 그대로 보이면 0 · 빈 번호가 드러났다 */
+    const positions = await seriesPositions(supabase);
+    return jsonOk({ items: items.map((s) => ({ ...s, position: positions.get(s.id) ?? 0 })), total: count ?? items.length });
   }
 
   return jsonOk(items);
@@ -230,15 +233,15 @@ export async function POST(request: Request) {
   // 시리즈는 자기 카테고리를 갖지 않음 — 카테고리는 멤버 글들에서 도출한다.
   // (series.category 컬럼은 legacy 로 남되 '' 기본값으로 둔다.)
 
-  // sort_order 미지정(또는 1 미만) 시 — 현재 max + 1 (맨 뒤). 순번은 1부터 — 0 으로 들어가면 관리 화면에 #0 으로 보였다
-  if (typeof body.sort_order !== "number" || body.sort_order < 1) {
+  // sort_order 미지정 시 — 현재 max + 1 (맨 뒤)
+  if (body.sort_order === undefined || body.sort_order === null) {
     const { data: maxRow } = await supabase
       .from("series")
       .select("sort_order")
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
-    body.sort_order = Math.max(maxRow?.sort_order ?? 0, 0) + 1;
+    body.sort_order = (maxRow?.sort_order ?? 0) + 1;
   }
 
   const { data, error } = await supabase.from("series").insert(body).select().single();
