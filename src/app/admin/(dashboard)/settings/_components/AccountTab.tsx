@@ -439,12 +439,13 @@ export default function AccountTab({
         <h2 className={shared.sectionTitle}><T k="admin.settings.securityTitle" /></h2>
         <ul className={shared.sectionHintList}>
           <li><T k="admin.settings.signOutAllHint" /></li>
+          <li><T k="admin.settings.mfaHint" /></li>
         </ul>
 
         {/* 사이트 전체 강제 여부 — 소유자만 바꾼다(security_settings) */}
         {isOwner && (
           <div className={shared.fields}>
-            <FieldRow label={<T k="admin.settings.mfaRequiredLabel" />} hint={<T k="admin.settings.mfaRequiredHint" />}>
+            <FieldRow className={styles.switchEndRow} label={<T k="admin.settings.mfaRequiredLabel" />} hint={<T k="admin.settings.mfaRequiredHint" />}>
               <Switch
                 showStateText
                 checked={mfaRequired}
@@ -490,7 +491,6 @@ export default function AccountTab({
               ))}
             </ul>
           )}
-          <p className={shared.sectionHint}><T k="admin.settings.mfaHint" /></p>
           <Button
             variant="outline"
             onClick={() => window.location.assign(`/admin/mfa?add=1&next=${encodeURIComponent("/admin/settings?tab=account")}`)}

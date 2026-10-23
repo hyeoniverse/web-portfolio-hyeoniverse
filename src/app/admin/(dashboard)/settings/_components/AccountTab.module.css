@@ -226,3 +226,11 @@
 
 /* 로그인한 계정이 본인임을 표시 — 목록에서 남의 계정과 섞이지 않도록 */
 
+
+/* 켜고 끄는 행 — 스위치를 라벨(제목)과 같은 줄 오른쪽 끝에. 설명은 라벨 아래로 그대로 흐른다 */
+.switchEndRow {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-16);
+}
