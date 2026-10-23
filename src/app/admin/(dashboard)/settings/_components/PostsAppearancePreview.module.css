@@ -11,11 +11,11 @@
   color: var(--text-tertiary);
 }
 
-/* 틀 — 여백은 줄이지 않은 실제 12px. 안쪽 카드 모서리(줄어든 24px ≈ 10px)와 틀 모서리(24px − 12px)가 같은 원을 그린다 */
+/* 틀 — 줄여 그린 화면을 담는 작은 창이라 면(24px)의 절반 모서리 · 여백 8px. 24px 은 칸 크기에 비해 너무 둥글었다 */
 .viewport {
-  padding: var(--spacing-12);
+  padding: var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-surface);
+  border-radius: calc(var(--radius-surface) / 2);
   background-color: var(--bg-primary);
 }
 
