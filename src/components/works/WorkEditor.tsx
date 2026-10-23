@@ -840,7 +840,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         pickerOpen={showCoverPicker}
         onPickerToggle={() => setShowCoverPicker((v) => !v)}
         urlInputPlaceholder={tw("pasteUrl")}
-        hint={form.gallery.length > 0 ? tw("galleryPickHint") : undefined}
         hasError={showErrors && !form.image.trim()}
         fill
       />
@@ -856,7 +855,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       )}
     </div>
   ), [
-    form.description_en, form.description_ko, form.gallery.length, form.image, form.tech, form.title,
+    form.description_en, form.description_ko, form.image, form.tech, form.title,
     handleImageUpload, showCoverPicker, showErrors, tw, updateField,
   ]);
 

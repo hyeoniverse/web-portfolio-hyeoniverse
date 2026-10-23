@@ -23,6 +23,8 @@
 .iconGroup {
   display: inline-flex;
   flex: none;
+  /* 세로로 쌓는 칸(.field — 커버가 없을 때 맨 아래) 안에서도 아이콘 수만큼만 — 늘어나면 마지막 단추만 길어졌다 */
+  align-self: flex-start;
   align-items: stretch;
   height: var(--control-height-sm);
   border: var(--border-light);
