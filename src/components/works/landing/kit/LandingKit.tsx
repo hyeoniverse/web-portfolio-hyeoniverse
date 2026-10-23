@@ -38,11 +38,13 @@ function repoOf(url: string): string {
 }
 
 /** 페이지 틀 — 머리(분류 · 큰 제목 · 역할 / 기간 / 사이트 / GitHub), 가운데(children), 끝의 다음 작업물. 나타나기 · 스크롤 진행을 건다 */
-export function LandingShell({ project, viewLang, next, eyebrow, children }: {
+export function LandingShell({ project, viewLang, next, eyebrow, nav = true, children }: {
   project: Project;
   viewLang: Lang;
   next?: { href: string; title: string } | null;
   eyebrow: L10n;
+  /** 사이트 메뉴(간략형) — 관리자 미리보기는 관리자 메뉴가 위에 있어 끈다 */
+  nav?: boolean;
   children: ReactNode;
 }) {
   const { t } = useLanguage();
@@ -65,7 +67,7 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
 
   return (
     <article ref={rootRef} className={styles.landing} lang={viewLang} data-ready={ready ? "" : undefined}>
-      <LandingNav />
+      {nav && <LandingNav />}
       <header className={styles.hero}>
         <p className={styles.eyebrow} data-reveal="">{eyebrow[viewLang]}</p>
         <h1 className={styles.title} aria-label={name}>

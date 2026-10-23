@@ -139,6 +139,8 @@ export interface WorkFormData {
   gallery: string[];
   /** 갤러리 장마다의 음성 — 그림 주소가 열쇠 */
   gallery_notes: GalleryNotes;
+  /** 랜딩 페이지 데이터(lib/workLanding) — null 이면 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩 */
+  landing: unknown;
   live_url: string;
   github_url: string;
   published: boolean;
@@ -230,6 +232,7 @@ export function workFormToProject(input: WorkFormData): Project {
     team_members: form.team_members,
     gallery: form.gallery,
     gallery_notes: form.gallery_notes,
+    landing: form.landing,
     live_url: form.live_url,
     github_url: form.github_url,
     published: form.published,

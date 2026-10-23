@@ -26,11 +26,11 @@ function Item({ item, viewLang, priority }: { item: LandingItem; viewLang: Lang;
  * 데이터로 그리는 작업물 랜딩 — 머리(분류 · 제목 · 역할 · 기간 · 링크)는 작업물 카드 정보로, 그 아래는 랜딩 데이터(lib/workLanding)로.
  * 첫 번호 앞의 장면들(hero) → 섹션마다 번호 · 제목 · 설명과 그 장면들 → 끝의 다음 작업물.
  */
-export function LandingRenderer({ project, data, viewLang, next }: {
-  project: Project; data: WorkLanding; viewLang: Lang; next?: { href: string; title: string } | null;
+export function LandingRenderer({ project, data, viewLang, next, nav }: {
+  project: Project; data: WorkLanding; viewLang: Lang; next?: { href: string; title: string } | null; nav?: boolean;
 }) {
   return (
-    <LandingShell project={project} viewLang={viewLang} next={next} eyebrow={data.eyebrow}>
+    <LandingShell project={project} viewLang={viewLang} next={next} eyebrow={data.eyebrow} nav={nav}>
       <Flow>
         {data.hero.map((item, i) => <Item key={`h${i}`} item={item} viewLang={viewLang} priority={i === 0} />)}
         {data.sections.map((s, si) => [

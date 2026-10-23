@@ -1,0 +1,337 @@
+/* ── 작업물 랜딩 편집기 — 머리 한 줄 · 첫 장면들 · 번호 섹션 카드들 ── */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.groupTitle {
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+}
+
+/* 섹션 카드 — 손잡이로 끌어서 차례를 바꾼다 */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-primary);
+}
+
+.section[data-dragging] {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-floating);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.grip {
+  display: inline-flex;
+  padding: var(--spacing-4);
+  color: var(--text-tertiary);
+  cursor: grab;
+  touch-action: none;
+}
+
+.no {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.sectionTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 항목 카드 */
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+.kind {
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+
+.addItem {
+  align-self: flex-start;
+  min-width: 180px;
+}
+
+.tools {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-shrink: 0;
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+  color: var(--text-tertiary);
+}
+
+.tool:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.tool:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  flex: 1;
+  min-width: 0;
+}
+
+/* 좁은 화면은 그림 위 · 칸 아래로 쌓고, 넓으면 나란히 */
+.frameRow,
+.phoneRow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-12);
+}
+
+.phoneMedia {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.rowBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.rowLabel {
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+.numberRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+/* 그림 칸 */
+.slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 96px;
+  aspect-ratio: 3 / 4;
+}
+
+.slotWide {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+}
+
+.slot[data-busy] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.slotPick {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-tertiary);
+}
+
+.slotPick:hover {
+  border-color: var(--text-primary);
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slotEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  height: 100%;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.slotRemove {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-raised);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: var(--spacing-8);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.cell .slot {
+  width: 100%;
+}
+
+.addCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  aspect-ratio: 3 / 4;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-mark);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.addCell:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.addCell[data-busy] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@media (width > 768px) {
+  .frameRow,
+  .phoneRow {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .slotWide {
+    width: 200px;
+  }
+
+  .numberRow {
+    grid-template-columns: 140px 1fr auto;
+  }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* 접은 섹션 — 설명 한 줄과 썸네일 줄. 누르면 펼친다 */
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-8);
+  text-align: left;
+}
+
+.summaryBody {
+  overflow: hidden;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  overflow: hidden;
+}
+
+.stripThumb {
+  flex: 0 0 64px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--radius-mark);
+  background: var(--bg-tertiary);
+}
+
+.count {
+  flex-shrink: 0;
+  margin-left: var(--spacing-4);
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}

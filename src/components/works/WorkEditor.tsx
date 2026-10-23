@@ -6,13 +6,14 @@ import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
 import { BadgeCheck, Plus, Check, X, Globe, GithubIcon } from "@/components/icons";
 import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
-import GalleryEditor, { type GalleryValue } from "@/components/gallery/GalleryEditor";
 import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
+import { WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
+import LandingEditor, { asEditableLanding } from "./landing/editor/LandingEditor";
+import { landingOf } from "./landing/landingData";
 import { pickFiles } from "@/lib/pickFiles";
 import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workEditor/ExtraInfoViews";
 import { addSeriesPosts } from "./workEditor/seriesRelatedPosts";
@@ -32,7 +33,7 @@ import AdminEditorShell, {
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
-import type { TeamMember, Work, WorkFormData } from "@/types/work";
+import { workFormToProject, type TeamMember, type Work, type WorkFormData } from "@/types/work";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import { noteFor, patchNote } from "@/lib/galleryNotes";
 import { useRevisions } from "@/hooks/useRevisions";
@@ -44,17 +45,15 @@ import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
 import { notifyAiFailures, reportAiResponse } from "@/lib/ai/notifyFailures";
-import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
+import { TECH_PRESETS } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm, syncOwnerRole } from "@/utils/workFormUtils";
 import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { stripHtml } from "@/utils/htmlUtils";
-import { isVideoMedia } from "@/components/posts/plate/utils";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
-import ResizeHandle from "@/components/ui/ResizeHandle";
 import type {} from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
 import CoverImageField from "@/components/admin/CoverImageField";
@@ -71,9 +70,6 @@ import { useMyRole } from "@/hooks/useMyRole";
 import { useFocusOnceWhenReady } from "@/hooks/useFocusOnceWhenReady";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
-import type { PlateEditorHandle } from "@/components/posts/PlateEditor";
-import { useEditorImages } from "@/components/posts/plate/useEditorImages";
-import Pressable from "@/components/ui/Pressable";
 import TeamMemberForm from "./workEditor/TeamMemberForm";
 import { CategoryMultiPicker, type WorksCategory } from "./workEditor/CategoryPicker";
 import { SubtitleInput } from "./workEditor/SubtitleInput";
@@ -84,14 +80,6 @@ import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import Badge from "@/components/ui/Badge";
 
-const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
-  ssr: false,
-});
-const ImagePanel = dynamic(
-  () => import("@/components/posts/PlateEditor").then((m) => ({ default: m.ImagePanel })),
-  { ssr: false },
-);
-
 interface WorkEditorProps {
   work?: Work;
 }
@@ -101,33 +89,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const srcBadge = useSourceBadge();
   const badgeOf = useLangBadge();
   const { t, tLang, language } = useLanguage();
-  const { openModal, closeAll } = useModalStore();
+  const { openModal } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
   // 콘텐츠 작성 기본 언어 — nature/categories 필수 항목 + 초기 편집 언어의 기준 (방문자 언어와 무관)
   const primaryLang = authoringLangOf(useSiteConfig().metadata.defaultLanguage);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
-  // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
-  const plateRef = useRef<PlateEditorHandle>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const [editorImages, setEditorImages] = useEditorImages();
-  const [editorHtmlMode, setEditorHtmlMode] = useState(false);
-  // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
-  useEffect(() => {
-    setEditorImages([]);
-    let cancelled = false;
-    let attempts = 0;
-    const poll = setInterval(() => {
-      attempts++;
-      const imgs = plateRef.current?.getImages();
-      if (!cancelled && imgs !== undefined) {
-        setEditorImages(imgs);
-        if (imgs.length > 0 || attempts >= 10) clearInterval(poll);
-      }
-    }, 300);
-    return () => { cancelled = true; clearInterval(poll); };
-  }, [editorLang, setEditorImages]);
   /* 추가 정보 — 펼친 항목(요약 카드 아래 편집기). 처음에는 기술 스택을 펼쳐 둔다 */
   const [extraOpenKey, setExtraOpenKey] = useState<ExtraKey | null>("tech");
   // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
@@ -573,56 +542,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [team, t, tw]);
 
 
-  const handleInsertTemplate = useCallback(() => {
-    const lang = editorLang;
-    const contentKey = lang === "ko" ? "content_ko" : "content_en";
-    const current = form[contentKey];
-
-    const applyTemplate = (tmpl: WorkTemplate) => {
-      // 에디터는 richtext 단일 — 템플릿 md 를 richtext 로 변환해 삽입
-      const content = mdToRichHtml(lang === "ko" ? tmpl.content.ko : tmpl.content.en);
-      if (current.trim()) {
-        updateField(contentKey, current + "<hr />" + content);
-      } else {
-        updateField(contentKey, content);
-      }
-    };
-
-    openModal(
-      <div className={styles.templateModal}>
-        <p className={styles.templateModalDesc}>{tw("templateDesc")}</p>
-        <div className={styles.templateList}>
-          {WORK_TEMPLATES.map((tmpl) => (
-            <Pressable
-              key={tmpl.id}
-              className={styles.templateItem}
-              onClick={() => {
-                if (current.trim()) {
-                  openModal(
-                    <ModalConfirm
-                      desc={tw("templateConfirm")}
-                      confirmText={tw("insertTemplate")}
-                      onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
-                    />,
-                    { header: { title: tw("insertTemplate") }, closeButton: true, width: "360px" },
-                  );
-                } else {
-                  applyTemplate(tmpl);
-                  closeAll();
-                }
-              }}
-            >
-              {/* 템플릿 이름·설명은 고르는 단추라 화면 언어로, 넣는 본문만 편집 중인 언어로 */}
-              <span className={styles.templateItemLabel}>{language === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
-              <span className={styles.templateItemDesc}>{language === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
-            </Pressable>
-          ))}
-        </div>
-      </div>,
-      { header: { title: tw("insertTemplate") }, closeButton: true, width: "420px" },
-    );
-  }, [editorLang, language, form, updateField, tw, openModal, closeAll]);
-
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
     // 동영상 — 서버 body 한도 우회 위해 Storage 직접 업로드 (제한 초과 시 브라우저 압축).
     if (file.type.startsWith("video/")) {
@@ -696,22 +615,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     });
   }, [ingestCover, t]);
 
-  // 본문 편집기 높이 — 아래 손잡이로 바꾼다
-  const editorBlockRef = useRef<HTMLDivElement>(null);
-
-  /* 갤러리 값 — 갤러리 편집(GalleryEditor)이 고친다. 한 장을 바꾸면 그 주소가 표지였을 때 표지도 따라 바꾼다 */
-  const galleryValue = useMemo(() => ({ gallery: form.gallery, notes: form.gallery_notes ?? {} }), [form.gallery, form.gallery_notes]);
-  const onGalleryChange = useCallback((update: (prev: GalleryValue) => GalleryValue) => {
-    setForm((prev) => {
-      const next = update({ gallery: prev.gallery, notes: prev.gallery_notes ?? {} });
-      return { ...prev, gallery: next.gallery, gallery_notes: next.notes };
-    });
-  }, []);
-  const onGalleryUrlReplaced = useCallback((oldUrl: string, newUrl: string) => {
-    setForm((prev) => (prev.image === oldUrl ? { ...prev, image: newUrl } : prev));
-  }, []);
-  const galleryCover = useMemo(() => ({ url: form.image, set: (url: string) => updateField("image", url) }), [form.image, updateField]);
-
   const handleSave = useCallback(
     /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
     async (publish?: boolean, { stay = false }: { stay?: boolean } = {}) => {
@@ -726,7 +629,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (!(primaryLang === "en" ? form.nature_en : form.nature_ko).trim()) missing.push({ label: tw("nature"), field: "nature" });
         if (!form.year.trim()) missing.push({ label: tw("year"), field: "year" });
         if (!form.image.trim()) missing.push({ label: tw("mainImage"), field: "image" });
-        if (!form.content_ko.trim() && !form.content_en.trim()) missing.push({ label: tw("content"), field: "content" });
         if (missing.length > 0) {
           const msg = `${missing.map((m) => m.label).join(" · ")} ${tw("requiredFields")}`;
           setError(msg);
@@ -784,6 +686,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
+        }
+        /* 랜딩 칸도 같다 — 랜딩을 고친 경우에만 알린다 */
+        if (res.headers.get(WORK_LANDING_DROPPED_HEADER) && form.landing) {
+          showToast(tw("landing.notSaved"), "error", 6000);
         }
         /* 커버 위치 · 확대 칸도 같다 — 기본값에서 옮긴 경우에만 알린다 */
         if (res.headers.get(WORK_COVER_DROPPED_HEADER) && (form.cover_position !== 50 || form.cover_zoom !== 1)) {
@@ -998,7 +904,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   // 필수 제목 값 — 콘텐츠 작성 기본 언어 기준
   const reqTitle = primaryLang === "en" ? form.title_en : form.title;
-  const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   /* 본문과 상관없는 섹션은 쓰는 값이 바뀔 때만 다시 그린다. 본문 한 글자마다 편집 화면 전체를 다시 그려
      입력이 늦었다(#850). 섹션 JSX 를 메모해 두면 React 는 같은 요소를 받아 그 아래를 건너뛴다.
@@ -1006,6 +911,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleValue = form[titleKey];
   const subtitleValue = form[`subtitle${suf}`];
   const descriptionValue = form[`description${suf}`];
+
+  /* 랜딩 — 저장된 값이 있으면 그것을, 없으면 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩을 편집 출발점으로 */
+  const editableLanding = useMemo(() => asEditableLanding(form.landing), [form.landing]);
+  const landingValue = useMemo(() => editableLanding ?? landingOf(workFormToProject(form)), [editableLanding, form]);
 
   /* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */
   const basicInfoSection = useMemo(() => (
@@ -1243,21 +1152,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     natureCustomMode, naturePresets, pinToggle, primaryLang,
     showErrors, tw, updateField, worksCategories,
   ]);
-
-  /* Images */
-  const imagesSection = useMemo(() => (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>{tw("images")}</h2>
-      <GalleryEditor
-        value={galleryValue}
-        onChange={onGalleryChange}
-        lang={editorLang}
-        cover={galleryCover}
-        onUrlReplaced={onGalleryUrlReplaced}
-        viewerTitle={form.title}
-      />
-    </div>
-  ), [tw, galleryValue, onGalleryChange, editorLang, galleryCover, onGalleryUrlReplaced, form.title]);
 
   /* 기술 추가 줄 — 프리셋 추천 combobox + ＋. 기본 보기와 표 보기가 같이 쓴다 */
   const techAddRow = useMemo(() => (
@@ -1697,8 +1591,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       wide={
         /* 갤러리 · 추가 정보는 넓어야 편해 속성 패널 옆이 아니라 2단 아래 전체 폭에 둔다 */
         <>
-      {imagesSection}
-
       {/* ── 추가 정보 — 요약 카드 한 줄 + 누른 항목의 편집기가 그 아래에 펼쳐진다 ── */}
       <div className={styles.extraSections}>
         <h2 className={styles.sectionTitle}>{tw("additionalInfo")}</h2>
@@ -1723,97 +1615,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     >
       {basicInfoSection}
 
-      {/* Detail Content */}
-      <div className={styles.section} data-required="content">
-        <div className={styles.editorHeader}>
-          <div className={styles.editorHeaderLeft}>
-            <h2 className={`${styles.sectionTitle}${showErrors && !form.content_ko.trim() && !form.content_en.trim() ? ` ${styles.sectionTitleError}` : ""}`} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
-              {tw("content")}
-            </h2>
-            <Pressable
-              className={styles.templateBtn}
-              onClick={handleInsertTemplate}
-            >
-              {tw("insertTemplate")}
-            </Pressable>
-          </div>
-          <Checkbox
-            checked={editorHtmlMode}
-            onChange={() => plateRef.current?.toggleHtmlMode()}
-            shape="square"
-            label="HTML"
-          />
-        </div>
-
-        <div ref={editorBlockRef} className={styles.editorBlock}>
-          <Editor
-            key={editorLang}
-            value={form[contentKey]}
-            onChange={(v) => {
-              updateField(contentKey, v);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-            onImageUpload={handleContentImageUpload}
-            editorRef={plateRef}
-            postLang={editorLang}
-            onHtmlModeChange={setEditorHtmlMode}
-          />
-        </div>
-        <ResizeHandle targetRef={editorBlockRef} label={t("admin.common.resizeEditor")} className={es.editorResize} />
-
-        {/* ── 본문 첨부 이미지 패널 (Posts editor 와 동일) ── */}
-        <div>
-          <ImagePanel
-            images={editorImages}
-            onSelect={(path) => plateRef.current?.selectImageAt(path)}
-            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
-            onRemove={(path) => plateRef.current?.removeImage(path)}
-            onImageUpload={async (file) => {
-              const url = await handleContentImageUpload(file);
-              plateRef.current?.insertImageByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onVideoUpload={async (file) => {
-              const url = await handleContentImageUpload(file);
-              plateRef.current?.insertMediaByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onBulkInsert={(items) => {
-              for (const it of items) {
-                if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
-                else plateRef.current?.insertImageByUrl(it.url);
-              }
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-            onReinsert={(url, mediaType) => {
-              if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
-              else plateRef.current?.insertImageByUrl(url);
-            }}
-            onRemoveDetached={(url) => {
-              plateRef.current?.removeDetached(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-          />
-        </div>
+      {/* 랜딩 페이지 — 작업물 상세는 이 데이터로 그린다. 처음에는 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다 */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>{tw("landing.title")}</h2>
+        <LandingEditor
+          value={landingValue}
+          isDefault={!editableLanding}
+          lang={editorLang}
+          onUpload={handleContentImageUpload}
+          onChange={(next) => updateField("landing", next)}
+          onReset={() => updateField("landing", null)}
+        />
       </div>
-
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (works 는 number/slug 없음) */}
       <SeoChecklist
