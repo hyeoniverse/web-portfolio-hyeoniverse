@@ -9,7 +9,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
-import { extractHeadings } from "@/utils/headingUtils";
+import { appendTocEntry, extractHeadings } from "@/utils/headingUtils";
 import "@/styles/vendor/katex.css";
 import AISummary from "@/components/ui/AISummary";
 import RecommendedToast from "./_components/RecommendedToast";
@@ -104,7 +104,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
       heroInShell
       heroAlt={displayTitle}
       heroIcon={post.icon}
-      headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
+      headings={appendTocEntry(headings, { id: "comments", text: t("comments.heading") })}
       header={
         /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로
            연출을 하면 morph 사라진 자리에 빈 영역이 노출돼 skeleton 처럼 보인다.

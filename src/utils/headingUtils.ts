@@ -55,6 +55,14 @@ export function extractHeadings(content: string, isMarkdown: boolean): TocHeadin
   return headings;
 }
 
+/** 본문 밖 항목(댓글 등)을 목차 끝에 — 본문의 가장 높은 제목과 같은 단계로 붙인다.
+ *  목차는 가장 높은 단계를 장으로 묶는데, 예전엔 댓글을 1단계로 붙여 h2 로 시작하는 글의 h2 가 모두
+ *  소제목이 되어 첫 제목 아래로 들어가고 h3 는 목차에서 빠졌다. */
+export function appendTocEntry(headings: TocHeading[], entry: Omit<TocHeading, "level">): TocHeading[] {
+  const top = headings.length ? Math.min(...headings.map((h) => h.level)) : 1;
+  return [...headings, { ...entry, level: top }];
+}
+
 export function addIdsToHtml(html: string): string {
   const slug = createSlugger();
   return html.replace(/<h([1-4])([^>]*)>(.*?)<\/h\1>/gi, (_, level, attrs, text) => {
