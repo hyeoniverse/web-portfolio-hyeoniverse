@@ -52,7 +52,6 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           }}
         />
         <Frame at="wide" video={`${A}/rec-guide.mp4`} src={`${A}/rec-guide-poster.webp`} alt={t({ ko: "1분 둘러보기 — 다음을 누를 때마다 다음 자리를 짚는다", en: "One-minute tour — each Next points to the next spot" })} />
-        <Frame at="left" src={`${A}/tips.webp`} alt={t({ ko: "팁 — 주제별 팁 모음", en: "Tips — tips by topic" })} />
 
         <Note
           viewLang={viewLang}
@@ -110,6 +109,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Frame at="right" src={`${A}/music.webp`} alt={t({ ko: "음악", en: "Music" })} />
         <Frame at="center" src={`${A}/photos.webp`} alt={t({ ko: "사진", en: "Photos" })} />
         <Frame at="left" src={`${A}/messages.webp`} alt={t({ ko: "메시지", en: "Messages" })} />
+        <Frame at="right" src={`${A}/github.webp`} alt="GitHub" />
         <Frame at="wide" video={`${A}/rec-terminal.mp4`} src={`${A}/rec-terminal-poster.webp`} alt={t({ ko: "터미널 — neofetch · skills · projects", en: "Terminal — neofetch, skills and projects" })} />
 
         <Note
@@ -130,19 +130,37 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           no="08"
           title={{ ko: "Launchpad 안의 앱들", en: "Inside the Launchpad" }}
           body={{
-            ko: "날씨(Open-Meteo) · 활동 상태 보기 · 창 안에서 실행하는 다른 작업물.",
-            en: "Weather (Open-Meteo), Activity Monitor and other projects that run in a window.",
+            ko: "Launchpad 에는 날씨 · 팁 · QuickTime Player · API 문서 · 활동 상태 보기 · 미리보기 · 텍스트 편집기가 있습니다. 모두 macOS 의 같은 앱처럼 창으로 열립니다.",
+            en: "The Launchpad holds Weather, Tips, QuickTime Player, API docs, Activity Monitor, Preview and TextEdit — each opens in a window like its macOS namesake.",
           }}
         />
         <Frame at="bleed" src={`${A}/launchpad.webp`} alt="Launchpad" />
-        <Frame at="right" src={`${A}/weather.webp`} alt={t({ ko: "날씨", en: "Weather" })} />
-        <Frame at="wide" src={`${A}/sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 게임", en: "SproutFarm — a game running in a window" })} />
-        <Frame at="right" src={`${A}/newpick.webp`} alt="NewPick" />
-        <Frame at="left" src={`${A}/github.webp`} alt="GitHub" />
+        <Frame at="right" src={`${A}/app-weather.webp`} alt={t({ ko: "날씨 — 도시를 검색해 시간별 · 10일 예보(Open-Meteo)", en: "Weather — hourly and 10-day forecasts by city (Open-Meteo)" })} />
+        <Frame at="left" src={`${A}/app-tips.webp`} alt={t({ ko: "팁 — 1분 둘러보기와 주제별 팁", en: "Tips — the one-minute tour and tips by topic" })} />
+        <Frame at="center" src={`${A}/app-quicktime.webp`} alt={t({ ko: "QuickTime Player — 동영상 재생", en: "QuickTime Player — video playback" })} />
+        <Frame at="right" src={`${A}/app-apidocs.webp`} alt={t({ ko: "API 문서 — 백엔드의 OpenAPI 를 사이트 안 앱으로", en: "API docs — the backend's OpenAPI as an in-site app" })} />
+        <Frame at="left" src={`${A}/app-activity.webp`} alt={t({ ko: "활동 상태 보기 — 쿠키 없이 세는 방문 분석", en: "Activity Monitor — cookie-free visit analytics" })} />
+        <Frame at="right" src={`${A}/app-preview.webp`} alt={t({ ko: "미리보기 — PDF 를 쪽 썸네일과 함께", en: "Preview — PDFs with page thumbnails" })} />
+        <Frame at="center" src={`${A}/app-textedit.webp`} alt={t({ ko: "텍스트 편집기 — 저장소 문서를 서식대로", en: "TextEdit — repo docs, formatted" })} />
 
         <Note
           viewLang={viewLang}
           no="09"
+          title={{ ko: "창 안에서 돌아가는 프로젝트 앱", en: "Project apps that run inside a window" }}
+          body={{
+            ko: "Dock 의 프로젝트 아이콘을 누르면 배포한 사이트가 창 안에서 그대로 열립니다 — HYEONIVERSE · NewPick · QRU · WTD. Launchpad 의 새싹 농장은 Unity 로 만든 게임이 창 안에서 돌아갑니다.",
+            en: "Click a project icon in the Dock and the deployed site opens right inside a window — HYEONIVERSE, NewPick, QRU and WTD. SproutFarm in the Launchpad runs a Unity game inside its window.",
+          }}
+        />
+        <Frame at="wide" src={`${A}/project-hyeoniverse.webp`} alt="HYEONIVERSE" />
+        <Frame at="left" src={`${A}/project-newpick.webp`} alt={t({ ko: "NewPick — AI 뉴스레터", en: "NewPick — an AI newsletter" })} />
+        <Frame at="right" src={`${A}/project-qru.webp`} alt={t({ ko: "QRU — QR 디지털 명함", en: "QRU — a QR digital business card" })} />
+        <Frame at="left" src={`${A}/project-whattodo.webp`} alt={t({ ko: "WTD — 목록과 할 일", en: "WTD — lists and tasks" })} />
+        <Frame at="wide" src={`${A}/project-sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 픽셀 아트 게임", en: "SproutFarm — a pixel-art game running in a window" })} />
+
+        <Note
+          viewLang={viewLang}
+          no="10"
           title={{ ko: "쿠키 없이 세는 방문 분석", en: "Visit analytics without cookies" }}
           body={{
             ko: "활동 상태 보기는 사이트 안의 분석 앱입니다. 쿠키 대신 하루 단위 해시로 방문자를 세고, 방문 · 순방문자 · 앱 열기 · 머문 시간을 기간별로 봅니다. 많이 연 앱과 많이 읽힌 글, 나라 · 기기 · 브라우저 · OS · 언어까지 나눠 봅니다.",
@@ -155,7 +173,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="10"
+          no="11"
           title={{ ko: "Safari 탭으로 여는 프로젝트", en: "Projects opened in Safari tabs" }}
           body={{
             ko: "작업물은 Safari 에서 열립니다. 프로젝트 일곱 개가 탭 하나씩 — 탭마다 그 프로젝트에 맞춰 따로 만든 소개 페이지가 있고, ‘여기서 열기’를 누르면 배포한 사이트를 창 안에 그대로 불러옵니다.",
@@ -173,7 +191,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
 
         <Note
           viewLang={viewLang}
-          no="11"
+          no="12"
           title={{ ko: "서버까지 직접, 운영비 0원", en: "Running the server too, for $0" }}
           body={{
             ko: "프론트엔드는 Cloudflare Workers, 백엔드(NestJS · PostgreSQL)는 Oracle Cloud 무료 VM 에서 직접 운영합니다. 메뉴 막대에서 서버 상태와 응답 시간을 바로 보고, API 문서도 사이트 안 앱으로 엽니다.",
@@ -181,11 +199,10 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           }}
         />
         <Frame at="wide" src={`${A}/server-menu.webp`} width={1440} height={900} alt={t({ ko: "메뉴 막대의 서버 메뉴 — API 상태 · 응답 시간 · 주소", en: "The server menu in the menu bar — API status, response time and address" })} />
-        <Frame at="right" src={`${A}/apidocs.webp`} alt={t({ ko: "API 문서 — 백엔드의 OpenAPI 를 사이트 안 앱으로", en: "API docs — the backend's OpenAPI as an in-site app" })} />
 
         <Note
           viewLang={viewLang}
-          no="12"
+          no="13"
           title={{ ko: "휴대폰으로 열면 iOS 홈 화면처럼", en: "On a phone, it opens like an iOS home screen" }}
           body={{
             ko: "화면 폭이 좁으면 iOS 홈 화면이 됩니다. 페이지를 넘기는 홈 화면, 길게 눌러 위젯 빼고 더하기, 위에서 쓸어 내리는 제어 센터, 터미널 대신 단축어.",
