@@ -302,7 +302,7 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "02",
     "title": "i18n Bilingual System",
-    "description_ko": "한국어·영어를 즉시 전환하고, 글·작업물·프로필도 두 언어로 저장합니다. 비어 있는 언어 칸은 DeepL·Google·Gemini·Claude 를 설정한 순서대로 시도해 자동 번역하고, 원문을 고치면 다시 번역합니다. 메뉴의 🌐 단추로는 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장합니다.",
+    "description_ko": "한국어·영어를 즉시 전환하고, 글·작업물·프로필도 두 언어로 저장합니다. 비어 있는 언어 칸은 DeepL·Google·Gemini·Claude 를 설정한 순서대로 시도해 자동 번역하고, 원문을 고치면 다시 번역합니다. 메뉴의 🌐 버튼으로는 사이트 전체를 33개 언어 중 하나로 바꿔 볼 수 있고, 번역은 언어마다 한 번 만들어 저장합니다.",
     "description_en": "Korean and English switch instantly, and posts, works, and profiles are stored in both languages. Empty language fields are auto-translated by trying DeepL, Google, Gemini, and Claude in the configured order, and re-translated when the source changes. The 🌐 button in the menu switches the whole site into one of 33 languages, and each translation is made once per language and stored.",
     "tech": "Context API, JSON Locale, Bilingual Content, DeepL/Google/Gemini/Claude, 33 Languages",
     "image": "/images/screenshots/pc/feat-i18n.png"
@@ -491,7 +491,7 @@ export const aboutProcess: CfgProcess[] = [
     "metric_label_en": "Languages visitors can pick",
     "title_ko": "디자인 시스템 · 번역 · 운영 기록",
     "title_en": "Design System, Translation & Operations Log",
-    "description_ko": "디자인 시스템을 웹 플랫폼 기능으로 옮겼습니다. CSS 를 **cascade layer** 일곱 층으로 나누고, 테마는 `light-dark()` 와 View Transitions 로, 모달 · 메뉴는 `<dialog>` · popover 로 top layer 에 올렸으며, 화면 규칙을 작은 화면 기본으로 뒤집고 `!important` 를 걷어 냈습니다. 결정은 이유와 함께 **70개** 항목으로 남겼습니다.\n\n방문자는 메뉴의 🌐 단추로 사이트 전체를 **33개 언어** 중 하나로 바꿔 볼 수 있고, 원문을 고치면 자동 번역이 다시 만들어집니다. AI · 메일 · GitHub 호출의 성공과 실패를 서비스 기록에 남겼고, 방문 · 조회 기록은 `page_views` 하나로 합쳐 방문자 · 방문 흐름 · 머문 시간을 같은 기준으로 셉니다.",
+    "description_ko": "디자인 시스템을 웹 플랫폼 기능으로 옮겼습니다. CSS 를 **cascade layer** 일곱 층으로 나누고, 테마는 `light-dark()` 와 View Transitions 로, 모달 · 메뉴는 `<dialog>` · popover 로 top layer 에 올렸으며, 화면 규칙을 작은 화면 기본으로 뒤집고 `!important` 를 걷어 냈습니다. 결정은 이유와 함께 **70개** 항목으로 남겼습니다.\n\n방문자는 메뉴의 🌐 버튼으로 사이트 전체를 **33개 언어** 중 하나로 바꿔 볼 수 있고, 원문을 고치면 자동 번역이 다시 만들어집니다. AI · 메일 · GitHub 호출의 성공과 실패를 서비스 기록에 남겼고, 방문 · 조회 기록은 `page_views` 하나로 합쳐 방문자 · 방문 흐름 · 머문 시간을 같은 기준으로 셉니다.",
     "description_en": "Moved the design system onto web platform features: CSS split into seven **cascade layers**, themes on `light-dark()` and View Transitions, modals and menus in the top layer via `<dialog>` and popover, layout rules flipped to small-screen-first, and `!important` removed. Decisions are recorded with reasons — **70** entries.\n\nVisitors can switch the whole site into one of **33 languages** from the 🌐 button in the menu, and auto-translations are rebuilt when the source changes. Successes and failures of AI, mail and GitHub calls go to a service log, and visits and views were merged into one `page_views` log, so visitors, visit flow and time on page are counted on one basis."
   }
 ];
