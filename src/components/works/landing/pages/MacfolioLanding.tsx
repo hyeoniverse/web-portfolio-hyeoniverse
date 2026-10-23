@@ -106,14 +106,13 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           no="06"
           title={{ ko: "Launchpad 안의 앱들", en: "Inside the Launchpad" }}
           body={{
-            ko: "날씨(Open-Meteo) · 쿠키 없이 세는 활동 상태 · API 문서 · 창 안에서 실행하는 다른 작업물.",
-            en: "Weather (Open-Meteo), a cookie-free Activity Monitor, API docs and other projects that run in a window.",
+            ko: "날씨(Open-Meteo) · 쿠키 없이 세는 활동 상태 · 창 안에서 실행하는 다른 작업물.",
+            en: "Weather (Open-Meteo), a cookie-free Activity Monitor and other projects that run in a window.",
           }}
         />
         <Frame at="bleed" src={`${A}/launchpad.webp`} alt="Launchpad" />
         <Frame at="right" src={`${A}/weather.webp`} alt={t({ ko: "날씨", en: "Weather" })} />
         <Frame at="left" src={`${A}/activity.webp`} alt={t({ ko: "활동 상태 보기", en: "Activity Monitor" })} />
-        <Frame at="center" src={`${A}/apidocs.webp`} alt={t({ ko: "API 문서", en: "API docs" })} />
         <Frame at="wide" src={`${A}/sproutfarm.webp`} alt={t({ ko: "새싹 농장 — 창 안에서 실행하는 게임", en: "SproutFarm — a game running in a window" })} />
         <Frame at="right" src={`${A}/newpick.webp`} alt="NewPick" />
         <Frame at="left" src={`${A}/github.webp`} alt="GitHub" />
@@ -135,11 +134,12 @@ export default function MacfolioLanding({ project, viewLang, next }: {
           no="08"
           title={{ ko: "서버까지 직접, 운영비 0원", en: "Running the server too, for $0" }}
           body={{
-            ko: "프론트엔드는 Cloudflare Workers, 백엔드(NestJS · PostgreSQL)는 Oracle Cloud 무료 VM 에서 직접 운영합니다. 메뉴 막대에서 서버 상태와 응답 시간을 바로 봅니다.",
-            en: "Frontend on Cloudflare Workers, backend (NestJS and PostgreSQL) run on a free Oracle Cloud VM — server status and response time show right in the menu bar.",
+            ko: "프론트엔드는 Cloudflare Workers, 백엔드(NestJS · PostgreSQL)는 Oracle Cloud 무료 VM 에서 직접 운영합니다. 메뉴 막대에서 서버 상태와 응답 시간을 바로 보고, API 문서도 사이트 안 앱으로 엽니다.",
+            en: "Frontend on Cloudflare Workers, backend (NestJS and PostgreSQL) run on a free Oracle Cloud VM — server status and response time show right in the menu bar, and the API docs open as an in-site app.",
           }}
         />
-        <Frame at="right" src={`${A}/terminal.webp`} alt={t({ ko: "터미널", en: "Terminal" })} />
+        <Frame at="wide" src={`${A}/server-menu.webp`} width={1440} height={900} alt={t({ ko: "메뉴 막대의 서버 메뉴 — API 상태 · 응답 시간 · 주소", en: "The server menu in the menu bar — API status, response time and address" })} />
+        <Frame at="right" src={`${A}/apidocs.webp`} alt={t({ ko: "API 문서 — 백엔드의 OpenAPI 를 사이트 안 앱으로", en: "API docs — the backend's OpenAPI as an in-site app" })} />
 
         <Note
           viewLang={viewLang}

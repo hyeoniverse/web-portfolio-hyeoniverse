@@ -114,6 +114,8 @@ interface DetailLayoutProps {
   /** 랜딩 페이지 형태(작업물 상세 — 설정 works.detailStyle). 주면 커버 · 머리 · 본문 · 목차 대신 이것을 전폭으로 그리고,
    *  뒤로 가기 · 좋아요 · 이전/다음 · 댓글은 그대로 둔다. children 은 그리지 않는다 */
   landing?: ReactNode;
+  /** 오른쪽 아래 위/아래로 가기 단추 — 기본은 보인다. 작업물 상세는 끈다 */
+  scrollButtons?: boolean;
 }
 
 export default function DetailLayout({
@@ -141,6 +143,7 @@ export default function DetailLayout({
   commentsConfig,
   backLink,
   landing,
+  scrollButtons = true,
 }: DetailLayoutProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
   const { endTransition, isTransitioning } = usePageTransition();
@@ -340,7 +343,7 @@ export default function DetailLayout({
         </div>
       )}
 
-      <ScrollButtons />
+      {scrollButtons && <ScrollButtons />}
     </div>
   );
 }

@@ -123,6 +123,7 @@ export default function WorkDetailClient({
     <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
       backHref="/works"
+      scrollButtons={false}
       backLabel={t("workDetail.back")}
       /* 커버는 레이아웃이 셸에서 그린다(#946) — 여기서는 alt 를 넘기고 아이콘·헤더 자리만 맞춘다 */
       heroImage={project.image}
