@@ -357,25 +357,24 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
   const [current, setCurrent] = useState(0);
   const turns = Math.max(1, items.length - 1);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
-  /* 스크롤 값을 그대로 각도로 쓰면 휠 한 칸마다 휙휙 넘어갔다 — 스크롤은 목표만 정하고, 휴대폰은 용수철처럼 그 목표를 따라간다.
-     살짝 늦게 출발해 끝에서 조금 지나쳤다 돌아오며 멈춘다(쫀득하게). 움직임 줄이기면 바로 그 자리 */
-  const motion = useRef({ target: 0, x: 0, v: 0, raf: 0, last: 0 });
-  const paint = useCallback((p: number) => {
+  /* 넘기기 — 스크롤 값을 각도로 그대로 쓰면 스크롤 빠르기만큼 일정하게 돌아 밋밋했다. 스크롤은 "몇 번째 화면인가"만 정하고,
+     휴대폰은 그 화면까지 스스로 구른다: 덜 감쇠한 용수철을 화면 번호에 걸어, 확 가속했다 감속하고 끝에서 살짝 지나쳤다 돌아온다.
+     흔들림(기울기 · 떠다님)은 스크롤을 그대로 따른다. 움직임 줄이기면 바로 그 화면 */
+  const motion = useRef({ target: 0, x: 0, v: 0, raf: 0, last: 0, p: 0 });
+  const paint = useCallback((x: number) => {
     const root = rootRef.current;
     if (!root) return;
-    const x = Math.min(turns - 1e-4, Math.max(0, p * turns));
-    const i = Math.floor(x);
-    const f = x - i;
-    /* 한 바퀴 구간의 앞뒤 15% 는 멈춰 화면을 읽게 하고, 그 사이를 천천히 출발해 천천히 멈추는 곡선으로 구른다 */
-    const t = Math.min(1, Math.max(0, (f - 0.15) / 0.7));
-    const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-    root.style.setProperty("--rx", `${(i + eased) * -360}deg`);
+    const p = motion.current.p;
+    root.style.setProperty("--rx", `${x * -360}deg`);
     /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
     root.style.setProperty("--ry", `${Math.sin(p * Math.PI * 3) * 14}deg`);
     root.style.setProperty("--rz", `${Math.sin(p * Math.PI * 5) * 6}deg`);
     root.style.setProperty("--bob", `${Math.sin(p * Math.PI * 4) * 2.5}dvh`);
-    root.style.setProperty("--spin", String(Math.abs(Math.sin(eased * Math.PI * 2))));
-    /* 주소 줄 — 화면 i 의 주소 가운데가 화면 가운데에 오도록, 구르는 동안 i+1 의 주소로 옮겨 간다 */
+    const k = Math.min(turns, Math.max(0, x));
+    const i = Math.min(turns - 1, Math.floor(k));
+    const f = k - i;
+    root.style.setProperty("--spin", String(Math.abs(Math.sin(f * Math.PI * 2))));
+    /* 주소 줄 — 구르는 만큼 다음 화면의 주소로 옮겨 간다 */
     const row = wordsRef.current;
     if (row) {
       const words = row.children;
@@ -384,32 +383,34 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
       if (a && b) {
         const ca = a.offsetLeft + a.offsetWidth / 2;
         const cb = b.offsetLeft + b.offsetWidth / 2;
-        row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * eased)}px, 0, 0)`;
+        row.style.transform = `translate3d(${window.innerWidth / 2 - (ca + (cb - ca) * f)}px, 0, 0)`;
       }
     }
     /* 반 바퀴(뒷면이 보일 때)를 넘기면 다음 화면 */
-    setCurrent(eased < 0.5 ? i : i + 1);
-  }, [turns]);
+    setCurrent(Math.min(items.length - 1, Math.max(0, Math.round(x))));
+  }, [turns, items.length]);
   /* 한 프레임 — 자기 자신을 다음 프레임에 다시 건다. 이름으로 부르면 선언 전에 쓰는 셈이라 ref 로 부른다 */
   const stepRef = useRef<(now: number) => void>(() => {});
   const step = useCallback((now: number) => {
     const m = motion.current;
-    const dt = Math.min(0.05, (now - (m.last || now)) / 1000) || 1 / 60;
+    const dt = Math.min(0.034, (now - (m.last || now)) / 1000) || 1 / 60;
     m.last = now;
-    /* 덜 감쇠한 용수철 — 강성 22, 감쇠 7.5: 0.8초쯤 걸려 느긋하게 따라붙고 끝에서 살짝 지나쳤다 돌아온다 */
-    const STIFF = 22;
-    const DAMP = 7.5;
+    /* 강성 90 · 감쇠 11(감쇠비 약 0.58) — 한 바퀴를 0.7초쯤에 확 돌고, 끝에서 한 번 살짝(약 10%) 지나쳤다 돌아와 멈춘다 */
+    const STIFF = 90;
+    const DAMP = 11;
     m.v += ((m.target - m.x) * STIFF - m.v * DAMP) * dt;
     m.x += m.v * dt;
     paint(m.x);
-    if (Math.abs(m.target - m.x) < 1e-4 && Math.abs(m.v) < 1e-4) { m.x = m.target; paint(m.x); m.raf = 0; m.last = 0; return; }
+    if (Math.abs(m.target - m.x) < 5e-4 && Math.abs(m.v) < 5e-4) { m.x = m.target; m.v = 0; paint(m.x); m.raf = 0; m.last = 0; return; }
     m.raf = requestAnimationFrame(stepRef.current);
   }, [paint]);
   useEffect(() => { stepRef.current = step; }, [step]);
   usePinnedProgress(rootRef, (p) => {
     const m = motion.current;
-    m.target = p;
-    if (reducedMotion) { m.x = p; m.v = 0; paint(p); return; }
+    m.p = p;
+    /* 구간을 반 넘게 지나면 다음 화면 — 화면마다 스크롤 한 칸(구간)을 쓰고, 그 가운데에서 넘어간다 */
+    m.target = Math.min(turns, Math.max(0, Math.round(p * turns)));
+    if (reducedMotion) { m.x = m.target; m.v = 0; paint(m.x); return; }
     if (!m.raf) m.raf = requestAnimationFrame(stepRef.current);
   });
   /* 정리할 때 도는 중 표시(raf)도 비운다 — 취소만 하고 번호를 남기면 "이미 돌고 있다"로 읽혀 다시는 돌지 않았다
