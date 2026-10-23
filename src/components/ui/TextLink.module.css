@@ -8,15 +8,19 @@
   text-decoration: none;
 }
 
+/* 밑줄 — 폭(width)이 아니라 transform 으로 늘인다. 폭을 바꾸면 매 프레임 다시 그려 버벅이고, 움직이는 판(등장 연출) 안에서는
+   줄어든 자리가 다시 그려지지 않아 손을 뗀 뒤에도 밑줄이 남아 보였다. 색은 글자색(currentColor)을 따른다 */
 .textLink::after {
   content: "";
   position: absolute;
   left: 0;
+  right: 0;
   bottom: -2px;
-  width: 0;
   height: 1px;
-  background: var(--text-primary);
-  transition: width var(--duration-base) var(--ease-standard);
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .textLink:hover {
@@ -24,7 +28,7 @@
 }
 
 .textLink:hover::after {
-  width: 100%;
+  transform: scaleX(1);
 }
 
 /* external — 우상단 화살표 아이콘 같이 보임 (inline-flex 로 텍스트와 baseline 정렬) */
