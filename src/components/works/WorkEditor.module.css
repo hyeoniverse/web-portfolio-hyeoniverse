@@ -61,15 +61,6 @@
   flex-shrink: 0;
 }
 
-.sectionTitleError {
-  color: var(--text-accent);
-}
-
-.sectionTitleError::after {
-  content: "•";
-  margin-left: var(--spacing-4);
-}
-
 .row3 {
   display: grid;
   grid-template-columns: 1fr;
@@ -152,44 +143,6 @@
   height: calc(var(--control-height-md) - 2px);
 }
 
-/* tech chip 안 brand 아이콘 — 라벨 왼쪽 inline */
-
-/* + 버튼은 공통 Button (shape="circle") 사용 — Button.module.css 가 정사각 강제 */
-
-/* ── Editor header ── */
-.editorHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--spacing-8);
-  border-bottom: var(--border-light);
-  gap: var(--spacing-16);
-}
-
-.editorHeaderLeft {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-16);
-}
-
-/* 본문 머리의 단추 — 편집 화면의 다른 단추 · 입력과 같은 높이(md) */
-.templateBtn {
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-height-md);
-  padding: 0 var(--control-padding-inline-md);
-  border: var(--border-strong);
-  border-radius: var(--radius-control);
-  background: transparent;
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-}
-
-.editorHeaderLeft .templateBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
 /* 추가 정보 — 머리(제목 + 보기 전환) 아래에 고른 보기(요약+시트 · 카드 · 표) */
 .extraSections {
   display: flex;
@@ -213,21 +166,12 @@
 }
 
 /* 미리보기 칩 안의 팀원 얼굴 — 원본 크기로 커지지 않게 */
-.extraPreviewChip img,
-.extraPreviewAvatar {
+.extraPreviewChip img{
   width: 18px;
   height: 18px;
   flex-shrink: 0;
   border-radius: var(--radius-full);
   object-fit: cover;
-}
-
-.extraPreviewLine {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .extraHint {
@@ -237,47 +181,11 @@
   color: var(--text-tertiary);
 }
 
-/* 관련 글·시리즈 — RelationPicker 의 .wrap(층 밖, 0,1,0) 을 이기려고 .section 을 붙인다. 다른 항목처럼 입력 한 줄 + 칩 줄만. 기본 바깥 여백(다음 칸과의 거리)은 여기서는 항목 여백이 맡는다 */
-.section > .relationPicker {
-  margin-bottom: 0;
-}
-
-/* Posts 의 .editorWrap 과 동일 — vertical resizable, 78vh 시작 높이 */
-.editorBlock {
-  position: relative;
-  /* stacking context — 내부 .toolbar(z:var(--z-index-float)) 를 가둬 fixed topBar(frost) 아래로.
-     없으면 툴바 z 가 root 로 올라가 topBar blur 가 안 먹음 */
-  z-index: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  height: 78vh;
-  min-height: 320px;
-  /* 높이는 아래 손잡이(ResizeHandle)로 바꾼다 — CSS resize 손잡이는 둥근 모서리에 잘려 보였다 */
-  overflow: hidden;
-}
-
-.editorBlock > * {
-  flex: 1;
-  min-height: 0;
-}
-
-
 /* 카테고리 picker — 위쪽 Select + 아래쪽 chip 리스트 (column) */
 .categoryPicker {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
-}
-
-/* RoleMultiPicker 안 Select — 기본 fit-content 대신 부모 너비 채우기.
- * Select 는 components 층이라 층 밖의 이 규칙이 이긴다 */
-.categoryPicker > .roleSelect {
-  width: 100%;
-}
-.categoryPicker > .roleSelect > input,
-.categoryPicker > .roleSelect > button {
-  width: 100%;
 }
 
 /* Select + 직접 입력 (custom KO/EN inputs + 추가 버튼) 한 줄 — nature 도 같은 패턴 사용 */
@@ -293,52 +201,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-8);
-}
-
-/* + 버튼은 공통 Button (shape="circle") 사용 */
-
-/* ── Template modal (posts editor 와 동일 패턴) ── */
-.templateModal {
-  padding: 0 var(--spacing-32) var(--spacing-32);
-}
-
-.templateModalDesc {
-  font: var(--font-body-md);
-  color: var(--text-secondary);
-  margin: 0 0 var(--spacing-16) 0;
-}
-
-.templateList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-}
-
-.templateItem {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--row-padding-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
-  background: transparent;
-  text-align: left;
-  font-family: var(--font-family-body);
-}
-
-.templateItem:hover {
-  border-color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-.templateItemLabel {
-  font: var(--font-label-md);
-  color: var(--text-primary);
-}
-
-.templateItemDesc {
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
 }
 
 /* 직접 입력 wrap — Select 와 동일 높이 (capsule 형태 fieldInput 자체 padding 기반) */
@@ -408,45 +270,6 @@
   }
 }
 
-
-/* list label + list 묶음 — formBlock 과 동일 패턴 */
-.memberListBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
-
-/* 아직 팀원이 없을 때 — 자리를 비우지 않고 비었다고 알린다 */
-.memberListEmpty {
-  margin: 0;
-  font: var(--font-body-sm);
-  line-height: 1.6;
-  color: var(--text-tertiary);
-}
-
-/* 사이트 멤버 연결 메뉴 — 위에 무엇을 하는 것인지 한 줄 */
-.memberLinkMenu {
-  width: 280px;
-}
-
-.memberLinkMenuHint {
-  margin: 0;
-  padding: var(--spacing-4) var(--spacing-12) var(--spacing-8);
-  font: var(--font-body-sm);
-  line-height: 1.5;
-  color: var(--text-tertiary);
-}
-
-/* 팀원 카드의 단추 — 같은 줄 입력칸과 같은 높이(md). Button 은 components 층이라 이 규칙이 이긴다 */
-/* 팀원 목록 — 한 사람에 한 줄(TeamMemberRow) */
-.memberRows {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  border-top: var(--border-light);
-}
-
 /* 링크 — 한 줄에 [아이콘 · 이름 | 주소]. 좁으면 이름이 위로 */
 .linkRows {
   display: flex;
@@ -473,31 +296,5 @@
   .linkRow {
     grid-template-columns: 160px minmax(0, 1fr);
   }
-}
-
-/* 편집 중인 팀원 — 목록 줄 자리의 폼(모양은 TeamMemberForm) */
-.memberEditItem {
-  list-style: none;
-  border-bottom: var(--border-light);
-}
-
-.memberLinkChipAvatar {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-full);
-  object-fit: cover;
-  font: var(--font-body-xs);
-}
-
-/* 다른 팀원이 이미 쓰고 있는 계정 — 눌러도 되지만 왜 안 되는지 먼저 보이게 */
-.memberLinkChipTaken {
-  opacity: 0.45;
-}
-
-.memberLinkHint {
-  margin: 0;
-  font: var(--font-body-xs);
-  line-height: var(--line-height-135);
-  color: var(--text-accent);
 }
 

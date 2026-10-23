@@ -14,7 +14,7 @@ import LandingEditor, { asEditableLanding } from "./landing/editor/LandingEditor
 import { landingOf } from "./landing/landingData";
 import { pickFiles } from "@/lib/pickFiles";
 import { ExtraEmpty, ExtraSummary, type ExtraItem, type ExtraKey } from "./workEditor/ExtraInfoViews";
-import { TechChips } from "./workEditor/TechTable";
+import { TechChips } from "./workEditor/TechChips";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import { useLanguage } from "@/providers/LanguageProvider";

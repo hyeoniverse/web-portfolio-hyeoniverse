@@ -25,7 +25,7 @@ export type Lang = "ko" | "en";
 export type L10n = { ko: string; en: string };
 
 /** 나타나는 순서 — 하나에 90ms */
-export function delay(n: number): CSSProperties {
+function delay(n: number): CSSProperties {
   return { ["--d" as string]: n } as CSSProperties;
 }
 
@@ -222,19 +222,6 @@ function FrameVideo({ src, poster, label, width, height }: { src: string; poster
       preload="metadata"
       aria-label={label}
     />
-  );
-}
-
-/** 휴대폰 화면 여럿 — 세로 화면을 틈 없이 이어 붙여 화면 폭 전체를 채우는 띠 하나 */
-export function Phones({ items }: { items: { src: string; alt: string }[] }) {
-  return (
-    <div className={styles.phones} data-reveal="rise">
-      {items.map((it) => (
-        <div key={it.src} className={styles.phone}>
-          <Image src={it.src} alt={it.alt} fill unoptimized className={styles.phoneImage} />
-        </div>
-      ))}
-    </div>
   );
 }
 
