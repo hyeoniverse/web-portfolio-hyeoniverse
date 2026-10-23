@@ -463,6 +463,13 @@ export default function AccountTab({
               <T k="admin.settings.mfaTitle" />
             </span>
             <span className={styles.devicesCount}>{mfaFactors.length}</span>
+            <Button
+              variant="outline"
+              className={styles.devicesHeaderAction}
+              onClick={() => window.location.assign(`/admin/mfa?add=1&next=${encodeURIComponent("/admin/settings?tab=account")}`)}
+            >
+              <T k="admin.settings.mfaAdd" />
+            </Button>
           </div>
           {mfaLoading ? (
             <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
@@ -491,12 +498,6 @@ export default function AccountTab({
               ))}
             </ul>
           )}
-          <Button
-            variant="outline"
-            onClick={() => window.location.assign(`/admin/mfa?add=1&next=${encodeURIComponent("/admin/settings?tab=account")}`)}
-          >
-            <T k="admin.settings.mfaAdd" />
-          </Button>
         </div>
 
         {/* 로그인한 기기 목록 — admin_known_devices */}

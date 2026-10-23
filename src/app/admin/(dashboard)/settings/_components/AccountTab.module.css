@@ -38,6 +38,11 @@
   border-top: var(--border-light);
 }
 
+/* 제목 줄 오른쪽 끝의 버튼(인증 앱 추가) */
+.devicesHeaderAction {
+  margin-left: auto;
+}
+
 .deviceRow {
   display: flex;
   align-items: center;
