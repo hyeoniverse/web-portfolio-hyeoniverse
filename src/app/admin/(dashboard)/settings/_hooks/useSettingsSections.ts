@@ -27,8 +27,7 @@ function landingOffsetOf(el: HTMLElement): number {
 
 /**
  * 설정 패널 안의 섹션([data-settings-section])을 훑고, 지금 보고 있는 섹션을 따라간다.
- * 태블릿·모바일의 오른쪽 눈금(SectionJumpNav)과 데스크톱 사이드바의 패널 목록(SectionOutline)이
- * 이 결과 하나를 같이 쓴다.
+ * 데스크톱 사이드바의 패널 목록(SectionOutline)이 이 결과를 쓴다.
  *
  * @param scanKey 이 값이 바뀌면 섹션을 다시 훑는다(activeTab:contentSubTab)
  */

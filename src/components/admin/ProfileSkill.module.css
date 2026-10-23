@@ -10,10 +10,22 @@
 }
 
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
+/* 하위 섹션 — 설정 섹션(Settings .section)처럼 [제목 | 단추] 한 줄 격자. 나머지 자식은 전폭 */
 .subSection {
+  display: grid;
+  grid-template-columns: minmax(min(30%, 7em), 1fr) minmax(0, max-content);
+  container: settings-section / inline-size;
+  column-gap: var(--spacing-8);
+  row-gap: var(--spacing-16);
+  align-items: center;
+  align-content: start;
   padding-left: var(--spacing-16);
   border-left: var(--border-light-2);
   margin-bottom: var(--spacing-24);
+}
+
+:where(.subSection) > * {
+  grid-column: 1 / -1;
 }
 
 .subSection:last-child {

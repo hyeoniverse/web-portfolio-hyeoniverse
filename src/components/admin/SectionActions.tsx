@@ -2,6 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
+import styles from "./SectionActions.module.css";
 
 /**
  * 설정 섹션의 기본값 / 되돌리기 / 섹션 저장 버튼 묶음.
@@ -10,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
  * 버튼이 필요해지면서 두 벌이 될 뻔했다. 라벨·비활성 조건·버튼 크기가 갈라지면 같은 화면에서
  * 섹션마다 다르게 보인다 — 모양은 여기 한 곳에 두고, "언제 활성인가" 만 부르는 쪽이 정한다.
  *
+ * 좁은 화면(≤768)에서는 단추 좌우 여백을 줄여 섹션 제목과 한 줄에 들어가게 한다(이름은 그대로).
  * 이 컴포넌트는 데이터를 모른다. dirty·atDefault 판정은 각자의 저장 단위(dot-path / blob 키)에
  * 달려 있어 여기서 알 수 없다.
  */
@@ -44,6 +46,7 @@ export default function SectionActions({
       {onReset && (
         <Button
           variant="outline"
+          className={styles.btn}
           disabled={atDefault || savingOther || saving}
           onClick={onReset}
           title={t("admin.settings.resetSection")}
@@ -54,6 +57,7 @@ export default function SectionActions({
       {onRevert && (
         <Button
           variant="outline"
+          className={styles.btn}
           disabled={!dirty || savingOther || saving}
           onClick={onRevert}
           title={t("admin.settings.revertSection")}
@@ -63,6 +67,7 @@ export default function SectionActions({
       )}
       <Button
         variant="outline"
+        className={styles.btn}
         disabled={!dirty || savingOther || saveDisabled}
         loading={saving}
         loadingVariant="wave"

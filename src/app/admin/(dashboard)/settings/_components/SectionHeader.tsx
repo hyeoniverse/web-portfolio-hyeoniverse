@@ -87,13 +87,13 @@ export default function SectionHeader({
     /* 제목만 sticky + difference — 섹션 직속 요소라야 containing block 이 섹션(높이 전체)이 되어
        스크롤 내내 붙어 있고, sticky 조상에 갇히지 않아 페이지 콘텐츠와 반전된다.
        액션(버튼/링크)·hint 는 blend 밖 형제라 정상 색으로 렌더된다.
-       data-settings-section — SectionJumpNav 스캔·점프 앵커(+scroll-margin-top). */
+       data-settings-section — SectionOutline 스캔·점프 앵커(+scroll-margin-top). */
     <>
       <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section data-dirty={dirty || undefined}>
         {title}
       </h2>
-      {/* 섹션 단추는 sm — 설정 페이지의 md 범위 안이지만, 영어 화면 좁은 폭에서 기본값 · 되돌리기 · 섹션 저장이 두 줄로 꺾였다 */}
-      <ControlSizeScope size="sm">
+      {/* 섹션 단추는 xs — 제목과 한 줄에 두려고(좁은 화면 · 영어 화면에서도) 설정 페이지의 md 범위보다 두 단계 작게 */}
+      <ControlSizeScope size="xs">
       {customActions ? (
         <div className={localStyles.spacer}>
           <span className={`${localStyles.dot} ${dirty ? localStyles.dotOn : ""}`} aria-hidden />
