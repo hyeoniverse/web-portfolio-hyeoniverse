@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import TextLink from "@/components/ui/TextLink";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
-import { ArrowDown, ArrowUpRight, GithubIcon } from "@/components/icons";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { ArrowDown, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { isPlainClick } from "@/utils/gestureUtils";
@@ -80,16 +81,14 @@ export function LandingShell({ project, viewLang, next, eyebrow, children }: {
           {period && <Meta label={t("workDetail.landing.period")}>{period}</Meta>}
           {project.liveUrl && (
             <Meta label={t("workDetail.landing.site")}>
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.metaLink}>
-                {hostOf(project.liveUrl)} <ArrowUpRight size={14} />
-              </a>
+              <TextLink external href={project.liveUrl} className={styles.metaLink}>{hostOf(project.liveUrl)}</TextLink>
             </Meta>
           )}
           {project.githubUrl && (
             <Meta label="GitHub">
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={styles.metaLink}>
-                <GithubIcon size={14} /> {repoOf(project.githubUrl)} <ArrowUpRight size={14} />
-              </a>
+              <TextLink external href={project.githubUrl} className={styles.metaLink}>
+                <GithubIcon size={14} /> {repoOf(project.githubUrl)}
+              </TextLink>
             </Meta>
           )}
         </dl>
@@ -357,14 +356,19 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
   const wordsRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const turns = Math.max(1, items.length - 1);
-  usePinnedProgress(rootRef, (p) => {
+  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
+  /* 스크롤 값을 그대로 각도로 쓰면 휠 한 칸마다 휙휙 넘어갔다 — 스크롤은 목표만 정하고, 휴대폰은 용수철처럼 그 목표를 따라간다.
+     살짝 늦게 출발해 끝에서 조금 지나쳤다 돌아오며 멈춘다(쫀득하게). 움직임 줄이기면 바로 그 자리 */
+  const motion = useRef({ target: 0, x: 0, v: 0, raf: 0, last: 0 });
+  const paint = useCallback((p: number) => {
     const root = rootRef.current;
     if (!root) return;
-    const x = Math.min(turns - 1e-4, p * turns);
+    const x = Math.min(turns - 1e-4, Math.max(0, p * turns));
     const i = Math.floor(x);
     const f = x - i;
-    const t = Math.min(1, Math.max(0, (f - 0.25) / 0.5));
-    const eased = t * t * (3 - 2 * t);
+    /* 한 바퀴 구간의 앞뒤 15% 는 멈춰 화면을 읽게 하고, 그 사이를 천천히 출발해 천천히 멈추는 곡선으로 구른다 */
+    const t = Math.min(1, Math.max(0, (f - 0.15) / 0.7));
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
     root.style.setProperty("--rx", `${(i + eased) * -360}deg`);
     /* 도넛처럼 — 구르는 동안 옆으로 살짝 기울고 위아래로 떠다닌다(주기가 다른 사인 둘) */
     root.style.setProperty("--ry", `${Math.sin(p * Math.PI * 3) * 14}deg`);
@@ -385,9 +389,31 @@ export function PhoneFlip({ items }: { items: { src: string; video?: string; alt
     }
     /* 반 바퀴(뒷면이 보일 때)를 넘기면 다음 화면 */
     setCurrent(eased < 0.5 ? i : i + 1);
+  }, [turns]);
+  /* 한 프레임 — 자기 자신을 다음 프레임에 다시 건다. 이름으로 부르면 선언 전에 쓰는 셈이라 ref 로 부른다 */
+  const stepRef = useRef<(now: number) => void>(() => {});
+  const step = useCallback((now: number) => {
+    const m = motion.current;
+    const dt = Math.min(0.05, (now - (m.last || now)) / 1000) || 1 / 60;
+    m.last = now;
+    /* 덜 감쇠한 용수철 — 강성 22, 감쇠 7.5: 0.8초쯤 걸려 느긋하게 따라붙고 끝에서 살짝 지나쳤다 돌아온다 */
+    const STIFF = 22;
+    const DAMP = 7.5;
+    m.v += ((m.target - m.x) * STIFF - m.v * DAMP) * dt;
+    m.x += m.v * dt;
+    paint(m.x);
+    if (Math.abs(m.target - m.x) < 1e-4 && Math.abs(m.v) < 1e-4) { m.x = m.target; paint(m.x); m.raf = 0; m.last = 0; return; }
+    m.raf = requestAnimationFrame(stepRef.current);
+  }, [paint]);
+  useEffect(() => { stepRef.current = step; }, [step]);
+  usePinnedProgress(rootRef, (p) => {
+    const m = motion.current;
+    m.target = p;
+    if (reducedMotion) { m.x = p; m.v = 0; paint(p); return; }
+    if (!m.raf) m.raf = requestAnimationFrame(stepRef.current);
   });
+  useEffect(() => () => cancelAnimationFrame(motion.current.raf), []);
   const screen = items[current];
-  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => false);
   return (
     <div ref={rootRef} className={styles.phoneFlip} style={{ ["--count" as string]: turns } as CSSProperties}>
       <div className={styles.phoneFlipStage}>
