@@ -783,7 +783,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 부제목 — 제목 바로 아래 */}
       <div className={es.field}>
-        <label className={es.fieldLabel}>{tw("subtitle")}</label>
+        <div className={es.fieldLabelRow}>
+          <label className={es.fieldLabel}>{tw("subtitle")}</label>
+          <span className={es.fieldHint}>{tw("subtitleHint")}</span>
+        </div>
         <SubtitleInput
           value={subtitleValue}
           onChange={(v) => updateField(`subtitle${suf}`, v)}
@@ -793,7 +796,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
       <div className={es.field} id="work-description">
-        <label className={es.fieldLabel}>{tw("description")}</label>
+        <div className={es.fieldLabelRow}>
+          <label className={es.fieldLabel}>{tw("description")}</label>
+          <span className={es.fieldHint}>{tw("descriptionHint")}</span>
+        </div>
         <Textarea
           textareaClassName={styles.fieldTextarea}
           value={descriptionValue}
@@ -1187,14 +1193,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 랜딩 페이지 — 작업물 상세는 이 데이터로 그린다. 처음에는 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다 */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("landing.title")}</h2>
         <LandingEditor
           value={landingValue}
-          isDefault={!editableLanding}
           lang={editorLang}
           onUpload={handleContentImageUpload}
           onChange={(next) => updateField("landing", next)}
-          onReset={() => updateField("landing", null)}
         />
       </div>
 

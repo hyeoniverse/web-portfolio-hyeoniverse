@@ -2000,11 +2000,6 @@
         "memberColEn": "English",
         "memberPhoto": "Photo",
         "landing": {
-          "title": "Landing page",
-          "defaultNotice": "Showing the default landing (repository data or card info). Editing saves it as this work's landing.",
-          "customNotice": "This is the landing saved for this work.",
-          "reset": "Reset to default",
-          "eyebrow": "Eyebrow",
           "hero": "Opening scenes (before numbers)",
           "sectionTitle": "Section title",
           "sectionBody": "Section description",
@@ -2052,7 +2047,9 @@
           "moveLeft": "Move earlier",
           "moveRight": "Move later",
           "removeItem": "Remove scene"
-        }
+        },
+        "subtitleHint": "Shown as the landing's top line and on list cards",
+        "descriptionHint": "Shown on list cards and in search results (share previews)"
       },
       "noPermissionTitle": "No permission",
       "noPermissionDesc": "You don't have access to this work. Ask the owner to add you to the team.",

@@ -30,7 +30,8 @@ export function LandingRenderer({ project, data, viewLang, next, nav }: {
   project: Project; data: WorkLanding; viewLang: Lang; next?: { href: string; title: string } | null; nav?: boolean;
 }) {
   return (
-    <LandingShell project={project} viewLang={viewLang} next={next} eyebrow={data.eyebrow} nav={nav}>
+    /* 머리 한 줄은 작업물 부제 — 부제가 비었을 때만 랜딩 데이터의 eyebrow(예전 값)를 쓴다 */
+    <LandingShell project={project} viewLang={viewLang} next={next} eyebrow={project.subtitle.ko || project.subtitle.en ? project.subtitle : data.eyebrow} nav={nav}>
       <Flow>
         {data.hero.map((item, i) => <Item key={`h${i}`} item={item} viewLang={viewLang} priority={i === 0} />)}
         {data.sections.map((s, si) => [

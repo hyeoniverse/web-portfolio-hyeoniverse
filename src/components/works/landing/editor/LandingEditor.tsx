@@ -301,12 +301,12 @@ function SortableSection({ id, children }: { id: string; children: (handle: Reac
 }
 
 /**
- * 작업물 랜딩 편집기 — 머리 한 줄, 첫 장면들, 번호가 붙는 섹션 목록(끌어서 차례 바꾸기 · 제목 · 설명 · 장면).
+ * 작업물 랜딩 편집기 — 첫 장면들, 번호가 붙는 섹션 목록(끌어서 차례 바꾸기 · 제목 · 설명 · 장면).
  * 섹션은 접힌 한 줄(번호 · 제목 · 설명 · 썸네일)로 두고, 누르면 그 자리에서 펼친다. 글은 편집 언어(lang) 칸만 고친다.
  * 처음에는 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩을 보여 주고, 고치면 그 값이 저장된다.
  */
-export default function LandingEditor({ value, isDefault, lang, onUpload, onChange, onReset }: {
-  value: WorkLanding; isDefault: boolean; lang: Lang; onUpload: Upload; onChange: (next: WorkLanding) => void; onReset: () => void;
+export default function LandingEditor({ value, lang, onUpload, onChange }: {
+  value: WorkLanding; lang: Lang; onUpload: Upload; onChange: (next: WorkLanding) => void;
 }) {
   const tl = useTl();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -329,13 +329,6 @@ export default function LandingEditor({ value, isDefault, lang, onUpload, onChan
 
   return (
     <div className={styles.editor}>
-      <div className={styles.status}>
-        <span>{isDefault ? tl("defaultNotice") : tl("customNotice")}</span>
-        {!isDefault && <Button variant="ghost" className={es.toolBtn} onClick={onReset}>{tl("reset")}</Button>}
-      </div>
-
-      <Input label={tl("eyebrow")} value={value.eyebrow[lang]} onChange={(v) => onChange({ ...value, eyebrow: { ...value.eyebrow, [lang]: v } })} />
-
       <div className={es.field}>
         <span className={es.fieldLabel}>{tl("hero")}</span>
         <SceneStrip items={value.hero} lang={lang} onUpload={onUpload} onChange={(hero) => onChange({ ...value, hero })} />

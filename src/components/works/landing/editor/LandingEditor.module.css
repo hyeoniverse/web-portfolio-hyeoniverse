@@ -5,17 +5,6 @@
   gap: var(--spacing-40);
 }
 
-/* 지금 무엇으로 그리는지 — 한 줄 도움말과 끝의 되돌리기 */
-.status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-16);
-  min-height: var(--control-height-sm);
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
-}
-
 .inline {
   display: flex;
   flex-wrap: wrap;
