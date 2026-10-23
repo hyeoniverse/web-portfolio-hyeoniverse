@@ -115,7 +115,7 @@ export default function MacfolioLanding({ project, viewLang, next }: {
         <Note
           viewLang={viewLang}
           no="07"
-          title={{ ko: "이력서는 Markdown 한 장", en: "The résumé is a single Markdown file" }}
+          title={{ ko: "이력서를 Markdown 한 장으로", en: "The résumé as a single Markdown file" }}
           body={{
             ko: "바탕화면의 이력서 폴더를 열면 Markdown 원본과 PDF 가 나란히 있습니다. Markdown 은 텍스트 편집기에서 서식대로 읽고, PDF 는 미리보기에서 쪽을 넘겨 봅니다. 관리자는 텍스트 편집기의 서식 막대로 바로 고칩니다.",
             en: "Open the résumé folder on the desktop and the Markdown source sits next to the PDF. Read the Markdown formatted in TextEdit and page through the PDF in Preview; the admin edits it right in TextEdit's format bar.",
