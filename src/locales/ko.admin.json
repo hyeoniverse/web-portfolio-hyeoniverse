@@ -2020,7 +2020,7 @@
           "kind": {
             "frame": "그림 · 영상",
             "phones": "휴대폰 목업",
-            "sequence": "넘기는 장면",
+            "sequence": "고정 장면 전환",
             "marquee": "흐르는 띠",
             "numbers": "숫자"
           },
