@@ -230,15 +230,15 @@ export async function POST(request: Request) {
   // 시리즈는 자기 카테고리를 갖지 않음 — 카테고리는 멤버 글들에서 도출한다.
   // (series.category 컬럼은 legacy 로 남되 '' 기본값으로 둔다.)
 
-  // sort_order 미지정 시 — 현재 max + 1 (맨 뒤)
-  if (body.sort_order === undefined || body.sort_order === null) {
+  // sort_order 미지정(또는 1 미만) 시 — 현재 max + 1 (맨 뒤). 순번은 1부터 — 0 으로 들어가면 관리 화면에 #0 으로 보였다
+  if (typeof body.sort_order !== "number" || body.sort_order < 1) {
     const { data: maxRow } = await supabase
       .from("series")
       .select("sort_order")
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
-    body.sort_order = (maxRow?.sort_order ?? 0) + 1;
+    body.sort_order = Math.max(maxRow?.sort_order ?? 0, 0) + 1;
   }
 
   const { data, error } = await supabase.from("series").insert(body).select().single();
