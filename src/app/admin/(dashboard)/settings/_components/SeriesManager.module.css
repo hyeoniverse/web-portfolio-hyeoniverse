@@ -92,24 +92,6 @@
   bottom: -7px;
 }
 
-.seriesCardDeleteBtn {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: var(--border-default);
-  transition:
-    background var(--duration-base) var(--ease-standard),
-    backdrop-filter var(--duration-base) var(--ease-standard),
-    color var(--duration-base) var(--ease-standard),
-    border-color var(--duration-base) var(--ease-standard);
-}
-
-.seriesCardDeleteBtn:hover {
-  background: transparent;
-  backdrop-filter: blur(8px);
-  color: var(--text-white);
-  border-color: var(--text-white);
-}
-
 .seriesCardHeadCover {
   background-size: 100%;
   background-position: center;

@@ -5,7 +5,7 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, GripVertical, Trash2, Plus } from "@/components/icons";
+import { ChevronRight, GripVertical, Plus } from "@/components/icons";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
@@ -568,35 +568,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                     <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
                   </div>
                 </div>
-                {/* 펼친 상태 — 삭제 버튼을 publish badge 의 왼쪽에 (info ↔ publish 사이) 삽입.
-                   publish/chevron 우측 anchor 가 유지되어 펼치기/접기 시 publish 위치 흔들림 없음.
-                   클릭 전파 차단 (parent role=button 의 expand/collapse 트리거 방지). */}
-                {expanded && (
-                  <Button
-                    variant="primary"
-                    className={styles.seriesCardDeleteBtn}
-                    icon={<Trash2 size={12} />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(
-                        <SeriesDeleteModal
-                          series={s}
-                          onConfirm={async (deletePosts) => {
-                            closeAll();
-                            const res = await sendAction(`/api/series/${s.id}${deletePosts ? "?deletePosts=true" : ""}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"));
-                            if (!res) return;
-                            collapseId(s.id);
-                            fetchSeries();
-                          }}
-                          onCancel={closeAll}
-                        />,
-                        { id: "series-delete", header: { title: `"${s.title}"` }, closeButton: true, width: "400px" },
-                      );
-                    }}
-                  >
-                    {t("admin.posts.delete")}
-                  </Button>
-                )}
                 {/* 발행 배지 — chevron 바로 앞. 클릭하면 발행/해제 토글. admin 목록과 같은 공통 StatusBadge 규격. */}
                 <StatusBadge
                   variant={s.published ? "published" : "draft"}
@@ -638,6 +609,20 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                       categories={categories}
                       onSave={() => { collapseId(s.id); fetchSeries(); }}
                       onCancel={() => collapseId(s.id)}
+                      onDelete={() => openModal(
+                          <SeriesDeleteModal
+                            series={s}
+                            onConfirm={async (deletePosts) => {
+                              closeAll();
+                              const res = await sendAction(`/api/series/${s.id}${deletePosts ? "?deletePosts=true" : ""}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"));
+                              if (!res) return;
+                              collapseId(s.id);
+                              fetchSeries();
+                            }}
+                            onCancel={closeAll}
+                          />,
+                          { id: "series-delete", header: { title: `"${s.title}"` }, closeButton: true, width: "400px" },
+                        )}
                       onCoverChange={(url) => {
                         setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, cover_image: url } : item));
                       }}
