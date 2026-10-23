@@ -1,47 +1,92 @@
-/* ── 작업물 랜딩 편집기 — 머리 한 줄 · 첫 장면들 · 번호 섹션 카드들 ── */
+/* ── 작업물 랜딩 편집기 — 상자 대신 선과 여백(docs/editor-ui.md). 면은 장면 타일 한 겹뿐 ── */
 .editor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-24);
+  gap: var(--spacing-40);
 }
 
-.notice {
+/* 지금 무엇으로 그리는지 — 한 줄 도움말과 끝의 되돌리기 */
+.status {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-12);
-  padding: var(--spacing-12) var(--spacing-16);
-  border-radius: var(--radius-surface);
-  background: var(--bg-secondary);
+  gap: var(--spacing-16);
+  min-height: var(--control-height-sm);
   font: var(--font-body-sm);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
-.group {
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.rowEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.emptyLine {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  border-radius: var(--radius-control);
+  color: var(--text-tertiary);
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.iconBtnDanger:hover:not(:disabled) {
+  color: var(--text-accent);
+}
+
+.iconBtn:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── 섹션 목록 — 줄마다 아래 가는 선, 접힌 줄은 번호 · 제목 · 설명 한 줄 · 썸네일 ── */
+.sections {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
+  border-top: var(--border-light);
 }
 
-.groupTitle {
-  font: var(--font-label-md);
-  color: var(--text-secondary);
-}
-
-/* 섹션 카드 — 손잡이로 끌어서 차례를 바꾼다 */
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-  padding: var(--spacing-16);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  border-bottom: var(--border-light);
   background: var(--bg-primary);
 }
 
 .section[data-dragging] {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-index-float);
   box-shadow: var(--shadow-floating);
 }
 
@@ -49,6 +94,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
+  min-height: 64px;
 }
 
 .grip {
@@ -60,7 +106,42 @@
 }
 
 .no {
+  width: 24px;
+  flex-shrink: 0;
   font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.sectionSummary {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  min-width: 0;
+  padding: var(--spacing-12) 0;
+  text-align: left;
+}
+
+.sectionName,
+.sectionDesc {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sectionName {
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+.sectionDesc {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.placeholder {
   color: var(--text-tertiary);
 }
 
@@ -69,160 +150,202 @@
   min-width: 0;
 }
 
-/* 항목 카드 */
-.items {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-}
-
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  padding: var(--spacing-12);
-  border-radius: var(--radius-surface);
-  background: var(--bg-secondary);
-}
-
-.itemHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-}
-
-.kind {
-  font: var(--font-label-sm);
-  color: var(--text-secondary);
-}
-
-.addItem {
-  align-self: flex-start;
-  min-width: 180px;
-}
-
-.tools {
-  display: flex;
+.thumbs {
+  display: none;
   gap: var(--spacing-4);
-  flex-shrink: 0;
 }
 
-.tool {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
+.thumb {
+  width: 40px;
   height: 28px;
-  border-radius: var(--radius-control);
-  color: var(--text-tertiary);
-}
-
-.tool:hover:not(:disabled) {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.tool:disabled {
-  opacity: var(--opacity-disabled);
-}
-
-.fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  flex: 1;
-  min-width: 0;
-}
-
-/* 좁은 화면은 그림 위 · 칸 아래로 쌓고, 넓으면 나란히 */
-.frameRow,
-.phoneRow {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--spacing-12);
-}
-
-.phoneMedia {
-  display: flex;
-  gap: var(--spacing-8);
-}
-
-.rows {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
-
-.rowBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-}
-
-.rowLabel {
-  font: var(--font-label-sm);
-  color: var(--text-tertiary);
-}
-
-.numberRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
-/* 그림 칸 */
-.slot {
-  position: relative;
-  flex: 0 0 auto;
-  width: 96px;
-  aspect-ratio: 3 / 4;
-}
-
-.slotWide {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-}
-
-.slot[data-busy] {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.slotPick {
-  display: block;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
-  border: var(--border-light);
   border-radius: var(--radius-mark);
   background: var(--bg-tertiary);
 }
 
-.slotPick:hover {
+.count {
+  display: none;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* 펼친 섹션 — 넓은 화면에서는 번호 열에 맞춰 들여 쓴다 */
+.sectionForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-8) 0 var(--spacing-24);
+}
+
+/* ── 장면 줄 — 작은 타일들, 고른 타일의 폼은 줄 바로 아래 ── */
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.tile,
+.tileAdd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  width: 112px;
+  text-align: left;
+}
+
+.tileMedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+.tile:hover .tileMedia {
+  border-color: var(--border-color-control);
+}
+
+.tile[data-active] .tileMedia {
   border-color: var(--text-primary);
 }
 
-.media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.slotEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  height: 100%;
-  font: var(--font-body-xs);
+.tileEmpty {
   color: var(--text-tertiary);
 }
 
-.slotRemove {
+.tileNumber {
+  font: var(--font-headline-sm);
+  color: var(--text-primary);
+}
+
+.tileLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+}
+
+.tileCount {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+/* 더하기 타일은 그림 칸 높이만큼 — 아래 이름 줄은 없다 */
+.tileAdd {
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-mark);
+  font: var(--font-label-sm);
+  color: var(--text-tertiary);
+}
+
+.tileAdd:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* 고른 장면의 폼 — 위 가는 선 하나로 장면 줄과 나눈다 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-light);
+}
+
+.formHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.formTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font: var(--font-label-md);
+  color: var(--text-secondary);
+}
+
+.fields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* 그림 · 영상 — 좁으면 미리보기 위 · 칸 아래, 넓으면 나란히 */
+.frameForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.frameMedia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.framePreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+/* 여러 장 — 작은 타일과 그 아래 설명 */
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--spacing-16) var(--spacing-8);
+}
+
+.mediaCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.mediaBox {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+.mediaRemove {
   position: absolute;
   top: var(--spacing-4);
   right: var(--spacing-4);
@@ -234,104 +357,104 @@
   border-radius: 50%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  box-shadow: var(--shadow-raised);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-  gap: var(--spacing-8);
-}
-
-.cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-.cell .slot {
-  width: 100%;
-}
-
-.addCell {
+.mediaAdd {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-4);
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 3;
   border: var(--border-light);
   border-style: dashed;
   border-radius: var(--radius-mark);
-  font: var(--font-body-xs);
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
 }
 
-.addCell:hover {
+.mediaAdd:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
 
-.addCell[data-busy] {
-  opacity: 0.5;
+.mediaAdd[data-busy] {
+  opacity: var(--opacity-disabled);
   pointer-events: none;
 }
 
+/* 휴대폰 화면 · 숫자 — 줄 목록, 줄 사이 가는 선 */
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rows > li + li {
+  border-top: var(--border-light);
+}
+
+.phoneRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-16);
+  padding: var(--spacing-8) 0;
+}
+
+.phoneThumb {
+  width: 32px;
+  height: 56px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-mark);
+  background: var(--bg-secondary);
+}
+
+.pair {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-8);
+  min-width: 160px;
+}
+
+.numberRow {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) 0;
+}
+
 @media (width > 768px) {
-  .frameRow,
-  .phoneRow {
+  .thumbs {
+    display: flex;
+  }
+
+  .count {
+    display: inline;
+  }
+
+  .sectionForm {
+    padding-left: var(--spacing-64);
+  }
+
+  .frameForm {
     flex-direction: row;
     align-items: flex-start;
   }
 
-  .slotWide {
-    width: 200px;
+  .frameMedia {
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .pair {
+    grid-template-columns: 1fr 1fr;
   }
 
   .numberRow {
     grid-template-columns: 140px 1fr auto;
   }
-}
-
-.chevronOpen {
-  transform: rotate(180deg);
-}
-
-/* 접은 섹션 — 설명 한 줄과 썸네일 줄. 누르면 펼친다 */
-.summary {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--spacing-8);
-  text-align: left;
-}
-
-.summaryBody {
-  overflow: hidden;
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.strip {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  overflow: hidden;
-}
-
-.stripThumb {
-  flex: 0 0 64px;
-  height: 40px;
-  overflow: hidden;
-  border-radius: var(--radius-mark);
-  background: var(--bg-tertiary);
-}
-
-.count {
-  flex-shrink: 0;
-  margin-left: var(--spacing-4);
-  font: var(--font-code-xs);
-  color: var(--text-tertiary);
 }
