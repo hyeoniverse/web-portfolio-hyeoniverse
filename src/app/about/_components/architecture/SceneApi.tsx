@@ -15,7 +15,7 @@ import Pressable from "@/components/ui/Pressable";
 import { Pause, Play, ZoomIn, ZoomOut } from "@/components/icons";
 import { backendItems } from "@/data/about/backend";
 import { apiMap } from "@/data/generated/apiMap";
-import { ACCESS_LEVELS, type ApiAccess, type ApiGroup } from "@/lib/about/apiMap";
+import { ACCESS_LEVELS, type ApiAccess, type ApiGroup } from "@/lib/about/apiMapShape";
 import { apiScene, journeyLayers, journeyScene, type Journey } from "../../_data/architecture";
 import { groupJourneys } from "../../_data/groupJourneys";
 import { k as l10n } from "../prezi/types";
