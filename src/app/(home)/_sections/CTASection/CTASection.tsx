@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Download, SocialBrandIcon } from "@/components/icons";
 
 const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
+import { useNearViewport } from "@/hooks/useNearViewport";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
@@ -27,6 +28,9 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     const { t, language, foreignLang, tx, koLabel } = useLanguage();
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
+    /* 커피 3D 는 CTA 가 한 화면 앞까지 다가오면 띄운다. 홈을 열자마자 띄우면 맨 아래의 보이지도 않는 장면이 로드 직후
+       셰이더를 컴파일해 메인 스레드를 막았다(느린 CPU 조건에서 1.2초 — 홈 TBT 의 대부분) */
+    const [observeDecor, decorNear] = useNearViewport(true, "100% 0px");
 
     /** 번역 + 설명을 한 말풍선에 통합 */
     const combinedTooltip = (label: string, ko: string, en: string) => {
@@ -43,9 +47,9 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     return (
       <Section fullHeight center className={styles.cta} ref={ref}>
         {cfg.home3d.coffeeCup && (
-          <div className={styles.decor} aria-hidden="true">
+          <div ref={observeDecor} className={styles.decor} aria-hidden="true">
             <div className={styles.decorStage}>
-              <CoffeeCanvas />
+              {decorNear && <CoffeeCanvas />}
             </div>
           </div>
         )}
