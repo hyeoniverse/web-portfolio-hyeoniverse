@@ -1,7 +1,7 @@
-/* 실린더 레이아웃의 three.js 씬 재료 — 인트로 텍스처 생성과 곡면 평면 지오메트리.
-   렌더링에 쓰이는 상수도 여기 모은다. CylinderLayout.tsx 에서 분리 (#662). */
+/* 실린더 레이아웃의 씬 재료 — 인트로 텍스처 생성과 렌더링에 쓰이는 상수 · 각도 계산. CylinderLayout.tsx 에서 분리 (#662).
+   three 는 불러오지 않는다 — CylinderLayout · useCylinderStage 가 상수를 가져가는데, 여기서 three 를 부르면
+   3D 캔버스를 따로 떼어 둔 보람 없이 three 가 /works 첫 로드에 실린다. 곡면 지오메트리는 curvedPlane.ts */
 
-import * as THREE from "three";
 import { renderGradient } from "@/components/posts/CoverImagePicker/gradientUtils";
 import { pickFallbackPreset } from "@/lib/coverFallback";
 
@@ -279,36 +279,4 @@ export function createIntroDataUrl(isDark: boolean): string {
   }
 
   return c.toDataURL("image/png");
-}
-
-/* ── Curved Plane geometry ── */
-export function makeCurvedPlane(
-  angle: number, arc: number, radius: number, width: number, segsV: number,
-): THREE.BufferGeometry {
-  const positions: number[] = [];
-  const uvs: number[] = [];
-  const indices: number[] = [];
-
-  for (let j = 0; j <= segsV; j++) {
-    const t = j / segsV;
-    const a = angle - arc / 2 + t * arc;
-    const y = Math.sin(a) * radius;
-    const z = Math.cos(a) * radius;
-    positions.push(-width / 2, y, z);
-    uvs.push(0, 1 - t);
-    positions.push(width / 2, y, z);
-    uvs.push(1, 1 - t);
-  }
-
-  for (let j = 0; j < segsV; j++) {
-    const a = j * 2;
-    indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  return geo;
 }

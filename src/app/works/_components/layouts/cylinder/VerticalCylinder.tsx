@@ -18,10 +18,10 @@ import {
   PANEL_BRIGHTNESS,
   PANEL_HOVER_BRIGHTNESS,
   ENTRY_SPIN_SLOTS,
-  makeCurvedPlane,
   cylinderCamera,
   slotOffset,
 } from "./scene";
+import { makeCurvedPlane } from "./curvedPlane";
 
 /* ── Texture loader ── */
 /* 표지를 한 장 못 받았다고 원통 전체가 사라지면 안 된다.

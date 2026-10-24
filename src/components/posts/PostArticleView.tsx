@@ -5,6 +5,7 @@ import SiteText from "@/components/ui/SiteText";
 import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import "@/styles/vendor/katex.css";
 import { Pencil, ExternalLink, SocialBrandIcon } from "@/components/icons";
 import { GithubIcon } from "@/components/icons";
@@ -15,8 +16,9 @@ import { UiLabel, useBodyLabels, useForeignReading } from "./BodyLabelsContext";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { formatCount } from "@/utils/format";
 import { SITE_TIME_ZONE } from "@/constants";
-import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
+/* 마크다운 렌더러(marked · katex)는 markdown 글일 때만 받는다 — 대부분의 글은 richtext 다. 서버 HTML 에는 그대로 실린다 */
+const MarkdownRenderer = dynamic(() => import("@/components/posts/MarkdownRenderer"));
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import ListenButton from "@/components/ui/ListenButton";
