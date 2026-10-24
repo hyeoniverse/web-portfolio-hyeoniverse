@@ -16,7 +16,12 @@ const FORBIDDEN_FILES = ["src/lib/supabase/admin.ts", "src/lib/getSecret.ts"];
 const FORBIDDEN_PACKAGES = ["typescript"];
 
 const IMPORT = /^\s*(?:import|export)\s+(?!type\b)([^"';]*?)\s*from\s+["']([^"']+)["']|^\s*import\s+["']([^"']+)["']/gm;
-const TYPE_ONLY = /^\{\s*(?:type\s+\w+(?:\s+as\s+\w+)?\s*,?\s*)+\}$/;
+/** `{ type A, type B as C }` 처럼 이름이 모두 type 인가 — 정규식 하나로 쓰면 반복이 겹쳐 입력에 따라 오래 걸린다(ReDoS) */
+function isTypeOnly(names: string): boolean {
+  if (!names.startsWith("{") || !names.endsWith("}")) return false;
+  const parts = names.slice(1, -1).split(",").map((s) => s.trim()).filter(Boolean);
+  return parts.length > 0 && parts.every((s) => /^type\s/.test(s));
+}
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -47,7 +52,7 @@ for (const f of files) {
   const list: string[] = [];
   for (const m of src.matchAll(IMPORT)) {
     const names = (m[1] ?? "").trim();
-    if (names && TYPE_ONLY.test(names)) continue;
+    if (names && isTypeOnly(names)) continue;
     const r = resolve(m[2] ?? m[3], f);
     if (r) list.push(r);
   }

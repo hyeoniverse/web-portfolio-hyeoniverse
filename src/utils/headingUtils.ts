@@ -5,6 +5,8 @@ import type { TocHeading } from "@/types";
 export function slugify(text: string): string {
   return text
     .replace(/<[^>]*>/g, "")
+    /* 태그를 지우고 남은 꺾쇠 조각("<scr<script>ipt" 처럼 겹친 것)까지 지운다 — 아래 단계가 어차피 기호를 "-" 로 바꾸지만 여기서 끊는다 */
+    .replace(/[<>]/g, "")
     .toLowerCase()
     .replace(/[^\w가-힣]+/g, "-")
     .replace(/^-+|-+$/g, "");
