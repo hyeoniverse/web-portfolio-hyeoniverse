@@ -14,14 +14,17 @@ interface ThemedLogoImageProps {
   /** 반대 배경용 변형을 빌려 쓸 때 명암 뒤집기 — 테마 색으로 칠하면 필요 없다 */
   invert?: boolean;
   classNames: { image: string; invert: string; tinted: string };
+  /** 첫 화면에서 가장 큰 그림일 때(로딩 워드마크) — 기본(lazy)이면 다른 그림에 밀려 늦게 와서 LCP 가 늦었다 */
+  eager?: boolean;
 }
 
 /**
  * 브랜드 로고 이미지 한 장. 우선순위: 직접 고른 리컬러 색 → 테마 색(잉크·포인트) → 원래 이미지.
  * 테마 색으로 칠할 수 없는 로고(색이 많거나 배경이 칠해짐)는 원래 이미지를 그대로 쓴다.
  */
-export default function ThemedLogoImage({ src, bg, width, alt, tint, invert = false, classNames }: ThemedLogoImageProps) {
+export default function ThemedLogoImage({ src, bg, width, alt, tint, invert = false, classNames, eager = false }: ThemedLogoImageProps) {
   const themed = useThemedLogo(src, bg, !tint);
+  const load = eager ? ({ loading: "eager", fetchPriority: "high" } as const) : {};
 
   if (tint) {
     // 숨긴 img 로 종횡비·폭을 잡고, 그 모양을 mask 로 tint 색 채움
@@ -32,12 +35,12 @@ export default function ThemedLogoImage({ src, bg, width, alt, tint, invert = fa
         role="img"
         aria-label={alt}
       >
-        <Image src={src} alt="" width={width} height={32} unoptimized />
+        <Image src={src} alt="" width={width} height={32} unoptimized {...load} />
       </span>
     );
   }
   if (themed) {
-    return <Image src={themed} alt={alt} width={width} height={32} className={classNames.image} unoptimized />;
+    return <Image src={themed} alt={alt} width={width} height={32} className={classNames.image} unoptimized {...load} />;
   }
   return (
     <Image
@@ -47,6 +50,7 @@ export default function ThemedLogoImage({ src, bg, width, alt, tint, invert = fa
       height={32}
       className={invert ? `${classNames.image} ${classNames.invert}` : classNames.image}
       unoptimized
+      {...load}
     />
   );
 }

@@ -225,8 +225,8 @@ export default function Navigation() {
   };
   // 리컬러 색 → 테마 색 → 원본 순으로 칠한다(ThemedLogoImage). 그림자는 공통 적용.
   const logoImgClasses = { image: styles.logoImage, invert: styles.logoImageInvert, tinted: styles.logoImageTinted };
-  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark") => (
-    <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} />
+  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark", eager = false) => (
+    <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} eager={eager} />
   );
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -660,7 +660,7 @@ export default function Navigation() {
                     clipPath: { duration: 0.8, delay: 0.15, ease: SUB_EASE },
                   }}
                 >
-                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert, "dark")}
+                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert, "dark", true)}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}
