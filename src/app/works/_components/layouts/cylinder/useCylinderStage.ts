@@ -154,59 +154,88 @@ export function useCylinderStage({
   // rAF — slot visibility + position
   useEffect(() => {
     let rafId: number;
+    /* 스타일은 값이 바뀔 때만 쓴다. 매 프레임 같은 값을 다시 쓰면 원통이 멈춰 있어도 스타일 계산이 매번 다시 돌았다 */
+    const written = new WeakMap<HTMLElement, Record<string, string>>();
+    const put = (el: HTMLElement, prop: string, value: string) => {
+      let w = written.get(el);
+      if (!w) written.set(el, (w = {}));
+      if (w[prop] === value) return;
+      w[prop] = value;
+      el.style.setProperty(prop, value);
+    };
+    /* 판 높이는 크기가 바뀔 때만 받아 둔다. 매 프레임 offsetHeight 를 읽으면 다른 연출(커서 꼬리 · 3D)이 흐트러 놓은
+       문서 레이아웃을 그때마다 강제로 다시 계산했다(느린 CPU 조건에서 /works 메인 스레드 1.2초) */
+    const heights = new WeakMap<HTMLElement, number>();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const box = e.borderBoxSize?.[0];
+        heights.set(e.target as HTMLElement, Math.round(box ? box.blockSize : (e.target as HTMLElement).offsetHeight));
+      }
+    });
+    const observed = new WeakSet<HTMLElement>();
+    const heightOf = (n: HTMLElement) => {
+      if (ro && !observed.has(n)) {
+        observed.add(n);
+        ro.observe(n);
+      }
+      let h = heights.get(n);
+      if (h === undefined) heights.set(n, (h = n.offsetHeight)); // 첫 프레임만 — 관찰 결과가 오기 전
+      return h;
+    };
     const tick = () => {
       const cylinderRotX = actualRotRef.current;
       const loop = segAngle * slotCount;
       let bestIdx = 0;
       let bestDist = Infinity;
+      /* 1) 판마다 자리 · 보임 · 높이 */
+      const slots: { i: number; absAngle: number; visible: boolean; reveal: string; pos: { x: number; y: number }; el?: HTMLElement; ov?: HTMLElement; metaH: number; ovH: number }[] = [];
       for (let i = 0; i < slotCount; i++) {
-        const relAngle = slotOffset(i, segAngle, loop, cylinderRotX);
-
-        const absAngle = Math.abs(relAngle);
+        const absAngle = Math.abs(slotOffset(i, segAngle, loop, cylinderRotX));
         const visible = absAngle < BACK_THRESHOLD;
-        const pos = screenPosRef.current[i] || { x: 0, y: 0 };
-
         const el = slotRefs.current.get(i);
         const ov = overlayRefs.current.get(i);
-        const reveal = Math.max(0, 1 - absAngle / (BACK_THRESHOLD * 0.35));
-        if (el && ov) {
-          if (visible) {
-            const metaH = el.offsetHeight;
-            const ovH = ov.offsetHeight;
-            const shift = ovH / 2;
-            el.style.transform = `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y - shift}px))`;
-            el.style.opacity = "1";
-            el.style.visibility = "visible";
-            el.style.setProperty("--reveal", reveal.toFixed(3));
-            const gap = 32;
-            ov.style.transform = `translate(calc(-50% + ${pos.x}px), ${pos.y - shift + metaH / 2 + gap}px)`;
-            ov.style.opacity = "1";
-            ov.style.visibility = "visible";
-            ov.style.setProperty("--reveal", reveal.toFixed(3));
-          } else {
-            el.style.opacity = "0";
-            el.style.visibility = "hidden";
-            el.style.setProperty("--reveal", "0");
-            ov.style.opacity = "0";
-            ov.style.visibility = "hidden";
-            ov.style.setProperty("--reveal", "0");
-          }
-        } else if (el) {
-          if (visible) {
-            el.style.transform = `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px))`;
-            el.style.opacity = "1";
-            el.style.visibility = "visible";
-            el.style.setProperty("--reveal", reveal.toFixed(3));
-          } else {
-            el.style.opacity = "0";
-            el.style.visibility = "hidden";
-            el.style.setProperty("--reveal", "0");
-          }
-        }
-
+        slots.push({
+          i,
+          absAngle,
+          visible,
+          reveal: Math.max(0, 1 - absAngle / (BACK_THRESHOLD * 0.35)).toFixed(3),
+          pos: screenPosRef.current[i] || { x: 0, y: 0 },
+          el,
+          ov,
+          metaH: visible && el && ov ? heightOf(el) : 0,
+          ovH: visible && el && ov ? heightOf(ov) : 0,
+        });
         if (absAngle < bestDist) {
           bestDist = absAngle;
           bestIdx = i;
+        }
+      }
+      /* 2) 쓰기 */
+      const hide = (n: HTMLElement) => {
+        put(n, "opacity", "0");
+        put(n, "visibility", "hidden");
+        put(n, "--reveal", "0");
+      };
+      const show = (n: HTMLElement, transform: string, reveal: string) => {
+        put(n, "transform", transform);
+        put(n, "opacity", "1");
+        put(n, "visibility", "visible");
+        put(n, "--reveal", reveal);
+      };
+      for (const { visible, reveal, pos, el, ov, metaH, ovH } of slots) {
+        if (el && ov) {
+          if (visible) {
+            const shift = ovH / 2;
+            const gap = 32;
+            show(el, `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y - shift}px))`, reveal);
+            show(ov, `translate(calc(-50% + ${pos.x}px), ${pos.y - shift + metaH / 2 + gap}px)`, reveal);
+          } else {
+            hide(el);
+            hide(ov);
+          }
+        } else if (el) {
+          if (visible) show(el, `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px))`, reveal);
+          else hide(el);
         }
       }
 
@@ -240,14 +269,14 @@ export function useCylinderStage({
       const panelWpx = Math.round(Math.min(panelHalfWpx * shrink * 2, window.innerWidth * 0.9));
       const panelHpx = Math.round(Math.min(panelHalfHpx * shrink * 2, window.innerHeight * 0.8));
       for (const el of slotRefs.current.values()) {
-        el.style.setProperty("--panel-w", `${panelWpx}px`);
-        el.style.setProperty("--panel-h", `${panelHpx}px`);
+        put(el, "--panel-w", `${panelWpx}px`);
+        put(el, "--panel-h", `${panelHpx}px`);
       }
 
       // intro 일 때만 댓글 버블 보이기
       const fc = floatingCommentsRef.current;
       if (fc) {
-        fc.style.visibility = bestIdx === 0 ? "visible" : "hidden";
+        put(fc, "visibility", bestIdx === 0 ? "visible" : "hidden");
       }
 
 
@@ -271,8 +300,8 @@ export function useCylinderStage({
         /* 띠는 끝없이 돌지만 칸 줄은 끝이 있다. 마지막 칸에서 첫 칸으로 넘어갈 때 틀이 줄 전체를 거슬러
            올라가면 어지럽다 — 줄 끝에 다가가면 흐려졌다가 반대쪽 끝에서 다시 나타난다 */
         const edge = Math.min(pos + 0.5, slotCount - 0.5 - pos);
-        frame.style.setProperty("--pos", pos.toFixed(4));
-        frame.style.setProperty("--fade", slotCount > 1 ? Math.min(1, edge * 4).toFixed(3) : "1");
+        put(frame, "--pos", pos.toFixed(4));
+        put(frame, "--fade", slotCount > 1 ? Math.min(1, edge * 4).toFixed(3) : "1");
       }
 
 
@@ -281,7 +310,10 @@ export function useCylinderStage({
     };
 
     rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro?.disconnect();
+    };
     // arc / segAngle 은 slotCount 에서 derive 되므로 deps 에 별도 추가 불필요
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slotCount]);

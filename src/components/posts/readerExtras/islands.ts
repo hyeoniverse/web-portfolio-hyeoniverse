@@ -6,6 +6,20 @@ import type { ReaderExtrasContext } from "./context";
 
 /* React island 네 종류 — mermaid 다이어그램 · 코드 플레이그라운드 · 캘린더 · 슬라이드 갤러리.
    셋 다 무거운 의존성이라 동적 import 로 가져와 마운트하고, 언마운트 때 root 를 정리한다. */
+
+/** 화면 근처(위아래 600px)에 올 때 한 번 돈다. 다이어그램을 로드 직후 한꺼번에 그리면 mermaid · elkjs 가
+ *  메인 스레드를 1초 가까이 막았다(느린 CPU 조건, 글 상세 TBT 의 대부분). 그 전까지는 코드 블록이 그대로 보인다 */
+function whenNear(host: HTMLElement, cleanups: (() => void)[], run: () => void) {
+  if (typeof IntersectionObserver === "undefined") return run();
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    run();
+  }, { rootMargin: "600px 0px" });
+  io.observe(host);
+  cleanups.push(() => io.disconnect());
+}
+
 export function renderIslands({ el, labels, body, cleanups, isCancelled }: ReaderExtrasContext) {
   // ── mermaid ── 에디터와 동일 UI(SegmentedControl + MermaidPreview) React island 로 마운트
   el.querySelectorAll<HTMLElement>("code.language-mermaid").forEach((code) => {
@@ -14,33 +28,36 @@ export function renderIslands({ el, labels, body, cleanups, isCancelled }: Reade
     const host = (code.closest(".code-block-wrap") ?? code.closest("pre") ?? code) as HTMLElement;
     if (!src || host.dataset.mermaidDone) return;
     host.dataset.mermaidDone = "1";
-    const mount = document.createElement("div");
-    host.replaceWith(mount);
     let root: import("react-dom/client").Root | null = null;
-    Promise.all([
-      import("react"),
-      import("react-dom/client"),
-      import("../plate/ReaderMermaid"),
-    ]).then(([ReactMod, rdc, mod]) => {
-      if (isCancelled() || !mount.isConnected) return;
-      const r = rdc.createRoot(mount);
-      root = r;
-      r.render(ReactMod.createElement(mod.default, {
-        code: src,
-        labels: { diagram: labels.diagram, code: labels.code, split: labels.split, copyCode: labels.copyCode, copied: labels.copied },
-        controls: {
-          zoomIn: body.mermaidZoomIn,
-          zoomOut: body.mermaidZoomOut,
-          reset: body.mermaidReset,
-          panUp: body.mermaidPanUp,
-          panDown: body.mermaidPanDown,
-          panLeft: body.mermaidPanLeft,
-          panRight: body.mermaidPanRight,
-          fullscreen: body.mermaidFullscreen,
-          exitFullscreen: body.mermaidExitFullscreen,
-        },
-      }));
-    }).catch(() => { /* noop */ });
+    whenNear(host, cleanups, () => {
+      if (isCancelled() || !host.isConnected) return;
+      const mount = document.createElement("div");
+      host.replaceWith(mount);
+      Promise.all([
+        import("react"),
+        import("react-dom/client"),
+        import("../plate/ReaderMermaid"),
+      ]).then(([ReactMod, rdc, mod]) => {
+        if (isCancelled() || !mount.isConnected) return;
+        const r = rdc.createRoot(mount);
+        root = r;
+        r.render(ReactMod.createElement(mod.default, {
+          code: src,
+          labels: { diagram: labels.diagram, code: labels.code, split: labels.split, copyCode: labels.copyCode, copied: labels.copied },
+          controls: {
+            zoomIn: body.mermaidZoomIn,
+            zoomOut: body.mermaidZoomOut,
+            reset: body.mermaidReset,
+            panUp: body.mermaidPanUp,
+            panDown: body.mermaidPanDown,
+            panLeft: body.mermaidPanLeft,
+            panRight: body.mermaidPanRight,
+            fullscreen: body.mermaidFullscreen,
+            exitFullscreen: body.mermaidExitFullscreen,
+          },
+        }));
+      }).catch(() => { /* noop */ });
+    });
     // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
     // "synchronously unmount a root while React was already rendering" 경고가 난다.
     cleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
