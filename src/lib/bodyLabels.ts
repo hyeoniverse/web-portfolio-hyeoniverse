@@ -112,6 +112,9 @@ const DEFS = {
   /* 수식 오류(툴팁) — renderMathNodes. 화면 언어로는 예전처럼(한국어는 고쳐 쓰고 영어는 KaTeX 글 그대로),
      번역해 볼 때만 이 틀을 쓴다 */
   mathError: { ko: "수식 오류: {{msg}}", en: "Math error: {{msg}}" },
+  /* 각주 — 번호 링크의 이름과 각주 끝 돌아가기(components/posts/footnotes) */
+  footnoteRef: { ko: "각주 {{n}}", en: "Footnote {{n}}" },
+  footnoteBack: { ko: "본문으로 돌아가기", en: "Back to text" },
   mathUnknownCommand: { ko: "수식 오류: 알 수 없는 명령어 {{cmd}}", en: "Math error: unknown command {{cmd}}" },
 } satisfies Record<string, LabelDef>;
 

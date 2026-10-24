@@ -10,6 +10,7 @@ import { highlightCode } from "@/utils/prismHighlight";
 import { useBodyLabels } from "./BodyLabelsContext";
 import { attachImageFallback } from "@/lib/imageFallback";
 import { slugify } from "@/utils/headingUtils";
+import { enhanceFootnotes } from "./footnotes";
 
 
 marked.use(
@@ -115,6 +116,13 @@ export default function MarkdownRenderer({
     applyColorSwatches(root);
     // 인라인 코드도 syntax highlight (명확히 코드로 추론될 때만)
     highlightInlineCode(root);
+  }, [html, labels]);
+
+  // 각주 — 번호 · 돌아가기 링크를 누르면 고정 네비에 가리지 않게 그 자리로(richtext 리더와 같은 동작)
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    return enhanceFootnotes(root, labels);
   }, [html, labels]);
 
   // 깨진 이미지 → 공용 placeholder 로 swap. 동적 추가 img 추적까지 공용 헬퍼가 담당
