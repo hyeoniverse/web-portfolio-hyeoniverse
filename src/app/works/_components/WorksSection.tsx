@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment } f
 import gsap from "gsap";
 import { WORKS_LAYOUT_MESSAGE } from "@/lib/worksLayoutMessage";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useScrollTriggerLenis } from "@/hooks/useScrollTriggerLenis";
 import dynamic from "next/dynamic";
 import { BREAKPOINT } from "@/constants";
 import { useLenis } from "@/providers/LenisProvider";
@@ -53,6 +54,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const TECH_COUNT = new Set(projects.flatMap((p) => p.tech ?? [])).size;
   const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();
 
+  useScrollTriggerLenis();
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
   const configLayout = (siteConfig.works as Record<string, unknown>).layout as LayoutType | undefined;

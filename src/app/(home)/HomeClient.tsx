@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 // 훅
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { useLenis } from "@/providers/LenisProvider";
+import { useScrollTriggerLenis } from "@/hooks/useScrollTriggerLenis";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
 import type { WorkItem } from "@/data/works";
@@ -49,6 +50,7 @@ export default function HomeClient({ homeWorks }: { homeWorks: WorkItem[] }) {
   const gsapInitRef = useRef(false);
 
   const { setInfinite, stop: lenisStop, start: lenisStart, lenis } = useLenis();
+  useScrollTriggerLenis();
 
   // 브라우저 스크롤 복원 비활성 + 페인트 전 스크롤 0 확정.
   // Bridge 섹션(페이지 하단, Hero와 동일 레이아웃)이 스크롤 복원으로 노출되어
