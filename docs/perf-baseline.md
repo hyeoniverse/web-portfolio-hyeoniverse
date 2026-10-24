@@ -252,38 +252,49 @@ document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
 | 글 상세 · TIL | `headingUtils` 가 `slugify` 를 `MarkdownRenderer` 에서 가져와 richtext 글에도 `marked` · `katex` 가 실렸다 | `slugify` 를 `headingUtils` 로, `MarkdownRenderer` 는 markdown 글일 때만(dynamic) |
 | 글 상세 · `/privacy` · 작업물 상세 | `DetailLayout` 이 `EmojiIcon` 을 `EmojiPicker` 묶음(index)에서 가져와 이모지 사전(`@emoji-mart/data`)까지 / 댓글 툴바가 고르기 창을 바로 import | `EmojiIcon` 파일에서 직접 · 고르기 창은 처음 열 때 |
 | `/admin/settings` · `/admin/login` | 서비스 탭이 `lib/ai/models`(서버) 에서 기본값을 / 로그인이 `react-icons/si` | `modelDefaults.ts` · `GithubIcon` |
+| 모든 페이지(공통 shell) | `LenisProvider` 가 부드러운 스크롤을 gsap ticker 로 돌리고 ScrollTrigger 를 맞추느라 gsap(43 kB)을 import. `scrollerProxy(document.body)` 는 아무 트리거도 `scroller` 를 지정하지 않아 쓰이지 않았다 | Lenis 는 `requestAnimationFrame` 으로, ScrollTrigger 동기화는 쓰는 화면(홈 · 작업물)에서 `hooks/useScrollTriggerLenis` 로 |
+
+공통 shell **350 → 307 kB**(−43). 아래는 라우트 전체(shell 포함).
 
 | 라우트 | 전 (kB) | 후 (kB) | Δ |
 | --- | ---: | ---: | ---: |
-| /about | 1594 | 633 | −961 |
-| /profile | 776 | 413 | −363 |
-| /posts/[slug] | 700 | 440 | −260 |
-| /admin/posts/preview | 665 | 405 | −261 |
-| /privacy | 533 | 393 | −141 |
-| /works/[slug] | 521 | 380 | −140 |
-| /posts/til | 516 | 395 | −121 |
-| /works | 475 | 377 | −97 |
-| /admin/login | 485 | 421 | −63 |
+| /about | 1594 | 590 | −1004 |
+| /profile | 776 | 397 | −379 |
+| /posts/[slug] | 700 | 397 | −303 |
+| /admin/posts/preview | 665 | 362 | −304 |
+| /privacy | 533 | 350 | −184 |
+| /works/[slug] | 521 | 338 | −183 |
+| /posts/til | 516 | 352 | −164 |
+| /admin/login | 485 | 378 | −106 |
+| /works | 475 | 378 | −97 |
+| 그 밖의 모든 라우트 | | | −43 (shell) |
 
 ### 실제 로딩(느린 4G · CPU 4배 느리게, 3회 중앙값)
 
-Lighthouse 와 같은 조건(RTT 150ms · 1.6 Mbps · CPU ×4)을 Playwright Chromium 에 걸어 `next start` 두 벌을 비교했다.
+Lighthouse 와 같은 조건(RTT 150ms · 1.6 Mbps · CPU ×4)을 Playwright Chromium 에 걸어 `next start` 두 벌(master / 이 작업)을 비교했다.
 
 | 라우트 | LCP 전 → 후 | TBT 전 → 후 | 받은 JS 전 → 후 |
 | --- | --- | --- | --- |
-| /about | 12.3s → **7.4s** | 318 → 112ms | 2457 → 1043 kB |
-| /profile | 8.9s → 7.2s | 627 → 830ms | 1109 → 1222 kB |
-| /posts/til | 6.5s → 5.9s | 336 → 361ms | 1063 → 935 kB |
-| /privacy | 6.2s → 5.5s | 54 → 47ms | 1269 → 996 kB |
-| /works | 5.1s → 5.2s | 434 → 234ms | 1303 → 1265 kB |
-| 글 상세 | 8.1s → 8.4s | 1002 → 1098ms | 1964 → 1731 kB |
+| / | 5.4s → **1.5s** | 1438 → 1145ms | 1074 → 1274 kB |
+| /works | 5.1s → **3.2s** | 410 → 445ms | 1303 → 1267 kB |
+| /works/hyeoniverse | 8.3s → **1.5s** | 15 → 12ms | 940 → 882 kB |
+| 글 상세 | 9.3s → **2.8s** | 848 → 816ms | 1964 → 1733 kB |
+| /about | 12.3s → **4.3s** | 291 → 92ms | 2457 → 1046 kB |
+| /privacy | 6.2s → **1.6s** | 63 → 45ms | 1269 → 998 kB |
+| /profile | 8.9s → 7.0s | 520 → 735ms | 1109 → 1224 kB |
+| /posts | 9.8s → 9.6s | 187 → 254ms | 936 → 713 kB |
 
-`/profile` 의 TBT · 받은 JS 가 늘어 보이는 것은 마스코트 캔버스를 늦게 받기 때문이다 — 측정 창(로드 + 6초) 안에 그 묶음이 들어온다.
-첫 화면은 빨라졌다(LCP −1.7s).
+**LCP 가 늦던 가장 큰 이유는 JS 가 아니라 로딩 화면의 워드마크였다.** 이미지 워드마크는 비율을 CSS 로 낼 수 없다며 자바스크립트가 잴 때까지
+숨겼고(`visibility: hidden`), 그다음 framer 가 투명에서 나타나게 했다. 그래서 하이드레이션이 끝나야 LCP 가 찍혔다.
+기본 워드마크는 비율(1861 × 266)을 알므로 글자 로고처럼 서버 HTML 부터 CSS(`.logoCssLoadingImage`)로 한가운데에 키워 두고,
+등장도 CSS 로 흐릿함에서 선명해지게 했다(투명에서 시작하지 않는다). 그림은 `loading="eager"` · `fetchPriority="high"` 로 받는다 —
+기본(lazy)이면 작업물 상세의 첫 장면 그림들에 밀려 5초 넘게 걸렸다. 업로드 로고는 비율을 몰라 예전처럼 잰 뒤에 보인다.
+`/privacy` 는 본문이 framer 로 투명에서 나타나 하이드레이션을 기다렸다 — 머리글은 CSS 애니메이션으로, 섹션은 첫 화면 아래 것만 숨겼다가 보이게 바꿨다.
 
-**LCP 는 대부분 로딩 화면의 워드마크다.** 로고가 `opacity: 0` 에서 하이드레이션 뒤 framer-motion 으로 나타나므로,
-JS 를 다 실행해야 LCP 가 찍힌다. JS 를 줄인 라우트의 LCP 가 같이 짧아진 이유이고, 글 상세처럼 5~8초가 남는 이유다.
-로딩 연출을 CSS 로 먼저 보이게 하면 크게 줄겠지만 디자인이 걸린 일이라 따로 정한다.
+- 홈의 받은 JS 가 늘어 보이는 건 측정 창(로드 + 6초) 안에 다음 화면 미리 받기가 더 들어오기 때문이다(첫 로드 묶음은 −43 kB).
+- `/profile` 의 TBT · 받은 JS 는 마스코트 캔버스를 늦게 받으며 측정 창 안에 들어온 몫이다. LCP 는 "about me" 워터마크인데,
+  헤드라인 웹폰트가 바뀌어 다시 그려지는 시각(약 7초)이 잡힌다 — 이 페이지는 폰트 파일을 25개 넘게 받는다.
+- `/posts` 는 배너 슬라이드가 자동으로 넘어가며 다음 그림이 새 LCP 로 잡혀 측정마다 2.8 ~ 9.6초로 흔들린다.
 
 ### 다시 새지 않게
 
@@ -292,11 +303,10 @@ JS 를 다 실행해야 LCP 가 찍힌다. JS 를 줄인 라우트의 LCP 가 �
 
 ### 남은 것
 
-- 공통 shell 의 `gsap`(43 kB) — `LenisProvider` 가 사이트 전체 부드러운 스크롤을 gsap ticker · ScrollTrigger 에 묶어 돌린다.
-  떼려면 스크롤 동기화를 바꿔야 해서 모든 페이지의 스크롤을 다시 확인해야 한다
 - 공통 shell 의 `culori`(15 kB) — 테마 색 계산(`themeColors` · `BarColorSync`)
 - `/about` 의 화면 코드(`src/app/about/_components` 107 kB) · 생성 데이터(44 kB) — 장면별로 나눠 받을 수 있다
-- 관리자 편집기(860 kB 안팎)
+- `/profile` 의 폰트 — 첫 화면에 쓰지 않는 폰트까지 받는다
+- 관리자 편집기(820 kB 안팎)
 
 ## 화면 안전망
 
