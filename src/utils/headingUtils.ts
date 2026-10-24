@@ -3,10 +3,14 @@ import type { TocHeading } from "@/types";
 /** 제목 → id 조각. 마크다운 렌더러와 richtext 처리(addIdsToHtml)가 같이 쓴다.
  *  여기 둔다 — MarkdownRenderer 에서 가져오면 marked · katex 가 richtext 글 · TIL 첫 로드까지 따라온다 */
 export function slugify(text: string): string {
-  return text
-    .replace(/<[^>]*>/g, "")
-    /* 태그를 지우고 남은 꺾쇠 조각("<scr<script>ipt" 처럼 겹친 것)까지 지운다 — 아래 단계가 어차피 기호를 "-" 로 바꾸지만 여기서 끊는다 */
-    .replace(/[<>]/g, "")
+  /* 태그는 더 지울 것이 없을 때까지 지운다 — 한 번만 지우면 "<scr<script>ipt>" 처럼 겹친 조각이 다시 태그가 된다.
+     아래 단계가 어차피 기호를 "-" 로 바꾸지만 여기서 끊는다(CodeQL js/incomplete-multi-character-sanitization) */
+  let plain = text;
+  for (let prev = ""; prev !== plain; ) {
+    prev = plain;
+    plain = plain.replace(/<[^>]*>/g, "");
+  }
+  return plain
     .toLowerCase()
     .replace(/[^\w가-힣]+/g, "-")
     .replace(/^-+|-+$/g, "");
