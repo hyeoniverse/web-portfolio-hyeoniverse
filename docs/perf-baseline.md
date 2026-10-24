@@ -10,7 +10,7 @@
 
 | 하려는 일 | 볼 곳 |
 | --- | --- |
-| 번들이 커졌는지/작아졌는지 확인 | [라우트별 First Load JS](#라우트별-first-load-js) · [Phase 2 진행 결과](#phase-2-진행-결과) |
+| 번들이 커졌는지/작아졌는지 확인 | [라우트별 First Load JS](#라우트별-first-load-js) · [Phase 2 진행 결과](#phase-2-진행-결과) · [2026-10 재측정](#2026-10-라우트별-재측정) |
 | "이 정도면 큰 건가?" 판단 | [이 프로젝트에서 "적당한 크기"란](#이-프로젝트에서-적당한-크기란) |
 | 다음에 뭘 줄일지 고르기 | [공통 shell 의 구성](#착수-시점-공통-shell-380-kb-의-구성) · [Phase 2 타깃](#phase-2-타깃-gzip-절감-순) |
 | 화면이 깨졌는지 검사 | [testing.md](testing.md#e2e-playwright) |
@@ -231,6 +231,72 @@ npx next build --experimental-analyze
 // 각 라우트에서 실행 — 번역 누락 시 getNestedValue 가 키를 그대로 반환한다
 document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
 ```
+
+## 2026-10 라우트별 재측정
+
+| | |
+| --- | --- |
+| 측정일 | 2026-10-24 |
+| 기준 커밋 | `50e6fcab` (master, #1584 머지 직후) |
+| 명령 | `npx next build --experimental-analyze` — gzip 계산은 위와 같다 |
+| 환경 | Next.js 16.4.2 (Turbopack), Node 26.12.0, darwin |
+
+공통 shell 은 **350 kB** 다(Phase 2 끝 318 kB 에서 늘었다 — 아래 '남은 것'). 라우트마다 그 라우트만의 묶음에서
+큰 것을 소스맵으로 나눠 보니, 대부분이 **상수 하나 · 함수 하나를 가져오려고 큰 모듈을 통째로 import** 한 것이었다.
+
+| 라우트 | 원인 | 고친 방법 |
+| --- | --- | --- |
+| `/about` | `SceneApi` 가 `ACCESS_LEVELS` 를 `lib/about/apiMap` 에서 가져왔는데 그 파일이 `typescript`(파서) 를 import — **컴파일러 1 MB** | 상수 · 타입을 `apiMapShape.ts` 로 |
+| `/works` | 원통 배치가 각도 상수를 `cylinder/scene.ts` 에서 가져왔는데 그 파일이 `three` 를 import(3D 캔버스는 이미 따로 받는데도) | three 를 쓰는 곡면 지오메트리만 `curvedPlane.ts` 로 |
+| `/profile` | 마스코트 캔버스(`three` · `@react-three/fiber`)를 바로 import / `PINNED_REPO_LIMIT` 하나 때문에 서버 전용 `githubShowcase`(Supabase 관리자 · 비밀값)가 번들에 / GitHub 로고 하나에 `react-icons/si` | 캔버스는 `FloatingCanvas` 로 떼어 `ssr: false` · 상수는 `githubRepoKey.ts` · 로고는 `GithubIcon` |
+| 글 상세 · TIL | `headingUtils` 가 `slugify` 를 `MarkdownRenderer` 에서 가져와 richtext 글에도 `marked` · `katex` 가 실렸다 | `slugify` 를 `headingUtils` 로, `MarkdownRenderer` 는 markdown 글일 때만(dynamic) |
+| 글 상세 · `/privacy` · 작업물 상세 | `DetailLayout` 이 `EmojiIcon` 을 `EmojiPicker` 묶음(index)에서 가져와 이모지 사전(`@emoji-mart/data`)까지 / 댓글 툴바가 고르기 창을 바로 import | `EmojiIcon` 파일에서 직접 · 고르기 창은 처음 열 때 |
+| `/admin/settings` · `/admin/login` | 서비스 탭이 `lib/ai/models`(서버) 에서 기본값을 / 로그인이 `react-icons/si` | `modelDefaults.ts` · `GithubIcon` |
+
+| 라우트 | 전 (kB) | 후 (kB) | Δ |
+| --- | ---: | ---: | ---: |
+| /about | 1594 | 633 | −961 |
+| /profile | 776 | 413 | −363 |
+| /posts/[slug] | 700 | 440 | −260 |
+| /admin/posts/preview | 665 | 405 | −261 |
+| /privacy | 533 | 393 | −141 |
+| /works/[slug] | 521 | 380 | −140 |
+| /posts/til | 516 | 395 | −121 |
+| /works | 475 | 377 | −97 |
+| /admin/login | 485 | 421 | −63 |
+
+### 실제 로딩(느린 4G · CPU 4배 느리게, 3회 중앙값)
+
+Lighthouse 와 같은 조건(RTT 150ms · 1.6 Mbps · CPU ×4)을 Playwright Chromium 에 걸어 `next start` 두 벌을 비교했다.
+
+| 라우트 | LCP 전 → 후 | TBT 전 → 후 | 받은 JS 전 → 후 |
+| --- | --- | --- | --- |
+| /about | 12.3s → **7.4s** | 318 → 112ms | 2457 → 1043 kB |
+| /profile | 8.9s → 7.2s | 627 → 830ms | 1109 → 1222 kB |
+| /posts/til | 6.5s → 5.9s | 336 → 361ms | 1063 → 935 kB |
+| /privacy | 6.2s → 5.5s | 54 → 47ms | 1269 → 996 kB |
+| /works | 5.1s → 5.2s | 434 → 234ms | 1303 → 1265 kB |
+| 글 상세 | 8.1s → 8.4s | 1002 → 1098ms | 1964 → 1731 kB |
+
+`/profile` 의 TBT · 받은 JS 가 늘어 보이는 것은 마스코트 캔버스를 늦게 받기 때문이다 — 측정 창(로드 + 6초) 안에 그 묶음이 들어온다.
+첫 화면은 빨라졌다(LCP −1.7s).
+
+**LCP 는 대부분 로딩 화면의 워드마크다.** 로고가 `opacity: 0` 에서 하이드레이션 뒤 framer-motion 으로 나타나므로,
+JS 를 다 실행해야 LCP 가 찍힌다. JS 를 줄인 라우트의 LCP 가 같이 짧아진 이유이고, 글 상세처럼 5~8초가 남는 이유다.
+로딩 연출을 CSS 로 먼저 보이게 하면 크게 줄겠지만 디자인이 걸린 일이라 따로 정한다.
+
+### 다시 새지 않게
+
+`src/__tests__/clientImportBoundary.test.ts` — `"use client"` 파일에서 값 import 를 따라가다 `typescript` 나 서버 전용
+모듈(`lib/supabase/admin` · `lib/getSecret`)에 닿으면 실패한다. 위 원인 중 세 건(apiMap · githubShowcase · ai/models)을 잡는다.
+
+### 남은 것
+
+- 공통 shell 의 `gsap`(43 kB) — `LenisProvider` 가 사이트 전체 부드러운 스크롤을 gsap ticker · ScrollTrigger 에 묶어 돌린다.
+  떼려면 스크롤 동기화를 바꿔야 해서 모든 페이지의 스크롤을 다시 확인해야 한다
+- 공통 shell 의 `culori`(15 kB) — 테마 색 계산(`themeColors` · `BarColorSync`)
+- `/about` 의 화면 코드(`src/app/about/_components` 107 kB) · 생성 데이터(44 kB) — 장면별로 나눠 받을 수 있다
+- 관리자 편집기(860 kB 안팎)
 
 ## 화면 안전망
 
