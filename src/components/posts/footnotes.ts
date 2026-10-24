@@ -27,14 +27,16 @@ export interface FootnoteLabels {
 
 /** 각주 링크를 만들고 클릭을 맡는다. 정리 함수를 돌려준다 */
 export function enhanceFootnotes(root: HTMLElement, labels: FootnoteLabels): () => void {
+  /* 각주 번호는 저장된 HTML 의 속성값이다 — 링크 주소에 넣기 전에 영문 · 숫자 · - · _ 만 남긴 것인지 본다 */
+  const footnoteId = (raw: string | null) => (raw && /^[\w-]{1,32}$/.test(raw) ? raw : "");
   const byId = (id: string) => root.querySelector<HTMLElement>(`#${CSS.escape(id)}`) ?? document.getElementById(id);
 
   /* richtext — 번호를 링크로 */
   root.querySelectorAll<HTMLElement>("sup[data-footnote-ref]").forEach((sup) => {
-    const n = sup.getAttribute("data-footnote-ref") ?? "";
+    const n = footnoteId(sup.getAttribute("data-footnote-ref"));
     if (!n || sup.querySelector("a") || !byId(`fn-${n}`)) return;
     const a = document.createElement("a");
-    a.href = `#fn-${n}`;
+    a.setAttribute("href", `#fn-${encodeURIComponent(n)}`);
     a.setAttribute("aria-label", fillLabel(labels.footnoteRef, { n }));
     a.append(...sup.childNodes);
     sup.append(a);
@@ -42,10 +44,10 @@ export function enhanceFootnotes(root: HTMLElement, labels: FootnoteLabels): () 
 
   /* richtext — 각주 끝에 돌아가기 */
   root.querySelectorAll<HTMLElement>("div[data-footnote-content]").forEach((note) => {
-    const n = note.getAttribute("data-footnote-content") ?? "";
+    const n = footnoteId(note.getAttribute("data-footnote-content"));
     if (!n || note.querySelector("a[data-footnote-backref]") || !byId(`fnref-${n}`)) return;
     const back = document.createElement("a");
-    back.href = `#fnref-${n}`;
+    back.setAttribute("href", `#fnref-${encodeURIComponent(n)}`);
     back.setAttribute("data-footnote-backref", "");
     back.setAttribute("aria-label", labels.footnoteBack);
     back.title = labels.footnoteBack;
