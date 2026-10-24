@@ -136,13 +136,13 @@ function PreviewTooltip({
 }
 
 export default function AdminWorksPage() {
-  /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 팀원이어야 한다.
+  /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 작성자여야 한다.
      서버의 requirePostAccess 와 works_admin_update 정책이 같은 규칙(can_edit_work)을 쓴다.
      여기서 막는 것은 표시용이고, 인가 자체는 서버와 정책이 한다. */
   const myRole = useMyRole();
-  const canEdit = (w: Work) => myRole.canEditWork(w.team_members);
+  const canEdit = (w: Work) => myRole.canEditWork(w.author_ids);
 
-  /** 편집할 수 없는 작업물 — 이유를 알리고 팀원 등록을 요청할 수 있게 한다. */
+  /** 편집할 수 없는 작업물 — 이유를 알리고 작성자 등록을 요청할 수 있게 한다. */
   const openDeniedModal = (blocked: Work[]) => {
     openModal(
       <AccessRequestModal

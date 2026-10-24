@@ -127,7 +127,7 @@ describe("목록 칸 원문(서버)", async () => {
   });
   it("시리즈 · 작업물, 번역할 칸이 없으면 null", () => {
     expect(listMetaSource("series", { title: "", title_en: "S", description_en: "D" })).toEqual({ lang: "en", fields: { title: "S", description: "D" } });
-    expect(listMetaSource("work", { title: "", content_ko: "", content_en: "" })).toBeNull();
+    expect(listMetaSource("work", { title: "", title_en: "" })).toBeNull();
   });
   it("해시는 칸 순서와 무관하고 글이 바뀌면 달라진다", () => {
     const a = listMetaHash({ lang: "ko", fields: { title: "a", excerpt: "b" } });

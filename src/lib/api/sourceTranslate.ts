@@ -211,9 +211,10 @@ export async function prepareProfileSource(from: string, to: string, config: Con
 const ROW_FIELDS = {
   posts: { text: ["title", "excerpt", "summary_ko"], list: [] as string[], html: "content" },
   works: {
-    text: ["title", "subtitle_ko", "description_ko", "nature_ko", "role_ko", "overview_ko", "challenge_ko", "solution_ko", "summary_ko"],
+    text: ["title", "subtitle_ko", "description_ko", "nature_ko", "role_ko"],
     list: ["categories_ko"],
-    html: "content_ko",
+    /* 작업물은 본문이 없다(랜딩) */
+    html: null,
   },
 } as const;
 
@@ -240,8 +241,9 @@ export async function translateRowSource(
     ...textCols.map((c) => [c, row[c] as string] as [string, string]),
     ...listCols.flatMap((c) => (row[c] as string[]).map((x, i) => [`${c}.${i}`, x] as [string, string])),
   ];
-  const body = typeof row[spec.html] === "string" ? (row[spec.html] as string) : "";
-  const bodyEntries: [string, string][] = body.trim() ? [[spec.html, body]] : [];
+  const html = spec.html;
+  const body = html && typeof row[html] === "string" ? (row[html] as string) : "";
+  const bodyEntries: [string, string][] = html && body.trim() ? [[html, body]] : [];
 
   const backupType = table === "posts" ? "post_source" : "work_source";
   const prior = await readBackup(backupType, id, to);
@@ -256,7 +258,7 @@ export async function translateRowSource(
   if (typeof row.version === "number") patch.version = row.version + 1;
   textCols.forEach((c) => { patch[c] = plainTr[c]; });
   for (const c of listCols) patch[c] = (row[c] as string[]).map((_, i) => plainTr[`${c}.${i}`]);
-  if (bodyEntries.length) patch[spec.html] = bodyTr[spec.html];
+  if (html && bodyEntries.length) patch[html] = bodyTr[html];
 
   await backup(backupType, id, from, to, Object.fromEntries([...plain, ...bodyEntries]), { ...plainTr, ...bodyTr });
   const { data: updated, error } = await supabase.from(table).update(patch).eq("id", id).select().single();

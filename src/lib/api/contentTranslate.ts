@@ -1,43 +1,30 @@
 import { createHash } from "crypto";
-import { isContentMissing } from "@/lib/contentLang";
 
 /**
  * 상세 화면 "다른 언어로 읽기"(/api/content-translate)의 순수한 부분 — 원문 고르기 · 해시.
  * 라우트에서 떼어 둔 것은 테스트하려고다(DB · 공급자 없이).
  */
 
-/** 번역하는 칸 — 글: title · excerpt · content, 작업물: title · subtitle · description · content */
-export type ContentField = "title" | "excerpt" | "subtitle" | "description" | "content";
+/** 번역하는 칸 — 글의 title · excerpt · content */
+export type ContentField = "title" | "excerpt" | "content";
 type ContentTextFields = Partial<Record<ContentField, string>>;
 
 /**
  * 정보 칸(메타) — 본문 밖에서 방문자에게 보이는, DB 의 ko/en 칸에서 온 글. 칸마다 모양이 다르다.
- *   글    : summary(AI 요약) · seriesTitle(시리즈 이름)
- *   작업물: summary · categories · nature · role · contributions(역할별 항목) · techNotes(기술 이름 → 설명)
- *           · team(팀원 순서대로 역할 · 소개 · 기여) · gallery(그림 주소 → 자막 줄)
- * 번역하지 않는 것: 기술 이름 · 태그(주소의 열쇠이자 고유명사) · 팀원 이름 · 날짜 · 주소 · 수치(요약의 metrics 값)
+ *   summary(AI 요약) · seriesTitle(시리즈 이름)
+ * 번역하지 않는 것: 태그(주소의 열쇠이자 고유명사) · 날짜 · 주소 · 수치(요약의 metrics 값)
  * — 바꾸면 링크가 깨지거나 뜻이 틀어진다.
  */
-export interface ContentRole { role: string; items: string[] }
-interface ContentTeamMember { role: string; bio: string; contributions: ContentRole[] }
 export interface ContentMeta {
   /** 저장된 요약 글(JSON 구조 또는 예전 줄글) — 번역도 같은 꼴로 돌려준다 */
   summary?: string;
   seriesTitle?: string;
-  categories?: string[];
-  nature?: string;
-  role?: string;
-  contributions?: ContentRole[];
-  techNotes?: Record<string, string>;
-  team?: ContentTeamMember[];
-  /** 그림 주소 → 자막 줄(lib/galleryCaptions 의 captionLines) — 줄 수는 원문과 늘 같다 */
-  gallery?: Record<string, string[]>;
 }
 type ContentMetaField = keyof ContentMeta;
 
 /** 번역 응답 · 캐시(content_translations.fields) — 칸 글 + 정보 칸 + 원문 언어 · 판(v) */
 export type ContentFields = ContentTextFields & ContentMeta & {
-  /** 번역의 원문 언어 — 갤러리 음성·자막을 그 언어 노트로 맞춘다 */
+  /** 번역의 원문 언어 */
   source?: "ko" | "en";
   /** 캐시 판 — 정보 칸을 더하기 전에 저장된 줄(v 없음)은 다시 번역한다 */
   v?: number;
@@ -47,7 +34,7 @@ export type ContentFields = ContentTextFields & ContentMeta & {
 export const CONTENT_TRANSLATION_VERSION = 2;
 
 export interface ContentSource {
-  /** 원문 칸 — 한국어 본문이 있으면 ko, 없으면 en(갤러리 음성 · 자막을 그 칸의 노트로 맞춘다) */
+  /** 원문 칸 — 한국어 본문이 있으면 ko, 없으면 en */
   lang: "ko" | "en";
   /** 원문의 실제 언어 — 공급자에 넘긴다. ko 칸이면 source_lang(기본 언어가 ja 면 ja, 비면 ko) */
   from: string;
@@ -60,14 +47,6 @@ export interface ContentSource {
 
 type Row = Record<string, unknown>;
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-const strList = (v: unknown) => (Array.isArray(v) ? v.map(str).filter(Boolean) : []);
-/** 역할별 항목(jsonb) → 순서 있는 목록. 빈 역할 이름은 뺀다 */
-function roles(v: unknown): ContentRole[] {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return [];
-  return Object.entries(v as Record<string, unknown>)
-    .map(([role, items]) => ({ role: role.trim(), items: strList(items) }))
-    .filter((r) => r.role);
-}
 /** 한 언어 칸이 비면 다른 언어 칸 — 화면(T · pickLocalized)이 그렇게 보여 준다 */
 const pick = (useKo: boolean, ko: unknown, en: unknown) => (useKo ? str(ko) || str(en) : str(en) || str(ko));
 
@@ -100,69 +79,6 @@ export function postSource(row: Row, series?: Row | null): ContentSource | null 
     meta: compactMeta({
       summary: pick(useKo, row.summary_ko, row.summary_en),
       seriesTitle: series ? pick(useKo, series.title, series.title_en) : "",
-    }),
-  };
-}
-
-/** 작업물 — 한국어 본문이 있으면(contentLang 판정 — 복사된 README 는 없는 것으로 친다) 한국어 칸들, 아니면 영어 칸들.
- *  gallery 는 그림 주소 → 그 언어의 자막 줄(서버가 readerNotes + captionLines 로 만든다) */
-export function workSource(row: Row, gallery?: Record<string, string[]>): ContentSource | null {
-  const ko = str(row.content_ko);
-  const en = str(row.content_en);
-  const koMissing = isContentMissing(ko, en, "ko");
-  const enMissing = isContentMissing(en, ko, "en");
-  if (koMissing && enMissing) return null;
-  const useKo = !koMissing;
-  const lang = useKo ? "ko" : "en";
-
-  const catsKo = strList(row.categories_ko);
-  const catsEn = strList(row.categories_en);
-  /* 화면과 같다 — 영어로 볼 때 영어 이름이 빈 자리는 한국어 이름 */
-  const categories = useKo ? catsKo : (catsEn.length ? catsKo.map((k, i) => catsEn[i] || k) : catsKo);
-  const contribKo = roles(row.contributions_ko);
-  const contribEn = roles(row.contributions_en);
-
-  const techNotes: Record<string, string> = {};
-  if (row.tech_notes && typeof row.tech_notes === "object") {
-    for (const [tech, note] of Object.entries(row.tech_notes as Record<string, { ko?: unknown; en?: unknown }>)) {
-      const text = note ? pick(useKo, note.ko, note.en) : "";
-      if (text) techNotes[tech] = text;
-    }
-  }
-
-  const team: ContentTeamMember[] = Array.isArray(row.team_members)
-    ? (row.team_members as Row[]).map((m) => {
-      const mk = roles(m?.contributions_ko);
-      const me = roles(m?.contributions_en);
-      return {
-        role: pick(useKo, m?.role_ko, m?.role_en),
-        bio: pick(useKo, m?.bio_ko, m?.bio_en),
-        contributions: useKo ? (mk.length ? mk : me) : (me.length ? me : mk),
-      };
-    })
-    : [];
-  /* 팀원 줄은 순서(index)로 맞춘다 — 번역할 글이 하나도 없으면 칸째 뺀다 */
-  const teamHasText = team.some((m) => m.role || m.bio || m.contributions.length);
-
-  return {
-    lang,
-    from: useKo ? str(row.source_lang) || "ko" : "en",
-    html: row.content_type === "richtext",
-    fields: {
-      title: (useKo ? str(row.title) : str(row.title_en)) || str(row.title) || str(row.title_en),
-      subtitle: useKo ? str(row.subtitle_ko) : str(row.subtitle_en),
-      description: useKo ? str(row.description_ko) : str(row.description_en),
-      content: useKo ? ko : en,
-    },
-    meta: compactMeta({
-      summary: pick(useKo, row.summary_ko, row.summary_en),
-      categories,
-      nature: pick(useKo, row.nature_ko, row.nature_en),
-      role: pick(useKo, row.role_ko, row.role_en),
-      contributions: useKo ? (contribKo.length ? contribKo : contribEn) : (contribEn.length ? contribEn : contribKo),
-      techNotes,
-      team: teamHasText ? team : [],
-      gallery: Object.fromEntries(Object.entries(gallery ?? {}).filter(([, lines]) => lines.length > 0)),
     }),
   };
 }
@@ -253,7 +169,6 @@ export function metaPieces(meta: ContentMeta): MetaPiece[] {
   const out: MetaPiece[] = [];
   for (const [k, v] of Object.entries(meta) as [ContentMetaField, unknown][]) {
     if (k === "summary") leaves(summaryShape(v as string), "summary", out, SUMMARY_SKIP);
-    /* 기술 설명 · 자막은 열쇠(기술 이름 · 그림 주소)를 두고 값만 */
     else leaves(v, k, out);
   }
   return out;

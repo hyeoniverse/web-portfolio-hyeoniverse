@@ -682,117 +682,13 @@ export const schemaTables: ErdTable[] = [
         "required": true
       },
       {
-        "name": "icon",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "cover_position",
-        "type": "real",
-        "required": true,
-        "defaultValue": "50"
-      },
-      {
-        "name": "cover_zoom",
-        "type": "real",
-        "required": true,
-        "defaultValue": "1"
-      },
-      {
-        "name": "content_ko",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "content_en",
-        "type": "text",
-        "required": true
-      },
-      {
         "name": "auto_translation",
         "type": "jsonb"
       },
       {
-        "name": "content_type",
-        "type": "text",
-        "required": true,
-        "defaultValue": "'markdown'"
-      },
-      {
-        "name": "overview_ko",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "overview_en",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "overview_image",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "challenge_ko",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "challenge_en",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "challenge_image",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "solution_ko",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "solution_en",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "solution_image",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "team_members",
-        "type": "jsonb",
-        "required": true
-      },
-      {
-        "name": "contributions_ko",
-        "type": "jsonb",
-        "required": true
-      },
-      {
-        "name": "contributions_en",
-        "type": "jsonb",
-        "required": true
-      },
-      {
-        "name": "tech_notes",
-        "type": "jsonb",
-        "required": true
-      },
-      {
-        "name": "gallery",
+        "name": "author_ids",
         "type": "text[]",
         "required": true
-      },
-      {
-        "name": "gallery_notes",
-        "type": "jsonb",
-        "required": true,
-        "comment": "갤러리 장마다의 음성 — 그림 주소 → { script, audio, audioSource, audioScript }"
       },
       {
         "name": "landing",
@@ -835,16 +731,6 @@ export const schemaTables: ErdTable[] = [
         "type": "int",
         "required": true,
         "defaultValue": "0"
-      },
-      {
-        "name": "summary_ko",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "summary_en",
-        "type": "text",
-        "required": true
       },
       {
         "name": "source_lang",
@@ -1474,32 +1360,6 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
-    "name": "series_work_relations",
-    "columns": [
-      {
-        "name": "series_id",
-        "type": "uuid",
-        "required": true,
-        "fk": "series.id",
-        "pk": true,
-        "indexed": true
-      },
-      {
-        "name": "work_id",
-        "type": "uuid",
-        "required": true,
-        "fk": "works.id",
-        "pk": true,
-        "indexed": true
-      },
-      {
-        "name": "created_at",
-        "type": "timestamptz",
-        "defaultValue": "now()"
-      }
-    ]
-  },
-  {
     "name": "cover_image_history",
     "columns": [
       {
@@ -1682,20 +1542,6 @@ export const schemaRelations: ErdRelation[] = [
   },
   {
     "from": "post_work_relations",
-    "fromField": "work_id",
-    "to": "works",
-    "toField": "id",
-    "label": "N:1"
-  },
-  {
-    "from": "series_work_relations",
-    "fromField": "series_id",
-    "to": "series",
-    "toField": "id",
-    "label": "N:1"
-  },
-  {
-    "from": "series_work_relations",
     "fromField": "work_id",
     "to": "works",
     "toField": "id",

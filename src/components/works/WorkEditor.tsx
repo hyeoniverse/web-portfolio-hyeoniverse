@@ -5,10 +5,7 @@ import { useSourceBadge } from "@/hooks/useSourceBadge";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
-import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
 import { Plus, Check, Globe, GithubIcon } from "@/components/icons";
-import { GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
-import { WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
 import LandingEditor, { asEditableLanding } from "./landing/editor/LandingEditor";
 import { landingOf } from "./landing/landingData";
@@ -20,7 +17,6 @@ import Checkbox from "@/components/ui/Checkbox";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { validateContentSecurity } from "@/utils/contentSecurity";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import AdminEditorShell, {
@@ -29,9 +25,7 @@ import AdminEditorShell, {
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
-import { workFormToProject, type TeamMember, type Work, type WorkFormData } from "@/types/work";
-import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
-import { noteFor, patchNote } from "@/lib/galleryNotes";
+import { workFormToProject, type Work, type WorkFormData } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
@@ -43,9 +37,8 @@ import { notifyAiFailures } from "@/lib/ai/notifyFailures";
 import { TECH_PRESETS } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
-import { workToFormData, defaultForm, syncOwnerRole } from "@/utils/workFormUtils";
+import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { restoreSavedForm } from "@/utils/restoreSavedForm";
-import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
@@ -62,7 +55,6 @@ import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
 import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
-import { tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import Badge from "@/components/ui/Badge";
 
@@ -91,60 +83,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const tw = useCallback((key: string) => t(`admin.works.editor.${key}`), [t]);
   const [translating, setTranslating] = useState(false);
 
-  /* 팀원 기본값 — 사이트 소유자(본인)를 따로 연결하지 않아도 팀원 맨 앞에 둔다. 상세 화면이 소유자 카드를
-     늘 붙이던 것과 편집 화면 목록을 맞추기 위해서다. 이미 소유자 계정에 연결된 팀원이 있으면 건드리지 않는다.
-     처음 값에 들어가므로 열자마자 "변경됨"으로 잡히지 않고, 다음 저장 때 목록에 남는다 */
-  const ownerSiteConfig = useSiteConfig();
-  const withOwnerMember = (f: WorkFormData): WorkFormData => {
-    /* 예전에 따로 적던 "내 역할·담당 업무"는 본인 팀원으로 옮긴다 — 본인 팀원이 이미 있으면 빈 칸만 채운다 */
-    const hasContribs = (c?: Record<string, string[]>) => !!c && Object.values(c).some((v) => v.length > 0);
-    const existing = f.team_members.find((m) => m.author_id === OWNER_AUTHOR_ID);
-    if (existing) {
-      const filled: TeamMember = {
-        ...existing,
-        role_ko: existing.role_ko?.trim() ? existing.role_ko : f.role_ko,
-        role_en: existing.role_en?.trim() ? existing.role_en : f.role_en,
-        contributions_ko: hasContribs(existing.contributions_ko) ? existing.contributions_ko : f.contributions_ko,
-        contributions_en: hasContribs(existing.contributions_en) ? existing.contributions_en : f.contributions_en,
-      };
-      return { ...f, team_members: f.team_members.map((m) => (m === existing ? filled : m)) };
-    }
-    const personal = ownerSiteConfig.personal;
-    const profile = (ownerSiteConfig.authors ?? []).find((a) => a.id === OWNER_AUTHOR_ID);
-    /* 이름은 멤버 프로필(설정 > 계정)의 한국어·영어 이름이 먼저 — 사이트 기본 정보의 이름은 대개 한 언어뿐이다 */
-    const name = profile?.name?.trim() || personal?.name?.trim();
-    if (!name) return f;
-    const profileAvatar = profile?.avatar && (/^(https?:)?\/\//.test(profile.avatar) || profile.avatar.startsWith("/")) ? profile.avatar : undefined;
-    const github = ownerSiteConfig.socialLinks?.find((l) => l.platform === "github")?.url;
-    const owner: TeamMember = {
-      author_id: OWNER_AUTHOR_ID,
-      name,
-      name_en: profile?.name_en?.trim() || (personal?.name?.trim() !== name ? personal?.name?.trim() : undefined) || undefined,
-      role_ko: f.role_ko,
-      role_en: f.role_en,
-      url: github || undefined,
-      email: profile?.email || ownerSiteConfig.contact?.email || undefined,
-      avatar_url: profileAvatar || personal?.profileImage || undefined,
-      contributions_ko: hasContribs(f.contributions_ko) ? f.contributions_ko : undefined,
-      contributions_en: hasContribs(f.contributions_en) ? f.contributions_en : undefined,
-    };
-    return { ...f, team_members: [owner, ...f.team_members] };
-  };
-
-  const [form, setForm] = useState<WorkFormData>(() => {
-    if (!work) return withOwnerMember(defaultForm);
-    const f = withOwnerMember(workToFormData(work));
-    // 레거시 md 글은 열 때 richtext 로 1회 변환 후 richtext 로 고정 (토글 제거)
-    if (f.content_type === "markdown") {
-      return {
-        ...f,
-        content_ko: mdToRichHtml(f.content_ko),
-        content_en: mdToRichHtml(f.content_en),
-        content_type: "richtext",
-      };
-    }
-    return f;
-  });
+  const [form, setForm] = useState<WorkFormData>(() => (work ? workToFormData(work) : defaultForm));
 
   // title 변경 시 slug auto-generate (manual 모드 아닐 때만). form 선언 이후에 위치
   useEffect(() => {
@@ -177,8 +116,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   // draft 복원 모달 제거 — autosave background 동작.
   // 복원은 revision history 패널에서 명시적으로 (markBaseline 으로 baseline 정합화).
-  // 새 작품 (work.id 없음) 은 async fetch 없음 → 즉시 ready. 기존은 fetch 완료 시 true.
-  const [initialLoadsReady, setInitialLoadsReady] = useState(!work?.id);
+  // 처음 값은 받은 work 에서 바로 만들므로 따로 불러올 것이 없다 — 늘 준비됨.
+  const initialLoadsReady = true;
 
   /* 다른 작업물 — 미리보기 번호(새 작업물은 맨 뒤 자리)를 매길 때만 쓴다. 순서는 작업물 목록에서 끌어서 바꾼다 */
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
@@ -224,34 +163,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (!work?.id) return;
-    let cancelled = false;
-    Promise.all([
-      fetch(`/api/admin/works/${work.id}/related-posts`).then((r) => r.json()).catch(() => null),
-      fetch(`/api/admin/works/${work.id}/related-series`).then((r) => r.json()).catch(() => null),
-    ])
-      .then(([posts, series]) => {
-        if (cancelled) return;
-        setForm((prev) => ({
-          ...prev,
-          ...(Array.isArray(posts?.items) ? { related_post_ids: posts.items.map((p: { id: string }) => p.id) } : {}),
-          ...(Array.isArray(series?.items) ? { related_series_ids: series.items.map((s: { id: string }) => s.id) } : {}),
-        }));
-      })
-      .finally(() => {
-        if (cancelled) return;
-        // async load 된 관계 ID 가 form 에 반영된 다음 frame 에 baseline 정합화 + draft restore 활성화
-        requestAnimationFrame(() => {
-          markBaseline();
-          setInitialLoadsReady(true);
-        });
-      });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [work?.id]);
-
-  // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB works.icon)
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -352,11 +263,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [],
   );
 
-  /* fieldKeys 에 "gallery" 가 있으면 갤러리 대본도 번역한다 — 원문 언어 대본이 있는 장마다 한 문장씩.
-     onlyMissing: 반대 언어 대본이 이미 있는 장은 건너뛴다(편집 언어를 바꿀 때의 자동 번역)
-     urls: 그 장들의 대본만 번역한다(갤러리 음성 편집의 번역 버튼 — 고친 장만 다시 번역) */
   const translateFields = useCallback(
-    async (fieldKeys: string[], lang: "ko" | "en", { onlyMissing = false, urls }: { onlyMissing?: boolean; urls?: string[] } = {}) => {
+    async (fieldKeys: string[], lang: "ko" | "en") => {
       const isToEn = lang === "en";
       const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
       const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
@@ -365,14 +273,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const activeFields = TRANSLATABLE_FIELDS.filter(
         (f) => want.has(f) && (form[fieldKeyFor(f, sourceLang)] as string)?.trim(),
       );
-      const scriptOf = (url: string, l: "ko" | "en") => noteFor(form.gallery_notes?.[url], l)?.script?.trim() ?? "";
-      const scriptUrls = want.has("gallery")
-        ? form.gallery.filter((url) => (!urls || urls.includes(url)) && scriptOf(url, sourceLang) && (!onlyMissing || !scriptOf(url, targetLang)))
-        : [];
-      const texts = [
-        ...(activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[]),
-        ...scriptUrls.map((url) => scriptOf(url, sourceLang)),
-      ];
+      const texts = activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[];
 
       if (texts.length === 0) return;
 
@@ -390,15 +291,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         activeFields.forEach((f, i) => {
           if (!result.failedIndices.includes(i)) patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
         });
-        setForm((prev) => {
-          /* 갤러리 대본 — 텍스트 칸 뒤에 이어 보낸 순서대로 제 장에 넣는다 */
-          let notes = prev.gallery_notes ?? {};
-          scriptUrls.forEach((url, j) => {
-            const i = activeFields.length + j;
-            if (!result.failedIndices.includes(i) && result.translations[i]) notes = patchNote(notes, url, targetLang, { script: result.translations[i] });
-          });
-          return { ...prev, ...patch, ...(scriptUrls.length ? { gallery_notes: notes } : {}) };
-        });
+        setForm((prev) => ({ ...prev, ...patch }));
         setStatus(tw("autoTranslated"));
         setStatusType("success");
         notifyAiFailures(result, t, { feature, ok: true });
@@ -421,7 +314,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       const hasSrc = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, srcLang)] as string)?.trim());
       const hasDst = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, dstLang)] as string)?.trim());
-      if (hasSrc && !hasDst) await translateFields([...TRANSLATABLE_FIELDS], newLang, { onlyMissing: true });
+      if (hasSrc && !hasDst) await translateFields([...TRANSLATABLE_FIELDS], newLang);
     },
     [form, translating, translateFields, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
@@ -529,30 +422,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           focusFirstMissingField(missing[0].field);
           return;
         }
-
-        const security = validateContentSecurity(form.content_ko + form.content_en);
-        if (!security.safe) {
-          setError(`${tw("securityWarning")}: ${security.warnings.join(", ")}`);
-          return;
-        }
       }
 
       setSaving(true);
       setError("");
       setStatus("");
 
-      // works 테이블에는 관계 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
-      /* 내 역할·담당 업무는 본인 팀원 값으로 — 목록 카드·상세 정보 칸이 role_*·contributions_* 를 읽는다 */
       /* 순서(sort_order)는 보내지 않는다 — 작업물 목록에서 끌어서 바꾸고, 새 작업물은 서버가 맨 뒤에 둔다 */
-      const { related_post_ids, related_series_ids, sort_order: _sortOrder, ...workBody } = syncOwnerRole(form);
-      /* 지운 장의 음성은 남기지 않는다 — 그림 주소가 열쇠라 갤러리에 없는 항목은 쓰일 일이 없다 */
-      const inGallery = new Set(form.gallery);
-      const galleryNotes = Object.fromEntries(Object.entries(form.gallery_notes ?? {}).filter(([url]) => inGallery.has(url)));
-      const body = {
-        ...workBody,
-        gallery_notes: galleryNotes,
-        published: willPublish,
-      };
+      const { sort_order: _sortOrder, ...workBody } = form;
+      const body = { ...workBody, published: willPublish };
 
       try {
         const url = savedId.current
@@ -575,33 +453,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
-        /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
-        if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
-          showToast(tw("narrationNotSaved"), "error", 6000);
-        }
-        /* 랜딩 칸도 같다 — 랜딩을 고친 경우에만 알린다 */
+        /* DB 에 랜딩 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 랜딩을 고친 경우에만 알린다 */
         if (res.headers.get(WORK_LANDING_DROPPED_HEADER) && form.landing) {
           showToast(tw("landing.notSaved"), "error", 6000);
         }
-        /* 커버 위치 · 확대 칸도 같다 — 기본값에서 옮긴 경우에만 알린다 */
-        if (res.headers.get(WORK_COVER_DROPPED_HEADER) && (form.cover_position !== 50 || form.cover_zoom !== 1)) {
-          showToast(tw("coverPositionNotSaved"), "error", 6000);
-        }
-  
-        // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
-        const relationFailures: CodedError[] = [];
-        const syncRelation = async (path: string, body: object) => {
-          const res = await tryRequest(`/api/admin/works/${savedId.current}/${path}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          });
-          if (res instanceof CodedError) relationFailures.push(res);
-        };
-        if (savedId.current && related_post_ids) await syncRelation("related-posts", { postIds: related_post_ids });
-        if (savedId.current && related_series_ids) await syncRelation("related-series", { seriesIds: related_series_ids });
-        if (relationFailures.length) showToast(errorText(relationFailures[0], t, tw("relatedFailed")), "error");
-
         // 실제 save 성공 — localStorage draft 정리 + 이 저장으로 대체된 autosave revision dismiss
         // (다음 진입 시 저장본이 옛 autosave 로 되돌아가지 않게)
         if (isEdit && savedId.current) {
@@ -680,7 +535,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         title: s.title || "",
         subtitle: (isKo ? s.subtitle_ko : s.subtitle_en) || "",
         excerpt: (isKo ? s.description_ko : s.description_en) || "",
-        content: stripHtml((isKo ? s.content_ko : s.content_en) || ""),
+        content: "",
         meta: workSnapshotMeta(s, lang),
       };
     },
@@ -736,6 +591,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     () => [
       { key: "subtitle", label: tw("subtitle") },
       { key: "description", label: tw("description") },
+      { key: "role", label: tw("role") },
     ],
     [tw],
   );
@@ -752,6 +608,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleValue = form[titleKey];
   const subtitleValue = form[`subtitle${suf}`];
   const descriptionValue = form[`description${suf}`];
+  const roleValue = form[`role${suf}`];
 
   /* 랜딩 — 저장된 값이 있으면 그것을, 없으면 저장소 기본 데이터 · 카드 정보로 만든 기본 랜딩을 편집 출발점으로 */
   const editableLanding = useMemo(() => asEditableLanding(form.landing), [form.landing]);
@@ -801,9 +658,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           maxHint="basic"
         />
       </div>
+
+      {/* 내 역할 — 랜딩 머리 · 목록 카드에 나온다 */}
+      <div className={es.field} id="work-role">
+        <label className={es.fieldLabel}>{tw("role")}</label>
+        <input
+          className={es.fieldInput}
+          type="text"
+          value={roleValue}
+          onChange={(e) => updateField(`role${suf}`, e.target.value)}
+          placeholder={tw("rolePlaceholder")}
+        />
+      </div>
     </div>
   ), [
-    descriptionValue, reqTitle, showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField,
+    descriptionValue, reqTitle, roleValue, showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField,
   ]);
 
   // 홈 Selected Works 핀 — 켜면 홈 랭킹 최상단 (posts 편집기 pinToggle 미러). 속성 패널 맨 위에 선다
@@ -1040,14 +909,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {techAddRow}
         <TechChips
           items={form.tech}
-          notes={form.tech_notes ?? {}}
           onItemsChange={(next) => updateField("tech", next)}
-          onNotesChange={(next) => updateField("tech_notes", next)}
           labels={{ remove: tw("techRemove"), empty: tw("techEmpty") }}
         />
       </div>
     </div>
-  ), [form.tech, form.tech_notes, techAddRow, tw, updateField]);
+  ), [form.tech, techAddRow, tw, updateField]);
 
 
 
@@ -1156,7 +1023,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           title: form.title,
           subtitle: (isKo ? form.subtitle_ko : form.subtitle_en) || "",
           excerpt: (isKo ? form.description_ko : form.description_en) || "",
-          content: stripHtml((isKo ? form.content_ko : form.content_en) || ""),
+          content: "",
           meta: workSnapshotMeta(form, lang),
         };
       }}
@@ -1167,8 +1034,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           cover={form.image}
           onCoverChange={(url) => updateField("image", url)}
           onUpload={() => handleImageUpload()}
-          position={form.cover_position}
-          zoom={form.cover_zoom}
         />
       }
     >

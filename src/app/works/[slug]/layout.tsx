@@ -26,11 +26,11 @@ export default async function WorkSlugLayout({ children, params }: { children: R
   if (projectSlug && projectSlug !== slug) redirect(`/works/${projectSlug}`);
 
   // alt 는 서버가 그리는 한국어로 시작하고, 영어 화면이면 페이지가 다시 넘긴다
-  const { image, title, coverPosition, coverZoom } = projects[index];
+  const { image, title } = projects[index];
   /* 랜딩으로 그리는 작업물은 커버를 따로 그리지 않는다 — 랜딩이 제 장면을 그린다 */
   const landing = hasLandingPage(projectSlug);
   return (
-    <DetailShell cover={image && !landing ? { image, alt: pickLocalized(title, "ko"), position: coverPosition, zoom: coverZoom } : null}>
+    <DetailShell cover={image && !landing ? { image, alt: pickLocalized(title, "ko"), } : null}>
       {children}
     </DetailShell>
   );

@@ -58,7 +58,6 @@ function fallbackAttrs(t: ErdTable): string[] {
  *  다이아몬드 하나로 접힌다. 스키마 뷰가 표현할 수 없는 정보다. */
 const JUNCTIONS: Record<string, { a: string; b: string; ko: string; en: string }> = {
   post_work_relations: { a: "posts", b: "works", ko: "연관", en: "relates to" },
-  series_work_relations: { a: "series", b: "works", ko: "묶음", en: "groups" },
 };
 
 /** 자기참조 관계 — 대댓글처럼 같은 엔티티끼리 맺는 재귀 관계 */

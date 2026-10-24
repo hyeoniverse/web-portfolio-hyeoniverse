@@ -60,10 +60,10 @@ describe("되돌리면 백업의 원래 글로 되살린다(#1500)", () => {
     expect(toKo).toEqual({ hero: { scrollLabel_ko: "[ko]下へ" } });
   });
 
-  it("글 — 본문 · 목록 칸까지 되살리고 source_lang 을 되돌린다", async () => {
+  it("작업물 — 글 · 목록 칸까지 되살리고 source_lang 을 되돌린다", async () => {
     let current: Record<string, unknown> = {
       id: "w1", source_lang: null, content_type: "markdown", version: 1,
-      title: "작품", content_ko: "본문", categories_ko: ["웹", "앱"],
+      title: "작품", description_ko: "설명", categories_ko: ["웹", "앱"],
     };
     const supabase = {
       from: () => {
@@ -79,11 +79,11 @@ describe("되돌리면 백업의 원래 글로 되살린다(#1500)", () => {
     } as unknown as Parameters<typeof translateRowSource>[0];
 
     await translateRowSource(supabase, "works", "w1", "ja", config);
-    expect(current).toMatchObject({ source_lang: "ja", title: "[ja]작품", content_ko: "[ja]본문", categories_ko: ["[ja]웹", "[ja]앱"] });
+    expect(current).toMatchObject({ source_lang: "ja", title: "[ja]작품", description_ko: "[ja]설명", categories_ko: ["[ja]웹", "[ja]앱"] });
 
     sent.length = 0;
     await translateRowSource(supabase, "works", "w1", "ko", config);
-    expect(current).toMatchObject({ source_lang: "ko", title: "작품", content_ko: "본문", categories_ko: ["웹", "앱"] });
+    expect(current).toMatchObject({ source_lang: "ko", title: "작품", description_ko: "설명", categories_ko: ["웹", "앱"] });
     expect(sent).toEqual([]);
   });
 });

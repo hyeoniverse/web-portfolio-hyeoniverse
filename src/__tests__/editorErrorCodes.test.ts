@@ -34,10 +34,10 @@ describe("편집 권한", () => {
     expect(body.code).toBe("POST_OWN_ONLY");
     expect(typeof body.params.level).toBe("number");
   });
-  it("팀원이 아닌 작업물이면 WORK_TEAM_ONLY", async () => {
-    rows.works = { team_members: [{ author_id: "someone-else" }] };
+  it("작성자가 아닌 작업물이면 WORK_AUTHOR_ONLY", async () => {
+    rows.works = { author_ids: ["someone-else"] };
     const r = await requirePostAccess("works", "w1");
-    expect((await bodyOf(r.error!)).body.code).toBe("WORK_TEAM_ONLY");
+    expect((await bodyOf(r.error!)).body.code).toBe("WORK_AUTHOR_ONLY");
   });
 });
 

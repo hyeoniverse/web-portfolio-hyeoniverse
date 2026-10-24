@@ -2,12 +2,12 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 199,
-  "routeFiles": 136,
+  "total": 193,
+  "routeFiles": 132,
   "access": {
-    "public": 70,
+    "public": 68,
     "signed-in": 61,
-    "author": 26,
+    "author": 22,
     "admin": 14,
     "owner": 26,
     "cron": 2
@@ -32,7 +32,6 @@ export const apiMap: ApiMap = {
     "revisions",
     "security_settings",
     "series",
-    "series_work_relations",
     "site_settings",
     "traffic_excluded_ips",
     "work_comments",
@@ -190,7 +189,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "works",
-      "files": 11,
+      "files": 9,
       "endpoints": [
         {
           "method": "GET",
@@ -238,16 +237,6 @@ export const apiMap: ApiMap = {
           "access": "author"
         },
         {
-          "method": "GET",
-          "path": "/api/works/[id]/related-posts",
-          "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/[id]/related-series",
-          "access": "public"
-        },
-        {
           "method": "POST",
           "path": "/api/works/[id]/restore",
           "access": "author"
@@ -275,10 +264,6 @@ export const apiMap: ApiMap = {
       ],
       "tables": [
         "likes",
-        "post_work_relations",
-        "posts",
-        "series",
-        "series_work_relations",
         "site_settings",
         "works"
       ],
@@ -290,7 +275,7 @@ export const apiMap: ApiMap = {
         "storage"
       ],
       "access": {
-        "public": 5,
+        "public": 3,
         "signed-in": 0,
         "author": 10,
         "admin": 1,
@@ -605,8 +590,7 @@ export const apiMap: ApiMap = {
       ],
       "tables": [
         "calendars",
-        "posts",
-        "works"
+        "posts"
       ],
       "rpcs": [],
       "services": [],
@@ -783,58 +767,6 @@ export const apiMap: ApiMap = {
         "public": 2,
         "signed-in": 4,
         "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "admin/works",
-      "files": 3,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/admin/works/[id]/related-posts",
-          "access": "author"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/admin/works/[id]/related-posts",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/admin/works/[id]/related-series",
-          "access": "author"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/admin/works/[id]/related-series",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/admin/works/[id]/request-access",
-          "access": "signed-in"
-        }
-      ],
-      "tables": [
-        "admin_notifications",
-        "post_work_relations",
-        "posts",
-        "series",
-        "series_work_relations",
-        "site_settings",
-        "works"
-      ],
-      "rpcs": [],
-      "services": [
-        "mail"
-      ],
-      "access": {
-        "public": 0,
-        "signed-in": 1,
-        "author": 4,
         "admin": 0,
         "owner": 0,
         "cron": 0
@@ -1052,7 +984,6 @@ export const apiMap: ApiMap = {
         "admin_notifications",
         "comment_reports",
         "posts",
-        "site_settings",
         "works"
       ],
       "rpcs": [],
@@ -1109,7 +1040,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "admin",
-      "files": 33,
+      "files": 34,
       "folded": [
         "admin/ai-health",
         "admin/ai-log",
@@ -1135,6 +1066,7 @@ export const apiMap: ApiMap = {
         "admin/traffic",
         "admin/translate",
         "admin/upload",
+        "admin/works",
         "admin/works-categories"
       ],
       "endpoints": [
@@ -1342,6 +1274,11 @@ export const apiMap: ApiMap = {
           "method": "GET",
           "path": "/api/admin/works-categories",
           "access": "admin"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/works/[id]/request-access",
+          "access": "signed-in"
         }
       ],
       "tables": [
@@ -1374,7 +1311,7 @@ export const apiMap: ApiMap = {
       ],
       "access": {
         "public": 2,
-        "signed-in": 16,
+        "signed-in": 17,
         "author": 3,
         "admin": 10,
         "owner": 10,
@@ -1587,7 +1524,6 @@ export const apiMap: ApiMap = {
       ],
       "services": [
         "translate",
-        "tts",
         "storage",
         "mail",
         "github",

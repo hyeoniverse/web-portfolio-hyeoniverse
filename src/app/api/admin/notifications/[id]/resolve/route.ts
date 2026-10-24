@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
-import { getSiteConfig } from "@/lib/getSiteConfig";
-import type { Author } from "@/types/author";
 import type { AccessRequestOutcome } from "@/lib/notificationTypes";
-import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -15,19 +12,19 @@ type RouteContext = { params: Promise<{ id: string }> };
  * body: { action: "grant" | "reject" }
  *
  * 권한 요청은 결정을 내려야 하는 알림인데 처리 경로가 없었다. 알림에는 요청자와 대상 글의
- * id 만 남고, 실제 부여는 글 편집 화면의 작성자 칩이나 작업물의 팀원 목록에서 따로 해야 했다.
+ * id 만 남고, 실제 부여는 글 · 작업물의 작성자 칸에서 따로 해야 했다.
  * 알림을 보고 → 어느 글인지 찾아가고 → 거기서 다시 요청자를 고르는 세 단계가 필요했다.
  *
  * 부여는 요청 종류에 따라 다른 자리에 쓴다.
  *   글      posts.author_ids 에 요청자의 저자 프로필을 추가 — canEditPost 가 이걸 본다
- *   작업물  works.team_members 에 항목 추가 — canEditWork 가 author_id 로 판정한다
+ *   작업물  works.author_ids 에 요청자의 저자 프로필을 추가 — canEditWork 가 이걸 본다(글과 같다)
  *
  * 세션 클라이언트로 쓴다. 관리자는 정책상 모든 글을 수정할 수 있고(can_edit_post 의 level>=2),
  * 작업물도 is_admin() 으로 통과하므로 service_role 이 필요 없다.
  */
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  /* 권한을 주고 뺏는 결정이라 관리자 이상만 한다 — 작업물 팀원 변경을 관리자로 제한한 것과 같은 기준. */
+  /* 권한을 주고 뺏는 결정이라 관리자 이상만 한다. */
   const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
@@ -78,36 +75,15 @@ export async function POST(request: Request, context: RouteContext) {
       }
     } else if (workId) {
       const { data: work, error } = await supabase
-        .from("works").select("team_members").eq("id", workId).maybeSingle();
+        .from("works").select("author_ids").eq("id", workId).maybeSingle();
       if (error) return jsonServerError(error, "POST /api/admin/notifications/[id]/resolve");
       if (!work) return jsonError("대상 작업물이 없습니다. 삭제된 것 같습니다.", 404, { code: "ACCESS_REQUEST_WORK_GONE" });
 
-      const current = Array.isArray(work.team_members)
-        ? (work.team_members as { author_id?: string; name?: string }[])
-        : [];
-      if (!current.some((m) => m?.author_id === authorId)) {
-        /* 표시 이름은 저자 프로필에서 가져온다 — 팀원 카드에 이메일이 그대로 뜨지 않게. */
-        const config = await getSiteConfig();
-        const author = ((config.authors as Author[] | undefined) ?? []).find((a) => a.id === authorId);
+      const current = Array.isArray(work.author_ids) ? (work.author_ids as string[]) : [];
+      if (!current.includes(authorId)) {
         const { error: updErr } = await supabase
-          .from("works")
-          .update({
-            team_members: [
-              ...current,
-              {
-                author_id: authorId,
-                name: author?.name || metadata.requestedBy || authorId,
-                role_ko: "",
-                role_en: "",
-                ...(author?.avatar ? { avatar_url: author.avatar } : {}),
-                ...(author?.email ? { email: author.email } : {}),
-              },
-            ],
-          })
-          .eq("id", workId);
+          .from("works").update({ author_ids: [...current, authorId] }).eq("id", workId);
         if (updErr) return jsonServerError(updErr, "POST /api/admin/notifications/[id]/resolve");
-        // 상세의 팀 목록이 바뀐다
-        revalidatePublicWorks();
       }
     } else {
       return jsonError("요청 대상을 알 수 없는 알림입니다.", 400);

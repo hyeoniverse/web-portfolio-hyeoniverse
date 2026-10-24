@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
-import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { dropWorkLandingIfMissing, WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
-import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { QUERY_PARAM } from "@/constants";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { createClient } from "@/lib/supabase/server";
@@ -14,11 +12,11 @@ import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
-/* 휴지통 목록이 쓰는 칸 — 표·미리보기 툴팁·편집 권한 판정(team_members)에 쓰는 것만 읽는다.
-   본문(content_ko·en)과 긴 글(개요·도전·해결·설명·기여), 갤러리·대본은 뺀다. 휴지통 56개에서 216KB → 17KB.
+/* 휴지통 목록이 쓰는 칸 — 표·미리보기 툴팁·편집 권한 판정(author_ids)에 쓰는 것만 읽는다.
+   설명과 랜딩 데이터는 뺀다.
    본문 검색은 search·searchType 을 붙여 서버가 거르고(select 와 상관없이 거른다), 미리보기는 id 로 따로 불러온다. */
 const WORKS_TRASH_COLS =
-  "id,slug,title,title_en,subtitle_ko,subtitle_en,categories_ko,categories_en,year,image,icon,tech,team_members,published,sort_order,is_pinned,created_at,updated_at,deleted_at,purge_after";
+  "id,slug,title,title_en,subtitle_ko,subtitle_en,categories_ko,categories_en,year,image,tech,author_ids,published,sort_order,is_pinned,created_at,updated_at,deleted_at,purge_after";
 
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
@@ -67,9 +65,9 @@ export async function GET(request: Request) {
 
   const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
   const searchColumns = searchType === "all"
-    ? ["title", "title_en", "subtitle_ko", "subtitle_en", "content_ko", "content_en"]
+    ? ["title", "title_en", "subtitle_ko", "subtitle_en", "description_ko", "description_en"]
     : searchType === "content"
-      ? ["content_ko", "content_en"]
+      ? ["description_ko", "description_en"]
       : ["title", "title_en", "subtitle_ko", "subtitle_en"];
 
   if (search) {
@@ -141,19 +139,13 @@ const ALLOWED_FIELDS = new Set([
   "year",
   "description_ko", "description_en",
   "role_ko", "role_en",
-  "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image", "icon", "cover_position", "cover_zoom",
-  "content_ko", "content_en", "content_type",
-  "overview_ko", "overview_en", "overview_image",
-  "challenge_ko", "challenge_en", "challenge_image",
-  "solution_ko", "solution_en", "solution_image",
-  "team_members", "gallery", "gallery_notes", "landing",
+  "tech", "image", "landing",
   "live_url", "github_url",
   "published", "sort_order", "is_pinned",
 ]);
 
 export async function POST(request: Request) {
-  /* 작업물에는 author_ids 가 없어 소유권 개념이 없다 — admin 이상만 만든다.
+  /* 새 작업물은 admin 이상만 만든다(작성자 author_ids 는 고칠 권한일 뿐 만들 권한은 아니다).
      정책(works_admin_write)도 같은 규칙이라 등급을 못 넘으면 여기서 명확한 403 이 난다. */
   const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
@@ -187,19 +179,9 @@ export async function POST(request: Request) {
     .maybeSingle();
   filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
 
-  /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 만든다(galleryNotesColumn 참고) */
-  const notesDropped = await dropGalleryNotesIfMissing(supabase, filtered);
-  /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
-  const coverDropped = await dropWorkCoverIfMissing(supabase, filtered);
-  /* 랜딩 칸도 같다(workLandingColumn 참고) */
+  /* 랜딩 칸이 아직 없는 DB 면 그 칸만 빼고 만든다(workLandingColumn 참고) */
   const landingDropped = await dropWorkLandingIfMissing(supabase, filtered);
-  const notesHeaders = notesDropped || coverDropped || landingDropped
-    ? {
-        ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
-        ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
-        ...(landingDropped ? { [WORK_LANDING_DROPPED_HEADER]: "1" } : {}),
-      }
-    : undefined;
+  const notesHeaders = landingDropped ? { [WORK_LANDING_DROPPED_HEADER]: "1" } : undefined;
 
   /* 원문 칸(ko)이 어느 언어로 쓰였는지(#1425) — 지금 기본 언어 */
   const sourceLang = await currentSourceLang();

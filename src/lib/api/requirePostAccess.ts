@@ -13,8 +13,7 @@ type Denied = { supabase?: never; user?: never; role?: never; error: NextRespons
  *
  * 두 테이블의 규칙이 다르다.
  *   posts  author_ids 가 있어 소유권을 따진다 — canEditPost 가 판정한다.
- *   works  author_ids 컬럼이 없다. 대신 팀원 목록(team_members)에 연결된 저자 프로필로
- *          소유권을 표현한다 — canEditWork 가 판정한다.
+ *   works  글처럼 author_ids 로 소유권을 따진다 — canEditWork 가 판정한다.
  *
  * **판정 조회는 service_role 로 한다.** 세션 클라이언트로 읽으면 정책이 먼저 행을 걸러서,
  * 권한이 없는 대상과 존재하지 않는 대상이 똑같이 0행으로 돌아온다. 그러면 멀쩡히 있는 글에도
@@ -63,11 +62,11 @@ export async function requirePostAccess(
   const admin = createAdminClient();
 
   if (table === "works") {
-    const { data, error } = await admin.from("works").select("team_members").eq("id", id).maybeSingle();
+    const { data, error } = await admin.from("works").select("author_ids").eq("id", id).maybeSingle();
     if (error) return { error: NextResponse.json({ error: error.message }, { status: 500 }) };
     if (!data) return notFound();
-    if (!canEditWork(role, data.team_members as { author_id?: string }[] | null)) {
-      return forbidden("이 작업물의 팀원으로 등록된 계정만 편집할 수 있습니다. 소유자에게 팀원 등록을 요청해 주세요.", "WORK_TEAM_ONLY");
+    if (!canEditWork(role, data.author_ids as string[] | null)) {
+      return forbidden("이 작업물의 작성자로 등록된 계정만 편집할 수 있습니다. 소유자에게 작성자 등록을 요청해 주세요.", "WORK_AUTHOR_ONLY");
     }
     return { supabase, user, role };
   }

@@ -1,5 +1,4 @@
 import { createHash } from "crypto";
-import { isContentMissing } from "@/lib/contentLang";
 import type { ListItemFields, ListItemType } from "@/lib/siteTranslation";
 
 /**
@@ -32,7 +31,7 @@ function compact(f: ListItemFields): ListItemFields {
 /** 목록에서 고르는 열(종류별) */
 export const LIST_META_SELECT: Record<ListItemType, string> = {
   post: "id, title, title_en, excerpt, excerpt_en, content, content_en, source_lang",
-  work: "id, title, title_en, subtitle_ko, subtitle_en, description_ko, description_en, content_ko, content_en, source_lang",
+  work: "id, title, title_en, subtitle_ko, subtitle_en, description_ko, description_en, source_lang",
   series: "id, title, title_en, description, description_en",
 };
 
@@ -52,9 +51,8 @@ export function listMetaSource(type: ListItemType, row: Row): ListMetaSource | n
       }),
     };
   } else if (type === "work") {
-    const ko = str(row.content_ko);
-    const en = str(row.content_en);
-    const useKo = !isContentMissing(ko, en, "ko") || isContentMissing(en, ko, "en");
+    /* 작업물은 본문이 없다(랜딩) — 한국어 칸(제목 · 설명)이 있으면 한국어 */
+    const useKo = !!(str(row.title) || str(row.description_ko)) || !(str(row.title_en) || str(row.description_en));
     src = {
       lang: useKo ? str(row.source_lang) || "ko" : "en",
       fields: compact({

@@ -88,6 +88,8 @@
 --   2026_10_19  contact-attachments 버킷(문의 첨부, 비공개 25MB) · posts/works.source_lang + 원문 백업
 --   2026_10_20  works.cover_position / cover_zoom — 작업물 커버 위치·확대 (posts 미러)
 --   2026_10_24  works.landing — 작업물 랜딩 페이지 데이터(섹션 · 장면)
+--   2026_10_24  작업물은 랜딩 하나로 — 게시물형 칸(본문 · 갤러리 · 팀원 · 기여 · 기술 설명 · 요약 · 아이콘 · 커버 위치)과
+--               series_work_relations 삭제, 편집 권한을 works.author_ids · can_edit_work(author_ids) 로
 --   2026_08_25  스토리지 직접 업로드 정책 제거 (서버 검증 우회 차단)
 --   2026_08_25  posts/works 정책을 4단계 권한 모델에 맞춤
 --   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
@@ -110,14 +112,15 @@
 --   2026_10_17  page_views 로 조회 기록 통일 2단계 — site_visits · post_views · work_views 와 옛 조회 함수 삭제
 --   2026_10_19  posts · works.source_lang · content_translations 원문 백업(post_source · work_source · settings_source) — 기본 언어를 바꾸면 원문을 번역해 덮어쓴다
 --   2026_10_23  page_views.search_term — 유입 검색어 (record_page_view 가 첫 조회에 기록)
+--   2026_10_24  works.author_ids — 작업물 편집 권한을 팀원 목록에서 작성자로(posts 와 같은 모양)
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
 --   admin   app_level() >= 2                     콘텐츠·중재·통계 전부 (설정 일부는 owner 전용)
---   author  app_role() = 'author'                자기 글(author_ids) · 자기 작업물(team_members)
+--   author  app_role() = 'author'                자기 글(author_ids) · 자기 작업물(author_ids)
 --   visitor 로그인 없음                            공개된 것만 읽기
 --   판정 함수: app_role / app_level / app_author_id → is_owner / is_admin / is_member
---             / can_edit_post(author_ids) / can_edit_work(team_members)
+--             / can_edit_post(author_ids) / can_edit_work(author_ids)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -376,26 +379,12 @@ RETURNS boolean LANGUAGE sql STABLE AS $$
 $$;
 
 /* 이 작업물을 수정할 수 있는가 — TS 의 canEditWork 와 같은 규칙.
-   works 에는 author_ids 가 없어 팀원 목록으로 소유권을 표현한다.
-   관리자는 전부, 그 밖에는 team_members 에 자신의 저자 프로필이 들어 있을 때만.
-   중첩 CASE 라야 타입 확인이 먼저 평가된다 — AND 는 평가 순서를 보장하지 않아
-   배열이 아닌 값에 jsonb_array_elements 가 걸리면 statement 가 죽는다. */
-CREATE OR REPLACE FUNCTION can_edit_work(target_team_members jsonb)
-RETURNS boolean
-LANGUAGE sql STABLE
-AS $$
-  SELECT CASE
-           WHEN is_admin() THEN true
-           WHEN app_author_id() IS NULL THEN false
-           ELSE CASE jsonb_typeof(target_team_members)
-                  WHEN 'array' THEN EXISTS (
-                    SELECT 1
-                    FROM jsonb_array_elements(target_team_members) AS m
-                    WHERE m ->> 'author_id' = app_author_id()
-                  )
-                  ELSE false
-                END
-         END;
+   관리자는 전부, 그 밖에는 작성자(author_ids)에 자신의 저자 프로필이 들어 있을 때만(can_edit_post 와 같은 모양). */
+CREATE OR REPLACE FUNCTION can_edit_work(target_author_ids text[])
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT is_admin()
+      OR (app_author_id() IS NOT NULL
+          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));
 $$;
 
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
@@ -661,8 +650,8 @@ ALTER TABLE custom_emojis ENABLE ROW LEVEL SECURITY;
 --    categories_ko/en : text[] 다중 선택 (예: ["웹앱", "라이브러리"])
 --    nature_ko/en     : 제작 동기 (토이 / 사이드 / 실무 / 학습 등)
 --    slug             : /works/[slug] 라우팅용
---    contributions_*  : 역할별 작업 내용 jsonb (예: { "Frontend": ["페이지 구현"] })
---    tech_notes       : 기술별 메모 jsonb (예: { "React": "컴포넌트 기반 UI" })
+--    author_ids       : 작성자 — 편집 권한(can_edit_work). posts.author_ids 와 같은 모양
+--    landing          : 랜딩 페이지 데이터 — 상세는 랜딩으로만 그린다(긴 기록은 posts '프로젝트' 글)
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS works (
   id               uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -685,36 +674,11 @@ CREATE TABLE IF NOT EXISTS works (
   role_en          text NOT NULL DEFAULT '',
   tech             text[] NOT NULL DEFAULT '{}',
   image            text NOT NULL DEFAULT '',
-  -- 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단
-  icon             text NOT NULL DEFAULT '',
-  -- 커버 세로 위치 %(0~100) · 확대 배율(1~2.5) — 편집기 위치 조정, 상세 커버에 반영
-  cover_position   real NOT NULL DEFAULT 50,
-  cover_zoom       real NOT NULL DEFAULT 1,
   -- Flow 레이아웃 카드 사이즈는 sort_order 에서 cycle derive — 별도 컬럼 없음 (single source of truth)
-  content_ko       text NOT NULL DEFAULT '',
-  content_en       text NOT NULL DEFAULT '',
   -- 자동 번역 표식 (src/lib/api/autoTranslationMark.ts)
   auto_translation jsonb,
-  content_type     text NOT NULL DEFAULT 'markdown'
-    CHECK (content_type IN ('markdown', 'richtext')),
-  -- legacy separate sections (backward compat)
-  overview_ko      text NOT NULL DEFAULT '',
-  overview_en      text NOT NULL DEFAULT '',
-  overview_image   text NOT NULL DEFAULT '',
-  challenge_ko     text NOT NULL DEFAULT '',
-  challenge_en     text NOT NULL DEFAULT '',
-  challenge_image  text NOT NULL DEFAULT '',
-  solution_ko      text NOT NULL DEFAULT '',
-  solution_en      text NOT NULL DEFAULT '',
-  solution_image   text NOT NULL DEFAULT '',
-  team_members     jsonb NOT NULL DEFAULT '[]',
-  -- 본인 역할별 작업 내용 (예: { "Frontend": ["페이지 구현", "라우팅"], "Backend": ["API"] })
-  contributions_ko jsonb NOT NULL DEFAULT '{}'::jsonb,
-  contributions_en jsonb NOT NULL DEFAULT '{}'::jsonb,
-  -- 기술별 메모 (예: { "React": "컴포넌트 기반 UI", "TypeScript": "타입 안전성" })
-  tech_notes       jsonb NOT NULL DEFAULT '{}'::jsonb,
-  gallery          text[] NOT NULL DEFAULT '{}',
-  gallery_notes    jsonb NOT NULL DEFAULT '{}'::jsonb, -- 갤러리 장마다의 음성(그림 주소 → 대본·음성 파일)
+  -- 작성자 — 편집 권한(can_edit_work). site.config authors 의 id
+  author_ids       text[] NOT NULL DEFAULT '{}',
   landing          jsonb, -- 랜딩 페이지 데이터(src/lib/workLanding.ts) — 비면 기본 데이터 · 기본 랜딩
   live_url         text DEFAULT '',
   github_url       text DEFAULT '',
@@ -724,9 +688,6 @@ CREATE TABLE IF NOT EXISTS works (
   is_pinned        boolean NOT NULL DEFAULT false,
   view_count       int NOT NULL DEFAULT 0,
   like_count       int NOT NULL DEFAULT 0,
-  -- AI 요약
-  summary_ko       text NOT NULL DEFAULT '',
-  summary_en       text NOT NULL DEFAULT '',
   source_lang      text,                       -- 원문 칸(ko)이 쓰인 언어(#1425) — 비어 있으면 ko
   created_at       timestamptz DEFAULT now(),
   updated_at       timestamptz DEFAULT now(),
@@ -737,14 +698,13 @@ CREATE TABLE IF NOT EXISTS works (
   scheduled_at     timestamptz DEFAULT NULL
 );
 
-COMMENT ON COLUMN works.gallery_notes IS
-  '갤러리 장마다의 음성 — 그림 주소 → { script, audio, audioSource, audioScript }';
-
 CREATE INDEX IF NOT EXISTS works_purge_after_idx
   ON works (purge_after) WHERE deleted_at IS NOT NULL;
 -- 기존 DB 호환 — number / size 컬럼 (deprecated, sort_order 에서 derive) 제거
 ALTER TABLE works DROP COLUMN IF EXISTS number;
 ALTER TABLE works DROP COLUMN IF EXISTS size;
+-- 기존 DB 호환 — 작성자 칸(2026_10_24_b). 팀원 옮기기 · 옛 칸 삭제는 마이그레이션 파일(b · c)이 한다
+ALTER TABLE works ADD COLUMN IF NOT EXISTS author_ids text[] NOT NULL DEFAULT '{}';
 
 -- slug 조회용
 CREATE INDEX IF NOT EXISTS idx_works_slug ON works (slug);
@@ -764,9 +724,8 @@ CREATE POLICY "works_public_read"
 
 -- service_role 전체 접근
 
--- 관리자 정책 — works 에는 author_ids 가 없다. 대신 팀원 목록(team_members)에 연결된
--- 저자 프로필로 소유권을 표현한다: 프로젝트 팀원이면 그 작업물의 편집자다.
--- 조회는 멤버 전체, 수정은 관리자 또는 팀원, 생성·삭제는 관리자.
+-- 관리자 정책 — 작성자(author_ids)에 자기 저자 프로필이 있으면 그 작업물의 편집자다(posts 와 같은 모양).
+-- 조회는 멤버 전체, 수정은 관리자 또는 작성자, 생성·삭제는 관리자.
 -- (TS 의 canEditWork 가 같은 규칙을 쓴다)
 DROP POLICY IF EXISTS "works_admin_select" ON works;
 CREATE POLICY "works_admin_select" ON works FOR SELECT TO authenticated USING (is_member());
@@ -778,7 +737,7 @@ CREATE POLICY "works_admin_insert" ON works FOR INSERT TO authenticated WITH CHE
 
 DROP POLICY IF EXISTS "works_admin_update" ON works;
 CREATE POLICY "works_admin_update" ON works FOR UPDATE TO authenticated
-  USING (can_edit_work(team_members)) WITH CHECK (can_edit_work(team_members));
+  USING (can_edit_work(author_ids)) WITH CHECK (can_edit_work(author_ids));
 
 DROP POLICY IF EXISTS "works_admin_delete" ON works;
 CREATE POLICY "works_admin_delete" ON works FOR DELETE TO authenticated USING (is_admin());
@@ -1240,28 +1199,8 @@ CREATE POLICY "post_work_relations_public_read"
   );
 
 
--- ────────────────────────────────────────────────────────────
--- series_work_relations — series ↔ works 다대다 (프로젝트에 관련 시리즈 연결)
--- ────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS series_work_relations (
-  series_id  uuid NOT NULL REFERENCES series(id) ON DELETE CASCADE,
-  work_id    uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
-  created_at timestamptz DEFAULT now(),
-  PRIMARY KEY (series_id, work_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_series_work_relations_series ON series_work_relations (series_id);
-CREATE INDEX IF NOT EXISTS idx_series_work_relations_work ON series_work_relations (work_id);
-
-ALTER TABLE series_work_relations ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "series_work_relations_public_read" ON series_work_relations;
-CREATE POLICY "series_work_relations_public_read"
-  ON series_work_relations FOR SELECT
-  USING (
-    EXISTS (SELECT 1 FROM series s WHERE s.id = series_id AND s.published)
-    AND EXISTS (SELECT 1 FROM works w WHERE w.id = work_id AND w.published AND w.deleted_at IS NULL)
-  );
+-- series_work_relations(작업물 ↔ 시리즈)는 2026_10_24 에 지웠다 — 작업물은 랜딩 하나로 그린다
+DROP TABLE IF EXISTS series_work_relations;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1908,7 +1847,7 @@ BEGIN
 
   -- member 이상 (자기 글 작업)
   FOREACH t IN ARRAY ARRAY[
-    'series', 'calendars', 'revisions', 'post_work_relations', 'series_work_relations',
+    'series', 'calendars', 'revisions', 'post_work_relations',
     'custom_emojis', 'cover_image_history'   -- 에디터 기능 (커버 picker · 이모지 picker)
   ] LOOP
     IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
@@ -2007,8 +1946,7 @@ DROP POLICY IF EXISTS "Anyone can view posts" ON storage.objects;
 --   custom_emojis        : 에디터 이모지 picker 의 커스텀 아이콘 기록 (admin 전용)
 --   applied_migrations   : schema migration 적용 추적 (log_migration_applied 헬퍼)
 --   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
---                          contributions_ko/en jsonb, tech_notes jsonb,
---                          team_members jsonb, scheduled_at, soft delete)
+--                          author_ids text[], landing jsonb, scheduled_at, soft delete)
 --   page_views           : 사이트의 조회 기록 하나 — 경로 · 세션 · 방문자 · 방문 정보(유입/기기/국가/UTM) · 머문 시간, 30분 중복 제거 (service_role 전용)
 --   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
 --   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
@@ -2020,7 +1958,6 @@ DROP POLICY IF EXISTS "Anyone can view posts" ON storage.objects;
 --   comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
 --   revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
 --   post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
---   series_work_relations: series ↔ works many-to-many (프로젝트에 관련 시리즈 연결)
 --   cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
 --   admin_login_attempts : admin 로그인 실패 횟수 추적 + lockout (5회 → 15분)
 --   admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
@@ -2361,7 +2298,9 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_10_21_revoke_definer_functions',      'SECURITY DEFINER 함수(vault · 메일 · 예약 작업)의 anon · authenticated 실행 권한 회수 + search_path 고정'),
   ('2026_10_21_b_rate_limits_public_read',     'rate_limits 공유 속도 제한 + 휴지통 글 · 캘린더 · 관계 테이블 공개 읽기 조이기 + 버킷 목록 정책 제거'),
   ('2026_10_22_rls_require_aal2',              '정책의 역할 판정(app_role · app_level · app_author_id)을 2단계 인증(aal2) 세션에서만'),
-  ('2026_10_24_works_landing',                 'works.landing — 작업물 랜딩 페이지 데이터(섹션 · 장면)')
+  ('2026_10_24_works_landing',                 'works.landing — 작업물 랜딩 페이지 데이터(섹션 · 장면)'),
+  ('2026_10_24_b_works_author_ids',            'works.author_ids — 작업물 편집 권한을 팀원 목록에서 작성자로(can_edit_work(author_ids))'),
+  ('2026_10_24_c_works_drop_post_columns',     '작업물은 랜딩 하나로 — 게시물형 칸 · series_work_relations 삭제')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

@@ -182,11 +182,11 @@ export const erdDesignNotes: ErdDesignNote[] = [
     relatedTable: "posts",
   },
   {
-    title: { ko: "Works 갤러리 — 배열 + JSONB", en: "Works Gallery — Array + JSONB" },
-    tag: "gallery TEXT[] · gallery_notes JSONB · team_members JSONB",
+    title: { ko: "Works 랜딩 — JSONB 한 칸", en: "Works Landing — One JSONB Column" },
+    tag: "landing JSONB · author_ids TEXT[]",
     description: {
-      ko: "갤러리 이미지는 TEXT[], 장마다의 음성 대본 · 음성 파일은 이미지 주소를 키로 한 gallery_notes JSONB(한국어 칸과 en 칸으로 언어마다 따로), 팀 멤버는 JSONB 로 저장합니다. 별도 테이블 없이 작업물 한 행에 담깁니다.",
-      en: "Gallery images are a TEXT[]; each slide's voice script and audio live in gallery_notes JSONB keyed by image URL (Korean fields plus an en field per language); team members are JSONB. All of it sits in the work's single row without separate tables.",
+      ko: "작업물 상세는 랜딩 하나로 그립니다. 머리 한 줄 · 첫 장면 · 섹션과 그 안의 장면을 landing JSONB 한 칸에 담고, 편집 권한은 글처럼 작성자(author_ids TEXT[])로 정합니다. 긴 기록은 글의 '프로젝트' 템플릿으로 씁니다.",
+      en: "A work's detail page is a single landing. Its eyebrow, opening scenes, sections and their scenes live in one landing JSONB column, and edit access follows authors (author_ids TEXT[]) just like posts. Long write-ups go in posts using the 'Project' template.",
     },
     relatedTable: "works",
   },
@@ -279,14 +279,5 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "Prevents a later save from silently clobbering an earlier one when the same post is edited across tabs or devices. The editor sends the version it loaded as baseVersion, and the server only UPDATEs while version is unchanged. Zero rows means someone saved in between, so it answers 409 version_conflict and the editor asks the user to overwrite, reload, or cancel.",
     },
     relatedTable: "posts",
-  },
-  {
-    title: { ko: "시리즈↔프로젝트 다대다", en: "Series↔Project many-to-many" },
-    tag: "PRIMARY KEY(series_id, work_id)",
-    description: {
-      ko: "post_work_relations와 동일한 패턴의 조인 테이블로, 시리즈와 프로젝트를 다대다로 연결합니다. (series_id, work_id) 복합 PK를 사용하고, 양쪽 FK 모두 ON DELETE CASCADE로 정리됩니다.",
-      en: "A join table following the same pattern as post_work_relations, linking series and works in a many-to-many relationship. Uses a composite PK (series_id, work_id), with both FKs cleaned up via ON DELETE CASCADE.",
-    },
-    relatedTable: "series_work_relations",
   },
 ];
