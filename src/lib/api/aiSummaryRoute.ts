@@ -9,7 +9,7 @@ import { sanitizeSummaryGuide, SUMMARY_GUIDE_MAX } from "@/lib/ai/summaryGuide";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /**
- * posts · works 의 AI 요약 라우트가 같이 쓰는 처리 — 둘은 표 이름 · 본문 칸 · 캐시 비우기만 다르다.
+ * 글의 AI 요약 라우트 처리 — 표 이름 · 본문 칸 · 캐시 비우기를 받는다(작업물 요약은 랜딩으로 바꾸며 없앴다).
  *
  * 요청 모양
  *   { }                            발행 뒤 자동. 요약이 있고 본문 해시가 같으면 그대로, 없거나 본문이 바뀌었으면 만들어 저장
@@ -24,10 +24,10 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
  * 저장값은 JSON 문자열({tldr, points, hash}) — lib/ai/summary. 예전 줄글도 그대로 읽힌다.
  */
 export interface SummaryTable {
-  table: "posts" | "works";
-  kind: "post" | "work";
+  table: "posts";
+  kind: "post";
   /** 본문 칸 이름 */
-  koColumn: "content" | "content_ko";
+  koColumn: "content";
   /** 저장 뒤 공개 캐시 비우기 */
   revalidate: (row: { slug?: string | null }) => void;
   logPrefix: string;

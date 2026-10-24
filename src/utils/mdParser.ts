@@ -41,9 +41,6 @@ function toNum(v: string | string[] | undefined): number | undefined {
 const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
 
-const toList = (v: string | string[]) =>
-  (Array.isArray(v) ? v : String(v).split(",")).map((s) => s.trim()).filter(Boolean);
-
 /** YAML frontmatter가 있는 마크다운 파일을 파싱하여 포스트 데이터 객체로 변환. */
 export function parseMdPost(raw: string, fileName: string): Record<string, unknown> {
   const { meta, body: text } = parseFrontmatter(raw);
@@ -77,42 +74,5 @@ export function parseMdPost(raw: string, fileName: string): Record<string, unkno
     const d = new Date(meta.date as string);
     if (!isNaN(d.getTime())) body.created_at = d.toISOString();
   }
-  return body;
-}
-
-/** YAML frontmatter가 있는 마크다운 파일을 파싱하여 작업물 데이터 객체로 변환. */
-export function parseMdWork(raw: string, fileName: string): Record<string, unknown> {
-  const { meta, body: text } = parseFrontmatter(raw);
-  const title = (meta.title as string) || fileName.replace(/\.md$/, "");
-  const body: Record<string, unknown> = {
-    title,
-    slug: slugify((meta.slug as string) || title),
-    content_ko: text,
-    content_type: "markdown",
-    published: false,
-  };
-  if (meta.title_en) body.title_en = meta.title_en;
-  if (meta.subtitle) body.subtitle_ko = meta.subtitle;
-  if (meta.subtitle_en) body.subtitle_en = meta.subtitle_en;
-  if (meta.category) body.categories_ko = toList(meta.category);
-  if (meta.category_en) body.categories_en = toList(meta.category_en);
-  if (meta.nature) body.nature_ko = String(meta.nature);
-  if (meta.nature_en) body.nature_en = String(meta.nature_en);
-  if (meta.year) body.year = meta.year;
-  if (meta.tech) body.tech = Array.isArray(meta.tech) ? meta.tech : [meta.tech];
-  if (meta.description) body.description_ko = meta.description;
-  if (meta.description_en) body.description_en = meta.description_en;
-  if (meta.role) body.role_ko = meta.role;
-  if (meta.role_en) body.role_en = meta.role_en;
-  if (meta.icon) body.icon = meta.icon;
-  if (meta.image) body.image = meta.image;
-  if (meta.live_url) body.live_url = meta.live_url;
-  if (meta.github_url) body.github_url = meta.github_url;
-  /* 본문 형식 — `format: richtext` 면 본문이 편집기가 저장하는 HTML(slateToHtml 결과)이다.
-     열 블록·토글·색 콜아웃처럼 마크다운으로 적을 수 없는 편집기 블록을 그대로 싣는다 */
-  if (String(meta.format ?? "").trim() === "richtext") body.content_type = "richtext";
-  // 목록 순서 — 작을수록 앞(공개 목록은 sort_order 오름차순)
-  const order = toNum(meta.order);
-  if (order != null) body.sort_order = order;
   return body;
 }

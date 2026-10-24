@@ -34,14 +34,14 @@ const req = (path: string) => new Request(`http://local${path}`);
 describe("휴지통 목록", () => {
   beforeEach(() => { calls.length = 0; });
 
-  it("작업물 휴지통은 본문·긴 글·갤러리를 읽지 않는다", async () => {
+  it("작업물 휴지통은 설명 · 랜딩을 읽지 않는다", async () => {
     await worksGET(req("/api/works?trash=true&limit=100"));
     const cols = calls.find((c) => c.table === "works")!.select.split(",");
-    for (const heavy of ["content_ko", "content_en", "gallery", "gallery_notes", "description_ko", "overview_ko"]) {
+    for (const heavy of ["description_ko", "description_en", "landing"]) {
       expect(cols).not.toContain(heavy);
     }
     /* 표·툴팁·편집 권한 판정에 쓰는 칸은 남는다 */
-    for (const need of ["id", "title", "image", "deleted_at", "purge_after", "team_members", "sort_order"]) {
+    for (const need of ["id", "title", "image", "deleted_at", "purge_after", "author_ids", "sort_order"]) {
       expect(cols).toContain(need);
     }
   });

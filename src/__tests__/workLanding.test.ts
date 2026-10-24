@@ -8,7 +8,6 @@ import type { Project } from "@/data/projects";
 const project = (over: Partial<Project> = {}): Project => ({
   id: "p1", slug: "newpick", title: { ko: "뉴픽", en: "NewPick" }, subtitle: { ko: "AI 뉴스레터", en: "AI newsletter" },
   description: { ko: "아침 뉴스 요약", en: "Morning news" }, image: "https://img.test/cover.webp",
-  gallery: ["https://img.test/cover.webp", "https://img.test/1.webp", "https://img.test/2.mp4", "https://img.test/deck.ppt"],
   ...over,
 } as Project);
 
@@ -42,12 +41,12 @@ describe("landingOf", () => {
     expect(d.sections[0].title.ko).toBe("포트폴리오를 운영체제처럼");
   });
 
-  it("그것도 없으면 카드 정보 — 표지 hero, 소개 섹션에 설명 · 표지와 문서를 뺀 갤러리", () => {
+  it("그것도 없으면 카드 정보 — 표지 hero, 소개 섹션에 설명", () => {
     const d = defaultLanding(project());
     expect(d.eyebrow.en).toBe("AI newsletter");
     expect(d.hero).toEqual([{ kind: "frame", at: "bleed", src: "https://img.test/cover.webp", alt: { ko: "뉴픽", en: "NewPick" } }]);
     expect(d.sections[0].body?.ko).toBe("아침 뉴스 요약");
-    expect(d.sections[0].items.map((i) => (i.kind === "frame" ? i.src ?? i.video : ""))).toEqual(["https://img.test/1.webp", "https://img.test/2.mp4"]);
+    expect(d.sections[0].items).toEqual([]);
     expect(landingOf(project()).sections[0].id).toBe("intro");
   });
 });

@@ -160,7 +160,7 @@ export const erdScene = {
 export const erdGroups: { label: L10n; tables: string[] }[] = [
   {
     label: { ko: "콘텐츠", en: "Content" },
-    tables: ["posts", "series", "works", "post_work_relations", "series_work_relations", "revisions", "cover_image_history", "calendars", "content_translations"],
+    tables: ["posts", "series", "works", "post_work_relations", "revisions", "cover_image_history", "calendars", "content_translations"],
   },
   {
     label: { ko: "반응", en: "Reactions" },

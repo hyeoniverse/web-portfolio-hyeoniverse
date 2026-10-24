@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import { currentSourceLang } from "@/lib/api/sourceTranslate";
 import { jsonServerError } from "@/lib/api/response";
-import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { dropWorkLandingIfMissing, WORK_LANDING_DROPPED_HEADER } from "@/lib/api/workLandingColumn";
-import { dropWorkCoverIfMissing, WORK_COVER_DROPPED_HEADER } from "@/lib/api/workCoverColumns";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
-import { PERM } from "@/lib/api/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
@@ -46,13 +43,7 @@ const ALLOWED_FIELDS = new Set([
   "year",
   "description_ko", "description_en",
   "role_ko", "role_en",
-  "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image", "icon", "cover_position", "cover_zoom",
-  "content_ko", "content_en", "content_type",
-  "overview_ko", "overview_en", "overview_image",
-  "challenge_ko", "challenge_en", "challenge_image",
-  "solution_ko", "solution_en", "solution_image",
-  "team_members", "gallery", "gallery_notes", "landing",
+  "tech", "image", "landing",
   "live_url", "github_url",
   "published", "sort_order", "is_pinned",
   "scheduled_at",
@@ -60,7 +51,7 @@ const ALLOWED_FIELDS = new Set([
 
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const { supabase: admin, role, error: authError } = await requirePostAccess("works", id);
+  const { supabase: admin, error: authError } = await requirePostAccess("works", id);
   if (authError) return authError;
 
   // ?skipShift=true 면 sort_order auto-shift 건너뜀 (drag 의 batch 호출이 자체 정렬을 관리하므로)
@@ -81,35 +72,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (ko || en) await ensureWorksCategory(ko, en);
   }
 
-  /* 팀원 목록의 "연결된 계정"(author_id)은 곧 이 작업물의 편집 권한이다 — canEditWork 와
-     RLS 의 can_edit_work 가 이 값을 본다. 팀원 자격으로 편집하는 사람이 그 명단을 바꿀 수
-     있으면 스스로 권한을 넓힐 수 있으므로, 연결의 변경은 관리자만 할 수 있다.
-     이름·역할·작업 내용 같은 나머지 항목은 팀원도 그대로 고칠 수 있다. */
-  if (filtered.team_members !== undefined && !(role.isOwner || role.level >= PERM.ADMIN)) {
-    const linkedIds = (v: unknown) =>
-      new Set(
-        (Array.isArray(v) ? v : [])
-          .map((m) => (m as { author_id?: unknown })?.author_id)
-          .filter((x): x is string => typeof x === "string" && !!x),
-      );
-    /* 현재 값은 service_role 로 읽는다 — 정책이 행을 거르면 "안 바뀌었다" 로 오판한다. */
-    const { data: current } = await createAdminClient()
-      .from("works").select("team_members").eq("id", id).maybeSingle();
-    const before = linkedIds(current?.team_members);
-    const after = linkedIds(filtered.team_members);
-    const same = before.size === after.size && [...after].every((x) => before.has(x));
-    if (!same) {
-      return NextResponse.json(
-        {
-          error: "Forbidden",
-          reason: "팀원에 연결된 계정을 바꾸려면 관리자 등급이 필요합니다. 소유자에게 요청해 주세요.",
-          code: "WORK_TEAM_LINK_ADMIN_ONLY",
-        },
-        { status: 403 },
-      );
-    }
-  }
-
   /* 원문이 바뀌었으면 자동 번역해 둔 반대 언어 칸을 비운다 — 다음 방문 때 새 원문으로 다시 번역된다 */
   /* 원문 칸을 고쳐 저장하면 그 작업물의 원문 언어는 지금 기본 언어다(#1425) */
   if (WORK_COLUMNS.ko.some((c) => c in filtered)) {
@@ -124,21 +86,9 @@ export async function PATCH(request: Request, context: RouteContext) {
   filtered.updated_at = new Date().toISOString();
 
 
-  /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 저장한다(galleryNotesColumn 참고) */
-  const notesDropped = await dropGalleryNotesIfMissing(admin, filtered);
-  /* 커버 위치 · 확대 칸도 같다(workCoverColumns 참고) */
-  const coverDropped = await dropWorkCoverIfMissing(admin, filtered);
-  /* 랜딩 칸도 같다(workLandingColumn 참고) */
+  /* 랜딩 칸이 아직 없는 DB 면 그 칸만 빼고 저장한다(workLandingColumn 참고) */
   const landingDropped = await dropWorkLandingIfMissing(admin, filtered);
-  const notesHeader = notesDropped || coverDropped || landingDropped
-    ? {
-        headers: {
-          ...(notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : {}),
-          ...(coverDropped ? { [WORK_COVER_DROPPED_HEADER]: "1" } : {}),
-        ...(landingDropped ? { [WORK_LANDING_DROPPED_HEADER]: "1" } : {}),
-        },
-      }
-    : undefined;
+  const notesHeader = landingDropped ? { headers: { [WORK_LANDING_DROPPED_HEADER]: "1" } } : undefined;
 
   // sort_order 변경 시 — 그 자리에 끼우고 전체를 1..N 으로 다시 매긴다(skipShift=true 인 목록 끌어 놓기 묶음 제외).
   // 기존 0/duplicate 도 자동 정리. 한 요청 안에서 끝내야 한다 — placeWork 주석(#873)

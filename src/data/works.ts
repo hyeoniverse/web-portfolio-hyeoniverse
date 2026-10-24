@@ -93,7 +93,7 @@ export function toWorkItems(source: Project[]): WorkItem[] {
     title: project.title,
     category: project.category,
     main: project.image,
-    hover: project.gallery[0] ?? project.image,
+    hover: project.image,
     href: `/works/${project.slug || project.id}`,
     kind: "work",
   }));

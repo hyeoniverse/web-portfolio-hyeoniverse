@@ -19,8 +19,8 @@ export interface MyRole {
   authorId: string | null;
   /** 이 글을 수정·삭제할 수 있는가. 서버의 canEditPost 와 같은 함수를 쓴다. */
   canEditPost: (authorIds: string[] | null | undefined) => boolean;
-  /** 이 작업물을 수정할 수 있는가 — 관리자이거나 그 작업물의 팀원. */
-  canEditWork: (teamMembers: { author_id?: string }[] | null | undefined) => boolean;
+  /** 이 작업물을 수정할 수 있는가 — 관리자이거나 그 작업물의 작성자. */
+  canEditWork: (authorIds: string[] | null | undefined) => boolean;
   /** 작업물을 새로 만들거나 지울 수 있는가 — admin 이상. */
   canManageWorks: boolean;
 }
@@ -64,8 +64,8 @@ export function useMyRole(): MyRole {
       level: role.level,
       authorId: role.authorId,
       canEditPost: (authorIds: string[] | null | undefined) => !loading && canEditPost(role, authorIds),
-      canEditWork: (teamMembers: { author_id?: string }[] | null | undefined) =>
-        !loading && canEditWork(role, teamMembers),
+      canEditWork: (authorIds: string[] | null | undefined) =>
+        !loading && canEditWork(role, authorIds),
       canManageWorks: !loading && (role.isOwner || role.level >= PERM.ADMIN),
     };
   }, [me, loading]);

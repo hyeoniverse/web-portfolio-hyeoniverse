@@ -2,13 +2,13 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 204,
-  "routeFiles": 141,
+  "total": 193,
+  "routeFiles": 132,
   "access": {
-    "public": 70,
-    "signed-in": 62,
-    "author": 28,
-    "admin": 16,
+    "public": 68,
+    "signed-in": 61,
+    "author": 22,
+    "admin": 14,
     "owner": 26,
     "cron": 2
   },
@@ -32,7 +32,6 @@ export const apiMap: ApiMap = {
     "revisions",
     "security_settings",
     "series",
-    "series_work_relations",
     "site_settings",
     "traffic_excluded_ips",
     "work_comments",
@@ -60,144 +59,6 @@ export const apiMap: ApiMap = {
     "fonts"
   ],
   "groups": [
-    {
-      "key": "works",
-      "files": 16,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/works",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works",
-          "access": "admin"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/[id]",
-          "access": "author"
-        },
-        {
-          "method": "PATCH",
-          "path": "/api/works/[id]",
-          "access": "author"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/works/[id]",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/[id]/ai-summary",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/[id]/auto-translate",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/[id]/extend-retention",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/[id]/like",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/[id]/like",
-          "access": "public"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/works/[id]/purge",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/[id]/related-posts",
-          "access": "public"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/[id]/related-series",
-          "access": "public"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/[id]/restore",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/export",
-          "access": "admin"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/showcase",
-          "access": "signed-in"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/showcase/import",
-          "access": "admin"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/tts",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/works/tts/lexicon",
-          "access": "author"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/works/tts/lexicon",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/works/tts/merge",
-          "access": "author"
-        }
-      ],
-      "tables": [
-        "likes",
-        "post_work_relations",
-        "posts",
-        "series",
-        "series_work_relations",
-        "site_settings",
-        "works"
-      ],
-      "rpcs": [
-        "rate_limit_hit"
-      ],
-      "services": [
-        "ai",
-        "translate",
-        "tts",
-        "storage",
-        "github"
-      ],
-      "access": {
-        "public": 5,
-        "signed-in": 1,
-        "author": 12,
-        "admin": 3,
-        "owner": 0,
-        "cron": 0
-      }
-    },
     {
       "key": "posts",
       "files": 15,
@@ -322,6 +183,102 @@ export const apiMap: ApiMap = {
         "signed-in": 5,
         "author": 8,
         "admin": 0,
+        "owner": 0,
+        "cron": 0
+      }
+    },
+    {
+      "key": "works",
+      "files": 9,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/works",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works",
+          "access": "admin"
+        },
+        {
+          "method": "GET",
+          "path": "/api/works/[id]",
+          "access": "author"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/works/[id]",
+          "access": "author"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/works/[id]",
+          "access": "author"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works/[id]/extend-retention",
+          "access": "author"
+        },
+        {
+          "method": "GET",
+          "path": "/api/works/[id]/like",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works/[id]/like",
+          "access": "public"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/works/[id]/purge",
+          "access": "author"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works/[id]/restore",
+          "access": "author"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works/tts",
+          "access": "author"
+        },
+        {
+          "method": "GET",
+          "path": "/api/works/tts/lexicon",
+          "access": "author"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/works/tts/lexicon",
+          "access": "author"
+        },
+        {
+          "method": "POST",
+          "path": "/api/works/tts/merge",
+          "access": "author"
+        }
+      ],
+      "tables": [
+        "likes",
+        "site_settings",
+        "works"
+      ],
+      "rpcs": [
+        "rate_limit_hit"
+      ],
+      "services": [
+        "tts",
+        "storage"
+      ],
+      "access": {
+        "public": 3,
+        "signed-in": 0,
+        "author": 10,
+        "admin": 1,
         "owner": 0,
         "cron": 0
       }
@@ -633,8 +590,7 @@ export const apiMap: ApiMap = {
       ],
       "tables": [
         "calendars",
-        "posts",
-        "works"
+        "posts"
       ],
       "rpcs": [],
       "services": [],
@@ -811,58 +767,6 @@ export const apiMap: ApiMap = {
         "public": 2,
         "signed-in": 4,
         "author": 0,
-        "admin": 0,
-        "owner": 0,
-        "cron": 0
-      }
-    },
-    {
-      "key": "admin/works",
-      "files": 3,
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/admin/works/[id]/related-posts",
-          "access": "author"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/admin/works/[id]/related-posts",
-          "access": "author"
-        },
-        {
-          "method": "GET",
-          "path": "/api/admin/works/[id]/related-series",
-          "access": "author"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/admin/works/[id]/related-series",
-          "access": "author"
-        },
-        {
-          "method": "POST",
-          "path": "/api/admin/works/[id]/request-access",
-          "access": "signed-in"
-        }
-      ],
-      "tables": [
-        "admin_notifications",
-        "post_work_relations",
-        "posts",
-        "series",
-        "series_work_relations",
-        "site_settings",
-        "works"
-      ],
-      "rpcs": [],
-      "services": [
-        "mail"
-      ],
-      "access": {
-        "public": 0,
-        "signed-in": 1,
-        "author": 4,
         "admin": 0,
         "owner": 0,
         "cron": 0
@@ -1080,7 +984,6 @@ export const apiMap: ApiMap = {
         "admin_notifications",
         "comment_reports",
         "posts",
-        "site_settings",
         "works"
       ],
       "rpcs": [],
@@ -1137,7 +1040,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "admin",
-      "files": 33,
+      "files": 34,
       "folded": [
         "admin/ai-health",
         "admin/ai-log",
@@ -1163,6 +1066,7 @@ export const apiMap: ApiMap = {
         "admin/traffic",
         "admin/translate",
         "admin/upload",
+        "admin/works",
         "admin/works-categories"
       ],
       "endpoints": [
@@ -1370,6 +1274,11 @@ export const apiMap: ApiMap = {
           "method": "GET",
           "path": "/api/admin/works-categories",
           "access": "admin"
+        },
+        {
+          "method": "POST",
+          "path": "/api/admin/works/[id]/request-access",
+          "access": "signed-in"
         }
       ],
       "tables": [
@@ -1402,7 +1311,7 @@ export const apiMap: ApiMap = {
       ],
       "access": {
         "public": 2,
-        "signed-in": 16,
+        "signed-in": 17,
         "author": 3,
         "admin": 10,
         "owner": 10,
@@ -1615,7 +1524,6 @@ export const apiMap: ApiMap = {
       ],
       "services": [
         "translate",
-        "tts",
         "storage",
         "mail",
         "github",

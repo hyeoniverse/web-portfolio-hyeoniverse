@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { LANDING_PAGE_SLUGS, isLandingPath } from "@/components/works/landing/registry";
 import { LONG_PRESS_DURATION, type Project } from "@/data/projects";
 import { workHref } from "../_components/layouts/shared";
@@ -29,11 +28,9 @@ export function useWorkTransition(cardActiveClassName: string) {
   /* 랜딩으로 그리는 작업물은 미리 받아 둔다 — 판 전환은 새 페이지가 커밋되는 순간 찍는데, 받아 두지 않으면
      로딩 화면이 먼저 커밋돼 뼈대가 밀려 들어왔다. 전용 페이지가 있는 작업물 몇 개뿐이라 목록을 열 때 한 번에 */
   const router = useRouter();
-  const detailStyle = useSiteConfig().works?.detailStyle;
   useEffect(() => {
-    if (detailStyle !== "landing") return;
     for (const slug of LANDING_PAGE_SLUGS) router.prefetch(`/works/${slug}`);
-  }, [detailStyle, router]);
+  }, [router]);
   const cardRefs = useRef<Map<number, HTMLElement>>(new Map());
   const pressStartRef = useRef<number | null>(null);
   const pressRafRef = useRef<number | null>(null);
@@ -45,10 +42,10 @@ export function useWorkTransition(cardActiveClassName: string) {
   const startCardTransition = useCallback(
     (project: Project, rect: DOMRect) => {
       const href = workHref(project);
-      if (!isLandingPath(href, detailStyle)) setTransitionData({ id: project.id, image: project.image, rect });
+      if (!isLandingPath(href)) setTransitionData({ id: project.id, image: project.image, rect });
       navigateWithTransition(href, project.image, rect);
     },
-    [navigateWithTransition, detailStyle],
+    [navigateWithTransition],
   );
 
   /** 진행 중인 프레스 애니메이션과 카드에 직접 쓴 확대값을 되돌린다 */

@@ -147,7 +147,7 @@ export default function Navigation() {
   const pathname = useRoutePathname();
   /* 랜딩으로 그리는 작업물 상세 — 참고 사이트(andreasantonsson.dev)처럼 메뉴를 이름 + 글자 링크 셋(LandingNav, 페이지 안)으로 바꾼다.
      로고는 첫 로딩 화면(워드마크가 로고 자리로 줄어드는 연출)에서만 그린다 */
-  const landingNav = isLandingPath(pathname, siteConfig.works?.detailStyle);
+  const landingNav = isLandingPath(pathname);
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t, koLabel } = useLanguage();
   /* 메뉴 이름 — 공개 메뉴는 사전(navMenu.label)에서 읽어 사이트 번역이 덮을 수 있게. 사전에 없는 것(관리 메뉴)은 적힌 이름 */

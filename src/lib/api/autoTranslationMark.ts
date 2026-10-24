@@ -20,8 +20,8 @@ export const POST_COLUMNS: LangColumns = {
   en: ["title_en", "content_en", "excerpt_en"],
 };
 export const WORK_COLUMNS: LangColumns = {
-  ko: ["title", "subtitle_ko", "description_ko", "content_ko"],
-  en: ["title_en", "subtitle_en", "description_en", "content_en"],
+  ko: ["title", "subtitle_ko", "description_ko"],
+  en: ["title_en", "subtitle_en", "description_en"],
 };
 
 type Row = Record<string, unknown>;

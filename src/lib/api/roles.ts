@@ -86,21 +86,16 @@ export function canEditPost(role: UserRole, authorIds: string[] | null | undefin
 }
 
 /**
- * 이 작업물을 수정할 수 있는가.
- *
- * works 에는 posts 의 author_ids 같은 소유권 컬럼이 없다. 대신 팀원 목록에 연결된 저자
- * 프로필로 소유권을 표현한다 — 프로젝트에 팀원으로 올라 있으면 그 작업물의 편집자다.
+ * 이 작업물을 수정할 수 있는가 — 글(canEditPost)처럼 작성자(author_ids)로 정한다.
+ * 관리자는 전부, 그 밖에는 author_ids 에 자신의 저자 프로필이 들어 있을 때만.
  * RLS 의 can_edit_work 와 같은 규칙이라 코드와 정책의 판정이 갈리지 않는다.
  *
  * 생성·삭제는 이 함수가 다루지 않는다(관리자 전용).
  */
-export function canEditWork(
-  role: UserRole,
-  teamMembers: { author_id?: string }[] | null | undefined,
-): boolean {
+export function canEditWork(role: UserRole, authorIds: string[] | null | undefined): boolean {
   if (role.isOwner || role.level >= PERM.ADMIN) return true;
   if (!role.authorId) return false;
-  return (teamMembers ?? []).some((m) => m?.author_id === role.authorId);
+  return (authorIds ?? []).includes(role.authorId);
 }
 
 /** UserRole → 화면에 표시할 등급 배지. members 목록과 context 가 같은 규칙을 쓰게 한다. */

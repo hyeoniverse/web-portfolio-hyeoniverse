@@ -567,7 +567,6 @@ export const siteConfig = {
   works: {
     layout: "flow" as "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cylinder",
     /** 작업물 상세 화면 — article: 글처럼(커버 · 머리 · 본문 · 목차), landing: 전용 랜딩 페이지가 있는 작업물은 그 페이지로(components/works/landing/registry) */
-    detailStyle: "article" as "article" | "landing",
     adminPerPage: 20,
     categories: [
       {

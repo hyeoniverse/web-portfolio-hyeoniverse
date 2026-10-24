@@ -13,7 +13,6 @@ import { toRoutePath, useRoutePathname } from "@/hooks/useRoutePathname";
 import { appPathOfHref } from "@/lib/siteHosts";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useKeepOnTopRef } from "@/hooks/useTopLayer";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { isLandingPath } from "@/components/works/landing/registry";
 
 /* ── Types ── */
@@ -126,8 +125,6 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     if (viewSlideTimerRef.current) clearTimeout(viewSlideTimerRef.current);
     viewSlideTimerRef.current = setTimeout(() => setViewSliding(false), ms);
   }, []);
-  const siteConfig = useSiteConfig();
-  const detailStyle = siteConfig.works?.detailStyle;
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   /* 새 페이지가 morph 보다 먼저 준비되면 morph 끝나는 즉시 done 으로 직행 */
   const endRequestedRef = useRef(false);
@@ -181,7 +178,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
        그래서 받아오는 동안 화면이 멈추지 않는다. 방향은 transitionTypes 로 넘긴다(_base.css).
        랜딩이 아닌 곳(메뉴의 Works · About · 홈)은 커밋 뒤에도 Suspense · 3D 준비 화면 · 등장 연출이 이어져,
        찍힌 새 화면이 빈 판이었고 준비 화면(검은 화면)과 두 번째 전환이 뒤따랐다 — 그런 곳은 아래 바탕색 판이 덮은 채로 넘어간다 */
-    if (typeof document.startViewTransition === "function" && !reduceMotion && isLandingPath(pathOf(href), detailStyle)) {
+    if (typeof document.startViewTransition === "function" && !reduceMotion && isLandingPath(pathOf(href))) {
       slideTargetRef.current = pathOf(href);
       setViewSliding(true);
       releaseViewSlideIn(SLIDE_VIEW_MS);
@@ -194,11 +191,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
        커밋되면 아직 덮이지 않은 쪽으로 새 페이지의 로딩 화면이 비쳤다 */
     router.prefetch(href);
     timerRef.current.push(setTimeout(() => router.push(href), reduceMotion ? 0 : SLIDE_IN_MS));
-  }, [router, releaseViewSlideIn, detailStyle]);
+  }, [router, releaseViewSlideIn]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     /* 랜딩으로 그리는 작업물이면 커버가 커지는 연출 대신 판 전환 — 랜딩에는 커버 히어로가 없어 줄어들 자리가 없다 */
-    if (isLandingPath(pathOf(href), detailStyle)) {
+    if (isLandingPath(pathOf(href))) {
       navigateWithSlide(href, "right");
       return;
     }
@@ -211,7 +208,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     router.push(href);
     const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
-  }, [router, endTransition, detailStyle, navigateWithSlide]);
+  }, [router, endTransition, navigateWithSlide]);
 
   /* done 진입 시 fade-out 끝나면 overlay unmount */
   useEffect(() => {

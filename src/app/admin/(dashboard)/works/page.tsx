@@ -4,17 +4,15 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import BusyOverlay from "@/components/admin/BusyOverlay/BusyOverlay";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { QUERY_PARAM } from "@/constants";
-import type { GithubImportResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder } from "@/components/icons";
+import { Trash2, Plus, ExternalLink, Folder } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
-import { downloadBlob, downloadFiles } from "@/utils/download";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { fillTemplate } from "@/utils/format";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
@@ -25,7 +23,6 @@ import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
-import HelpButton from "@/components/ui/HelpButton";
 import AccessRequestModal from "@/components/admin/AccessRequestModal";
 import { useMyRole } from "@/hooks/useMyRole";
 import AdminListShell, {
@@ -41,17 +38,11 @@ import AdminTable, {
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";
-import { showToast } from "@/stores/toastStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import GithubImportModal from "./_components/GithubImportModal";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import type { BilingualCategory } from "@/types/common";
-import { parseMdWork } from "@/utils/mdParser";
-import { uploadRandomCover } from "@/utils/uploadRandomCover";
-import { sendAction, sendActions, notifyFailures, tryRequest } from "@/lib/sendAction";
-import { CodedError } from "@/lib/apiError";
+import { sendAction, sendActions } from "@/lib/sendAction";
 import styles from "./AdminWorks.module.css";
-import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
 import WorkYear from "@/components/works/WorkYear";
 import { formatWorkYear } from "@/utils/formatWorkYear";
@@ -144,29 +135,14 @@ function PreviewTooltip({
   );
 }
 
-/** 공개 목록을 채우고 있는 GitHub 저장소 한 줄 — /api/works/showcase 가 주는 모양 */
-type ShowcaseRepo = {
-  id: string;
-  slug: string;
-  title: { ko: string; en: string };
-  image: string;
-  year: string;
-  githubUrl?: string;
-  /** 저장소를 가진 계정(내 계정 또는 조직) */
-  owner?: string;
-  isOrg?: boolean;
-  /** 이미 작업물로 들여 둔 저장소 */
-  imported?: boolean;
-};
-
 export default function AdminWorksPage() {
-  /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 팀원이어야 한다.
+  /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 작성자여야 한다.
      서버의 requirePostAccess 와 works_admin_update 정책이 같은 규칙(can_edit_work)을 쓴다.
      여기서 막는 것은 표시용이고, 인가 자체는 서버와 정책이 한다. */
   const myRole = useMyRole();
-  const canEdit = (w: Work) => myRole.canEditWork(w.team_members);
+  const canEdit = (w: Work) => myRole.canEditWork(w.author_ids);
 
-  /** 편집할 수 없는 작업물 — 이유를 알리고 팀원 등록을 요청할 수 있게 한다. */
+  /** 편집할 수 없는 작업물 — 이유를 알리고 작성자 등록을 요청할 수 있게 한다. */
   const openDeniedModal = (blocked: Work[]) => {
     openModal(
       <AccessRequestModal
@@ -213,8 +189,6 @@ export default function AdminWorksPage() {
   /* Trash */
   const [trashWorks, setTrashWorks] = useState<Work[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
-  /* 발행한 작업물이 없을 때 목록·상세를 채우는 GitHub 저장소들 — DB 에 행이 없어 표에는 안 잡힌다 */
-  const [repoWorks, setRepoWorks] = useState<ShowcaseRepo[]>([]);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
   const [trashSortBy, setTrashSortBy] = useState<"deleted" | "created" | "name">("deleted");
@@ -317,69 +291,6 @@ export default function AdminWorksPage() {
   const queueReorderRef = useRef(queueReorder);
   useEffect(() => { queueReorderRef.current = queueReorder; }, [queueReorder]);
 
-  /* GitHub 저장소의 README 를 작업물로 들인다 — 들인 뒤에는 보통 작업물과 똑같이 다룬다.
-     발행 상태로 들어온다(공개 화면에 이미 나가 있던 것을 옮겨 오는 것이므로).
-     이미 들인 저장소는 서버가 걸러 내므로 여러 번 눌러도 사본이 생기지 않는다 */
-  const [ghImporting, setGhImporting] = useState(false);
-  const pendingRepos = repoWorks.filter((r) => !r.imported).length;
-
-  const runRepoImport = async (slugs: string[], overwrite: boolean) => {
-    const res = await sendAction("/api/works/showcase/import", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slugs, overwrite }),
-    }, t, t("admin.works.githubImportFailed"));
-    if (!res) return;
-    showToast(fillTemplate(t("admin.works.githubImported"), { n: slugs.length }), "success");
-    fetchWorks();
-    fetchRepoWorks();
-  };
-
-  /* 저장소 고르기 창을 연다 — 무엇을 들일지는 거기서 고른다.
-     이미 들인 것을 다시 고르면 내용을 덮어쓰므로 한 번 더 묻는다 */
-  const handleRepoImportAll = async () => {
-    if (ghImporting) return;
-    setGhImporting(true);
-    try {
-      /* 목록은 열 때마다 새로 묻는다 — 그 사이 저장소가 생겼을 수 있다 */
-      const fresh = await fetch("/api/works/showcase").then((r) => r.json()).catch(() => null);
-      const repos: ShowcaseRepo[] = Array.isArray(fresh?.works) ? fresh.works : [];
-      setRepoWorks(repos);
-      openModal(
-        <GithubImportModal
-          repos={repos}
-          login={typeof fresh?.login === "string" ? fresh.login : undefined}
-          onImport={(slugs, again) => {
-            if (again === 0) { void runRepoImport(slugs, false); return; }
-            openModal(
-              <ModalConfirm
-                desc={fillTemplate(t("admin.works.githubOverwriteConfirm"), { n: again })}
-                confirmText={t("admin.works.githubOverwrite")}
-                danger
-                onConfirm={() => { void runRepoImport(slugs, true); }}
-              />,
-              { id: "github-overwrite", header: { title: t("admin.works.githubOverwrite") }, closeButton: true, width: "420px" },
-            );
-          }}
-        />,
-        { id: "github-import", header: { title: t("admin.works.githubImportButton") }, closeButton: true, width: "min(92vw, 520px)" },
-      );
-    } finally {
-      setGhImporting(false);
-    }
-  };
-
-  /* 저장소는 작업물이 하나도 없을 때만 내려온다 — 목록이 바뀌면 같이 다시 묻는다 */
-  const fetchRepoWorks = useCallback(async () => {
-    try {
-      const res = await fetch("/api/works/showcase");
-      const data = await res.json();
-      setRepoWorks(Array.isArray(data?.works) ? data.works : []);
-    } catch {
-      setRepoWorks([]);
-    }
-  }, []);
-
   /* setTrashWorks 는 바뀌지 않는 값이지만 React Compiler 가 의존성으로 추론한다. 적지 않으면 추론과 달라
      이 화면의 최적화를 건너뛴다(preserve-manual-memoization) */
   const fetchTrash = useCallback(async () => {
@@ -391,57 +302,9 @@ export default function AdminWorksPage() {
   useEffect(() => {
     fetchWorks();
     fetchTrash();
-    fetchRepoWorks();
-  }, [fetchWorks, fetchTrash, fetchRepoWorks]);
+  }, [fetchWorks, fetchTrash]);
 
-  /* ── MD Upload ── */
   const { openModal } = useModalStore();
-  const mdInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [exporting, setExporting] = useState(false);
-
-  const createWorks = useCallback(async (items: Record<string, unknown>[]) => {
-    setUploading(true);
-    for (const body of items) {
-      if (!body.image) {
-        const url = await uploadRandomCover();
-        if (url) body.image = url;
-      }
-    }
-    /* 하나씩 차례로 — 서버가 지금 최댓값 + 1 로 순서를 매긴다. 만들지 못한 파일은 알림으로 알린다(#868) */
-    const created = await sendActions(
-      items.map((body) => ({ input: "/api/works", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } })),
-      t, t("admin.common.importFailed"), { sequential: true },
-    );
-    setUploading(false);
-    if (created > 0) fetchWorks();
-  }, [fetchWorks, t]);
-
-  const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const parsed: Record<string, unknown>[] = [];
-    for (const file of Array.from(files)) {
-      if (!file.name.endsWith(".md")) continue;
-      const raw = await file.text();
-      parsed.push(parseMdWork(raw, file.name));
-    }
-    if (mdInputRef.current) mdInputRef.current.value = "";
-    if (parsed.length === 0) return;
-    await createWorks(parsed);
-  }, [createWorks]);
-
-  const handleExportAll = useCallback(async () => {
-    setExporting(true);
-    try {
-      const res = await sendAction("/api/works/export?all=true", undefined, t, t("admin.common.exportFailed"));
-      if (!res) return;
-      const { files } = await res.json() as GithubImportResponse;
-      await downloadFiles(files);
-    } finally {
-      setExporting(false);
-    }
-  }, [t]);
 
   /* ── Filtered trash ──
      휴지통 목록은 본문 없이 받으므로 검색은 서버가 본문까지 거른 id 로 한다(useTrashSearchIds) */
@@ -663,7 +526,6 @@ export default function AdminWorksPage() {
       moveToTop: t("admin.common.moveToTop"),
       moveToBottom: t("admin.common.moveToBottom"),
       apply: t("admin.common.apply"),
-      exportItem: t("admin.works.exportMd"),
       noPermission: t("admin.works.noPermissionRow"),
     }),
     [t],
@@ -861,34 +723,7 @@ export default function AdminWorksPage() {
       afterTable={trashSection}
       headerExtra={
         <>
-          <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <HelpButton
-            title={t("admin.works.uploadGuide")}
-            aria-label={t("admin.works.uploadGuide")}
-            onClick={() => {
-              openModal(
-                <MarkdownUploadGuide />,
-                { header: { title: t("admin.works.uploadGuide") }, closeButton: true, width: "560px" },
-              );
-            }}
-          />
           <ButtonGroup>
-            {/* 저장소 불러오기 — 들일 게 없을 때도 눌러 볼 수 있어야 한다(새 저장소가 생겼는지 여기서 본다) */}
-            <Button
-              variant="outline"
-              title={t("admin.works.githubHint")}
-              onClick={handleRepoImportAll}
-              disabled={ghImporting}
-              soundDisabled
-              icon={<GithubIcon size={14} />}
-            >
-              {t("admin.works.githubImportButton")}
-              {/* 아직 안 들인 저장소가 있으면 개수를 붙인다 — 열어 보기 전에 새 게 있는지 알 수 있게 */}
-              {pendingRepos > 0 ? ` (${pendingRepos})` : ""}
-            </Button>
-            <Button variant="outline" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
-              {uploading ? "..." : t("admin.works.uploadMd")}
-            </Button>
             <Button variant="primary" title={t("admin.works.newWork")} href="/admin/works/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
               {t("admin.works.newWork")}
             </Button>
@@ -995,24 +830,6 @@ export default function AdminWorksPage() {
           if (trashOpen) await fetchTrash();
           setBusy(false);
         }}
-        onBulkExport={async (ids) => {
-          if (!guardWritable(worksByIds(ids))) return;
-          const failures: CodedError[] = [];
-          for (const id of ids) {
-            const res = await tryRequest(`/api/works/export?id=${id}`);
-            if (res instanceof CodedError) {
-              failures.push(res);
-              continue;
-            }
-            const text = await res.text();
-            const disposition = res.headers.get("Content-Disposition") ?? "";
-            const match = disposition.match(/filename="(.+)"/);
-            const fileName = match?.[1] ?? `${id}.md`;
-            downloadBlob(text, fileName);
-            await new Promise((r) => setTimeout(r, 100));
-          }
-          notifyFailures(failures, ids.length, t, t("admin.common.exportFailed"));
-        }}
         onBulkPublish={async (ids, published) => {
           if (!guardWritable(worksByIds(ids))) return;
           setBusy(true);
@@ -1085,11 +902,6 @@ export default function AdminWorksPage() {
         onRowClick={(w: Work, e) => { if (guardWritable([w])) handleRowClick(w, e); }}
         rowDisabled={(w: Work) => !canEdit(w)}
         onDenied={(w: Work) => openDeniedModal([w])}
-        footerExtra={
-          <Button variant="ghost" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
-            {exporting ? "..." : t("admin.works.exportMdAll")}
-          </Button>
-        }
       />
 
       {/* Hover / Tap preview tooltip — 처음 뜰 때만 새로 그리고, 행을 옮기면 내용만 바뀐다(usePreviewTooltip) */}

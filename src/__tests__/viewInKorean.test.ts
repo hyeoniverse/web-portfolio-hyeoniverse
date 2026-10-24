@@ -4,7 +4,7 @@ import { normalizeTranslationLang, TRANSLATION_LANGUAGES } from "@/lib/translati
 import { SITE_LANGUAGE_OPTIONS } from "@/lib/siteLanguage";
 import { sourceLangOf } from "@/lib/siteContent";
 import { listMetaSource } from "@/lib/api/siteTranslate";
-import { postSource, sourceHash, workSource } from "@/lib/api/contentTranslate";
+import { postSource, sourceHash } from "@/lib/api/contentTranslate";
 
 beforeEach(() => {
   localStorage.clear();
@@ -61,7 +61,7 @@ describe("기본 언어가 ko · en 밖일 때 한국어로 보기(#1497)", () =
 
     const ja = postSource({ title: "タイトル", content: "本文", source_lang: "ja" })!;
     expect([ja.lang, ja.from]).toEqual(["ko", "ja"]);
-    expect(workSource({ title: "作品", content_ko: "本文です。".repeat(20), source_lang: "ja" })?.from).toBe("ja");
+    expect(postSource({ title: "作品", content: "本文です。", source_lang: "ja" })?.from).toBe("ja");
     const plain = postSource({ title: "제목", content: "본문" })!;
     expect(plain.from).toBe("ko");
     expect(sourceHash(plain)).not.toBe(sourceHash({ ...plain, from: "ja" }));

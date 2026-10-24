@@ -31,25 +31,7 @@ const loc = (section: Section, key: string): LabelDef => {
 const common = (key: string) => loc("common", key);
 
 const DEFS = {
-  /* ── 정보 칸(본문 밖, 상세 화면 머리 · 정보 표 · 팀 · 갤러리 · AI 요약) ── */
-  /* 작업물 머리 — WorkArticleHeader */
-  workTeamCount: { ko: "팀 · {{n}}", en: "Team · {{n}}" },
-  workSolo: { ko: "개인", en: "Solo" },
-  workVisitSite: loc("workDetail", "visitSite"),
-  workVisitSiteTip: { ko: ko.tooltip.visitSite, en: en.tooltip.visitSite },
-  /* 작업물 정보 표 — WorkArticleInfoGrid */
-  workYear: { ko: "Year", en: "Year" },
-  workCategory: loc("workDetail", "category"),
-  workTech: loc("workDetail", "tech"),
-  workRole: loc("workDetail", "role"),
-  workRelatedPosts: { ko: "관련 글", en: "Related Posts" },
-  workRelatedSeries: { ko: "관련 시리즈", en: "Related Series" },
-  relatedMore: { ko: "더보기", en: "more" },
-  relatedLess: { ko: "접기", en: "Show less" },
-  /* 팀 — WorkArticleTeam */
-  workTeam: loc("workDetail", "team"),
-  workMemberLink: loc("workDetail", "memberLink"),
-  workMemberEmail: loc("workDetail", "memberEmail"),
+  /* ── 정보 칸(본문 밖, 갤러리 · AI 요약) ── */
   /* 갤러리 — WorkGallery */
   galleryLabel: { ko: "작업물 갤러리", en: "Work gallery" },
   galleryNarrationOff: { ko: "음성 끄기", en: "Turn off narration" },

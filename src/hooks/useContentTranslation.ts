@@ -15,7 +15,7 @@ import type { BodyLabels } from "@/lib/bodyLabels";
 export type ContentTranslateError = "failed" | "rateLimited";
 
 /**
- * 글·작업물 상세의 "다른 언어로 읽기" — ko · en 이 아닌 언어(lib/translationLanguages)로 번역해 보여 준다.
+ * 글 상세의 "다른 언어로 읽기" — ko · en 이 아닌 언어(lib/translationLanguages)로 번역해 보여 준다.
  *
  * 언어는 사이트 전체가 나눠 쓰는 하나의 상태(lib/siteLang)다 — 내비게이션의 🌐 메뉴에서 고른 언어가 여기에도,
  * 상세 헤더의 메뉴에서 고른 언어가 목록 · 화면 글에도 걸린다. targetLang 이 null 이면 지금처럼 KO/EN(viewLang)으로 본다.
@@ -26,7 +26,7 @@ export type ContentTranslateError = "failed" | "rateLimited";
  *   번역할 본문이 없는 글(404)은 이 글만 원문으로 둔다 — 사이트의 언어는 그대로.
  * 상세 화면은 ISR 이라 언어 판단은 브라우저에서만 한다(마운트 뒤).
  */
-export function useContentTranslation({ type, id, enabled }: { type: "post" | "work"; id: string; enabled: boolean }) {
+export function useContentTranslation({ type, id, enabled }: { type: "post"; id: string; enabled: boolean }) {
   /* 서버 · 하이드레이션 때는 null(원문), 그 뒤 브라우저 값 — 사이트 전체의 언어 */
   const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
   /* 번역할 본문이 없다고 서버가 답한 언어 — 이 글만 원문으로 */

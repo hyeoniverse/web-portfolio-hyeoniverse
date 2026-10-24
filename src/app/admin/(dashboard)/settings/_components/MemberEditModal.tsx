@@ -80,7 +80,7 @@ export default function MemberEditModal({
 
   const set = (p: Partial<Author>) => setDraft((d) => ({ ...d, ...p }));
   /* 프로필 글(이름·직무·지역·소개)을 어느 언어로 적는지 — 기본 필드가 한국어, *_en 이 영어.
-     영어 칸이 비어 있으면 영어 화면과 작업물 팀원 연결에서 한국어 값을 대신 쓴다(localizeAuthor) */
+     영어 칸이 비어 있으면 영어 화면에서 한국어 값을 대신 쓴다(localizeAuthor) */
   const [profileLang, setProfileLang] = useState<"ko" | "en">("ko");
   const en = profileLang === "en";
   const jobValue = (en ? draft.role_en ?? "" : draft.role).trim();

@@ -29,7 +29,7 @@ export interface BilingualInputPairProps {
 
 /**
  * KO / EN 배지가 input 좌측 안쪽에 박힌 bilingual input 쌍.
- * TagNotesEditor / WorkEditor 팀원 이름 등에서 공용 사용.
+ * TagNotesEditor 등에서 공용 사용.
  */
 export default function BilingualInputPair({
   value,

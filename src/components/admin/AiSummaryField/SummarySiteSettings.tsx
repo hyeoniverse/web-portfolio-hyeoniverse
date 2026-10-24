@@ -13,7 +13,7 @@ import { DEFAULT_SUMMARY_GUIDE, SUMMARY_GUIDE_MAX } from "@/lib/ai/summaryGuide"
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./AiSummaryField.module.css";
 
-type Target = { kind: "posts" | "works"; id: string; title: string };
+type Target = { kind: "posts"; id: string; title: string };
 
 /** 작성 지침 — 비우면 기본값. 저장 전에 글 하나로 미리 만들어 본다 */
 export function SummaryGuideEditor({ value, onChange, options }: {
@@ -31,18 +31,14 @@ export function SummaryGuideEditor({ value, onChange, options }: {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ko: string; en: string } | null>(null);
 
-  /* 미리보기 대상 — 최근 글 · 작업물 몇 개(관리자 목록 API) */
+  /* 미리보기 대상 — 최근 글 몇 개(관리자 목록 API). 작업물은 랜딩으로 바뀌어 본문 요약을 만들지 않는다 */
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [posts, works] = await Promise.all([
-        fetch("/api/posts?all=true&limit=15").then((r) => (r.ok ? r.json() : null)).catch(() => null) as Promise<{ posts?: { id: string; title: string }[] } | null>,
-        fetch("/api/works?all=true&limit=15").then((r) => (r.ok ? r.json() : null)).catch(() => null) as Promise<{ works?: { id: string; title: string }[] } | null>,
-      ]);
+      const posts = await (fetch("/api/posts?all=true&limit=15").then((r) => (r.ok ? r.json() : null)).catch(() => null) as Promise<{ posts?: { id: string; title: string }[] } | null>);
       if (!alive) return;
       const list: Target[] = [
         ...(posts?.posts ?? []).map((p) => ({ kind: "posts" as const, id: p.id, title: p.title })),
-        ...(works?.works ?? []).map((w) => ({ kind: "works" as const, id: w.id, title: w.title })),
       ];
       setTargets(list);
       setTarget((cur) => cur || (list[0] ? `${list[0].kind}/${list[0].id}` : ""));
