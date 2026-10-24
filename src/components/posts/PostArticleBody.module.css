@@ -228,6 +228,31 @@
   text-decoration: underline;
 }
 
+/* 번호를 감싼 링크(components/posts/footnotes) — 색 · 밑줄은 위 sup 규칙을 따른다 */
+.prose sup[data-footnote-ref] > a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* 각주 끝의 돌아가기 ↩ */
+.prose :global(a[data-footnote-backref]) {
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+/* 각주 · 본문 번호로 옮겨 왔을 때 잠깐 강조 — 어디로 왔는지 보이게 */
+.prose :global([data-footnote-flash]) {
+  animation: footnoteFlash calc(var(--duration-slower) * 2) var(--ease-standard);
+}
+
+@keyframes footnoteFlash {
+  from { background: color-mix(in oklch, var(--text-accent) 18%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose :global([data-footnote-flash]) { animation: none; }
+}
+
 
 /* 각주 목록 — 번호는 data-footnote-content 값으로 앞에 그린다(예전엔 번호가 없어 본문의 [n] 과 짝을 찾을 수 없었다) */
 .prose div[data-footnote-content] {
