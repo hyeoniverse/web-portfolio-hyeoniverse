@@ -1,12 +1,10 @@
 "use client";
 
-import { Suspense, useMemo, useEffect, useRef, useState, useCallback } from "react";
-import { Canvas } from "@react-three/fiber";
-import { ReadySignal, ReadyWait } from "@/lib/readyGate";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { ReadyWait } from "@/lib/readyGate";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { createSafeRenderer } from "@/utils/three";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -16,7 +14,8 @@ import BunnyStardust from "./BunnyStardust";
 import BunnyHearts from "./BunnyHearts";
 import { useSoundManager } from "@/hooks/useSoundManager";
 
-const FloatingScene = dynamic(() => import("./FloatingScene"), { ssr: false });
+/* 3D 캔버스(three · @react-three/fiber)는 따로 받는다 — 첫 로드에 three 가 실리지 않게. 준비 자리(ReadyWait "mascot")는 아래 오버레이에 늘 있다 */
+const FloatingCanvas = dynamic(() => import("./FloatingCanvas"), { ssr: false });
 
 /** 한 글자 찍는 간격(ms).
     useSoundManager 는 타이핑 소리를 50ms 안에 겹치면 버린다 — 그보다 조금 길게 잡아야
@@ -116,16 +115,6 @@ export default function FloatingObject() {
       lenis.off("scroll", onScroll);
     };
   }, [lenis]);
-
-  const cameraConfig = useMemo(
-    () => ({
-      position: [0, 0, 8] as [number, number, number],
-      fov: 50,
-      near: 0.1,
-      far: 100,
-    }),
-    []
-  );
 
   // Bubble text fade transition on section change
   useEffect(() => {
@@ -282,33 +271,18 @@ export default function FloatingObject() {
       <ReadyWait id="mascot" step={0.5} />
       {/* 캔버스보다 앞에 둬서 몽이 뒤에 깔린다 — 별가루가 캐릭터를 덮으면 안 된다. */}
       <BunnyStardust screenPosRef={screenPosRef} />
-      <Canvas
-        camera={cameraConfig}
+      <FloatingCanvas
         dpr={dpr}
-        gl={(d) =>
-          createSafeRenderer(d, {
-            alpha: true,
-            antialias: !isTouch,
-            powerPreference: "high-performance",
-          })
-        }
-        style={{ background: "transparent" }}
-        frameloop="always"
-      >
-        <Suspense fallback={null}>
-          <FloatingScene
-            theme={theme}
-            isMobile={isMobile}
-            mouseNDC={mouseNDC}
-            pointerActive={pointerActive}
-            screenPosRef={screenPosRef}
-            smileRef={smileRef}
-            pettingRef={pettingRef}
-            scrollVelRef={scrollVelRef}
-          />
-          <ReadySignal id="mascot" />
-        </Suspense>
-      </Canvas>
+        antialias={!isTouch}
+        theme={theme}
+        isMobile={isMobile}
+        mouseNDC={mouseNDC}
+        pointerActive={pointerActive}
+        screenPosRef={screenPosRef}
+        smileRef={smileRef}
+        pettingRef={pettingRef}
+        scrollVelRef={scrollVelRef}
+      />
       {/* 하트는 캔버스 다음에 둔다 — 별가루와 반대로 몽이 위에 떠야 한다.
           캔버스 앞에 두면 캔버스가 그대로 덮어 하나도 안 보인다. */}
       <BunnyHearts screenPosRef={screenPosRef} pettingRef={pettingRef} />

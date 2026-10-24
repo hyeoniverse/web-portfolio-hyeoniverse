@@ -15,21 +15,12 @@
    공장에 넘긴 옵션의 table: "x" 를 테이블로 센다(공장 안에서는 .from(table) 이라 이름이 안 보인다).
 
    TypeScript 파서로 읽는다 — 정규식으로는 중첩 함수 · 구조 분해 내보내기를 가를 수 없다. 이 파일은 빌드 스크립트와
-   테스트만 불러온다(화면은 생성 파일만 읽고, 여기서는 타입만 가져간다). */
+   테스트만 불러온다 — 화면은 생성 파일과 apiMapShape 만 읽는다(여기를 import 하면 typescript 가 번들에 실린다). */
 import ts from "typescript";
 
-export const ACCESS_LEVELS = ["public", "signed-in", "author", "admin", "owner", "cron"] as const;
-export type ApiAccess = (typeof ACCESS_LEVELS)[number];
+import { ACCESS_LEVELS, SERVICES, type ApiAccess, type ApiGroup, type ApiMap, type ApiService } from "./apiMapShape";
 
-/** 외부 서비스 — 짧게. 무엇으로 알아보는지는 SERVICE_RULES */
-const SERVICES = ["ai", "translate", "tts", "storage", "mail", "github", "photos", "weather", "fonts"] as const;
-type ApiService = (typeof SERVICES)[number];
-
-interface ApiEndpoint {
-  method: string;
-  path: string;
-  access: ApiAccess;
-}
+export type { ApiAccess, ApiMap } from "./apiMapShape";
 
 interface ApiRoute {
   path: string;
@@ -38,30 +29,6 @@ interface ApiRoute {
   tables: string[];
   rpcs: string[];
   services: ApiService[];
-}
-
-export interface ApiGroup {
-  /** 묶음 이름 — 첫 경로 조각(admin 은 둘째 조각까지). 작은 묶음을 접은 것은 MISC_KEY · ADMIN_MISC_KEY */
-  key: string;
-  /** 이 묶음의 route.ts 수 */
-  files: number;
-  /** 접힌 묶음이면 원래 묶음 이름들 */
-  folded?: string[];
-  endpoints: ApiEndpoint[];
-  tables: string[];
-  rpcs: string[];
-  services: ApiService[];
-  access: Record<ApiAccess, number>;
-}
-
-export interface ApiMap {
-  total: number;
-  routeFiles: number;
-  access: Record<ApiAccess, number>;
-  tables: string[];
-  rpcs: string[];
-  services: ApiService[];
-  groups: ApiGroup[];
 }
 
 const METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);

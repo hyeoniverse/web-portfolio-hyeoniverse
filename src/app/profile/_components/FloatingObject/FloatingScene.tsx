@@ -39,7 +39,7 @@ import BunnyFur from "./BunnyFur";
 
 /* ── Component ── */
 
-interface FloatingSceneProps {
+export interface FloatingSceneProps {
   theme: "dark" | "light";
   isMobile: boolean;
   mouseNDC: React.RefObject<{ x: number; y: number }>;

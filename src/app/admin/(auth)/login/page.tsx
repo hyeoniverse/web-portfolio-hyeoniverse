@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SiGithub } from "react-icons/si";
+import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { createClient } from "@/lib/supabase/client";
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
         </div>
         <Button type="button" variant="outline" fullWidth onClick={handleGithub} soundDisabled>
           <span className={styles.oauthBtnInner}>
-            <SiGithub size={16} />
+            <GithubIcon size={16} />
             {t("admin.inline.loginPage.signInWithGithub")}
           </span>
         </Button>

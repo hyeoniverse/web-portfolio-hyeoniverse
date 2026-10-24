@@ -18,7 +18,7 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
+import { logoOnBg, resolveBrandLogos, knownLogoAspect } from "@/lib/brandLogos";
 import ThemedLogoImage from "@/components/common/ThemedLogoImage";
 import { useNavBackdropTone } from "@/hooks/useNavBackdropTone";
 import { NAV_BACKDROP_EVENT } from "@/lib/navBackdrop";
@@ -225,8 +225,8 @@ export default function Navigation() {
   };
   // 리컬러 색 → 테마 색 → 원본 순으로 칠한다(ThemedLogoImage). 그림자는 공통 적용.
   const logoImgClasses = { image: styles.logoImage, invert: styles.logoImageInvert, tinted: styles.logoImageTinted };
-  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark") => (
-    <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} />
+  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark", eager = false) => (
+    <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} eager={eager} />
   );
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -513,6 +513,11 @@ export default function Navigation() {
   }, [section.badge]);
 
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
+  /* 이미지 워드마크도 비율을 알면(기본 자산) 글자 로고처럼 서버 HTML 부터 CSS 로 한가운데에 키워 둔다.
+     재기 전까지 숨기면 하이드레이션이 끝나야 워드마크가 보여 그 시각이 LCP 가 됐다(느린 4G · CPU 4배에서 5~8초).
+     리컬러(tint)는 마스크로 그려 크기가 같으니 그대로 쓴다 */
+  const wordmarkAspect = showLoadingLogo && hasImageLogo && hasDistinctLoadingLogo ? knownLogoAspect(loadingLogoUrl) : null;
+  const cssLoadingImage = wordmarkAspect != null;
   /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
      그 뒤 다시 그릴 때 framer 가 옛 값(0)으로 한 프레임 네비게이션 자리를 그리지 않는다. */
   const logoX = useMotionValue(0);
@@ -526,7 +531,11 @@ export default function Navigation() {
   const { logoMeasured } = useLogoMeasure(
     logoRef,
     { showLoadingLogo, isLoading, isTransitioning },
-    { cssLoadingClass: cssLoadingLogo ? styles.logoCssLoading : undefined, stretch: stretchN, motion: logoMotion },
+    {
+      cssLoadingClass: cssLoadingLogo ? styles.logoCssLoading : cssLoadingImage ? styles.logoCssLoadingImage : undefined,
+      stretch: stretchN,
+      motion: logoMotion,
+    },
   );
 
   // 사운드 상태
@@ -611,17 +620,18 @@ export default function Navigation() {
           const color = customColor || (!logoDifferenceOn ? "var(--text-primary)" : "");
           const inlineStyle: React.CSSProperties = {
             transformOrigin: "left center",
-            /* 글자 로고는 재기 전에도 CSS 로딩 클래스로 제자리(한가운데)에 있으니 숨기지 않는다. */
-            visibility: showLoadingLogo && !logoMeasured && !cssLoadingLogo ? "hidden" : "visible",
+            /* 글자 로고 · 비율을 아는 이미지 워드마크는 재기 전에도 CSS 로딩 클래스로 제자리(한가운데)에 있으니 숨기지 않는다. */
+            visibility: showLoadingLogo && !logoMeasured && !cssLoadingLogo && !cssLoadingImage ? "hidden" : "visible",
             ["--logo-stretch" as string]: stretchN,
             ["--logo-chars" as string]: 1 + EXTRA_LETTERS.length,
+            ...(wordmarkAspect != null ? { ["--wm-aspect" as string]: wordmarkAspect } : {}),
           };
           if (siteConfig.brand.logoFont) inlineStyle.fontFamily = withMetricFallback(siteConfig.brand.logoFont);
           if (color) inlineStyle.color = color;
           return (
             <motion.span
               ref={logoRef}
-              className={`${styles.logo} ${cssLoadingLogo && !logoMeasured ? styles.logoCssLoading : ""}`}
+              className={`${styles.logo} ${cssLoadingLogo && !logoMeasured ? styles.logoCssLoading : ""} ${cssLoadingImage && !logoMeasured ? styles.logoCssLoadingImage : ""}`}
               /* transform 은 useLogoMeasure 가 motion value 로 직접 움직인다(animate prop 을 쓰지 않는 이유는 그쪽 설명). */
               style={{ ...inlineStyle, x: logoX, y: logoY, scaleX: logoScaleX, scaleY: logoScaleY }}
             >
@@ -630,11 +640,13 @@ export default function Navigation() {
               {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
               {showLoadingLogo && hasDistinctLoadingLogo && (
                 <motion.span
-                  className={`${styles.logoImageWrap} ${styles.logoLoadingWrap}`}
+                  className={`${styles.logoImageWrap} ${styles.logoLoadingWrap} ${cssLoadingImage ? styles.wordmarkIntro : ""}`}
+                  /* CSS 로 그릴 때는 등장도 CSS 가 서버 HTML 부터 돌린다(.wordmarkIntro) — framer 는 퇴장만 맡는다 */
+                  data-intro={cssLoadingImage ? (siteConfig.brand.loadingAnimation ?? "fade") : undefined}
                   /* useLoadingProgress 가 이 마커로 워드마크 등장을 기다린다 — 없으면 이미지 로고는
                      인트로가 최소 대기(300ms)만에 끝나 페이드가 끝나기도 전에 전환돼 버린다 */
                   data-loading-wordmark
-                  initial={loadingIntro.initial}
+                  initial={cssLoadingImage ? false : loadingIntro.initial}
                   animate={
                     isTransitioning
                       ? { ...loadingIntro.visible, opacity: 0, filter: "blur(6px)" }
@@ -648,7 +660,7 @@ export default function Navigation() {
                     clipPath: { duration: 0.8, delay: 0.15, ease: SUB_EASE },
                   }}
                 >
-                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert, "dark")}
+                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert, "dark", true)}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}

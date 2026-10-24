@@ -1,5 +1,20 @@
 import type { TocHeading } from "@/types";
-import { slugify } from "@/components/posts/MarkdownRenderer";
+
+/** 제목 → id 조각. 마크다운 렌더러와 richtext 처리(addIdsToHtml)가 같이 쓴다.
+ *  여기 둔다 — MarkdownRenderer 에서 가져오면 marked · katex 가 richtext 글 · TIL 첫 로드까지 따라온다 */
+export function slugify(text: string): string {
+  /* 태그는 더 지울 것이 없을 때까지 지운다 — 한 번만 지우면 "<scr<script>ipt>" 처럼 겹친 조각이 다시 태그가 된다.
+     아래 단계가 어차피 기호를 "-" 로 바꾸지만 여기서 끊는다(CodeQL js/incomplete-multi-character-sanitization) */
+  let plain = text;
+  for (let prev = ""; prev !== plain; ) {
+    prev = plain;
+    plain = plain.replace(/<[^>]*>/g, "");
+  }
+  return plain
+    .toLowerCase()
+    .replace(/[^\w가-힣]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 /** 같은 문서 안에서 같은 이름의 제목("결정" 등)이 여러 번 나오면 id 가 겹쳐 목차가 항상 첫 번째로 간다.
  *  두 번째부터 -2, -3 을 붙인다. id 를 다는 쪽(addIdsToHtml · 마크다운 렌더러)과 목차를 뽑는 쪽이

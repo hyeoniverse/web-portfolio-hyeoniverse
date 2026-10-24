@@ -27,8 +27,6 @@ vi.mock("@studio-freight/lenis", () => ({
     destroy() {}
   },
 }));
-vi.mock("gsap", () => ({ default: { registerPlugin() {}, ticker: { add() {}, remove() {}, lagSmoothing() {} } } }));
-vi.mock("gsap/ScrollTrigger", () => ({ ScrollTrigger: { update() {}, scrollerProxy() {}, refresh() {}, getAll: () => [] } }));
 
 let root: Root | null = null;
 afterEach(() => {

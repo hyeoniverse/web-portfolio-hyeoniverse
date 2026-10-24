@@ -7,6 +7,18 @@ export const DEFAULT_LOGO_SHORT_DARK = "/images/logo/mark-light/tight.png";
 export const DEFAULT_LOGO_FULL = "/images/logo/wordmark-dark.svg";
 export const DEFAULT_LOGO_FULL_DARK = "/images/logo/wordmark-light.svg";
 
+/* 저장소에 둔 기본 워드마크의 가로세로비(svg viewBox 1861 × 266). 로딩 워드마크를 하이드레이션 전에 CSS 로
+   한가운데에 키워 둘 때 쓴다 — 업로드 로고는 비율을 몰라 자바스크립트가 잴 때까지 숨긴다(Navigation) */
+const KNOWN_LOGO_ASPECT: Record<string, number> = {
+  [DEFAULT_LOGO_FULL]: 1861 / 266,
+  [DEFAULT_LOGO_FULL_DARK]: 1861 / 266,
+};
+
+/** 로고 주소의 가로세로비 — 기본 자산만 안다. 모르면 null */
+export function knownLogoAspect(url: string): number | null {
+  return KNOWN_LOGO_ASPECT[url] ?? null;
+}
+
 type BrandLogoFields = {
   logoShortUrl?: string;
   logoShortDarkUrl?: string;

@@ -16,7 +16,8 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { errorText } from "@/lib/apiError";
 import type { ProfileData } from "@/types/profile";
-import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
+import { PINNED_REPO_LIMIT } from "@/lib/githubRepoKey";
+import type { GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
 import RepoPickerList from "./RepoPickerList";
 

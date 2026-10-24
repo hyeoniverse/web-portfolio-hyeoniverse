@@ -9,14 +9,8 @@ import { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode } from ".
 import { highlightCode } from "@/utils/prismHighlight";
 import { useBodyLabels } from "./BodyLabelsContext";
 import { attachImageFallback } from "@/lib/imageFallback";
+import { slugify } from "@/utils/headingUtils";
 
-export function slugify(text: string): string {
-  return text
-    .replace(/<[^>]*>/g, "")
-    .toLowerCase()
-    .replace(/[^\w가-힣]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 marked.use(
   markedFootnote({ keepLabels: true }),

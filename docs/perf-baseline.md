@@ -10,7 +10,7 @@
 
 | 하려는 일 | 볼 곳 |
 | --- | --- |
-| 번들이 커졌는지/작아졌는지 확인 | [라우트별 First Load JS](#라우트별-first-load-js) · [Phase 2 진행 결과](#phase-2-진행-결과) |
+| 번들이 커졌는지/작아졌는지 확인 | [라우트별 First Load JS](#라우트별-first-load-js) · [Phase 2 진행 결과](#phase-2-진행-결과) · [2026-10 재측정](#2026-10-라우트별-재측정) |
 | "이 정도면 큰 건가?" 판단 | [이 프로젝트에서 "적당한 크기"란](#이-프로젝트에서-적당한-크기란) |
 | 다음에 뭘 줄일지 고르기 | [공통 shell 의 구성](#착수-시점-공통-shell-380-kb-의-구성) · [Phase 2 타깃](#phase-2-타깃-gzip-절감-순) |
 | 화면이 깨졌는지 검사 | [testing.md](testing.md#e2e-playwright) |
@@ -231,6 +231,82 @@ npx next build --experimental-analyze
 // 각 라우트에서 실행 — 번역 누락 시 getNestedValue 가 키를 그대로 반환한다
 document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
 ```
+
+## 2026-10 라우트별 재측정
+
+| | |
+| --- | --- |
+| 측정일 | 2026-10-24 |
+| 기준 커밋 | `50e6fcab` (master, #1584 머지 직후) |
+| 명령 | `npx next build --experimental-analyze` — gzip 계산은 위와 같다 |
+| 환경 | Next.js 16.4.2 (Turbopack), Node 26.12.0, darwin |
+
+공통 shell 은 **350 kB** 다(Phase 2 끝 318 kB 에서 늘었다 — 아래 '남은 것'). 라우트마다 그 라우트만의 묶음에서
+큰 것을 소스맵으로 나눠 보니, 대부분이 **상수 하나 · 함수 하나를 가져오려고 큰 모듈을 통째로 import** 한 것이었다.
+
+| 라우트 | 원인 | 고친 방법 |
+| --- | --- | --- |
+| `/about` | `SceneApi` 가 `ACCESS_LEVELS` 를 `lib/about/apiMap` 에서 가져왔는데 그 파일이 `typescript`(파서) 를 import — **컴파일러 1 MB** | 상수 · 타입을 `apiMapShape.ts` 로 |
+| `/works` | 원통 배치가 각도 상수를 `cylinder/scene.ts` 에서 가져왔는데 그 파일이 `three` 를 import(3D 캔버스는 이미 따로 받는데도) | three 를 쓰는 곡면 지오메트리만 `curvedPlane.ts` 로 |
+| `/profile` | 마스코트 캔버스(`three` · `@react-three/fiber`)를 바로 import / `PINNED_REPO_LIMIT` 하나 때문에 서버 전용 `githubShowcase`(Supabase 관리자 · 비밀값)가 번들에 / GitHub 로고 하나에 `react-icons/si` | 캔버스는 `FloatingCanvas` 로 떼어 `ssr: false` · 상수는 `githubRepoKey.ts` · 로고는 `GithubIcon` |
+| 글 상세 · TIL | `headingUtils` 가 `slugify` 를 `MarkdownRenderer` 에서 가져와 richtext 글에도 `marked` · `katex` 가 실렸다 | `slugify` 를 `headingUtils` 로, `MarkdownRenderer` 는 markdown 글일 때만(dynamic) |
+| 글 상세 · `/privacy` · 작업물 상세 | `DetailLayout` 이 `EmojiIcon` 을 `EmojiPicker` 묶음(index)에서 가져와 이모지 사전(`@emoji-mart/data`)까지 / 댓글 툴바가 고르기 창을 바로 import | `EmojiIcon` 파일에서 직접 · 고르기 창은 처음 열 때 |
+| `/admin/settings` · `/admin/login` | 서비스 탭이 `lib/ai/models`(서버) 에서 기본값을 / 로그인이 `react-icons/si` | `modelDefaults.ts` · `GithubIcon` |
+| 모든 페이지(공통 shell) | `LenisProvider` 가 부드러운 스크롤을 gsap ticker 로 돌리고 ScrollTrigger 를 맞추느라 gsap(43 kB)을 import. `scrollerProxy(document.body)` 는 아무 트리거도 `scroller` 를 지정하지 않아 쓰이지 않았다 | Lenis 는 `requestAnimationFrame` 으로, ScrollTrigger 동기화는 쓰는 화면(홈 · 작업물)에서 `hooks/useScrollTriggerLenis` 로 |
+
+공통 shell **350 → 307 kB**(−43). 아래는 라우트 전체(shell 포함).
+
+| 라우트 | 전 (kB) | 후 (kB) | Δ |
+| --- | ---: | ---: | ---: |
+| /about | 1594 | 590 | −1004 |
+| /profile | 776 | 397 | −379 |
+| /posts/[slug] | 700 | 397 | −303 |
+| /admin/posts/preview | 665 | 362 | −304 |
+| /privacy | 533 | 350 | −184 |
+| /works/[slug] | 521 | 338 | −183 |
+| /posts/til | 516 | 352 | −164 |
+| /admin/login | 485 | 378 | −106 |
+| /works | 475 | 378 | −97 |
+| 그 밖의 모든 라우트 | | | −43 (shell) |
+
+### 실제 로딩(느린 4G · CPU 4배 느리게, 3회 중앙값)
+
+Lighthouse 와 같은 조건(RTT 150ms · 1.6 Mbps · CPU ×4)을 Playwright Chromium 에 걸어 `next start` 두 벌(master / 이 작업)을 비교했다.
+
+| 라우트 | LCP 전 → 후 | TBT 전 → 후 | 받은 JS 전 → 후 |
+| --- | --- | --- | --- |
+| / | 5.4s → **1.5s** | 1438 → 1145ms | 1074 → 1274 kB |
+| /works | 5.1s → **3.2s** | 410 → 445ms | 1303 → 1267 kB |
+| /works/hyeoniverse | 8.3s → **1.5s** | 15 → 12ms | 940 → 882 kB |
+| 글 상세 | 9.3s → **2.8s** | 848 → 816ms | 1964 → 1733 kB |
+| /about | 12.3s → **4.3s** | 291 → 92ms | 2457 → 1046 kB |
+| /privacy | 6.2s → **1.6s** | 63 → 45ms | 1269 → 998 kB |
+| /profile | 8.9s → 7.0s | 520 → 735ms | 1109 → 1224 kB |
+| /posts | 9.8s → 9.6s | 187 → 254ms | 936 → 713 kB |
+
+**LCP 가 늦던 가장 큰 이유는 JS 가 아니라 로딩 화면의 워드마크였다.** 이미지 워드마크는 비율을 CSS 로 낼 수 없다며 자바스크립트가 잴 때까지
+숨겼고(`visibility: hidden`), 그다음 framer 가 투명에서 나타나게 했다. 그래서 하이드레이션이 끝나야 LCP 가 찍혔다.
+기본 워드마크는 비율(1861 × 266)을 알므로 글자 로고처럼 서버 HTML 부터 CSS(`.logoCssLoadingImage`)로 한가운데에 키워 두고,
+등장도 CSS 로 흐릿함에서 선명해지게 했다(투명에서 시작하지 않는다). 그림은 `loading="eager"` · `fetchPriority="high"` 로 받는다 —
+기본(lazy)이면 작업물 상세의 첫 장면 그림들에 밀려 5초 넘게 걸렸다. 업로드 로고는 비율을 몰라 예전처럼 잰 뒤에 보인다.
+`/privacy` 는 본문이 framer 로 투명에서 나타나 하이드레이션을 기다렸다 — 머리글은 CSS 애니메이션으로, 섹션은 첫 화면 아래 것만 숨겼다가 보이게 바꿨다.
+
+- 홈의 받은 JS 가 늘어 보이는 건 측정 창(로드 + 6초) 안에 다음 화면 미리 받기가 더 들어오기 때문이다(첫 로드 묶음은 −43 kB).
+- `/profile` 의 TBT · 받은 JS 는 마스코트 캔버스를 늦게 받으며 측정 창 안에 들어온 몫이다. LCP 는 "about me" 워터마크인데,
+  헤드라인 웹폰트가 바뀌어 다시 그려지는 시각(약 7초)이 잡힌다 — 이 페이지는 폰트 파일을 25개 넘게 받는다.
+- `/posts` 는 배너 슬라이드가 자동으로 넘어가며 다음 그림이 새 LCP 로 잡혀 측정마다 2.8 ~ 9.6초로 흔들린다.
+
+### 다시 새지 않게
+
+`src/__tests__/clientImportBoundary.test.ts` — `"use client"` 파일에서 값 import 를 따라가다 `typescript` 나 서버 전용
+모듈(`lib/supabase/admin` · `lib/getSecret`)에 닿으면 실패한다. 위 원인 중 세 건(apiMap · githubShowcase · ai/models)을 잡는다.
+
+### 남은 것
+
+- 공통 shell 의 `culori`(15 kB) — 테마 색 계산(`themeColors` · `BarColorSync`)
+- `/about` 의 화면 코드(`src/app/about/_components` 107 kB) · 생성 데이터(44 kB) — 장면별로 나눠 받을 수 있다
+- `/profile` 의 폰트 — 첫 화면에 쓰지 않는 폰트까지 받는다
+- 관리자 편집기(820 kB 안팎)
 
 ## 화면 안전망
 

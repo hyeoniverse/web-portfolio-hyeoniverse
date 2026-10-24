@@ -10,7 +10,8 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { useLenis } from "@/providers/LenisProvider";
-import { repoKey, type GithubRepoCard } from "@/lib/githubShowcase";
+import { repoKey } from "@/lib/githubRepoKey";
+import type { GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
 
 /**

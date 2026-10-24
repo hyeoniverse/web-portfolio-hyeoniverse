@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import dynamic from "next/dynamic";
 import {
   Heading,
   Bold,
@@ -31,10 +32,12 @@ import { errorText } from "@/lib/apiError";
 import { COMMENT_IMAGE_TYPES, resolveCommentImageMaxMb } from "@/lib/commentImages";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
-import EmojiPicker from "@/components/ui/EmojiPicker";
 import ColorPicker from "@/components/ui/ColorPicker";
 import CommentPostLinkPicker from "./CommentPostLinkPicker";
 import styles from "./CommentEditor.module.css";
+
+/* 이모지 고르기 창은 처음 열 때 받는다 — 이모지 사전(@emoji-mart/data, gzip 90 kB)을 끌고 와서 글 상세의 첫 로드가 무거워졌다 */
+const EmojiPicker = dynamic(() => import("@/components/ui/EmojiPicker"), { ssr: false });
 
 /* 댓글 에디터용 경량 마크다운 툴바.
    - 공통 Textarea(maxHint → contentEditable)를 건드리지 않고, 에디터 컨테이너 안의
@@ -114,6 +117,8 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
 
   // 이모지 픽커(사이트 공통) / 색상 픽커(사이트 공통) — 둘 다 커서 자리에 삽입
   const [emojiOpen, setEmojiOpen] = useState(false);
+  /* 한 번 연 뒤로는 그대로 둔다 — 닫는 연출이 끊기지 않게 */
+  const [emojiMounted, setEmojiMounted] = useState(false);
   const emojiAnchorRef = useRef<HTMLSpanElement>(null);
   // 색상 — 공통 ColorPicker. 픽커가 닫히는 순간 이번에 고른 최종 색을 `#hex` 인라인 코드로 1회 삽입.
   const [colorVal, setColorVal] = useState("#0969da");
@@ -351,7 +356,7 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
               shape="circle"
               icon={<Smile size={14} />}
               onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
-              onClick={() => setEmojiOpen((o) => !o)}
+              onClick={() => { setEmojiMounted(true); setEmojiOpen((o) => !o); }}
               aria-label={ko ? "이모지" : "Emoji"}
             />
           </span>
@@ -407,7 +412,7 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
           if (file) void uploadImage(file);
         }}
       />
-      <EmojiPicker
+      {emojiMounted && <EmojiPicker
         open={emojiOpen}
         onClose={() => setEmojiOpen(false)}
         onSelect={(v) => {
@@ -415,7 +420,7 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
           setEmojiOpen(false);
         }}
         getAnchorRect={() => emojiAnchorRef.current?.getBoundingClientRect() ?? null}
-      />
+      />}
     </div>
   );
 }

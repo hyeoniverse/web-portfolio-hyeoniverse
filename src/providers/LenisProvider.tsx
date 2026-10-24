@@ -12,8 +12,6 @@ import {
   type ReactNode,
 } from "react";
 import Lenis from "@studio-freight/lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 interface LenisControls {
   scrollTo: (target: string | number | HTMLElement, options?: ScrollToOptions) => void;
@@ -71,8 +69,6 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const listenersRef = useRef(new Set<() => void>());
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
     // Lenis 초기화
     const lenisInstance = new Lenis({
       duration: options.duration ?? 1.2,
@@ -94,38 +90,13 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     // 구독한 소비자만 다시 그린다. context 값은 그대로라 하이드레이션 전 경계에 닿지 않는다(#911·#929)
     listenersRef.current.forEach((notify) => notify());
 
-    // Lenis 스크롤과 GSAP ScrollTrigger 동기화
-    lenisInstance.on("scroll", ScrollTrigger.update);
-
-    // 일관된 RAF 루프를 위해 GSAP ticker 사용
-    gsap.ticker.add((time) => {
-      lenisInstance.raf(time * 1000);
-    });
-
-    // 더 부드러운 애니메이션을 위해 lag smoothing 비활성화
-    gsap.ticker.lagSmoothing(0);
-
-    // Lenis용 ScrollTrigger 스크롤러 프록시 설정
-    ScrollTrigger.scrollerProxy(document.body, {
-      scrollTop(value) {
-        if (arguments.length && value !== undefined) {
-          lenisInstance.scrollTo(value, { immediate: true });
-        }
-        return lenisInstance.scroll;
-      },
-      getBoundingClientRect() {
-        return {
-          top: 0,
-          left: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        };
-      },
-      pinType: "transform",
-    });
-
-    // Lenis 준비 시 ScrollTrigger 새로고침
-    ScrollTrigger.refresh();
+    /* 매 프레임 Lenis 를 돌린다. 예전에는 gsap ticker 로 돌리고 ScrollTrigger 를 여기서 맞췄는데, 그러면 gsap(gzip 43 kB)이
+       모든 페이지에 실렸다. ScrollTrigger 를 쓰는 화면(홈 · 작업물)은 hooks/useScrollTriggerLenis 로 따로 맞춘다 */
+    const loop = (time: number) => {
+      lenisInstance.raf(time);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
 
     // 디버깅용으로 window에 lenis 노출
     if (typeof window !== "undefined") {
@@ -142,19 +113,10 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     };
     window.addEventListener("resize", handleResize);
 
-    // 클린업을 위해 현재 raf ID 캡처
-    const currentRafId = rafRef.current;
-
     return () => {
-      // 클린업
       window.removeEventListener("resize", handleResize);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lenisInstance.destroy();
-      gsap.ticker.remove((time) => lenisInstance.raf(time * 1000));
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-
-      if (currentRafId) {
-        cancelAnimationFrame(currentRafId);
-      }
     };
   }, [options.duration, options.smoothWheel, options.wheelMultiplier, options.touchMultiplier, options.infinite]);
 

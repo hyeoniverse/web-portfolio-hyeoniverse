@@ -1,44 +1,30 @@
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, NANOBANANA_MODELS, type AiModelProvider, type NanoBananaModel } from "./modelDefaults";
+
+export { DEFAULT_AI_MODELS, NANOBANANA_MODELS, type AiModelProvider, type NanoBananaModel } from "./modelDefaults";
 
 /** 모델 이름을 코드에 박지 않는다 — 공급자가 모델을 은퇴시키면 설정 › 서비스 › AI 모델에서 바꾼다.
  *  기본값은 공급자가 "지금 최신"을 가리키라고 둔 별칭이라 코드를 안 고쳐도 따라간다.
  *  OpenAI 는 날짜 없는 이름이 그 역할이다(gpt-4o-mini → 최신 스냅샷).
  *  Hugging Face 에는 별칭이 없어 "latest" 를 우리가 센티널로 두고, 부를 때 Hub 에서
  *  지금 추론이 되는 text-to-image 모델 가운데 인기 1위로 푼다(resolveHfLatest).
- *  NanoBanana(리셀러 nanobananaapi.ai)는 엔드포인트가 곧 모델이다 — generate-2 가 최신. */
-export type AiModelProvider = "gemini" | "openai" | "groq" | "claude" | "huggingface" | "nanobanana" | "google_tts";
+ *  NanoBanana(리셀러 nanobananaapi.ai)는 엔드포인트가 곧 모델이다 — generate-2 가 최신.
+ *  기본값 · 별칭 상수는 modelDefaults.ts(설정 화면도 쓴다). */
 
-export const HF_LATEST = "latest";
 /** Hub 가 안 응답할 때 쓸 마지막 보루 */
 const HF_FALLBACK_MODEL = "black-forest-labs/FLUX.1-schnell";
 
 /** Google Cloud TTS 는 모델이 아니라 목소리 등급(Chirp3-HD · Neural2 · Wavenet · Standard …)이 단위다.
  *  "latest" 는 voices API 에 지금 있는 등급 가운데 가장 새 것(GOOGLE_TTS_TIER_RANK 앞쪽), 성별×언어(ko/en) 네 목소리를 다 갖춘 등급만 */
-export const GOOGLE_TTS_LATEST = "latest";
 const GOOGLE_TTS_TIER_RANK = ["Chirp3-HD", "Chirp-HD", "Neural2", "Studio", "Wavenet", "Standard"];
 
 /** Groq "latest" — 그 키의 모델 목록에서 GROQ_PREFER 순으로 첫 번째. 목록을 못 받으면 보루 */
-export const GROQ_LATEST = "latest";
 /* 추론 모델(gpt-oss)은 JSON 모드와 잘 안 맞아(json_validate_failed) 뒤로 — 일반 instruct 모델을 먼저 */
 /* qwen 은 이름이 자주 바뀌어(qwen3-32b → qwen3.8-27b) 크기를 보지 않는다. gpt-oss 는 분당 토큰 한도가 낮고(8K) JSON 모드와 잘 안 맞아 맨 뒤 */
 const GROQ_PREFER: RegExp[] = [/^llama-3\.3-70b/, /llama-4.*maverick/i, /qwen/i, /llama-4.*scout/i, /^llama-3\.1-8b/, /^openai\/gpt-oss-20b/, /^openai\/gpt-oss-120b/];
 const GROQ_FALLBACK_MODEL = "llama-3.1-8b-instant";
 /* 글 요약에 못 쓰는 것 — 음성 · 안전 필터 · 에이전트 · 번역 전용 */
 const GROQ_NOT_TEXT = /guard|compound|whisper|tts|orpheus|playai|safeguard|allam/i;
-
-export type NanoBananaModel = "nanobanana" | "nanobanana-2" | "nanobanana-pro";
-export const NANOBANANA_MODELS: NanoBananaModel[] = ["nanobanana-2", "nanobanana-pro", "nanobanana"];
-
-export const DEFAULT_AI_MODELS: Record<AiModelProvider, string> = {
-  gemini: "gemini-flash-latest",
-  openai: "gpt-4o-mini",
-  /* Groq 에는 최신 별칭이 없고 모델이 자주 은퇴한다(llama-3.3-70b-versatile 도 404) — 목록에서 선호 순으로 고른다 */
-  groq: GROQ_LATEST,
-  claude: "claude-haiku-4-5",
-  huggingface: HF_LATEST,
-  nanobanana: "nanobanana-2",
-  google_tts: GOOGLE_TTS_LATEST,
-};
 
 /** 설정에 적은 모델 이름, 비어 있으면 기본 별칭(HF 는 "latest" 센티널 그대로 — 부르는 쪽이 resolveHfLatest 로 푼다) */
 export async function aiModel(provider: AiModelProvider): Promise<string> {

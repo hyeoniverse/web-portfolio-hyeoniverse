@@ -40,6 +40,31 @@
   margin-bottom: var(--spacing-40);
 }
 
+/* 머리글 · 제목 · 구분선 — 서버 HTML 부터 떠오른다(지연은 인라인 animation-delay) */
+.fadeUp {
+  animation: privacyFadeUp var(--duration-slow) var(--ease-enter) backwards;
+}
+
+/* 섹션 — 처음부터 보인다. 하이드레이션 뒤 첫 화면 아래의 섹션만 숨겨 두었다가(data-reveal="wait") 화면에 들어오면 떠오른다.
+   첫 화면에 걸친 섹션은 건드리지 않으므로 본문이 자바스크립트를 기다리지 않는다 */
+.section[data-reveal] {
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    transform var(--duration-slow) var(--ease-enter);
+}
+.section[data-reveal="wait"] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes privacyFadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeUp { animation: none; }
+}
+
 .section h2 {
   margin-bottom: var(--spacing-16);
   font: var(--font-headline-xs);

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { SITE_TIME_ZONE } from "@/constants";
-import { Star, GitFork, ExternalLink, ArrowUpRight } from "@/components/icons";
-import { PINNED_REPO_LIMIT, type GithubShowcase } from "@/lib/githubShowcase";
+import { Star, GitFork, ExternalLink, ArrowUpRight, GithubIcon } from "@/components/icons";
+import { PINNED_REPO_LIMIT } from "@/lib/githubRepoKey";
+import type { GithubShowcase } from "@/lib/githubShowcase";
 import GrassLens from "../GrassLens/GrassLens";
 import { useGithubPanelMotion } from "./useGithubPanelMotion";
 import styles from "./ProfileGithub.module.css";
@@ -146,7 +146,7 @@ export default function ProfileGithub({
           같이 떠서 링크가 따로 들어오는 느낌이 없다 — 패널의 stagger 가 항목 단위로 돈다. */}
       <div className={styles.head}>
         <h2 id="profile-github-heading" className={`${styles.title} ${animateClass}`}>
-          <SiGithub size={20} aria-hidden />
+          <GithubIcon size={20} />
           {isPinned ? "Pinned" : "GitHub"}
         </h2>
         <a

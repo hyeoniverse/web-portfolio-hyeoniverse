@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import DetailHero from "./DetailHero";
 import { useShellHeroAlt } from "./DetailShell";
-import { EmojiIcon } from "@/components/ui/EmojiPicker";
+import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "@/components/icons";
 import { useLenis } from "@/providers/LenisProvider";

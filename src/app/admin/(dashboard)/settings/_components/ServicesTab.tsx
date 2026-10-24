@@ -28,7 +28,7 @@ import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTyp
 import { SummaryOptionsForm } from "@/components/admin/AiSummaryField/AiSummaryOptions";
 import { SummaryGuideEditor } from "@/components/admin/AiSummaryField/SummarySiteSettings";
 import { sanitizeSummaryOptions } from "@/lib/ai/summary";
-import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/modelDefaults";
 import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
