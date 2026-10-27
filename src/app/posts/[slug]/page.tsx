@@ -4,7 +4,7 @@ import { getPostBySlug, getAllPostSlugs } from "@/lib/posts";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import { getPostRelatedWorks } from "@/lib/postRelatedWorks";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { pageMetadata, ogImageOf, jsonLd, postCardImagePath, SITE_ORIGIN } from "@/lib/seo";
+import { pageMetadata, ogImageOf, jsonLd, postCardImagePath, canonicalUrl, SITE_ORIGIN } from "@/lib/seo";
 import PostDetailClient from "./PostDetailClient";
 
 export const revalidate = 300;
@@ -57,7 +57,7 @@ export default async function PostDetailPage({
   ]);
 
   /* 검색 결과의 글 정보(작성일 · 수정일 · 그림) — BlogPosting */
-  const url = `${SITE_ORIGIN}/posts/${encodeURIComponent(post.slug)}`;
+  const url = canonicalUrl(`/posts/${encodeURIComponent(post.slug)}`);
   const cover = ogImageOf(post.cover_image);
   const structured = {
     "@context": "https://schema.org",
