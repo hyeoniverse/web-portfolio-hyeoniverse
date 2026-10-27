@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { blogHref } from "@/lib/siteHosts";
 
 /* ── 검색 · 공유용 메타데이터 ──
-   대표 주소는 SITE_URL(운영은 www). blog.hyeoniverse.com 도 같은 글을 보여 주므로 canonical 은 늘 이 주소로 모은다.
+   대표 주소는 SITE_URL(운영은 www). 다만 운영에서 메인 주소의 /posts/* 는 블로그 주소로 308 되므로,
+   글 쪽 canonical · og:url · 사이트맵은 블로그 주소(blog.hyeoniverse.com/x)로 모은다 — canonicalUrl.
    루트 레이아웃에 canonical 을 두면 그것만 쓰는 페이지가 전부 홈을 가리키게 되므로, canonical 은 페이지마다 pageMetadata 로 단다. */
 
 function toOrigin(url: string | undefined): string | null {
@@ -15,6 +17,14 @@ function toOrigin(url: string | undefined): string | null {
 }
 
 export const SITE_ORIGIN = toOrigin(process.env.SITE_URL) ?? "https://www.hyeoniverse.com";
+
+/** 경로(/posts/abc) → 검색엔진에 알릴 대표 주소. 블로그 주소로 넘어가는 경로는 블로그 주소로, 나머지는 SITE_ORIGIN 으로.
+ *  넘어가는 주소를 canonical 로 두면 서치 콘솔이 "리다이렉트가 포함된 페이지"로 보고 색인하지 않는다 */
+export function canonicalUrl(path: string): string {
+  const href = blogHref(path);
+  if (/^https?:\/\//.test(href)) return href;
+  return `${SITE_ORIGIN}${href === "/" ? "" : href}`;
+}
 
 /** 공유 카드 기본 그림 — 커버가 없는 페이지에 쓴다(public/og-default.png, 1200×630) */
 export const DEFAULT_OG_IMAGE = { url: "/og-default.png", width: 1200, height: 630, alt: "HYEONIVERSE" };
@@ -54,6 +64,7 @@ export async function pageMetadata({ title, shareTitle, description, path, image
   const fullTitle = shareTitle ?? (title ? `${siteName} | ${title}` : siteName);
   const desc = description || cfg.metadata.description;
   const ogImage = ogImageOf(image);
+  const url = canonicalUrl(path);
   const images = ogImage
     ? [ogImage]
     : fallbackImage
@@ -62,11 +73,11 @@ export async function pageMetadata({ title, shareTitle, description, path, image
   return {
     ...(title ? { title } : {}),
     description: desc,
-    alternates: { canonical: path },
+    alternates: { canonical: url },
     openGraph: {
       title: fullTitle,
       description: desc,
-      url: path,
+      url,
       siteName,
       locale: cfg.metadata.locale,
       type,

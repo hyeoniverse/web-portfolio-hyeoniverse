@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getWorksProjects } from "@/lib/getWorksProjects";
-import { SITE_ORIGIN } from "@/lib/seo";
+import { canonicalUrl as url } from "@/lib/seo";
 
 /* /sitemap.xml — 공개 화면과 발행된 글 · 작업물 · 시리즈. 한 시간마다 새로 만든다
-   (글을 발행하면 길어도 한 시간 안에 들어간다). 조회가 실패하면 그 묶음만 빼고 나머지는 낸다 */
+   (글을 발행하면 길어도 한 시간 안에 들어간다). 조회가 실패하면 그 묶음만 빼고 나머지는 낸다.
+   글 쪽 주소는 운영에서 블로그 주소(blog.)로 적는다 — 메인 주소의 /posts/* 는 308 이라 그대로 적으면 색인되지 않는다 */
 export const revalidate = 3600;
 
 const STATIC_PATHS: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" }[] = [
@@ -21,8 +22,6 @@ const STATIC_PATHS: { path: string; priority: number; changeFrequency: "daily" |
   { path: "/design-system", priority: 0.3, changeFrequency: "monthly" },
   { path: "/privacy", priority: 0.1, changeFrequency: "monthly" },
 ];
-
-const url = (path: string) => `${SITE_ORIGIN}${path === "/" ? "" : path}`;
 
 async function postEntries(): Promise<MetadataRoute.Sitemap> {
   const { data, error } = await createAdminClient()
