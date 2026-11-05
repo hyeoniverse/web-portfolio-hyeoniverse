@@ -51,7 +51,7 @@ jobs:
           # 전체 기록 — 푸시 · PR 은 새 커밋만, 주간 · 수동 실행은 전체를 본다(액션이 이벤트에 따라 범위를 고른다)
           fetch-depth: 0
 
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 결과 요약을 PR 코멘트로 남기지 않는다(공개 저장소라 찾은 위치가 코멘트로 드러나지 않게)
