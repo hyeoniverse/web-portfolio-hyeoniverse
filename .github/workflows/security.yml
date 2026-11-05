@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # PR 이 high 이상 취약점이 있는 패키지를 새로 들이면 막는다
-      - uses: actions/dependency-review-action@v4
+      - uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
           # 배포물에 들어가는 의존성만 막는다 — 개발 도구(빌드 · 테스트)는 경고만
