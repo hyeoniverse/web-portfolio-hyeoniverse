@@ -1,0 +1,3 @@
+# gitleaks 가 잡지만 실제 비밀값이 아닌 것 — 지문(커밋:파일:규칙:줄) 단위로 뺀다
+# 키를 가리는지 시험하려고 넣은 가짜 Gemini 키(src/__tests__/aiHealth.test.ts)
+6a1ff549d511758bf2191cf2b9e430b5ffa820ce:src/__tests__/aiHealth.test.ts:generic-api-key:46
