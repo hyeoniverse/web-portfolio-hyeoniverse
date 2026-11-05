@@ -4,7 +4,7 @@ import styles from "./Badge.module.css";
 
 export type BadgeVariant = "outline" | "soft" | "solid" | "overlay";
 export type BadgeTone = "neutral" | "accent" | "success" | "warning" | "white";
-export type BadgeSize = "sm" | "md";
+type BadgeSize = "sm" | "md";
 
 interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
   children: ReactNode;

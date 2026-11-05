@@ -4,7 +4,7 @@
  * 차단 확장자(media.blockedExtensions)에 든 형식은 받지 않는다.
  * 동영상 · 음성은 문의에 쓰기엔 크고, SVG 는 스크립트를 품을 수 있어 넣지 않는다.
  */
-export const CONTACT_ATTACH_EXTS = [
+const CONTACT_ATTACH_EXTS = [
   // 이미지
   "jpg", "jpeg", "png", "webp", "gif", "heic",
   // 문서
@@ -14,10 +14,10 @@ export const CONTACT_ATTACH_EXTS = [
 ] as const;
 
 /** 첨부 버킷(contact-attachments)이 한 파일에 받는 한도 — 마이그레이션의 file_size_limit 와 같다 */
-export const CONTACT_BUCKET_MAX_MB = 25;
+const CONTACT_BUCKET_MAX_MB = 25;
 
 /** media.limits 에 없는 형식의 한도(MB) */
-export const CONTACT_DEFAULT_MB = 10;
+const CONTACT_DEFAULT_MB = 10;
 
 /** 문의에 받는 형식 · 형식별 한도(MB) — media.limits 값(없으면 CONTACT_DEFAULT_MB)을 버킷 한도로 자른다 */
 export function contactAttachLimits(limits: Record<string, number> | undefined, blocked: Iterable<string> = []): Record<string, number> {

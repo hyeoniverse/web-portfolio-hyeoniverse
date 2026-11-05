@@ -508,22 +508,6 @@ export async function getAllCategoriesData() {
 }
 
 
-/** /posts/history 타임라인 왼쪽 월 인덱스용 — 전체 published posts 의 유효일(scheduled_at ?? created_at)
- *  문자열만 최신순으로 반환. 월 버킷팅/라벨은 클라이언트에서(브라우저 타임존 기준 marker id 와 일치하도록). */
-export async function getPostArchiveMonths(): Promise<string[]> {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("posts")
-    .select("scheduled_at, created_at")
-    .eq("published", true)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(5000);
-  return ((data ?? []) as { scheduled_at: string | null; created_at: string | null }[])
-    .map((r) => r.scheduled_at ?? r.created_at)
-    .filter((d): d is string => !!d);
-}
-
 /** TIL 페이지의 글 요약 — 잔디 칸 · 그날의 기록 카드 · 고정 TIL 목록이 같이 쓴다 */
 export type TilEntry = Pick<
   Post,
