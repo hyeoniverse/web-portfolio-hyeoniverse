@@ -13,7 +13,7 @@ import { join } from "node:path";
  */
 export const OG_SIZE = { width: 1200, height: 630 };
 
-export const PRETENDARD_WOFF = "node_modules/pretendard/dist/web/static/woff";
+const PRETENDARD_WOFF = "node_modules/pretendard/dist/web/static/woff";
 
 export interface PostCardInput {
   title: string;

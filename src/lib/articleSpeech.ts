@@ -15,7 +15,7 @@
 
 import { speechLangOf, type SpeechLang } from "@/lib/speech";
 
-export type SegmentKind = "title" | "summary" | "meta" | "heading" | "text" | "quote" | "code" | "table" | "tableRow" | "image" | "math" | "media";
+type SegmentKind = "title" | "summary" | "meta" | "heading" | "text" | "quote" | "code" | "table" | "tableRow" | "image" | "math" | "media";
 
 export interface SpeechSegment {
   kind: SegmentKind;

@@ -21,7 +21,7 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-export const navItems: NavItem[] = [
+const navItems: NavItem[] = [
   { key: "works", href: "/works", label: "Works" },
   {
     key: "posts",

@@ -16,12 +16,12 @@ const SHEET_STOP_MIN_GAP = 48;
 const SHEET_OVERDRAG = 0.25;
 
 /** 바텀 시트를 놓을 때 닫을지 — 거리 또는 속도 */
-export function shouldDismissSheet(dy: number, velocity: number): boolean {
+function shouldDismissSheet(dy: number, velocity: number): boolean {
   return dy > SHEET_DISMISS_DISTANCE || (dy > 10 && velocity > SHEET_DISMISS_VELOCITY);
 }
 
 /** 끄는 동안 마지막 움직임의 속도(px/ms) — 아래가 양수 */
-export function createVelocityTracker() {
+function createVelocityTracker() {
   let lastY = 0;
   let lastT = 0;
   let v = 0;

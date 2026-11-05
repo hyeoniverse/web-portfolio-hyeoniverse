@@ -2,7 +2,7 @@ import type { HistoryEntry } from "@/lib/posts";
 import { SITE_TIME_ZONE } from "@/constants";
 
 /** 글의 날짜 — 예약 발행이면 그 시각 */
-export const dateOf = (p: HistoryEntry) => p.scheduled_at ?? p.created_at;
+const dateOf = (p: HistoryEntry) => p.scheduled_at ?? p.created_at;
 
 /** 한국 시간 기준 YYYY-MM-DD */
 export const dayKeyOf = (p: HistoryEntry) =>
