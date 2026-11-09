@@ -154,7 +154,7 @@
     "knip": "^6.44.1",
     "lint-staged": "^17.6.0",
     "playwright": "^1.61.1",
-    "stylelint": "^17.16.0",
+    "stylelint": "^18.0.0",
     "stylelint-declaration-strict-value": "^1.12.1",
     "tsx": "^4.23.15",
     "type-coverage": "^2.31.1",
