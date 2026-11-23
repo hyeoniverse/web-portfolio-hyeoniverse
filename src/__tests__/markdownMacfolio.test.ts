@@ -10,12 +10,19 @@ import { extractHeadings } from "@/utils/headingUtils";
 
 const render = (md: string) => renderMarkdown(md);
 /** 코드 · 수식 밖의 글자만 — 남은 표기를 찾을 때 */
-const visibleText = (html: string) =>
-  html
+const visibleText = (html: string) => {
+  let text = html
     .replace(/<pre[\s\S]*?<\/pre>/g, "")
     .replace(/<code[\s\S]*?<\/code>/g, "")
-    .replace(/<span class="katex[\s\S]*?<\/annotation>/g, "")
-    .replace(/<[^>]+>/g, "");
+    .replace(/<span class="katex[\s\S]*?<\/annotation>/g, "");
+  // 태그를 지운 자리에 새 태그가 생기지 않을 때까지 되풀이한다 (한 번만 지우면 `<scr<x>ipt>` 같은 조각이 남는다)
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, "");
+  } while (text !== previous);
+  return text.replace(/[<>]/g, "");
+};
 
 describe("형광펜 ==글자==", () => {
   it("<mark> 로 그린다", () => {
