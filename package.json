@@ -83,7 +83,7 @@
     "@types/react-google-recaptcha": "^2.1.9",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.1.0",
-    "@xyflow/react": "^12.12.1",
+    "@xyflow/react": "^13.0.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^14.14.0",
