@@ -84,6 +84,46 @@
   color: var(--text-secondary);
 }
 
+/* 마크다운 이미지 좌우 배치 — `주소#float-right` · `#float-left`(MacFolio 표기, renderMarkdown 이 data-float 로 바꾼다).
+   좁은 화면에서는 띄우지 않고 일반 그림처럼 본문 폭을 쓴다 */
+@media (width > 768px) {
+  .prose figure[data-float="right"],
+  .prose img[data-float="right"] {
+    float: right;
+    max-width: 40%;
+    margin: 0 0 var(--spacing-20) var(--spacing-20);
+  }
+
+  .prose figure[data-float="left"],
+  .prose img[data-float="left"] {
+    float: left;
+    max-width: 40%;
+    margin: 0 var(--spacing-20) var(--spacing-20) 0;
+  }
+}
+
+/* 접기 블록 <details><summary> — 마크다운 글이 HTML 그대로 쓴다. 브라우저 기본 모양은 테두리 · 간격이 없어 본문과 붙는다 */
+.prose details {
+  margin: var(--spacing-16) 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+.prose summary {
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.prose details[open] > summary {
+  margin-bottom: var(--spacing-12);
+}
+
+.prose details > :last-child {
+  margin-bottom: 0;
+}
+
 .prose ul,
 .prose ol {
   padding-left: var(--spacing-24);
@@ -372,6 +412,12 @@
 .prose :global(.markdown-alert-title) svg {
   width: 16px;
   height: 16px;
+}
+
+/* 사용자 제목(`> [!NOTE] 제목`) — 기본 제목(NOTE 등)처럼 대문자로 바꾸지 않는다 */
+.prose :global(.markdown-alert-title[data-custom-title]) {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 

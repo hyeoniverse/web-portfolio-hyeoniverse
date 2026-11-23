@@ -29,6 +29,9 @@ function createSlugger() {
   };
 }
 
+/** 제목 안 인라인 코드의 언어 꼬리표 — markdownExtensions 의 `코드{:언어}` 와 같은 표기 */
+const INLINE_CODE_TAIL = /`([^`]*?\S)\{:[\w+#-]+\}`/g;
+
 export function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
   if (isMarkdown) {
     const lines = content.split("\n");
@@ -45,10 +48,12 @@ export function extractHeadings(content: string, isMarkdown: boolean): TocHeadin
 
       const match = line.match(/^(#{1,4})\s+(.+)$/);
       if (match) {
+        // 인라인 코드 언어 꼬리표(`SELECT{:sql}`)는 렌더러가 떼고 그리므로 목차 글자 · id 에서도 뗀다
+        const text = match[2].trim().replace(INLINE_CODE_TAIL, "`$1`");
         headings.push({
           level: match[1].length,
-          text: match[2].trim(),
-          id: slug(match[2].trim()),
+          text,
+          id: slug(text),
         });
       }
     }
