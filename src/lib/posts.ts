@@ -6,6 +6,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import { getPopularPostIds } from "@/lib/popularity";
 import { topPostCategory } from "@/lib/seriesCategory";
+import { canonicalCategory, normalizeCategories } from "@/lib/categoryTree";
 
 /**
  * 첫 화면에 서버가 내려보내는 글 수.
@@ -489,14 +490,18 @@ export async function getAllCategoriesData() {
     .eq("published", true)
     .order("created_at", { ascending: false });
 
+  /* 같은 카테고리가 이름("프론트엔드")과 경로("개발/프론트엔드") 두 모양으로 저장돼 있어도 한 칸으로 센다 */
+  const config = await getSiteConfig();
+  const tree = normalizeCategories((config.posts?.categories ?? []) as unknown[]);
   const cats = new Map<string, { count: number; firstCover: string | null }>();
   for (const row of (postsRaw ?? []) as { category: string | null; cover_image: string | null }[]) {
     if (!row.category) continue;
-    const entry = cats.get(row.category);
+    const key = canonicalCategory(tree, row.category);
+    const entry = cats.get(key);
     if (entry) {
       entry.count++;
     } else {
-      cats.set(row.category, { count: 1, firstCover: row.cover_image });
+      cats.set(key, { count: 1, firstCover: row.cover_image });
     }
   }
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { siteConfig } from "@/config/site.config";
 import type { BilingualCategory } from "@/types/common";
-import { normalizeCategories, findCategoryNode } from "@/lib/categoryTree";
+import { normalizeCategories, categoryLabel } from "@/lib/categoryTree";
 
 export type { BilingualCategory } from "@/types/common";
 
@@ -11,16 +11,15 @@ const DEFAULT_CATEGORIES: BilingualCategory[] = normalizeCategories(
 );
 
 /**
- * DB에 저장된 카테고리 값(ko/en)을 현재 언어에 맞게 변환.
- * 2단계 트리를 flatten 해 대분류/소분류 어느 쪽이든 매칭. 실패 시 원본 반환.
+ * DB에 저장된 카테고리 값(ko/en 이름 또는 "대분류/소분류" 경로)을 현재 언어에 맞게 변환.
+ * 대분류/소분류 어느 쪽이든 매칭하고, 같은 이름 소분류는 "대분류 › 소분류" 로 보인다. 실패 시 원본 반환.
  */
 export function translateCategory(
   value: string,
   lang: "ko" | "en",
   cats: BilingualCategory[] = DEFAULT_CATEGORIES,
 ): string {
-  const found = findCategoryNode(cats, value);
-  return found ? found[lang] : value;
+  return categoryLabel(cats, value, lang);
 }
 
 /* 이 훅은 한 화면에 여러 번 쓰인다 — CategoryLabel 이 글 카드마다 붙어서, 글 목록에서는

@@ -18,7 +18,7 @@ import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { downloadBlob, downloadFiles } from "@/utils/download";
 import { useCategories } from "@/hooks/useCategories";
-import { flattenCategories, toCategoryOptions } from "@/lib/categoryTree";
+import { findCategoryNode, toCategoryOptions } from "@/lib/categoryTree";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -288,11 +288,8 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     if (mdInputRef.current) mdInputRef.current.value = "";
     if (parsed.length === 0) return;
 
-    // 새 카테고리 확인 — 트리 flatten (대분류/소분류 모두 기존으로 인식, 잘못된 신규 추가 방지)
-    const existingCats = new Set(
-      flattenCategories(categories).flatMap((c) => [c.ko, c.en]),
-    );
-    const newCats = [...new Set(parsed.map((p) => p.category as string).filter((c) => c && !existingCats.has(c)))];
+    // 새 카테고리 확인 — 트리에서 해석되는 값(대분류/소분류 이름, "대분류/소분류" 경로)은 기존으로 인식
+    const newCats = [...new Set(parsed.map((p) => p.category as string).filter((c) => c && !findCategoryNode(categories, c)))];
 
     const doCreate = async () => {
       if (newCats.length > 0) await addNewCategories(newCats);
@@ -646,10 +643,11 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
                 <BulkCategoryModal
                   count={ids.length}
                   categories={categories}
-                  onConfirm={async (cat) => {
+                  onConfirm={async (_cat, value) => {
                     setBusy(true);
                     await sendActions(
-                      ids.map((id) => ({ input: `/api/posts/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: cat?.ko ?? null }) } })),
+                      /* 선택지의 저장값 — 같은 이름 소분류가 있으면 "대분류/소분류" 경로라 ko 이름만 보내면 구분이 사라진다 */
+                      ids.map((id) => ({ input: `/api/posts/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: value }) } })),
                       t, t("admin.common.categoryFailed"),
                     );
                     await fetchPosts();
