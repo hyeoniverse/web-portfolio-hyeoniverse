@@ -28,6 +28,7 @@ import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import { matchesSearch } from "@/lib/koSearch";
 import LetterFilter from "@/components/ui/LetterFilter";
 import { sendAction } from "@/lib/sendAction";
+import { normalizeCategories, categoryValue, canonicalCategory } from "@/lib/categoryTree";
 import styles from "../Settings.module.css";
 import Badge from "@/components/ui/Badge";
 
@@ -51,6 +52,11 @@ function normalizeDesc(d: PostCategoryExt["description"]): LocalizedText {
    에디터 내부 로직은 전부 flat(대분류/소분류 한 줄) 기준으로 돌리고, parentEn 으로 소속만 기억.
    저장 시 rebuildTree 로 다시 트리(대분류 children)로 조립한다. */
 type FlatNode = PostCategoryExt & { parentEn: string | null };
+
+/* 노드 식별 키 — 대분류는 en, 소분류는 "부모en␟en". 같은 이름 소분류가 다른 대분류에 있어도 겹치지 않는다.
+   (구분자 U+001F 는 이름에 쓰이지 않는 제어 문자) */
+const KEY_SEP = "\u001f";
+const keyOf = (n: { en: string; parentEn: string | null }) => (n.parentEn ? `${n.parentEn}${KEY_SEP}${n.en}` : n.en);
 
 /** 트리 → flat (대분류 먼저, 이어서 그 소분류) */
 function flattenTree(tree: PostCategoryExt[]): FlatNode[] {
@@ -120,11 +126,21 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     (flat: FlatNode[]) => onChangeTree(rebuildTree(flat)),
     [onChangeTree],
   );
-  const nodeByEn = useMemo(() => {
+  const nodeByKey = useMemo(() => {
     const m = new Map<string, FlatNode>();
-    for (const c of categories) m.set(c.en, c);
+    for (const c of categories) m.set(keyOf(c), c);
     return m;
   }, [categories]);
+  /* 키 → posts.category 저장값(categoryValue — 보통 ko 이름, 같은 이름 소분류면 "대분류/소분류") */
+  const normalizedTree = useMemo(() => normalizeCategories(categoriesTree), [categoriesTree]);
+  const valueByKey = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const p of normalizedTree) {
+      m.set(p.en, categoryValue(normalizedTree, p, null));
+      for (const ch of p.children ?? []) m.set(`${p.en}${KEY_SEP}${ch.en}`, categoryValue(normalizedTree, ch, p));
+    }
+    return m;
+  }, [normalizedTree]);
 
   /* 카테고리별 사용 카운트 + 카테고리별 post 목록 fetch */
   const [catCounts, setCatCounts] = useState<Record<string, number>>({});
@@ -139,11 +155,27 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       .catch(() => { setCatCounts({}); setCatPosts([]); });
   }, []);
 
-  const koByEn = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const c of categories) map[c.en] = c.ko;
-    return map;
-  }, [categories]);
+  /* 저장값별 글 수 — 같은 카테고리가 ko · en 이름이나 경로로 나뉘어 저장돼 있어도 저장값 하나로 모은다 */
+  const countByValue = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const [raw, n] of Object.entries(catCounts)) {
+      const v = canonicalCategory(normalizedTree, raw);
+      m.set(v, (m.get(v) ?? 0) + n);
+    }
+    return m;
+  }, [catCounts, normalizedTree]);
+  /* 키의 글 수 — 대분류면 소분류 글까지 합친다 */
+  const countOf = useCallback((key: string) => {
+    const node = nodeByKey.get(key);
+    if (!node) return 0;
+    let count = countByValue.get(valueByKey.get(key) ?? node.ko) ?? 0;
+    if (node.parentEn === null) {
+      for (const ch of categories) {
+        if (ch.parentEn === node.en) count += countByValue.get(valueByKey.get(keyOf(ch)) ?? ch.ko) ?? 0;
+      }
+    }
+    return count;
+  }, [nodeByKey, countByValue, valueByKey, categories]);
 
   /* 검색 / 정렬 / 필터 / 페이지네이션 */
   const [search, setSearch] = useState("");
@@ -161,7 +193,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const [descFilter, setDescFilter] = useState<DescFilter>("all");
   const [letterFilters, setLetterFilters] = useState<Set<string>>(new Set());
   const [filterExpanded, setFilterExpanded] = useState(false);
-  /* 추가 popover 열림 — 편집(editingEn)과 함께 add/edit 박스의 open 을 결정 */
+  /* 추가 popover 열림 — 편집(editingKey)과 함께 add/edit 박스의 open 을 결정 */
   const [adding, setAdding] = useState(false);
   const [page, setPage] = useState(1);
   /* nameLang 이 바뀌면 letter 매칭 초기화, sortBy 가 name 이 아니면 letter 해제, 조건이 바뀌면 1쪽으로 */
@@ -211,17 +243,17 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   /* custom 순서 — categories prop 의 인덱스 기준 */
   const customOrderIndex = useMemo(() => {
     const map: Record<string, number> = {};
-    categories.forEach((c, i) => { map[c.en] = i; });
+    categories.forEach((c, i) => { map[keyOf(c)] = i; });
     return map;
   }, [categories]);
 
   const filtered = useMemo(() => {
-    let list = categories.map((c) => c.en);
-    if (usageFilter === "in-use") list = list.filter((en) => (catCounts[en] ?? 0) > 0);
-    else if (usageFilter === "unused") list = list.filter((en) => (catCounts[en] ?? 0) === 0);
+    let list = categories.map(keyOf);
+    if (usageFilter === "in-use") list = list.filter((key) => countOf(key) > 0);
+    else if (usageFilter === "unused") list = list.filter((key) => countOf(key) === 0);
     if (descFilter !== "all") {
-      list = list.filter((en) => {
-        const c = categories.find((x) => x.en === en);
+      list = list.filter((key) => {
+        const c = nodeByKey.get(key);
         if (!c) return descFilter === "without";
         const d = normalizeDesc(c.description);
         const has = !!(d.ko.trim() || d.en.trim());
@@ -229,16 +261,17 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       });
     }
     if (sortBy === "name" && letterFilters.size > 0) {
-      list = list.filter((en) => {
-        const c = categories.find((x) => x.en === en);
-        const name = (nameLang === "ko" ? c?.ko : c?.en) || en;
+      list = list.filter((key) => {
+        const c = nodeByKey.get(key);
+        const name = (nameLang === "ko" ? c?.ko : c?.en) || c?.en || key;
         return letterFilters.has(getInitial(name, nameLang));
       });
     }
     const q = search.trim().toLowerCase();
     if (q) {
-      list = list.filter((en) => {
-        const c = categories.find((x) => x.en === en);
+      list = list.filter((key) => {
+        const c = nodeByKey.get(key);
+        const en = c?.en ?? "";
         const ko = c?.ko ?? "";
         const d = c ? normalizeDesc(c.description) : { ko: "", en: "" };
         const inName = matchesSearch(q, en, ko);
@@ -257,31 +290,31 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
         return (ai - bi) * dirSign;
       }
       if (sortBy === "freq") {
-        const ac = catCounts[a] ?? 0;
-        const bc = catCounts[b] ?? 0;
+        const ac = countOf(a);
+        const bc = countOf(b);
         if (ac !== bc) return (ac - bc) * dirSign;
         return a.localeCompare(b, "ko");
       }
       // name — nameLang 기준
-      const ca = categories.find((c) => c.en === a);
-      const cb = categories.find((c) => c.en === b);
+      const ca = nodeByKey.get(a);
+      const cb = nodeByKey.get(b);
       const aName = (nameLang === "ko" ? ca?.ko : ca?.en) || a;
       const bName = (nameLang === "ko" ? cb?.ko : cb?.en) || b;
       return aName.localeCompare(bName, nameLang === "ko" ? "ko" : "en") * dirSign;
     });
     return sorted;
-  }, [categories, search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters, catCounts, customOrderIndex]);
+  }, [categories, nodeByKey, search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters, countOf, customOrderIndex]);
 
   const perPage = useMemo(() => {
     if (filtered.length === 0) return CATS_PER_PAGE_COMPACT;
-    const withDesc = filtered.filter((en) => {
-      const c = categories.find((x) => x.en === en);
+    const withDesc = filtered.filter((key) => {
+      const c = nodeByKey.get(key);
       if (!c) return false;
       const d = normalizeDesc(c.description);
       return !!(d.ko.trim() || d.en.trim());
     }).length;
     return withDesc >= filtered.length / 2 ? CATS_PER_PAGE_DENSE : CATS_PER_PAGE_COMPACT;
-  }, [filtered, categories]);
+  }, [filtered, nodeByKey]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const pageStart = (page - 1) * perPage;
   const pageItems = filtered.slice(pageStart, pageStart + perPage);
@@ -291,7 +324,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     for (const c of categories) {
       const d = normalizeDesc(c.description);
       /* 빈 description 은 제외 — entry 없음 으로 인식돼야 chip 옆 + 설명추가 / drawer 미생성 */
-      if (d.ko.trim() || d.en.trim()) map[c.en] = d;
+      if (d.ko.trim() || d.en.trim()) map[keyOf(c)] = d;
     }
     return map;
   }, [categories]);
@@ -304,22 +337,29 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     page === 1 && filtered.length === categories.length;
 
   /* reassign 대상 — useState 대신 변수로 닫힘 안에 보관 (modal callback 용) */
-  const [reassignTarget, setReassignTarget] = useState<BilingualCategory | null>(null);
+  const [reassignTarget, setReassignTarget] = useState<FlatNode | null>(null);
 
-  /* openModal 로 CategoryReassignModal 열기 — X close / 일관된 radius 가 공통 Modal 책임 */
-  const openReassignModal = useCallback((target: BilingualCategory) => {
+  /* openModal 로 CategoryReassignModal 열기 — X close / 일관된 radius 가 공통 Modal 책임.
+     글 조회 · 재배정은 저장값(value)으로 한다 — 같은 이름 소분류가 다른 대분류에 있어도 섞이지 않게 */
+  const openReassignModal = useCallback((target: FlatNode) => {
     const id = "category-reassign";
+    const targetKey = keyOf(target);
     setReassignTarget(target);
     openModal(
       <CategoryReassignModal
-        category={target}
+        category={{ ko: target.ko, en: target.en, value: valueByKey.get(targetKey) ?? target.ko }}
         availableCategories={categories
-          .filter((c) => c.ko !== target.ko || c.en !== target.en)
-          .map<BilingualCategory>((c) => ({
-            ko: c.ko,
-            en: c.en,
-            description: typeof c.description === "string" ? c.description : c.description?.ko,
-          }))}
+          .filter((c) => keyOf(c) !== targetKey)
+          .map((c) => {
+            const parent = c.parentEn ? nodeByKey.get(c.parentEn) : undefined;
+            return {
+              ko: c.ko,
+              en: c.en,
+              description: typeof c.description === "string" ? c.description : c.description?.ko,
+              value: valueByKey.get(keyOf(c)) ?? c.ko,
+              ...(parent && { parent: { ko: parent.ko, en: parent.en } }),
+            };
+          })}
         onConfirm={async (assignments, newCategories) => {
           /* 글을 옮기지 못하면 창을 닫지 않는다 — 다시 시도할 수 있게(#868) */
           if (await handleReassignConfirmRef.current(assignments, newCategories)) closeModal(id);
@@ -333,33 +373,31 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
         width: "min(540px, 90vw)",
       },
     );
-  }, [openModal, closeModal, categories, t]);
+  }, [openModal, closeModal, categories, nodeByKey, valueByKey, t]);
 
   const handleItemsChange = (nextItems: string[]) => {
     const nextSet = new Set(nextItems);
-    const removed = pageItems.find((en) => !nextSet.has(en));
+    const removed = pageItems.find((key) => !nextSet.has(key));
     if (removed) {
       if (categories.length <= 1) {
         alert(t("admin.settings.categoryLastWarning"));
         return;
       }
-      const cat = categories.find((c) => c.en === removed);
-      if (cat) openReassignModal({ ko: cat.ko, en: cat.en });
+      const cat = nodeByKey.get(removed);
+      if (cat) openReassignModal(cat);
       return;
     }
     /* reorder — default view 일 때만 적용 (필터/정렬 중엔 의미 불명확).
        parentEn 보존한 채 순서만 바꾸고 rebuildTree 로 재그룹. */
     if (!isDefaultView) return;
-    const byEn: Record<string, FlatNode> = {};
-    for (const c of categories) byEn[c.en] = c;
-    onChange(nextItems.map((en) => byEn[en]).filter(Boolean));
+    onChange(nextItems.map((key) => nodeByKey.get(key)).filter((c): c is FlatNode => !!c));
   };
 
   /* TagNotesEditor 의 onNotesChange 는 무시 — 설명 편집은 하단 box 에서만 (drawer 는 onEditClick 으로 외부 위임). */
   const handleNotesChange = () => {};
 
   // ── 하단 통합 add/edit box ──
-  const [editingEn, setEditingEn] = useState<string | null>(null);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [pair, setPair] = useState<LocalizedText>({ ko: "", en: "" });
   const [desc, setDesc] = useState<LocalizedText>({ ko: "", en: "" });
   /* 소속 대분류(parent) EN. null = 최상위(대분류). */
@@ -369,65 +407,66 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const [isShaking, setIsShaking] = useState(false);
   const triggerShake = () => { setIsShaking(true); setTimeout(() => setIsShaking(false), 450); };
 
-  const isEdit = editingEn !== null;
-  /* 편집 중 카테고리가 소분류를 가진 대분류면 최상위 고정(2단계 제한) → 부모 Select 비활성 */
-  const editingHasChildren = isEdit && categories.some((c) => c.parentEn === editingEn);
+  const isEdit = editingKey !== null;
+  /* 편집 중 카테고리가 소분류를 가진 대분류면 최상위 고정(2단계 제한) → 부모 Select 비활성.
+     대분류의 키는 en 그대로라 parentEn 과 바로 비교된다 */
+  const editingHasChildren = isEdit && categories.some((c) => c.parentEn === editingKey);
   /* 부모(대분류) 선택지 — 최상위 노드들. 자기 자신 제외. */
   const parentSelectOptions = useMemo(
     () => [
       { value: "", label: t("admin.settings.categoryEditor.topLevel") },
       ...categories
-        .filter((c) => c.parentEn === null && c.en !== editingEn)
+        .filter((c) => c.parentEn === null && c.en !== editingKey)
         .map((c) => ({ value: c.en, label: language === "ko" ? c.ko : c.en })),
     ],
-    [categories, editingEn, language, t],
+    [categories, editingKey, language, t],
   );
 
   /* 편집 대상이나 목록이 바뀌면 입력 칸을 그 값으로 채운다(추가면 비운다). */
   const fillForm = () => {
-    if (editingEn === null) {
+    if (editingKey === null) {
       setPair({ ko: "", en: "" });
       setDesc({ ko: "", en: "" });
       setParentEn(null);
       setPosition(categories.length + 1);
       return;
     }
-    const cat = categories.find((c) => c.en === editingEn);
-    if (!cat) { setEditingEn(null); return; }
+    const cat = nodeByKey.get(editingKey);
+    if (!cat) { setEditingKey(null); return; }
     setPair({ ko: cat.ko, en: cat.en });
     setDesc(normalizeDesc(cat.description));
     setParentEn(cat.parentEn);
     /* 편집 시 현재 array 안 idx + 1 */
-    const idx = categories.findIndex((c) => c.en === editingEn);
+    const idx = categories.findIndex((c) => keyOf(c) === editingKey);
     if (idx >= 0) setPosition(idx + 1);
   };
-  const editTargetChanged = useDepsChanged([editingEn, categories]);
+  const editTargetChanged = useDepsChanged([editingKey, categories]);
   if (editTargetChanged) fillForm();
 
-  const cancelEdit = () => setEditingEn(null);
+  const cancelEdit = () => setEditingKey(null);
 
   /* 편집 중인 카테고리 삭제 — reassign 모달로 위임 (X close 일관됨) */
   const deleteEditingCategory = () => {
-    if (!editingEn) return;
+    if (!editingKey) return;
     if (categories.length <= 1) {
       alert(t("admin.settings.categoryLastWarning"));
       return;
     }
-    const cat = categories.find((c) => c.en === editingEn);
-    if (cat) openReassignModal({ ko: cat.ko, en: cat.en });
+    const cat = nodeByKey.get(editingKey);
+    if (cat) openReassignModal(cat);
   };
 
   /* 중복 발견 시 — 해당 chip 페이지로 이동 + 편집 모드 + scroll */
-  const focusDuplicate = (dupEn: string) => {
-    const idx = filtered.indexOf(dupEn);
+  const focusDuplicate = (dupKey: string) => {
+    const idx = filtered.indexOf(dupKey);
     if (idx >= 0) {
       const targetPage = Math.floor(idx / perPage) + 1;
       if (targetPage !== page) setPage(targetPage);
     }
-    setEditingEn(dupEn);
+    setEditingKey(dupKey);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const el = document.querySelector(`[data-tag-item="${CSS.escape(dupEn)}"]`) as HTMLElement | null;
+        const el = document.querySelector(`[data-tag-item="${CSS.escape(dupKey)}"]`) as HTMLElement | null;
         el?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     });
@@ -444,29 +483,32 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     const descEn = desc.en.trim();
     const description = descKo || descEn ? { ko: descKo, en: descEn } : undefined;
 
+    /* 중복은 같은 대분류 안(형제끼리)에서만 막는다 — 다른 대분류에는 같은 이름 소분류를 둘 수 있다
+       (글에는 "대분류/소분류" 경로로 저장돼 구분된다) */
     if (isEdit) {
-      const conflict = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en], (c) => c.en === editingEn);
+      // 자식 있는 대분류는 최상위 유지(2단계 초과 방지). en 변경 시 자식 parentEn 재연결.
+      const nextParent = editingHasChildren ? null : parentEn;
+      const siblings = categories.filter((c) => c.parentEn === nextParent);
+      const conflict = findDuplicate(siblings, [ko, en], (c) => [c.ko, c.en], (c) => keyOf(c) === editingKey);
       if (conflict) {
         showToast(fillTemplate(t("admin.settings.categoryEditor.duplicate"), { ko: conflict.ko, en: conflict.en }), "warning");
         triggerShake();
-        focusDuplicate(conflict.en);
+        focusDuplicate(keyOf(conflict));
         return;
       }
-      // 자식 있는 대분류는 최상위 유지(2단계 초과 방지). en 변경 시 자식 parentEn 재연결.
-      const nextParent = editingHasChildren ? null : parentEn;
       onChange(categories.map((c) => {
-        if (c.en === editingEn) return { ko, en, description, parentEn: nextParent };
-        if (c.parentEn === editingEn) return { ...c, parentEn: en };
+        if (keyOf(c) === editingKey) return { ko, en, description, parentEn: nextParent };
+        if (c.parentEn === editingKey) return { ...c, parentEn: en };
         return c;
       }));
-      setEditingEn(null);
+      setEditingKey(null);
     } else {
-      const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
+      const dup = findDuplicate(categories.filter((c) => c.parentEn === parentEn), [ko, en], (c) => [c.ko, c.en]);
       if (dup) {
         showToast(fillTemplate(t("admin.settings.categoryEditor.exists"), { ko: dup.ko, en: dup.en }), "warning");
         setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
-        focusDuplicate(dup.en);
+        focusDuplicate(keyOf(dup));
         return;
       }
       onChange([...categories, { ko, en, description, parentEn }]);
@@ -530,9 +572,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       }, t, t("admin.settings.categoryReassignFailed"));
       if (!res) return false;
     }
-    const remaining = categories.filter(
-      (c) => c.ko !== reassignTarget?.ko || c.en !== reassignTarget?.en,
-    );
+    const targetKey = reassignTarget ? keyOf(reassignTarget) : null;
+    const remaining = categories.filter((c) => keyOf(c) !== targetKey);
     const merged: FlatNode[] = [
       ...remaining,
       ...newCategories
@@ -541,22 +582,20 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     ];
     onChange(merged);
     setReassignTarget(null);
-    if (editingEn === reassignTarget?.en) setEditingEn(null);
+    if (editingKey === targetKey) setEditingKey(null);
     return true;
   });
 
-  /* 편집 중인 카테고리의 관련 게시물 — post.category 가 EN 또는 KO 저장됐을 수 있으니 둘 다 매칭. */
+  /* 편집 중인 카테고리의 관련 게시물 — post.category 가 KO · EN 이름이나 경로로 저장됐을 수 있으니 저장값으로 정규화해 비교. */
   const editingPosts = useMemo<AdminPostUsageInfo[]>(() => {
-    if (!editingEn) return [];
-    const editingKo = (koByEn[editingEn] || "").trim();
-    return catPosts.filter((p) => {
-      const cat = (p.category || "").trim();
-      return cat === editingEn || (!!editingKo && cat === editingKo);
-    });
-  }, [editingEn, catPosts, koByEn]);
+    if (!editingKey) return [];
+    const value = valueByKey.get(editingKey);
+    if (!value) return [];
+    return catPosts.filter((p) => !!p.category && canonicalCategory(normalizedTree, p.category) === value);
+  }, [editingKey, catPosts, valueByKey, normalizedTree]);
 
   /* chip 옆 편집 팝오버 내용 — 헤더(삭제/취소/저장) + 필드 + 관련 게시물.
-     취소/저장/삭제는 editingEn 을 지워 팝오버를 자동으로 닫으므로 close() 는 부르지 않는다
+     취소/저장/삭제는 editingKey 을 지워 팝오버를 자동으로 닫으므로 close() 는 부르지 않는다
      (close → onEditClick 재토글로 다시 열리는 것 방지). */
   const renderEditPanel = () => (
     <div className={`${styles.addPopoverForm} ${isShaking ? styles.shakeAlert : ""}`}>
@@ -637,7 +676,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             open={adding}
             onOpenChange={(o) => {
               setAdding(o);
-              if (o) { setEditingEn(null); setPair({ ko: "", en: "" }); setDesc({ ko: "", en: "" }); setParentEn(null); }
+              if (o) { setEditingKey(null); setPair({ ko: "", en: "" }); setDesc({ ko: "", en: "" }); setParentEn(null); }
             }}
             placement="bottom-end"
             sheetTitle={<T k="admin.settings.addCategory" />}
@@ -756,20 +795,16 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             cancelLabel={t("admin.settings.cancel")}
             editLabel={t("admin.settings.edit")}
             removeTitle={t("admin.settings.removeCategory")}
-            renderItemLabel={(en) => {
-              const node = nodeByEn.get(en);
-              const koRaw = (koByEn[en] || "").trim();
-              const enRaw = en.trim();
+            renderItemLabel={(key) => {
+              const node = nodeByKey.get(key);
+              const koRaw = (node?.ko || "").trim();
+              const enRaw = (node?.en || "").trim();
               const showBoth = !!koRaw && !!enRaw && koRaw !== enRaw;
               const single = koRaw || enRaw;
-              /* EN + KO 저장분 합산. 대분류면 소분류 카운트까지 롤업. */
-              let count = (catCounts[en] ?? 0) + (koRaw && koRaw !== en ? (catCounts[koRaw] ?? 0) : 0);
-              const kids = node && node.parentEn === null ? categories.filter((c) => c.parentEn === en) : [];
-              for (const ch of kids) {
-                count += (catCounts[ch.en] ?? 0) + (ch.ko && ch.ko !== ch.en ? (catCounts[ch.ko] ?? 0) : 0);
-              }
+              /* KO · EN · 경로 저장분 합산. 대분류면 소분류 카운트까지 롤업. */
+              const count = countOf(key);
               const parentName = node?.parentEn
-                ? (nodeByEn.get(node.parentEn)?.[nameLang === "ko" ? "ko" : "en"] ?? node.parentEn)
+                ? (nodeByKey.get(node.parentEn)?.[nameLang === "ko" ? "ko" : "en"] ?? node.parentEn)
                 : null;
               return (
                 <span className={styles.worksCatChipLabel}>
@@ -783,14 +818,14 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
                 </span>
               );
             }}
-            onItemClick={(en) => setEditingEn(en === editingEn ? null : en)}
-            onEditClick={(en) => setEditingEn(en === editingEn ? null : en)}
-            activeItem={editingEn}
+            onItemClick={(key) => setEditingKey(key === editingKey ? null : key)}
+            onEditClick={(key) => setEditingKey(key === editingKey ? null : key)}
+            activeItem={editingKey}
             renderEditPopover={() => renderEditPanel()}
             showIndex
             startIndex={pageStart}
             /* 숫자 label 은 정렬·필터·페이지에 무관하게 카테고리 정의 순서 (customOrderIndex+1) 고정 */
-            getDisplayIndex={(en) => (customOrderIndex[en] ?? 0) + 1}
+            getDisplayIndex={(key) => (customOrderIndex[key] ?? 0) + 1}
             indexMinChars={3}
           />
         )}

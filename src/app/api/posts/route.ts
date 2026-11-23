@@ -267,8 +267,9 @@ export async function POST(request: Request) {
   }
 
   // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  // 저장값으로 정규화 — 같은 이름이 다른 대분류에도 있으면 "대분류/소분류" 경로가 된다
   if (body.category) {
-    await ensurePostCategory(body.category as string);
+    body.category = await ensurePostCategory(body.category as string);
   }
 
   // 제목 길이 제한 (UI·DB 와 동일 상한)

@@ -8,8 +8,8 @@ export interface BilingualCategory {
   description?: string | LocalizedText;
   /**
    * 소분류 (2단계 카테고리). 대분류(top-level)만 가질 수 있고 최대 1단계까지 중첩.
-   * 없으면 flat 카테고리(= leaf). posts.category 에는 항상 leaf 문자열이 저장되고
-   * 부모는 이 트리에서 도출한다 (DB 마이그레이션 불필요).
+   * 없으면 flat 카테고리(= leaf). posts.category 에는 leaf 의 저장값(이름, 같은 이름이 다른 대분류에도
+   * 있으면 "대분류/소분류" 경로 — lib/categoryTree)이 저장되고 부모는 이 트리에서 도출한다 (DB 마이그레이션 불필요).
    */
   children?: BilingualCategory[];
 }

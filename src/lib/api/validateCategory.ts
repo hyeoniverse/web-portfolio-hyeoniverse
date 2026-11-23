@@ -6,6 +6,8 @@ import {
   normalizeCategories,
   flattenCategories,
   expandCategoryValues,
+  resolveCategory,
+  canonicalCategory,
 } from "@/lib/categoryTree";
 
 /** Get valid post categories (2단계 트리 — 대분류 children 보유) */
@@ -36,15 +38,6 @@ async function getWorksCategories(): Promise<BilingualCategory[]> {
   const raw = config.works?.categories ?? [];
   return (raw as unknown[]).map((item) =>
     typeof item === "string" ? { ko: item, en: item } : (item as BilingualCategory),
-  );
-}
-
-/** Check if a post category value (ko or en) is valid — 대분류/소분류 어느 쪽이든 매칭 */
-async function isValidPostCategory(category: string): Promise<boolean> {
-  if (!category) return false;
-  const categories = await getPostCategories();
-  return flattenCategories(categories).some(
-    (c) => c.ko === category || c.en === category,
   );
 }
 
@@ -102,10 +95,16 @@ export async function ensureWorksCategory(ko: string, en: string): Promise<void>
   await appendCategoryToConfig("works", { ko: ko || en, en: en || ko });
 }
 
-/** posts 카테고리 — 기존 목록에 없으면 자동으로 등록 (단일 string) */
-export async function ensurePostCategory(category: string): Promise<void> {
-  if (!category) return;
-  const exists = await isValidPostCategory(category);
-  if (exists) return;
-  await appendCategoryToConfig("posts", { ko: category, en: category });
+/**
+ * posts 카테고리 — 기존 목록에 없으면 자동으로 등록 (단일 string).
+ * 돌려주는 값이 posts.category 에 저장할 값이다. 트리에 있는 값(ko/en 이름 · "대분류/소분류" 경로)은
+ * 저장값으로 정규화하고(canonicalCategory), 없는 값은 최상위 카테고리로 등록한 뒤 그대로 돌려준다.
+ */
+export async function ensurePostCategory(category: string): Promise<string> {
+  const value = category.trim();
+  if (!value) return category;
+  const categories = await getPostCategories();
+  if (resolveCategory(categories, value)) return canonicalCategory(categories, value);
+  await appendCategoryToConfig("posts", { ko: value, en: value });
+  return value;
 }

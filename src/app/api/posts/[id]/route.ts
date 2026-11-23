@@ -65,8 +65,9 @@ export async function PATCH(request: Request, context: RouteContext) {
   delete body.baseVersion;
 
   // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  // 저장값으로 정규화 — 같은 이름이 다른 대분류에도 있으면 "대분류/소분류" 경로가 된다
   if (body.category) {
-    await ensurePostCategory(body.category as string);
+    body.category = await ensurePostCategory(body.category as string);
   }
 
   /* 발행 자동 cover 배정: 비공개 → 공개로 **처음 바뀔 때만**, cover_image 가 비어 있으면

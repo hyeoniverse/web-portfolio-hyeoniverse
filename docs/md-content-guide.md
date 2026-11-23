@@ -215,7 +215,7 @@ date: 2024-03-15
 | `title` | string | 제목 | 파일명 |
 | `title_en` | string | 영문 제목 | 없음 |
 | `slug` | string | URL 슬러그 | 제목에서 생성 |
-| `category` | string | 카테고리. 2단계 중 소분류를 적고, 대분류는 자동으로 정해진다 | `기타` |
+| `category` | string | 카테고리. 2단계 중 소분류를 적고, 대분류는 자동으로 정해진다. 같은 이름의 소분류가 다른 대분류에도 있으면 `대분류/소분류` 로 적는다 | `기타` |
 | `tags` | string[] | 태그 목록 | 없음 |
 | `excerpt` / `excerpt_en` | string | 요약 (한/영) | 없음 |
 | `language` | `ko` \| `en` | 기본 언어 | ko |
@@ -228,6 +228,21 @@ date: 2024-03-15
 | `date` | string | 작성 시각 (ISO 8601 또는 `YYYY-MM-DD`) | 만든 시점 |
 
 `tags` 는 `[React, Next.js]` 처럼 목록으로 쓰거나 `React` 처럼 하나만 쓴다. `date` 는 `2024-03-15` 와 `2024-03-15T14:30:00+09:00` 둘 다 받는다. 발행하려면 제목 · 슬러그 · 카테고리 · 본문이 필요하다. 초안은 제목만 있어도 만들어진다.
+
+`posts.category` 에는 소분류 이름이 하나뿐이면 그 이름(ko)을, 다른 대분류에 같은 이름이 있으면 `대분류/소분류`(ko) 경로를 저장한다. 글 저장 API 가 ko · en 이름이나 경로로 들어온 값을 이 모양으로 바꿔 저장한다. 경로 없이 이름만 저장된 옛 값도 그대로 읽는다. 같은 이름이 여럿이면 대분류를 먼저, 그다음 트리 순서상 첫 소분류로 본다. 규칙은 [`src/lib/categoryTree.ts`](../src/lib/categoryTree.ts) 에 있다.
+
+본문은 GFM 에 더해 아래 표기를 읽는다(MacFolio 블로그에서 옮긴 글을 고치지 않고 쓰기 위한 것). 규칙은 [`src/components/posts/markdownExtensions.ts`](../src/components/posts/markdownExtensions.ts) 에 있다.
+
+| 표기 | 결과 |
+| --- | --- |
+| `==글자==` | 형광펜(`<mark>`). 코드 안 · 공백을 사이에 둔 `a == b` 는 그대로 |
+| `> [!NOTE] 제목` | 콜아웃 제목. 제목이 없으면 기본 제목(Note 등). NOTE · TIP · IMPORTANT · WARNING · CAUTION |
+| `` `SELECT 1{:sql}` `` | 꼬리표를 떼고 그 언어로 하이라이트. 모르는 언어면 글자 그대로 |
+| `` `x^2{:math}` `` · ```` ```math ```` | KaTeX 인라인 · 블록. 기존 `$…$` · `$$…$$` 도 그대로 쓴다 |
+| `**굵게(bold)**가` | 닫는 `**` 앞이 문장부호이고 뒤가 한글이어도 굵게(한중일 문자 옆에서만) |
+| `~` 하나 | 취소선이 아니다(`220~440px`). 취소선은 `~~글자~~` |
+| `![설명](주소 '캡션 [출처](https://…)')` | 캡션 안 링크. `주소#float-right` · `#float-left` 는 그림을 글 옆으로 띄운다 |
+| `<details><summary>` | 접기 블록 |
 
 다른 정적 블로그(Jekyll · Hugo)에서 옮길 때는 md 파일을 `content/posts/` 에 복사하고 `sync-posts:dry` 로 결과를 먼저 본다. 위 표에 없는 머리말 키(`layout`, `permalink` 등)는 무시된다.
 

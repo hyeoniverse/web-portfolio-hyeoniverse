@@ -29,9 +29,18 @@ interface SeriesGroup {
   posts: PostItem[];
 }
 
+/**
+ * 모달이 다루는 카테고리. value 는 posts.category 저장값(이름 또는 "대분류/소분류" 경로) — 없으면 ko 이름.
+ * parent 가 있으면 선택지에 "대분류 › 소분류" 로 보인다(같은 이름 소분류 구분).
+ */
+type ReassignCategory = BilingualCategory & {
+  value?: string;
+  parent?: { ko: string; en: string };
+};
+
 interface Props {
-  category: BilingualCategory;
-  availableCategories: BilingualCategory[];
+  category: ReassignCategory;
+  availableCategories: ReassignCategory[];
   onConfirm: (
     assignments: { id: string; category: string }[],
     newCategories: BilingualCategory[],
@@ -62,13 +71,14 @@ export default function CategoryReassignModal({
   const [newDescEn, setNewDescEn] = useState("");
   const [addedCategories, setAddedCategories] = useState<BilingualCategory[]>([]);
 
-  const allCategories = [...availableCategories, ...addedCategories];
+  const allCategories: ReassignCategory[] = [...availableCategories, ...addedCategories];
 
   useEffect(() => {
-    // DB에 ko 또는 en 값이 저장되어 있을 수 있으므로 둘 다 검색
+    // 저장값(value)이 있으면 그 하나로 찾는다 — 서버가 ko · en 이름과 경로로 넓혀 찾는다.
+    // 없으면 DB에 ko 또는 en 값이 저장되어 있을 수 있으므로 둘 다 검색
     Promise.all([
-      fetch(`/api/posts?all=true&category=${encodeURIComponent(category.ko)}&limit=200`).then((r) => r.json()),
-      category.ko !== category.en
+      fetch(`/api/posts?all=true&category=${encodeURIComponent(category.value ?? category.ko)}&limit=200`).then((r) => r.json()),
+      !category.value && category.ko !== category.en
         ? fetch(`/api/posts?all=true&category=${encodeURIComponent(category.en)}&limit=200`).then((r) => r.json())
         : Promise.resolve({ posts: [] }),
     ])
@@ -151,11 +161,14 @@ export default function CategoryReassignModal({
   };
 
   const categoryOptions = allCategories
-    .filter((c) => c.ko !== category.ko || c.en !== category.en)
-    .map((c) => ({
-      value: c.ko,
-      label: language === "ko" ? c.ko : c.en,
-    }));
+    .filter((c) => (c.value ?? c.ko) !== (category.value ?? category.ko))
+    .map((c) => {
+      const name = language === "ko" ? c.ko : c.en;
+      return {
+        value: c.value ?? c.ko,
+        label: c.parent ? `${language === "ko" ? c.parent.ko : c.parent.en} › ${name}` : name,
+      };
+    });
 
   const getTitle = (p: PostItem) => {
     if (language === "en" && p.title_en) return p.title_en;

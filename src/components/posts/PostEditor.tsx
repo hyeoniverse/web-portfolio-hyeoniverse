@@ -23,7 +23,7 @@ import { stripHtml } from "@/utils/htmlUtils";
 import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
-import { findCategoryNode, toCategoryOptions, flattenCategories } from "@/lib/categoryTree";
+import { findCategoryNode, toCategoryOptions, canonicalCategory } from "@/lib/categoryTree";
 import Checkbox from "@/components/ui/Checkbox";
 import ResizeHandle from "@/components/ui/ResizeHandle";
 import Tooltip from "@/components/ui/Tooltip";
@@ -192,8 +192,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     const c = findCat(val);
     return !!c && !(c.children?.length);
   }, [findCat]);
-  // posts.category 기본값·fallback 은 항상 leaf 여야 함 (대분류 값 저장 방지)
-  const firstLeafKo = useMemo(() => flattenCategories(categories).find((c) => !c.children?.length)?.ko ?? "", [categories]);
+  // posts.category 기본값·fallback 은 항상 leaf 여야 함 (대분류 값 저장 방지) — 첫 선택지의 저장값
+  const firstLeafKo = useMemo(() => toCategoryOptions(categories, "ko")[0]?.value ?? "", [categories]);
 
   const POST_FIELD_KEYS = ["title", "content", "excerpt"];
 
@@ -1105,7 +1105,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             {(() => {
               const matched = isManagedCat(metaForm.category);
               const isCustom = categoryCustomMode || (!!metaForm.category && !matched);
-              const selectValue = isCustom ? "__custom__" : (matched ? (findCat(metaForm.category)?.ko ?? metaForm.category) : firstLeafKo);
+              const selectValue = isCustom ? "__custom__" : (matched ? canonicalCategory(categories, metaForm.category) : firstLeafKo);
               return (
                 <>
                   <Select
@@ -1155,7 +1155,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
     </div>
   ), [
-    allTagSuggestions, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo, handleCoverUpload,
+    allTagSuggestions, categories, categoryCustomMode, excerptKey, firstLeafKo, handleCoverUpload,
     isManagedCat, language, metaForm, pinToggle, setForm, showErrors, tag, tagDescriptions, te, updateField,
   ]);
 

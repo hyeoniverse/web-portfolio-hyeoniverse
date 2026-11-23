@@ -4,14 +4,14 @@ import { useRef, useState, useEffect, useLayoutEffect, useMemo } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
-import { flattenCategories } from "@/lib/categoryTree";
+import { categoryValue, findCategoryNode } from "@/lib/categoryTree";
 import T from "@/components/ui/T";
 import styles from "./CategoryNav.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 interface CategoryNavProps {
   extraCategories?: string[];
-  /** 선택된 카테고리 값 목록 (다중선택, OR). 부모(대분류) 값 또는 소분류 leaf 값. */
+  /** 선택된 카테고리 값 목록 (다중선택, OR). 부모(대분류) 값 또는 소분류 저장값(이름 또는 "대분류/소분류" 경로). */
   activeCategories: string[];
   onCategoriesChange: (next: string[]) => void;
   expanded: boolean;
@@ -61,23 +61,13 @@ export default function CategoryNav({
     return () => { clearTimeout(timer); ro.disconnect(); };
   }, []);
 
-  // config 트리에 존재하는 모든 값(대분류+소분류 ko/en) — extra 판별용
-  const knownCategoryValues = useMemo(() => {
-    const set = new Set<string>();
-    for (const c of flattenCategories(categories)) {
-      set.add(c.ko);
-      set.add(c.en);
-    }
-    return set;
-  }, [categories]);
-
-  // extra categories (DB 에 있지만 config 트리에 없음) — 최상위로 통합
+  // extra categories (DB 에 있지만 config 트리에 없음 — 이름 · 경로 어느 쪽으로도 해석되지 않는 값) — 최상위로 통합
   const extraBilingual = useMemo<BilingualCategory[]>(
     () =>
       extraCategories
-        .filter((ec) => !knownCategoryValues.has(ec))
+        .filter((ec) => !findCategoryNode(categories, ec))
         .map((ec) => ({ ko: ec, en: ec })),
-    [extraCategories, knownCategoryValues],
+    [extraCategories, categories],
   );
 
   const parentCategories = useMemo(
@@ -97,12 +87,19 @@ export default function CategoryNav({
   };
   const hoverParent = (koOrNull: string | null) => { cancelHide(); setHoveredParent(koOrNull); };
 
+  // 선택값 v 가 노드를 가리키는지 — 이름 · 경로 모두. 같은 이름 소분류가 다른 대분류에 있어도 구분된다.
+  // extra(트리 밖) 노드는 트리에서 찾을 수 없으니 이름 그대로 비교
+  const pointsTo = (v: string, node: BilingualCategory) => {
+    const found = findCategoryNode(categories, v);
+    return found ? found === node : v === node.ko || v === node.en;
+  };
+  const isSelected = (node: BilingualCategory) => activeCategories.some((v) => pointsTo(v, node));
   // 자식이 "직접" 선택됨 (부모 선택과 구분 — 토글 로직·부모 활성 판정용)
-  const isChildSelected = (ch: BilingualCategory) =>
-    activeSet.has(ch.ko) || activeSet.has(ch.en);
+  const isChildSelected = isSelected;
   // 부모 자신이 선택됨 (= 그 자식 전부 필터링)
-  const isSelfSelected = (cat: BilingualCategory) =>
-    activeSet.has(cat.ko) || activeSet.has(cat.en);
+  const isSelfSelected = isSelected;
+  // 소분류의 선택값 — 저장값과 같은 규칙(이름, 같은 이름이 있으면 경로)
+  const childValue = (parent: BilingualCategory, ch: BilingualCategory) => categoryValue(categories, ch, parent);
   // 부모 탭 활성 — 자신 또는 자식 하나라도 직접 선택
   const isActiveParent = (cat: BilingualCategory) =>
     isSelfSelected(cat) || !!cat.children?.some(isChildSelected);
@@ -110,10 +107,10 @@ export default function CategoryNav({
   // 모든 카테고리가 다 커버되면(각 대분류가 자신 or 자식 전부 선택) = 전체선택 = 필터 없음(All) 으로 정규화
   const coversAll = (sel: string[]): boolean => {
     if (parentCategories.length === 0) return false;
-    const s = new Set(sel);
+    const has = (node: BilingualCategory) => sel.some((v) => pointsTo(v, node));
     return parentCategories.every((c) => {
-      if (s.has(c.ko) || s.has(c.en)) return true;
-      if (c.children?.length) return c.children.every((ch) => s.has(ch.ko) || s.has(ch.en));
+      if (has(c)) return true;
+      if (c.children?.length) return c.children.every(has);
       return false;
     });
   };
@@ -122,12 +119,11 @@ export default function CategoryNav({
   // 부모 토글 — 선택 시 그 자식들 제거(부모가 포괄), 이미 선택이면 해제
   const toggleParent = (cat: BilingualCategory) => {
     if (isSelfSelected(cat)) {
-      emit(activeCategories.filter((v) => v !== cat.ko && v !== cat.en));
+      emit(activeCategories.filter((v) => !pointsTo(v, cat)));
       return;
     }
-    const childVals = new Set<string>();
-    for (const ch of cat.children ?? []) { childVals.add(ch.ko); childVals.add(ch.en); }
-    const next = activeCategories.filter((v) => !childVals.has(v) && v !== cat.en);
+    const kids = cat.children ?? [];
+    const next = activeCategories.filter((v) => !pointsTo(v, cat) && !kids.some((ch) => pointsTo(v, ch)));
     next.push(cat.ko);
     emit(next);
   };
@@ -137,19 +133,19 @@ export default function CategoryNav({
     // 부모 선택(자식 전부 active) 상태 → 클릭한 자식만 빼기 = 나머지 자식들을 개별 선택으로 전개
     if (isSelfSelected(parent)) {
       const others = (parent.children ?? [])
-        .filter((c) => c.ko !== ch.ko)
-        .map((c) => c.ko);
-      const base = activeCategories.filter((v) => v !== parent.ko && v !== parent.en);
+        .filter((c) => c !== ch)
+        .map((c) => childValue(parent, c));
+      const base = activeCategories.filter((v) => !pointsTo(v, parent));
       emit([...base, ...others]);
       return;
     }
     // 개별 선택된 자식 → 해제
     if (isChildSelected(ch)) {
-      emit(activeCategories.filter((v) => v !== ch.ko && v !== ch.en));
+      emit(activeCategories.filter((v) => !pointsTo(v, ch)));
       return;
     }
     // 미선택 자식 → 추가
-    emit([...activeCategories, ch.ko]);
+    emit([...activeCategories, childValue(parent, ch)]);
   };
 
   // 소분류 행 표시 — 활성(자신/자식 선택) 이거나 hover 중인 대분류

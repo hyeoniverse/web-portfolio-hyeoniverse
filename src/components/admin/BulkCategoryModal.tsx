@@ -19,8 +19,11 @@ import styles from "./BulkCategoryModal.module.css";
 interface BulkCategoryModalProps {
   count: number;
   categories: BilingualCategory[];
-  /** 빈 값(category 해제) 선택 시 null 전달, 아니면 선택된 BilingualCategory 전달 */
-  onConfirm: (category: BilingualCategory | null) => void | Promise<void>;
+  /**
+   * 빈 값(category 해제) 선택 시 null 전달, 아니면 선택된 BilingualCategory 전달.
+   * value 는 고른 선택지의 저장값(글 카테고리면 이름 또는 "대분류/소분류" 경로) — 해제면 null.
+   */
+  onConfirm: (category: BilingualCategory | null, value: string | null) => void | Promise<void>;
 }
 
 export default function BulkCategoryModal({ count, categories, onConfirm }: BulkCategoryModalProps) {
@@ -39,7 +42,7 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
     setSubmitting(true);
     try {
       const picked = value ? findCategoryNode(categories, value) : null;
-      await onConfirm(picked);
+      await onConfirm(picked, value || null);
       closeAll();
     } finally {
       setSubmitting(false);
