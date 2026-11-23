@@ -417,12 +417,16 @@ export async function translateWithFallback(
   return { translations, failedIndices, failures };
 }
 
-/** 번역 체인이 전부 실패했을 때의 응답 코드 — 키가 하나도 없으면 503, 모두 꺼져 있으면 AI_PROVIDERS_DISABLED */
+/** 번역 체인이 전부 실패했을 때의 응답 코드 — 키가 하나도 없으면 503, 모두 꺼져 있으면 AI_PROVIDERS_DISABLED.
+ *  꺼 둔 공급자(skipped)와 키 없는 공급자만 남았어도 503 이다 — 예전 실패로 꺼진 공급자 하나 때문에 502 가 되면
+ *  자동 번역(siteLang · useContentTranslation)이 물러나지 않고 화면마다 다시 불러 속도 제한(429)까지 찼다 */
 export function translationFailure(failures: ProviderFailure[]): {
   status: 502 | 503;
   code: "TRANSLATION_NOT_CONFIGURED" | "TRANSLATION_FAILED" | "AI_PROVIDERS_DISABLED";
 } {
-  if (failures.length > 0 && failures.every((f) => f.kind === "no_key")) return { status: 503, code: "TRANSLATION_NOT_CONFIGURED" };
+  if (failures.some((f) => f.kind === "no_key") && failures.every((f) => f.kind === "no_key" || f.skipped)) {
+    return { status: 503, code: "TRANSLATION_NOT_CONFIGURED" };
+  }
   if (failures.length > 0 && failures.every((f) => f.disabled)) return { status: 502, code: "AI_PROVIDERS_DISABLED" };
   return { status: 502, code: "TRANSLATION_FAILED" };
 }
